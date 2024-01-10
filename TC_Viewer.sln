@@ -15,7 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelParsing", "ExcelParsin
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Serialised data", "Serialised data", "{34F64A82-3D31-4F46-92DB-A19C88F843CB}"
 	ProjectSection(SolutionItems) = preProject
+		Serialised data\componentList.json = Serialised data\componentList.json
+		Serialised data\machineList.json = Serialised data\machineList.json
+		Serialised data\protectionList.json = Serialised data\protectionList.json
 		Serialised data\staffList.json = Serialised data\staffList.json
+		Serialised data\toolList.json = Serialised data\toolList.json
 	EndProjectSection
 EndProject
 Global

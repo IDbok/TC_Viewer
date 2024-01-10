@@ -22,11 +22,92 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            //DbTest();
+            //deserialize all objects from json
+            string jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffList.json");
+            List<Staff> staffList = JsonConvert.DeserializeObject<List<Staff>>(jsonData);
+            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ComponentList.json");
+            List<Component> componentList = JsonConvert.DeserializeObject<List<Component>>(jsonData);
+            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\MachineList.json");
+            List<Machine> machineList = JsonConvert.DeserializeObject<List<Machine>>(jsonData);
+            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ProtectionList.json");
+            List<Protection> protectionList = JsonConvert.DeserializeObject<List<Protection>>(jsonData);
+            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ToolList.json");
+            List<Tool> toolList = JsonConvert.DeserializeObject<List<Tool>>(jsonData);
+
+
+            //add all objects to new db
+            using (var db = new MyDbContext())
+            {
+                db.Database.EnsureDeleted();
+                db.Database.EnsureCreated();
+
+                db.Staffs.AddRange(staffList);
+                db.Components.AddRange(componentList);
+                db.Machines.AddRange(machineList);
+                db.Protections.AddRange(protectionList);
+                db.Tools.AddRange(toolList);
+
+                db.SaveChanges();
+            }
+
+        }
+        public static void AddDeserializedDataToDb()
+        {
+            //deserialize all objects from json
+            string jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffList.json");
+            List<Staff> staffList = JsonConvert.DeserializeObject<List<Staff>>(jsonData);
+            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ComponentList.json");
+            List<Component> componentList = JsonConvert.DeserializeObject<List<Component>>(jsonData);
+            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\MachineList.json");
+            List<Machine> machineList = JsonConvert.DeserializeObject<List<Machine>>(jsonData);
+            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ProtectionList.json");
+            List<Protection> protectionList = JsonConvert.DeserializeObject<List<Protection>>(jsonData);
+            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ToolList.json");
+            List<Tool> toolList = JsonConvert.DeserializeObject<List<Tool>>(jsonData);
+
+
+            //add all objects to new db
+            using (var db = new MyDbContext())
+            {
+                db.Database.EnsureDeleted();
+                db.Database.EnsureCreated();
+
+                db.Staffs.AddRange(staffList);
+                db.Components.AddRange(componentList);
+                db.Machines.AddRange(machineList);
+                db.Protections.AddRange(protectionList);
+                db.Tools.AddRange(toolList);
+
+                db.SaveChanges();
+            }
+        }
+        public static void SerializeAllObjects()
+        {
+            string filePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
+
             ExcelParser excelParser = new ExcelParser();
-            StaffParser staffParser = new StaffParser();
-            List<Staff> staffList = staffParser.ParseExcelToStaffObjects(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx");
-            
+
+            List<Staff> staffList = excelParser.ParseExcelToStaffObjects(filePath);
+            List<Component> componentList = excelParser.ParseExcelToObjectsComponent(filePath);
+            List<Machine> machineList = excelParser.ParseExcelToObjectsMachine(filePath);
+            List<Protection> protectionList = excelParser.ParseExcelToObjectsProtection(filePath);
+            List<Tool> toolList = excelParser.ParseExcelToObjectsTool(filePath);
+
+            // serialize staffList to json
+            string jsonStaffList = JsonConvert.SerializeObject(staffList, Formatting.Indented);
+            // save to file
+            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffList.json", jsonStaffList);
+            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\componentList.json", JsonConvert.SerializeObject(componentList, Formatting.Indented));
+            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\machineList.json", JsonConvert.SerializeObject(machineList, Formatting.Indented));
+            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\protectionList.json", JsonConvert.SerializeObject(protectionList, Formatting.Indented));
+            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\toolList.json", JsonConvert.SerializeObject(toolList, Formatting.Indented));
+
+        }
+        public static void SerializeStaffToJson()
+        {
+            ExcelParser excelParser = new ExcelParser();
+            List<Staff> staffList = excelParser.ParseExcelToStaffObjects(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx");
+
             foreach (var staff in staffList)
             {
                 Console.WriteLine($"{staff.Id}. {staff.Name} ({staff.Type})" +
@@ -39,17 +120,6 @@ namespace TestConsoleAppTC
             string jsonStaffList = JsonConvert.SerializeObject(staffList, Formatting.Indented);
             // save to file
             File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffList.json", jsonStaffList);
-
-            ////add staff to new db
-            //using (var db = new MyDbContext())
-            //{
-            //    db.Database.EnsureDeleted();
-            //    db.Database.EnsureCreated();
-
-            //    db.Staffs.AddRange(staffList);
-            //    db.SaveChanges();
-            //}
-
         }
 
         public static void DbTest3Component()

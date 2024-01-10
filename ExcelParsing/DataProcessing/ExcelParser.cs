@@ -1,5 +1,6 @@
 ﻿using OfficeOpenXml;
 using TcModels.Models;
+using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
 namespace ExcelParsing.DataProcessing
@@ -15,37 +16,151 @@ namespace ExcelParsing.DataProcessing
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
         }
-
-        public class StaffParser
+        public List<Staff> ParseExcelToStaffObjects(string filePath)
         {
-            public List<Staff> ParseExcelToStaffObjects(string filePath)
+            var staffList = new List<Staff>();
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
             {
-                var staffList = new List<Staff>();
+                var worksheet = package.Workbook.Worksheets["Staff"];
+                int rowCount = worksheet.Dimension.Rows;
 
-                using (var package = new ExcelPackage(new FileInfo(filePath)))
+                for (int row = 2; row <= rowCount; row++)
                 {
-                    var worksheet = package.Workbook.Worksheets["Staff"];
-                    int rowCount = worksheet.Dimension.Rows;
-
-                    for (int row = 2; row <= rowCount; row++)
+                    var staff = new Staff
                     {
-                        var staff = new Staff
-                        {
-                            Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
-                            Name = Convert.ToString(worksheet.Cells[row, 2].Value),
-                            Type = Convert.ToString(worksheet.Cells[row, 3].Value),
-                            Functions = Convert.ToString(worksheet.Cells[row, 5].Value),
-                            CombineResponsibility = Convert.ToString(worksheet.Cells[row, 6].Value),
-                            Qualification = Convert.ToString(worksheet.Cells[row, 7].Value),
-                            Comment = Convert.ToString(worksheet.Cells[row, 8].Value)
-                        };
+                        Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
+                        Name = Convert.ToString(worksheet.Cells[row, 2].Value),
+                        Type = Convert.ToString(worksheet.Cells[row, 3].Value),
+                        Functions = Convert.ToString(worksheet.Cells[row, 5].Value),
+                        CombineResponsibility = Convert.ToString(worksheet.Cells[row, 6].Value),
+                        Qualification = Convert.ToString(worksheet.Cells[row, 7].Value),
+                        Comment = Convert.ToString(worksheet.Cells[row, 8].Value)
+                    };
 
-                        staffList.Add(staff);
-                    }
+                    staffList.Add(staff);
                 }
-
-                return staffList;
             }
+
+            return staffList;
+        }
+        public List<Protection> ParseExcelToObjectsProtection(string filePath)
+        {
+            var objList = new List<Protection>();
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var worksheet = package.Workbook.Worksheets["Protect"];
+                int rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var obj = new Protection
+                    {
+                        Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
+                        Name = Convert.ToString(worksheet.Cells[row, 2].Value),
+                        Type = Convert.ToString(worksheet.Cells[row, 3].Value),
+                        Unit = Convert.ToString(worksheet.Cells[row, 4].Value),
+                        
+                        Description = Convert.ToString(worksheet.Cells[row, 7].Value),
+                        Manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value),
+
+                    };
+
+                    objList.Add(obj);
+                }
+            }
+
+            return objList;
+        }
+        public List<Machine> ParseExcelToObjectsMachine(string filePath)
+        {
+            var objList = new List<Machine>();
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var worksheet = package.Workbook.Worksheets["Machinery"];
+                int rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var obj = new Machine
+                    {
+                        Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
+                        Name = Convert.ToString(worksheet.Cells[row, 2].Value),
+                        Type = Convert.ToString(worksheet.Cells[row, 3].Value),
+                        Unit = Convert.ToString(worksheet.Cells[row, 4].Value),
+
+                        Description = Convert.ToString(worksheet.Cells[row, 6].Value),
+                        Manufacturer = Convert.ToString(worksheet.Cells[row, 7].Value),
+
+                    };
+
+                    objList.Add(obj);
+                }
+            }
+
+            return objList;
+        }
+        public List<Component> ParseExcelToObjectsComponent(string filePath)
+        {
+            var objList = new List<Component>();
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var worksheet = package.Workbook.Worksheets["Component"];
+                int rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var obj = new Component
+                    {
+                        //Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
+                        Name = Convert.ToString(worksheet.Cells[row, 2].Value),
+                        Type = Convert.ToString(worksheet.Cells[row, 3].Value),
+                        Unit = Convert.ToString(worksheet.Cells[row, 4].Value),
+                        Price = Convert.ToSingle(worksheet.Cells[row, 6].Value),
+                        Description = Convert.ToString(worksheet.Cells[row, 7].Value),
+                        Manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value),
+                        Categoty = Convert.ToString(worksheet.Cells[row, 10].Value),
+
+                    };
+
+                    objList.Add(obj);
+                }
+            }
+
+            return objList;
+        }
+        public List<Tool> ParseExcelToObjectsTool(string filePath)
+        {
+            var objList = new List<Tool>();
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var worksheet = package.Workbook.Worksheets["Tools"];
+                int rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var obj = new Tool
+                    {
+                        //Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
+                        Name = Convert.ToString(worksheet.Cells[row, 2].Value),
+                        Type = Convert.ToString(worksheet.Cells[row, 3].Value),
+                        Unit = Convert.ToString(worksheet.Cells[row, 4].Value),
+                        //Price = Convert.ToSingle(worksheet.Cells[row, 6].Value),
+                        Description = Convert.ToString(worksheet.Cells[row, 7].Value),
+                        Manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value),
+                        Categoty = Convert.ToString(worksheet.Cells[row, 9].Value),
+
+                    };
+
+                    objList.Add(obj);
+                }
+            }
+
+            return objList;
         }
 
         public List<List<string>> ParseRowsToStrings(List<string> columnsNames, string filepath, 
