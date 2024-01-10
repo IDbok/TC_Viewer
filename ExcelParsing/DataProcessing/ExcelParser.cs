@@ -1,5 +1,6 @@
 ﻿using OfficeOpenXml;
 using TcModels.Models;
+using TcModels.Models.TcContent;
 
 namespace ExcelParsing.DataProcessing
 {
@@ -14,7 +15,39 @@ namespace ExcelParsing.DataProcessing
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
         }
-        // todo - exception history storage
+
+        public class StaffParser
+        {
+            public List<Staff> ParseExcelToStaffObjects(string filePath)
+            {
+                var staffList = new List<Staff>();
+
+                using (var package = new ExcelPackage(new FileInfo(filePath)))
+                {
+                    var worksheet = package.Workbook.Worksheets["Staff"];
+                    int rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var staff = new Staff
+                        {
+                            Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
+                            Name = Convert.ToString(worksheet.Cells[row, 2].Value),
+                            Type = Convert.ToString(worksheet.Cells[row, 3].Value),
+                            Functions = Convert.ToString(worksheet.Cells[row, 5].Value),
+                            CombineResponsibility = Convert.ToString(worksheet.Cells[row, 6].Value),
+                            Qualification = Convert.ToString(worksheet.Cells[row, 7].Value),
+                            Comment = Convert.ToString(worksheet.Cells[row, 8].Value)
+                        };
+
+                        staffList.Add(staff);
+                    }
+                }
+
+                return staffList;
+            }
+        }
+
         public List<List<string>> ParseRowsToStrings(List<string> columnsNames, string filepath, 
             string? sheetName = null, int sheetNumber = 0, int startRow = 1, int endRow = maxRow)
         {

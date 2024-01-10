@@ -4,6 +4,8 @@ using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.TcContent;
 using TcModels.Models.IntermediateTables;
+using static ExcelParsing.DataProcessing.ExcelParser;
+using Newtonsoft.Json;
 
 namespace TestConsoleAppTC
 {
@@ -20,7 +22,34 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            DbTest();
+            //DbTest();
+            ExcelParser excelParser = new ExcelParser();
+            StaffParser staffParser = new StaffParser();
+            List<Staff> staffList = staffParser.ParseExcelToStaffObjects(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx");
+            
+            foreach (var staff in staffList)
+            {
+                Console.WriteLine($"{staff.Id}. {staff.Name} ({staff.Type})" +
+                    $"\n\tФункции: {staff.Functions}" +
+                    $"\n\tСовмещение: {staff.CombineResponsibility}" +
+                    $"\n\tКвалификиция: {staff.Qualification}");
+            }
+
+            // serialize staffList to json
+            string jsonStaffList = JsonConvert.SerializeObject(staffList, Formatting.Indented);
+            // save to file
+            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffList.json", jsonStaffList);
+
+            ////add staff to new db
+            //using (var db = new MyDbContext())
+            //{
+            //    db.Database.EnsureDeleted();
+            //    db.Database.EnsureCreated();
+
+            //    db.Staffs.AddRange(staffList);
+            //    db.SaveChanges();
+            //}
+
         }
 
         public static void DbTest3Component()
@@ -195,7 +224,7 @@ namespace TestConsoleAppTC
                         Name = "Геодезист",
                         Type = "OSU",
                         CombineResponsibility = "Водитель: Бригадный автомобиль OSU",
-                        Competence = "1. Профильная квалификация."
+                        Qualification = "1. Профильная квалификация."
                     },
 
                     new(){
@@ -203,28 +232,28 @@ namespace TestConsoleAppTC
                         Name = "Водитель",
                         Type = "Бригадный автомобиль OSU",
                         CombineResponsibility = "-",
-                        Competence = "1. Водительское удостоверение категории B."
+                        Qualification = "1. Водительское удостоверение категории B."
                     },
                     new(){
                         Id = 3,
                         Name = "Руководитель работ",
                         Type = "Бригадный автомобиль OSU",
                         CombineResponsibility = "Водитель: Бригадный автомобиль OSU",
-                        Competence = "1. Аттестация по промышленной безопасности в категориях Б.9.3; Б.9.4; Г.1.1; Г.2.2.\r\n2. Ответственный за производство работ кранами.\r\n3. Удостоверение по пожарной безопасности.\r\n4. При совмещении используются требования к совмещаемой роли."
+                        Qualification = "1. Аттестация по промышленной безопасности в категориях Б.9.3; Б.9.4; Г.1.1; Г.2.2.\r\n2. Ответственный за производство работ кранами.\r\n3. Удостоверение по пожарной безопасности.\r\n4. При совмещении используются требования к совмещаемой роли."
                     },
                     new(){
                         Id = 4,
                         Name = "Монтажник по монтажу стальных и железобетонных конструкций",
                         Type = "Бригадный автомобиль OSU",
                         CombineResponsibility = "Водитель: Бригадный автомобиль OSU\r\nРуководитель работ OSU\r\nЭлектросварщик ручной сварки ОРБ/OSU\r\n Машинист: Автовышка ОРБ/OSU",
-                        Competence = "1. Разряд - 3.\r\n2. Удостоверение стропальщика.\r\n3. Удостоверение по пожарной безопасности.\r\n4. При совмещении используются требования к совмещаемой роли."
+                        Qualification = "1. Разряд - 3.\r\n2. Удостоверение стропальщика.\r\n3. Удостоверение по пожарной безопасности.\r\n4. При совмещении используются требования к совмещаемой роли."
                     },
                     new(){
                         Id = 5,
                         Name = "Машинист",
                         Type = "Экскаватор-погрузчик OSU",
                         CombineResponsibility = "-",
-                        Competence = "1. Удостоверение тракториста-машиниста с отметкой «Машинист экскаватора», «Водитель погрузчика» соответствующей категории («А», «В», «С», «D»)."
+                        Qualification = "1. Удостоверение тракториста-машиниста с отметкой «Машинист экскаватора», «Водитель погрузчика» соответствующей категории («А», «В», «С», «D»)."
                     },
 
                 };
@@ -456,7 +485,7 @@ namespace TestConsoleAppTC
                         Name = "Геодезист",
                         Type = "OSU",
                         CombineResponsibility = "Водитель: Бригадный автомобиль OSU",
-                        Competence = "1. Профильная квалификация."
+                        Qualification = "1. Профильная квалификация."
                     },
 
                     new(){ 
@@ -464,28 +493,28 @@ namespace TestConsoleAppTC
                         Name = "Водитель",
                         Type = "Бригадный автомобиль OSU",
                         CombineResponsibility = "-",
-                        Competence = "1. Водительское удостоверение категории B."
+                        Qualification = "1. Водительское удостоверение категории B."
                     },
                     new(){
                         Id = 3,
                         Name = "Руководитель работ",
                         Type = "Бригадный автомобиль OSU",
                         CombineResponsibility = "Водитель: Бригадный автомобиль OSU",
-                        Competence = "1. Аттестация по промышленной безопасности в категориях Б.9.3; Б.9.4; Г.1.1; Г.2.2.\r\n2. Ответственный за производство работ кранами.\r\n3. Удостоверение по пожарной безопасности.\r\n4. При совмещении используются требования к совмещаемой роли."
+                        Qualification = "1. Аттестация по промышленной безопасности в категориях Б.9.3; Б.9.4; Г.1.1; Г.2.2.\r\n2. Ответственный за производство работ кранами.\r\n3. Удостоверение по пожарной безопасности.\r\n4. При совмещении используются требования к совмещаемой роли."
                     },
                     new(){
                         Id = 4,
                         Name = "Монтажник по монтажу стальных и железобетонных конструкций",
                         Type = "Бригадный автомобиль OSU",
                         CombineResponsibility = "Водитель: Бригадный автомобиль OSU\r\nРуководитель работ OSU\r\nЭлектросварщик ручной сварки ОРБ/OSU\r\n Машинист: Автовышка ОРБ/OSU",
-                        Competence = "1. Разряд - 3.\r\n2. Удостоверение стропальщика.\r\n3. Удостоверение по пожарной безопасности.\r\n4. При совмещении используются требования к совмещаемой роли."
+                        Qualification = "1. Разряд - 3.\r\n2. Удостоверение стропальщика.\r\n3. Удостоверение по пожарной безопасности.\r\n4. При совмещении используются требования к совмещаемой роли."
                     },
                     new(){
                         Id = 5,
                         Name = "Машинист",
                         Type = "Экскаватор-погрузчик OSU",
                         CombineResponsibility = "-",
-                        Competence = "1. Удостоверение тракториста-машиниста с отметкой «Машинист экскаватора», «Водитель погрузчика» соответствующей категории («А», «В», «С», «D»)."
+                        Qualification = "1. Удостоверение тракториста-машиниста с отметкой «Машинист экскаватора», «Водитель погрузчика» соответствующей категории («А», «В», «С», «D»)."
                     },
 
                 };
@@ -710,7 +739,7 @@ namespace TestConsoleAppTC
 
                 foreach (var staff in tc.Staff_TCs)
                 {
-                    Console.WriteLine($"{staff.Order}.{staff.Child.Name} - {staff.Child.Type} - {staff.Child.CombineResponsibility} - {staff.Child.Competence} - {staff.Symbol}");
+                    Console.WriteLine($"{staff.Order}.{staff.Child.Name} - {staff.Child.Type} - {staff.Child.CombineResponsibility} - {staff.Child.Qualification} - {staff.Symbol}");
                 }
 
                 Console.WriteLine($"Component_TCs contains in TC: {tc.Component_TCs.Count}");

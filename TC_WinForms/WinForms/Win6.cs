@@ -212,7 +212,7 @@ namespace TC_WinForms.WinForms
                     string name = dgvTcObjects.Rows[i].Cells["Title"].Value.ToString(); // todo - make null values enable to be in dgvTcObjects in not null columns
                     string type = dgvTcObjects.Rows[i].Cells["Type"].Value.ToString();
                     string combineResponsibility = dgvTcObjects.Rows[i].Cells["СombineResponsibility"].Value.ToString();
-                    string competence = dgvTcObjects.Rows[i].Cells["Competence"].Value.ToString();
+                    string qualification = dgvTcObjects.Rows[i].Cells["Qualification"].Value.ToString();
 
                     string symbol = dgvTcObjects.Rows[i].Cells["Symbol"].Value.ToString();
 
@@ -224,7 +224,7 @@ namespace TC_WinForms.WinForms
                         Name = name,
                         Type = type,
                         CombineResponsibility = combineResponsibility,
-                        Competence = competence,
+                        Qualification = qualification,
                     };
 
                     if (staff == null)
@@ -239,9 +239,11 @@ namespace TC_WinForms.WinForms
                             staff.Type == newStaff.Type &&
                             staff.CombineResponsibility == newStaff.CombineResponsibility &&
                             staff.Comment == newStaff.Comment &&
-                            staff.Competence == newStaff.Competence &&
-                            staff.ElSaftyGroup == newStaff.ElSaftyGroup &&
-                            staff.Grade == newStaff.Grade))
+                            staff.Qualification == newStaff.Qualification 
+                            //&&
+                            //staff.ElSaftyGroup == newStaff.ElSaftyGroup &&
+                            //staff.Grade == newStaff.Grade
+                            ))
                         {
                             // db.Update(staff); // todo - update objects in object related to TurrentTc
                         }

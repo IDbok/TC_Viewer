@@ -22,8 +22,10 @@ namespace TcModels.Models.TcContent
         public string Name { get; set; }
         public string? Type { get; set; }
         public string Unit { get; set; }
-
         public float? Price { get; set; }
+        public string? Description { get; set; }
+        public string? Manufacturer { get; set; }
+        public string Categoty { get; set; }
 
         public override string ToString()
         {

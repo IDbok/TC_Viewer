@@ -17,15 +17,17 @@ namespace TcModels.Models.TcContent
         public int Id { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
+        public string Functions { get; set; }
         public string? CombineResponsibility { get; set; }
-        public string? ElSaftyGroup { get; set; }
-        public string? Grade { get; set; }
-        public string Competence { get; set; }
+
+        //public string? ElSaftyGroup { get; set; }
+        //public string? Grade { get; set; }
+        public string Qualification { get; set; }
         public string? Comment { get; set; }
 
         public string ToSring()
         {
-            return $"{Id} {Name} {Type} {CombineResponsibility} {ElSaftyGroup} {Grade} {Competence}" +
+            return $"{Id} {Name} {Type} {CombineResponsibility} {Qualification}" +
                 $"\n{Comment}";
         }
     }
