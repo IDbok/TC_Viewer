@@ -22,6 +22,8 @@ namespace TcModels.Models.TcContent
         public float? Price { get; set; }
         public string? Description { get; set; }
         public string? Manufacturer { get; set; }
+        public List<string> Links { get; set; } = new List<string>();
         public string Categoty { get; set; }
+        public string ClassifierCode { get; set; }
     }
 }

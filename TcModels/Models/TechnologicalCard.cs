@@ -11,10 +11,25 @@ namespace TcModels.Models
         public string Name { get; set; }
         public string? Description { get; set; }
         public string Version { get; set; } = "0.0.0.0";
+
+        public string Type { get; set; } // Тип карты
+        public int NetworkVoltage { get; set; } // Сеть, кВ
+        public string? TechnologicalPorocessType { get; set; } // Тип тех. процесса
+        public string? TechnologicalPorocessName { get; set; } // Технологический процесс
+        public string? TechnologicalPorocessNumber { get; set; } // Номер тех. процесса
+        //public string? Parameter { get; set; } 
+        public string? FinalProduct { get; set; } // Конечный продукт (КП)
+        public string? Applicability { get; set; } // Применимость техкарты
+        public string? Note { get; set; } // Примечания
+        public string? DamageType { get; set; } // Тип повреждения
+        public bool IsCompleted { get; set; } // Наличие ТК
+
         public List<Author> Authors { get; set; } = new();
         public List<TechnologicalProcess> TechnologicalProcess { get; set; } = new();
+        
         [NotMapped]
         public Dictionary<string, string> Data { get; set; } = new Dictionary<string, string>();
+        
         public List<Staff> Staffs { get; set; } = new ();
         public List<Staff_TC> Staff_TCs { get; set; } = new();
         public List<Component> Components { get; set; } = new();

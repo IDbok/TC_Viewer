@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Serialised data", "Serialis
 		Serialised data\machineList.json = Serialised data\machineList.json
 		Serialised data\protectionList.json = Serialised data\protectionList.json
 		Serialised data\staffList.json = Serialised data\staffList.json
+		Serialised data\tcList.json = Serialised data\tcList.json
 		Serialised data\toolList.json = Serialised data\toolList.json
 	EndProjectSection
 EndProject

@@ -22,47 +22,28 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            //deserialize all objects from json
-            string jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffList.json");
-            List<Staff> staffList = JsonConvert.DeserializeObject<List<Staff>>(jsonData);
-            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ComponentList.json");
-            List<Component> componentList = JsonConvert.DeserializeObject<List<Component>>(jsonData);
-            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\MachineList.json");
-            List<Machine> machineList = JsonConvert.DeserializeObject<List<Machine>>(jsonData);
-            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ProtectionList.json");
-            List<Protection> protectionList = JsonConvert.DeserializeObject<List<Protection>>(jsonData);
-            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ToolList.json");
-            List<Tool> toolList = JsonConvert.DeserializeObject<List<Tool>>(jsonData);
+            string filePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
+            
+            ExcelParser excelParser = new ExcelParser();
 
+            List<Tool> toolList = excelParser.ParseExcelToObjectsTool(filePath);
 
-            //add all objects to new db
-            using (var db = new MyDbContext())
-            {
-                db.Database.EnsureDeleted();
-                db.Database.EnsureCreated();
+            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\toolList.json", JsonConvert.SerializeObject(toolList, Formatting.Indented));
 
-                db.Staffs.AddRange(staffList);
-                db.Components.AddRange(componentList);
-                db.Machines.AddRange(machineList);
-                db.Protections.AddRange(protectionList);
-                db.Tools.AddRange(toolList);
-
-                db.SaveChanges();
-            }
 
         }
-        public static void AddDeserializedDataToDb()
+        public static void AddDeserializedDataToDb(string path)
         {
             //deserialize all objects from json
-            string jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffList.json");
+            string jsonData = File.ReadAllText($@"{path}Serialised data\staffList.json");
             List<Staff> staffList = JsonConvert.DeserializeObject<List<Staff>>(jsonData);
-            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ComponentList.json");
+            jsonData = File.ReadAllText($@"{path}Serialised data\ComponentList.json");
             List<Component> componentList = JsonConvert.DeserializeObject<List<Component>>(jsonData);
-            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\MachineList.json");
+            jsonData = File.ReadAllText($@"{path}Serialised data\MachineList.json");
             List<Machine> machineList = JsonConvert.DeserializeObject<List<Machine>>(jsonData);
-            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ProtectionList.json");
+            jsonData = File.ReadAllText($@"{path}Serialised data\ProtectionList.json");
             List<Protection> protectionList = JsonConvert.DeserializeObject<List<Protection>>(jsonData);
-            jsonData = File.ReadAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\ToolList.json");
+            jsonData = File.ReadAllText($@"{path}Serialised data\ToolList.json");
             List<Tool> toolList = JsonConvert.DeserializeObject<List<Tool>>(jsonData);
 
 
@@ -84,6 +65,7 @@ namespace TestConsoleAppTC
         public static void SerializeAllObjects()
         {
             string filePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
+            string tcFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Список ТК.xlsx";
 
             ExcelParser excelParser = new ExcelParser();
 
@@ -91,8 +73,13 @@ namespace TestConsoleAppTC
             List<Component> componentList = excelParser.ParseExcelToObjectsComponent(filePath);
             List<Machine> machineList = excelParser.ParseExcelToObjectsMachine(filePath);
             List<Protection> protectionList = excelParser.ParseExcelToObjectsProtection(filePath);
+            
             List<Tool> toolList = excelParser.ParseExcelToObjectsTool(filePath);
+            
+            var tcList = excelParser.ParseExcelToTcObjects(tcFilePath);
 
+
+            
             // serialize staffList to json
             string jsonStaffList = JsonConvert.SerializeObject(staffList, Formatting.Indented);
             // save to file
@@ -101,6 +88,8 @@ namespace TestConsoleAppTC
             File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\machineList.json", JsonConvert.SerializeObject(machineList, Formatting.Indented));
             File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\protectionList.json", JsonConvert.SerializeObject(protectionList, Formatting.Indented));
             File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\toolList.json", JsonConvert.SerializeObject(toolList, Formatting.Indented));
+            
+            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\tcList.json", JsonConvert.SerializeObject(tcList, Formatting.Indented));
 
         }
         public static void SerializeStaffToJson()

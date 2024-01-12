@@ -16,6 +16,49 @@ namespace ExcelParsing.DataProcessing
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
         }
+
+        public List<TechnologicalCard> ParseExcelToTcObjects(string filePath)
+        {
+            var objList = new List<TechnologicalCard>();
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var worksheet = package.Workbook.Worksheets["ТК"];
+                int rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var isCompleted = Convert.ToString(worksheet.Cells[row, 11].Value);
+                    var nameTc = Convert.ToString(worksheet.Cells[row, 12].Value);
+                    string NoName = "Без названия";
+
+                    var obj = new TechnologicalCard
+                    {
+                        Id = Convert.ToInt32(worksheet.Cells[row, 13].Value),
+
+                        Article = Convert.ToString(worksheet.Cells[row, 1].Value),
+
+                        Name = nameTc=="" ? NoName : nameTc,
+
+                        Type = Convert.ToString(worksheet.Cells[row, 2].Value),
+                        NetworkVoltage = Convert.ToInt32(worksheet.Cells[row, 3].Value),
+                        TechnologicalPorocessType = Convert.ToString(worksheet.Cells[row, 4].Value),
+                        TechnologicalPorocessName = Convert.ToString(worksheet.Cells[row, 5].Value),
+                        TechnologicalPorocessNumber = Convert.ToString(worksheet.Cells[row, 6].Value),
+                        FinalProduct = Convert.ToString(worksheet.Cells[row, 7].Value),
+                        Applicability = Convert.ToString(worksheet.Cells[row, 8].Value),
+                        Note = Convert.ToString(worksheet.Cells[row, 9].Value),
+                        DamageType = Convert.ToString(worksheet.Cells[row, 10].Value),
+
+                        IsCompleted = isCompleted == "Есть" ? true:false ,
+
+                    };
+
+                    objList.Add(obj);
+                }
+            }
+            return objList;
+        }
         public List<Staff> ParseExcelToStaffObjects(string filePath)
         {
             var staffList = new List<Staff>();
@@ -55,6 +98,9 @@ namespace ExcelParsing.DataProcessing
 
                 for (int row = 2; row <= rowCount; row++)
                 {
+                    var linkValie = Convert.ToString(worksheet.Cells[row, 9].Value);
+                    var manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value);
+
                     var obj = new Protection
                     {
                         Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
@@ -63,8 +109,11 @@ namespace ExcelParsing.DataProcessing
                         Unit = Convert.ToString(worksheet.Cells[row, 4].Value),
                         
                         Description = Convert.ToString(worksheet.Cells[row, 7].Value),
-                        Manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value),
 
+                        Manufacturer = manufacturer,
+                        Links = ParseLinks(linkValie, manufacturer),
+
+                        ClassifierCode = Convert.ToString(worksheet.Cells[row, 6].Value),
                     };
 
                     objList.Add(obj);
@@ -84,6 +133,9 @@ namespace ExcelParsing.DataProcessing
 
                 for (int row = 2; row <= rowCount; row++)
                 {
+                    var linkValie = Convert.ToString(worksheet.Cells[row, 8].Value);
+                    var manufacturer = Convert.ToString(worksheet.Cells[row, 7].Value);
+
                     var obj = new Machine
                     {
                         Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
@@ -92,8 +144,11 @@ namespace ExcelParsing.DataProcessing
                         Unit = Convert.ToString(worksheet.Cells[row, 4].Value),
 
                         Description = Convert.ToString(worksheet.Cells[row, 6].Value),
-                        Manufacturer = Convert.ToString(worksheet.Cells[row, 7].Value),
 
+                        Manufacturer = manufacturer,
+                        Links = ParseLinks(linkValie, manufacturer),
+
+                        ClassifierCode = Convert.ToString(worksheet.Cells[row, 5].Value),
                     };
 
                     objList.Add(obj);
@@ -113,6 +168,9 @@ namespace ExcelParsing.DataProcessing
 
                 for (int row = 2; row <= rowCount; row++)
                 {
+                    var linkValie = Convert.ToString(worksheet.Cells[row, 9].Value);
+                    var manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value);
+
                     var obj = new Component
                     {
                         //Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
@@ -121,9 +179,13 @@ namespace ExcelParsing.DataProcessing
                         Unit = Convert.ToString(worksheet.Cells[row, 4].Value),
                         Price = Convert.ToSingle(worksheet.Cells[row, 6].Value),
                         Description = Convert.ToString(worksheet.Cells[row, 7].Value),
-                        Manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value),
+
+                        Manufacturer = manufacturer,
+                        Links = ParseLinks(linkValie, manufacturer),
+
                         Categoty = Convert.ToString(worksheet.Cells[row, 10].Value),
 
+                        ClassifierCode = Convert.ToString(worksheet.Cells[row, 5].Value),
                     };
 
                     objList.Add(obj);
@@ -140,9 +202,13 @@ namespace ExcelParsing.DataProcessing
             {
                 var worksheet = package.Workbook.Worksheets["Tools"];
                 int rowCount = worksheet.Dimension.Rows;
-
+                
                 for (int row = 2; row <= rowCount; row++)
                 {
+                    var linkValie = Convert.ToString(worksheet.Cells[row, 9].Value);
+                    var manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value);
+
+
                     var obj = new Tool
                     {
                         //Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
@@ -151,9 +217,13 @@ namespace ExcelParsing.DataProcessing
                         Unit = Convert.ToString(worksheet.Cells[row, 4].Value),
                         //Price = Convert.ToSingle(worksheet.Cells[row, 6].Value),
                         Description = Convert.ToString(worksheet.Cells[row, 7].Value),
-                        Manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value),
-                        Categoty = Convert.ToString(worksheet.Cells[row, 9].Value),
 
+                        Manufacturer = manufacturer,
+                        Links = ParseLinks(linkValie, manufacturer),
+
+                        Categoty = Convert.ToString(worksheet.Cells[row, 10].Value),
+
+                        ClassifierCode = Convert.ToString(worksheet.Cells[row, 6].Value),
                     };
 
                     objList.Add(obj);
@@ -163,6 +233,48 @@ namespace ExcelParsing.DataProcessing
             return objList;
         }
 
+        public List<string> ParseLinks(string linkValie, string manufacturer) 
+        { 
+            var objList = new List<string>();
+            if (linkValie != "NoLink" && linkValie != "")
+            {
+                objList.Add(linkValie);
+            }
+            if (manufacturer != "")
+            {
+                if (manufacturer.Contains("http"))
+                {
+                    var links = manufacturer.Split('\n');
+                    foreach (var link in links)
+                    {
+                        if (link != linkValie)
+                            objList.Add(link.Trim());
+                    }
+                }
+            }
+            return objList;
+        }
+
+        public void TestParseLinks(string filePath,string sheetName, int row)
+        {
+            
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var worksheet = package.Workbook.Worksheets[sheetName];
+                int rowCount = worksheet.Dimension.Rows;
+                
+
+                var linkValie = Convert.ToString(worksheet.Cells[row, 9].Value);
+                var manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value);
+                    
+                foreach (var item in ParseLinks(linkValie, manufacturer))
+                {
+                    Console.WriteLine(item);
+                }
+                
+            }
+
+        }
         public List<List<string>> ParseRowsToStrings(List<string> columnsNames, string filepath, 
             string? sheetName = null, int sheetNumber = 0, int startRow = 1, int endRow = maxRow)
         {

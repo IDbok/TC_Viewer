@@ -9,8 +9,12 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "ТР-14 – специализированные ножницы, предназначенные для резки стальных тросов диаметром до 14 мм, также подходят для резки сталеалюминиевых проводов.",
-    "Manufacturer": "ТР-14 Тросорез ручной (kvt.tools)",
-    "Categoty": "Tool"
+    "Manufacturer": "https://www.kvt.tools/shop/cutters/steelcutters/tr14/tr-14/",
+    "Links": [
+      "https://www.kvt.tools/shop/cutters/steelcutters/tr14/tr-14/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Scissors_1(TR_14)"
   },
   {
     "ModelType": 4,
@@ -23,7 +27,9 @@
     "Price": null,
     "Description": "Устройство цилиндрической формы с прорезями, выполненными внутри корпуса и содержащими режущие кромки. Применяется для зачистки деформированных концов провода, получаемых при его резке.",
     "Manufacturer": "DNM-RU",
-    "Categoty": "Tool"
+    "Links": [],
+    "Categoty": "Tool",
+    "ClassifierCode": "DS-SC_Equip_Assembly_1"
   },
   {
     "ModelType": 4,
@@ -36,7 +42,11 @@
     "Price": null,
     "Description": "Плоскогубцы комбинированные, предназначены для работ под напряжением до 1000 В.",
     "Manufacturer": "Пассатижи ЗУБР ПРОФИЭЛЕКТРИК Профессионал 22145-1-18 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-512448/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Pliers_1"
   },
   {
     "ModelType": 4,
@@ -49,7 +59,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 13х13.",
     "Manufacturer": "Ключ гаечный JONNESWAY W26113 (13 мм) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-213068/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(13x13)"
   },
   {
     "ModelType": 4,
@@ -62,7 +76,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 24х24.",
     "Manufacturer": "Ключ комбинированный 24 мм, CrV, холодный штамп Gross - купить с доставкой по выгодным ценам в интернет-магазине OZON",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.ozon.ru/product/klyuch-kombinirovannyy-24-mm-crv-holodnyy-shtamp-gross-502797772/?asb=juMEjmq%252FyZDDMBXSYmiBRBcYYldKcMZ69cJwQdBR52I%253D&asb2=cclZ7cgjlB6RSA9sQjtHLb9CUJW2sCDBXtUI70SZGa6BHSXDwcGHqJqF-xEK1u5q&sh=gESQxHvWVA"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(24x24)"
   },
   {
     "ModelType": 4,
@@ -75,7 +93,11 @@
     "Price": null,
     "Description": "Штыковая лопата ГОСТ 19596-87.",
     "Manufacturer": "Лопата ARCHIMEDES 90891 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-723926/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Manual_2"
   },
   {
     "ModelType": 4,
@@ -88,7 +110,11 @@
     "Price": null,
     "Description": "Деревянный брус 50х50х2000 мм, применяется для уплотнения грунта.",
     "Manufacturer": "Брусок сосна \"АВ\" 50*50*2000мм (профилир. ОКПД2 код 16.10.2) :: Терем-Крым (terem-krym.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://terem-krym.ru/tovar/1250/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Manual_3"
   },
   {
     "ModelType": 4,
@@ -101,7 +127,11 @@
     "Price": null,
     "Description": "Монтажный стальной лом 1300х25 мм.",
     "Manufacturer": "Лом KRAFTOOL 21801-130 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-748660/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Manual_4"
   },
   {
     "ModelType": 4,
@@ -114,7 +144,11 @@
     "Price": null,
     "Description": "Слесарный стальной молоток по ГОСТ 2310-77.",
     "Manufacturer": "Молоток слесарный HAMMER 601-015 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-400765/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Hammer_Steel(2_1_0.5_2)"
   },
   {
     "ModelType": 4,
@@ -127,7 +161,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 30х30.",
     "Manufacturer": "Ключ гаечный JONNESWAY W26130 (30 мм) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-213085/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(30x30)"
   },
   {
     "ModelType": 4,
@@ -140,7 +178,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 19х19.",
     "Manufacturer": "Ключ гаечный комбинированный JONNESWAY W26119 (19 мм) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-213074/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(19x19)"
   },
   {
     "ModelType": 4,
@@ -153,7 +195,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 17х17.",
     "Manufacturer": "Ключ гаечный JONNESWAY W26117 (17 мм) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-213072/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(17x17)"
   },
   {
     "ModelType": 4,
@@ -166,7 +212,11 @@
     "Price": null,
     "Description": "Ручная проволочная щётка.",
     "Manufacturer": "http://u-techno.ru/product/item/schetka-na-ruchke-stalnaya-6-i-ryadnaya-260-mm",
-    "Categoty": "Tool"
+    "Links": [
+      "http://u-techno.ru/product/item/schetka-na-ruchke-stalnaya-6-i-ryadnaya-260-mm"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Bench_2"
   },
   {
     "ModelType": 4,
@@ -179,7 +229,11 @@
     "Price": null,
     "Description": "Нож  НСМ-14 со сменными лезвиями в комплекте, оснащен двумя направляющими для лезвий.",
     "Manufacturer": "НСМ-14 Нож строительный монтажный с двухсторонним трапециевидным лезвием (kvt.tools)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://kvt.tools/shop/fitting-tools/ft_knives/nsm14/nsm-14/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Knife_2"
   },
   {
     "ModelType": 4,
@@ -192,7 +246,11 @@
     "Price": null,
     "Description": "Гидравлический пресс ПГР-70, применяемый для опрессовки трубчатых кабельных наконечников сечением 4-70 мм².",
     "Manufacturer": "ПГР-70 Пресс гидравлический ручной (kvt.tools)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://kvt.tools/shop/crimpers/hdcrimp/pgr70/pgr-70/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Crimper_1"
   },
   {
     "ModelType": 4,
@@ -205,7 +263,11 @@
     "Price": null,
     "Description": "Кернер с ударным концом c фаской; диаметром 8 мм, длиной 110 мм.",
     "Manufacturer": "Кернер РОС 46874 - цена, фото - купить в Москве, СПб и РФ (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.220-volt.ru/catalog-189323/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Bench_1"
   },
   {
     "ModelType": 4,
@@ -218,7 +280,11 @@
     "Price": null,
     "Description": "Ступенчатое сверло с переменным диаметром 4-30 мм.",
     "Manufacturer": "Сверло ЗУБР Ф30х100мм (29672-4-30-14_z01) купить в Симферополе по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-537158/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_1"
   },
   {
     "ModelType": 4,
@@ -231,7 +297,11 @@
     "Price": null,
     "Description": "Дрель аккумуляторная.",
     "Manufacturer": "Дрель аккумуляторная METABO BS 14.4 13мм (602206540) купить в Симферополе по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-331196/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_DrillMach_1"
   },
   {
     "ModelType": 4,
@@ -244,7 +314,11 @@
     "Price": null,
     "Description": "Реверсивный ключ-трещотка, размер присоединительного квадрата под сменные насадки – 1/2\".",
     "Manufacturer": "Трещотка JONNESWAY R3504 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-213944/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Ratchet(0.5_1)"
   },
   {
     "ModelType": 4,
@@ -257,7 +331,11 @@
     "Price": null,
     "Description": "Удлинитель 125 мм, внешний квадрат 1/2'' на внутренний квадрат 1/2''.",
     "Manufacturer": "Удлинитель KORUDA 4EX05 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-573495/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Adaptor_1"
   },
   {
     "ModelType": 4,
@@ -270,7 +348,11 @@
     "Price": null,
     "Description": "Шестигранная торцевая головка, размер под ключ – 17 мм, размер стороны присоединительного квадрата под сменные насадки – 1/2\".",
     "Manufacturer": "Головка JONNESWAY размер 17мм, S 1/2'' (S04H4117) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-212801/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_KeyBit_(17_0.5)"
   },
   {
     "ModelType": 4,
@@ -283,7 +365,11 @@
     "Price": null,
     "Description": "Угловая шлифовальная машинка аккумуляторная.",
     "Manufacturer": "УШМ (болгарка) BOSCH GWS 18-125 V-LI 4.0Ач L-BOXX (060193A30B) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-94655/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_GrindMach_1"
   },
   {
     "ModelType": 4,
@@ -296,7 +382,11 @@
     "Price": null,
     "Description": "Натяжитель стальной ленты предназначен для натяжения ленты из нержавеющей стали при фиксации различных изделий на железобетонной стойке опоры.",
     "Manufacturer": "Инструмент для натяжения ленты на опорах ИН-20 КВТ 63026 купить в Симферополе и Крыму. Магазин электротоваров Энергомост (energomost.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://energomost.ru/23113/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_BenchSpecial_1"
   },
   {
     "ModelType": 4,
@@ -309,7 +399,11 @@
     "Price": null,
     "Description": "Ударная насадка используется для упрощения забивания вертикальных заземлителей с помощью перфоратора, оснащенного разьемом SDS-max.",
     "Manufacturer": "Ударная насадка для заземлителей SDS MAX | NE1410 DKC (ДКС) купить в Москве по низкой цене (e-kc.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://e-kc.ru/cena/udarnaya-nasadka-dlya-zazemlitelej-sds-max-ne1410-dkc-dks"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Adaptor_2"
   },
   {
     "ModelType": 4,
@@ -322,7 +416,11 @@
     "Price": null,
     "Description": "Перфоратор, тип патрона – SDS-max.",
     "Manufacturer": "Перфоратор MAKITA HR4013C купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://m.220-volt.ru/catalog-409231/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_DrillMach_2"
   },
   {
     "ModelType": 4,
@@ -335,7 +433,11 @@
     "Price": null,
     "Description": "Круг отрезной по металлу 125х1.6х22 мм.",
     "Manufacturer": "https://simferopol.220-volt.ru/catalog-121686/=ui-tabs-description",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-121686/=ui-tabs-description"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_CutWheel_1"
   },
   {
     "ModelType": 4,
@@ -348,7 +450,11 @@
     "Price": null,
     "Description": "Ножницы STАNLEY 2-14-563 по металлу, 250 мм, прямые.",
     "Manufacturer": "Ножницы 2-14-566 по металлу ПРЯМЫЕ удлинён STАNLEY ЖЁЛТЫЕ - купить Ножницы по металлу в Новацентр - Эксклюзивная цена (novacentr.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://novacentr.ru/product/nozhnitsy-2-14-566-po-metallu-pryamye-udlinyen-stanley-zhyeltye.html"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Scissors_2(250_P) "
   },
   {
     "ModelType": 4,
@@ -361,7 +467,11 @@
     "Price": null,
     "Description": "Боковые кусачки слесарно-монтажные 160 мм Sturm! 1020-13-2-160.",
     "Manufacturer": "Бокорезы Sturm 160мм, CrV,+30% к силе реза, тефлоновое покрытие, TPE рукоятки, 1020-13-2-160 - цена, отзывы, характеристики, фото - купить в Москве и РФ (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.vseinstrumenti.ru/ruchnoy-instrument/sharnirno-gubtsevij/bokorezy-i-kusachki/sturm/bokorezy-sturm-160mm-crv-30-k-sile-reza-teflonovoe-pokrytie-tpe-rukoyatki-1020-13-2-160/?utm_source=yandex&utm_medium=cpc&utm_campaign=dsa_fid_ruchnik_f&utm_content=6128716897&utm_term=ST:search|S:none|AP:no|PT:premium|P:1|DT:desktop|RI:157|CI:36620419|GI:3445755150|PI:1676074|AI:6128716897|RT:%D0%A0%D1%83%D1%87%D0%BD%D0%BE%D0%B9%20%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82|KW:|RN:%D0%9C%D0%B8%D0%BD%D1%81%D0%BA&yclid=16245882660140351487"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_CutPliers_Side(160)"
   },
   {
     "ModelType": 4,
@@ -374,7 +484,11 @@
     "Price": null,
     "Description": "Отвертка с прямым шлицем, длина жала – 100 мм, ширина шлица – 4 мм.",
     "Manufacturer": "Отвертка стержневая шлицевая ROUND GRIP, SL4x100 мм Ombra 750410 - купить Отвертки в Новацентр - Эксклюзивная цена (novacentr.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://novacentr.ru/product/otvertka-sterzhnevaya-shlitsevaya-round-grip-sl4x100-mm-ombra-750410.html"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Screwdriver_Slot(4_100)"
   },
   {
     "ModelType": 4,
@@ -387,7 +501,11 @@
     "Price": null,
     "Description": "Ножовка по металлу Sturm! 1061-06-300, длина полотна – 300 мм.",
     "Manufacturer": "Ножовка по металлу Sturm 1061-06-300 300мм - цена, отзывы, характеристики, фото - купить в Москве и РФ (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.vseinstrumenti.ru/ruchnoy-instrument/nozhovki/po-metallu/sturm/1061-06-300-300mm/?ysclid=l1xn6affh4"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Bench_Saw(M)"
   },
   {
     "ModelType": 4,
@@ -400,7 +518,11 @@
     "Price": null,
     "Description": "Электромонтажный нож НМИ-01 для снятия оболочки с многожильных кабелей без повреждения жильной изоляции.",
     "Manufacturer": "НМИ-01 Нож монтерский диэлектрический с большой «пяткой» (kvt.tools)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.kvt.tools/shop/vdetools/vde-knives/nmi01/nmi-01/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Knife_3"
   },
   {
     "ModelType": 4,
@@ -413,7 +535,11 @@
     "Price": null,
     "Description": "Пропановая горелка ГВ-100-Р. Диаметром сопла 35 мм, длина – 5100 мм.",
     "Manufacturer": "Прайс лист на газосварочное оборудование и сопутствующие товары | Аргон - технические газы в республике Крым (argon-gaz.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://argon-gaz.ru/prajs-list-na-gazosvarochnoe-oborudovanie.html"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Gasjet_1"
   },
   {
     "ModelType": 4,
@@ -426,7 +552,11 @@
     "Price": null,
     "Description": "Газовый баллон (пропан), объёмом 5 литров, вентиль – ВБ-2.",
     "Manufacturer": "Югагаз - производитель газовых баллонов и туристических газовых плит (yugagaz.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://yugagaz.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Gasjet_2"
   },
   {
     "ModelType": 4,
@@ -439,7 +569,11 @@
     "Price": null,
     "Description": "Редуктор баллонный пропановый БПО-5-3-У с манометром, входной штуцер – СП 21,8х1/14” LH, выходной штуцер – ниппель под рукав 6,3/9,0 мм.",
     "Manufacturer": "Редуктор пропановый REDIUS БПО-5-3-У - цена, отзывы, характеристики, фото - купить в Москве и РФ (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.vseinstrumenti.ru/rashodnie-materialy/instrument/dlya-svarochnyh-rabot/gazovye-reduktory/propanovye/redius/bpo-5-3-u/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Gasjet_3"
   },
   {
     "ModelType": 4,
@@ -452,7 +586,11 @@
     "Price": null,
     "Description": "Газовый рукав III-9-2,0, проходной диаметр – 9 мм, III класс, рабочее давление до 2,0 Мпа, длина – 10 м.",
     "Manufacturer": "Прайс лист на газосварочное оборудование и сопутствующие товары | Аргон - технические газы в республике Крым (argon-gaz.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://argon-gaz.ru/prajs-list-na-gazosvarochnoe-oborudovanie.html"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Gasjet_4"
   },
   {
     "ModelType": 4,
@@ -465,7 +603,11 @@
     "Price": null,
     "Description": "Хомут червячный, минимальный диаметр – 12 мм, максимальный диаметр – 20 мм.",
     "Manufacturer": "Прайс лист на газосварочное оборудование и сопутствующие товары | Аргон - технические газы в республике Крым (argon-gaz.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://argon-gaz.ru/prajs-list-na-gazosvarochnoe-oborudovanie.html"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Gasjet_5"
   },
   {
     "ModelType": 4,
@@ -478,7 +620,11 @@
     "Price": null,
     "Description": "Гидравлический пресс ПГРс-300, применяемый для опрессовки трубчатых кабельных наконечников сечением 10-300 мм². Оснащены клапаном автоматического сброса давления.",
     "Manufacturer": "ПГРс-300 Пресс гидравлический ручной (kvt.tools)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://kvt.tools/shop/crimpers/hdcrimp/pgrs300/pgrs-300/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Crimper_2"
   },
   {
     "ModelType": 4,
@@ -491,7 +637,11 @@
     "Price": null,
     "Description": "Кувалда КЕДР 055-3000 51923, 3 кг, фибергласовая обрезиненная ручка длинной 900 мм.",
     "Manufacturer": "Кувалда (3 кг, фибергласовая обрезиненная ручка) КЕДР 055-3000 51923 - цена, отзывы, характеристики, фото - купить в Москве и РФ (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.vseinstrumenti.ru/ruchnoy-instrument/udarno-rychazhnyj/kuvaldy/kedr/3-kg-fiberglassovaya-obrezinennaya-ruchka-055-3000-51923/?ysclid=l1xmv3vulv"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Hammer_Sledgehammer(51923)"
   },
   {
     "ModelType": 4,
@@ -504,7 +654,11 @@
     "Price": null,
     "Description": "Секторные ножницы НС-70 для резки бронированных кабелей диаметром до 70 мм.",
     "Manufacturer": "Секторные ножницы для резки бронированных кабелей (kvt.tools)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.kvt.tools/shop/cutters/sectioncutters/ns70/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_BenchSpecial_3"
   },
   {
     "ModelType": 4,
@@ -517,7 +671,11 @@
     "Price": null,
     "Description": "Сварочный аппарат (инвертор) Ресанта САИ 220",
     "Manufacturer": "Инверторный сварочный аппарат Ресанта САИ 220 65/3 - доступная цена, описания и характеристики, отзывы, фото (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.vseinstrumenti.ru/instrument/svarochnoe-oborudovanie/mma/svarochnyj-apparat-invertor/resanta/sai-220/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Welding_1"
   },
   {
     "ModelType": 4,
@@ -530,7 +688,11 @@
     "Price": null,
     "Description": "Шестигранная торцевая головка, размер под ключ – 19 мм, размер стороны присоединительного квадрата под сменные насадки – 1/2\".",
     "Manufacturer": "Головки торцевые шестигранные JONNESWAY купить в Симферополе и Крыму по выгодной цене (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog/shestigrannyye-golovki/jonnesway/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_KeyBit_(19_0.5)"
   },
   {
     "ModelType": 4,
@@ -543,7 +705,11 @@
     "Price": null,
     "Description": "Кисть художественная плоская из щетины шириной 60 мм.",
     "Manufacturer": "Кисть флейцевая 60 мм, т.5, светлая щетина дерево лакированная ручка - купить Кисти малярные в Новацентр - Эксклюзивная цена (novacentr.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://novacentr.ru/product/kist-fleyts-60-mm-t-5-sv-shchet-der-lak-ruch.html"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Brush_1(60)"
   },
   {
     "ModelType": 4,
@@ -556,7 +722,11 @@
     "Price": null,
     "Description": "Виброплита Ammann APF1240 Y (Yanmar).",
     "Manufacturer": "Виброплита Ammann APF1240 Y (Yanmar): купить в Симферополе по выгодной цене (diam-almaz.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://diam-almaz.ru/simferopol/tehnika/vibropliti/apf-1240-y/?ysclid=l805qhwqz137674072"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Vibroplate_1"
   },
   {
     "ModelType": 4,
@@ -569,7 +739,11 @@
     "Price": null,
     "Description": "Совковая лопата ГОСТ 19596-87.",
     "Manufacturer": "Лопата совковая FISKARS 132403 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-63270/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Manual_1"
   },
   {
     "ModelType": 4,
@@ -582,7 +756,11 @@
     "Price": null,
     "Description": "Ножовка по дереву Sturm 1060-11-4511, длина полотна – 450 мм.",
     "Manufacturer": "Ножовка по дереву с карандашом Sturm 1060-11-4511 - выгодная цена, отзывы, характеристики, фото - купить в Москве и РФ (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.vseinstrumenti.ru/ruchnoy-instrument/nozhovki/po-derevu/sturm/s-karandashom-1060-11-4511/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Bench_Saw(W)"
   },
   {
     "ModelType": 4,
@@ -595,7 +773,11 @@
     "Price": null,
     "Description": "Ударная насадка OBO Bettermann для перфоратора SDS-MAX, используется для забивания стержней заземления диаметром 20мм.",
     "Manufacturer": "Насадка SDS-MAX Makita ударная, для забивания стержней заземления Ø20мм OBO Bettermann перфоратором купить в Минске недорого с доставкой по РБ (wsd.by)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://wsd.by/catalog/sistemy-molniezashchity-i-zazemleniya/molniezashchita-i-zazemlenie-obo-bettermann/glubinnoe-zazemlenie-i-aksesuary-obo-bettermann/golovka-sds-max-dlya-zabivaniya-sterzhney-zazemleniya-perforatorom/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_DrillBit_1"
   },
   {
     "ModelType": 4,
@@ -608,7 +790,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 36х36.",
     "Manufacturer": "Ключ гаечный комбинированный 36х36 JONNESWAY W26136 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-61399/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(36x36)"
   },
   {
     "ModelType": 4,
@@ -621,7 +807,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 46х46.",
     "Manufacturer": "ООО \"СИТОМО\" профессиональный слесарно-монтажный инструмент в Москве (sitomo.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sitomo.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(46x46)"
   },
   {
     "ModelType": 4,
@@ -634,7 +824,11 @@
     "Price": null,
     "Description": "Шестигранная торцевая головка, размер под ключ – 24 мм, размер стороны присоединительного квадрата под сменные насадки – 1/2\".",
     "Manufacturer": "Головка JONNESWAY размер 24мм, S 1/2'' (S03A4124) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-182984/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_KeyBit_(24_0.5)"
   },
   {
     "ModelType": 4,
@@ -647,7 +841,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 10х10.",
     "Manufacturer": "ООО \"СИТОМО\" профессиональный слесарно-монтажный инструмент в Москве (sitomo.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sitomo.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(10x10)"
   },
   {
     "ModelType": 4,
@@ -660,7 +858,11 @@
     "Price": null,
     "Description": "Набор шестигранных ключей с шаром, разме:т 1,5 - 10.",
     "Manufacturer": "Набор шестигранных ключей Г-образных с шаром, 9 шт. STANLEY 0-89-904 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-135574/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Hex(set_1)"
   },
   {
     "ModelType": 4,
@@ -673,7 +875,11 @@
     "Price": null,
     "Description": "Сверло спиральное с цилиндрическим хвостовиком, средней серии, диаметр - 5 мм.",
     "Manufacturer": "Сверло по металлу HAMMER Ф5х86мм (DR MT 5,0мм*86/52мм) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-30798/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_2(5)"
   },
   {
     "ModelType": 4,
@@ -686,7 +892,11 @@
     "Price": null,
     "Description": "Шестигранная торцевая головка, размер под ключ – 13 мм, размер стороны присоединительного квадрата под сменные насадки – 1/2\".",
     "Manufacturer": "Головка JONNESWAY размер 24мм, S 1/2'' (S03A4124) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-182984/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_KeyBit_(13_0.5)"
   },
   {
     "ModelType": 4,
@@ -699,7 +909,11 @@
     "Price": null,
     "Description": "Набор метчиков и плашек в ложементе для нарезки внутренней и внешней резьбы: М6-М12, шаг резьбы: 1-1,75.",
     "Manufacturer": "Набор метчиков и плашек в ложементе, 12 предметов VIRA 860000 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-110176/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_BenchSpecial_4"
   },
   {
     "ModelType": 4,
@@ -712,7 +926,11 @@
     "Price": null,
     "Description": "Ножницы гидравлические ручные для резки стальных канатов до 16 мм, проводов АС и бронированных кабелей диаметром до 20 мм",
     "Manufacturer": "Ножницы гидравлические ручные для резки стальных канатов, проводов АС и бронированных кабелей (kvt.tools)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.kvt.tools/shop/cutters/hdcutters/ngr20/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Scissors_1(NGR_20)"
   },
   {
     "ModelType": 4,
@@ -725,7 +943,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 22х22.",
     "Manufacturer": "ООО \"СИТОМО\" профессиональный слесарно-монтажный инструмент в Москве (sitomo.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sitomo.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(22x22)"
   },
   {
     "ModelType": 4,
@@ -738,7 +960,11 @@
     "Price": null,
     "Description": "Инструмент для снятия изоляции и полупроводящего экрана на кабелях с изоляцией из сшитого полиэтилена диаметром 20 – 40 мм.",
     "Manufacturer": "КВТ Инструмент КСП-40 (КВТ) (kvt.su)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://kvt.su/prod/electrical-tools/strippers/xlpe-strip/ksp40/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Stripper_1"
   },
   {
     "ModelType": 4,
@@ -751,7 +977,11 @@
     "Price": null,
     "Description": "Напильник слесарный полукруглый с рукояткой, длина рабочей части 150 мм, номер насечки – 3 (20 шт. на 10 мм).",
     "Manufacturer": "Полукруглые напильники по металлу купить в Симферополе и Крыму по доступной цене в интернет-магазине (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog/napilniki-polukruglye/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_File_HalfRound(150_3)"
   },
   {
     "ModelType": 4,
@@ -764,7 +994,11 @@
     "Price": null,
     "Description": "Сверло спиральное с цилиндрическим хвостовиком, средней серии, диаметр - 6 мм.",
     "Manufacturer": "Сверла по металлу купить в Симферополе и Крыму по доступной цене в интернет-магазине (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog/sverla-po-metallu/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_2(6)"
   },
   {
     "ModelType": 4,
@@ -777,7 +1011,11 @@
     "Price": null,
     "Description": "Шестигранная торцевая головка, размер под ключ – 22 мм, размер стороны присоединительного квадрата под сменные насадки – 1/2\".",
     "Manufacturer": "Торцевые головки 1/2\" купить в Симферополе и Крыму по доступной цене в интернет-магазине (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog/golovki-tortsevye-12/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_KeyBit_(22_0.5)"
   },
   {
     "ModelType": 4,
@@ -790,7 +1028,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 55х55.",
     "Manufacturer": "ООО \"СИТОМО\" профессиональный слесарно-монтажный инструмент в Москве (sitomo.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sitomo.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(55x55)"
   },
   {
     "ModelType": 4,
@@ -803,7 +1045,11 @@
     "Price": null,
     "Description": "Деревянный брус 50х50х3500 мм, применяется для уплотнения грунта.",
     "Manufacturer": "Брусок сосна \"АВ\" 50*50*2000мм (профилир. ОКПД2 код 16.10.2) :: Терем-Крым (terem-krym.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://terem-krym.ru/tovar/1250/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Manual_5"
   },
   {
     "ModelType": 4,
@@ -816,7 +1062,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 41х41.",
     "Manufacturer": "ООО \"СИТОМО\" профессиональный слесарно-монтажный инструмент в Москве (sitomo.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sitomo.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(41x41)"
   },
   {
     "ModelType": 4,
@@ -829,7 +1079,11 @@
     "Price": null,
     "Description": "Отвертка с крестообразная, длина жала – 150 мм, шлица – PH3.",
     "Manufacturer": "ООО \"СИТОМО\" профессиональный слесарно-монтажный инструмент в Москве (sitomo.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sitomo.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Screwdriver_Phillips(4_100)"
   },
   {
     "ModelType": 4,
@@ -842,7 +1096,11 @@
     "Price": null,
     "Description": "Пистолет дял нанесения монтажной пены.",
     "Manufacturer": "Интернет магазин 220 Вольт - продажа электроинструмента и бензоинструмента в Симферополе и Крыму. Садовый и строительный инструмент, все для дачи и дома. (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/?digiSearch=true&term=&params=%7Csort%3DDEFAULT"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_FoamGun_1"
   },
   {
     "ModelType": 4,
@@ -855,7 +1113,11 @@
     "Price": null,
     "Description": "Коронка SDS-Max по бетону буровая в сборе 110 мм для перфоратора.",
     "Manufacturer": "Коронка SDS-Max по бетону буровая в сборе 110 мм для перфоратора Strong CTK-06800110 - выгодная цена, отзывы, характеристики, фото - купить в Москве и РФ (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.vseinstrumenti.ru/rashodnie-materialy/instrument/dlya-perforatorov-i-otboynyh-molotkov/koronki/burovye/sds-max/strong-/ctk-06800110/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_BenchSpecial_HoleSaw(SDSMax_110)"
   },
   {
     "ModelType": 4,
@@ -868,7 +1130,11 @@
     "Price": null,
     "Description": "Ключ трубный рычажный КТР-5 краш. SITOMO, длина 735 мм, диаметр трубы 32..120 мм.",
     "Manufacturer": "ООО \"СИТОМО\" профессиональный слесарно-монтажный инструмент в Москве (sitomo.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sitomo.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_SpecKey_1"
   },
   {
     "ModelType": 4,
@@ -881,7 +1147,11 @@
     "Price": null,
     "Description": "Установка прокольная котлованного типа предназначена для прокладки подземных коммуникаций (трубопроводы различного назначения) методом гидравлического прокола с последующим уплотнением грунта 1-3 категории. Максимальный диаметр расширения: 350 мм; длина прокола: до 100 м; усилие тяги 18/20 т.",
     "Manufacturer": "Установка прокольная УПКТ-30 :: Завод буровой техники \"Гидрофоб\". Установки ГНБ от производителя. (zavodgnb.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://zavodgnb.ru/product/upkt30/?ysclid=lbxe8hurn7909625782"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_CLmount_1"
   },
   {
     "ModelType": 4,
@@ -894,7 +1164,11 @@
     "Price": null,
     "Description": "Электрический паяльник 60 Вт.",
     "Manufacturer": "Паяльник STAYER 55313-60-H6 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-430867/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_AuxMat_Solder_1"
   },
   {
     "ModelType": 4,
@@ -907,7 +1181,11 @@
     "Price": null,
     "Description": "Портативный вибратор для бетона Workmaster WCV-1800А в комплекте с гибки валом и булавой ВГ-04/38.",
     "Manufacturer": "Инструменты и техника WORKMASTER (workmaster-tools.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://workmaster-tools.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_VibroTool_2"
   },
   {
     "ModelType": 4,
@@ -920,7 +1198,11 @@
     "Price": null,
     "Description": "Валик АКОР ПРОФИ для фасадных работ.",
     "Manufacturer": "https://akor.ru/",
-    "Categoty": "Tool"
+    "Links": [
+      "https://akor.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_PaintRoller_1"
   },
   {
     "ModelType": 4,
@@ -933,7 +1215,11 @@
     "Price": null,
     "Description": "Ручной станок для резки арматуры Stalex MS-20 372201.",
     "Manufacturer": "Металлообрабатывающие станки STALEX | Продажа металлообрабатывающего оборудования в Москве по выгодной цене",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.stalex.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_BenchSpecial_4"
   },
   {
     "ModelType": 4,
@@ -946,7 +1232,11 @@
     "Price": null,
     "Description": "Ручной станок для гибки арматуры Stalex DR-20.",
     "Manufacturer": "Металлообрабатывающие станки STALEX | Продажа металлообрабатывающего оборудования в Москве по выгодной цене",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.stalex.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_BenchSpecial_5"
   },
   {
     "ModelType": 4,
@@ -959,7 +1249,11 @@
     "Price": null,
     "Description": "Сверло перовое 16х77 мм.",
     "Manufacturer": "Фирменный магазин инструментов СИБРТЕХ (sibrtec-instrument.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sibrtec-instrument.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_3(16_77)"
   },
   {
     "ModelType": 4,
@@ -972,7 +1266,11 @@
     "Price": null,
     "Description": "Круг алмазный шлифовальный по бетону с профилем рабочей поверхности типа \"турбо\", 125 мм.",
     "Manufacturer": "Чашка алмазная ТУРБО 125 мм VIRA 592033 в Перми - купить, цены, отзывы, характеристики, фото, инструкция (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://perm.vseinstrumenti.ru/rashodnie-materialy/instrument/dlya-shlifmashin/po-betonu/shlifovalnye-nasadki/vira/chashka-almaznaya-turbo-125-mm-592033/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_CutWheel_2"
   },
   {
     "ModelType": 4,
@@ -985,7 +1283,11 @@
     "Price": null,
     "Description": "Ручные вязальные крюки, применяются при вязке арматурных каркасов. Значительно ускоряют процесс вязки проволоки.",
     "Manufacturer": "Инструмент для вязки арматуры, скручивание проволоки, покупайте инструмент для вязки арматуры по выгодной цене (psn-monolit.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "http://psn-monolit.ru/production/12/1/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_BenchSpecial_7"
   },
   {
     "ModelType": 4,
@@ -998,7 +1300,11 @@
     "Price": null,
     "Description": "Угловая шлифовальная машинка проводная, диаметр диска – 125 мм.",
     "Manufacturer": "УШМ (болгарка) MAKITA GA5030 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-52884/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_GrindMach_2"
   },
   {
     "ModelType": 4,
@@ -1011,7 +1317,9 @@
     "Price": null,
     "Description": "Специальный слесарный иснтрумент для сгибания проводника заземления, выполнен из арматуры (16).",
     "Manufacturer": "DNM-RU",
-    "Categoty": "Tool"
+    "Links": [],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_BenchSpecial_5"
   },
   {
     "ModelType": 4,
@@ -1024,7 +1332,11 @@
     "Price": null,
     "Description": "Набор комбинированных гаечных ключей, рамерный ряд: 8-36.",
     "Manufacturer": "Набор ключей гаечных рожковых двусторонних 10 шт. 8-36 SITOMO | 43118 купить, узнать цены, характеристики и отзывы в Москве",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sitomo.ru/nabor-klyuchey-gaechnykh-rozhkovykh-dvustoronnikh-10-sht-8-36-sit/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Set(Comb_8_36)"
   },
   {
     "ModelType": 4,
@@ -1037,7 +1349,11 @@
     "Price": null,
     "Description": "Сверло спиральное с цилиндрическим хвостовиком, средней серии, диаметр - 8 мм.",
     "Manufacturer": "Сверла по металлу купить в Симферополе и Крыму по доступной цене в интернет-магазине (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog/sverla-po-metallu/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_2(8)"
   },
   {
     "ModelType": 4,
@@ -1050,7 +1366,11 @@
     "Price": null,
     "Description": "Сверло спиральное с цилиндрическим хвостовиком, средней серии, диаметр - 12 мм.",
     "Manufacturer": "Сверла по металлу купить в Симферополе и Крыму по доступной цене в интернет-магазине (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog/sverla-po-metallu/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_2(12)"
   },
   {
     "ModelType": 4,
@@ -1063,7 +1383,11 @@
     "Price": null,
     "Description": "Перфоратор, тип патрона – SDS-plus.",
     "Manufacturer": "Перфоратор MAKITA HR2475 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://m.220-volt.ru/catalog-52931/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_DrillMach_3"
   },
   {
     "ModelType": 4,
@@ -1076,7 +1400,11 @@
     "Price": null,
     "Description": "Бур по бетону SDS-plus, 10 x 160 мм.",
     "Manufacturer": "Буры и коронки по бетону в фирменном магазине STAYER (stayer-rus.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://stayer-rus.ru/category/raskhodnye-materialy/bury-i-koronki-po-betonu/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_3(10_160_Plus)"
   },
   {
     "ModelType": 4,
@@ -1089,7 +1417,11 @@
     "Price": null,
     "Description": "Бур по бетону SDS-plus, 15 x 210 мм.",
     "Manufacturer": "Буры и коронки по бетону в фирменном магазине STAYER (stayer-rus.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://stayer-rus.ru/category/raskhodnye-materialy/bury-i-koronki-po-betonu/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_3(15_210_Plus)"
   },
   {
     "ModelType": 4,
@@ -1102,7 +1434,9 @@
     "Price": null,
     "Description": "Специальный слесарный иснтрумент для поворота стойки СВ105, выполнен из арматуры (20).",
     "Manufacturer": "DNM-RU",
-    "Categoty": "Tool"
+    "Links": [],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_BenchSpecial_6"
   },
   {
     "ModelType": 4,
@@ -1115,7 +1449,11 @@
     "Price": null,
     "Description": "Алюминиевый ковш объёмом 0,2 литра, длина 470 мм.",
     "Manufacturer": "Ковш из алюминия Банные Штучки 47 см, терракотовый 41285 - выгодная цена, отзывы, характеристики, фото - купить в Москве и РФ (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.vseinstrumenti.ru/product/kovsh-iz-alyuminiya-bannye-shtuchki-47-sm-terrakotovyj-41285-1565963/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Manual_6"
   },
   {
     "ModelType": 4,
@@ -1128,7 +1466,11 @@
     "Price": null,
     "Description": "Комбинированный гаечный ключ 11х11.",
     "Manufacturer": "Ключ гаечный JONNESWAY W26113 (13 мм) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-213068/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Comb(11x11)"
   },
   {
     "ModelType": 4,
@@ -1141,7 +1483,9 @@
     "Price": null,
     "Description": "Бур для БКМ диаметром 650 мм.",
     "Manufacturer": "TBD",
-    "Categoty": "Tool"
+    "Links": [],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_4(1)"
   },
   {
     "ModelType": 4,
@@ -1154,7 +1498,11 @@
     "Price": null,
     "Description": "Разводной гаечный ключ до 24 мм.",
     "Manufacturer": "ООО \"СИТОМО\" профессиональный слесарно-монтажный инструмент в Москве (sitomo.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sitomo.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Wrench_Adjustable(24-36)"
   },
   {
     "ModelType": 4,
@@ -1167,7 +1515,11 @@
     "Price": null,
     "Description": "Газовый горелка для баллона объёмом 500-600 мл.",
     "Manufacturer": "Газовая горелка KEMPER 1047 (payalniki.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.payalniki.ru/product/400-gazovaja-gorelka-kemper-1047-s-ballonom-600ml/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Gasjet_5"
   },
   {
     "ModelType": 4,
@@ -1180,7 +1532,11 @@
     "Price": null,
     "Description": "Шпательная лопатка, Ширина рабочей части: 80 мм.",
     "Manufacturer": "https://prima-x.ru/",
-    "Categoty": "Tool"
+    "Links": [
+      "https://prima-x.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -1193,7 +1549,11 @@
     "Price": null,
     "Description": "Ручная проволочная щётка (латунные щетинки).",
     "Manufacturer": "ООО \"СИТОМО\" профессиональный слесарно-монтажный инструмент в Москве (sitomo.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://sitomo.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Bench_3"
   },
   {
     "ModelType": 4,
@@ -1206,7 +1566,11 @@
     "Price": null,
     "Description": "Плоская щетка для дрели диаметром 75 мм, со шпилькой, с щетиной из латунированной витой проволоки, предназначена для бережной очистки металлических, деревянных, пластиковых поверхностей от загрязнений, старых лакокрасочных материалов и ржавчины.",
     "Manufacturer": "Щетка для дрели, 75 мм, плоская со шпилькой, латунированная витая проволока MATRIX 74448 в Екатеринбурге - купить, цены, отзывы, характеристики, фото, инструкция (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://ekb.vseinstrumenti.ru/product/schetka-dlya-dreli-75-mm-ploskaya-so-shpilkoj-latunirovannaya-vitaya-provoloka-matrix-74448-783689/?utm_campaign=DSA_po_top_tovaram_test&utm_content=14479126288&utm_medium=cpc&utm_source=yandex&utm_term=ST%3Asearch%7CS%3Anone%7CAP%3Ano%7CPT%3Apremium%7CP%3A2%7CDT%3Adesktop%7CRI%3A157%7CCI%3A89694494%7CGI%3A5224919060%7CPI%3A4097980%7CAI%3A14479126288%7CRT%3A4097980%7CKW%3A%7CRN%3A%D0%9C%D0%B8%D0%BD%D1%81%D0%BA&yclid=11445228112796188671"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -1219,7 +1583,11 @@
     "Price": null,
     "Description": "Плоская щетка для УШМ диаметром 125 мм (посадочный диаметр:22.2 мм) с щетиной из латунированной витой проволоки, предназначена для бережной очистки металлических, деревянных, пластиковых поверхностей от загрязнений, старых лакокрасочных материалов и ржавчины.",
     "Manufacturer": "Щетка для УШМ, 125 мм, посадка 22.2 мм, плоская, латунированная витая проволока MATRIX 74656 в Екатеринбурге - купить, цены, отзывы, характеристики, фото, инструкция (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://ekb.vseinstrumenti.ru/product/schetka-dlya-ushm-125-mm-posadka-22-2-mm-ploskaya-latunirovannaya-vitaya-provoloka-matrix-74656-783693/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -1232,7 +1600,11 @@
     "Price": null,
     "Description": "Сверло спиральное с цилиндрическим хвостовиком, средней серии, диаметр - 3,4 мм.",
     "Manufacturer": "Сверла по металлу купить в Симферополе и Крыму по доступной цене в интернет-магазине (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog/sverla-po-metallu/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_2(3,4)"
   },
   {
     "ModelType": 4,
@@ -1245,7 +1617,11 @@
     "Price": null,
     "Description": "Щетка-сметка предназначена для уборки станков по металлобработке, деревообработке с крупной стружкой.",
     "Manufacturer": "Щетки сметки металлические ручные ГОСТ 3 и 4 рядные цена производителя (xn----itbbkbjef1bya5c0a.xn--p1ai)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://щетки-липецк.рф/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Bench_4"
   },
   {
     "ModelType": 4,
@@ -1258,7 +1634,11 @@
     "Price": null,
     "Description": "Заклепочник ручной открытый. Модель: ЗР-01. Применяется для создания неразъемных соединений различных материалов с помощью вытяжных заклепок из алюминия, стали и нержавеющей стали. Диаметры используемых заклепок: 2.4/3.2/4.0/4.8 мм. Сменные винтовые насадки, закрепленные на корпусе инструмента. Ключ для смены насадок в рукоятке инструмента. Покрытие: порошковая покраска. Длина: 250 мм",
     "Manufacturer": "КВТ Российский производитель электротехнической продукции (kvt.su)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://kvt.su/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Riveter_1"
   },
   {
     "ModelType": 4,
@@ -1271,7 +1651,11 @@
     "Price": null,
     "Description": "Диск шлифовальный с липучкой 125 мм, М14 + переходник для дрели FIT IT 39623.",
     "Manufacturer": "Диск шлифовальный с липучкой 125 мм, М14 + переходник для дрели FIT IT 39623 в Екатеринбурге - купить, цены, отзывы, характеристики, фото, инструкция (vseinstrumenti.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://ekb.vseinstrumenti.ru/product/disk-shlifovalnyj-s-lipuchkoj-125-mm-m14-perehodnik-dlya-dreli-fit-it-39623-785291/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -1284,7 +1668,11 @@
     "Price": null,
     "Description": "Распылитель ручной 1,5л. АвтоDело 42115.",
     "Manufacturer": "Купить Распылитель ручной 1,5л. АвтоDело 42115 в магазине ДСН Авто (dsn-auto.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://dsn-auto.ru/product/raspylitel_ruchnoy_1_5l_avtodelo_42115_n1.html"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -1297,7 +1685,11 @@
     "Price": null,
     "Description": "Мини-валик «Профи», «Работы с эмалями». Длина трубки: 110 мм, высота ворса: 12 мм.",
     "Manufacturer": "https://akor.ru/",
-    "Categoty": "Tool"
+    "Links": [
+      "https://akor.ru/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_PaintRoller_1"
   },
   {
     "ModelType": 4,
@@ -1310,7 +1702,11 @@
     "Price": null,
     "Description": "Дрель проводная.",
     "Manufacturer": "Дрель BOSCH GBM 10 RE Professional купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-34438/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_DrillMach_4"
   },
   {
     "ModelType": 4,
@@ -1323,7 +1719,11 @@
     "Price": null,
     "Description": "Угловая шлифовальная машинка проводная.",
     "Manufacturer": "УШМ (болгарка) METABO W 650-125 (603602010) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-610527/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_GrindMach_3"
   },
   {
     "ModelType": 4,
@@ -1336,7 +1736,11 @@
     "Price": null,
     "Description": "Шестигранная торцевая головка, размер под ключ – 30 мм, размер стороны присоединительного квадрата под сменные насадки – 1/2\".",
     "Manufacturer": "Головка JONNESWAY размер 17мм, S 1/2'' (S04H4117) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-212801/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_KeyBit_(30_0.5)"
   },
   {
     "ModelType": 4,
@@ -1349,7 +1753,11 @@
     "Price": null,
     "Description": "Шестигранная торцевая головка, размер под ключ – 8 мм, хвостовик – под крепление в патроне шуруповерта.",
     "Manufacturer": "Бита для кровельных саморезов 4,8 и 5,5 мм 8х48 мм (FIT IT 57938) (на гайку М5) – купить в Великих Луках, цена, описание, характеристики (minimaks.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://www.minimaks.ru/product/bita-dlya-krovelnykh-samorezov-4-8-i-5-5-mm-8x48-mm-fit-it-57938-na-gayku-m5/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_KeyBit_2(8)"
   },
   {
     "ModelType": 4,
@@ -1362,7 +1770,11 @@
     "Price": null,
     "Description": "Электрические листовые ножницы для резки металлических листов (в т.ч. из стали, нержавейки, алюминия).",
     "Manufacturer": "Листовые ножницы по металлу MAKITA JS3201J купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-119423/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Scissors_3(List) "
   },
   {
     "ModelType": 4,
@@ -1375,7 +1787,11 @@
     "Price": null,
     "Description": "Сетевой краскопульт.",
     "Manufacturer": "Сетевой краскопульт DEKO DKSG55K1 — купить в интернет-магазине по низкой цене на Яндекс Маркете (yandex.by)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://market.yandex.by/product--setevoi-kraskopult-deko-dksg55k1/1777952840?slug=setevoi-kraskopult-deko-dksg55k1&productId=1777952840&nid=56414&show-uid=16989160490352973805316001&context=search&text=%D0%BA%D0%BE%D0%BC%D0%BF%D1%80%D0%B5%D1%81%D1%81%D0%BE%D1%80%20%D1%81%20%D0%BA%D1%80%D0%B0%D1%81%D0%BA%D0%BE%D0%BF%D1%83%D0%BB%D1%8C%D1%82%D0%BE%D0%BC%20%D0%B2%20%D0%BA%D0%BE%D0%BC%D0%BF%D0%BB%D0%B5%D0%BA%D1%82%D0%B5&uniqueId=924574&sku=1733348231&cpc=M6Q6SXIIoyY7TRnWmx-Eo8K8ghXzVM_llTCMYr7X9AAWzYoqq7-ZpHH2X9s11CQnhfnoyQ3AChCIoGOuFPpPgcrtxhNbogZgJEJXDULGzet800RbrmjGb3GyqJa2R4MYuk1gdmFOz1ea2HURSypNtr5nbyGCnsRRwoGJnisZ_ofa6-gFbPOZ_ycju52Gu_4PSjZhux0SqZWTjPdbX1jb2SEtEIJovdwXcoriTMplKSgiZCbKdYoK4h5OOymNpXyDzODm62FQ1cfMcPQCsX62Dw%2C%2C&do-waremd5=YmSvzLxsC4Hgoz8GzdC39w&rs=eJwzamIOYDzKyJBwcTeQVDDYAyQdbG2A5APlvUDyADdIZMFJW5Aab5A4AydIZYMciN3QBRI_cAUsGwwSWTAPpJ7BFqS3YQtYvA8k7vDfCqRyFYhMWAA2vx2k5sE9kPoECxB7wSwQW0EYpMthEdjklyC7HOpB4gdyQWoUMsHuydsPFgebfA7sqh0glQ-4QLoe8INIBWOwCX5gkzvBrvUAiyeCyAZ_sOxGsIgcmP0DpEahAGz7PLCubrDsQZDJDCJgXR9Atj9YC_bpQrD6JyCRhjMg9QwTweKNIJULToHZRmA3Lwb7sQwkcuCbNYhkAvtiH1hl014ANiSMdw%2C%2C%5D&lr=0&rtr=157&_redirectCount=1"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -1388,7 +1804,11 @@
     "Price": null,
     "Description": "Сверло спиральное с цилиндрическим хвостовиком, средней серии, диаметр - 2,5 мм.",
     "Manufacturer": "Сверло по металлу HAMMER Ф5х86мм (DR MT 5,0мм*86/52мм) купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Tool"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-30798/"
+    ],
+    "Categoty": "Tool",
+    "ClassifierCode": "DNM-RU_Tool_Drill_2(2,5)"
   },
   {
     "ModelType": 4,
@@ -1401,7 +1821,11 @@
     "Price": null,
     "Description": "Предназначено для проверки работоспособности указателей высокого напряжения, в том числе УВНК-10Д-УНТЕХ.",
     "Manufacturer": "http://www.electronpribor.ru/catalog/925/upun-2014.htm",
-    "Categoty": "Meas"
+    "Links": [
+      "http://www.electronpribor.ru/catalog/925/upun-2014.htm"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Electric_1"
   },
   {
     "ModelType": 4,
@@ -1414,7 +1838,11 @@
     "Price": null,
     "Description": "Металлическая измерительная линейка 0,5 м.",
     "Manufacturer": "Линейка измерительная SKRAB 40241 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-23748/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Ruler_1"
   },
   {
     "ModelType": 4,
@@ -1427,7 +1855,11 @@
     "Price": null,
     "Description": "Строительный отвес массой 125 г.",
     "Manufacturer": "Отвес строительный КУРС 04491 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-633488/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Plumb_1"
   },
   {
     "ModelType": 4,
@@ -1440,7 +1872,11 @@
     "Price": null,
     "Description": "Измерительная рулетка 5 м.",
     "Manufacturer": "Рулетка HAMMER 601-066 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-737588/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Tape_M(5)"
   },
   {
     "ModelType": 4,
@@ -1453,7 +1889,11 @@
     "Price": null,
     "Description": "Строительный пузырьковый уровень длиной 0,6 м.",
     "Manufacturer": "Уровень KRESS KD020 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-751561/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Level_1"
   },
   {
     "ModelType": 4,
@@ -1466,7 +1906,11 @@
     "Price": null,
     "Description": "Лазерный линейный уровень. Дальность измерения без приемника – 50 м.",
     "Manufacturer": "Нивелир лазерный CONDTROL XLiner Pento 360G купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-700368/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Level_2"
   },
   {
     "ModelType": 4,
@@ -1479,7 +1923,11 @@
     "Price": null,
     "Description": "Лазерный дальномер. Дальность измерения – 100 м.",
     "Manufacturer": "Leica DISTO D2 new - надежная и простая лазерная рулетка (disto-leica.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://disto-leica.ru/catalog/leica_disto/leica_disto_d2_new/?oid=6922"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Tape_L"
   },
   {
     "ModelType": 4,
@@ -1492,7 +1940,9 @@
     "Price": null,
     "Description": "Устройство, предназаначенное для визирования (сверки фактической величины стрелы провеса с проектной) провода при его монтаже.",
     "Manufacturer": "TBD",
-    "Categoty": "Meas"
+    "Links": [],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Special_1"
   },
   {
     "ModelType": 4,
@@ -1505,7 +1955,11 @@
     "Price": null,
     "Description": "Мегаомметр Е6-31.",
     "Manufacturer": "Е6-31 цифровой мегаомметр | Электронприбор (electronpribor.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://www.electronpribor.ru/catalog/7/e6-31.htm"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Electric_2"
   },
   {
     "ModelType": 4,
@@ -1518,7 +1972,11 @@
     "Price": null,
     "Description": "Динамометр ЭД-50/2-2РМ предназначен для измерения статического и динамического усилия натяжения в проводе и кабеле при его раскатке и/или креплении. Усилие 2.5-50 кН.",
     "Manufacturer": "ЭД-50/2-2РМ динамометр электронный (ЭДР-50) Энергомаш купить в Москве за 47 947,00 рублей в интернет-магазине «ЭнергоМаш» — цены, характеристики, доставка (energomash-factory.tools)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://energomash-factory.tools/catalog/izmeritelnye-pribory/dinamometry-tipa-edr/ed-50-2-2rm-edr-50-dinamometr-elektronnyy/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Dynamometer_1"
   },
   {
     "ModelType": 4,
@@ -1531,7 +1989,11 @@
     "Price": null,
     "Description": "Измерительная рулетка 10 м.",
     "Manufacturer": "Рулетка 10 м х 32 мм с фиксатором MAGNETIK Topex 27C340 - купить Рулетки в Новацентр - Эксклюзивная цена (novacentr.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://novacentr.ru/product/ruletka-10-m-kh-32-mm-s-fiksatorom-magnetik-topex-27c340.html"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Tape_M(10)"
   },
   {
     "ModelType": 4,
@@ -1544,7 +2006,11 @@
     "Price": null,
     "Description": "Тахеометр Leica TCR 705.",
     "Manufacturer": "Тахеометры | Leica Geosystems (leica-geosystems.com)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://leica-geosystems.com/ru/products/total-stations"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Surveying_1"
   },
   {
     "ModelType": 4,
@@ -1557,7 +2023,11 @@
     "Price": null,
     "Description": "Телескопическая веха RGK СLS25-DL.",
     "Manufacturer": "RGK | Веха телескопическая RGK CLS25-DL (rgk-tools.com)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://www.rgk-tools.com/ru/catalog/aksessuary/vekha-teleskopicheskaya-rgk-cls25-dl/?"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Surveying_2"
   },
   {
     "ModelType": 4,
@@ -1570,7 +2040,11 @@
     "Price": null,
     "Description": "Отражатель Mini (D25, К-17.5) SM.",
     "Manufacturer": "Минипризма HDMINI104-B (prinmarket.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://prinmarket.ru/catalog/aksessuary_1/otrazhateli_i_tseli/miniprizmy/otrazhatel_mini_d25_k_17_5_sm/?"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Surveying_3"
   },
   {
     "ModelType": 4,
@@ -1583,7 +2057,11 @@
     "Price": null,
     "Description": "Визирная рейка Leica GTL4M.",
     "Manufacturer": "LEICA GPLE3N Рейка инварная нивелирная - Купить рейки (nt-rt.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://geopribor.nt-rt.ru/price/product/483407?_openstat=ZGlyZWN0LnlhbmRleC5ydTs3NDM0NDE5ODsxMjE0MDc3MjEwMzt5YW5kZXguYnk6cHJlbWl1bQ&yclid=9952448488673116159"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Surveying_4"
   },
   {
     "ModelType": 4,
@@ -1596,7 +2074,11 @@
     "Price": null,
     "Description": "Нивелир Leica NA532.",
     "Manufacturer": "Серия Leica NA500 | Leica Geosystems (leica-geosystems.com)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://leica-geosystems.com/ru/products/levels/automatic-levels/leica-na500-series"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Surveying_5"
   },
   {
     "ModelType": 4,
@@ -1609,7 +2091,11 @@
     "Price": null,
     "Description": "Геодезическая рулетка 50 м.",
     "Manufacturer": "Рулетка Topex 28C550 - купить Рулетки в Новацентр - Эксклюзивная цена (novacentr.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://novacentr.ru/product/ruletka-geodezicheskaya-50-m-iz-steklovolokna-topex-28c550.html"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Tape_Geo(50)"
   },
   {
     "ModelType": 4,
@@ -1622,7 +2108,11 @@
     "Price": null,
     "Description": "Измерительная рулетка 20 м.",
     "Manufacturer": "Рулетка 10 м х 32 мм с фиксатором MAGNETIK Topex 27C340 - купить Рулетки в Новацентр - Эксклюзивная цена (novacentr.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://novacentr.ru/product/ruletka-10-m-kh-32-mm-s-fiksatorom-magnetik-topex-27c340.html"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Tape_М(20)"
   },
   {
     "ModelType": 4,
@@ -1635,7 +2125,11 @@
     "Price": null,
     "Description": "Микроомметр ИКС-200А.",
     "Manufacturer": "Микроомметр ИКС-200А — Челэнергоприбор (limi.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://limi.ru/product/microhmmeter_iks_200a/?_openstat=ZGlyZWN0LnlhbmRleC5ydTs3NTc0Njg2NTsxMjM0MTE0MTc0OTt5YW5kZXguYnk6cHJlbWl1bQ&yclid=16082648171063017471"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Electric_3"
   },
   {
     "ModelType": 4,
@@ -1648,7 +2142,11 @@
     "Price": null,
     "Description": "Ультразвуковой измеритель расстояния «Даль».",
     "Manufacturer": "ДАЛЬ ультразвуковой измеритель расстояния | Электронприбор (electronpribor.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://www.electronpribor.ru/catalog/223/dal.htm?ysclid=l9sho9ucey979474946"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Electric_4"
   },
   {
     "ModelType": 4,
@@ -1661,7 +2159,11 @@
     "Price": null,
     "Description": "Механический измеритель тяжения в оттяжках ИТОМ-10, измеряемое усилие: 0-10 т.",
     "Manufacturer": "Измерительные приборы и испытательное оборудование для энергетики | Электронприбор (electronpribor.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://www.electronpribor.ru/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Dynamometer_2"
   },
   {
     "ModelType": 4,
@@ -1674,7 +2176,11 @@
     "Price": null,
     "Description": "Динамометр ДПУ-0,2-2. Пределы измерения усилия 0,01-0,2 кН.",
     "Manufacturer": "Динамометр ДПУ-0.2-2 или ДПУ-2-2 консервация | динамометр на 200 кг (vesmaster.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://vesmaster.ru/catalogue/824/835/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Dynamometer_3"
   },
   {
     "ModelType": 4,
@@ -1687,7 +2193,11 @@
     "Price": null,
     "Description": "Ровер станция South Galaxy G1.",
     "Manufacturer": "Купить геодезические приборы и оборудование в компании Геодетика (geodetika.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://geodetika.ru/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Surveying_6"
   },
   {
     "ModelType": 4,
@@ -1700,7 +2210,11 @@
     "Price": null,
     "Description": "Базовая станция South Galaxy G1.",
     "Manufacturer": "Купить геодезические приборы и оборудование в компании Геодетика (geodetika.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://geodetika.ru/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Surveying_7"
   },
   {
     "ModelType": 4,
@@ -1713,7 +2227,11 @@
     "Price": null,
     "Description": "Многочастотная мультифункциональная система локации для ГНБ и прокола.",
     "Manufacturer": "SENSE | SENSE HDD (sense-hdd.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://sense-hdd.ru/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Surveying_8"
   },
   {
     "ModelType": 4,
@@ -1726,7 +2244,11 @@
     "Price": null,
     "Description": "Компактный цифровой мультиметр со среднеквадратическим методом измерения значений – True RMS, возможностью измерения постоянного и переменного тока в микродиапазоне и автоматическим выбором пределов измерений.",
     "Manufacturer": "KT 113B Компактный многофункциональный цифровой мультиметр c True RMS PROLINE КВТ купить в Москве за 2 442 рублей в интернет-магазине «ЭнергоМаш» — цены, характеристики, доставка (energomash-factory.tools)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://energomash-factory.tools/catalog/izmeritelnye-pribory/multimetry-i-pribory/multimetry/kompaktnyy-mnogofunktsionalnyy-tsifrovoy-multimetr-c-true-rms-kt-113b-proline/?r1=yandext&r2=&yclid=7528809785332926510&utm_source=ya&utm_medium=cpc&utm_campaign=DYNAMIC_75754679&utm_term=2710152__&utm_content=4981510147__12486773727__%D0%95%D0%B2%D0%BF%D0%B0%D1%82%D0%BE%D1%80%D0%B8%D1%8F"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Electric_5"
   },
   {
     "ModelType": 4,
@@ -1739,7 +2261,11 @@
     "Price": null,
     "Description": "Строительный пузырьковый уровень длиной 2 м.",
     "Manufacturer": "Уровень STURM! 2015-05-2000 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-548337/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_Level_3"
   },
   {
     "ModelType": 4,
@@ -1752,7 +2278,11 @@
     "Price": null,
     "Description": "Проверочный слесарный угольник 200 мм.",
     "Manufacturer": "Интернет-магазин АО ТД \"ЧИЗ\" - измерительный инструмент и оборудование. Штангенциркули, микрометры, нутромеры, индикаторы, рулетки, калибры промышленные. (tdchiz.ru)",
-    "Categoty": "Meas"
+    "Links": [
+      "https://www.tdchiz.ru/"
+    ],
+    "Categoty": "Meas",
+    "ClassifierCode": "DNM-RU_Meas_CheckSquare_1"
   },
   {
     "ModelType": 4,
@@ -1764,8 +2294,10 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Направляющий ролик в форме дуги, имеющий специализированное крепление, позволяющее закрепить его на штыревом изоляторе. Применяется при восстановлении обрыва провода, является составной частью установки натяжения провода.",
-    "Manufacturer": "DNM-RU",
-    "Categoty": "Equip"
+    "Manufacturer": "NoLink",
+    "Links": [],
+    "Categoty": "Equip",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -1778,7 +2310,9 @@
     "Price": null,
     "Description": "Применяется при восстановлении обрыва провода, является составной частью установки натяжения провода. При помощи монтажного зажима крепится к проводу, другим концом к натяжителю, тем самым передаёт усилие с натяжителя на провод.",
     "Manufacturer": "DNM-RU",
-    "Categoty": "Equip"
+    "Links": [],
+    "Categoty": "Equip",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -1791,7 +2325,9 @@
     "Price": null,
     "Description": "Применяется при восстановлении обрыва провода для натяжения провода. Механизм, тяговое усилие которого передаётся посредством верёвки от приводного барабана к натягиваемому проводу.",
     "Manufacturer": "DNM-RU",
-    "Categoty": "Equip"
+    "Links": [],
+    "Categoty": "Equip",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -1804,7 +2340,9 @@
     "Price": null,
     "Description": "Рукоять, позволяющая создать усилие, характеризующееся конкретной величиной крутящего момента. Должна обладать возможностью изменения величины данного усилия.",
     "Manufacturer": "DNM-RU",
-    "Categoty": "Equip"
+    "Links": [],
+    "Categoty": "Equip",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -1817,7 +2355,11 @@
     "Price": null,
     "Description": "Шнур капроновый (диаметром 10 мм, длина 15 м), предназначенный для такелажных работ.",
     "Manufacturer": "Фал капроновый КУРС D10х20м (68418) - цена, фото - купить в Москве, СПб и РФ (220-volt.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.220-volt.ru/catalog-633529/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_2"
   },
   {
     "ModelType": 4,
@@ -1830,7 +2372,11 @@
     "Price": null,
     "Description": "Цепная ветвь (переходные звенья типа кольцо-кольцо) грузоподъёмностью 2 т, длиной 1,5 м.",
     "Manufacturer": "Строп цепной петлевой (ВЦ) Чалка цепная Цена от 800 руб - Купить (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/katalog/stropy-cepnye/strop-cepnoy-vc"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_1"
   },
   {
     "ModelType": 4,
@@ -1843,7 +2389,11 @@
     "Price": null,
     "Description": "Ленточный текстильный двухпетлевой строп грузоподъёмностью 2 т; длиной 1,5 м.",
     "Manufacturer": "СТРОП СТП текстильный , купить в Москве - цена от 75 рублей (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/katalog/stropy-tekstilnye/strop-tekstilnyy-petlevoy-stp"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_4"
   },
   {
     "ModelType": 4,
@@ -1856,7 +2406,11 @@
     "Price": null,
     "Description": "Деревянный брус 100х100х500 мм, применяется в качестве подкладки под железобетонную стойку.",
     "Manufacturer": "Брус (krym-les.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://krym-les.ru/brus"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Holder_1"
   },
   {
     "ModelType": 4,
@@ -1869,7 +2423,11 @@
     "Price": null,
     "Description": "Такелажный одинарный блок грузоподъёмностью 1 т, диаметр троса – до 11 мм.",
     "Manufacturer": "https://www.ozon.ru/product/blok-montazhnyy-s-kryukom-1t-a-lift-malenkiy-487786098/?asb=WURn1p98kmo34%252FWAZ%252FyFCScO12Fv2ox1UAXgD2MdpFsCHyo8fhUNXA%252FkDYd9Pixo&asb2=js9WZEu334kHNONFwWzTvd3KSpeal02LPFu1h9YMN5f0zDQfOavjKjhPcotoapAChztv6cbaA6UX6TbBaEL2P8sdso7nmnz",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.ozon.ru/product/blok-montazhnyy-s-kryukom-1t-a-lift-malenkiy-487786098/?asb=WURn1p98kmo34%252FWAZ%252FyFCScO12Fv2ox1UAXgD2MdpFsCHyo8fhUNXA%252FkDYd9Pixo&asb2=js9WZEu334kHNONFwWzTvd3KSpeal02LPFu1h9YMN5f0zDQfOavjKjhPcotoapAChztv6cbaA6UX6TbBaEL2P8sdso7nmnz"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_5"
   },
   {
     "ModelType": 4,
@@ -1882,7 +2440,11 @@
     "Price": null,
     "Description": "Раздвижной штатив  с тремя ножками высотой 1,5 м. Крепежная площадка под резьбу 1/4”.",
     "Manufacturer": "Штатив CONDTROL H150 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-528852/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Support_1"
   },
   {
     "ModelType": 4,
@@ -1895,7 +2457,11 @@
     "Price": null,
     "Description": "Цепной строп (переходные звенья типа кольцо-крюк) грузоподъёмностью 3 т, длиной 3 м.",
     "Manufacturer": "Строп цепной 2сц (2 сц) двухветвевой (2 х ветвевой) (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/katalog/stropy-cepnye/strop-cepnoy-2sc-dvuhvetvevoy"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_6"
   },
   {
     "ModelType": 4,
@@ -1908,7 +2474,11 @@
     "Price": null,
     "Description": "Захват для барабанов грузоподъемностью 1,6 т (захвата); 3,2 т (пары захватов). Захват предназначен для зацепа и транспортировки барабанов с кабелем, канатом и т.п. за отверстие торца при его горизонтальном расположении.",
     "Manufacturer": "Захват для барабанов ZTB-1,6/3,2-купить, цена, описание (gpo-sistemy.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://gpo-sistemy.ru/shop/product/zakhvat-dlya-barabanov-ztb-1-6/3-2"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_7"
   },
   {
     "ModelType": 4,
@@ -1921,7 +2491,11 @@
     "Price": null,
     "Description": "Разборная модель кабельного домкрата для барабанов диаметром от 800 мм до 1800 мм и массой до 3000 кг.",
     "Manufacturer": "Разборный винтовой кабельный домкрат для подъёма и размотки барабанов ДКВ 18-3Р | Специальное конструкторское бюро «Оборудование» | www.skbo.ru",
-    "Categoty": "Equip"
+    "Links": [
+      "http://skbo.ru/catalog/cable_jacks/vintovoy_kabelnyiy_domkrat_dkv_18-3/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_OHLmount_1"
   },
   {
     "ModelType": 4,
@@ -1934,7 +2508,11 @@
     "Price": null,
     "Description": "Раскаточный ролик для раскатки провода диаметром до 50 мм.",
     "Manufacturer": "Ролики раздвижные для раскатки проводов СИП — РМ-1 (kvt.tools)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.kvt.tools/shop/abcadapt/abctools-wires/rm1/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_OHLmount_2"
   },
   {
     "ModelType": 4,
@@ -1947,7 +2525,11 @@
     "Price": null,
     "Description": "Двухпетлевой канатный строп грузоподъёмностью 3,2 т, длиной 2 м.",
     "Manufacturer": "Строп канатный петлевой СКП купить в Москве с доставкой (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/katalog/stropy-kanatnye/strop-kanatnyy-petlevoy-skp"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_8"
   },
   {
     "ModelType": 4,
@@ -1960,7 +2542,11 @@
     "Price": null,
     "Description": "Монтажный зажим МЗ-22 применяется для крепления провода диаметром 4-22 мм к тяговому механизму. Рабочая нагрузка 20 кН.",
     "Manufacturer": "МЗ-22 Монтажный зажим \"лягушка\" для СИП-2 (kvt.tools)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.kvt.tools/shop/abcadapt/abctools-wires/mz22/mz-22/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_OHLmount_3"
   },
   {
     "ModelType": 4,
@@ -1973,7 +2559,11 @@
     "Price": null,
     "Description": "Кабельный ролик для прокладки кабеля на прямолинейных участках кабельной линии, диаметр кабеля – до 140 мм.",
     "Manufacturer": "Ролик кабельный — РКН-140 (kvt.tools)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.kvt.tools/shop/abcadapt/hvltools/rkn140/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_CLmount_1"
   },
   {
     "ModelType": 4,
@@ -1986,7 +2576,11 @@
     "Price": null,
     "Description": "Кабельный ролик для прокладки кабеля в местах поворота кабельной линии, диаметр кабеля – до 140 мм.",
     "Manufacturer": "Ролик кабельный — РКУ-140 (kvt.tools)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.kvt.tools/shop/abcadapt/hvltools/rku140/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_CLmount_2"
   },
   {
     "ModelType": 4,
@@ -1999,7 +2593,11 @@
     "Price": null,
     "Description": "Монтажный чулок ЧМ-40/50 предназначен для захвата конца кабеля диаметром 40-50 мм при его протяжке и укладке.",
     "Manufacturer": "ЧМ-40/50 Чулок монтажный кабельный (kvt.tools)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.kvt.tools/shop/abcadapt/abctools-wires/chm/chm-40/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_CLmount_3"
   },
   {
     "ModelType": 4,
@@ -2012,7 +2610,11 @@
     "Price": null,
     "Description": "Монтажный чулок ЧМ-50/65 предназначен для захвата конца кабеля диаметром 50-65 мм при его протяжке и укладке.",
     "Manufacturer": "ЧМ-50/65 Чулок монтажный кабельный (kvt.tools)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.kvt.tools/shop/abcadapt/abctools-wires/chm/chm-50/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_CLmount_4"
   },
   {
     "ModelType": 4,
@@ -2025,7 +2627,11 @@
     "Price": null,
     "Description": "Монтажный зажим МЗ-32 применяется для крепления провода диаметром 8-32 мм к тяговому механизму. Рабочая нагрузка 30 кН.",
     "Manufacturer": "Монтажные зажимы для СИП — МЗ-32 (kvt.tools)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.kvt.tools/shop/abcadapt/abctools-wires/mz32/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_OHLmount_4"
   },
   {
     "ModelType": 4,
@@ -2038,7 +2644,11 @@
     "Price": null,
     "Description": "Скоба прямого типа такелажная DIN82101, тип А, диаметр пальца (размер скобы) составляет 27 мм, максимальная грузоподъемность 3150 кг.",
     "Manufacturer": "Карабин U-образный DIN 82101 - купить в Симферополе, Севастополе, Крыму (metalvis-yug.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://metalvis-yug.ru/takelazh/karabin-u-obraznyy-1/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_Shackle(DIN82101_A_27) "
   },
   {
     "ModelType": 4,
@@ -2051,7 +2661,11 @@
     "Price": null,
     "Description": "Ручная тяговая лебёдка ЛР-20. Два режима работы: с блоком и без блока; тяговое усилие: с блоком - 2.0 т, без блока - 1.0 т. Длина троса: с блоком - 1.6 м, без блока - 3.0 м .",
     "Manufacturer": "ЛР-20 Лебедка тяговая ручная (kvt.tools)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.kvt.tools/shop/abcadapt/abctools-wires/lr20/lr-20/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Winch_1"
   },
   {
     "ModelType": 4,
@@ -2064,7 +2678,11 @@
     "Price": null,
     "Description": "Кабельный барабан №10.",
     "Manufacturer": "Кабельные барабаны (kaspack.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://kaspack.ru/kabelnye-barabany?"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_OHLmount_4"
   },
   {
     "ModelType": 4,
@@ -2077,7 +2695,11 @@
     "Price": null,
     "Description": "Раздвижной штатив  с тремя ножками Leica GST05 высотой до 1,76 м. Для нивелиров, тахеометров с угловой точностью выше 5\".",
     "Manufacturer": "Купить Leica GST05 399244 штатив геодезический - цена в Москве с доставкой по России. (geooptic.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.geooptic.ru/product/leica-gst05?ysclid=l807b0seg6852764454"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Support_2"
   },
   {
     "ModelType": 4,
@@ -2090,7 +2712,11 @@
     "Price": null,
     "Description": "Деревянный брус 100х100х500 мм, применяется в качестве подкладки под железобетонную стойку.",
     "Manufacturer": "Брус (krym-les.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://krym-les.ru/brus"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Holder_2"
   },
   {
     "ModelType": 4,
@@ -2103,7 +2729,11 @@
     "Price": null,
     "Description": "Цепная ветвь (переходные звенья типа кольцо-кольцо) грузоподъёмностью 5 т, длиной 2 м.",
     "Manufacturer": "Строп цепной петлевой (ВЦ) Чалка цепная Цена от 800 руб - Купить (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/katalog/stropy-cepnye/strop-cepnoy-vc"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_9"
   },
   {
     "ModelType": 4,
@@ -2116,7 +2746,11 @@
     "Price": null,
     "Description": "Двухветвевой цепной строп (переходные звенья типа кольцо-крюк) грузоподъёмностью 7,1 т (угол между ветвями прямой), длиной 6 м.",
     "Manufacturer": "Строп цепной 2сц (2 сц) двухветвевой (2 х ветвевой) (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/katalog/stropy-cepnye/strop-cepnoy-2sc-dvuhvetvevoy"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_10"
   },
   {
     "ModelType": 4,
@@ -2129,7 +2763,11 @@
     "Price": null,
     "Description": "Ленточный текстильный двухпетлевой строп грузоподъёмностью 2 т; длиной 5 м.",
     "Manufacturer": "СТРОП СТП текстильный , купить в Москве - цена от 75 рублей (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/katalog/stropy-tekstilnye/strop-tekstilnyy-petlevoy-stp"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_11"
   },
   {
     "ModelType": 4,
@@ -2142,7 +2780,11 @@
     "Price": null,
     "Description": "Ролик кабельный угловой направляющий, максимальный диаметр кабеля – 120 мм. Максимальная нагрузка на ролик: 200 кг.",
     "Manufacturer": "Заказать РКУ 3-120А Ролик кабельный угловой направляющий от производителя - МАЛИЕН (malien.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://malien.ru/product/kabelnye_roliki_montazhnye_bloki/uglovye_kabelnye_roliki/rku_3_120a_rolik_kabelnyy_uglovoy_napravlyayushchiy/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_CLmount_5"
   },
   {
     "ModelType": 4,
@@ -2155,7 +2797,11 @@
     "Price": null,
     "Description": "Ленточный текстильный двухпетлевой строп грузоподъёмностью 5 т; длиной 2,0 м.",
     "Manufacturer": "СТРОП СТП текстильный , купить в Москве - цена от 75 рублей (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/katalog/stropy-tekstilnye/strop-tekstilnyy-petlevoy-stp"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_4"
   },
   {
     "ModelType": 4,
@@ -2168,7 +2814,11 @@
     "Price": null,
     "Description": "Двухветвевой цепной строп (переходные звенья типа кольцо-крюк) грузоподъёмностью 3,2 т (угол между ветвями прямой), длиной 4 м.",
     "Manufacturer": "Строп цепной 2сц (2 сц) двухветвевой (2 х ветвевой) (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/katalog/stropy-cepnye/strop-cepnoy-2sc-dvuhvetvevoy"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_12"
   },
   {
     "ModelType": 4,
@@ -2181,7 +2831,11 @@
     "Price": null,
     "Description": "Четырёхветвевой цепной строп (переходные звенья типа кольцо-крюк) грузоподъёмностью 2,36 т, длиной 4 м.",
     "Manufacturer": "СТРОП ЦЕПНОЙ купить от 800 ₽ в Москве с доставкой (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/katalog/stropy-cepnye"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_13"
   },
   {
     "ModelType": 4,
@@ -2194,7 +2848,11 @@
     "Price": null,
     "Description": "Деревянный брус 100х100х1000 мм, применяется в качестве подкладки.",
     "Manufacturer": "Брус (krym-les.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://krym-les.ru/brus"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Holder_3"
   },
   {
     "ModelType": 4,
@@ -2207,7 +2865,11 @@
     "Price": null,
     "Description": "Двухветвевой текстильный строп (переходные звенья типа кольцо-крюк) грузоподъёмностью 1,25 т (угол между ветвями прямой), длиной 1 м.",
     "Manufacturer": "Стропы и грузоподъемное оборудование с завода (центра), купить в Москве, более 1000 наименований! | РУСТРОП (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_14"
   },
   {
     "ModelType": 4,
@@ -2220,7 +2882,11 @@
     "Price": null,
     "Description": "Четырёхветвевой текстильный строп (переходные звенья типа кольцо-крюк) грузоподъёмностью 2,5 т, длиной 2 м.",
     "Manufacturer": "Стропы и грузоподъемное оборудование с завода (центра), купить в Москве, более 1000 наименований! | РУСТРОП (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_15"
   },
   {
     "ModelType": 4,
@@ -2233,7 +2899,11 @@
     "Price": null,
     "Description": "Четырёхветвевой текстильный строп (переходные звенья типа кольцо-крюк) грузоподъёмностью 4,25 т, длиной 4 м.",
     "Manufacturer": "Стропы и грузоподъемное оборудование с завода (центра), купить в Москве, более 1000 наименований! | РУСТРОП (rustrop.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://www.rustrop.ru/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_16"
   },
   {
     "ModelType": 4,
@@ -2246,7 +2916,11 @@
     "Price": null,
     "Description": "Монтажный зажим МЗ-СИП-4 применяется для крепления провода СИП-4  к тяговому механизму.",
     "Manufacturer": "КВТ Российский производитель электротехнической продукции (kvt.su)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://kvt.su/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_OHLmount_6"
   },
   {
     "ModelType": 4,
@@ -2259,7 +2933,11 @@
     "Price": null,
     "Description": "Монтажный вертлюг ВМ-130 предназначен для предотвращеня образования петель при протяжке кабеля, а также предотвращения раскручивания СИП и оптоволоконного кабеля при раскатке. Максимальный диаметр троса-лидера: 30 мм; рабочая нагрузка: 130 кН.",
     "Manufacturer": "КВТ Российский производитель электротехнической продукции (kvt.su)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://kvt.su/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_CLmount_6"
   },
   {
     "ModelType": 4,
@@ -2272,7 +2950,11 @@
     "Price": null,
     "Description": "Применяются при монтажных работах на проводниках СИП для отделения жилы от скрутки.",
     "Manufacturer": "КВТ Российский производитель электротехнической продукции (kvt.su)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://kvt.su/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_OHLmount_7"
   },
   {
     "ModelType": 4,
@@ -2285,7 +2967,11 @@
     "Price": null,
     "Description": "Автономная портативная тяговая лебёдка ЛТПА-1. Тяговое усилие: 700 кг, без троса",
     "Manufacturer": "Инструмент и оборудование для работы с кабелем - МАЛИЕН (malien.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://malien.ru/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Winch_2"
   },
   {
     "ModelType": 4,
@@ -2298,7 +2984,11 @@
     "Price": null,
     "Description": "Подставка для троса лидера с барабаном П1-700Б применяется для намотки и размотки синтетического троса-лидера. Канатоемкость барабана (в зависимости от диаметра троса): 10мм – 1000м; 12мм – 800м; 14мм – 600м; 16мм – 400м.",
     "Manufacturer": "Инструмент и оборудование для работы с кабелем - МАЛИЕН (malien.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://malien.ru/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Winch_3"
   },
   {
     "ModelType": 4,
@@ -2311,7 +3001,11 @@
     "Price": null,
     "Description": "Трос лидер синтетический ТЛ-8, разрывная нагрузка 1300 кг, длина 500 метров.",
     "Manufacturer": "Инструмент и оборудование для работы с кабелем - МАЛИЕН (malien.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://malien.ru/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Winch_4"
   },
   {
     "ModelType": 4,
@@ -2324,7 +3018,11 @@
     "Price": null,
     "Description": "Крепление автономной портативной лебёдки на опору TBD.",
     "Manufacturer": "Инструмент и оборудование для работы с кабелем - МАЛИЕН (malien.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://malien.ru/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Winch_5"
   },
   {
     "ModelType": 4,
@@ -2337,7 +3035,11 @@
     "Price": null,
     "Description": "Стяжной ремень с храповым механизмом грузоподъёмностью 2 т.",
     "Manufacturer": "Schutz — Производство стяжных ремней для крепления груза (schutzcargo.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://schutzcargo.ru/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_17"
   },
   {
     "ModelType": 4,
@@ -2350,7 +3052,11 @@
     "Price": null,
     "Description": "Синтетический трос длиной 1100 м, диаметром 6 мм.",
     "Manufacturer": "https://metallenergonw.ru/products/st204-2060-0030-osnovnoj-baraban-s-sint-m-trosom-1100-m-diam-6-mm-detail",
-    "Categoty": "Equip"
+    "Links": [
+      "https://metallenergonw.ru/products/st204-2060-0030-osnovnoj-baraban-s-sint-m-trosom-1100-m-diam-6-mm-detail"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Winch_6"
   },
   {
     "ModelType": 4,
@@ -2363,7 +3069,11 @@
     "Price": null,
     "Description": "Диаметр кабеля 30-40 мм. Общая длина инструмента 1460 мм.",
     "Manufacturer": "https://kvt-pro.ru/montazh-sip-i-vl/prisposobleniya-dlya-montazha-sip/chulki-montazhnye-kvt-chm-3040-65130",
-    "Categoty": "Equip"
+    "Links": [
+      "https://kvt-pro.ru/montazh-sip-i-vl/prisposobleniya-dlya-montazha-sip/chulki-montazhnye-kvt-chm-3040-65130"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_CLmount_7"
   },
   {
     "ModelType": 4,
@@ -2376,7 +3086,11 @@
     "Price": null,
     "Description": "Карабин винтовой M14 26.5 X 93 мм Цинк. Рабочая нагрузка  - 2264 кг.",
     "Manufacturer": "https://svm24.ru/catalog/takelazh/karabin_vintovoy_m14_/",
-    "Categoty": "Equip"
+    "Links": [
+      "https://svm24.ru/catalog/takelazh/karabin_vintovoy_m14_/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Rigging_Сarabine_1 "
   },
   {
     "ModelType": 4,
@@ -2389,7 +3103,11 @@
     "Price": null,
     "Description": "Деревянная доска 25х100х2000 мм, применяется в качестве подкладки под трансформатор.",
     "Manufacturer": "Брус (krym-les.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://krym-les.ru/brus"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Holder_4"
   },
   {
     "ModelType": 4,
@@ -2402,7 +3120,11 @@
     "Price": null,
     "Description": "Винтовая струбцина F-образная длина зажима: 150 мм, глубина зажима: 50 мм.",
     "Manufacturer": "Струбцина Вихрь F-образная 150х50 мм — купить за 276 р. в официальном интернет-магазине в Москве (vihr.su)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://vihr.su/strubtsina-vikhr-f-obraznaya-150kh50-mm/"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -2415,7 +3137,11 @@
     "Price": null,
     "Description": "Деревянный брус 50х50х1500 мм, применяется в качестве подкладки.",
     "Manufacturer": "Брус (krym-les.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://krym-les.ru/brus"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "DNM-RU_Equip_Holder_5"
   },
   {
     "ModelType": 4,
@@ -2428,7 +3154,11 @@
     "Price": null,
     "Description": "Складной, распилочный верстак.",
     "Manufacturer": "Складной верстак Мастер-Профи с вкладышами и двойными Т-треками | Master Profy - магазин cтроительных инструментов (master-profy.ru)",
-    "Categoty": "Equip"
+    "Links": [
+      "https://master-profy.ru/skladnoj-verstak-master-profi-bez-udlineniya.html"
+    ],
+    "Categoty": "Equip",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -2441,7 +3171,11 @@
     "Price": null,
     "Description": "Перманентный маркер черного цвета с круглым наконечником 3 мм. Разметочный инструмент, позволяющий оставить заметный след практически на всех видах поверхностей.",
     "Manufacturer": "http://kancbiz.ru/pismennye-prinadlezhnosti/permanentnye-markery/marker-permanentnyy-nestiraemyy-brauberg-contract-bez-klipa-kruglyy-nakonechnik-3-mm-chernyy",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "http://kancbiz.ru/pismennye-prinadlezhnosti/permanentnye-markery/marker-permanentnyy-nestiraemyy-brauberg-contract-bez-klipa-kruglyy-nakonechnik-3-mm-chernyy"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_Stationery_1"
   },
   {
     "ModelType": 4,
@@ -2454,7 +3188,11 @@
     "Price": null,
     "Description": "Данная насадка в сочетании с оперативной штангой позволяет производить коммутационные действия с разъединителями и др.",
     "Manufacturer": "https://www.elec.ru/market/no-nasadka-operativnaja-dlja-upravlenija-razedinit-14971136280.html",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://www.elec.ru/market/no-nasadka-operativnaja-dlja-upravlenija-razedinit-14971136280.html"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_AccessoriesAdditional_1"
   },
   {
     "ModelType": 4,
@@ -2467,7 +3205,11 @@
     "Price": null,
     "Description": "Данная насадка в сочетании с оперативной штангой позволяет производить подключение заземления, рассоединения схлестнувшихся проводов ВЛ и др.",
     "Manufacturer": "http://www.elec.ru/market/kvl-krjuk-universalnyj-14971500153.html",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "http://www.elec.ru/market/kvl-krjuk-universalnyj-14971500153.html"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_AccessoriesAdditional_2"
   },
   {
     "ModelType": 4,
@@ -2480,7 +3222,11 @@
     "Price": null,
     "Description": "Приспособление предназначено для травмобезопасного извлечения грунтовых анкеров, штыревых электродов, переносных заземлителей и других штырей.",
     "Manufacturer": "ДОСТАНТЕХ приспособление для травмобезопасного извлечения грунтовых анкеров и переносных заземлителей | Электронприбор (electronpribor.ru)",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://www.electronpribor.ru/catalog/753/dostanteh.htm"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_AccessoriesAdditional_4"
   },
   {
     "ModelType": 4,
@@ -2493,7 +3239,11 @@
     "Price": null,
     "Description": "Профессиональный удлинитель на пластиковой катушке, 20 м.",
     "Manufacturer": "Удлинитель IEK УК20 Industrial plus ПВС 3х1.5 купить в Симферополе и Крыму по доступной цене: характеристики и фото (220-volt.ru)",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://simferopol.220-volt.ru/catalog-220174/"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_ElectricalAppliance_1"
   },
   {
     "ModelType": 4,
@@ -2506,7 +3256,11 @@
     "Price": null,
     "Description": "Бензиновый генератор, номинальная мощность – 5 кВт.",
     "Manufacturer": "Электростанция (генератор бензиновый) ECO PE-7001RS (5.5 кВт, 230 В, бак 25.0 л, вес 70 кг) - купить Генераторы в Новацентр - Эксклюзивная цена (novacentr.ru)",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://novacentr.ru/product/elektrostantsiya-generator-benzinovyy-eco-pe-7001rs-5-5-kvt-230-v-bak-25-0-l-ves-70-kg.html"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_ElectricalAppliance_2"
   },
   {
     "ModelType": 4,
@@ -2519,7 +3273,11 @@
     "Price": null,
     "Description": "РацияBaofeng UV-9R Plus.",
     "Manufacturer": "Радиостанция Baofeng UV-9R Plus Long Range Walkie Talkie with USB Charger - купить по доступным ценам в интернет-магазине OZON",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://www.ozon.ru/product/uv9r-baofeng-uv-9r-plus-ratsiya-dalnego-deystviya-s-usb-zaryadnym-ustroystvom-sm-38445201-chernyy-497965714/?asb=LS%252BHpLpymtqnHdtAapOGDNLSe3dy7rjKL%252B76xlquqmY%253D&asb2=kYuqSPazyPZqXZKHhBpGE4CDr4g6wrLwEQz2aec3T3Wl9EoRHnWNths027bZf0Bc&keywords=%D1%80%D0%B0%D1%86%D0%B8%D1%8F+%D1%81+usb&sh=gESQxBJVbA"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_ElectricalAppliance_3"
   },
   {
     "ModelType": 4,
@@ -2532,7 +3290,11 @@
     "Price": null,
     "Description": "Сумка монтажника с поясным ремнем С-10, выдерживает вес до 5 кг. Габариты (ДхВхГ, мм): 240*70*240.",
     "Manufacturer": "Миниатюрная сумка монтажника с поясным ремнем - С-10 (kvt.tools)",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://www.kvt.tools/shop/bags-belts/bags/s10/"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_Tool_AccessoriesTools_1"
   },
   {
     "ModelType": 4,
@@ -2545,7 +3307,11 @@
     "Price": null,
     "Description": "Стеклопластиковый колышек диаметром 12 мм, высотой 1500 мм. Применяется в качестве основания при ограждении территории сигнальной лентой.",
     "Manufacturer": "Купить Стеклопластиковая арматура 12мм АКС-12 ГОСТ по низким ценам. Завод композитной арматуры СтеклоПласт (stekloplast34.ru)",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://stekloplast34.ru/stekloplastikovaya-armatura-12mm-aks-12-gost"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_Protect_WC_7"
   },
   {
     "ModelType": 4,
@@ -2558,7 +3324,11 @@
     "Price": null,
     "Description": "Диэлектрическая приставная раздвижная лестница, состоящая из 2-ух секций, длина секции – 3 м.",
     "Manufacturer": "Лестница стеклопластиковая приставная раздвижная диэлектрическая ЛСПРД-6,0 Е (pk-dielectric.ru)",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://pk-dielectric.ru/magazin/product/lestnica-stekloplastikovaya-pristavnaya-razdvizhnaya-dielektricheskaya-lsprd-6-0-e"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_Ladder_1"
   },
   {
     "ModelType": 4,
@@ -2571,7 +3341,11 @@
     "Price": null,
     "Description": "Вышка-тура высотой 3,8 м.",
     "Manufacturer": "Вышка-тура МЕГА МЕГА-1 (Н=3,8 м) 555:отзывы, описание, длина, высота секции и другие характеристики, цена от 22 969 (vseinstrumenti.ru)",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://www.vseinstrumenti.ru/stroitelnaya-tehnika-i-oborudovanie/dlya-rabot-na-vysote/vyshki-tury/mega-1/1-n3-8-m-555/"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_Scaffold_Tower"
   },
   {
     "ModelType": 4,
@@ -2584,7 +3358,11 @@
     "Price": null,
     "Description": "Перманентный маркер белого цвета с круглым наконечником 3 мм. Разметочный инструмент, позволяющий оставить заметный след практически на всех видах поверхностей.",
     "Manufacturer": "Маркер перманентный Centropen белый | Цена 100.00 ₽ - купить в Интернет-магазине канцелярских товаров | Доставка Севастополь, Крым | Официальный сайт kancbiz.ru",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://kancbiz.ru/tovary-dlya-ofisa-kanctovary/pismennye-prinadlezhnosti/permanentnye-markery-markery-kraska/marker-permanentnyy-8586-centropen-belyy"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_Stationery_2"
   },
   {
     "ModelType": 4,
@@ -2597,7 +3375,11 @@
     "Price": null,
     "Description": "Шнур разметочный капроновый 1,5 мм.",
     "Manufacturer": "Шнур разметочный капроновый 1,5 мм х 50 м — купить в интернет-магазине по низкой цене на Яндекс Маркете (yandex.by)",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://market.yandex.by/product--shnur-razmetochnyi-kapronovyi-1-5-mm-kh-50-m/1759502145?text=%D0%B2%D0%B5%D1%80%D0%B5%D0%B2%D0%BA%D0%B0%20%D0%B4%D0%BB%D1%8F%20%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%82%D0%BA%D0%B8%20%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%86%20%D1%83%D1%87%D0%B0%D1%81%D1%82%D0%BA%D0%B0&cpa=1&cpc=VKMPOmzVjbCLaa5_g8qjq33_Db3AQldnCJhcdDTRvCeysy95wxCo-yPEszgsigKf2gplc8h8_JtsiW3CgqxAkgu7qgNbnuZZl3HQkNpdXgz1Ybt-3yFpR5JmqXuPjKZmJaDZRbcH1iCsRJuY8flqamoi7mA_saLHvAKkSbMXMpw%2C&lr=0&sku=101785912971&do-waremd5=c6rc3BHwfQqbJvu0I5IlLQ&nid=18060231"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -2610,7 +3392,11 @@
     "Price": null,
     "Description": "Кабельная протяжка (мини УЗК в бухте, стеклопруток, d=3,5мм, 5м, красная) REXANT 47-1005/",
     "Manufacturer": "Кабельная протяжка (мини УЗК в бухте, стеклопруток, d=3,5мм, 5м, красная) REXANT 47-1005 в Перми - купить, цены, отзывы, характеристики, фото, инструкция (vseinstrumenti.ru)",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://perm.vseinstrumenti.ru/ruchnoy-instrument/elektromontazhnyj/protyazhki-kabelnye/rexant/kabelnaya-mini-uzk-v-buhte-stekloprutok-d-3-5mm-5m-krasnaya-47-1005/"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "TBD"
   },
   {
     "ModelType": 4,
@@ -2623,6 +3409,10 @@
     "Price": null,
     "Description": "Светодиодный прожектор FERON LL-504 на штативе IP65 2х70W 6400K предназначен для освещения строительных объектов, промышленных и торговых площадей. Прожекторы устанавливаются на штатив, что делает их удобными для переноски.",
     "Manufacturer": "Светодиодный прожектор FERON LL-504 на штативе IP65 2х70W 6400K 41544 в Екатеринбурге - купить, цены, отзывы, характеристики, фото, инструкция (vseinstrumenti.ru)",
-    "Categoty": "AuxEquip"
+    "Links": [
+      "https://ekb.vseinstrumenti.ru/product/svetodiodnyj-prozhektor-feron-ll-504-na-shtative-ip65-2h70w-6400k-41544-1972947/?ysclid=lo4b7pklsi724462513"
+    ],
+    "Categoty": "AuxEquip",
+    "ClassifierCode": "DNM-RU_AuxEquip_ElectricalAppliance_4"
   }
 ]

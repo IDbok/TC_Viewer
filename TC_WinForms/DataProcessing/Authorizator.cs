@@ -23,7 +23,6 @@ namespace TC_WinForms.DataProcessing
         {
             try
             {
-
                 Users.Clear();
                 Passwords.Clear();
                 // creatin new user
@@ -33,7 +32,6 @@ namespace TC_WinForms.DataProcessing
                     {"bokarev.fic@gmail.com", new User("bokarev.fic@gmail.com", "pass", "Игорь", "Бокарев", 2)},
                     {"anpa@tavrida.com", new User("anpa@tavrida.com", "pass","Павел", "Анохин", 1)}
                 };
-
 
                 if (Passwords[login.ToLower()] == password)
                 {

@@ -186,7 +186,7 @@ namespace TC_WinForms
                     obj[i].Child.Name,
                     obj[i].Child.Type,
                     obj[i].Child.CombineResponsibility,
-                    obj[i].Child.Competence,
+                    obj[i].Child.Qualification,
 
                     obj[i].Symbol);
             }
