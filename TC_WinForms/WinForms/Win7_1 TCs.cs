@@ -14,13 +14,13 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win7_1_TCs : Form
     {
-        private DbConnector dbCon = new DbConnector();
+        public DbConnector dbCon = new DbConnector();
 
         private List<TechnologicalCard> tcList = new List<TechnologicalCard>();
         private List<int> changedItemId = new List<int>();
         private List<int> deletedItemId = new List<int>();
         private List<TechnologicalCard> changedCards = new List<TechnologicalCard>();
-        private TechnologicalCard newCard;
+        public TechnologicalCard newCard;
         public Win7_1_TCs(int accessLevel)
         {
             InitializeComponent();
@@ -63,6 +63,85 @@ namespace TC_WinForms.WinForms
             }
             else if (accessLevel == 2) // Progect editor
             {
+            }
+        }
+
+        private void btnAddNewTC_Click(object sender, EventArgs e)
+        {
+            if (newCard != null) // todo - add check for all required fields (ex. Type can be only as "Ремонтная", "Монтажная", "ТТ")
+                if (newCard.Article == ""
+                  || newCard.Type == ""
+                  || newCard.NetworkVoltage == 0)
+                {
+                    MessageBox.Show($"Новая карта с id {newCard.Id} ещё не заполнена." +
+                        $"\nВнесите обязательные поля (Артикул, Тип карты, Сеть, кВ)");
+                    return;
+                };
+            // create new object and add it to newCard if newCard is null
+            if (DataProcessing.DataProcessing.addNewTC(this))
+            {
+                tcList.Insert(0, newCard);
+
+                // scroll to new row and refresh dgvMain
+                dgvMain.FirstDisplayedScrollingRowIndex = 0;
+                dgvMain.Refresh();
+            }
+
+            
+        }
+
+        private void btnUpdateTC_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnDeleteTC_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.SelectedRows.Count > 0)
+            {
+                List<DataGridViewRow> rowsToDelete = GetSelectedRows();
+
+                // add articles to message
+                string message = "Вы действительно хотите удалить выбранные карты?\n";
+                foreach (var row in rowsToDelete)
+                {
+                    message += row.Cells["Article"].Value.ToString() + "\n";
+                }
+
+                string caption = "Удаление Технологических карт";
+                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                DialogResult result;
+                result = MessageBox.Show(message, caption, buttons);
+
+
+                if (result == DialogResult.Yes)
+                {
+                    foreach (var row in rowsToDelete)
+                    {
+                        dbCon.Delete<TechnologicalCard>((int)row.Cells["Id"].Value);
+                    }
+                    DeleteRows(rowsToDelete);
+                }
+
+                dgvMain.Refresh();
+            }
+
+
+        }
+        private List<DataGridViewRow> GetSelectedRows()
+        {
+            List<DataGridViewRow> selectedRows = new List<DataGridViewRow>();
+            foreach (DataGridViewRow row in dgvMain.SelectedRows)
+            {
+                selectedRows.Add(row);
+            }
+            return selectedRows;
+        }
+        private void DeleteRows(List<DataGridViewRow> rowsToDelete)
+        {
+            foreach (DataGridViewRow row in rowsToDelete)
+            {
+                dgvMain.Rows.Remove(row);
             }
         }
     }

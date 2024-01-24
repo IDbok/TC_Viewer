@@ -12,6 +12,8 @@ namespace TC_WinForms.WinForms
         private int _accessLevel;
 
         private Win7_1_TCs winTCs;
+        private Win7_2_Prj winPrj;
+        private Win7_3_Staff winStaff;
 
 
 
@@ -194,35 +196,7 @@ namespace TC_WinForms.WinForms
         //}
 
 
-        private void btnTechCard_Click(object sender, EventArgs e)
-        {
-            if (winTCs == null)
-            {
-                winTCs = new Win7_1_TCs(_accessLevel);
-            }
-            LoadFormInPanel(winTCs);
-            //dgvMain.Columns.Clear();
 
-            //tcList = dbCon.GetObjectList<TechnologicalCard>();
-
-            //var bindingList = new BindingList<TechnologicalCard>(tcList);
-            //dgvMain.DataSource = bindingList;
-
-            //// set columns names
-            //SetTableHeadersNames(TechnologicalCard.GetPropertiesNames());
-
-            //// set columns order and visibility
-            //SetTableColumnsOrder(TechnologicalCard.GetPropertiesOrder());
-        }
-
-        private void Win7_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (newCard != null)
-            {
-                dbCon.Delete<TechnologicalCard>(newCard.Id);
-            }
-            WinProcessing.CloseingApp(e);
-        }
 
         //private void dgvMain_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         //{
@@ -322,22 +296,7 @@ namespace TC_WinForms.WinForms
             changedItemId.Clear();
             changedCards.Clear();
         }
-        //private List<DataGridViewRow> GetSelectedRows()
-        //{
-        //    List<DataGridViewRow> selectedRows = new List<DataGridViewRow>();
-        //    foreach (DataGridViewRow row in dgvMain.SelectedRows)
-        //    {
-        //        selectedRows.Add(row);
-        //    }
-        //    return selectedRows;
-        //}
-        //public void DeleteRows(List<DataGridViewRow> rowsToDelete)
-        //{
-        //    foreach (DataGridViewRow row in rowsToDelete)
-        //    {
-        //        dgvMain.Rows.Remove(row);
-        //    }
-        //}
+
         enum WinNumber
         {
             TC = 1,
@@ -351,104 +310,45 @@ namespace TC_WinForms.WinForms
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private List<TechnologicalCard> GetTestTcList()
-        {
-            var tcList = new List<TechnologicalCard>();
-            int index = 1;
-            tcList.Add(new TechnologicalCard
-            {
-                Id = index,
-                Article = $"{index}",
-                Version = $"{index}",
-                Name = $"{index}",
-                Type = $"{index}",
-                NetworkVoltage = index,
-                TechnologicalProcessType = $"{index}",
-                TechnologicalProcessName = $"{index}",
-                Parameter = $"{index}",
-                FinalProduct = $"{index}",
-                Applicability = $"{index}",
-                Note = $"{index}",
-                IsCompleted = false
-            });
-            index++;
-            tcList.Add(new TechnologicalCard
-            {
-                Id = index,
-                Article = $"{index}",
-                Version = $"{index}",
-                Name = $"{index}",
-                Type = $"{index}",
-                NetworkVoltage = index,
-                TechnologicalProcessType = $"{index}",
-                TechnologicalProcessName = $"{index}",
-                Parameter = $"{index}",
-                FinalProduct = $"{index}",
-                Applicability = $"{index}",
-                Note = $"{index}",
-                IsCompleted = false
-            });
-            index++;
-            tcList.Add(new TechnologicalCard
-            {
-                Id = index,
-                Article = $"{index}",
-                Version = $"{index}",
-                Name = $"{index}",
-                Type = $"{index}",
-                NetworkVoltage = index,
-                TechnologicalProcessType = $"{index}",
-                TechnologicalProcessName = $"{index}",
-                Parameter = $"{index}",
-                FinalProduct = $"{index}",
-                Applicability = $"{index}",
-                Note = $"{index}",
-                IsCompleted = false
-            });
-            return tcList;
-        }
-
-        //private void btnAddNewTC_Click(object sender, EventArgs e)
-        //{
-        //    if (newCard != null) // todo - add check for all required fields (ex. Type can be only as "Ремонтная", "Монтажная", "ТТ")
-        //        if (newCard.Article == ""
-        //          || newCard.Type == ""
-        //          || newCard.NetworkVoltage == 0)
-        //        {
-        //            MessageBox.Show($"Новая карта с id {newCard.Id} ещё не заполнена." +
-        //                $"\nВнесите обязательные поля (Артикул, Тип карты, Сеть, кВ)");
-        //            return;
-        //        };
-
-        //    // insert new row as the fist one to dgvMain as new item of tcList
-        //    int newId = dbCon.GetLastId<TechnologicalCard>();
-        //    tcList.Insert(0, new TechnologicalCard()
-        //    {
-        //        Id = newId + 1,
-        //        Article = "",
-        //        Version = "0.0.0.0",
-        //        Name = "",
-        //        Type = "",
-        //        NetworkVoltage = 0,
-        //        IsCompleted = false
-        //    });
-        //    dbCon.Add(tcList[0]);
-
-        //    newCard = tcList[0];
-
-        //    // scroll to new row
-        //    dgvMain.FirstDisplayedScrollingRowIndex = 0;
-        //    // refesh screen
-        //    dgvMain.Refresh();
-        //}
 
         private void LoadFormInPanel(Form form)
         {
+            // hide all forms in panel
+            foreach (Form frm in pnlDataViewer.Controls)
+            {
+                frm.Hide();
+            }
             form.TopLevel = false;
             form.FormBorderStyle = FormBorderStyle.None;
             form.Dock = DockStyle.Fill;
             this.pnlDataViewer.Controls.Add(form);
             form.Show();
+        }
+        private void Win7_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (newCard != null)
+            {
+                dbCon.Delete<TechnologicalCard>(newCard.Id);
+            }
+            WinProcessing.CloseingApp(e);
+        }
+        private void btnTechCard_Click(object sender, EventArgs e)
+        {
+            if (winTCs == null)
+            {
+                winTCs = new Win7_1_TCs(_accessLevel);
+            }
+            LoadFormInPanel(winTCs);
+        }
+
+
+        private void btnStaff_Click(object sender, EventArgs e)
+        {
+            if (winStaff == null)
+            {
+                winStaff = new Win7_3_Staff(_accessLevel);
+            }
+            LoadFormInPanel(winStaff);
         }
     }
 }

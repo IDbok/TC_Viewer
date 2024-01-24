@@ -1,6 +1,6 @@
 ﻿namespace TC_WinForms.WinForms
 {
-    partial class Win7_1_TCs
+    partial class Win7_3_Staff
     {
         /// <summary>
         /// Required designer variable.
@@ -34,9 +34,9 @@
             cmbProjectName = new ComboBox();
             lblProjectName = new Label();
             pnlControlBtns = new Panel();
-            btnDeleteTC = new Button();
-            btnUpdateTC = new Button();
-            btnAddNewTC = new Button();
+            btnDeleteObj = new Button();
+            btnUpdateObj = new Button();
+            btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
@@ -97,44 +97,42 @@
             // 
             // pnlControlBtns
             // 
-            pnlControlBtns.Controls.Add(btnDeleteTC);
-            pnlControlBtns.Controls.Add(btnUpdateTC);
-            pnlControlBtns.Controls.Add(btnAddNewTC);
+            pnlControlBtns.Controls.Add(btnDeleteObj);
+            pnlControlBtns.Controls.Add(btnUpdateObj);
+            pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
             pnlControlBtns.Location = new Point(328, 0);
             pnlControlBtns.Name = "pnlControlBtns";
             pnlControlBtns.Size = new Size(472, 110);
             pnlControlBtns.TabIndex = 24;
             // 
-            // btnDeleteTC
+            // btnDeleteObj
             // 
-            btnDeleteTC.Location = new Point(320, 12);
-            btnDeleteTC.Name = "btnDeleteTC";
-            btnDeleteTC.Size = new Size(139, 60);
-            btnDeleteTC.TabIndex = 25;
-            btnDeleteTC.Text = "Удалить";
-            btnDeleteTC.UseVisualStyleBackColor = true;
-            btnDeleteTC.Click += btnDeleteTC_Click;
+            btnDeleteObj.Location = new Point(320, 12);
+            btnDeleteObj.Name = "btnDeleteObj";
+            btnDeleteObj.Size = new Size(139, 60);
+            btnDeleteObj.TabIndex = 25;
+            btnDeleteObj.Text = "Удалить";
+            btnDeleteObj.UseVisualStyleBackColor = true;
             // 
-            // btnUpdateTC
+            // btnUpdateObj
             // 
-            btnUpdateTC.Location = new Point(165, 12);
-            btnUpdateTC.Name = "btnUpdateTC";
-            btnUpdateTC.Size = new Size(139, 60);
-            btnUpdateTC.TabIndex = 24;
-            btnUpdateTC.Text = "Редактировать";
-            btnUpdateTC.UseVisualStyleBackColor = true;
-            btnUpdateTC.Click += btnUpdateTC_Click;
+            btnUpdateObj.Location = new Point(165, 12);
+            btnUpdateObj.Name = "btnUpdateObj";
+            btnUpdateObj.Size = new Size(139, 60);
+            btnUpdateObj.TabIndex = 24;
+            btnUpdateObj.Text = "Редактировать";
+            btnUpdateObj.UseVisualStyleBackColor = true;
             // 
-            // btnAddNewTC
+            // btnAddNewObj
             // 
-            btnAddNewTC.Location = new Point(8, 12);
-            btnAddNewTC.Name = "btnAddNewTC";
-            btnAddNewTC.Size = new Size(139, 60);
-            btnAddNewTC.TabIndex = 23;
-            btnAddNewTC.Text = "Добавить";
-            btnAddNewTC.UseVisualStyleBackColor = true;
-            btnAddNewTC.Click += btnAddNewTC_Click;
+            btnAddNewObj.Location = new Point(8, 12);
+            btnAddNewObj.Name = "btnAddNewObj";
+            btnAddNewObj.Size = new Size(139, 60);
+            btnAddNewObj.TabIndex = 23;
+            btnAddNewObj.Text = "Добавить";
+            btnAddNewObj.UseVisualStyleBackColor = true;
+            btnAddNewObj.Click += btnAddNewObj_Click;
             // 
             // pnlDataViewer
             // 
@@ -145,16 +143,17 @@
             pnlDataViewer.Size = new Size(800, 340);
             pnlDataViewer.TabIndex = 2;
             // 
-            // Win7_1_TCs
+            // Win7_3_Staff
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
-            Name = "Win7_1_TCs";
-            Text = "Win7_1_TCs";
-            Load += Win7_1_TCs_Load;
+            Name = "Win7_3_Staff";
+            Text = "Win7_3_Staff";
+            FormClosing += Win7_3_Staff_FormClosing;
+            Load += Win7_3_Staff_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);
@@ -169,9 +168,9 @@
         private DataGridView dgvMain;
         private Panel pnlControls;
         private Panel pnlControlBtns;
-        private Button btnDeleteTC;
-        private Button btnUpdateTC;
-        private Button btnAddNewTC;
+        private Button btnDeleteObj;
+        private Button btnUpdateObj;
+        private Button btnAddNewObj;
         private Panel pnlFilters;
         private ComboBox cmbProjectName;
         private Label lblProjectName;

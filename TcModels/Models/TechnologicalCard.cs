@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
 namespace TcModels.Models
 {
-    public class TechnologicalCard: IIdentifiable
+    public class TechnologicalCard: INameable
     {
         
         public static Dictionary<string, string> GetPropertiesNames()
@@ -54,6 +55,7 @@ namespace TcModels.Models
 
             };
         }
+
         public int Id { get; set; }
         public string Article { get; set; }
         public string Name { get; set; }

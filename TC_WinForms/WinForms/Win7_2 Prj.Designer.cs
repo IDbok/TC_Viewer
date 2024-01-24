@@ -1,6 +1,6 @@
 ﻿namespace TC_WinForms.WinForms
 {
-    partial class Win7_1_TCs
+    partial class Win7_2_Prj
     {
         /// <summary>
         /// Required designer variable.
@@ -114,7 +114,6 @@
             btnDeleteTC.TabIndex = 25;
             btnDeleteTC.Text = "Удалить";
             btnDeleteTC.UseVisualStyleBackColor = true;
-            btnDeleteTC.Click += btnDeleteTC_Click;
             // 
             // btnUpdateTC
             // 
@@ -124,7 +123,6 @@
             btnUpdateTC.TabIndex = 24;
             btnUpdateTC.Text = "Редактировать";
             btnUpdateTC.UseVisualStyleBackColor = true;
-            btnUpdateTC.Click += btnUpdateTC_Click;
             // 
             // btnAddNewTC
             // 
@@ -134,7 +132,6 @@
             btnAddNewTC.TabIndex = 23;
             btnAddNewTC.Text = "Добавить";
             btnAddNewTC.UseVisualStyleBackColor = true;
-            btnAddNewTC.Click += btnAddNewTC_Click;
             // 
             // pnlDataViewer
             // 
@@ -145,16 +142,16 @@
             pnlDataViewer.Size = new Size(800, 340);
             pnlDataViewer.TabIndex = 2;
             // 
-            // Win7_1_TCs
+            // Win7_2_Prj
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
-            Name = "Win7_1_TCs";
-            Text = "Win7_1_TCs";
-            Load += Win7_1_TCs_Load;
+            Name = "Win7_2_Prj";
+            Text = "Win7_2_Prj";
+            Load += Win7_2_Prj_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);

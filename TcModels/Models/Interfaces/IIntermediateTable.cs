@@ -1,4 +1,4 @@
-﻿namespace TcModels.Models.IntermediateTables
+﻿namespace TcModels.Models.Interfaces
 {
     public interface IIntermediateTable<P, C>
     {

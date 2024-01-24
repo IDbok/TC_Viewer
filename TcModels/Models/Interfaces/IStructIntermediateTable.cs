@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TcModels.Models.IntermediateTables
+namespace TcModels.Models.Interfaces
 {
-    public interface IStructIntermediateTable<P, C>: IIntermediateTable<P,C>
+    public interface IStructIntermediateTable<P, C> : IIntermediateTable<P, C>
     {
         public int ParentId { get; set; }
         public P Parent { get; set; }
@@ -15,6 +15,6 @@ namespace TcModels.Models.IntermediateTables
         public int Order { get; set; }
         public double Quantity { get; set; }
         public string? Note { get; set; }
-    
+
     }
 }

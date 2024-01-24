@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent

@@ -29,6 +29,12 @@
     <Compile Update="WinForms\Win2.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="WinForms\Win7_3 Staff.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WinForms\Win7_2 Prj.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="WinForms\Win7_new.cs">
       <SubType>Form</SubType>
     </Compile>

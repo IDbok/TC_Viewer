@@ -1,4 +1,4 @@
-﻿namespace TcModels.Models
+﻿namespace TcModels.Models.Interfaces
 {
     public interface ISaveableForm
     {

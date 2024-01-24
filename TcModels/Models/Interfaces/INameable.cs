@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TcModels.Models.TcContent
+namespace TcModels.Models.Interfaces
 {
-    public interface IIdentifiable
+    public interface INameable: IIdentifiable
     {
         int Id { get; set; }
+        string Name { get; set; }
     }
 }

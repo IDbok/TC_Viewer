@@ -1,9 +1,9 @@
 ﻿
-using TcModels.Models.TcContent;
+using TcModels.Models.Interfaces;
 
 namespace TcModels.Models
 {
-    public class Author: IIdentifiable
+    public class Author: INameable
     {
         public int Id { get; set; }
         public string Name { get; set; }

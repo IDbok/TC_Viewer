@@ -7,6 +7,7 @@ using TcModels.Models.IntermediateTables;
 using static ExcelParsing.DataProcessing.ExcelParser;
 using Newtonsoft.Json;
 using System.IO;
+using TcModels.Models.Interfaces;
 
 namespace TestConsoleAppTC
 {

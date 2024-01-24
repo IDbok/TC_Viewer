@@ -1,10 +1,10 @@
 ﻿
 using System.ComponentModel.DataAnnotations.Schema;
-using TcModels.Models.TcContent;
+using TcModels.Models.Interfaces;
 
 namespace TcModels.Models
 {
-    public class TechnologicalProcess: IIdentifiable
+    public class TechnologicalProcess: INameable
     {
         public int Id { get; set; }
         public string Name { get; set; }

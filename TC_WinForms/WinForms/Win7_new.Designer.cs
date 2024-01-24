@@ -41,7 +41,7 @@
             button7 = new Button();
             button6 = new Button();
             button5 = new Button();
-            button3 = new Button();
+            btnStaff = new Button();
             btnProject = new Button();
             btnTechCard = new Button();
             pnlLable = new Panel();
@@ -113,7 +113,7 @@
             pnlNavigationBtns.Controls.Add(button7);
             pnlNavigationBtns.Controls.Add(button6);
             pnlNavigationBtns.Controls.Add(button5);
-            pnlNavigationBtns.Controls.Add(button3);
+            pnlNavigationBtns.Controls.Add(btnStaff);
             pnlNavigationBtns.Controls.Add(btnProject);
             pnlNavigationBtns.Controls.Add(btnTechCard);
             pnlNavigationBtns.Dock = DockStyle.Fill;
@@ -172,15 +172,16 @@
             button5.Text = "Материалы и комплектующие";
             button5.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // btnStaff
             // 
-            button3.Dock = DockStyle.Top;
-            button3.Location = new Point(0, 136);
-            button3.Name = "button3";
-            button3.Size = new Size(198, 68);
-            button3.TabIndex = 3;
-            button3.Text = "Персонал";
-            button3.UseVisualStyleBackColor = true;
+            btnStaff.Dock = DockStyle.Top;
+            btnStaff.Location = new Point(0, 136);
+            btnStaff.Name = "btnStaff";
+            btnStaff.Size = new Size(198, 68);
+            btnStaff.TabIndex = 3;
+            btnStaff.Text = "Персонал";
+            btnStaff.UseVisualStyleBackColor = true;
+            btnStaff.Click += btnStaff_Click;
             // 
             // btnProject
             // 
@@ -255,7 +256,7 @@
         private Panel pnlNavigationBtns;
         private Button btnTechCard;
         private Panel pnlLable;
-        private Button button3;
+        private Button btnStaff;
         private Button btnProject;
         private Button button8;
         private Button button4;

@@ -1,10 +1,8 @@
-﻿
-using TcModels.Models.IntermediateTables;
-using TcModels.Models.TcContent;
+﻿using TcModels.Models.IntermediateTables;
 
-namespace TcModels.Models
+namespace TcModels.Models.Interfaces
 {
-    public interface IModelStructure : IIdentifiable
+    public interface IModelStructure : INameable
     {
         public static EModelType ModelType { get; }
         static string ModelTypeName { get; }

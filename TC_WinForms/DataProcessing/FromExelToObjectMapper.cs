@@ -3,6 +3,7 @@ using ExcelParsing.DataProcessing;
 using TcModels.Models;
 using TcModels.Models.TcContent;
 using System.Diagnostics;
+using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.DataProcessing
 {

@@ -1,4 +1,6 @@
 ﻿
+using TcModels.Models.Interfaces;
+
 namespace TcModels.Models.IntermediateTables
 {
     public class Instrument_kit <T> : IStructIntermediateTable <T,T>

@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Windows.Forms;
 using TcDbConnector;
 using TcModels.Models;
+using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
@@ -174,6 +176,14 @@ namespace TC_WinForms.DataProcessing
                 if (context.Set<T>().Count() == 0) lastId = 0;
                 else lastId = context.Set<T>().OrderBy(a => a.Id).Last().Id;
                 return lastId;
+            }
+        }
+        public int GetIdByName<T>(string article) where T : class, IIdentifiable, INameable
+        {
+            using (var context = new MyDbContext())
+            {
+                int id = context.Set<T>().Where(obj => obj.Name == article).FirstOrDefault().Id;
+                return id;
             }
         }
         public List<T> GetList<T>() where T : class, IIdentifiable
@@ -415,5 +425,24 @@ namespace TC_WinForms.DataProcessing
             return obj;
         }
 
+        public TechnologicalCard AddNewObjAndReturnIt(TechnologicalCard newObject) 
+        {
+            Add(newObject);
+            // get id of new object
+            newObject.Id = GetIdByName<TechnologicalCard>(newObject.Name);
+            newObject.Name = "";
+
+            return newObject;
+        }
+
+        public T AddNewObjAndReturnIt<T>(T newObject) where T : class, INameable
+        {
+            Add(newObject);
+
+            newObject.Id = GetIdByName<T>(newObject.Name);
+            newObject.Name = "";
+
+            return newObject;
+        }
     }
 }

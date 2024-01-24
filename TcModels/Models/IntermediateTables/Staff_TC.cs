@@ -1,4 +1,5 @@
 ﻿
+using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
 
 namespace TcModels.Models.IntermediateTables

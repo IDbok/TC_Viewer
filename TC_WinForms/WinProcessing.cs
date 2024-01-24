@@ -4,6 +4,7 @@ using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TcDbConnector;
 using TcModels.Models;
+using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 

@@ -1,6 +1,6 @@
 ﻿using TcDbConnector;
-using TcModels.Models.TcContent;
 using TcModels.Models;
+using TcModels.Models.Interfaces;
 
 namespace TestConsoleAppTC
 {
