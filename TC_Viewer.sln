@@ -16,11 +16,17 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Serialised data", "Serialised data", "{34F64A82-3D31-4F46-92DB-A19C88F843CB}"
 	ProjectSection(SolutionItems) = preProject
 		Serialised data\componentList.json = Serialised data\componentList.json
+		Serialised data\componentTcList.json = Serialised data\componentTcList.json
 		Serialised data\machineList.json = Serialised data\machineList.json
+		Serialised data\machineTcList.json = Serialised data\machineTcList.json
 		Serialised data\protectionList.json = Serialised data\protectionList.json
+		Serialised data\protectionTcList.json = Serialised data\protectionTcList.json
 		Serialised data\staffList.json = Serialised data\staffList.json
+		Serialised data\staffTcList.json = Serialised data\staffTcList.json
 		Serialised data\tcList.json = Serialised data\tcList.json
 		Serialised data\toolList.json = Serialised data\toolList.json
+		Serialised data\toolTcList — копия.json = Serialised data\toolTcList — копия.json
+		Serialised data\toolTcList.json = Serialised data\toolTcList.json
 	EndProjectSection
 EndProject
 Global

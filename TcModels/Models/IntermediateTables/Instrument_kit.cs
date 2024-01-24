@@ -13,8 +13,8 @@ namespace TcModels.Models.IntermediateTables
         // public EModelType ModelType { get; set; } = T.ModelType;
 
         public int Order { get; set; }
-        public int Quantity { get; set; } // todo - make it double
-
+        public double Quantity { get; set; } 
+        public string? Note { get; set; }
         public override string ToString()
         {
             return $"-  {Child.Name} (id: {ChildId})";

@@ -11,8 +11,8 @@ namespace TcModels.Models.IntermediateTables
         public TechnologicalCard Parent { get; set; }
 
         public int Order { get; set; }
-        public int Quantity { get; set; } // todo - make it double
-
+        public double Quantity { get; set; }
+        public string? Note { get; set; }
         public override string ToString()
         {
             return $"{Order}.{Child.Name} (id: {ChildId}) {Quantity}";

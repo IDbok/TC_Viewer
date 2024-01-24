@@ -16,6 +16,91 @@ namespace ExcelParsing.DataProcessing
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
         }
+        public List<Staff_TC> ParseExcelToStaffTcObjects(string filePath, out List<string> metaList)
+        {
+
+            var objList = new List<Staff_TC>();
+            metaList = new List<string>();
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var sheetName = typeof(Staff_TC).Name;
+
+
+                var worksheet = package.Workbook.Worksheets[sheetName];
+                int rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    int.TryParse(Convert.ToString(worksheet.Cells[row, 1].Value), out var isIndex);
+                    int.TryParse(Convert.ToString(worksheet.Cells[row, 2].Value), out var isParentId);
+                    int.TryParse(Convert.ToString(worksheet.Cells[row, 10].Value), out var isChildId);
+                    int.TryParse(Convert.ToString(worksheet.Cells[row, 4].Value), out var isOrder);
+                    var isSymbol = Convert.ToString(worksheet.Cells[row, 9].Value);
+
+                    if (isParentId != 0 && isChildId != 0 && isOrder != 0 && isSymbol != "")
+                    {
+                        var obj = new Staff_TC
+                        {
+
+                            ParentId = isParentId,
+                            ChildId = isChildId,
+                            Order = isOrder,
+                            Symbol = isSymbol,
+                        };
+
+                        objList.Add(obj);
+                    }
+                    else
+                        metaList.Add($"Ошибка парсинга строке {isIndex}");
+                }
+            }
+            return objList;
+        }
+        public List<T> ParseExcelToIntermediateStructObjects<T,C>(string filePath, out List<string> metaList)
+            where T: IStructIntermediateTable<TechnologicalCard,C>, new()
+        {
+
+            var objList = new List<T>();
+            metaList = new List<string>();
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var sheetName = typeof(T).Name;
+                
+
+                var worksheet = package.Workbook.Worksheets[sheetName];
+                int rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    int.TryParse(Convert.ToString(worksheet.Cells[row, 1].Value),out var isIndex) ;
+                    int.TryParse(Convert.ToString(worksheet.Cells[row, 2].Value), out var isParentId);
+                    int.TryParse(Convert.ToString(worksheet.Cells[row, 9].Value), out var isChildId);
+                    int.TryParse(Convert.ToString(worksheet.Cells[row, 4].Value), out var isOrder);
+                    float.TryParse(Convert.ToString(worksheet.Cells[row, 8].Value), out var isQuantity);
+                    var isNote = Convert.ToString(worksheet.Cells[row, 11].Value);
+
+                    if (isParentId != 0 && isChildId != 0 && isOrder != 0 && isQuantity != 0)
+                    {
+                        var obj = new T
+                        {
+
+                            ParentId = isParentId,
+                            ChildId = isChildId,
+                            Order = isOrder,
+                            Quantity = isQuantity,
+                            Note = isNote == "" ? null : isNote,
+                        };
+
+                        objList.Add(obj);
+                    }
+                    else
+                        metaList.Add($"Ошибка парсинга строке {isIndex}");
+                }
+            }
+            return objList;
+        }
 
         public List<TechnologicalCard> ParseExcelToTcObjects(string filePath)
         {
@@ -28,13 +113,13 @@ namespace ExcelParsing.DataProcessing
 
                 for (int row = 2; row <= rowCount; row++)
                 {
-                    var isCompleted = Convert.ToString(worksheet.Cells[row, 11].Value);
-                    var nameTc = Convert.ToString(worksheet.Cells[row, 12].Value);
+                    var isCompleted = Convert.ToString(worksheet.Cells[row, 13].Value);
+                    var nameTc = Convert.ToString(worksheet.Cells[row, 14].Value);
                     string NoName = "Без названия";
 
                     var obj = new TechnologicalCard
                     {
-                        Id = Convert.ToInt32(worksheet.Cells[row, 13].Value),
+                        Id = Convert.ToInt32(worksheet.Cells[row, 15].Value),
 
                         Article = Convert.ToString(worksheet.Cells[row, 1].Value),
 
@@ -42,13 +127,15 @@ namespace ExcelParsing.DataProcessing
 
                         Type = Convert.ToString(worksheet.Cells[row, 2].Value),
                         NetworkVoltage = Convert.ToInt32(worksheet.Cells[row, 3].Value),
-                        TechnologicalPorocessType = Convert.ToString(worksheet.Cells[row, 4].Value),
-                        TechnologicalPorocessName = Convert.ToString(worksheet.Cells[row, 5].Value),
-                        TechnologicalPorocessNumber = Convert.ToString(worksheet.Cells[row, 6].Value),
-                        FinalProduct = Convert.ToString(worksheet.Cells[row, 7].Value),
-                        Applicability = Convert.ToString(worksheet.Cells[row, 8].Value),
-                        Note = Convert.ToString(worksheet.Cells[row, 9].Value),
-                        DamageType = Convert.ToString(worksheet.Cells[row, 10].Value),
+                        TechnologicalProcessType = Convert.ToString(worksheet.Cells[row, 4].Value),
+                        TechnologicalProcessName = Convert.ToString(worksheet.Cells[row, 5].Value),
+                        Parameter = Convert.ToString(worksheet.Cells[row, 6].Value),
+                        TechnologicalProcessNumber = Convert.ToString(worksheet.Cells[row, 7].Value),
+                        FinalProduct = Convert.ToString(worksheet.Cells[row, 8].Value),
+                        Applicability = Convert.ToString(worksheet.Cells[row, 9].Value),
+                        Note = Convert.ToString(worksheet.Cells[row, 10].Value),
+                        DamageType = Convert.ToString(worksheet.Cells[row, 11].Value),
+                        RepairType = Convert.ToString(worksheet.Cells[row, 12].Value),
 
                         IsCompleted = isCompleted == "Есть" ? true:false ,
 
@@ -111,7 +198,7 @@ namespace ExcelParsing.DataProcessing
                         Description = Convert.ToString(worksheet.Cells[row, 7].Value),
 
                         Manufacturer = manufacturer,
-                        Links = ParseLinks(linkValie, manufacturer),
+                        Links = ParseLinks2(linkValie, manufacturer),
 
                         ClassifierCode = Convert.ToString(worksheet.Cells[row, 6].Value),
                     };
@@ -146,7 +233,7 @@ namespace ExcelParsing.DataProcessing
                         Description = Convert.ToString(worksheet.Cells[row, 6].Value),
 
                         Manufacturer = manufacturer,
-                        Links = ParseLinks(linkValie, manufacturer),
+                        Links = ParseLinks2(linkValie, manufacturer),
 
                         ClassifierCode = Convert.ToString(worksheet.Cells[row, 5].Value),
                     };
@@ -181,7 +268,7 @@ namespace ExcelParsing.DataProcessing
                         Description = Convert.ToString(worksheet.Cells[row, 7].Value),
 
                         Manufacturer = manufacturer,
-                        Links = ParseLinks(linkValie, manufacturer),
+                        Links = ParseLinks2(linkValie, manufacturer),
 
                         Categoty = Convert.ToString(worksheet.Cells[row, 10].Value),
 
@@ -219,7 +306,7 @@ namespace ExcelParsing.DataProcessing
                         Description = Convert.ToString(worksheet.Cells[row, 7].Value),
 
                         Manufacturer = manufacturer,
-                        Links = ParseLinks(linkValie, manufacturer),
+                        Links = ParseLinks2(linkValie, manufacturer),
 
                         Categoty = Convert.ToString(worksheet.Cells[row, 10].Value),
 
@@ -254,27 +341,38 @@ namespace ExcelParsing.DataProcessing
             }
             return objList;
         }
-
-        public void TestParseLinks(string filePath,string sheetName, int row)
+        public List<LinkEntety> ParseLinks2(string linkValie, string manufacturer)
         {
-            
-            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            var objList = new List<LinkEntety>();
+            if (linkValie != "NoLink" && linkValie != "")
             {
-                var worksheet = package.Workbook.Worksheets[sheetName];
-                int rowCount = worksheet.Dimension.Rows;
-                
-
-                var linkValie = Convert.ToString(worksheet.Cells[row, 9].Value);
-                var manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value);
-                    
-                foreach (var item in ParseLinks(linkValie, manufacturer))
+                var link = new LinkEntety
                 {
-                    Console.WriteLine(item);
-                }
-                
+                    Link = linkValie,
+                };
+                objList.Add(link);
             }
-
+            if (manufacturer != "")
+            {
+                if (manufacturer.Contains("http"))
+                {
+                    var links = manufacturer.Split('\n');
+                    foreach (var linkValue in links)
+                    {
+                        var link = new LinkEntety
+                        {
+                            Link = linkValue.Trim(),
+                        };
+                        if (linkValue != linkValie)
+                            objList.Add(link);
+                    }
+                }
+            }
+            return objList;
         }
+
+
+
         public List<List<string>> ParseRowsToStrings(List<string> columnsNames, string filepath, 
             string? sheetName = null, int sheetNumber = 0, int startRow = 1, int endRow = maxRow)
         {

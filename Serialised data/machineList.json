@@ -9,7 +9,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автомобиль ОВБ, оснащённый устройством для подъёма и перемещения рабочих с инструментом и материалами, позволяющий при этом доставить бригаду к месту проведения работ.",
-    "Manufacturer": "http://klubblift.ru/avtovyshka-model-k42p-ford-transit.html"
+    "Manufacturer": "http://klubblift.ru/avtovyshka-model-k42p-ford-transit.html",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://klubblift.ru/avtovyshka-model-k42p-ford-transit.html"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_PS-OHL_Machinery_4"
   },
   {
     "ModelType": 2,
@@ -21,7 +28,9 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автомобиль, предназначенный для перемещения бригады к месту проведения работ, также позволяющий перевозить необходимые для работ материалы и оснастку.",
-    "Manufacturer": "Купить УАЗ Пикап 2021 модельного года. Комплектации и цены на новый УАЗ Пикап Патриот на официальном сайте УАЗ (uaz.ru)"
+    "Manufacturer": "Купить УАЗ Пикап 2021 модельного года. Комплектации и цены на новый УАЗ Пикап Патриот на официальном сайте УАЗ (uaz.ru)",
+    "Links": [],
+    "ClassifierCode": "DNM-RU_PS-OHL_Machinery_3"
   },
   {
     "ModelType": 2,
@@ -33,7 +42,9 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Грузовик с полуприцепом  11 метров.",
-    "Manufacturer": "Заказать Длинномер 22 т КАМАЗ длина 12 м в аренду недорого в Бахчисарае (spectehnika-rus.ru)"
+    "Manufacturer": "Заказать Длинномер 22 т КАМАЗ длина 12 м в аренду недорого в Бахчисарае (spectehnika-rus.ru)",
+    "Links": [],
+    "ClassifierCode": "DNM-RU_PS-OHL_Machinery_1"
   },
   {
     "ModelType": 2,
@@ -45,7 +56,9 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Бурильно-крановая машина. Автомобиль, совмещающий в себе функцию крана и бурильной установки.",
-    "Manufacturer": "Бурильно-крановые машины БКМ (ямобуры) от производителя Геомаш (geomash.ru)"
+    "Manufacturer": "Бурильно-крановые машины БКМ (ямобуры) от производителя Геомаш (geomash.ru)",
+    "Links": [],
+    "ClassifierCode": "DNM-RU_PS-OHL_Machinery_2"
   },
   {
     "ModelType": 2,
@@ -57,7 +70,9 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автомобиль ОРБ, оснащённый устройством для подъёма и перемещения рабочих с инструментом и материалами, позволяющий при этом доставить бригаду к месту проведения работ.",
-    "Manufacturer": "TBD"
+    "Manufacturer": "TBD",
+    "Links": [],
+    "ClassifierCode": "DNM-RU_PS-OHL_Machinery_26"
   },
   {
     "ModelType": 2,
@@ -69,7 +84,9 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автомобиль ОРБ, совмещающий в себе функцию крана, бурильной установки и автовышки, позволяющий при этом доставить бригаду, инструменты, материалы к месту проведения работ.",
-    "Manufacturer": "TBD"
+    "Manufacturer": "TBD",
+    "Links": [],
+    "ClassifierCode": "DNM-RU_PS-OHL_Machinery_27"
   },
   {
     "ModelType": 2,
@@ -81,7 +98,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Грузовик грузоподъёмностью 5 т.",
-    "Manufacturer": "Заказать Бортовой КАМАЗ 6 м в аренду недорого в Симферополе (spectehnika-rus.ru)"
+    "Manufacturer": "Заказать Бортовой КАМАЗ 6 м в аренду недорого в Симферополе (spectehnika-rus.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://simferopl.spectehnika-rus.ru/katalog/bortovye-mashiny/bortovoj-kamaz-6-m/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_PS-OHL_Machinery_28"
   },
   {
     "ModelType": 2,
@@ -93,7 +117,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Экскаватор-погрузчик на колёсном шасси.",
-    "Manufacturer": "http://simferopl.spectehnika-rus.ru/katalog/ekskavatory/ekskavator-pogruzchik-deere-325j-kovsh-0-2-m3/"
+    "Manufacturer": "http://simferopl.spectehnika-rus.ru/katalog/ekskavatory/ekskavator-pogruzchik-deere-325j-kovsh-0-2-m3/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://simferopl.spectehnika-rus.ru/katalog/ekskavatory/ekskavator-pogruzchik-deere-325j-kovsh-0-2-m3/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_PS-CL_Machinery_1"
   },
   {
     "ModelType": 2,
@@ -105,7 +136,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Самосвал, грузоподъёмность –25 т, объёмная вместимость кузова – 20 куб. м.",
-    "Manufacturer": "Заказать Самосвал 25 т Shaanqi в аренду недорого в Симферополе (spectehnika-rus.ru)"
+    "Manufacturer": "Заказать Самосвал 25 т Shaanqi в аренду недорого в Симферополе (spectehnika-rus.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://simferopl.spectehnika-rus.ru/katalog/samosvaly/samosval-25t-shaanqi/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_PS-CL_Machinery_2"
   },
   {
     "ModelType": 2,
@@ -117,7 +155,9 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Передвижная электротехническая лаборатория с набором оборудования для испытания КЛ.",
-    "Manufacturer": "TBD"
+    "Manufacturer": "TBD",
+    "Links": [],
+    "ClassifierCode": "DNM-RU_PS-CL_Machinery_3"
   },
   {
     "ModelType": 2,
@@ -129,7 +169,9 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автомобиль, предназначенный для перемещения персонала сторонней организации к месту проведения работ, также позволяющий перевозить необходимые для работ материалы и оснастку.",
-    "Manufacturer": "-"
+    "Manufacturer": "-",
+    "Links": [],
+    "ClassifierCode": "DNM-RU_Sub_Machinery_1"
   },
   {
     "ModelType": 2,
@@ -141,7 +183,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автобетоносмеситель СБ-159А, объёмом 8 куб. м.",
-    "Manufacturer": "АБС 581454 (СБ-159Б) Kамаз 55111 - Автобетоносмеситель - Уральский Завод Спецтехники (uzst.ru)"
+    "Manufacturer": "АБС 581454 (СБ-159Б) Kамаз 55111 - Автобетоносмеситель - Уральский Завод Спецтехники (uzst.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://uzst.ru/tech/specztexnika-dlya-dorozhnogo-i-kommunalnogo-xoz-va/betonosmesiteli-i-betononasosy/abs-581454-sb-159b-kamaz-55111?ysclid=l81e5b3g9b928093863"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Sub_Machinery_2"
   },
   {
     "ModelType": 2,
@@ -153,7 +202,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Бурильно-крановая машина. Автомобиль, совмещающий в себе функцию крана и бурильной установки,  грузоподъёмность КМУ: 8000 кг, диаметр бура – 500 мм.",
-    "Manufacturer": "Бурильно-крановая установка КМУ TAURUS 086A на базе бортового КамАЗ 43118, ямобур TAURUS 076, 086 (5bur.ru)"
+    "Manufacturer": "Бурильно-крановая установка КМУ TAURUS 086A на базе бортового КамАЗ 43118, ямобур TAURUS 076, 086 (5bur.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://5bur.ru/bkm-taurus-086-43118"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Sub_Machinery_3"
   },
   {
     "ModelType": 2,
@@ -165,7 +221,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Грузовик с полуприцепом  17 метров.",
-    "Manufacturer": "Бортовые длинномеры 13.6 м, 16.5 метров, 17 метров. Перевозки грузов длинномерным транспортом - купить в Москве, цена 19000 руб. за шт (stroyportal.ru)"
+    "Manufacturer": "Бортовые длинномеры 13.6 м, 16.5 метров, 17 метров. Перевозки грузов длинномерным транспортом - купить в Москве, цена 19000 руб. за шт (stroyportal.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://www.stroyportal.ru/catalog/section-gruzoperevozki-na-avtomobile-do-20-tonn-4713/bortovye-dlinnomery-136-m-165-metrov-17-metrov-per-684937342/?ysclid=l8bq42uyrd289160687"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Sub_Machinery_4"
   },
   {
     "ModelType": 2,
@@ -177,7 +240,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автокран, грузоподъёмность стрелы 25 т.",
-    "Manufacturer": "Аренда и услуги автокрана 25 тонн в Крыму и Севастополе — СПЕЦТЕХНИКА-ИНФО (spectehinfo.ru)"
+    "Manufacturer": "Аренда и услуги автокрана 25 тонн в Крыму и Севастополе — СПЕЦТЕХНИКА-ИНФО (spectehinfo.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://krym.spectehinfo.ru/arenda/avtokrany/25_tonn"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Sub_Machinery_5"
   },
   {
     "ModelType": 2,
@@ -189,7 +259,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Трехосный большегруз КАМАЗ-65117 оборудованный манипулятором KANGLIM 2056H.",
-    "Manufacturer": "КАМАЗ 65117 с КМУ Kanglim KS 2056 (kanglim-ks.ru)"
+    "Manufacturer": "КАМАЗ 65117 с КМУ Kanglim KS 2056 (kanglim-ks.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://kanglim-ks.ru/produktsiya/avtomobili-s-kmu/kanglim-kamaz/kanglim-ks-2056-na-shassi-kamaz-65117?ysclid=lcqbyp64og407647601"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Sub_Machinery_6"
   },
   {
     "ModelType": 2,
@@ -201,7 +278,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автобетононасос на базе КАМАЗ 65115.",
-    "Manufacturer": "Камаз 65115 (6×4) автобетононасос — фото, характеристики, схема, описание (avtoalfa.com)"
+    "Manufacturer": "Камаз 65115 (6×4) автобетононасос — фото, характеристики, схема, описание (avtoalfa.com)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://avtoalfa.com/tehspravochnik/gruzoviki/kamaz/65115-9/?ysclid=lcubvs5ib7826428803"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Sub_Machinery_7"
   },
   {
     "ModelType": 2,
@@ -213,7 +297,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автокран, грузоподъёмность стрелы 50 т.",
-    "Manufacturer": "Аренда и услуги автокранов в Крыму и Севастополе — СПЕЦТЕХНИКА-ИНФО (spectehinfo.ru)"
+    "Manufacturer": "Аренда и услуги автокранов в Крыму и Севастополе — СПЕЦТЕХНИКА-ИНФО (spectehinfo.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://krym.spectehinfo.ru/arenda/avtokrany"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Sub_Machinery_7"
   },
   {
     "ModelType": 2,
@@ -225,7 +316,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автотрал, грузоподъёмность 25 т.",
-    "Manufacturer": "Аренда трала и перевозки тралом спецтехники в Крыму и Севастополе — СПЕЦТЕХНИКА-ИНФО (spectehinfo.ru)"
+    "Manufacturer": "Аренда трала и перевозки тралом спецтехники в Крыму и Севастополе — СПЕЦТЕХНИКА-ИНФО (spectehinfo.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://krym.spectehinfo.ru/arenda/traly"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_PS-Sub_Machinery_8"
   },
   {
     "ModelType": 2,
@@ -237,7 +335,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Экскаватор Hitachi ZX 330 на гусеничном шасси.",
-    "Manufacturer": "Аренда гусеничного экскаватора Hitachi ZX330 в Симферополе, цены (exkavator.ru)"
+    "Manufacturer": "Аренда гусеничного экскаватора Hitachi ZX330 в Симферополе, цены (exkavator.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://exkavator.ru/trade/arenda/simferopol/zemlerojnaya-tehnika/gusenichnye-ekskavatory/hitachi/hitachi_zx_330/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_PS-Sub_Machinery_9"
   },
   {
     "ModelType": 2,
@@ -249,7 +354,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Самосвал, грузоподъёмность – 15 т.",
-    "Manufacturer": "Аренда самосвала КамАЗ 65115, цены (exkavator.ru)"
+    "Manufacturer": "Аренда самосвала КамАЗ 65115, цены (exkavator.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://exkavator.ru/trade/arenda/gruzovye-avtomobili/samosvaly/kamaz/kamaz_65115_samosval/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_PS-Sub_Machinery_10"
   },
   {
     "ModelType": 2,
@@ -261,7 +373,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Грунтовый каток Bomag BW 219 D-5.",
-    "Manufacturer": "Каток грунтовый Bomag BW 219 взять в аренду с водителем в Москве и области (sdkrent.ru)"
+    "Manufacturer": "Каток грунтовый Bomag BW 219 взять в аренду с водителем в Москве и области (sdkrent.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://sdkrent.ru/catalog/katki-gruntovye/bomag-bw-219/?ysclid=ld1qw00xuf227395826"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_PS-Sub_Machinery_11"
   },
   {
     "ModelType": 2,
@@ -273,6 +392,13 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Автомобиль с КМУ (кран-бор, манипулятор), с грузоподъемностью стрелы до 8 т.",
-    "Manufacturer": "Бортовой автомобиль Камаз 43118 с КМУ Palfinger PK 23500. (tehmodern.ru)"
+    "Manufacturer": "Бортовой автомобиль Камаз 43118 с КМУ Palfinger PK 23500. (tehmodern.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://tehmodern.ru/catalog/kmu-gidravlicheskie/kmu-palfinger-pk-23500-performance"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Sub_Machinery_12"
   }
 ]

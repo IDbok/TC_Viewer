@@ -15,13 +15,13 @@ namespace TC_WinForms
     {
         public TechnologicalCard tc;
         public Dictionary<string, string> ButtonNames = new();
-        public void AddDataToDictionaryTC(string btnName, string choice) 
-        {
-            if (tc.Data.ContainsKey(btnName))
-                tc.Data[btnName] = choice;
-            else
-                tc.Data.Add(btnName, choice);
-        }
+        //public void AddDataToDictionaryTC(string btnName, string choice) 
+        //{
+        //    if (tc.Data.ContainsKey(btnName))
+        //        tc.Data[btnName] = choice;
+        //    else
+        //        tc.Data.Add(btnName, choice);
+        //}
         public Win4()
         {
             InitializeComponent();

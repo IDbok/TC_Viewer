@@ -6,6 +6,54 @@ namespace TcModels.Models
 {
     public class TechnologicalCard: IIdentifiable
     {
+        
+        public static Dictionary<string, string> GetPropertiesNames()
+        {
+            return new Dictionary<string, string>
+            {
+                { nameof(Id), "ID" },
+                { nameof(Article), "Артикул" },
+                { nameof(Version), "Версия" },
+                { nameof(Name), "Название" },
+                { nameof(Type), "Тип карты" },
+                { nameof(NetworkVoltage), "Сеть, кВ" },
+                { nameof(TechnologicalProcessType), "Тип тех. процесса" },
+                { nameof(TechnologicalProcessName), "Тех. процесс" },
+                { nameof(Parameter), "Параметр" },
+                { nameof(FinalProduct), "Конечный продукт" },
+                { nameof(Applicability), "Применимость техкарты" },
+                { nameof(Note), "Примечания" },
+                { nameof(IsCompleted), "Наличие" }
+            };
+        }
+        public static Dictionary<string, int> GetPropertiesOrder()
+        {
+            int i = 0;
+            return new Dictionary<string, int>
+            {
+                { nameof(Id), 11 },
+                { nameof(Name), -1 },
+
+                { nameof(Article), 0 },
+                { nameof(Type), 1 },
+                { nameof(NetworkVoltage), 2 },
+                { nameof(TechnologicalProcessType), 3 },
+                { nameof(TechnologicalProcessName), 4 },
+                { nameof(Parameter), 5 },
+                { nameof(FinalProduct), 6 },
+                { nameof(Applicability), 7 },
+                { nameof(Note), 8 },
+                { nameof(IsCompleted), 9 },
+                { nameof(Version), 10 },
+
+                { nameof(TechnologicalProcessNumber), -1 },
+                { nameof(Description), -1 },
+                { nameof(DamageType), -1 },
+                { nameof(RepairType), -1},
+                { nameof(Data), -1 },
+
+            };
+        }
         public int Id { get; set; }
         public string Article { get; set; }
         public string Name { get; set; }
@@ -14,14 +62,15 @@ namespace TcModels.Models
 
         public string Type { get; set; } // Тип карты
         public int NetworkVoltage { get; set; } // Сеть, кВ
-        public string? TechnologicalPorocessType { get; set; } // Тип тех. процесса
-        public string? TechnologicalPorocessName { get; set; } // Технологический процесс
-        public string? TechnologicalPorocessNumber { get; set; } // Номер тех. процесса
-        //public string? Parameter { get; set; } 
+        public string? TechnologicalProcessType { get; set; } // Тип тех. процесса
+        public string? TechnologicalProcessName { get; set; } // Технологический процесс
+        public string? TechnologicalProcessNumber { get; set; } // Номер тех. процесса
+        public string? Parameter { get; set; } // Параметр
         public string? FinalProduct { get; set; } // Конечный продукт (КП)
         public string? Applicability { get; set; } // Применимость техкарты
         public string? Note { get; set; } // Примечания
         public string? DamageType { get; set; } // Тип повреждения
+        public string?  RepairType { get; set; } // Тип ремонта
         public bool IsCompleted { get; set; } // Наличие ТК
 
         public List<Author> Authors { get; set; } = new();

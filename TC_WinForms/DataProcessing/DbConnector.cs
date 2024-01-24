@@ -13,6 +13,25 @@ namespace TC_WinForms.DataProcessing
         {
             Program.currentTc = GetObject<TechnologicalCard>(id);
         }
+
+        public void UpdateTcList(List<TechnologicalCard> tcList)
+        {
+            using(var context = new MyDbContext())
+            {
+                context.UpdateRange(tcList);
+                context.SaveChanges();
+            }
+        }
+
+        public void Delete<T>(int id) where T : class, IIdentifiable
+        {
+            using (var context = new MyDbContext())
+            {
+                var deletingobj = context.Set<T>().Where(obj => obj.Id == id).FirstOrDefault();
+                context.Remove(deletingobj);
+                context.SaveChanges();
+            }
+        }
         public void Update<T>(T updatingobj) where T : class, IIdentifiable
         {
             using (var context = new MyDbContext())
@@ -177,6 +196,39 @@ namespace TC_WinForms.DataProcessing
                                         .Include(tc => tc.Tools)
                                         .Include(tc => tc.Machines)
                                         .Include(tc => tc.Protections)
+                                        //.Include(tc => tc.WorkSteps)
+                                        .Cast<T>()
+                                        .ToList();
+                    else return context.Set<T>().ToList();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public List<T> GetObjectList<T>() where T : class, IIdentifiable
+        {
+            try
+            {
+                // todo - Db connection error holder 
+                using (var context = new MyDbContext())
+                {
+                    if (typeof(T) == typeof(TechnologicalProcess))
+                        return context.Set<TechnologicalProcess>()
+                                        //.Include(tp => tp.TechnologicalCards)
+                                        .Cast<T>()
+                                        .ToList();
+
+                    else if (typeof(T) == typeof(TechnologicalCard))
+                        return context.Set<TechnologicalCard>()
+                                        //.Include(tc => tc.Staffs)
+                                        //.Include(tc => tc.Components)
+                                        //.Include(tc => tc.Tools)
+                                        //.Include(tc => tc.Machines)
+                                        //.Include(tc => tc.Protections)
                                         //.Include(tc => tc.WorkSteps)
                                         .Cast<T>()
                                         .ToList();

@@ -6,6 +6,7 @@ using TcModels.Models.TcContent;
 using TcModels.Models.IntermediateTables;
 using static ExcelParsing.DataProcessing.ExcelParser;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace TestConsoleAppTC
 {
@@ -22,248 +23,50 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            string filePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
-            
-            ExcelParser excelParser = new ExcelParser();
-
-            List<Tool> toolList = excelParser.ParseExcelToObjectsTool(filePath);
-
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\toolList.json", JsonConvert.SerializeObject(toolList, Formatting.Indented));
-
-
-        }
-        public static void AddDeserializedDataToDb(string path)
-        {
-            //deserialize all objects from json
-            string jsonData = File.ReadAllText($@"{path}Serialised data\staffList.json");
-            List<Staff> staffList = JsonConvert.DeserializeObject<List<Staff>>(jsonData);
-            jsonData = File.ReadAllText($@"{path}Serialised data\ComponentList.json");
-            List<Component> componentList = JsonConvert.DeserializeObject<List<Component>>(jsonData);
-            jsonData = File.ReadAllText($@"{path}Serialised data\MachineList.json");
-            List<Machine> machineList = JsonConvert.DeserializeObject<List<Machine>>(jsonData);
-            jsonData = File.ReadAllText($@"{path}Serialised data\ProtectionList.json");
-            List<Protection> protectionList = JsonConvert.DeserializeObject<List<Protection>>(jsonData);
-            jsonData = File.ReadAllText($@"{path}Serialised data\ToolList.json");
-            List<Tool> toolList = JsonConvert.DeserializeObject<List<Tool>>(jsonData);
-
-
-            //add all objects to new db
-            using (var db = new MyDbContext())
+            // DbCreator.AddDeserializedDataToDb();
+            foreach (var tc in TechnologicalCard.GetPropertiesNames())
             {
-                db.Database.EnsureDeleted();
-                db.Database.EnsureCreated();
-
-                db.Staffs.AddRange(staffList);
-                db.Components.AddRange(componentList);
-                db.Machines.AddRange(machineList);
-                db.Protections.AddRange(protectionList);
-                db.Tools.AddRange(toolList);
-
-                db.SaveChanges();
+                Console.WriteLine($"{tc.Key} - {tc.Value}");
             }
         }
-        public static void SerializeAllObjects()
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public static List<T> GetList<T>() where T : class, IIdentifiable
         {
-            string filePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
-            string tcFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Список ТК.xlsx";
-
-            ExcelParser excelParser = new ExcelParser();
-
-            List<Staff> staffList = excelParser.ParseExcelToStaffObjects(filePath);
-            List<Component> componentList = excelParser.ParseExcelToObjectsComponent(filePath);
-            List<Machine> machineList = excelParser.ParseExcelToObjectsMachine(filePath);
-            List<Protection> protectionList = excelParser.ParseExcelToObjectsProtection(filePath);
-            
-            List<Tool> toolList = excelParser.ParseExcelToObjectsTool(filePath);
-            
-            var tcList = excelParser.ParseExcelToTcObjects(tcFilePath);
-
-
-            
-            // serialize staffList to json
-            string jsonStaffList = JsonConvert.SerializeObject(staffList, Formatting.Indented);
-            // save to file
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffList.json", jsonStaffList);
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\componentList.json", JsonConvert.SerializeObject(componentList, Formatting.Indented));
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\machineList.json", JsonConvert.SerializeObject(machineList, Formatting.Indented));
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\protectionList.json", JsonConvert.SerializeObject(protectionList, Formatting.Indented));
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\toolList.json", JsonConvert.SerializeObject(toolList, Formatting.Indented));
-            
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\tcList.json", JsonConvert.SerializeObject(tcList, Formatting.Indented));
-
-        }
-        public static void SerializeStaffToJson()
-        {
-            ExcelParser excelParser = new ExcelParser();
-            List<Staff> staffList = excelParser.ParseExcelToStaffObjects(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx");
-
-            foreach (var staff in staffList)
+            try
             {
-                Console.WriteLine($"{staff.Id}. {staff.Name} ({staff.Type})" +
-                    $"\n\tФункции: {staff.Functions}" +
-                    $"\n\tСовмещение: {staff.CombineResponsibility}" +
-                    $"\n\tКвалификиция: {staff.Qualification}");
-            }
-
-            // serialize staffList to json
-            string jsonStaffList = JsonConvert.SerializeObject(staffList, Formatting.Indented);
-            // save to file
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffList.json", jsonStaffList);
-        }
-
-        public static void DbTest3Component()
-        {
-            List<Component> componentList = new List<Component>()
+                // todo - Db connection error holder 
+                using (var context = new MyDbContext())
                 {
-                    new()
-                    {
-                        //Id = 1,
-                        Name = "Стальная полоса",
-                        Type = "5.0х40 ГЦ",
-                        Unit = "м"
-                    },
-                    new()
-                    {
-                        //Id = 2,
-                        Name = "Арматура",
-                        Type = "Круг В-II-18",
-                        Unit = "м"
-                    },
-                    new()
-                    {
-                        //Id = 3,
-                        Name = "Электрод",
-                        Type = "ОК-46 3мм",
-                        Unit = "шт."
-                    },
-                    new()
-                    {
-                        //Id = 4,
-                        Name = "Стальная полоса",
-                        Type = "5.0х40 ГЦ",
-                        Unit = "м"
-                    },
-                    new()
-                    {
-                        //Id = 5,
-                        Name = "Арматура",
-                        Type = "Круг В-II-18",
-                        Unit = "м"
-                    },
-                    new()
-                    {
-                        //Id = 6,
-                        Name = "Электрод",
-                        Type = "ОК-46 3мм",
-                        Unit = "шт."
-                    },
-                    new()
-                    {
-                        //Id = 8,
-                        Name = "Шпилька",
-                        Type = "101",
-                        Unit = "шт."
-                    },
-                    new()
-                    {
-                        //Id = 9,
-                        Name = "Плоская увеличенная шайба",
-                        Type = "М12",
-                        Unit = "шт."
-                    },
-                    new()
-                    {
-                        //Id = 10,
-                        Name = "Пружинная шайба",
-                        Type = "М12",
-                        Unit = "шт."
-                    },
-                    new()
-                    {
-                        //Id = 11,
-                        Name = "Шестигранная гайка",
-                        Type = "М12",
-                        Unit = "шт."
-                    },
-                    new()
-                    {
-                        //Id = 7,
-                        Name = "Комплект метизов",
-                        Type = "Шпилька",
-                        Unit = "шт.",
-                        Kit = new List<Instrument_kit<Component>>()
-                        {
+                    if (typeof(T) == typeof(TechnologicalProcess))
+                        return context.Set<TechnologicalProcess>()
+                                        .Include(tp => tp.TechnologicalCards)
+                                        .Cast<T>()
+                                        .ToList();
 
-                            new()
-                            {
-                                Child = new Component()
-                                {
-                                    Name = "Плоская увеличенная шайба",
-                                    Type = "М12",
-                                    Unit = "шт."
-                                },
-                                Quantity = 1,
-                                Order = 2
-                            },
-                            new()
-                            {
-                                Child = new Component()
-                                {
-                                    Name = "Пружинная шайба",
-                                    Type = "М12",
-                                    Unit = "шт."
-                                },
-                                Quantity = 1,
-                                Order = 3
-                            },
-                            new()
-                            {
-                                Child = new Component()
-                                {
-                                    Name = "Шестигранная гайка",
-                                    Type = "М12",
-                                    Unit = "шт."
-                                },
-                                Quantity = 1,
-                                Order = 4
-                            }
-                        }
-                    }
-                };
-
-            componentList[7].Kit.Add(new Instrument_kit<Component>()
-            {
-                Child = componentList[6],
-                Quantity = 1,
-                Order = 1
-            });
-            // add componentList to db
-            using (var db = new MyDbContext())
-            {
-                db.Database.EnsureDeleted();
-                db.Database.EnsureCreated();
-
-                db.Components.AddRange(componentList);
-                db.SaveChanges();
-            }
-            // print all components kits
-            using (var db = new MyDbContext())
-            {
-                var components = db.Components.Include(c => c.Kit).ToList();
-                foreach (var component in components)
-                {
-                    Console.WriteLine(component);
-                    foreach (var set in component.Children)
-                    {
-                        Console.WriteLine("- " + set);
-                    }
-                    foreach (var set in component.Parents)
-                    {
-                        Console.WriteLine("+ " + set);
-                    }
+                    else if (typeof(T) == typeof(TechnologicalCard))
+                        return context.Set<TechnologicalCard>()
+                                        .Include(tc => tc.Staffs)
+                                        .Include(tc => tc.Components)
+                                        .Include(tc => tc.Tools)
+                                        .Include(tc => tc.Machines)
+                                        .Include(tc => tc.Protections)
+                                        //.Include(tc => tc.WorkSteps)
+                                        .Cast<T>()
+                                        .ToList();
+                    else return context.Set<T>().ToList();
                 }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public static void DbTest2() 
         {
             Author author = new Author { Name = "Tom", Surname = "Smith", Email = "someemail@mail.com" };

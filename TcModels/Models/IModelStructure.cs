@@ -1,4 +1,5 @@
 ﻿
+using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
 namespace TcModels.Models
@@ -12,5 +13,6 @@ namespace TcModels.Models
         string Type { get; set; }
         string Unit { get; set; }
         float? Price { get; set; }
+        List<LinkEntety> Links { get; set; }
     }
 }

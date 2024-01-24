@@ -9,7 +9,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Оперативные штанги, необходимые для выполнения операций, связанных с обслуживанием или управлением электроустановками. При их помощи осуществляются оперативные действия (коммутационные действия с разъединителями, подключение заземления и др.). Также для спасения человека от воздействия электричества.",
-    "Manufacturer": "http://www.electronpribor.ru/catalog/88/sheut-110-6-88dkf.htm"
+    "Manufacturer": "http://www.electronpribor.ru/catalog/88/sheut-110-6-88dkf.htm",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://www.electronpribor.ru/catalog/88/sheut-110-6-88dkf.htm"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_10"
   },
   {
     "ModelType": 3,
@@ -21,7 +28,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Предназначено для экстренного заземления воздушных линий посредством короткого замыкания между проводами ВЛ закороткой, соединенной с \"землей\", с целью освобождения пострадавшего от действия электрического тока.",
-    "Manufacturer": "http://www.electronpribor.ru/catalog/89/unp-10vl-b.htm"
+    "Manufacturer": "http://www.electronpribor.ru/catalog/89/unp-10vl-b.htm",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://www.electronpribor.ru/catalog/89/unp-10vl-b.htm"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_RescueEquipment_2"
   },
   {
     "ModelType": 3,
@@ -33,7 +47,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяется в сочетании с переносным заземлителем. Предназначено для защиты рабочей бригады при работе на отключенных участках воздушных линий напряжением до 15 кВ.",
-    "Manufacturer": "http://www.electronpribor.ru/catalog/89/zplt-15-04-25.htm"
+    "Manufacturer": "http://www.electronpribor.ru/catalog/89/zplt-15-04-25.htm",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://www.electronpribor.ru/catalog/89/zplt-15-04-25.htm"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_9"
   },
   {
     "ModelType": 3,
@@ -45,7 +66,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяется в сочетании с переносным заземлителем. Предназначено для защиты рабочей бригады при работе на отключенных участках воздушных линий напряжением до 1 кВ.",
-    "Manufacturer": "ЗПЛТ-1-01-16 заземление переносное линейное | Электронприбор (electronpribor.ru)"
+    "Manufacturer": "ЗПЛТ-1-01-16 заземление переносное линейное | Электронприбор (electronpribor.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://www.electronpribor.ru/catalog/718/zplt-1-01-16.htm"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_MainElectroinsulating_1"
   },
   {
     "ModelType": 3,
@@ -57,7 +85,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяется в сочетании с переносным заземлением. Предназначено для защиты рабочей бригады при работе на отключенных участках воздушных линий напряжением до 15 кВ.",
-    "Manufacturer": "http://elektrik-master.ru/zazemlitel-perenosnoj-universal-nyj-travmobezopasnyj-omteh-2-5-1-shtyr-zpshu-tehnoshans-02.html"
+    "Manufacturer": "http://elektrik-master.ru/zazemlitel-perenosnoj-universal-nyj-travmobezopasnyj-omteh-2-5-1-shtyr-zpshu-tehnoshans-02.html",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://elektrik-master.ru/zazemlitel-perenosnoj-universal-nyj-travmobezopasnyj-omteh-2-5-1-shtyr-zpshu-tehnoshans-02.html"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_MainElectroinsulating_2"
   },
   {
     "ModelType": 3,
@@ -69,7 +104,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Предназначены для защиты кожи рук (пальцев, ладоней) от прикосновения к приборам и частям, которые находятся под напряжением. Применяются в электроустановках до 1000 В в качестве основного изолирующего электрозащитного средства, а в электроустановках выше 1000 В - дополнительного.",
-    "Manufacturer": "http://ekontakt-evp.ru/catalog/perchatki_dielektricheskie_besshovnye_tekhenergo.html"
+    "Manufacturer": "http://ekontakt-evp.ru/catalog/perchatki_dielektricheskie_besshovnye_tekhenergo.html",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://ekontakt-evp.ru/catalog/perchatki_dielektricheskie_besshovnye_tekhenergo.html"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Hand_4"
   },
   {
     "ModelType": 3,
@@ -81,7 +123,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Предназначены для защиты кожи рук (пальцев, ладоней) от прикосновения к приборам и частям, которые находятся под напряжением. Применяются в электроустановках до 1000 В в качестве основного изолирующего электрозащитного средства, а в электроустановках выше 1000 В - дополнительного.",
-    "Manufacturer": "http://ekontakt-evp.ru/catalog/perchatki_dielektricheskie_besshovnye_tekhenergo.html"
+    "Manufacturer": "http://ekontakt-evp.ru/catalog/perchatki_dielektricheskie_besshovnye_tekhenergo.html",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://ekontakt-evp.ru/catalog/perchatki_dielektricheskie_besshovnye_tekhenergo.html"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Hand_3"
   },
   {
     "ModelType": 3,
@@ -93,7 +142,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Защитная диэлектрическая обувь, которая позволяет избежать прохождение через тело токов, замыкающихся на землю. Такие средства рекомендованы для применения в помещениях, киосках в тех случаях, когда пол сделан из токопроводящих материалов",
-    "Manufacturer": "http://proffelectro.ru/catalog/boty/boty_dielektricheskie_yugspetszashchita_art_30800005/"
+    "Manufacturer": "http://proffelectro.ru/catalog/boty/boty_dielektricheskie_yugspetszashchita_art_30800005/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://proffelectro.ru/catalog/boty/boty_dielektricheskie_yugspetszashchita_art_30800005/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Foot_3"
   },
   {
     "ModelType": 3,
@@ -105,7 +161,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Клещи изолирующие предназначены для замены предохранителей в электроустановках до и выше 1000 В, а также для снятия накладок, ограждений и других аналогичных работ в электроустановках до 35 кВ включительно.",
-    "Manufacturer": "КИ-10 клещи изолирующие | Электронприбор (electronpribor.ru)"
+    "Manufacturer": "КИ-10 клещи изолирующие | Электронприбор (electronpribor.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://www.electronpribor.ru/catalog/717/ki-10.htm"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_MainElectroinsulating_3"
   },
   {
     "ModelType": 3,
@@ -117,7 +180,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Изолирующие приставные лестницы и стремянки предназначены для проведения строительных, монтажных, ремонтных и эксплуатационных работ в электроустановках или электротехнологических установках.",
-    "Manufacturer": "ЛУСК 3-4,25 многозвенная стеклопластиковая лестница | Электронприбор (electronpribor.ru)"
+    "Manufacturer": "ЛУСК 3-4,25 многозвенная стеклопластиковая лестница | Электронприбор (electronpribor.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://www.electronpribor.ru/catalog/751/lusk_3-425.htm"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_AddElectroinsulating_1"
   },
   {
     "ModelType": 3,
@@ -129,7 +199,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Изолирующие приставные лестницы и стремянки предназначены для проведения строительных, монтажных, ремонтных и эксплуатационных работ в электроустановках или электротехнологических установках.",
-    "Manufacturer": "ЛУСК 1-1,75 С лестница-стремянка универсальная стеклопластиковая электроизолирующая | Электронприбор (electronpribor.ru)"
+    "Manufacturer": "ЛУСК 1-1,75 С лестница-стремянка универсальная стеклопластиковая электроизолирующая | Электронприбор (electronpribor.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://www.electronpribor.ru/catalog/751/lusk_1-175_s.htm"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_AddElectroinsulating_2"
   },
   {
     "ModelType": 3,
@@ -141,7 +218,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Предназначены для предупреждения как обслуживающего электроустановки персонала, так и посторонних об опасности приближения к оборудованию и частям электроустановок, находящихся под напряжением, для запрещения производить операции коммутационными аппаратами, если ими может быть подано напряжение на оборудование, на котором работают люди, для указания места, подготовленного к производству работ, для напоминания о принятых мерах по обеспечению безопасности.",
-    "Manufacturer": "Знаки и плакаты по электробезопасности - Симферополь ОТ-Магазин (otmagazin.ru)"
+    "Manufacturer": "Знаки и плакаты по электробезопасности - Симферополь ОТ-Магазин (otmagazin.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://simferopol.otmagazin.ru/znaki-i-plakaty-po-elektrobezopasnosti-simferopol--uid-000302283/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_WC_6"
   },
   {
     "ModelType": 3,
@@ -153,7 +237,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяется как основное средство защиты головы, комплектуется звуковым сигнализатором напряжения.",
-    "Manufacturer": "ЭЛСИКА каска электроизолирующая | Электронприбор (electronpribor.ru)"
+    "Manufacturer": "ЭЛСИКА каска электроизолирующая | Электронприбор (electronpribor.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://www.electronpribor.ru/catalog/753/elsika.htm"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Head_3"
   },
   {
     "ModelType": 3,
@@ -165,7 +256,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяется как основное средство защиты головы, комплектуется звуковым сигнализатором напряжения.",
-    "Manufacturer": "https://www.avangard-sp.ru/catalog/siz/zashchita_golovy/kaski/kaska_zashchitnaya_uvex_termo_boss_oranzhevaya_9754200/"
+    "Manufacturer": "https://www.avangard-sp.ru/catalog/siz/zashchita_golovy/kaski/kaska_zashchitnaya_uvex_termo_boss_oranzhevaya_9754200/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://www.avangard-sp.ru/catalog/siz/zashchita_golovy/kaski/kaska_zashchitnaya_uvex_termo_boss_oranzhevaya_9754200/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Head_2"
   },
   {
     "ModelType": 3,
@@ -177,7 +275,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяется зля защиты органов зрения во время работы.",
-    "Manufacturer": "http://rrk-krym.ru/p426895483-ochki-zaschitnye-otkrytye.html"
+    "Manufacturer": "http://rrk-krym.ru/p426895483-ochki-zaschitnye-otkrytye.html",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://rrk-krym.ru/p426895483-ochki-zaschitnye-otkrytye.html"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Eye_1"
   },
   {
     "ModelType": 3,
@@ -189,7 +294,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяется для работы на высоте и снятия пострадавшего с высоты.",
-    "Manufacturer": "http://el.ru/catalogue/instrument/47/341"
+    "Manufacturer": "http://el.ru/catalogue/instrument/47/341",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://el.ru/catalogue/instrument/47/341"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Foot_6"
   },
   {
     "ModelType": 3,
@@ -201,7 +313,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Предназначены для защиты кожи рук во время проведения монтажных работ.",
-    "Manufacturer": "http://rrk-krym.ru/p428370099-perchatki-pvh-tochkoj.html"
+    "Manufacturer": "http://rrk-krym.ru/p428370099-perchatki-pvh-tochkoj.html",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://rrk-krym.ru/p428370099-perchatki-pvh-tochkoj.html"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Hand_1"
   },
   {
     "ModelType": 3,
@@ -213,7 +332,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяется для работы на высоте и снятия пострадавшего с высоты.",
-    "Manufacturer": "http://safe-tec.ru/products/strakhovochnye_privyazi/ctrakhovochnaya_privyaz_str5/"
+    "Manufacturer": "http://safe-tec.ru/products/strakhovochnye_privyazi/ctrakhovochnaya_privyaz_str5/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://safe-tec.ru/products/strakhovochnye_privyazi/ctrakhovochnaya_privyaz_str5/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_11"
   },
   {
     "ModelType": 3,
@@ -225,7 +351,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяется для работы на высоте и снятия пострадавшего с высоты.",
-    "Manufacturer": "http://kvt-pro.ru/montazhnaya-strahovka/strop-strahovochnyj/kanat-strahovochnyj-kvt-ksl-10-63777"
+    "Manufacturer": "http://kvt-pro.ru/montazhnaya-strahovka/strop-strahovochnyj/kanat-strahovochnyj-kvt-ksl-10-63777",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://kvt-pro.ru/montazhnaya-strahovka/strop-strahovochnyj/kanat-strahovochnyj-kvt-ksl-10-63777"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_5"
   },
   {
     "ModelType": 3,
@@ -237,7 +370,9 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяется при оказании первой помощи пострадавшему.",
-    "Manufacturer": "TBD"
+    "Manufacturer": "TBD",
+    "Links": [],
+    "ClassifierCode": "DNM-RU_Protect_Body_8"
   },
   {
     "ModelType": 3,
@@ -249,7 +384,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Средство, необходимое для обозначения опасной зоны при проведении работ на высоте или работ с подъемными механизмами.",
-    "Manufacturer": "http://krym.dorbezopasnost.ru/catalog/item/lenta-ekonom-lo-250-shirina-75-mm/"
+    "Manufacturer": "http://krym.dorbezopasnost.ru/catalog/item/lenta-ekonom-lo-250-shirina-75-mm/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://krym.dorbezopasnost.ru/catalog/item/lenta-ekonom-lo-250-shirina-75-mm/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_WC_4"
   },
   {
     "ModelType": 3,
@@ -261,7 +403,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Знак предупреждающий \"Прочие опасности\" (1.33(временный)). Средство, необходимое для обозначения опасной зоны при проведении работ на высоте или работ с подъемными механизмами на проезжей части.",
-    "Manufacturer": "http://krym.dorbezopasnost.ru/znaki/"
+    "Manufacturer": "http://krym.dorbezopasnost.ru/znaki/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://krym.dorbezopasnost.ru/znaki/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_WC_1"
   },
   {
     "ModelType": 3,
@@ -273,7 +422,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Знак предупреждающий \"Дорожные работы\" 1.25. Средство, необходимое для обозначения опасной зоны при проведении работ на высоте или работ с подъемными механизмами на проезжей части.",
-    "Manufacturer": "http://krym.dorbezopasnost.ru/znaki/"
+    "Manufacturer": "http://krym.dorbezopasnost.ru/znaki/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://krym.dorbezopasnost.ru/znaki/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_WC_2"
   },
   {
     "ModelType": 3,
@@ -285,7 +441,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Знак предписывающий \"Объезд препятствия справа\" 4.2.1/\"Объезд препятствия слева\" 4.2.2. Средство, необходимое для обозначения опасной зоны при проведении работ на высоте или работ с подъемными механизмами на проезжей части.",
-    "Manufacturer": "http://krym.dorbezopasnost.ru/znaki/"
+    "Manufacturer": "http://krym.dorbezopasnost.ru/znaki/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://krym.dorbezopasnost.ru/znaki/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_WC_3"
   },
   {
     "ModelType": 3,
@@ -297,7 +460,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Верхняя одежда из термостойких материалов с постоянными защитными свойствами.",
-    "Manufacturer": "https://crimea-siz.ru/product/kurtka-nakidka-9-kal-sm2-iz-ognezashhitnoj-tkani-worker/"
+    "Manufacturer": "https://crimea-siz.ru/product/kurtka-nakidka-9-kal-sm2-iz-ognezashhitnoj-tkani-worker/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/kurtka-nakidka-9-kal-sm2-iz-ognezashhitnoj-tkani-worker/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_15"
   },
   {
     "ModelType": 3,
@@ -309,7 +479,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Верхняя одежда из термостойких материалов с постоянными защитными свойствами.",
-    "Manufacturer": "https://crimea-siz.ru/product/kurtka-rubashka-5-6-kal-sm2-iz-ognezashhitnoj-tkani-worker/"
+    "Manufacturer": "https://crimea-siz.ru/product/kurtka-rubashka-5-6-kal-sm2-iz-ognezashhitnoj-tkani-worker/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/kurtka-rubashka-5-6-kal-sm2-iz-ognezashhitnoj-tkani-worker/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_16"
   },
   {
     "ModelType": 3,
@@ -321,7 +498,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Из термостойких материалов с постоянными защитными свойствами.",
-    "Manufacturer": "https://crimea-siz.ru/product/sviter-termostojkij/"
+    "Manufacturer": "https://crimea-siz.ru/product/sviter-termostojkij/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/sviter-termostojkij/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_17"
   },
   {
     "ModelType": 3,
@@ -333,7 +517,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Костюм для защиты от повышенных температур.",
-    "Manufacturer": "Костюм зимний СП08-З/V-2 для эксплуатации в IV и «особом» климатических поясах (tkrim.ru)"
+    "Manufacturer": "Костюм зимний СП08-З/V-2 для эксплуатации в IV и «особом» климатических поясах (tkrim.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://tkrim.ru/category/specodezhda/zashchitnaya-spetsodezhda/spetsodezhda-dlya-elektrodugi-antistatika/kostyum-zimnij-dlya-zashhity"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_18"
   },
   {
     "ModelType": 3,
@@ -345,7 +536,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Средство индивидуальной защиты органов дыхания фильтрующее.",
-    "Manufacturer": "Купить Респиратор У-2К (Спанбонд) оптом и в розницу от интернет-магазина \"Лига Спецодежды\", Цена на Респиратор У-2К (Спанбонд) в Симферополе оптом и в розница, Купить в Симферополе оптом и в розницу, 60 руб. на Респиратор У-2К (Спанбонд) в Симферополе (liga-crimea.ru)"
+    "Manufacturer": "Купить Респиратор У-2К (Спанбонд) оптом и в розницу от интернет-магазина \"Лига Спецодежды\", Цена на Респиратор У-2К (Спанбонд) в Симферополе оптом и в розница, Купить в Симферополе оптом и в розницу, 60 руб. на Респиратор У-2К (Спанбонд) в Симферополе (liga-crimea.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://liga-crimea.ru/p512090539-respirator-spanbond.html"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Head_4"
   },
   {
     "ModelType": 3,
@@ -357,7 +555,9 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "-",
-    "Manufacturer": "TBD"
+    "Manufacturer": "TBD",
+    "Links": [],
+    "ClassifierCode": "DNM-RU_Protect_Body_19"
   },
   {
     "ModelType": 3,
@@ -369,7 +569,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "-",
-    "Manufacturer": "Костюм 14 кал/см2 из огнезащитной ткани WORKER (куртка/брюки) | Средства индивидуальной защиты (crimea-siz.ru)"
+    "Manufacturer": "Костюм 14 кал/см2 из огнезащитной ткани WORKER (куртка/брюки) | Средства индивидуальной защиты (crimea-siz.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/kostyum-14-kal-sm2-iz-ognezashhitnoj-tkani-worker-kurtka-bryuki/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_20"
   },
   {
     "ModelType": 3,
@@ -381,7 +588,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "-",
-    "Manufacturer": "Белье нательное термостойкое, т.синий, купить в Симферополе и Севастополе в ООО КРЫМ СПЕЦОДЕЖДА (krim-specodegda.ru)"
+    "Manufacturer": "Белье нательное термостойкое, т.синий, купить в Симферополе и Севастополе в ООО КРЫМ СПЕЦОДЕЖДА (krim-specodegda.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://krim-specodegda.ru/bele-natelnoe-termostoykoe-t-siniy"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_1"
   },
   {
     "ModelType": 3,
@@ -393,7 +607,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Обувь кожаная (ботинки) с защитным подноском для защиты от повышенных температур на термостойкой маслобензостойкой подошве.",
-    "Manufacturer": "Ботинки ТАЛАН ПУ с металлическим подноском | Средства индивидуальной защиты (crimea-siz.ru)"
+    "Manufacturer": "Ботинки ТАЛАН ПУ с металлическим подноском | Средства индивидуальной защиты (crimea-siz.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/botinki-pu-s-mp/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Foot_1"
   },
   {
     "ModelType": 3,
@@ -405,7 +626,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Обувь кожаная (сапоги) с защитным подноском  для защиты от повышенных температур на термостойкой маслобензостойкой подошве.",
-    "Manufacturer": "Сапоги “ТАЛАН” ПУ с металлическим подноском | Средства индивидуальной защиты (crimea-siz.ru)"
+    "Manufacturer": "Сапоги “ТАЛАН” ПУ с металлическим подноском | Средства индивидуальной защиты (crimea-siz.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/sapogi-pu-s-mp/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Foot_7"
   },
   {
     "ModelType": 3,
@@ -417,7 +645,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "-",
-    "Manufacturer": "Перчатки специальные термостойкие \"Модель-1\" в Симферополе (tezro.ru)"
+    "Manufacturer": "Перчатки специальные термостойкие \"Модель-1\" в Симферополе (tezro.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://simferopol.tezro.ru/shop/perchatki-speczialnye-termostojkie-model-1/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Hand_6"
   },
   {
     "ModelType": 3,
@@ -429,7 +664,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "-",
-    "Manufacturer": "Перчатки хб с латексом двойной облив Люкс | Средства индивидуальной защиты (crimea-siz.ru)"
+    "Manufacturer": "Перчатки хб с латексом двойной облив Люкс | Средства индивидуальной защиты (crimea-siz.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/perchatki-oranzh/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Hand_7"
   },
   {
     "ModelType": 3,
@@ -441,7 +683,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "-",
-    "Manufacturer": "Перчатки пвх черные 5-нитка | Средства индивидуальной защиты (crimea-siz.ru)"
+    "Manufacturer": "Перчатки пвх черные 5-нитка | Средства индивидуальной защиты (crimea-siz.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/perchatki-pvh-chernye-5-nitka/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Hand_8"
   },
   {
     "ModelType": 3,
@@ -453,7 +702,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Верхняя одежда для защиты от воды.",
-    "Manufacturer": "Плащ термостойкий для защиты от электрической дуги, атмосферных осадков ПТв 644W, 16 кал/см2 (tkrim.ru)"
+    "Manufacturer": "Плащ термостойкий для защиты от электрической дуги, атмосферных осадков ПТв 644W, 16 кал/см2 (tkrim.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://tkrim.ru/category/specodezhda/zashchitnaya-spetsodezhda/spetsodezhda-dlya-elektrodugi-antistatika/plashh-termostojkij-dlya-zashhity-ot-elektricheskoj-dugi-atmosfernyh-osadkov-ptv-644w-16-kalsm2"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_22"
   },
   {
     "ModelType": 3,
@@ -465,7 +721,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "-",
-    "Manufacturer": "Сапоги ПВХ мужские МБС/КЩС с МП | Средства индивидуальной защиты (crimea-siz.ru)"
+    "Manufacturer": "Сапоги ПВХ мужские МБС/КЩС с МП | Средства индивидуальной защиты (crimea-siz.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/sapogi-pvh-muzhskie-mbskshhs/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Foot_6"
   },
   {
     "ModelType": 3,
@@ -477,7 +740,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "-",
-    "Manufacturer": "Костюм зимний СП08-З/V-2 для эксплуатации в IV и «особом» климатических поясах (tkrim.ru)"
+    "Manufacturer": "Костюм зимний СП08-З/V-2 для эксплуатации в IV и «особом» климатических поясах (tkrim.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://tkrim.ru/category/specodezhda/zashchitnaya-spetsodezhda/spetsodezhda-dlya-elektrodugi-antistatika/kostyum-zimnij-dlya-zashhity"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_21"
   },
   {
     "ModelType": 3,
@@ -489,7 +759,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Обувь кожаная (ботинки) утепленная с защитным подноском для защиты от повышенных температур на термостойкой маслобензостойкой подошве.",
-    "Manufacturer": "Ботинки Талан ПУ иск. мех ,метал. подносок | Средства индивидуальной защиты (crimea-siz.ru)"
+    "Manufacturer": "Ботинки Талан ПУ иск. мех ,метал. подносок | Средства индивидуальной защиты (crimea-siz.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/botinki-talan-pu-isk-meh-metal-podnosok/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Foot_2"
   },
   {
     "ModelType": 3,
@@ -501,7 +778,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Обувь кожаная (сапоги) утепленная с защитным подноском  для защиты от повышенных температур на термостойкой маслобензостойкой подошве.",
-    "Manufacturer": "Сапоги «ТАЛАН» ПУ искусственный мех, металлический подносок | Средства индивидуальной защиты (crimea-siz.ru)"
+    "Manufacturer": "Сапоги «ТАЛАН» ПУ искусственный мех, металлический подносок | Средства индивидуальной защиты (crimea-siz.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/sapogi-talan-pu-iskusstvennyj-meh-metallicheskij-podnosok/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Foot_8"
   },
   {
     "ModelType": 3,
@@ -513,7 +797,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Блоки полиспаста грузоподъёмностью 0,5 т. Применяется для перемещения груза (инструмента, материала и др.) при работе на высоте, а также для снятия пострадавшего с высоты.",
-    "Manufacturer": "http://simferopol.sms-y.ru/catalog/goods/001-4017/"
+    "Manufacturer": "http://simferopol.sms-y.ru/catalog/goods/001-4017/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://simferopol.sms-y.ru/catalog/goods/001-4017/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_RescueEquipment_1"
   },
   {
     "ModelType": 3,
@@ -525,7 +816,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Специальный съемник, предназначенный для монтажа и демонтажа предохранителей ППН/ПН2.",
-    "Manufacturer": "Купить Рукоятка съема ППН/ПН2 Ф УХЛ3 КЭАЗ 110459 оптом, цена (rs24.ru)"
+    "Manufacturer": "Купить Рукоятка съема ППН/ПН2 Ф УХЛ3 КЭАЗ 110459 оптом, цена (rs24.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://rs24.ru/product/225473"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_AddElectroinsulating_3"
   },
   {
     "ModelType": 3,
@@ -537,7 +835,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Комплект, включающий в себя: строп для рабочего позиционирования с механизмом регулировки длины, защитный чехол стропа, карабины. Предназначен для обеспечения безопасности при подъеме опоры с помощью лазов.",
-    "Manufacturer": "Комплект для подъема на опору (provitex-dzr.ru)"
+    "Manufacturer": "Комплект для подъема на опору (provitex-dzr.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://provitex-dzr.ru/komplekt-dlya-pod-yema-na-oporu-1"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_23"
   },
   {
     "ModelType": 3,
@@ -549,7 +854,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Строп удерживающий с возможностью регулировки длины до 2 метров.",
-    "Manufacturer": "http://usc66.ru/"
+    "Manufacturer": "http://usc66.ru/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://usc66.ru/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_24"
   },
   {
     "ModelType": 3,
@@ -561,7 +873,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Применяют для контактного определения наличия/отсутствия напряжения, а также для дистанционного определения наличия напряжения.",
-    "Manufacturer": "http://www.electronpribor.ru/catalog/875/uvnk-10d-unteh_6-35_kv.htm"
+    "Manufacturer": "http://www.electronpribor.ru/catalog/875/uvnk-10d-unteh_6-35_kv.htm",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "http://www.electronpribor.ru/catalog/875/uvnk-10d-unteh_6-35_kv.htm"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_MainElectroinsulating_4"
   },
   {
     "ModelType": 3,
@@ -573,7 +892,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "В электроустановках напряжением до 1000 В применяются указатели двух типов: двухполюсные и однополюсные.\nДвухполюсные указатели, работающие при протекании активного тока, предназначены для электроустановок переменного и постоянного тока.\nОднополюсные указатели, работающие при протекании емкостного тока, предназначены для электроустановок только переменного тока. С запасным источником питания в комплекте.",
-    "Manufacturer": "УНВЛ-0,4-УНТЕХ указатель напряжения с курсовым электроизолированным фонарем VONATEX | Электронприбор (electronpribor.ru)"
+    "Manufacturer": "УНВЛ-0,4-УНТЕХ указатель напряжения с курсовым электроизолированным фонарем VONATEX | Электронприбор (electronpribor.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://www.electronpribor.ru/catalog/21/unvl-04-unteh.htm"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_MainElectroinsulating_5"
   },
   {
     "ModelType": 3,
@@ -585,7 +911,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Индивидуальный сигнализатор напряжения СНИУ.Д (6-10кВ) предназначен для предупреждения персонала, работающего на ВЛ о нахождении в потенциально опасной зоне ввиду приближения к элементам, находящимся под напряжением до 10 кВ.",
-    "Manufacturer": "Сигнализатор напряжения индивидуальный СНИУ.Д универс. 6-10кВ Диэлектрик Д157676 купить в Симферополе и Крыму. Магазин электротоваров Энергомост (energomost.ru)"
+    "Manufacturer": "Сигнализатор напряжения индивидуальный СНИУ.Д универс. 6-10кВ Диэлектрик Д157676 купить в Симферополе и Крыму. Магазин электротоваров Энергомост (energomost.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://energomost.ru/2512/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_AddElectroinsulating_4"
   },
   {
     "ModelType": 3,
@@ -597,7 +930,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Огнетушитель углекислотный, масса заряда СО2 – 5 кг.",
-    "Manufacturer": "Огнетушитель углекислотный ОУ-5-ВСЕ | Средства индивидуальной защиты (crimea-siz.ru)"
+    "Manufacturer": "Огнетушитель углекислотный ОУ-5-ВСЕ | Средства индивидуальной защиты (crimea-siz.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/ognetushitel-uglekislotnyj-ou-5-vse/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_FireProtect_1"
   },
   {
     "ModelType": 3,
@@ -609,7 +949,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Сигнальный жилет повышенной видимости 2-го класса защиты.",
-    "Manufacturer": "Жилет ГОСТ сигнальный, 2-й класс защиты | Средства индивидуальной защиты (crimea-siz.ru)"
+    "Manufacturer": "Жилет ГОСТ сигнальный, 2-й класс защиты | Средства индивидуальной защиты (crimea-siz.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://crimea-siz.ru/product/zhilet-gost-signalnyj/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Body_25"
   },
   {
     "ModelType": 3,
@@ -621,7 +968,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Сварочная маска (щиток) – это устройство для защиты глаз, кожи и легких человека при сварочных работах.",
-    "Manufacturer": "https://www.vseinstrumenti.ru/rashodnie-materialy/instrument/dlya-svarochnyh-rabot/maska-svarschika/kalibr/msh-13-3ep-00000059160/"
+    "Manufacturer": "https://www.vseinstrumenti.ru/rashodnie-materialy/instrument/dlya-svarochnyh-rabot/maska-svarschika/kalibr/msh-13-3ep-00000059160/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://www.vseinstrumenti.ru/rashodnie-materialy/instrument/dlya-svarochnyh-rabot/maska-svarschika/kalibr/msh-13-3ep-00000059160/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Eye_2"
   },
   {
     "ModelType": 3,
@@ -633,7 +987,14 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Краги сварщика – необходимое средство индивидуальной защиты для рук при сварочных работах.",
-    "Manufacturer": "https://www.vseinstrumenti.ru/spetsodezhda/siz/ruk/rabochie-perchatki/spilkovye-i-kozhanye/2hands/shvy-kevlar-rl-4-t12-11-ru-siberia/"
+    "Manufacturer": "https://www.vseinstrumenti.ru/spetsodezhda/siz/ruk/rabochie-perchatki/spilkovye-i-kozhanye/2hands/shvy-kevlar-rl-4-t12-11-ru-siberia/",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://www.vseinstrumenti.ru/spetsodezhda/siz/ruk/rabochie-perchatki/spilkovye-i-kozhanye/2hands/shvy-kevlar-rl-4-t12-11-ru-siberia/"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_Hand_9"
   },
   {
     "ModelType": 3,
@@ -645,6 +1006,13 @@
     "Unit": "шт.",
     "Price": null,
     "Description": "Кошма Partex ПП-300 НФ– комплектующая набора специального инвентаря для тушения локальных возгораний, защиты от возгорания объектов. Для обеспечения пожарной безопасности огнезащитный материал применяют в бытовых, производственных, учебных или общественных помещениях.",
-    "Manufacturer": "Кошма Partex ПП-300 НФ-00000151 в Екатеринбурге - купить, цены, отзывы, характеристики, фото, инструкция (vseinstrumenti.ru)"
+    "Manufacturer": "Кошма Partex ПП-300 НФ-00000151 в Екатеринбурге - купить, цены, отзывы, характеристики, фото, инструкция (vseinstrumenti.ru)",
+    "Links": [
+      {
+        "Id": 0,
+        "Link": "https://ekb.vseinstrumenti.ru/product/koshma-partex-pp-300-nf-00000151-5113495/?utm_campaign=DSA_Silovaya_tehnika_nashi_fid&utm_content=6123733763&utm_medium=cpc&utm_source=yandex&utm_term=ST%3Asearch%7CS%3Anone%7CAP%3Ano%7CPT%3Apremium%7CP%3A2%7CDT%3Adesktop%7CRI%3A54%7CCI%3A36601744%7CGI%3A3444591699%7CPI%3A1676089%7CAI%3A6123733763%7CRT%3A1676089%7CKW%3A%7CRN%3A%D0%95%D0%BA%D0%B0%D1%82%D0%B5%D1%80%D0%B8%D0%BD%D0%B1%D1%83%D1%80%D0%B3&yclid=2631482201093701631"
+      }
+    ],
+    "ClassifierCode": "DNM-RU_Protect_FireProtect_2"
   }
 ]

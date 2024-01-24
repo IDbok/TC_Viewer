@@ -17,6 +17,13 @@ namespace TcDbConnector
         public DbSet<Protection> Protections { get; set; } = null!;
         //public DbSet<WorkStep> WorkSteps { get; set; } = null!;
 
+        public DbSet<Staff_TC> Staff_TCs { get; set; } = null!;
+        public DbSet<Component_TC> Component_TCs { get; set; } = null!;
+        public DbSet<Machine_TC> Machine_TCs { get; set; } = null!;
+        public DbSet<Protection_TC> Protection_TCs { get; set; } = null!;
+        public DbSet<Tool_TC> Tool_TCs { get; set; } = null!;
+
+
         public MyDbContext()
         {
             // Database.EnsureDeleted();
@@ -91,7 +98,7 @@ namespace TcDbConnector
                     {
                         j.Property(sttc => sttc.Quantity).HasDefaultValue(0);
                         j.Property(sttc => sttc.Order).HasDefaultValue(0);
-                        j.HasKey(t => new { t.ParentId, t.ChildId });
+                        j.HasKey(t => new { t.ParentId, t.ChildId, t.Order });
                         j.ToTable("Component_TC");
                     });
             modelBuilder
@@ -151,7 +158,7 @@ namespace TcDbConnector
                     {
                         j.Property(sttc => sttc.Quantity).HasDefaultValue(0);
                         j.Property(sttc => sttc.Order).HasDefaultValue(0);
-                        j.HasKey(t => new { t.ParentId, t.ChildId });
+                        j.HasKey(t => new { t.ParentId, t.ChildId, t.Order });
                         j.ToTable("Tool_TC");
                     });
 

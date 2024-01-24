@@ -87,7 +87,7 @@ namespace TC_WinForms
             if (opendForm is Win4)
             {
                 Win4 win4 = (Win4)opendForm;
-                win4.AddDataToDictionaryTC("btnSwitchgear35", cmbChoice.Text);
+                //win4.AddDataToDictionaryTC("btnSwitchgear35", cmbChoice.Text);
             }
         }
         private void btnCancel_Click(object sender, EventArgs e)

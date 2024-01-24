@@ -13,7 +13,8 @@ namespace TcModels.Models.IntermediateTables
         public int ChildId { get; set; }
         public C Child { get; set; }
         public int Order { get; set; }
-        public int Quantity { get; set; }
+        public double Quantity { get; set; }
+        public string? Note { get; set; }
     
     }
 }

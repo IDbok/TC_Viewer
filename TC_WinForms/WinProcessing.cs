@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml.Style;
+using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TcDbConnector;
 using TcModels.Models;
@@ -305,6 +306,26 @@ namespace TC_WinForms
             {
                 listBox.Items.Add(item);
             }
+        }
+
+        /// <summary>
+        /// Set columns order and visibility in dgvMain
+        /// </summary>
+        /// <param name="columnOrder">is Dictionary with columnes names as keys and order as values. If order sets as "-1" that meant columns must be hiden</param>
+        public static void SetTableColumnsOrder(Dictionary<string, int> columnOrder, DataGridView dgv)
+        {
+            columnOrder.Keys.ToList().ForEach(x =>
+            {
+                if (columnOrder[x] == -1)
+                    dgv.Columns[x].Visible = false;
+
+                else
+                    dgv.Columns[x].DisplayIndex = columnOrder[x];
+            });
+        }
+        public static void SetTableHeadersNames(Dictionary<string, string> columnNames, DataGridView dgv)
+        {
+            columnNames.Keys.ToList().ForEach(x => dgv.Columns[x].HeaderText = columnNames[x]);
         }
     }
 }
