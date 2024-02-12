@@ -130,7 +130,7 @@ namespace TC_WinForms.WinForms
 
             var obj = Program.currentTc.Staff_TCs.OrderBy(x => x.Order).ToList();
 
-            WinProcessing.AddNewRowsToDGV(obj, dgvTcObjects);
+            DGVProcessing.AddNewRowsToDGV(obj, dgvTcObjects);
 
             if (sender is Button)
                 WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);

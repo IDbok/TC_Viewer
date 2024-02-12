@@ -32,10 +32,15 @@ namespace TC_WinForms.WinForms
         {
             var objects = Task.Run(() => dbCon.GetIntermediateObjectList<Staff_TC, Staff>(_tcId));
 
-            SetDGVColumnsNamesAndOrder();
+            DGVProcessing.SetDGVColumnsNamesAndOrder(
+                GetColumnNames(), 
+                GetColumnOrder(), 
+                dgvMain,
+                Staff_TC.GetChangeablePropertiesNames());
+
             SetDGVColumnsSettings();
 
-            WinProcessing.AddNewRowsToDGV(objects.Result, dgvMain);
+            DGVProcessing.AddNewRowsToDGV(objects.Result, dgvMain);
         }
 
         private void Win6_Staff_FormClosing(object sender, FormClosingEventArgs e)
@@ -44,25 +49,6 @@ namespace TC_WinForms.WinForms
         }
 
         ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
-
-        void SetDGVColumnsNamesAndOrder()
-        {
-
-            Dictionary<string, string> colNames = GetColumnNames();
-
-            Dictionary<string, int> colOrder = GetColumnOrder();
-
-            dgvMain.Columns.Clear();
-            // create columns in gdv
-            DGVProcessing.AddColumnsToDGV(colNames, dgvMain);
-
-            // set requered column order
-            DGVProcessing.SetColumnsOrder(colOrder, dgvMain);
-
-            // Make copy of changeable columns
-            List<string> changeableColumns = Staff_TC.GetChangeablePropertiesNames();
-            DGVProcessing.CreateColumnsCopies(changeableColumns, dgvMain);
-        }
 
         private Dictionary<string, string> GetColumnNames()
         {
@@ -77,7 +63,6 @@ namespace TC_WinForms.WinForms
             }
             return colNames;
         }
-
         private Dictionary<string, int> GetColumnOrder()
         {
             var colOrder = new Dictionary<string, int>();
@@ -91,7 +76,6 @@ namespace TC_WinForms.WinForms
             }
             return colOrder;
         }
-
         void SetDGVColumnsSettings()
         {
 
@@ -155,8 +139,8 @@ namespace TC_WinForms.WinForms
                 newItems.Add(sttc);
                 i++;
             }
-            
-            WinProcessing.AddNewRowsToDGV(newItems, dgvMain);
+
+            DGVProcessing.AddNewRowsToDGV(newItems, dgvMain);
         }
         public void SaveChanges()
         {
