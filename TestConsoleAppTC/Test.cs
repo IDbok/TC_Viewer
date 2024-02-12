@@ -8,6 +8,9 @@ using static ExcelParsing.DataProcessing.ExcelParser;
 using Newtonsoft.Json;
 using System.IO;
 using TcModels.Models.Interfaces;
+using System.Reflection;
+using OfficeOpenXml.Style;
+using System.Dynamic;
 
 namespace TestConsoleAppTC
 {
@@ -24,10 +27,119 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            // DbCreator.AddDeserializedDataToDb();
-            foreach (var tc in TechnologicalCard.GetPropertiesNames())
+            ChangeSymbol();
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public static void ChangeSymbol()
+        {
+            using (var db = new MyDbContext())
             {
-                Console.WriteLine($"{tc.Key} - {tc.Value}");
+                var staff_tc = db.Set<Staff_TC>().Include(tc => tc.Child).FirstOrDefault();
+                Console.WriteLine(staff_tc);
+                staff_tc.Symbol = "test";
+
+                Console.WriteLine(staff_tc);
+
+                db.SaveChanges();
+            }
+        }
+
+        public static void DeleteIntermediate()
+        {
+            
+            using(var db = new MyDbContext())
+            {
+                var staff_tc = db.Set<Staff_TC>().Include(tc => tc.Child).FirstOrDefault();
+                Console.WriteLine(staff_tc);
+
+                db.Remove(staff_tc);
+                db.SaveChanges();
+            }
+
+        }
+
+        public static void ReferenseType()
+        {
+            var staff = new Staff { Id = 1, Name = "Геодезист", Type = "OSU" };
+            var staff2 = new Staff { Id = 2, Name = "Водитель", Type = "Бригадный автомобиль OSU" };
+
+            var staff_tc = new Staff_TC { ParentId = 1, Child = staff, Symbol = "Г1", Order = 1 };
+            var staff_tc2 = new Staff_TC { ParentId = 1, Child = staff, Symbol = "Г2", Order = 2 };
+            var staff_tc3 = new Staff_TC { ParentId = 1, Child = staff2, Symbol = "Г2", Order = 3 };
+
+            var list1 = new List<Staff>() { staff, staff2 };
+            var staff_tcList = new List<Staff_TC>() { staff_tc, staff_tc2, staff_tc3 };
+
+            var combinedList = from obj1 in list1
+                               join obj2 in staff_tcList on obj1.Id equals obj2.ChildId
+                               select new { obj1, obj2 };
+
+
+            var displayList = staff_tcList.Select(i => new ExpandoObject() as IDictionary<string, Object>);
+
+            //var printList = staff_tcList.Select(i => new Intermed {ParentId =i.ParentId, ChildId= i.Child.Id, ChildName = i.Child.Name, ChildType = i.Child.Type, Symbol = i.Symbol, Order = i.Order }).ToList();
+
+            foreach (var item in displayList.ToList())
+            {
+                //Console.WriteLine(item.Keys + " - " + item.Values.Id);
+            }
+            
+            //foreach(var item in printList)
+            //{
+            //    Console.WriteLine(item.ParentId + " - " + item.ChildId + " | " + item.ChildName + " " + item.ChildType + " " + item.Symbol + " " + item.Order);
+            //}
+
+            Console.WriteLine();
+
+            foreach (var item in staff_tcList)
+            {
+                Console.WriteLine(item.ParentId + " - " + item.Child.Id + " | " + item.Child.Name + " " + item.Child.Type + " " + item.Symbol + " " + item.Order);
+            }
+
+            
+
+        }
+        public class Intermed
+        {
+            public int ParentId { get; set; }
+            public int ChildId { get; set; }
+            public string ChildName { get; set; }
+            public string ChildType { get; set; }
+            public string Symbol { get; set; }
+            public int Order { get; set; }
+        }
+        public static void TestGenerics<T,C>()
+        where T : class, IIntermediateTable<TechnologicalCard, C>
+        where C : class, IDGViewable, INameable
+        {
+
+            var objList = GetIntermediateObjectList<T, C>(1);
+            foreach(var obj in objList)
+            {
+                Console.WriteLine(obj.Child.Id + " " +obj.Child.Name);
+            }
+
+        }
+        public static List<T> GetIntermediateObjectList<T, C>(int parentId) where T : class, IIntermediateTable<TechnologicalCard, C>
+        {
+            try
+            {
+                // todo - Db connection error holder 
+                using (var context = new MyDbContext())
+                {
+
+                    return context.Set<T>().Where(obj => obj.ParentId == 1)
+                                    .Include(tc => tc.Child)
+                                    .Cast<T>()
+                                    .ToList();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
             }
         }
 

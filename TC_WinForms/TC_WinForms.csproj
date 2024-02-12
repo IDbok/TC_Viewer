@@ -29,13 +29,30 @@
     <Compile Update="WinForms\Win2.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="WinForms\Win7_3 Staff.cs">
+    <Compile Update="WinForms\Win6\Win6_Staff_3.cs" />
+    <Compile Update="WinForms\Win6\Win6_Staff_2.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="WinForms\Win7_2 Prj.cs">
+    <Compile Update="WinForms\Win6\Win6_Staff.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="WinForms\Win7_new.cs">
+    <Compile Update="WinForms\Win6\Win6_new.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WinForms\Win6\Win6_Generic.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WinForms\Win7\Win7_5 Machine.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WinForms\Win7\Win7_4 Component.cs" />
+    <Compile Update="WinForms\Win7\Win7_3 Staff.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WinForms\Win7\Win7_2 Prj.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WinForms\Win7\Win7_new.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

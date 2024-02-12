@@ -12,5 +12,6 @@ namespace TcModels.Models.Interfaces
         string Unit { get; set; }
         float? Price { get; set; }
         List<LinkEntety> Links { get; set; }
+
     }
 }

@@ -80,6 +80,7 @@ namespace TcDbConnector
                         j.Property(sttc => sttc.Order).HasDefaultValue(0);
                         j.HasKey(t => new { t.ParentId, t.ChildId, t.Symbol});
                         j.ToTable("Staff_TC");
+                        // j.HasIndex(t => t.Symbol).IsUnique();
                     });
             modelBuilder
                 .Entity<TechnologicalCard>()

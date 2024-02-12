@@ -1,10 +1,12 @@
-﻿using System.Reflection.Metadata;
+﻿using System.Diagnostics;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent
 {
-    public class Staff : INameable //1. Требования к составу бригады и квалификации
+    public class Staff : INameable, IDGViewable //1. Требования к составу бригады и квалификации
     {
         public static Dictionary<string, string> GetPropertiesNames()
         {
@@ -44,6 +46,7 @@ namespace TcModels.Models.TcContent
                 { nameof(Qualification)},
             };
         }
+
 
         static private EModelType modelType = EModelType.Staff;
         public EModelType ModelType { get { return modelType; } }

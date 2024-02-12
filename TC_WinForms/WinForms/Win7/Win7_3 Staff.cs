@@ -15,6 +15,11 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win7_3_Staff : Form
     {
+        private bool isAddingForm = false;
+        public void SetAsAddingForm()
+        {
+            isAddingForm = true;
+        }
         private DbConnector dbCon = new DbConnector();
 
         private List<Staff> objList = new List<Staff>();
@@ -28,6 +33,12 @@ namespace TC_WinForms.WinForms
             AccessInitialization(accessLevel);
         }
 
+        public Win7_3_Staff() // this constructor is for adding form in TC editer
+        {
+            InitializeComponent();
+            isAddingForm = true;
+
+        }
 
         private void Win7_3_Staff_Load(object sender, EventArgs e)
         {
@@ -38,16 +49,59 @@ namespace TC_WinForms.WinForms
             var bindingList = new BindingList<Staff>(objList);
             dgvMain.DataSource = bindingList;
 
+
             // set columns names
             WinProcessing.SetTableHeadersNames(Staff.GetPropertiesNames(), dgvMain);
-
             // set columns order and visibility
             WinProcessing.SetTableColumnsOrder(Staff.GetPropertiesOrder(), dgvMain);
+
+            if (isAddingForm)
+            {
+                // make all collumns readonly
+                foreach (DataGridViewColumn c in dgvMain.Columns)
+                {
+                    c.ReadOnly = true;
+                }
+                // add checkbox in row header
+                var col = new DataGridViewCheckBoxColumn();
+                col.Name = "Selected";
+                col.HeaderText = "";
+                col.Width = 30;
+                col.ReadOnly = false;
+                dgvMain.Columns.Insert(0, col);
+
+                // hide buttons for adding, updating and deleting
+                foreach (var btn in pnlControlBtns.Controls)
+                {
+                    if (btn is Button)
+                    {
+                        (btn as Button).Visible = false;
+                    }
+                }
+
+                // add button for adding selected rows to TC
+                var btnAddSelected = new Button();
+                btnAddSelected.Text = "Добавить выбранные";
+                btnAddSelected.Click += BtnAddSelected_Click;
+                btnAddSelected.Dock = DockStyle.Right;
+                btnAddSelected.Width = 150;
+                pnlControlBtns.Controls.Add(btnAddSelected);
+
+                // add button Cancel
+                var btnCancel = new Button();
+                btnCancel.Text = "Отмена";
+                // btnCancel.Click += BtnCancel_Click;
+                btnCancel.Dock = DockStyle.Right;
+                btnCancel.Width = 150;
+                pnlControlBtns.Controls.Add(btnCancel);
+
+            }
+
         }
 
         private void AccessInitialization(int accessLevel)
         {
-            // todo - reverse accessibility
+            // todo - make accessibility for all buttons
             if (accessLevel == 0) // viewer
             {
                 // hide all buttons
@@ -73,7 +127,7 @@ namespace TC_WinForms.WinForms
             {
                 if (MessageBox.Show("Сохранить новую запись?", "Сохранение", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-
+                    MessageBox.Show("Сохраняю всё чт нужно в Staff ", "Сохранение");
                     //dbCon.AddObject(newObj);
                 }
             }
@@ -111,10 +165,32 @@ namespace TC_WinForms.WinForms
                 // get collumn index by name
                 var colIndex = dgvMain.Columns[colName].Index;
 
-                DataGridProcessing.ColorizeCell(dgvMain, colIndex, row.Index, "Red");
+                DGVProcessing.ColorizeCell(dgvMain, colIndex, row.Index, "Red");
             }
 
-            
+
+        }
+
+        /////////////////////////////////////////// * isAddingFormMethods and Events * ///////////////////////////////////////////
+        
+        void BtnAddSelected_Click(object sender, EventArgs e)
+        {
+            // get selected rows
+            var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
+            if (selectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите строки для добавления");
+                return;
+            }
+            // get selected objects
+            var selectedObjs = selectedRows.Select(r => r.DataBoundItem as Staff).ToList();
+            // find opened form
+            var tcEditor = Application.OpenForms.OfType<Win6_Staff>().FirstOrDefault();
+
+            tcEditor.AddNewObjects(selectedObjs);
+
+            // close form
+            this.Close();
         }
     }
 }

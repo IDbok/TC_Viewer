@@ -21,6 +21,7 @@ namespace TC_WinForms.WinForms
         private List<int> deletedItemId = new List<int>();
         private List<TechnologicalCard> changedCards = new List<TechnologicalCard>();
         public TechnologicalCard newCard;
+
         public Win7_1_TCs(int accessLevel)
         {
             InitializeComponent();
@@ -66,6 +67,9 @@ namespace TC_WinForms.WinForms
             }
         }
 
+        /////////////////////////////// btnNavigation events /////////////////////////////////////////////////////////////////
+        
+
         private void btnAddNewTC_Click(object sender, EventArgs e)
         {
             if (newCard != null) // todo - add check for all required fields (ex. Type can be only as "Ремонтная", "Монтажная", "ТТ")
@@ -92,57 +96,49 @@ namespace TC_WinForms.WinForms
 
         private void btnUpdateTC_Click(object sender, EventArgs e)
         {
+            // check if one and only one row is selected
+            if (dgvMain.SelectedRows.Count == 1)
+            {
+                // get selected row
+                DataGridViewRow selectedRow = dgvMain.SelectedRows[0];
 
+                // get id of selected row
+                int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
+
+                // open new form with selected object
+                Win6_new win6 = new Win6_new(id);
+                //win6.ShowDialog();
+                win6.Show();
+                //this.Enabled = false;
+            }
+            else
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+            }
         }
 
         private void btnDeleteTC_Click(object sender, EventArgs e)
         {
-            if (dgvMain.SelectedRows.Count > 0)
-            {
-                List<DataGridViewRow> rowsToDelete = GetSelectedRows();
+            //if (dgvMain.SelectedRows.Count > 0)
+            //{
+            //    List<DataGridViewRow> rowsToDelete = DataGridProcessing.GetSelectedRows(dgvMain);
 
-                // add articles to message
-                string message = "Вы действительно хотите удалить выбранные карты?\n";
-                foreach (var row in rowsToDelete)
-                {
-                    message += row.Cells["Article"].Value.ToString() + "\n";
-                }
+            //    // add articles to message
+            //    string message = "Вы действительно хотите удалить выбранные карты?\n";
 
-                string caption = "Удаление Технологических карт";
-                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-                DialogResult result;
-                result = MessageBox.Show(message, caption, buttons);
+            //    DialogResult result = MessageSender.SendQuestionDeliteObjects(message,rowsToDelete,"Article");
 
+                
+            //    if (result == DialogResult.Yes)
+            //    {
+            //        DataGridProcessing.DeleteRowsById(rowsToDelete, dgvMain, dbCon);
+            //    }
 
-                if (result == DialogResult.Yes)
-                {
-                    foreach (var row in rowsToDelete)
-                    {
-                        dbCon.Delete<TechnologicalCard>((int)row.Cells["Id"].Value);
-                    }
-                    DeleteRows(rowsToDelete);
-                }
-
-                dgvMain.Refresh();
-            }
-
-
+            //    dgvMain.Refresh();
+            //}
         }
-        private List<DataGridViewRow> GetSelectedRows()
-        {
-            List<DataGridViewRow> selectedRows = new List<DataGridViewRow>();
-            foreach (DataGridViewRow row in dgvMain.SelectedRows)
-            {
-                selectedRows.Add(row);
-            }
-            return selectedRows;
-        }
-        private void DeleteRows(List<DataGridViewRow> rowsToDelete)
-        {
-            foreach (DataGridViewRow row in rowsToDelete)
-            {
-                dgvMain.Rows.Remove(row);
-            }
-        }
+
+        /////////////////////////////// dgvMain events /////////////////////////////////////////////////////////////////
+        
     }
 }

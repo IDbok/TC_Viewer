@@ -3,7 +3,7 @@ using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent
 {
-    public class Tool : IModelStructure //5. Требования к инструментам и приспособлениям
+    public class Tool : IModelStructure, IClassifaerable //5. Требования к инструментам и приспособлениям
     {
         static private EModelType modelType = EModelType.Tool;
         public EModelType ModelType { get { return modelType; } }
@@ -24,7 +24,7 @@ namespace TcModels.Models.TcContent
         public string? Description { get; set; }
         public string? Manufacturer { get; set; }
         public List<LinkEntety> Links { get; set; } = new ();
-        public string Categoty { get; set; }
+        public string Categoty { get; set; } = "Tool";
         public string ClassifierCode { get; set; }
     }
 }

@@ -1,15 +1,60 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent
 {
-    public class Component : IModelStructure //2. Требования к материалам и комплектующим
+    public class Component : IModelStructure, IClassifaerable //2. Требования к материалам и комплектующим
     {
         static EModelType modelType = EModelType.Component;
         public static EModelType ModelType { get => modelType; }
 
+        public static Dictionary<string, string> GetPropertiesNames()
+        {
+            return new Dictionary<string, string>
+            {
+                { nameof(Id), "ID" },
+                { nameof(Name), "Наименование" },
+                { nameof(Type), "Тип" },
+                { nameof(Unit), "Ед.изм." },
+                { nameof(Price), "Стоимость, руб. без НДС" },
+                { nameof(Description), "Описание" },
+                { nameof(Manufacturer), "Производители (поставщики)" },
+                //{ nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
+                { nameof(Categoty), "Категория" },
+                { nameof(ClassifierCode), "Код в classifier" },
+            };
+        }
+        public static Dictionary<string, int> GetPropertiesOrder()
+        {
+            int i = 0;
+            return new Dictionary<string, int>
+            {
+                { nameof(Id), 0 },
+                { nameof(Name), 1 },
+                { nameof(Type), 2 },
+                { nameof(Unit), 3 },
+                { nameof(Price), 4 },
+                { nameof(Description), 5 },
+                { nameof(Manufacturer), 6 },
+                //{ nameof(Links), 7 },
+                { nameof(Categoty), 7 },
+                { nameof(ClassifierCode), 8 },
+
+            };
+        }
+        public static List<string> GetPropertiesRequired()
+        {
+            return new List<string>
+            {
+                { nameof(Name)},
+                { nameof(Unit) },
+                { nameof(Categoty) },
+                { nameof(ClassifierCode) },
+            };
+        }
 
         public List<Component> Parents { get; set; } = new();
         public List<Component> Children { get; set; } = new();
@@ -27,7 +72,7 @@ namespace TcModels.Models.TcContent
         public string? Description { get; set; }
         public string? Manufacturer { get; set; }
         public List<LinkEntety> Links { get; set; } = new();
-        public string Categoty { get; set; }
+        public string Categoty { get; set; } = "StandComp";
         public string ClassifierCode { get; set; }
 
         public override string ToString()

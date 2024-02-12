@@ -175,24 +175,91 @@ namespace TC_WinForms
         /// <summary>
         /// Add new rows to Table typeof DataGridView from Staff_TC object
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="objs"></param>
         /// <param name="DGV"></param>
-        public static void AddNewRowsToDGV(List<Staff_TC> obj, DataGridView DGV)
+        public static void AddNewRowsToDGV(List<Staff_TC> objs, DataGridView DGV)
         {
-            for (int i = 0; i < obj.Count; i++)
+            objs = objs.OrderBy(x => x.Order).ToList();
+            
+            int rowIndex = DGV.RowCount;
+
+            List<string> changeableColumns = Staff_TC.GetChangeablePropertiesNames();
+
+            foreach(var obj in objs)
             {
-                DGV.Rows.Add(
-                    (int)obj[i].ChildId,
-                    (int)obj[i].Order,
+                DGV.Rows.Add();
+                DGVProcessing.AddValueToCell(DGV, "Order", rowIndex, obj.Order);
+                DGVProcessing.AddValueToCell(DGV, "Symbol", rowIndex, obj.Symbol);
+                DGVProcessing.AddValueToCell(DGV, "ParentId", rowIndex, obj.ParentId);
 
-                    obj[i].Child.Name,
-                    obj[i].Child.Type,
-                    obj[i].Child.CombineResponsibility,
-                    obj[i].Child.Qualification,
+                DGVProcessing.AddValueToCell(DGV, "Id", rowIndex, obj.Child.Id);
+                DGVProcessing.AddValueToCell(DGV, "Name", rowIndex, obj.Child.Name);
+                DGVProcessing.AddValueToCell(DGV, "Type", rowIndex, obj.Child.Type);
+                DGVProcessing.AddValueToCell(DGV, "Functions", rowIndex, obj.Child.Functions);
+                DGVProcessing.AddValueToCell(DGV, "CombineResponsibility", rowIndex, obj.Child.CombineResponsibility);
+                DGVProcessing.AddValueToCell(DGV, "Qualification", rowIndex, obj.Child.Qualification);
+                DGVProcessing.AddValueToCell(DGV, "Comment", rowIndex, obj.Child.Comment);
 
-                    obj[i].Symbol);
+                foreach (var prop in changeableColumns)
+                {
+                    DGVProcessing.AddValueToCopyColumn(DGV, prop, rowIndex);
+                }
+
+                rowIndex++;
             }
+            //for (int i = rowsCount; i < objs.Count + rowsCount; i++)
+            //{
+            //    DGV.Rows.Add();
+            //    DGVProcessing.AddValueToCell(DGV, "Order", i, objs[i].Order);
+            //    DGVProcessing.AddValueToCell(DGV, "Symbol", i, objs[i].Symbol);
+            //    DGVProcessing.AddValueToCell(DGV, "ParentId", i, objs[i].ParentId);
+
+            //    DGVProcessing.AddValueToCell(DGV, "Id", i, objs[i].Child.Id);
+            //    DGVProcessing.AddValueToCell(DGV, "Name", i, objs[i].Child.Name);
+            //    DGVProcessing.AddValueToCell(DGV, "Type", i, objs[i].Child.Type);
+            //    DGVProcessing.AddValueToCell(DGV, "Functions", i, objs[i].Child.Functions);
+            //    DGVProcessing.AddValueToCell(DGV, "CombineResponsibility", i, objs[i].Child.CombineResponsibility);
+            //    DGVProcessing.AddValueToCell(DGV, "Qualification", i, objs[i].Child.Qualification);
+            //    DGVProcessing.AddValueToCell(DGV, "Comment", i, objs[i].Child.Comment);
+
+            //    //foreach (var prop in propNames)
+            //    //{
+            //    //    if (prop.Key == "Order")
+            //    //        DataGridProcessing.AddValueToCell(DGV, prop.Key, i, 
+            //    //            obj[i].GetType().GetProperty(prop.Key).GetValue(obj[i])
+            //    //            );
+            //    //    else if (prop.Key == "Symbol")
+            //    //        DataGridProcessing.AddValueToCell(DGV, prop.Key, i, 
+            //    //            obj[i].GetType().GetProperty(prop.Key).GetValue(obj[i])
+            //    //            );
+            //    //    else if (prop.Key == "ParentId")
+            //    //        DataGridProcessing.AddValueToCell(DGV, prop.Key, i, 
+            //    //            obj[i].GetType().GetProperty(prop.Key).GetValue(obj[i])
+            //    //            );
+            //    //    else
+            //    //    DataGridProcessing.AddValueToCell(DGV, prop.Key, i, 
+            //    //        obj[i].Child.GetType().GetProperty(prop.Key).GetValue(obj[i])
+            //    //        );
+            //    //}
+
+
+
+            //    //DGV.Rows.Add(
+            //    //    (int)obj[i].Order,
+            //    //    obj[i].Symbol,
+
+            //    //    (int)obj[i].ChildId,
+            //    //    obj[i].Child.Name,
+            //    //    obj[i].Child.Type,
+            //    //    obj[i].Child.Functions,
+            //    //    obj[i].Child.CombineResponsibility,
+            //    //    obj[i].Child.Qualification,
+            //    //    obj[i].Child.Comment,
+            //    //    (int)obj[i].ParentId
+            //    //    );
+            //}
         }
+
 
         public static bool CloseAppMessage(FormClosingEventArgs e, out bool saveDate)
         {

@@ -11,6 +11,9 @@ namespace TC_WinForms.DataProcessing
     public class DbConnector
     {
         //private MyDbContext context; //
+
+        
+
         public void UpdateCurrentTc(int id)
         {
             Program.currentTc = GetObject<TechnologicalCard>(id);
@@ -34,7 +37,69 @@ namespace TC_WinForms.DataProcessing
                 context.SaveChanges();
             }
         }
-        public void Update<T>(T updatingobj) where T : class, IIdentifiable
+        public void Delete<T>(T obj)
+        {
+            using (var context = new MyDbContext())
+            {
+                context.Remove(obj);
+                context.SaveChanges();
+            }
+        }
+        public void Delete<T>(List<T> objs)
+        {
+            using (var context = new MyDbContext())
+            {
+                foreach (var obj in objs)
+                {
+                    context.Remove(obj);
+                }
+                context.SaveChanges();
+            }
+        }
+        public void Add<T>(T addingobj)
+        {
+            using (var context = new MyDbContext())
+            {
+                context.Add(addingobj);
+                context.SaveChanges();
+            }
+        }
+        public void Add<T>(List<T> objs)
+        {
+            using (var context = new MyDbContext())
+            {
+                foreach (var obj in objs)
+                {
+                    context.Add(obj);
+                }
+                context.SaveChanges();
+            }
+        }
+        /// <summary>
+        /// Add only intermediate table object to db Parent and Child objects should be added before
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="C"></typeparam>
+        /// <param name="objs"></param>
+        public void Add<T,C>(List<T> objs)
+            where T : class, IIntermediateTable<TechnologicalCard,C>
+            where C : class
+        {
+            using (var context = new MyDbContext())
+            {
+                foreach (var obj in objs)
+                {
+                    // untrack child object
+                    obj.Parent = null;
+                    obj.Child = null;
+
+                    context.Add(obj);
+                }
+                context.SaveChanges();
+            }
+        }
+
+        public void Update<T>(T updatingobj) where T : class
         {
             using (var context = new MyDbContext())
             {
@@ -81,8 +146,19 @@ namespace TC_WinForms.DataProcessing
                 //// set Modified flag in your entry
                 //context.Entry(local).State = EntityState.Modified;
 
-                ////context.Update(updatingobj);
-                //context.SaveChanges();
+                context.Update(updatingobj);
+                context.SaveChanges();
+            }
+        }
+        public void Update<T>(List<T> updatingobjs) where T : class
+        {
+            using (var context = new MyDbContext())
+            {
+                foreach (var updatingobj in updatingobjs)
+                {
+                    context.Update(updatingobj);
+                }
+                context.SaveChanges();
             }
         }
 
@@ -159,14 +235,7 @@ namespace TC_WinForms.DataProcessing
                 
             }
         }
-        public void Add<T>(T addingobj)
-        {
-            using (var context = new MyDbContext())
-            {
-                context.Add(addingobj);
-                context.SaveChanges();
-            }
-        }
+        
 
         public int GetLastId<T>() where T : class, IIdentifiable
         {
@@ -178,7 +247,7 @@ namespace TC_WinForms.DataProcessing
                 return lastId;
             }
         }
-        public int GetIdByName<T>(string article) where T : class, IIdentifiable, INameable
+        public int GetIdByName<T>(string article) where T : class, INameable
         {
             using (var context = new MyDbContext())
             {
@@ -251,7 +320,26 @@ namespace TC_WinForms.DataProcessing
                 throw;
             }
         }
-
+        public List<T> GetIntermediateObjectList<T,C>(int parentId) where T : class, IIntermediateTable<TechnologicalCard, C>
+        {
+            try
+            {
+                // todo - Db connection error holder 
+                using (var context = new MyDbContext())
+                {
+                    
+                    return context.Set<T>().Where(obj => obj.ParentId == parentId)
+                                    .Include(tc => tc.Child)
+                                    .Cast<T>()
+                                    .ToList();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
         public T? GetObject<T>(int id) where T : class, IIdentifiable
         {
             T? obj = null;

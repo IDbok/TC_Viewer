@@ -1,6 +1,6 @@
 ﻿namespace TC_WinForms.WinForms
 {
-    partial class Win7_3_Staff
+    partial class Win7_5_Machine
     {
         /// <summary>
         /// Required designer variable.
@@ -114,6 +114,7 @@
             btnDeleteObj.TabIndex = 25;
             btnDeleteObj.Text = "Удалить";
             btnDeleteObj.UseVisualStyleBackColor = true;
+            btnDeleteObj.Click += btnDeleteObj_Click;
             // 
             // btnUpdateObj
             // 
@@ -143,17 +144,17 @@
             pnlDataViewer.Size = new Size(800, 340);
             pnlDataViewer.TabIndex = 2;
             // 
-            // Win7_3_Staff
+            // Win7_5_Machine
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
-            Name = "Win7_3_Staff";
-            Text = "Win7_3_Staff";
-            FormClosing += Win7_3_Staff_FormClosing;
-            Load += Win7_3_Staff_Load;
+            Name = "Win7_5_Machine";
+            Text = "Win7_5_Machine";
+            FormClosing += Win7_5_Machine_FormClosing;
+            Load += Win7_5_Machine_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);

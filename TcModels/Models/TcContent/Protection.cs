@@ -3,7 +3,7 @@ using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent
 {
-    public class Protection : IModelStructure//4. Требования к средствам защиты
+    public class Protection : IModelStructure, IClassifaerable//4. Требования к средствам защиты
     {
         static private EModelType modelType = EModelType.Protection;
         public EModelType ModelType { get { return modelType; } }

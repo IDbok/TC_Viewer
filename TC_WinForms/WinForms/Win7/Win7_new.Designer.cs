@@ -37,10 +37,10 @@
             pnlNavigationBlok = new Panel();
             pnlNavigationBtns = new Panel();
             button8 = new Button();
-            button4 = new Button();
-            button7 = new Button();
-            button6 = new Button();
-            button5 = new Button();
+            btnTool = new Button();
+            btnProtection = new Button();
+            btnMachine = new Button();
+            btnComponent = new Button();
             btnStaff = new Button();
             btnProject = new Button();
             btnTechCard = new Button();
@@ -109,10 +109,10 @@
             // pnlNavigationBtns
             // 
             pnlNavigationBtns.Controls.Add(button8);
-            pnlNavigationBtns.Controls.Add(button4);
-            pnlNavigationBtns.Controls.Add(button7);
-            pnlNavigationBtns.Controls.Add(button6);
-            pnlNavigationBtns.Controls.Add(button5);
+            pnlNavigationBtns.Controls.Add(btnTool);
+            pnlNavigationBtns.Controls.Add(btnProtection);
+            pnlNavigationBtns.Controls.Add(btnMachine);
+            pnlNavigationBtns.Controls.Add(btnComponent);
             pnlNavigationBtns.Controls.Add(btnStaff);
             pnlNavigationBtns.Controls.Add(btnProject);
             pnlNavigationBtns.Controls.Add(btnTechCard);
@@ -132,45 +132,47 @@
             button8.Text = "Технологиеские операции";
             button8.UseVisualStyleBackColor = true;
             // 
-            // button4
+            // btnTool
             // 
-            button4.Dock = DockStyle.Top;
-            button4.Location = new Point(0, 408);
-            button4.Name = "button4";
-            button4.Size = new Size(198, 68);
-            button4.TabIndex = 8;
-            button4.Text = "Инструменты и приспособления";
-            button4.UseVisualStyleBackColor = true;
+            btnTool.Dock = DockStyle.Top;
+            btnTool.Location = new Point(0, 408);
+            btnTool.Name = "btnTool";
+            btnTool.Size = new Size(198, 68);
+            btnTool.TabIndex = 8;
+            btnTool.Text = "Инструменты и приспособления";
+            btnTool.UseVisualStyleBackColor = true;
             // 
-            // button7
+            // btnProtection
             // 
-            button7.Dock = DockStyle.Top;
-            button7.Location = new Point(0, 340);
-            button7.Name = "button7";
-            button7.Size = new Size(198, 68);
-            button7.TabIndex = 7;
-            button7.Text = "Средства защиты";
-            button7.UseVisualStyleBackColor = true;
+            btnProtection.Dock = DockStyle.Top;
+            btnProtection.Location = new Point(0, 340);
+            btnProtection.Name = "btnProtection";
+            btnProtection.Size = new Size(198, 68);
+            btnProtection.TabIndex = 7;
+            btnProtection.Text = "Средства защиты";
+            btnProtection.UseVisualStyleBackColor = true;
             // 
-            // button6
+            // btnMachine
             // 
-            button6.Dock = DockStyle.Top;
-            button6.Location = new Point(0, 272);
-            button6.Name = "button6";
-            button6.Size = new Size(198, 68);
-            button6.TabIndex = 6;
-            button6.Text = "Механизмы";
-            button6.UseVisualStyleBackColor = true;
+            btnMachine.Dock = DockStyle.Top;
+            btnMachine.Location = new Point(0, 272);
+            btnMachine.Name = "btnMachine";
+            btnMachine.Size = new Size(198, 68);
+            btnMachine.TabIndex = 6;
+            btnMachine.Text = "Механизмы";
+            btnMachine.UseVisualStyleBackColor = true;
+            btnMachine.Click += btnMachine_Click;
             // 
-            // button5
+            // btnComponent
             // 
-            button5.Dock = DockStyle.Top;
-            button5.Location = new Point(0, 204);
-            button5.Name = "button5";
-            button5.Size = new Size(198, 68);
-            button5.TabIndex = 5;
-            button5.Text = "Материалы и комплектующие";
-            button5.UseVisualStyleBackColor = true;
+            btnComponent.Dock = DockStyle.Top;
+            btnComponent.Location = new Point(0, 204);
+            btnComponent.Name = "btnComponent";
+            btnComponent.Size = new Size(198, 68);
+            btnComponent.TabIndex = 5;
+            btnComponent.Text = "Материалы и комплектующие";
+            btnComponent.UseVisualStyleBackColor = true;
+            btnComponent.Click += btnComponent_Click;
             // 
             // btnStaff
             // 
@@ -259,9 +261,9 @@
         private Button btnStaff;
         private Button btnProject;
         private Button button8;
-        private Button button4;
-        private Button button7;
-        private Button button6;
-        private Button button5;
+        private Button btnTool;
+        private Button btnProtection;
+        private Button btnMachine;
+        private Button btnComponent;
     }
 }

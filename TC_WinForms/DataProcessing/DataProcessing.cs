@@ -30,7 +30,7 @@ namespace TC_WinForms.DataProcessing
             return newObject;
 
         }
-        public static T addNewObject<T>(Form form, ref T newObj) where T : class, IModelStructure, new()
+        public static T addNewObject<T>() where T : class, IModelStructure, IClassifaerable, new()
         {
             var dbCon = new DbConnector();
             var newObject = dbCon.AddNewObjAndReturnIt<T>(CreateObjectWithRandomName<T>());
@@ -74,7 +74,7 @@ namespace TC_WinForms.DataProcessing
             return newObject;
 
         }
-        private static T CreateObjectWithRandomName<T>() where T : class, IModelStructure, new()
+        private static T CreateObjectWithRandomName<T>() where T : class, IModelStructure, IClassifaerable, new()
         {
             // get random number with 10 nubbers for new id
             Random rnd = new Random();
@@ -85,12 +85,15 @@ namespace TC_WinForms.DataProcessing
                 Name = $"New Object - {random}",
                 Type = "",
                 Unit = "",
-                Price = 0
+                Price = 0,
+                ClassifierCode = "",
             };
 
             return newObject;
 
         }
+
+
     }
 
     
