@@ -7,14 +7,14 @@ namespace TcDbConnector
 {
     public class MyDbContext : DbContext
     {
-        public DbSet<TechnologicalProcess> TechnologicalProcesses { get; set; } = null!;
-        public DbSet<TechnologicalCard> TechnologicalCards { get; set; } = null!;
-        public DbSet<Author> Authors { get; set; } = null!;
-        public DbSet<Staff> Staffs { get; set; } = null!;
-        public DbSet<Component> Components { get; set; } = null!;
-        public DbSet<Tool> Tools { get; set; } = null!;
-        public DbSet<Machine> Machines { get; set; } = null!;
-        public DbSet<Protection> Protections { get; set; } = null!;
+        public DbSet<TechnologicalProcess> TechnologicalProcesses { get; set; } = null!; // технологический процесс
+        public DbSet<TechnologicalCard> TechnologicalCards { get; set; } = null!; // Технические карты
+        public DbSet<Author> Authors { get; set; } = null!; // авторизация
+        public DbSet<Staff> Staffs { get; set; } = null!; //персонал
+        public DbSet<Component> Components { get; set; } = null!; //таблица 2
+        public DbSet<Tool> Tools { get; set; } = null!;  // таблица 5 Инструменты
+        public DbSet<Machine> Machines { get; set; } = null!; //таблица 3
+        public DbSet<Protection> Protections { get; set; } = null!; //Таблица 4 Средства защиты
         //public DbSet<WorkStep> WorkSteps { get; set; } = null!;
 
         public DbSet<Staff_TC> Staff_TCs { get; set; } = null!;
