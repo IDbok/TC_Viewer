@@ -13,6 +13,29 @@ namespace TC_WinForms.DataProcessing
 {
     public static class DGVProcessing
     {
+        /// <summary>
+        /// Set columns in DGV in specific order and its headers
+        /// </summary>
+        /// <param name="colNames">dictionary with keys as properties names and values as column headers in DGV</param>
+        /// <param name="colOrder">dictionary with keys as properties names and values as its order in DGV. If value equal to -1 column will be hidden</param>
+        /// <param name="dgv"></param>
+        /// <param name="changeableColumns">Make hidden copies of columns with adding "_copy" in the end of the name</param>
+        public static void SetDGVColumnsNamesAndOrder(
+            Dictionary<string, string> colNames, 
+            Dictionary<string, int> colOrder,
+            DataGridView dgv,
+            List<string>? changeableColumns = null)
+        {
+            dgv.Columns.Clear();
+
+            AddColumnsToDGV(colNames, dgv);
+
+            SetColumnsOrder(colOrder, dgv);
+
+            if (changeableColumns != null && changeableColumns.Count != 0)
+                CreateColumnsCopies(changeableColumns, dgv);
+        }
+
         public static void AddColumnsToDGV(Dictionary<string, string> columnNames, DataGridView dgv)
         {
             columnNames.Keys.ToList().ForEach(x => dgv.Columns.Add(x, columnNames[x]));
@@ -58,6 +81,7 @@ namespace TC_WinForms.DataProcessing
         //        }
         //    }
         //}
+
         /// <summary>
         /// return list of selected DataGridViewRow if no row is selected is selected rows which cells are selected
         /// </summary>
@@ -83,6 +107,43 @@ namespace TC_WinForms.DataProcessing
             }
             return selectedRows;
         }
+        /// <summary>
+        /// Add new rows to Table typeof DataGridView from Staff_TC object
+        /// </summary>
+        /// <param name="objs"></param>
+        /// <param name="DGV"></param>
+        public static void AddNewRowsToDGV(List<Staff_TC> objs, DataGridView DGV)
+        {
+            objs = objs.OrderBy(x => x.Order).ToList();
+
+            int rowIndex = DGV.RowCount;
+
+            List<string> changeableColumns = Staff_TC.GetChangeablePropertiesNames();
+
+            foreach (var obj in objs)
+            {
+                DGV.Rows.Add();
+                AddValueToCell(DGV, "Order", rowIndex, obj.Order);
+                AddValueToCell(DGV, "Symbol", rowIndex, obj.Symbol);
+                AddValueToCell(DGV, "ParentId", rowIndex, obj.ParentId);
+
+                AddValueToCell(DGV, "Id", rowIndex, obj.Child.Id);
+                AddValueToCell(DGV, "Name", rowIndex, obj.Child.Name);
+                AddValueToCell(DGV, "Type", rowIndex, obj.Child.Type);
+                AddValueToCell(DGV, "Functions", rowIndex, obj.Child.Functions);
+                AddValueToCell(DGV, "CombineResponsibility", rowIndex, obj.Child.CombineResponsibility);
+                AddValueToCell(DGV, "Qualification", rowIndex, obj.Child.Qualification);
+                AddValueToCell(DGV, "Comment", rowIndex, obj.Child.Comment);
+
+                foreach (var prop in changeableColumns)
+                {
+                    AddValueToCopyColumn(DGV, prop, rowIndex);
+                }
+
+                rowIndex++;
+            }
+        }
+
         public static void AddValueToCell(DataGridView dgv, string columnName, int rowIndex, object value)
         {
             if (dgv.Columns.Contains(columnName) && rowIndex >= 0 && rowIndex < dgv.Rows.Count)

@@ -53,13 +53,13 @@ namespace TC_WinForms.WinForms
 
             WinProcessing.SetTableHeadersNames(Staff.GetPropertiesNames(), dgvSubElement);
 
-            Staff_TC.GetPropertiesNames_old(out var ownNames);
-            WinProcessing.SetTableHeadersNames(ownNames, dgvMain);
+            //Staff_TC.GetPropertiesNames_old(out var ownNames);
+            //WinProcessing.SetTableHeadersNames(ownNames, dgvMain);
 
-            WinProcessing.SetTableColumnsOrder(Staff.GetPropertiesOrder(), dgvSubElement);
+            //WinProcessing.SetTableColumnsOrder(Staff.GetPropertiesOrder(), dgvSubElement);
 
-            Staff_TC.GetPropertiesOrder_old(out var ownOrder);
-            WinProcessing.SetTableColumnsOrder(ownOrder, dgvMain);
+            //Staff_TC.GetPropertiesOrder_old(out var ownOrder);
+            //WinProcessing.SetTableColumnsOrder(ownOrder, dgvMain);
 
             ////set column head height
             //dgvMain.ColumnHeadersHeight = 550;
