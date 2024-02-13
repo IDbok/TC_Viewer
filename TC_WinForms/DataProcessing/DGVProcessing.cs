@@ -118,7 +118,7 @@ namespace TC_WinForms.DataProcessing
 
             int rowIndex = DGV.RowCount;
 
-            List<string> changeableColumns = Staff_TC.GetChangeablePropertiesNames();
+            List<string> changeableColumns = Staff_TC.GetChangeablePropertiesNames;
 
             foreach (var obj in objs)
             {
@@ -134,6 +134,36 @@ namespace TC_WinForms.DataProcessing
                 AddValueToCell(DGV, "CombineResponsibility", rowIndex, obj.Child.CombineResponsibility);
                 AddValueToCell(DGV, "Qualification", rowIndex, obj.Child.Qualification);
                 AddValueToCell(DGV, "Comment", rowIndex, obj.Child.Comment);
+
+                foreach (var prop in changeableColumns)
+                {
+                    AddValueToCopyColumn(DGV, prop, rowIndex);
+                }
+
+                rowIndex++;
+            }
+        }
+        public static void AddNewRowsToDGV(List<Component_TC> objs, DataGridView DGV)
+        {
+            objs = objs.OrderBy(x => x.Order).ToList();
+
+            int rowIndex = DGV.RowCount;
+
+            List<string> changeableColumns = Component_TC.GetChangeablePropertiesNames;
+
+            foreach (var obj in objs)
+            {
+                DGV.Rows.Add();
+                AddValueToCell(DGV, "Order", rowIndex, obj.Order);
+                AddValueToCell(DGV, "Quantity", rowIndex, obj.Quantity);
+                AddValueToCell(DGV, "Note", rowIndex, obj.Note);
+                AddValueToCell(DGV, "ParentId", rowIndex, obj.ParentId);
+
+                AddValueToCell(DGV, "Id", rowIndex, obj.Child.Id);
+                AddValueToCell(DGV, "Name", rowIndex, obj.Child.Name);
+                AddValueToCell(DGV, "Type", rowIndex, obj.Child.Type);
+                AddValueToCell(DGV, "Unit", rowIndex, obj.Child.Unit);
+                AddValueToCell(DGV, "Price", rowIndex, obj.Child.Price);
 
                 foreach (var prop in changeableColumns)
                 {

@@ -1,4 +1,5 @@
 ﻿
+using OfficeOpenXml.Style;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TcModels.Models;
@@ -8,18 +9,18 @@ using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Staff : Form, ISaveEventForm
+    public partial class Win6_Component : Form, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
 
         private int _tcId;
         private TechnologicalCard _tc;
 
-        private List<Staff_TC> newItems = new List<Staff_TC>();
-        private List<Staff_TC> deletedItems = new List<Staff_TC>();
-        private List<Staff_TC> changedItems = new List<Staff_TC>();
+        private List<Component_TC> newItems = new List<Component_TC>();
+        private List<Component_TC> deletedItems = new List<Component_TC>();
+        private List<Component_TC> changedItems = new List<Component_TC>();
 
-        public Win6_Staff(int tcId)
+        public Win6_Component(int tcId)
         {
             InitializeComponent();
             this._tcId = tcId;
@@ -28,22 +29,22 @@ namespace TC_WinForms.WinForms
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
 
-        private void Win6_Staff_Load(object sender, EventArgs e)
+        private void Win6_Component_Load(object sender, EventArgs e)
         {
-            var objects = Task.Run(() => dbCon.GetIntermediateObjectList<Staff_TC, Staff>(_tcId));
+            var objects = Task.Run(() => dbCon.GetIntermediateObjectList<Component_TC, Component>(_tcId));
 
             DGVProcessing.SetDGVColumnsNamesAndOrder(
                 GetColumnNames(), 
                 GetColumnOrder(), 
                 dgvMain,
-                Staff_TC.GetChangeablePropertiesNames);
+                Component_TC.GetChangeablePropertiesNames);
 
             SetDGVColumnsSettings();
 
             DGVProcessing.AddNewRowsToDGV(objects.Result, dgvMain);
         }
 
-        private void Win6_Staff_FormClosing(object sender, FormClosingEventArgs e)
+        private void Win6_Component_FormClosing(object sender, FormClosingEventArgs e)
         {
 
         }
@@ -52,28 +53,54 @@ namespace TC_WinForms.WinForms
 
         private Dictionary<string, string> GetColumnNames()
         {
-            var colNames = new Dictionary<string, string>();
-            foreach (var item in Staff_TC.GetPropertiesNames)
+            //var colNames = new Dictionary<string, string>();
+            //foreach (var item in Component_TC.GetPropertiesNames)
+            //{
+            //    colNames.Add(item.Key, item.Value);
+            //}
+            //foreach (var item in Component.GetPropertiesNames)
+            //{
+            //     colNames.Add(item.Key, item.Value);
+            //}
+            var colNames = new Dictionary<string, string>
             {
-                colNames.Add(item.Key, item.Value);
-            }
-            foreach (var item in Staff.GetPropertiesNames)
-            {
-                colNames.Add(item.Key, item.Value);
-            }
+                { "ChildId", "ID Комплектующие" },
+                { "ParentId", "ID тех. карты" },
+                { "Order", "№" },
+                { "Quantity", "Количество" },
+                { "Note", "Примечание" },
+                { "Id", "ID" },
+                { "Name", "Наименование" },
+                { "Type", "Тип" },
+                { "Unit", "Ед.изм." },
+                { "Price", "Стоимость,\nруб. без НДС" },
+            };
             return colNames;
         }
         private Dictionary<string, int> GetColumnOrder()
         {
-            var colOrder = new Dictionary<string, int>();
-            foreach (var item in Staff.GetPropertiesOrder)
+            //var colOrder = new Dictionary<string, int>();
+            //foreach (var item in Component.GetPropertiesOrder)
+            //{
+            //    colOrder.Add(item.Key, item.Value);
+            //}
+            //foreach (var item in Component_TC.GetPropertiesOrder)
+            //{
+            //    colOrder.Add(item.Key, item.Value);
+            //}
+            var colOrder = new Dictionary<string, int>
             {
-                colOrder.Add(item.Key, item.Value);
-            }
-            foreach (var item in Staff_TC.GetPropertiesOrder)
-            {
-                colOrder.Add(item.Key, item.Value);
-            }
+                { "ChildId", -1 },
+                { "ParentId", -1 },
+                { "Order", 0 },
+                { "Quantity", 1 },
+                { "Note", 2 },
+                { "Id", 3 },
+                { "Name", 4 },
+                { "Type", 5 },
+                { "Unit", 6 },
+                { "Price", 7 },
+            };
             return colOrder;
         }
         void SetDGVColumnsSettings()
@@ -90,7 +117,7 @@ namespace TC_WinForms.WinForms
             var autosizeColumn = new List<string>
             {
                 "Order",
-                "Symbol",
+                "Quantity",
                 "Id",
                 "Name",
             };
@@ -100,13 +127,13 @@ namespace TC_WinForms.WinForms
             }
 
             // autosize only comment column to fill all free space
-            dgvMain.Columns["Comment"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dgvMain.Columns["Note"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            dgvMain.Columns["Functions"].Width = 180;
-            dgvMain.Columns["CombineResponsibility"].Width = 140;
+            //dgvMain.Columns["Functions"].Width = 180;
+            //dgvMain.Columns["CombineResponsibility"].Width = 140;
 
-            dgvMain.Columns["Qualification"].Width = 250;
-            dgvMain.Columns["Comment"].Width = 100;
+            //dgvMain.Columns["Qualification"].Width = 250;
+            //dgvMain.Columns["Comment"].Width = 100;
 
             dgvMain.Columns["Type"].Width = 70;
 
@@ -116,25 +143,27 @@ namespace TC_WinForms.WinForms
                 column.ReadOnly = true;
             }
             // make columns editable
-            dgvMain.Columns["Order"].ReadOnly = false;
-            dgvMain.Columns["Symbol"].ReadOnly = false;
+            foreach (var column in Component_TC.GetChangeablePropertiesNames)
+            {
+                dgvMain.Columns[column].ReadOnly = false;
+            }
 
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void AddNewObjects(List<Staff> newObjs)
+        public void AddNewObjects(List<Component> newObjs)
         {
             int i = 1;
-            foreach (Staff obj in newObjs)
+            foreach (Component obj in newObjs)
             {
-                var sttc = new Staff_TC
+                var sttc = new Component_TC
                 {
                     ParentId = _tcId,
                     ChildId = obj.Id,
                     Child = obj,
                     Order = dgvMain.Rows.Count + i,
-                    Symbol = "-"
+                    Quantity = 0,
                 };
                 newItems.Add(sttc);
                 i++;
@@ -144,7 +173,7 @@ namespace TC_WinForms.WinForms
         }
         public void SaveChanges()
         {
-            MessageBox.Show("SaveChanges in Staff");
+            MessageBox.Show("SaveChanges in Component");
 
             dgvMain.CurrentCell = null;// stops editing in dgvMain and save changes
 
@@ -164,18 +193,18 @@ namespace TC_WinForms.WinForms
 
             //// save new rows in db
             if (newItems.Count > 0)
-                dbCon.Add<Staff_TC, Staff>(newItems); newItems.Clear();
+                dbCon.Add<Component_TC, Component>(newItems); newItems.Clear();
 
             // Delete deleted rows from db
             if (deletedItems.Count > 0)
-                dbCon.Delete<Staff_TC>(deletedItems); deletedItems.Clear();
+                dbCon.Delete(deletedItems); deletedItems.Clear();
 
             // save changes in db
             if (changedItems.Count > 0)
-                dbCon.Update<Staff_TC>(changedItems); changedItems.Clear();
+                dbCon.Update(changedItems); changedItems.Clear();
 
             // change values of copy columns to original
-            DGVProcessing.SetCopyColumnsValues(dgvMain, Staff_TC.GetChangeablePropertiesNames);
+            DGVProcessing.SetCopyColumnsValues(dgvMain, Component_TC.GetChangeablePropertiesNames);
         }
         private void DetectChanges()
         {
@@ -187,18 +216,18 @@ namespace TC_WinForms.WinForms
                 CheckOrderChanged(row);
             }
         }
-        private void CheckOrderChanged(DataGridViewRow row)
+        private void CheckOrderChanged(DataGridViewRow row) // todo - add try catch block or check if Order and quantity is a numbers
         {
             string order = row.Cells["Order"].Value.ToString();
             string order_copy = row.Cells["Order_copy"].Value.ToString();
             if (order != order_copy)
             {
-                var sttc = new Staff_TC
+                var sttc = new Component_TC
                 {
                     ParentId = _tcId,
                     ChildId = int.Parse(row.Cells["Id"].Value.ToString()),
-                    Symbol = (string)row.Cells["Symbol"].Value,
-                    Order = int.Parse(row.Cells["Order"].Value.ToString())
+                    Order = int.Parse(row.Cells["Order"].Value.ToString()),
+                    Quantity = double.Parse(row.Cells["Quantity"].Value.ToString()),
                 };
                 changedItems.Add(sttc);
             }
@@ -210,21 +239,21 @@ namespace TC_WinForms.WinForms
 
             if (symbol != symbol_copy)
             {
-                var sttc_new = new Staff_TC
+                var sttc_new = new Component_TC
                 {
                     ParentId = _tcId,
                     ChildId = (int)row.Cells["Id"].Value,
-                    Symbol = (string)row.Cells["Symbol"].Value,
+                    //Symbol = (string)row.Cells["Symbol"].Value,
                     Order = (int)row.Cells["Order"].Value
                 };
                 newItems.Add(sttc_new);
                 if (symbol_copy != "-")
                 {
-                    var sttc_old = new Staff_TC
+                    var sttc_old = new Component_TC
                     {
                         ParentId = _tcId,
                         ChildId = (int)row.Cells["Id"].Value,
-                        Symbol = (string)row.Cells["Symbol_copy"].Value
+                        //Symbol = (string)row.Cells["Symbol_copy"].Value
                     };
                     deletedItems.Add(sttc_old);
                 }
@@ -233,8 +262,8 @@ namespace TC_WinForms.WinForms
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            // load new form Win7_3_Staff as dictonary
-            var newForm = new Win7_3_Staff();
+            // load new form Win7_3_Component as dictonary
+            var newForm = new Win7_4_Component();
             newForm.SetAsAddingForm();
             newForm.ShowDialog();
         }
@@ -257,12 +286,12 @@ namespace TC_WinForms.WinForms
                 {
                     foreach (var row in rowsToDelete)
                     {
-                        var sttc = new Staff_TC
+                        var sttc = new Component_TC
                         {
                             ParentId = _tcId,
                             ChildId = (int)row.Cells["Id"].Value,
                             Order = (int)row.Cells["Order"].Value,
-                            Symbol = (string)row.Cells["Symbol"].Value
+                            //Symbol = (string)row.Cells["Symbol"].Value
                         };
                         deletedItems.Add(sttc);
                     }

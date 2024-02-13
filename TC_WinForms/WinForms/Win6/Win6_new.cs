@@ -90,6 +90,9 @@ namespace TC_WinForms.WinForms
 
         private void btnShowComponents_Click(object sender, EventArgs e)
         {
+            if (activeForm is Win6_Component) return;
+            activeForm = new Win6_Component(_tcId);
+            LoadFormInPanel(activeForm);
         }
 
         private void btnShowMachines_Click(object sender, EventArgs e)

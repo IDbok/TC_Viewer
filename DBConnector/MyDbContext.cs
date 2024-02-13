@@ -57,7 +57,7 @@ namespace TcDbConnector
                     {
                         j.Property(sttc => sttc.Quantity).IsRequired().HasDefaultValue(0);
                         j.Property(sttc => sttc.Order).IsRequired().HasDefaultValue(0);
-                        j.HasKey(t => new { t.ParentId, t.ChildId, t.Order });
+                        j.HasKey(t => new { t.ParentId, t.ChildId});
                         //j.ToTable("Instrument_kit");
                     });
             
@@ -99,7 +99,7 @@ namespace TcDbConnector
                     {
                         j.Property(sttc => sttc.Quantity).HasDefaultValue(0);
                         j.Property(sttc => sttc.Order).HasDefaultValue(0);
-                        j.HasKey(t => new { t.ParentId, t.ChildId, t.Order });
+                        j.HasKey(t => new { t.ParentId, t.ChildId});
                         j.ToTable("Component_TC");
                     });
             modelBuilder
@@ -159,7 +159,7 @@ namespace TcDbConnector
                     {
                         j.Property(sttc => sttc.Quantity).HasDefaultValue(0);
                         j.Property(sttc => sttc.Order).HasDefaultValue(0);
-                        j.HasKey(t => new { t.ParentId, t.ChildId, t.Order });
+                        j.HasKey(t => new { t.ParentId, t.ChildId });
                         j.ToTable("Tool_TC");
                     });
 
