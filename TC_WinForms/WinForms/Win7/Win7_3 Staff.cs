@@ -36,8 +36,6 @@ namespace TC_WinForms.WinForms
         public Win7_3_Staff() // this constructor is for adding form in TC editer
         {
             InitializeComponent();
-            isAddingForm = true;
-
         }
 
         private void Win7_3_Staff_Load(object sender, EventArgs e)
@@ -51,50 +49,13 @@ namespace TC_WinForms.WinForms
 
 
             // set columns names
-            WinProcessing.SetTableHeadersNames(Staff.GetPropertiesNames(), dgvMain);
+            WinProcessing.SetTableHeadersNames(Staff.GetPropertiesNames, dgvMain);
             // set columns order and visibility
-            WinProcessing.SetTableColumnsOrder(Staff.GetPropertiesOrder(), dgvMain);
+            WinProcessing.SetTableColumnsOrder(Staff.GetPropertiesOrder, dgvMain);
 
             if (isAddingForm)
             {
-                // make all collumns readonly
-                foreach (DataGridViewColumn c in dgvMain.Columns)
-                {
-                    c.ReadOnly = true;
-                }
-                // add checkbox in row header
-                var col = new DataGridViewCheckBoxColumn();
-                col.Name = "Selected";
-                col.HeaderText = "";
-                col.Width = 30;
-                col.ReadOnly = false;
-                dgvMain.Columns.Insert(0, col);
-
-                // hide buttons for adding, updating and deleting
-                foreach (var btn in pnlControlBtns.Controls)
-                {
-                    if (btn is Button)
-                    {
-                        (btn as Button).Visible = false;
-                    }
-                }
-
-                // add button for adding selected rows to TC
-                var btnAddSelected = new Button();
-                btnAddSelected.Text = "Добавить выбранные";
-                btnAddSelected.Click += BtnAddSelected_Click;
-                btnAddSelected.Dock = DockStyle.Right;
-                btnAddSelected.Width = 150;
-                pnlControlBtns.Controls.Add(btnAddSelected);
-
-                // add button Cancel
-                var btnCancel = new Button();
-                btnCancel.Text = "Отмена";
-                // btnCancel.Click += BtnCancel_Click;
-                btnCancel.Dock = DockStyle.Right;
-                btnCancel.Width = 150;
-                pnlControlBtns.Controls.Add(btnCancel);
-
+                isAddingFormSetControls();
             }
 
         }
@@ -159,7 +120,7 @@ namespace TC_WinForms.WinForms
         private void ColorizeEmptyRequiredCells() // todo - change call collore after value changed to non empty
         {
             DataGridViewRow row = dgvMain.Rows[0];
-            var colNames = Staff.GetPropertiesRequired();
+            var colNames = Staff.GetPropertiesRequired;
             foreach (var colName in colNames)
             {
                 // get collumn index by name
@@ -173,6 +134,49 @@ namespace TC_WinForms.WinForms
 
         /////////////////////////////////////////// * isAddingFormMethods and Events * ///////////////////////////////////////////
         
+        private void isAddingFormSetControls()
+        {
+            // make all collumns readonly
+            foreach (DataGridViewColumn c in dgvMain.Columns)
+            {
+                c.ReadOnly = true;
+            }
+            // add checkbox in row header
+            var col = new DataGridViewCheckBoxColumn();
+            col.Name = "Selected";
+            col.HeaderText = "";
+            col.Width = 30;
+            col.ReadOnly = false;
+            dgvMain.Columns.Insert(0, col);
+
+            dgvMain.RowHeadersVisible = false;
+
+            // hide buttons for adding, updating and deleting
+            foreach (var btn in pnlControlBtns.Controls)
+            {
+                if (btn is Button)
+                {
+                    (btn as Button).Visible = false;
+                }
+            }
+
+            // add button for adding selected rows to TC
+            var btnAddSelected = new Button();
+            btnAddSelected.Text = "Добавить выбранные";
+            btnAddSelected.Click += BtnAddSelected_Click;
+            btnAddSelected.Dock = DockStyle.Right;
+            btnAddSelected.Width = 150;
+            pnlControlBtns.Controls.Add(btnAddSelected);
+
+            // add button Cancel
+            var btnCancel = new Button();
+            btnCancel.Text = "Отмена";
+            // btnCancel.Click += BtnCancel_Click;
+            btnCancel.Dock = DockStyle.Right;
+            btnCancel.Width = 150;
+            pnlControlBtns.Controls.Add(btnCancel);
+        }
+
         void BtnAddSelected_Click(object sender, EventArgs e)
         {
             // get selected rows

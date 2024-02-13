@@ -51,7 +51,7 @@ namespace TC_WinForms.WinForms
             var bindingList_sub = new BindingList<Staff>(subObjectList);
             dgvSubElement.DataSource = bindingList_sub;
 
-            WinProcessing.SetTableHeadersNames(Staff.GetPropertiesNames(), dgvSubElement);
+            WinProcessing.SetTableHeadersNames(Staff.GetPropertiesNames, dgvSubElement);
 
             //Staff_TC.GetPropertiesNames_old(out var ownNames);
             //WinProcessing.SetTableHeadersNames(ownNames, dgvMain);

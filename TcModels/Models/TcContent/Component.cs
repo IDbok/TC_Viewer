@@ -6,14 +6,12 @@ using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent
 {
-    public class Component : IModelStructure, IClassifaerable //2. Требования к материалам и комплектующим
+    public class Component : IModelStructure, IClassifaerable, IDGViewable //2. Требования к материалам и комплектующим
     {
         static EModelType modelType = EModelType.Component;
         public static EModelType ModelType { get => modelType; }
 
-        public static Dictionary<string, string> GetPropertiesNames()
-        {
-            return new Dictionary<string, string>
+        public static Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
             {
                 { nameof(Id), "ID" },
                 { nameof(Name), "Наименование" },
@@ -26,11 +24,8 @@ namespace TcModels.Models.TcContent
                 { nameof(Categoty), "Категория" },
                 { nameof(ClassifierCode), "Код в classifier" },
             };
-        }
-        public static Dictionary<string, int> GetPropertiesOrder()
-        {
-            int i = 0;
-            return new Dictionary<string, int>
+        
+        public static Dictionary<string, int> GetPropertiesOrder { get; } = new Dictionary<string, int>
             {
                 { nameof(Id), 0 },
                 { nameof(Name), 1 },
@@ -44,17 +39,15 @@ namespace TcModels.Models.TcContent
                 { nameof(ClassifierCode), 8 },
 
             };
-        }
-        public static List<string> GetPropertiesRequired()
-        {
-            return new List<string>
+        
+        public static List<string> GetPropertiesRequired { get; } = new List<string>
             {
                 { nameof(Name)},
                 { nameof(Unit) },
                 { nameof(Categoty) },
                 { nameof(ClassifierCode) },
             };
-        }
+        
 
         public List<Component> Parents { get; set; } = new();
         public List<Component> Children { get; set; } = new();

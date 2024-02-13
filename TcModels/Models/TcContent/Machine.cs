@@ -3,7 +3,7 @@ using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent
 {
-    public class Machine : IModelStructure, IClassifaerable  //3. Требования к механизмам
+    public class Machine : IModelStructure, IClassifaerable, IDGViewable  //3. Требования к механизмам
     {
         static EModelType modelType = EModelType.Machine;
         public EModelType ModelType { get => modelType; }
