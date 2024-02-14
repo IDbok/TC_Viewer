@@ -14,6 +14,13 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form
     {
+        Win6_Staff win6_Staff;
+        Win6_Component win6_Component;
+        //Win6_Machine win6_Machine;
+        //Win6_Protection win6_Protection;
+        //Win6_Tool win6_Tool;
+        //Win6_WorkStep win6_WorkStep;
+
         EModelType? activeModelType = null;
 
         Form activeForm = null;
@@ -84,14 +91,18 @@ namespace TC_WinForms.WinForms
         private void btnShowStaffs_Click(object sender, EventArgs e)
         {
             if(activeForm is Win6_Staff) return;
-            activeForm= new Win6_Staff(_tcId);
+            if(win6_Staff == null)
+                win6_Staff = new Win6_Staff(_tcId);
+            activeForm = win6_Staff;
             LoadFormInPanel(activeForm); //new Win6_Staff_3(_tcId)); //LoadFormInPanel(new Win6_Staff_2(_tcId)); //
         }
 
         private void btnShowComponents_Click(object sender, EventArgs e)
         {
             if (activeForm is Win6_Component) return;
-            activeForm = new Win6_Component(_tcId);
+            if (win6_Component == null)
+                win6_Component = new Win6_Component(_tcId);
+            activeForm = win6_Component;
             LoadFormInPanel(activeForm);
         }
 

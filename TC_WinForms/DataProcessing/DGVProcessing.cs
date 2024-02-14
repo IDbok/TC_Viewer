@@ -13,6 +13,7 @@ namespace TC_WinForms.DataProcessing
 {
     public static class DGVProcessing
     {
+        public delegate void DGVDelegate();
         /// <summary>
         /// Set columns in DGV in specific order and its headers
         /// </summary>
@@ -364,6 +365,7 @@ namespace TC_WinForms.DataProcessing
 
             dgv.ClearSelection();
             row.Selected = true;
+
         }
         /// <summary>
         /// Set value to Order column in dgvMain as row index + 1
@@ -394,6 +396,26 @@ namespace TC_WinForms.DataProcessing
             }
 
             return newRow;
+        }
+        public static bool CheckIfCellValueChanged(DataGridViewRow row, string colName, DGVDelegate actionIfCellChanged)
+        {
+            string? newValue = row.Cells[colName].Value?.ToString();
+            string? originValue = row.Cells[colName + "_copy"].Value?.ToString();
+            if (newValue != originValue)
+            {
+                actionIfCellChanged();
+                return true;
+            }
+            return false;
+        }
+        public static bool CheckIfCellValueChanged(DataGridViewRow row, List<string> colNames, DGVDelegate actionIfCellChanged)
+        {
+            foreach (var colName in colNames)
+            {
+                if (CheckIfCellValueChanged(row, colName, actionIfCellChanged))
+                    return true;
+            }
+            return false;
         }
 
     }

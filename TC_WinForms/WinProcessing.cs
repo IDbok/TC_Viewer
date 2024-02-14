@@ -310,7 +310,7 @@ namespace TC_WinForms
             columnNames.Keys.ToList().ForEach(x => dgv.Columns[x].HeaderText = columnNames[x]);
         }
 
-        public static void ActiveButtons(Panel pnlControlBtns, DataGridView dgv)
+        public static void SetAddingFormControls(Panel pnlControlBtns, DataGridView dgv, out Button btnAddSelected,out Button btnCancel)
         {
             // make all collumns readonly
             foreach (DataGridViewColumn c in dgv.Columns)
@@ -335,42 +335,18 @@ namespace TC_WinForms
             }
 
             // add button for adding selected rows to TC
-            var btnAddSelected = new Button();
+            btnAddSelected = new Button();
             btnAddSelected.Text = "Добавить выбранные";
-            btnAddSelected.Click += BtnAddSelected_Click;
             btnAddSelected.Dock = DockStyle.Right;
             btnAddSelected.Width = 150;
             pnlControlBtns.Controls.Add(btnAddSelected);
 
             // add button Cancel
-            var btnCancel = new Button();
+            btnCancel = new Button();
             btnCancel.Text = "Отмена";
-            // btnCancel.Click += BtnCancel_Click;
             btnCancel.Dock = DockStyle.Right;
             btnCancel.Width = 150;
             pnlControlBtns.Controls.Add(btnCancel);
-        }
-        private static void BtnAddSelected_Click(object sender, EventArgs e)
-        {
-            //// get selected rows
-            //var selectedRows = dgv.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
-            //if (selectedRows.Count == 0)
-            //{
-            //    MessageBox.Show("Выберите строки для добавления");
-            //    return;
-            //}
-            //// get selected objects
-            //var selectedObjs = selectedRows.Select(r => r.DataBoundItem as Staff).ToList();
-            //// find opened form
-            //var tcEditor = Application.OpenForms.OfType<Win6_Staff>().FirstOrDefault();
-
-            //tcEditor.AddNewObjects(selectedObjs);
-
-            //// get form to what we add this event
-
-
-            //// close form
-            //this.Close();
         }
     }
 }

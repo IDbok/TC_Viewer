@@ -6,6 +6,7 @@ using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
@@ -33,7 +34,7 @@ namespace TC_WinForms.WinForms
         {
             var objects = Task.Run(() => dbCon.GetIntermediateObjectList<Component_TC, Component>(_tcId));
 
-            DGVProcessing.SetDGVColumnsNamesAndOrder(
+            SetDGVColumnsNamesAndOrder(
                 GetColumnNames(), 
                 GetColumnOrder(), 
                 dgvMain,
@@ -41,7 +42,7 @@ namespace TC_WinForms.WinForms
 
             SetDGVColumnsSettings();
 
-            DGVProcessing.AddNewRowsToDGV(objects.Result, dgvMain);
+            AddNewRowsToDGV(objects.Result, dgvMain);
         }
 
         private void Win6_Component_FormClosing(object sender, FormClosingEventArgs e)
@@ -94,12 +95,12 @@ namespace TC_WinForms.WinForms
                 { "ParentId", -1 },
                 { "Order", 0 },
                 { "Quantity", 1 },
-                { "Note", 2 },
-                { "Id", 3 },
-                { "Name", 4 },
-                { "Type", 5 },
-                { "Unit", 6 },
-                { "Price", 7 },
+                { "Note", 7 },
+                { "Id", 2 },
+                { "Name", 3 },
+                { "Type", 4 },
+                { "Unit", 5 },
+                { "Price", 6 },
             };
             return colOrder;
         }
@@ -129,12 +130,6 @@ namespace TC_WinForms.WinForms
             // autosize only comment column to fill all free space
             dgvMain.Columns["Note"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            //dgvMain.Columns["Functions"].Width = 180;
-            //dgvMain.Columns["CombineResponsibility"].Width = 140;
-
-            //dgvMain.Columns["Qualification"].Width = 250;
-            //dgvMain.Columns["Comment"].Width = 100;
-
             dgvMain.Columns["Type"].Width = 70;
 
             // make columns readonly
@@ -155,21 +150,15 @@ namespace TC_WinForms.WinForms
         public void AddNewObjects(List<Component> newObjs)
         {
             int i = 1;
+            int rowCount = dgvMain.Rows.Count;
             foreach (Component obj in newObjs)
             {
-                var sttc = new Component_TC
-                {
-                    ParentId = _tcId,
-                    ChildId = obj.Id,
-                    Child = obj,
-                    Order = dgvMain.Rows.Count + i,
-                    Quantity = 0,
-                };
+                var sttc = CreateNewObject(obj, rowCount + i);
                 newItems.Add(sttc);
                 i++;
             }
 
-            DGVProcessing.AddNewRowsToDGV(newItems, dgvMain);
+            AddNewRowsToDGV(newItems, dgvMain);
         }
         public void SaveChanges()
         {
@@ -179,86 +168,40 @@ namespace TC_WinForms.WinForms
 
 
             // check if all rows have unique combination of childId and Symbol fields
-            if (!DGVProcessing.CheckUniqueColumnsValues(dgvMain, new List<string> { "Id", "Symbol" }))
+            if (!CheckUniqueColumnsValues(dgvMain, new List<string> { "Id" }))
             {
-                MessageBox.Show("Не все строки имеют уникальную комбинацию полей ID и Символ");
+                MessageBox.Show("Не все строки имеют уникальное поле ID");
                 return;
             }
 
-            DetectChanges(); // check if rows in dgvMain have difference values in copy columns and add them to newItems, deletedItems, changedItems
-
-            var dbCon = new DbConnector();
-
-            // if (!CheckOrder()) return;
-
-            //// save new rows in db
-            if (newItems.Count > 0)
-                dbCon.Add<Component_TC, Component>(newItems); newItems.Clear();
+            DetectChanges(); // check if rows in dgvMain have difference values in copy columns and add them to changedItems (not newItems, deletedItems)
 
             // Delete deleted rows from db
             if (deletedItems.Count > 0)
                 dbCon.Delete(deletedItems); deletedItems.Clear();
-
+            // save new rows in db
+            if (newItems.Count > 0)
+                dbCon.Add<Component_TC, Component>(newItems); newItems.Clear();
             // save changes in db
             if (changedItems.Count > 0)
                 dbCon.Update(changedItems); changedItems.Clear();
 
             // change values of copy columns to original
-            DGVProcessing.SetCopyColumnsValues(dgvMain, Component_TC.GetChangeablePropertiesNames);
+            SetCopyColumnsValues(dgvMain, Component_TC.GetChangeablePropertiesNames);
         }
         private void DetectChanges()
         {
             // check if rows in dgvMain have difference values in copy columns
             foreach (var row in dgvMain.Rows.Cast<DataGridViewRow>())
             {
-                CheckSymbolChanged(row);
+                CheckIfCellValueChanged(row, Component_TC.GetChangeablePropertiesNames, () =>
+                {
+                    var newObj = CreateNewObject(row);
+                    changedItems.Add(newObj);
+                });
+            }
+        }
 
-                CheckOrderChanged(row);
-            }
-        }
-        private void CheckOrderChanged(DataGridViewRow row) // todo - add try catch block or check if Order and quantity is a numbers
-        {
-            string order = row.Cells["Order"].Value.ToString();
-            string order_copy = row.Cells["Order_copy"].Value.ToString();
-            if (order != order_copy)
-            {
-                var sttc = new Component_TC
-                {
-                    ParentId = _tcId,
-                    ChildId = int.Parse(row.Cells["Id"].Value.ToString()),
-                    Order = int.Parse(row.Cells["Order"].Value.ToString()),
-                    Quantity = double.Parse(row.Cells["Quantity"].Value.ToString()),
-                };
-                changedItems.Add(sttc);
-            }
-        }
-        private void CheckSymbolChanged(DataGridViewRow row)
-        {
-            string symbol = row.Cells["Symbol"].Value.ToString();
-            string symbol_copy = row.Cells["Symbol_copy"].Value.ToString();
-
-            if (symbol != symbol_copy)
-            {
-                var sttc_new = new Component_TC
-                {
-                    ParentId = _tcId,
-                    ChildId = (int)row.Cells["Id"].Value,
-                    //Symbol = (string)row.Cells["Symbol"].Value,
-                    Order = (int)row.Cells["Order"].Value
-                };
-                newItems.Add(sttc_new);
-                if (symbol_copy != "-")
-                {
-                    var sttc_old = new Component_TC
-                    {
-                        ParentId = _tcId,
-                        ChildId = (int)row.Cells["Id"].Value,
-                        //Symbol = (string)row.Cells["Symbol_copy"].Value
-                    };
-                    deletedItems.Add(sttc_old);
-                }
-            }
-        }
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
@@ -272,11 +215,11 @@ namespace TC_WinForms.WinForms
         {
             if (dgvMain.SelectedRows.Count > 0)
             {
-                List<DataGridViewRow> rowsToDelete = DGVProcessing.GetSelectedRows(dgvMain);
+                List<DataGridViewRow> rowsToDelete = GetSelectedRows(dgvMain);
 
                 string message;
                 if (rowsToDelete.Count == 1)
-                    message = "Вы действительно хотите удалить выбранные объект?\n";
+                    message = "Вы действительно хотите удалить выбранный объект?\n";
                 else
                     message = "Вы действительно хотите удалить выбранные объекты?\n";
 
@@ -286,25 +229,19 @@ namespace TC_WinForms.WinForms
                 {
                     foreach (var row in rowsToDelete)
                     {
-                        var sttc = new Component_TC
-                        {
-                            ParentId = _tcId,
-                            ChildId = (int)row.Cells["Id"].Value,
-                            Order = (int)row.Cells["Order"].Value,
-                            //Symbol = (string)row.Cells["Symbol"].Value
-                        };
-                        deletedItems.Add(sttc);
+                        var objToDelite = CreateNewObject(row);
+                        deletedItems.Add(objToDelite);
                     }
-                    DGVProcessing.DeleteRows(rowsToDelete, dgvMain);
+                    DeleteRows(rowsToDelete, dgvMain);
                 }
                 dgvMain.Refresh();
             }
         }
 
-        private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) // todo - fix problem with selection replacing row (error while remove it)
         {
             var row = dgvMain.Rows[e.RowIndex];
-
+            dgvMain.Enabled = false;
             // if changed cell is in Order column then reorder dgv
             if (e.ColumnIndex == dgvMain.Columns["Order"].Index)
             {
@@ -313,9 +250,9 @@ namespace TC_WinForms.WinForms
                 {
                     if (orderValue == e.RowIndex + 1) { return; }
                     if (orderValue > 0 && orderValue <= dgvMain.Rows.Count)
-                    { DGVProcessing.ReorderRows(row, orderValue, dgvMain); }
+                    { ReorderRows(row, orderValue, dgvMain); }
                     else
-                    { DGVProcessing.ReorderRows(row, dgvMain.Rows.Count, dgvMain); } // insert row to the end of dgv
+                    { ReorderRows(row, dgvMain.Rows.Count, dgvMain); } // insert row to the end of dgv
 
                 }
                 else
@@ -324,21 +261,34 @@ namespace TC_WinForms.WinForms
                     row.Cells["Order"].Value = e.RowIndex + 1;
                 }
             }
-            else if (e.ColumnIndex == dgvMain.Columns["Symbol"].Index)
-            {
-                string symbol = (string)row.Cells["Symbol"].Value;
-                string symbol_copy = (string)row.Cells["Symbol_copy"].Value;
-                if (symbol != symbol_copy)
-                {
-                    // check if new symbol is unique
-                    if (!DGVProcessing.CheckUniqueColumnsValues(dgvMain, new List<string> { "Symbol" }))
-                    {
-                        MessageBox.Show("Символ должен быть уникальным!");
-                        row.Cells["Symbol"].Value = symbol_copy;
-                    }
-                }
-            }
+            // here we can add other columns to check cell's value change with some conditions
+            dgvMain.Enabled = true;
         }
+        private Component_TC CreateNewObject(DataGridViewRow row) 
+        {
+            return new Component_TC
+            {
+                ParentId = _tcId,
+                ChildId = int.Parse(row.Cells["Id"].Value.ToString()),
+
+                Order = int.Parse(row.Cells["Order"].Value.ToString()),
+                Quantity = double.Parse(row.Cells["Quantity"].Value.ToString()),
+                Note = row.Cells["Note"].Value?.ToString(),
+            };
+        }
+        private Component_TC CreateNewObject(Component obj, int oreder)
+        {
+            return new Component_TC
+            {
+                ParentId = _tcId,
+                ChildId = obj.Id,
+                Child = obj,
+
+                Order = oreder,
+                Quantity = 0,
+            };
+        }
+
     }
 
 }

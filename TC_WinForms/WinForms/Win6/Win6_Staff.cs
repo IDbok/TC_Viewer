@@ -160,8 +160,6 @@ namespace TC_WinForms.WinForms
 
             var dbCon = new DbConnector();
 
-            // if (!CheckOrder()) return;
-
             //// save new rows in db
             if (newItems.Count > 0)
                 dbCon.Add<Staff_TC, Staff>(newItems); newItems.Clear();
