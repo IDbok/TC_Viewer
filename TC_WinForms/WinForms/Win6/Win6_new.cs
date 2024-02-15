@@ -18,7 +18,7 @@ namespace TC_WinForms.WinForms
         Win6_Component win6_Component;
         Win6_Machine win6_Machine;
         //Win6_Protection win6_Protection;
-        //Win6_Tool win6_Tool;
+        Win6_Tool win6_Tool;
         //Win6_WorkStep win6_WorkStep;
 
         EModelType? activeModelType = null;
@@ -121,6 +121,11 @@ namespace TC_WinForms.WinForms
 
         private void btnShowTools_Click(object sender, EventArgs e)
         {
+            if (activeForm is Win6_Tool) return;
+            if (win6_Tool == null)
+                win6_Tool = new Win6_Tool(_tcId);
+            activeForm = win6_Tool;
+            LoadFormInPanel(activeForm);
         }
 
         private void btnShowWorkSteps_Click(object sender, EventArgs e)
@@ -134,7 +139,7 @@ namespace TC_WinForms.WinForms
         } // todo - make it work
 
 
-        private void SaveDataFromDGV(EModelType? ModelType) // todo - ??? mb beter catch changes and save them in Program.CurrentTc
+        private void SaveDataFromDGV(EModelType? ModelType) // todo - ??? mb better catch changes and save them in Program.CurrentTc
         {
 
 

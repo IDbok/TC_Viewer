@@ -8,6 +8,48 @@ namespace TcModels.Models.TcContent
         static private EModelType modelType = EModelType.Tool;
         public EModelType ModelType { get { return modelType; } }
 
+        public static Dictionary<string, string> GetPropertiesNames()
+        {
+            return new Dictionary<string, string>
+            {
+                { nameof(Id), "ID" },
+                { nameof(Name), "Наименование" },
+                { nameof(Type), "Тип" },
+                { nameof(Unit), "Ед.изм." },
+                { nameof(Price), "Стоимость, руб. без НДС" },
+                { nameof(Description), "Описание" },
+                { nameof(Manufacturer), "Производители (поставщики)" },
+                //{ nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
+                { nameof(ClassifierCode), "Код в classifier" },
+            };
+        }
+        public static Dictionary<string, int> GetPropertiesOrder()
+        {
+            int i = 0;
+            return new Dictionary<string, int>
+            {
+                { nameof(Id), 0 },
+                { nameof(Name), 1 },
+                { nameof(Type), 2 },
+                { nameof(Unit), 3 },
+                { nameof(Price), 4 },
+                { nameof(Description), 5 },
+                { nameof(Manufacturer), 6 },
+                //{ nameof(Links), 7 },
+                { nameof(ClassifierCode), 7 },
+
+            };
+        }
+        public static List<string> GetPropertiesRequired()
+        {
+            return new List<string>
+            {
+                { nameof(Name)},
+                { nameof(Unit) },
+                { nameof(ClassifierCode) },
+            };
+        }
+
         //public List<Tool> Parents = new();
         //public List<Tool> Childrens = new();
 

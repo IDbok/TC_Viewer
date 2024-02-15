@@ -3,8 +3,44 @@ using TcModels.Models.TcContent;
 
 namespace TcModels.Models.IntermediateTables
 {
-    public class Protection_TC : IStructIntermediateTable<TechnologicalCard,Protection>
+    public class Protection_TC : IStructIntermediateTable<TechnologicalCard,Protection>, IDGViewable
     {
+        public static Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
+        {
+            { nameof(ChildId), "ID Оборудование" },
+            { nameof(Child), "" },
+            { nameof(ParentId), "ID тех. карты" },
+            { nameof(Parent), "" },
+            { nameof(Order), "№" },
+            { nameof(Quantity), "Количество" },
+            { nameof(Note), "Примечание" },
+        };
+        public static Dictionary<string, int> GetPropertiesOrder { get; } = new Dictionary<string, int>
+        {
+            { nameof(ChildId), -1 },
+            { nameof(Child), -1 },
+            { nameof(ParentId), -1},
+            { nameof(Parent), -1 },
+
+            { nameof(Order), 0 },
+            { nameof(Quantity), 1 },
+            { nameof(Note), 2 },
+
+        };
+        public static List<string> GetPropertiesRequired { get; } = new List<string>
+        {
+            nameof(ChildId),
+            nameof(ParentId),
+            nameof(Order),
+            nameof(Quantity),
+        };
+        public static List<string> GetChangeablePropertiesNames { get; } = new List<string>
+        {
+            nameof(Order),
+            nameof(Quantity),
+            nameof(Note),
+        };
+
         public int ChildId { get; set; }
         public Protection Child { get; set; }
 

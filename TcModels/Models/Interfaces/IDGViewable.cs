@@ -11,6 +11,6 @@ namespace TcModels.Models.Interfaces
         public static Dictionary<string, string>  GetPropertiesNames { get; } = null!;
         public static Dictionary<string, int> GetPropertiesOrder { get; } = null!;
         public static List<string> GetPropertiesRequired { get; } = null!;
-        // public static List<string> GetChangeablePropertiesNames { get; } = null!;
+        public static List<string> GetChangeablePropertiesNames { get; } = null!;
     }
 }
