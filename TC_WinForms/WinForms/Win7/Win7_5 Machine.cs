@@ -16,6 +16,14 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win7_5_Machine : Form
     {
+        private bool isAddingForm = false;
+        private Button btnAddSelected;
+        private Button btnCancel;
+        public void SetAsAddingForm()
+        {
+            isAddingForm = true;
+        }
+
         private DbConnector dbCon = new DbConnector();
 
         private List<Machine> objList = new List<Machine>();
@@ -28,6 +36,10 @@ namespace TC_WinForms.WinForms
         {
             InitializeComponent();
             AccessInitialization(accessLevel);
+        }
+        public Win7_5_Machine()
+        {
+            InitializeComponent();
         }
 
         private void Win7_5_Machine_Load(object sender, EventArgs e)
@@ -45,6 +57,13 @@ namespace TC_WinForms.WinForms
             WinProcessing.SetTableColumnsOrder(Machine.GetPropertiesOrder(), dgvMain);
 
             requiredCols = Machine.GetPropertiesRequired();
+
+            if (isAddingForm)
+            {
+                //isAddingFormSetControls();
+                WinProcessing.SetAddingFormControls(pnlControlBtns, dgvMain, out btnAddSelected, out btnCancel);
+                SetAddingFormEvents();
+            }
         }
         private void Win7_5_Machine_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -153,6 +172,39 @@ namespace TC_WinForms.WinForms
                     return false;
             }
             return true;
+        }
+
+        /////////////////////////////////////////// * isAddingFormMethods and Events * ///////////////////////////////////////////
+
+        void SetAddingFormEvents()
+        {
+            btnAddSelected.Click += BtnAddSelected_Click;
+            btnCancel.Click += BtnCancel_Click;
+        }
+
+        void BtnAddSelected_Click(object sender, EventArgs e)
+        {
+            // get selected rows
+            var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
+            if (selectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите строки для добавления");
+                return;
+            }
+            // get selected objects
+            var selectedObjs = selectedRows.Select(r => r.DataBoundItem as Machine).ToList();
+            // find opened form
+            var tcEditor = Application.OpenForms.OfType<Win6_Machine>().FirstOrDefault();
+
+            tcEditor.AddNewObjects(selectedObjs);
+
+            // close form
+            this.Close();
+        }
+        void BtnCancel_Click(object sender, EventArgs e)
+        {
+            // close form
+            this.Close();
         }
     }
 }

@@ -16,7 +16,7 @@ namespace TC_WinForms.WinForms
     {
         Win6_Staff win6_Staff;
         Win6_Component win6_Component;
-        //Win6_Machine win6_Machine;
+        Win6_Machine win6_Machine;
         //Win6_Protection win6_Protection;
         //Win6_Tool win6_Tool;
         //Win6_WorkStep win6_WorkStep;
@@ -108,6 +108,11 @@ namespace TC_WinForms.WinForms
 
         private void btnShowMachines_Click(object sender, EventArgs e)
         {
+            if (activeForm is Win6_Machine) return;
+            if (win6_Machine == null)
+                win6_Machine = new Win6_Machine(_tcId);
+            activeForm = win6_Machine;
+            LoadFormInPanel(activeForm);
         }
 
         private void btnShowProtections_Click(object sender, EventArgs e)

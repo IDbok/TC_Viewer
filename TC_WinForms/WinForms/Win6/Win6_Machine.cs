@@ -10,18 +10,18 @@ using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Component : Form, ISaveEventForm
+    public partial class Win6_Machine : Form, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
 
         private int _tcId;
         private TechnologicalCard _tc;
 
-        private List<Component_TC> newItems = new List<Component_TC>();
-        private List<Component_TC> deletedItems = new List<Component_TC>();
-        private List<Component_TC> changedItems = new List<Component_TC>();
+        private List<Machine_TC> newItems = new List<Machine_TC>();
+        private List<Machine_TC> deletedItems = new List<Machine_TC>();
+        private List<Machine_TC> changedItems = new List<Machine_TC>();
 
-        public Win6_Component(int tcId)
+        public Win6_Machine(int tcId)
         {
             InitializeComponent();
             this._tcId = tcId;
@@ -30,22 +30,22 @@ namespace TC_WinForms.WinForms
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
 
-        private void Win6_Component_Load(object sender, EventArgs e)
+        private void Win6_Machine_Load(object sender, EventArgs e)
         {
-            var objects = Task.Run(() => dbCon.GetIntermediateObjectList<Component_TC, Component>(_tcId));
+            var objects = Task.Run(() => dbCon.GetIntermediateObjectList<Machine_TC, Machine>(_tcId));
 
             SetDGVColumnsNamesAndOrder(
                 GetColumnNames(), 
                 GetColumnOrder(), 
                 dgvMain,
-                Component_TC.GetChangeablePropertiesNames);
+                Machine_TC.GetChangeablePropertiesNames);
 
             SetDGVColumnsSettings();
 
             AddNewRowsToDGV(objects.Result, dgvMain);
         }
 
-        private void Win6_Component_FormClosing(object sender, FormClosingEventArgs e)
+        private void Win6_Machine_FormClosing(object sender, FormClosingEventArgs e)
         {
 
         }
@@ -55,11 +55,11 @@ namespace TC_WinForms.WinForms
         private Dictionary<string, string> GetColumnNames()
         {
             //var colNames = new Dictionary<string, string>();
-            //foreach (var item in Component_TC.GetPropertiesNames)
+            //foreach (var item in Machine_TC.GetPropertiesNames)
             //{
             //    colNames.Add(item.Key, item.Value);
             //}
-            //foreach (var item in Component.GetPropertiesNames)
+            //foreach (var item in Machine.GetPropertiesNames)
             //{
             //     colNames.Add(item.Key, item.Value);
             //}
@@ -81,11 +81,11 @@ namespace TC_WinForms.WinForms
         private Dictionary<string, int> GetColumnOrder()
         {
             //var colOrder = new Dictionary<string, int>();
-            //foreach (var item in Component.GetPropertiesOrder)
+            //foreach (var item in Machine.GetPropertiesOrder)
             //{
             //    colOrder.Add(item.Key, item.Value);
             //}
-            //foreach (var item in Component_TC.GetPropertiesOrder)
+            //foreach (var item in Machine_TC.GetPropertiesOrder)
             //{
             //    colOrder.Add(item.Key, item.Value);
             //}
@@ -138,7 +138,7 @@ namespace TC_WinForms.WinForms
                 column.ReadOnly = true;
             }
             // make columns editable
-            foreach (var column in Component_TC.GetChangeablePropertiesNames)
+            foreach (var column in Machine_TC.GetChangeablePropertiesNames)
             {
                 dgvMain.Columns[column].ReadOnly = false;
             }
@@ -147,11 +147,11 @@ namespace TC_WinForms.WinForms
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void AddNewObjects(List<Component> newObjs)
+        public void AddNewObjects(List<Machine> newObjs)
         {
             int i = 1;
             int rowCount = dgvMain.Rows.Count;
-            foreach (Component obj in newObjs)
+            foreach (Machine obj in newObjs)
             {
                 var sttc = CreateNewObject(obj, rowCount + i);
                 newItems.Add(sttc);
@@ -172,20 +172,20 @@ namespace TC_WinForms.WinForms
             }
 
             if (!DetectChanges())
-            { MessageBox.Show("no changes in Component"); return; } // check if rows in dgvMain have difference values in copy columns and add them to changedItems (not newItems, deletedItems)
+            { MessageBox.Show("no changes in Machine"); return; }// check if rows in dgvMain have difference values in copy columns and add them to changedItems (not newItems, deletedItems)
 
             // Delete deleted rows from db
             if (deletedItems.Count > 0)
                 dbCon.Delete(deletedItems); deletedItems.Clear();
             // save new rows in db
             if (newItems.Count > 0)
-                dbCon.Add<Component_TC, Component>(newItems); newItems.Clear();
+                dbCon.Add<Machine_TC, Machine>(newItems); newItems.Clear();
             // save changes in db
             if (changedItems.Count > 0)
                 dbCon.Update(changedItems); changedItems.Clear();
 
             // change values of copy columns to original
-            SetCopyColumnsValues(dgvMain, Component_TC.GetChangeablePropertiesNames);
+            SetCopyColumnsValues(dgvMain, Machine_TC.GetChangeablePropertiesNames);
         }
         private bool DetectChanges()
         {
@@ -193,7 +193,7 @@ namespace TC_WinForms.WinForms
             // check if rows in dgvMain have difference values in copy columns
             foreach (var row in dgvMain.Rows.Cast<DataGridViewRow>())
             {
-                if(CheckIfCellValueChanged(row, Component_TC.GetChangeablePropertiesNames, () =>
+                if (CheckIfCellValueChanged(row, Machine_TC.GetChangeablePropertiesNames, () =>
                 {
                     var newObj = CreateNewObject(row);
                     changedItems.Add(newObj);
@@ -206,8 +206,8 @@ namespace TC_WinForms.WinForms
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            // load new form Win7_3_Component as dictonary
-            var newForm = new Win7_4_Component();
+            // load new form Win7_3_Machine as dictonary
+            var newForm = new Win7_5_Machine();
             newForm.SetAsAddingForm();
             newForm.ShowDialog();
         }
@@ -265,9 +265,9 @@ namespace TC_WinForms.WinForms
             // here we can add other columns to check cell's value change with some conditions
             dgvMain.Enabled = true;
         }
-        private Component_TC CreateNewObject(DataGridViewRow row) 
+        private Machine_TC CreateNewObject(DataGridViewRow row) 
         {
-            return new Component_TC
+            return new Machine_TC
             {
                 ParentId = _tcId,
                 ChildId = int.Parse(row.Cells["Id"].Value.ToString()),
@@ -277,9 +277,9 @@ namespace TC_WinForms.WinForms
                 Note = row.Cells["Note"].Value?.ToString(),
             };
         }
-        private Component_TC CreateNewObject(Component obj, int oreder)
+        private Machine_TC CreateNewObject(Machine obj, int oreder)
         {
-            return new Component_TC
+            return new Machine_TC
             {
                 ParentId = _tcId,
                 ChildId = obj.Id,

@@ -126,16 +126,10 @@ namespace TC_WinForms.WinForms
         public void AddNewObjects(List<Staff> newObjs)
         {
             int i = 1;
+            int lastOrder = dgvMain.Rows.Count;
             foreach (Staff obj in newObjs)
             {
-                var sttc = new Staff_TC
-                {
-                    ParentId = _tcId,
-                    ChildId = obj.Id,
-                    Child = obj,
-                    Order = dgvMain.Rows.Count + i,
-                    Symbol = "-"
-                };
+                var sttc = CreateNewObject(obj, lastOrder + i);
                 newItems.Add(sttc);
                 i++;
             }
@@ -144,10 +138,8 @@ namespace TC_WinForms.WinForms
         }
         public void SaveChanges()
         {
-            MessageBox.Show("SaveChanges in Staff");
 
             dgvMain.CurrentCell = null;// stops editing in dgvMain and save changes
-
 
             // check if all rows have unique combination of childId and Symbol fields
             if (!DGVProcessing.CheckUniqueColumnsValues(dgvMain, new List<string> { "Id", "Symbol" }))
@@ -156,7 +148,11 @@ namespace TC_WinForms.WinForms
                 return;
             }
 
-            DetectChanges(); // check if rows in dgvMain have difference values in copy columns and add them to newItems, deletedItems, changedItems
+            // todo - check that for new rows symbol is unique and not "-"
+
+
+            if (!DetectChanges())
+            { MessageBox.Show("no changes in Staff"); return; } // check if rows in dgvMain have difference values in copy columns and add them to newItems, deletedItems, changedItems
 
             var dbCon = new DbConnector();
 
@@ -175,59 +171,56 @@ namespace TC_WinForms.WinForms
             // change values of copy columns to original
             DGVProcessing.SetCopyColumnsValues(dgvMain, Staff_TC.GetChangeablePropertiesNames);
         }
-        private void DetectChanges()
+        private bool DetectChanges()
         {
+            bool result = false;
             // check if rows in dgvMain have difference values in copy columns
             foreach (var row in dgvMain.Rows.Cast<DataGridViewRow>())
             {
-                CheckSymbolChanged(row);
+                if (DGVProcessing.CheckIfCellValueChanged(row, Staff_TC.GetChangeablePropertiesNames, () =>
+                {
+                    var newObj = CreateNewObject(row);
+                    changedItems.Add(newObj);
+                }))
+                    result = true;
+            }
+            return result;
+            //// check if rows in dgvMain have difference values in copy columns
+            //foreach (var row in dgvMain.Rows.Cast<DataGridViewRow>())
+            //{
+            //    CheckSymbolChanged(row);
 
-                CheckOrderChanged(row);
-            }
+            //    CheckOrderChanged(row);
+            //}
         }
-        private void CheckOrderChanged(DataGridViewRow row)
-        {
-            string order = row.Cells["Order"].Value.ToString();
-            string order_copy = row.Cells["Order_copy"].Value.ToString();
-            if (order != order_copy)
-            {
-                var sttc = new Staff_TC
-                {
-                    ParentId = _tcId,
-                    ChildId = int.Parse(row.Cells["Id"].Value.ToString()),
-                    Symbol = (string)row.Cells["Symbol"].Value,
-                    Order = int.Parse(row.Cells["Order"].Value.ToString())
-                };
-                changedItems.Add(sttc);
-            }
-        }
-        private void CheckSymbolChanged(DataGridViewRow row)
-        {
-            string symbol = row.Cells["Symbol"].Value.ToString();
-            string symbol_copy = row.Cells["Symbol_copy"].Value.ToString();
+        //private void CheckOrderChanged(DataGridViewRow row)
+        //{
+        //    string order = row.Cells["Order"].Value.ToString();
+        //    string order_copy = row.Cells["Order_copy"].Value.ToString();
+        //    if (order != order_copy)
+        //    {
+        //        var sttc = CreateNewObject(row);
+        //        changedItems.Add(sttc);
+        //    }
+        //}
+        //private void CheckSymbolChanged(DataGridViewRow row)
+        //{
+        //    string symbol = row.Cells["Symbol"].Value.ToString();
+        //    string symbol_copy = row.Cells["Symbol_copy"].Value.ToString();
 
-            if (symbol != symbol_copy)
-            {
-                var sttc_new = new Staff_TC
-                {
-                    ParentId = _tcId,
-                    ChildId = (int)row.Cells["Id"].Value,
-                    Symbol = (string)row.Cells["Symbol"].Value,
-                    Order = (int)row.Cells["Order"].Value
-                };
-                newItems.Add(sttc_new);
-                if (symbol_copy != "-")
-                {
-                    var sttc_old = new Staff_TC
-                    {
-                        ParentId = _tcId,
-                        ChildId = (int)row.Cells["Id"].Value,
-                        Symbol = (string)row.Cells["Symbol_copy"].Value
-                    };
-                    deletedItems.Add(sttc_old);
-                }
-            }
-        }
+        //    if (symbol != symbol_copy)
+        //    {
+        //        var sttc_new = CreateNewObject(row);
+        //        newItems.Add(sttc_new);
+
+        //        if (symbol_copy != "-")
+        //        {
+        //            var sttc_old = CreateNewObject(row);
+        //            sttc_old.Symbol = symbol_copy;
+        //            deletedItems.Add(sttc_old);
+        //        }
+        //    }
+        //}
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
@@ -255,13 +248,7 @@ namespace TC_WinForms.WinForms
                 {
                     foreach (var row in rowsToDelete)
                     {
-                        var sttc = new Staff_TC
-                        {
-                            ParentId = _tcId,
-                            ChildId = (int)row.Cells["Id"].Value,
-                            Order = (int)row.Cells["Order"].Value,
-                            Symbol = (string)row.Cells["Symbol"].Value
-                        };
+                        var sttc = CreateNewObject(row);
                         deletedItems.Add(sttc);
                     }
                     DGVProcessing.DeleteRows(rowsToDelete, dgvMain);
@@ -307,6 +294,27 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
+        }
+        private Staff_TC CreateNewObject(DataGridViewRow row)
+        {
+            return new Staff_TC
+            {
+                ParentId = _tcId,
+                ChildId = int.Parse(row.Cells["Id"].Value.ToString()),
+                Order = int.Parse(row.Cells["Order"].Value.ToString()),
+                Symbol = row.Cells["Symbol"].Value.ToString()
+            };
+        }
+        private Staff_TC CreateNewObject(Staff obj, int oreder)
+        {
+            return new Staff_TC
+            {
+                ParentId = _tcId,
+                ChildId = obj.Id,
+                Child = obj,
+                Order = oreder,
+                Symbol = "-"
+            };
         }
     }
 
