@@ -5,6 +5,7 @@ using TcModels.Models;
 using ExcelParsing.DataProcessing;
 using Newtonsoft.Json;
 using Formatting = Newtonsoft.Json.Formatting;
+using System;
 
 namespace TcDbConnector
 {
@@ -101,6 +102,7 @@ namespace TcDbConnector
 
             using (var db = new MyDbContext())
             {
+                Console.WriteLine("----------------- Staff_TC -----------------");
                 foreach (var objTc in objTcList)
                 {
                     Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
@@ -119,22 +121,33 @@ namespace TcDbConnector
         }
         private static void DeserializeComponentTcToDb()
         {
-            string jsonData = File.ReadAllText($@"C:\Users\bokar\source\TC_Viewer\Serialised data\toolTcList.json");
+            string jsonData = File.ReadAllText($@"C:\Users\bokar\source\TC_Viewer\Serialised data\componentTcList.json");
             var objTcList = JsonConvert.DeserializeObject<List<Component_TC>>(jsonData);
 
             using (var db = new MyDbContext())
             {
+                Console.WriteLine("----------------- Component_TC -----------------");
+                List<Component_TC> itemsToRemove = new List<Component_TC>();
                 foreach (var objTc in objTcList)
                 {
-                    Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
+                    
                     var objs = db.Components.Find(objTc.ChildId);
                     var tc = db.TechnologicalCards.Find(objTc.ParentId);
                     if (objs != null && tc != null)
                     {
                         objTc.Child = objs;
                         objTc.Parent = tc;
-                        db.Component_TCs.Add(objTc); // todo - something wrond with adding to db
+                        try { db.Component_TCs.Add(objTc); Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}"); } 
+                        catch { itemsToRemove.Add(objTc); }
+                        // db.Component_TCs.Add(objTc); // todo - something wrond with adding to db
                     }
+                }
+                foreach (var item in itemsToRemove)
+                {
+
+                    objTcList.Remove(item);
+                    db.Entry(item).State = EntityState.Detached;
+                    Console.WriteLine($"entety Deleted: Parentid={item.ParentId}, ChieldId={item.ChildId}, Order={item.Order}");
                 }
                 db.Component_TCs.AddRange(objTcList);
                 db.SaveChanges();
@@ -147,6 +160,7 @@ namespace TcDbConnector
 
             using (var db = new MyDbContext())
             {
+                Console.WriteLine("----------------- Machine_TC -----------------");
                 foreach (var objTc in objTcList)
                 {
                     Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
@@ -170,6 +184,7 @@ namespace TcDbConnector
 
             using (var db = new MyDbContext())
             {
+                Console.WriteLine("----------------- Protection_TC -----------------");
                 foreach (var objTc in objTcList)
                 {
                     Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
@@ -191,19 +206,31 @@ namespace TcDbConnector
             string jsonData = File.ReadAllText($@"C:\Users\bokar\source\TC_Viewer\Serialised data\toolTcList.json");
             var toolTcList = JsonConvert.DeserializeObject<List<Tool_TC>>(jsonData);
 
+            List<Tool_TC> itemsToRemove = new List<Tool_TC>();
             using (var db = new MyDbContext())
             {
+
+                Console.WriteLine("----------------- Tool_TC -----------------");
+
                 foreach (var toolTc in toolTcList)
                 {
-                    Console.WriteLine($"entety: Parentid={toolTc.ParentId}, ChieldId={toolTc.ChildId}, Order={toolTc.Order}");
                     var tool = db.Tools.Find(toolTc.ChildId);
                     var tc = db.TechnologicalCards.Find(toolTc.ParentId);
                     if (tool != null && tc != null)
                     {
                         toolTc.Child = tool;
                         toolTc.Parent = tc;
-                        db.Tool_TCs.Add(toolTc);
+                        try { db.Tool_TCs.Add(toolTc);
+                            Console.WriteLine($"entety: Parentid={toolTc.ParentId}, ChieldId={toolTc.ChildId}, Order={toolTc.Order}");
+                        } catch (Exception e) 
+                        { itemsToRemove.Add(toolTc); }
                     }
+                }
+                foreach (var item in itemsToRemove)
+                {
+                    toolTcList.Remove(item);
+                    db.Entry(item).State = EntityState.Detached;
+                    Console.WriteLine($"entety Deleted: Parentid={item.ParentId}, ChieldId={item.ChildId}, Order={item.Order}");
                 }
                 db.Tool_TCs.AddRange(toolTcList);
                 db.SaveChanges();

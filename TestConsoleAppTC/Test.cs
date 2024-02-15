@@ -27,10 +27,15 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            ChangeSymbol();
+            CreateNewDb();
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public static void CreateNewDb()
+        {
+            DbCreator.AddDeserializedDataToDb();
+        }
 
         public static void ChangeSymbol()
         {
