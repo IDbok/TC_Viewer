@@ -161,7 +161,7 @@ namespace TC_WinForms.WinForms
         private void Win6_new_Load(object sender, EventArgs e)
         {
             // change form title
-            this.Text = $"{_tc.Name} ({_tc.Article})";
+           // this.Text = $"{_tc.Name} ({_tc.Article})";
         }
 
         private void toolStripButton4_Click(object sender, EventArgs e)

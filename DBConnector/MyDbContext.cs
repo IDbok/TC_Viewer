@@ -2,6 +2,7 @@
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.Work;
 
 namespace TcDbConnector
 {
@@ -17,6 +18,18 @@ namespace TcDbConnector
         public DbSet<Protection> Protections { get; set; } = null!; //Таблица 4 Средства защиты
         //public DbSet<WorkStep> WorkSteps { get; set; } = null!;
 
+        public DbSet<ExecutionWork> ExecutionWorks { get; set; } = null!;
+        public DbSet<TechOperation> TechOperations { get; set; } = null!;
+
+        public DbSet<ComponentWork> ComponentWorks { get; set; } = null!;
+        public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
+
+        //public DbSet<MaxEW> MaxEWs { get; set; } = null!;
+        //public DbSet<SumEW> SumEWs { get; set; } = null!;
+        public DbSet<TechOperationWork> TechOperationWorks { get; set; } = null!;
+        public DbSet<TechTransition> TechTransitions { get; set; } = null!;
+        public DbSet<ToolWork> ToolWorks { get; set; } = null!;
+
         public DbSet<Staff_TC> Staff_TCs { get; set; } = null!;
         public DbSet<Component_TC> Component_TCs { get; set; } = null!;
         public DbSet<Machine_TC> Machine_TCs { get; set; } = null!;
@@ -26,20 +39,21 @@ namespace TcDbConnector
 
         public MyDbContext()
         {
-            // Database.EnsureDeleted();
-            //Database.EnsureCreated(); // todo - create exception catch if db is unavailable
+            Database.EnsureDeleted();
+            Database.EnsureCreated(); // todo - create exception catch if db is unavailable
         }
       
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql("server=localhost;database=tavrida_db_v5;user=root;password=root",
+            optionsBuilder.UseMySql("server=localhost;database=tavrida_db_v6;user=root;password=root",
                 new MySqlServerVersion(new Version(5, 7, 24)));
 
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             modelBuilder
                 .Entity<Component>()
                 .HasMany(cp => cp.Parents)

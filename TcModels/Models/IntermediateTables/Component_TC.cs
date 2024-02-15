@@ -50,6 +50,9 @@ namespace TcModels.Models.IntermediateTables
         public int Order { get; set; }
         public double Quantity { get; set; }
         public string? Note { get; set; }
+
+        public List<TechOperationWork> TechOperationWorks { get; set; }
+
         public override string ToString()
         {
             return $"{Order}.{Child.Name} (id: {ChildId}) {Quantity}";

@@ -40,6 +40,7 @@ namespace TcModels.Models.IntermediateTables
             { nameof(Symbol)},
         };
         
+        public int Id { get; set; }
 
         public int ChildId { get; set; }
         public Staff? Child { get; set; }
@@ -49,6 +50,8 @@ namespace TcModels.Models.IntermediateTables
 
         public int Order { get; set; }
         public string Symbol { get; set; }
+
+        public List<ExecutionWork> ExecutionWorks { get; set; }
 
         public override string ToString()
         {
