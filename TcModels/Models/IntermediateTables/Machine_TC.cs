@@ -50,6 +50,8 @@ namespace TcModels.Models.IntermediateTables
         public double Quantity { get; set; }
         public string? Note { get; set; }
 
+        public List<ExecutionWork> ExecutionWorks { get; set; }
+
         public override string ToString()
         {
             return $"{Order}.{Child.Name} (id: {ChildId}) {Quantity}";

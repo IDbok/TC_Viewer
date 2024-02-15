@@ -50,6 +50,8 @@ namespace TcModels.Models.IntermediateTables
         public int Order { get; set; }
         public string Symbol { get; set; }
 
+        public List<ExecutionWork> ExecutionWorks { get; set; }
+
         public override string ToString()
         {
             return $"{Order}.{Child.Name} (id: {ChildId}) {Symbol}";
