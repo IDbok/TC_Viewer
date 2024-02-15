@@ -5,8 +5,7 @@ namespace TcModels.Models.IntermediateTables
 {
     public class Protection_TC : IStructIntermediateTable<TechnologicalCard,Protection>
     {
-
-        public int Id { get; set; }
+        
         public int ChildId { get; set; }
         public Protection Child { get; set; }
 

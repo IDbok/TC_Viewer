@@ -40,7 +40,6 @@ namespace TcModels.Models.IntermediateTables
             { nameof(Symbol)},
         };
         
-        public int Id { get; set; }
 
         public int ChildId { get; set; }
         public Staff? Child { get; set; }

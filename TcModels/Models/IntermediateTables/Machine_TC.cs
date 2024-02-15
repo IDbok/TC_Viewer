@@ -5,7 +5,6 @@ namespace TcModels.Models.IntermediateTables
 {
     public class Machine_TC : IStructIntermediateTable<TechnologicalCard, Machine>
     {
-        public int Id { get; set; }
         public int ChildId { get; set; }
         public Machine Child { get; set; }
 
