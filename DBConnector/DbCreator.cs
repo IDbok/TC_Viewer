@@ -6,16 +6,30 @@ using ExcelParsing.DataProcessing;
 using Newtonsoft.Json;
 using Formatting = Newtonsoft.Json.Formatting;
 using System;
+using System.IO;
 
 namespace TcDbConnector
 {
     public class DbCreator
     {
-        public static void SerializeAllObjects()
+
+        private static string _path;
+        public DbCreator()
         {
-            string filePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
-            string tcFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Список ТК.xlsx";
-            string intObjFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточных сущностей.xlsx";
+            SetPath();
+        }
+        private void SetPath()
+        {
+            string cD = Directory.GetCurrentDirectory();
+            string RealPath = Path.GetFullPath(Path.Combine(cD, @"..\..\..\..\"));
+            _path = RealPath;
+        }
+        
+        public static void SerializeAllObjects(string filePath, string tcFilePath, string intObjFilePath)
+        {
+            //string filePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
+            //string tcFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Список ТК.xlsx";
+            //string intObjFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточных сущностей.xlsx";
 
             ExcelParser excelParser = new ExcelParser();
 
@@ -25,15 +39,15 @@ namespace TcDbConnector
             List<Protection> protectionList = excelParser.ParseExcelToObjectsProtection(filePath);
             List<Tool> toolList = excelParser.ParseExcelToObjectsTool(filePath);
 
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffList.json", JsonConvert.SerializeObject(staffList, Formatting.Indented));
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\componentList.json", JsonConvert.SerializeObject(componentList, Formatting.Indented));
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\machineList.json", JsonConvert.SerializeObject(machineList, Formatting.Indented));
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\protectionList.json", JsonConvert.SerializeObject(protectionList, Formatting.Indented));
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\toolList.json", JsonConvert.SerializeObject(toolList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\staffList.json", JsonConvert.SerializeObject(staffList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\componentList.json", JsonConvert.SerializeObject(componentList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\machineList.json", JsonConvert.SerializeObject(machineList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\protectionList.json", JsonConvert.SerializeObject(protectionList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\toolList.json", JsonConvert.SerializeObject(toolList, Formatting.Indented));
 
             List<TechnologicalCard> tcList = excelParser.ParseExcelToTcObjects(tcFilePath);
 
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\tcList.json", JsonConvert.SerializeObject(tcList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\tcList.json", JsonConvert.SerializeObject(tcList, Formatting.Indented));
 
             SerializeStaffTc(intObjFilePath);
             SerializeComponentTc(intObjFilePath);
@@ -43,8 +57,11 @@ namespace TcDbConnector
 
         }
 
-        public static void AddDeserializedDataToDb(string path= @"C:\Users\bokar\source\TC_Viewer")
+        public static void AddDeserializedDataToDb(string path = null)
         {
+            if (path == null) { path = _path; }
+            else { _path = path; }
+
             //deserialize all objects from json
             string jsonData = File.ReadAllText($@"{path}\Serialised data\staffList.json");
             List<Staff> staffList = JsonConvert.DeserializeObject<List<Staff>>(jsonData);
@@ -84,7 +101,7 @@ namespace TcDbConnector
 
         private static void DeserializeTcToDb()
         {
-            string jsonData = File.ReadAllText($@"C:\Users\bokar\source\TC_Viewer\Serialised data\tcList.json");
+            string jsonData = File.ReadAllText($@"{_path}\Serialised data\tcList.json");
             var tcList = JsonConvert.DeserializeObject<List<TechnologicalCard>>(jsonData);
 
             using (var db = new MyDbContext())
@@ -97,7 +114,7 @@ namespace TcDbConnector
 
         private static void DeserializeStaffTcToDb()
         {
-            string jsonData = File.ReadAllText($@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffTcList.json");
+            string jsonData = File.ReadAllText($@"{_path}\Serialised data\staffTcList.json");
             var objTcList = JsonConvert.DeserializeObject<List<Staff_TC>>(jsonData);
 
             using (var db = new MyDbContext())
@@ -112,7 +129,7 @@ namespace TcDbConnector
                     {
                         objTc.Child = objs;
                         objTc.Parent = tc;
-                        db.Staff_TCs.Add(objTc); // todo - something wrond with adding to db
+                        db.Staff_TCs.Add(objTc);
                     }
                 }
                 db.Staff_TCs.AddRange(objTcList);
@@ -121,7 +138,7 @@ namespace TcDbConnector
         }
         private static void DeserializeComponentTcToDb()
         {
-            string jsonData = File.ReadAllText($@"C:\Users\bokar\source\TC_Viewer\Serialised data\componentTcList.json");
+            string jsonData = File.ReadAllText($@"{_path}\Serialised data\componentTcList.json");
             var objTcList = JsonConvert.DeserializeObject<List<Component_TC>>(jsonData);
 
             using (var db = new MyDbContext())
@@ -155,7 +172,7 @@ namespace TcDbConnector
         }
         private static void DeserializeMachineTcToDb()
         {
-            string jsonData = File.ReadAllText($@"C:\Users\bokar\source\TC_Viewer\Serialised data\machineTcList.json");
+            string jsonData = File.ReadAllText($@"{_path}\Serialised data\machineTcList.json");
             var objTcList = JsonConvert.DeserializeObject<List<Machine_TC>>(jsonData);
 
             using (var db = new MyDbContext())
@@ -170,7 +187,7 @@ namespace TcDbConnector
                     {
                         objTc.Child = objs;
                         objTc.Parent = tc;
-                        db.Machine_TCs.Add(objTc); // todo - something wrond with adding to db
+                        db.Machine_TCs.Add(objTc);
                     }
                 }
                 db.Machine_TCs.AddRange(objTcList);
@@ -179,7 +196,7 @@ namespace TcDbConnector
         }
         private static void DeserializeProtectionTcToDb()
         {
-            string jsonData = File.ReadAllText($@"C:\Users\bokar\source\TC_Viewer\Serialised data\protectionTcList.json");
+            string jsonData = File.ReadAllText($@"{_path}\Serialised data\protectionTcList.json");
             var objTcList = JsonConvert.DeserializeObject<List<Protection_TC>>(jsonData);
 
             using (var db = new MyDbContext())
@@ -194,7 +211,7 @@ namespace TcDbConnector
                     {
                         objTc.Child = objs;
                         objTc.Parent = tc;
-                        db.Protection_TCs.Add(objTc); // todo - something wrond with adding to db
+                        db.Protection_TCs.Add(objTc); 
                     }
                 }
                 db.Protection_TCs.AddRange(objTcList);
@@ -203,7 +220,7 @@ namespace TcDbConnector
         }
         private static void DeserializeToolTcToDb()
         {
-            string jsonData = File.ReadAllText($@"C:\Users\bokar\source\TC_Viewer\Serialised data\toolTcList.json");
+            string jsonData = File.ReadAllText($@"{_path}\Serialised data\toolTcList.json");
             var toolTcList = JsonConvert.DeserializeObject<List<Tool_TC>>(jsonData);
 
             List<Tool_TC> itemsToRemove = new List<Tool_TC>();
@@ -241,7 +258,7 @@ namespace TcDbConnector
         {
             ExcelParser excelParser = new ExcelParser();
             var componentList = excelParser.ParseExcelToObjectsComponent(filePath);
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\componentList.json", JsonConvert.SerializeObject(componentList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\componentList.json", JsonConvert.SerializeObject(componentList, Formatting.Indented));
         }
 
         private static void SerializeStaffTc(string filePath)
@@ -249,35 +266,35 @@ namespace TcDbConnector
             ExcelParser excelParser = new ExcelParser();
             var objTcList = excelParser.ParseExcelToStaffTcObjects(filePath, out _);
 
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\staffTcList.json", JsonConvert.SerializeObject(objTcList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\staffTcList.json", JsonConvert.SerializeObject(objTcList, Formatting.Indented));
         }
         private static void SerializeComponentTc(string filePath)
         {
             ExcelParser excelParser = new ExcelParser();
             var componentTcList = excelParser.ParseExcelToIntermediateStructObjects<Component_TC, Component>(filePath, out _);
 
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\componentTcList.json", JsonConvert.SerializeObject(componentTcList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\componentTcList.json", JsonConvert.SerializeObject(componentTcList, Formatting.Indented));
         }
         private static void SerializeMachineTc(string filePath)
         {
             ExcelParser excelParser = new ExcelParser();
             var objTcList = excelParser.ParseExcelToIntermediateStructObjects<Machine_TC, Machine>(filePath, out _);
 
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\machineTcList.json", JsonConvert.SerializeObject(objTcList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\machineTcList.json", JsonConvert.SerializeObject(objTcList, Formatting.Indented));
         }
         private static void SerializeProtectionTc(string filePath)
         {
             ExcelParser excelParser = new ExcelParser();
             var objTcList = excelParser.ParseExcelToIntermediateStructObjects<Protection_TC, Protection>(filePath, out _);
 
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\protectionTcList.json", JsonConvert.SerializeObject(objTcList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\protectionTcList.json", JsonConvert.SerializeObject(objTcList, Formatting.Indented));
         }
         private static void SerializeToolTc(string filePath)
         {
             ExcelParser excelParser = new ExcelParser();
             var objTcList = excelParser.ParseExcelToIntermediateStructObjects<Tool_TC, Tool>(filePath, out _);
 
-            File.WriteAllText(@"C:\Users\bokar\source\TC_Viewer\Serialised data\toolTcList.json", JsonConvert.SerializeObject(objTcList, Formatting.Indented));
+            File.WriteAllText($@"{_path}\Serialised data\toolTcList.json", JsonConvert.SerializeObject(objTcList, Formatting.Indented));
         }
     }
 }

@@ -103,8 +103,7 @@ namespace TC_WinForms.DataProcessing
 
                     string pathJson = $@"{jsonCatalog}\{sheetName}\{modelName}\";
                     if (!Directory.Exists(pathJson)) Directory.CreateDirectory(pathJson);
-                    //TODO: cleane folder before saving
-                    // File.WriteAllText(pathJson + item.Num + ".json", json);
+                    
                 }
             }
         }

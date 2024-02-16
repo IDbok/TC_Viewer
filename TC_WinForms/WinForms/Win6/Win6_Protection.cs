@@ -10,18 +10,18 @@ using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Tool : Form, ISaveEventForm
+    public partial class Win6_Protection : Form, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
 
         private int _tcId;
         private TechnologicalCard _tc;
 
-        private List<Tool_TC> newItems = new List<Tool_TC>();
-        private List<Tool_TC> deletedItems = new List<Tool_TC>();
-        private List<Tool_TC> changedItems = new List<Tool_TC>();
+        private List<Protection_TC> newItems = new List<Protection_TC>();
+        private List<Protection_TC> deletedItems = new List<Protection_TC>();
+        private List<Protection_TC> changedItems = new List<Protection_TC>();
 
-        public Win6_Tool(int tcId)
+        public Win6_Protection(int tcId)
         {
             InitializeComponent();
             this._tcId = tcId;
@@ -30,22 +30,22 @@ namespace TC_WinForms.WinForms
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
 
-        private void Win6_Tool_Load(object sender, EventArgs e)
+        private void Win6_Protection_Load(object sender, EventArgs e)
         {
-            var objects = Task.Run(() => dbCon.GetIntermediateObjectList<Tool_TC, Tool>(_tcId));
+            var objects = Task.Run(() => dbCon.GetIntermediateObjectList<Protection_TC, Protection>(_tcId));
 
             SetDGVColumnsNamesAndOrder(
                 GetColumnNames(), 
                 GetColumnOrder(), 
                 dgvMain,
-                Tool_TC.GetChangeablePropertiesNames);
+                Protection_TC.GetChangeablePropertiesNames);
 
             SetDGVColumnsSettings();
 
             AddNewRowsToDGV(objects.Result, dgvMain);
         }
 
-        private void Win6_Tool_FormClosing(object sender, FormClosingEventArgs e)
+        private void Win6_Protection_FormClosing(object sender, FormClosingEventArgs e)
         {
 
         }
@@ -55,11 +55,11 @@ namespace TC_WinForms.WinForms
         private Dictionary<string, string> GetColumnNames()
         {
             //var colNames = new Dictionary<string, string>();
-            //foreach (var item in Tool_TC.GetPropertiesNames)
+            //foreach (var item in Protection_TC.GetPropertiesNames)
             //{
             //    colNames.Add(item.Key, item.Value);
             //}
-            //foreach (var item in Tool.GetPropertiesNames)
+            //foreach (var item in Protection.GetPropertiesNames)
             //{
             //     colNames.Add(item.Key, item.Value);
             //}
@@ -81,11 +81,11 @@ namespace TC_WinForms.WinForms
         private Dictionary<string, int> GetColumnOrder()
         {
             //var colOrder = new Dictionary<string, int>();
-            //foreach (var item in Tool.GetPropertiesOrder)
+            //foreach (var item in Protection.GetPropertiesOrder)
             //{
             //    colOrder.Add(item.Key, item.Value);
             //}
-            //foreach (var item in Tool_TC.GetPropertiesOrder)
+            //foreach (var item in Protection_TC.GetPropertiesOrder)
             //{
             //    colOrder.Add(item.Key, item.Value);
             //}
@@ -138,7 +138,7 @@ namespace TC_WinForms.WinForms
                 column.ReadOnly = true;
             }
             // make columns editable
-            foreach (var column in Tool_TC.GetChangeablePropertiesNames)
+            foreach (var column in Protection_TC.GetChangeablePropertiesNames)
             {
                 dgvMain.Columns[column].ReadOnly = false;
             }
@@ -147,11 +147,11 @@ namespace TC_WinForms.WinForms
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void AddNewObjects(List<Tool> newObjs)
+        public void AddNewObjects(List<Protection> newObjs)
         {
             int i = 1;
             int rowCount = dgvMain.Rows.Count;
-            foreach (Tool obj in newObjs)
+            foreach (Protection obj in newObjs)
             {
                 var sttc = CreateNewObject(obj, rowCount + i);
                 newItems.Add(sttc);
@@ -172,20 +172,20 @@ namespace TC_WinForms.WinForms
             }
 
             if (!DetectChanges())
-            { MessageBox.Show("no changes in Tool"); return; }// check if rows in dgvMain have difference values in copy columns and add them to changedItems (not newItems, deletedItems)
+            { MessageBox.Show("no changes in Protection"); return; }// check if rows in dgvMain have difference values in copy columns and add them to changedItems (not newItems, deletedItems)
 
             // Delete deleted rows from db
             if (deletedItems.Count > 0)
                 dbCon.Delete(deletedItems); deletedItems.Clear();
             // save new rows in db
             if (newItems.Count > 0)
-                dbCon.Add<Tool_TC, Tool>(newItems); newItems.Clear();
+                dbCon.Add<Protection_TC, Protection>(newItems); newItems.Clear();
             // save changes in db
             if (changedItems.Count > 0)
                 dbCon.Update(changedItems); changedItems.Clear();
 
             // change values of copy columns to original
-            SetCopyColumnsValues(dgvMain, Tool_TC.GetChangeablePropertiesNames);
+            SetCopyColumnsValues(dgvMain, Protection_TC.GetChangeablePropertiesNames);
         }
         private bool DetectChanges()
         {
@@ -193,7 +193,7 @@ namespace TC_WinForms.WinForms
             // check if rows in dgvMain have difference values in copy columns
             foreach (var row in dgvMain.Rows.Cast<DataGridViewRow>())
             {
-                if (CheckIfCellValueChanged(row, Tool_TC.GetChangeablePropertiesNames, () =>
+                if (CheckIfCellValueChanged(row, Protection_TC.GetChangeablePropertiesNames, () =>
                 {
                     var newObj = CreateNewObject(row);
                     changedItems.Add(newObj);
@@ -206,8 +206,7 @@ namespace TC_WinForms.WinForms
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            // load new form Win7 Tool as dictonary
-            var newForm = new Win7_6_Tool();
+            var newForm = new Win7_7_Protection();
             newForm.SetAsAddingForm();
             newForm.ShowDialog();
         }
@@ -265,9 +264,9 @@ namespace TC_WinForms.WinForms
             // here we can add other columns to check cell's value change with some conditions
             dgvMain.Enabled = true;
         }
-        private Tool_TC CreateNewObject(DataGridViewRow row) 
+        private Protection_TC CreateNewObject(DataGridViewRow row) 
         {
-            return new Tool_TC
+            return new Protection_TC
             {
                 ParentId = _tcId,
                 ChildId = int.Parse(row.Cells["Id"].Value.ToString()),
@@ -277,9 +276,9 @@ namespace TC_WinForms.WinForms
                 Note = row.Cells["Note"].Value?.ToString(),
             };
         }
-        private Tool_TC CreateNewObject(Tool obj, int oreder)
+        private Protection_TC CreateNewObject(Protection obj, int oreder)
         {
-            return new Tool_TC
+            return new Protection_TC
             {
                 ParentId = _tcId,
                 ChildId = obj.Id,

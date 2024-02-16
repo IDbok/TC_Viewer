@@ -92,7 +92,7 @@ namespace TC_WinForms.WinForms
             else
             {
                 //db.Update(ref Program.currentTc);
-                db.SaveChanges(Program.currentTc);
+                //db.SaveChanges(Program.currentTc);
                 MessageBox.Show("Изменения сохранены в БД.");
             }
         }

@@ -1,6 +1,6 @@
 ﻿namespace TC_WinForms.WinForms
 {
-    partial class Win6_Staff_3
+    partial class Win7_7_Protection
     {
         /// <summary>
         /// Required designer variable.
@@ -47,17 +47,13 @@
             // 
             // dgvMain
             // 
-            dgvMain.AllowUserToAddRows = false;
-            dgvMain.AllowUserToDeleteRows = false;
-            dgvMain.BorderStyle = BorderStyle.None;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 0);
-            dgvMain.Margin = new Padding(4);
             dgvMain.Name = "dgvMain";
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
-            dgvMain.Size = new Size(1000, 424);
+            dgvMain.Size = new Size(800, 340);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -66,9 +62,8 @@
             pnlControls.Controls.Add(pnlControlBtns);
             pnlControls.Dock = DockStyle.Top;
             pnlControls.Location = new Point(0, 0);
-            pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1000, 138);
+            pnlControls.Size = new Size(800, 110);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
@@ -77,29 +72,26 @@
             pnlFilters.Controls.Add(lblProjectName);
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
-            pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(402, 138);
+            pnlFilters.Size = new Size(322, 110);
             pnlFilters.TabIndex = 25;
             // 
             // cmbProjectName
             // 
             cmbProjectName.FormattingEnabled = true;
             cmbProjectName.Items.AddRange(new object[] { "Карты по всем проектам", "Проект 1", "Проект 2", "Проект 3" });
-            cmbProjectName.Location = new Point(10, 50);
-            cmbProjectName.Margin = new Padding(4);
+            cmbProjectName.Location = new Point(8, 40);
             cmbProjectName.Name = "cmbProjectName";
-            cmbProjectName.Size = new Size(383, 33);
+            cmbProjectName.Size = new Size(307, 28);
             cmbProjectName.TabIndex = 20;
             cmbProjectName.Text = "Карты по всем проектам";
             // 
             // lblProjectName
             // 
             lblProjectName.AutoSize = true;
-            lblProjectName.Location = new Point(9, 25);
-            lblProjectName.Margin = new Padding(4, 0, 4, 0);
+            lblProjectName.Location = new Point(7, 20);
             lblProjectName.Name = "lblProjectName";
-            lblProjectName.Size = new Size(157, 25);
+            lblProjectName.Size = new Size(133, 20);
             lblProjectName.TabIndex = 21;
             lblProjectName.Text = "Выберите проект:";
             // 
@@ -109,18 +101,16 @@
             pnlControlBtns.Controls.Add(btnUpdateObj);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(410, 0);
-            pnlControlBtns.Margin = new Padding(4);
+            pnlControlBtns.Location = new Point(328, 0);
             pnlControlBtns.Name = "pnlControlBtns";
-            pnlControlBtns.Size = new Size(590, 138);
+            pnlControlBtns.Size = new Size(472, 110);
             pnlControlBtns.TabIndex = 24;
             // 
             // btnDeleteObj
             // 
-            btnDeleteObj.Location = new Point(400, 15);
-            btnDeleteObj.Margin = new Padding(4);
+            btnDeleteObj.Location = new Point(320, 12);
             btnDeleteObj.Name = "btnDeleteObj";
-            btnDeleteObj.Size = new Size(174, 75);
+            btnDeleteObj.Size = new Size(139, 60);
             btnDeleteObj.TabIndex = 25;
             btnDeleteObj.Text = "Удалить";
             btnDeleteObj.UseVisualStyleBackColor = true;
@@ -128,20 +118,18 @@
             // 
             // btnUpdateObj
             // 
-            btnUpdateObj.Location = new Point(206, 15);
-            btnUpdateObj.Margin = new Padding(4);
+            btnUpdateObj.Location = new Point(165, 12);
             btnUpdateObj.Name = "btnUpdateObj";
-            btnUpdateObj.Size = new Size(174, 75);
+            btnUpdateObj.Size = new Size(139, 60);
             btnUpdateObj.TabIndex = 24;
             btnUpdateObj.Text = "Редактировать";
             btnUpdateObj.UseVisualStyleBackColor = true;
             // 
             // btnAddNewObj
             // 
-            btnAddNewObj.Location = new Point(10, 15);
-            btnAddNewObj.Margin = new Padding(4);
+            btnAddNewObj.Location = new Point(8, 12);
             btnAddNewObj.Name = "btnAddNewObj";
-            btnAddNewObj.Size = new Size(174, 75);
+            btnAddNewObj.Size = new Size(139, 60);
             btnAddNewObj.TabIndex = 23;
             btnAddNewObj.Text = "Добавить";
             btnAddNewObj.UseVisualStyleBackColor = true;
@@ -151,24 +139,22 @@
             // 
             pnlDataViewer.Controls.Add(dgvMain);
             pnlDataViewer.Dock = DockStyle.Fill;
-            pnlDataViewer.Location = new Point(0, 138);
-            pnlDataViewer.Margin = new Padding(4);
+            pnlDataViewer.Location = new Point(0, 110);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1000, 424);
+            pnlDataViewer.Size = new Size(800, 340);
             pnlDataViewer.TabIndex = 2;
             // 
-            // Win6_Staff_3
+            // Win7_7_Protection
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1000, 562);
+            ClientSize = new Size(800, 450);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
-            Margin = new Padding(4);
-            Name = "Win6_Staff_3";
-            Text = "Win6_Staff_3";
-            FormClosing += Win6_Staff_3_FormClosing;
-            Load += Win6_Staff_3_Load;
+            Name = "Win7_7_Protection";
+            Text = "Win7_7_Protection";
+            FormClosing += Win7_7_Protection_FormClosing;
+            Load += Win7_7_Protection_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);
