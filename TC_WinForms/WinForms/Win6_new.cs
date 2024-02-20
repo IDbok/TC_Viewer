@@ -18,7 +18,7 @@ namespace TC_WinForms.WinForms
         Win6_Staff win6_Staff;
         Win6_Component win6_Component;
         Win6_Machine win6_Machine;
-        //Win6_Protection win6_Protection;
+        Win6_Protection win6_Protection;
         Win6_Tool win6_Tool;
         //Win6_WorkStep win6_WorkStep;
 
@@ -76,6 +76,7 @@ namespace TC_WinForms.WinForms
                 frm.Close();
             }
             this.Dispose();
+            // todo - if there are some changes - ask user if he wants to save them
         }
 
         private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
@@ -98,6 +99,8 @@ namespace TC_WinForms.WinForms
                 win6_Staff = new Win6_Staff(_tcId);
             activeForm = win6_Staff;
             LoadFormInPanel(activeForm); //new Win6_Staff_3(_tcId)); //LoadFormInPanel(new Win6_Staff_2(_tcId)); //
+            if (sender is Button)
+                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
         }
 
         private void btnShowComponents_Click(object sender, EventArgs e)
@@ -107,6 +110,8 @@ namespace TC_WinForms.WinForms
                 win6_Component = new Win6_Component(_tcId);
             activeForm = win6_Component;
             LoadFormInPanel(activeForm);
+            if (sender is Button)
+                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
         }
 
         private void btnShowMachines_Click(object sender, EventArgs e)
@@ -116,10 +121,19 @@ namespace TC_WinForms.WinForms
                 win6_Machine = new Win6_Machine(_tcId);
             activeForm = win6_Machine;
             LoadFormInPanel(activeForm);
+            if (sender is Button)
+                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
         }
 
         private void btnShowProtections_Click(object sender, EventArgs e)
         {
+            if (activeForm is Win6_Protection) return;
+            if (win6_Protection == null)
+                win6_Protection = new Win6_Protection(_tcId);
+            activeForm = win6_Protection;
+            LoadFormInPanel(activeForm);
+            if (sender is Button)
+                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
         }
 
         private void btnShowTools_Click(object sender, EventArgs e)
@@ -129,6 +143,8 @@ namespace TC_WinForms.WinForms
                 win6_Tool = new Win6_Tool(_tcId);
             activeForm = win6_Tool;
             LoadFormInPanel(activeForm);
+            if (sender is Button)
+                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
         }
 
         private void btnShowWorkSteps_Click(object sender, EventArgs e)
@@ -192,7 +208,7 @@ namespace TC_WinForms.WinForms
         private void Win6_new_Load(object sender, EventArgs e)
         {
             // change form title
-           // this.Text = $"{_tc.Name} ({_tc.Article})";
+            this.Text = $"{_tc.Name} ({_tc.Article})";
         }
 
         private void toolStripButton4_Click(object sender, EventArgs e)

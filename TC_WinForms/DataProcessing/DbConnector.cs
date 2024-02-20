@@ -10,10 +10,6 @@ namespace TC_WinForms.DataProcessing
 {
     public class DbConnector
     {
-        //private MyDbContext context; //
-
-        
-
         public void UpdateCurrentTc(int id)
         {
             Program.currentTc = GetObject<TechnologicalCard>(id);
@@ -103,49 +99,6 @@ namespace TC_WinForms.DataProcessing
         {
             using (var context = new MyDbContext())
             {
-                //// todo add mecanism to increase version of object if it was version field
-                //TechnologicalCard existingEntity = new();
-                ////var local = GetObject<T>(updatingobj.Id);
-                //if (typeof(T) == typeof(TechnologicalCard))
-                //{
-                //    updatingobj = updatingobj as TechnologicalCard;
-                //    existingEntity = context.Set<TechnologicalCard>()
-                //                    .Where(tc => tc.Id == ((TechnologicalCard)updatingobj).Id)
-                //                    .Include(tc => tc.Staffs)
-                //                    .Include(tc => tc.Components)
-                //                    .Include(tc => tc.Tools)
-                //                    .Include(tc => tc.Machines)
-                //                    .Include(tc => tc.Protections)
-                //                    //.Include(tc => tc.WorkSteps)
-                //                    .Cast<T>()
-                //                    .FirstOrDefault();
-
-                //    if (existingEntity != null)
-                //    {
-                //        context.Entry(existingEntity).State = EntityState.Detached;
-
-                //        context.TechnologicalCards.Attach(updatingobj as TechnologicalCard);
-
-                //        context.Entry(updatingobj).State = EntityState.Modified;
-
-                //        // Сохраняем изменения в базе данных
-                //        context.SaveChanges();
-                //    }
-                //}
-                //var existingEntity = GetObject<T>(updatingobj.Id);
-
-                //// check if local is not null 
-                //if (existingEntity != null)
-                //{
-                //    context.Entry(existingEntity).State = EntityState.Detached;
-
-                //    context.TechnologicalProcesses.Attach(updatingobj);
-                //}
-
-                //local = updatingobj;
-                //// set Modified flag in your entry
-                //context.Entry(local).State = EntityState.Modified;
-
                 context.Update(updatingobj);
                 context.SaveChanges();
             }
@@ -162,16 +115,6 @@ namespace TC_WinForms.DataProcessing
             }
         }
 
-        public void SaveChanges(TechnologicalCard tc)
-        {
-            using (var context = new MyDbContext())
-            {
-                //context.Entry(tc).State = EntityState.Modified;
-
-                context.SaveChanges();
-            }
-        }
-
         public void Update(ref TechnologicalCard updatingobj) //where T : class, IIdentifiable
         {
             using (var context = new MyDbContext())
@@ -182,7 +125,7 @@ namespace TC_WinForms.DataProcessing
                 {
                     Console.WriteLine($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}");
                 }
-                // todo add mecanism to increase version of object if it was version field
+                // todo add mechanism to increase version of object if it was version field
 
                 context.Entry(updatingobj).State = EntityState.Detached;
                 
@@ -259,7 +202,6 @@ namespace TC_WinForms.DataProcessing
         {
             try
             {
-                // todo - Db connection error holder 
                 using (var context = new MyDbContext())
                 {
                     if (typeof(T) == typeof(TechnologicalProcess))
@@ -292,7 +234,6 @@ namespace TC_WinForms.DataProcessing
         {
             try
             {
-                // todo - Db connection error holder 
                 using (var context = new MyDbContext())
                 {
                     if (typeof(T) == typeof(TechnologicalProcess))
@@ -324,7 +265,6 @@ namespace TC_WinForms.DataProcessing
         {
             try
             {
-                // todo - Db connection error holder 
                 using (var context = new MyDbContext())
                 {
                     
@@ -471,9 +411,9 @@ namespace TC_WinForms.DataProcessing
             else
             {
                 if (!(objFromDb.Id == newobj.Id &&
-                                       objFromDb.Name == newobj.Name &&
-                                                          objFromDb.Type == newobj.Type &&
-                                                                             objFromDb.Unit == newobj.Unit))
+                    objFromDb.Name == newobj.Name &&
+                    objFromDb.Type == newobj.Type &&
+                    objFromDb.Unit == newobj.Unit))
                 {
                     Update(objFromDb);
                 }

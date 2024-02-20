@@ -27,7 +27,16 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            CreateNewDb();
+            //CreateNewDb();
+            //string dataFolderPath = AppDomain.CurrentDomain.GetData("Serialised data").ToString();
+            //Console.WriteLine("Полный путь к папке с данными: " + dataFolderPath);
+            string cD = Directory.GetCurrentDirectory();
+            Console.WriteLine(cD);
+            string RealPath = Path.GetFullPath(Path.Combine(cD, @"..\..\..\..\"));
+            Console.WriteLine(RealPath);
+            string dataFolderPath = Path.Combine(RealPath, "Serialised data");
+            Console.WriteLine(dataFolderPath);
+
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

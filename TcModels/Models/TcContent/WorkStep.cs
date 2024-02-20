@@ -38,7 +38,6 @@ namespace TcModels.Models.TcContent
             this.staff = staff;
             this.stepExecutionTime = stepExecutionTime;
             this.stage = stage;
-            // TODO: добавить этапы и операции
             this.stageExecutionTime = stageExecutionTime;
             this.machineExecutionTime = machineExecutionTime;
             this.protections = protections;

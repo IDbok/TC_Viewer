@@ -478,7 +478,6 @@ namespace TC_WinForms.DataProcessing
         }
         public static void ReorderRows(DataGridViewRow row, int newOrder, DataGridView dgv)
         {
-            // todo - check if newOrder is not out of range
             // to row in dgvMain set new order and change row index
             row.Cells["Order"].Value = newOrder;
             dgv.Rows.Remove(row);

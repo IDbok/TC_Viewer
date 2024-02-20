@@ -18,6 +18,8 @@ namespace TC_WinForms.WinForms
         private Win7_3_Staff winStaff;
         private Win7_4_Component winComponent;
         private Win7_5_Machine winMachine;
+        private Win7_6_Tool winTool;
+        private Win7_7_Protection winProtection;
 
         private WinNumber activeWin = 0;
 
@@ -122,6 +124,7 @@ namespace TC_WinForms.WinForms
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
+
         private void LoadFormInPanel(Form form)
         {
             // hide all forms in panel
@@ -182,6 +185,24 @@ namespace TC_WinForms.WinForms
                 winMachine = new Win7_5_Machine(_accessLevel);
             }
             LoadFormInPanel(winMachine);
+        }
+
+        private void btnProtection_Click(object sender, EventArgs e)
+        {
+            if (winProtection == null)
+            {
+                winProtection = new Win7_7_Protection(_accessLevel);
+            }
+            LoadFormInPanel(winProtection);
+        }
+
+        private void btnTool_Click(object sender, EventArgs e)
+        {
+            if (winTool == null)
+            {
+                winTool = new Win7_6_Tool(_accessLevel);
+            }
+            LoadFormInPanel(winTool);
         }
     }
 }
