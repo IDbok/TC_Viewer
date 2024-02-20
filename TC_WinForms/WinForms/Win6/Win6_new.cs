@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.WinForms.Work;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -20,6 +21,8 @@ namespace TC_WinForms.WinForms
         //Win6_Protection win6_Protection;
         Win6_Tool win6_Tool;
         //Win6_WorkStep win6_WorkStep;
+
+        TechOperationForm techOperationForm;
 
         EModelType? activeModelType = null;
 
@@ -130,12 +133,19 @@ namespace TC_WinForms.WinForms
 
         private void btnShowWorkSteps_Click(object sender, EventArgs e)
         {
-            if (activeModelType == EModelType.WorkStep) return;
-            //SaveDataFromDGV(activeModelType);
-            DGVNewStructure(EModelType.WorkStep);
-            activeModelType = EModelType.WorkStep;
-            if (sender is Button)
-                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
+            if (activeForm is TechOperationForm) return;
+            if (techOperationForm == null)
+                techOperationForm = new TechOperationForm(_tcId);
+            activeForm = techOperationForm;
+            LoadFormInPanel(activeForm);
+
+
+            //if (activeModelType == EModelType.WorkStep) return;
+            ////SaveDataFromDGV(activeModelType);
+            //DGVNewStructure(EModelType.WorkStep);
+            //activeModelType = EModelType.WorkStep;
+            //if (sender is Button)
+            //    WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
         } // todo - make it work
 
 

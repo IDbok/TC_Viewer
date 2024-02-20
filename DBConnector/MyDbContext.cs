@@ -39,14 +39,14 @@ namespace TcDbConnector
 
         public MyDbContext()
         {
-            Database.EnsureDeleted();
-            Database.EnsureCreated(); // todo - create exception catch if db is unavailable
+            //Database.EnsureDeleted();
+            //Database.EnsureCreated(); // todo - create exception catch if db is unavailable
         }
       
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql("server=localhost;database=tavrida_db_v6;user=root;password=root",
+            optionsBuilder.UseMySql("server=localhost;database=tavrida_db_v5;user=root;password=root",
                 new MySqlServerVersion(new Version(5, 7, 24)));
 
         }
