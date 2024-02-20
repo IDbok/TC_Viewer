@@ -112,7 +112,7 @@ namespace TC_WinForms.WinForms
                     return;
                 };
 
-            newObj = DataProcessing.DataProcessing.addNewObject<Protection>();
+            newObj = DataProcessing.DataProcessing.AddNewObject<Protection>();
 
             objList.Insert(0, newObj);
 

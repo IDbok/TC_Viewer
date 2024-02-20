@@ -10,6 +10,88 @@ namespace TC_WinForms.DataProcessing
 {
     public class DbConnector
     {
+        public async Task AddTcAsync(TechnologicalCard tc)
+        {
+            await AddTcAsync(new List<TechnologicalCard> { tc });
+        }
+        public async Task AddTcAsync(List<TechnologicalCard> tcs)
+        {
+            using (var db = new MyDbContext())
+            {
+                var tcIds = tcs.Select(t => t.Id).ToList();
+                var existingTcs = await db.TechnologicalCards
+                    .Where(t => tcIds.Contains(t.Id))
+                    .Select(t => t.Id)
+                    .ToListAsync();
+
+                var newTcs = tcs.Where(t => !existingTcs.Contains(t.Id)).ToList();
+
+                if (newTcs.Any())
+                {
+                    await db.TechnologicalCards.AddRangeAsync(newTcs);
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+        public async Task UpdateTcAsync(TechnologicalCard tc)
+        {
+            await UpdateTcListAsync(new List<TechnologicalCard> { tc });
+        }
+        public async Task UpdateTcListAsync(List<TechnologicalCard> updatedTcs)
+        {
+            using (var db = new MyDbContext())
+            {
+                foreach (var updatedTc in updatedTcs)
+                {
+                    var existingTc = await db.TechnologicalCards
+                        .FirstOrDefaultAsync(t => t.Id == updatedTc.Id);
+
+                    if (existingTc != null)
+                    {
+                        existingTc.Name = updatedTc.Name;
+                        existingTc.Description = updatedTc.Description;
+                        existingTc.Type = updatedTc.Type;
+                        existingTc.NetworkVoltage = updatedTc.NetworkVoltage;
+                        existingTc.TechnologicalProcessType = updatedTc.TechnologicalProcessType;
+                        existingTc.TechnologicalProcessName = updatedTc.TechnologicalProcessName;
+                        existingTc.Parameter = updatedTc.Parameter;
+                        existingTc.FinalProduct = updatedTc.FinalProduct;
+                        existingTc.Applicability = updatedTc.Applicability;
+                        existingTc.Note = updatedTc.Note;
+                        existingTc.IsCompleted = updatedTc.IsCompleted;
+                        existingTc.Version = updatedTc.Version;
+                        existingTc.TechnologicalProcessNumber = updatedTc.TechnologicalProcessNumber;
+                        existingTc.DamageType = updatedTc.DamageType;
+                        existingTc.RepairType = updatedTc.RepairType;
+                        existingTc.Data = updatedTc.Data;
+                        existingTc.Article = updatedTc.Article;
+                        existingTc.TechnologicalProcess = updatedTc.TechnologicalProcess;
+                    }
+                }
+
+                if (db.ChangeTracker.HasChanges())
+                {
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+        public async Task DeleteTcAsync(List<int> tcIds)
+        {
+            using (var db = new MyDbContext())
+            {
+                var tcsToDelete = await db.TechnologicalCards
+                                          .Where(tc => tcIds.Contains(tc.Id))
+                                          .ToListAsync();
+
+                if (tcsToDelete.Any())
+                {
+                    db.TechnologicalCards.RemoveRange(tcsToDelete);
+
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+
         public void UpdateCurrentTc(int id)
         {
             Program.currentTc = GetObject<TechnologicalCard>(id);

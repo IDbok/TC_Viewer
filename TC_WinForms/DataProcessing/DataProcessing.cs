@@ -14,23 +14,30 @@ namespace TC_WinForms.DataProcessing
 {
     public static class DataProcessing
     {
-        public static bool addNewTC(Win7_1_TCs form)
-        {
-            var newObject = form.dbCon.AddNewObjAndReturnIt(CreateTCWithRandomName());
+        //public static bool AddNewTC(Win7_1_TCs form)
+        //{
+        //    var newObject = form.dbCon.AddNewObjAndReturnIt(CreateTCWithRandomName());
 
-            form.newCard = newObject;
-            return true;
+        //    form._newCard = newObject;
+        //    return true;
 
-        }
-        public static Staff addNewStaff()
+        //}
+        public static async void AddNewTC()
         {
             var dbCon = new DbConnector();
-            var newObject = dbCon.AddNewObjAndReturnIt<Staff>(CreateStaffWithRandomName());
+            
+
+
+        }
+        public static Staff AddNewStaff()
+        {
+            var dbCon = new DbConnector();
+            var newObject = dbCon.AddNewObjAndReturnIt(CreateStaffWithRandomName());
 
             return newObject;
 
         }
-        public static T addNewObject<T>() where T : class, IModelStructure, IClassifaerable, new()
+        public static T AddNewObject<T>() where T : class, IModelStructure, IClassifaerable, new()
         {
             var dbCon = new DbConnector();
             var newObject = dbCon.AddNewObjAndReturnIt<T>(CreateObjectWithRandomName<T>());

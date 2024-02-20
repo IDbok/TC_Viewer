@@ -112,7 +112,7 @@ namespace TC_WinForms.WinForms
                     ColorizeEmptyRequiredCells();
                     return;
                 };
-            newObj = DataProcessing.DataProcessing.addNewStaff();
+            newObj = DataProcessing.DataProcessing.AddNewStaff();
 
             objList.Insert(0, newObj);
 
@@ -167,6 +167,11 @@ namespace TC_WinForms.WinForms
         {
             // close form
             this.Close();
+        }
+
+        private void btnDeleteObj_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -112,7 +112,7 @@ namespace TC_WinForms.WinForms
                     return;
                 };
 
-            newObj = DataProcessing.DataProcessing.addNewObject<Tool>();
+            newObj = DataProcessing.DataProcessing.AddNewObject<Tool>();
 
             objList.Insert(0, newObj);
 

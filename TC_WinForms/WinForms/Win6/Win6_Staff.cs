@@ -149,7 +149,14 @@ namespace TC_WinForms.WinForms
             }
 
             // todo - check that for new rows symbol is unique and not "-"
-
+            foreach (var row in dgvMain.Rows.Cast<DataGridViewRow>())
+            {
+                if (CheckIfIsNewItems(row))
+                {
+                    MessageBox.Show("Поле Символ не может быть \"-\"");
+                    return;
+                }
+            }
 
             if (!DetectChanges())
             { MessageBox.Show("no changes in Staff"); return; } // check if rows in dgvMain have difference values in copy columns and add them to newItems, deletedItems, changedItems
@@ -162,11 +169,11 @@ namespace TC_WinForms.WinForms
 
             // Delete deleted rows from db
             if (deletedItems.Count > 0)
-                dbCon.Delete<Staff_TC>(deletedItems); deletedItems.Clear();
+                dbCon.Delete(deletedItems); deletedItems.Clear();
 
             // save changes in db
             if (changedItems.Count > 0)
-                dbCon.Update<Staff_TC>(changedItems); changedItems.Clear();
+                dbCon.Update(changedItems); changedItems.Clear();
 
             // change values of copy columns to original
             DGVProcessing.SetCopyColumnsValues(dgvMain, Staff_TC.GetChangeablePropertiesNames);
@@ -185,42 +192,7 @@ namespace TC_WinForms.WinForms
                     result = true;
             }
             return result;
-            //// check if rows in dgvMain have difference values in copy columns
-            //foreach (var row in dgvMain.Rows.Cast<DataGridViewRow>())
-            //{
-            //    CheckSymbolChanged(row);
-
-            //    CheckOrderChanged(row);
-            //}
         }
-        //private void CheckOrderChanged(DataGridViewRow row)
-        //{
-        //    string order = row.Cells["Order"].Value.ToString();
-        //    string order_copy = row.Cells["Order_copy"].Value.ToString();
-        //    if (order != order_copy)
-        //    {
-        //        var sttc = CreateNewObject(row);
-        //        changedItems.Add(sttc);
-        //    }
-        //}
-        //private void CheckSymbolChanged(DataGridViewRow row)
-        //{
-        //    string symbol = row.Cells["Symbol"].Value.ToString();
-        //    string symbol_copy = row.Cells["Symbol_copy"].Value.ToString();
-
-        //    if (symbol != symbol_copy)
-        //    {
-        //        var sttc_new = CreateNewObject(row);
-        //        newItems.Add(sttc_new);
-
-        //        if (symbol_copy != "-")
-        //        {
-        //            var sttc_old = CreateNewObject(row);
-        //            sttc_old.Symbol = symbol_copy;
-        //            deletedItems.Add(sttc_old);
-        //        }
-        //    }
-        //}
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
@@ -256,16 +228,26 @@ namespace TC_WinForms.WinForms
                 dgvMain.Refresh();
             }
         }
-
+        private bool CheckIfIsNewItems(DataGridViewRow row)
+        {
+            if (row.Cells["Symbol"].Value.ToString() == "-")
+            {
+                return true;
+            }
+            return false;
+        }
         private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
+            string symbolName = nameof(Staff_TC.Symbol);
+            string orderName = nameof(Staff_TC.Order);
+
             var row = dgvMain.Rows[e.RowIndex];
 
             // if changed cell is in Order column then reorder dgv
-            if (e.ColumnIndex == dgvMain.Columns["Order"].Index)
+            if (e.ColumnIndex == dgvMain.Columns[orderName].Index)
             {
                 // check if new cell value is a number
-                if (int.TryParse(row.Cells["Order"].Value.ToString(), out int orderValue))
+                if (int.TryParse(row.Cells[orderName].Value.ToString(), out int orderValue))
                 {
                     if (orderValue == e.RowIndex + 1) { return; }
                     if (orderValue > 0 && orderValue <= dgvMain.Rows.Count)
@@ -277,21 +259,23 @@ namespace TC_WinForms.WinForms
                 else
                 {
                     MessageBox.Show("Ошибка ввода в поле \"№\"");
-                    row.Cells["Order"].Value = e.RowIndex + 1;
+                    row.Cells[orderName].Value = e.RowIndex + 1;
                 }
             }
-            else if (e.ColumnIndex == dgvMain.Columns["Symbol"].Index)
+            else if (e.ColumnIndex == dgvMain.Columns[symbolName].Index)
             {
-                string symbol = (string)row.Cells["Symbol"].Value;
-                string symbol_copy = (string)row.Cells["Symbol_copy"].Value;
-                if (symbol != symbol_copy)
+                string symbolValue = (string)row.Cells[symbolName].Value;
+                string symbolCopyValue = (string)row.Cells[symbolName+"_copy"].Value;
+                if (symbolValue != symbolCopyValue)
                 {
-                    // check if new symbol is unique
-                    if (!DGVProcessing.CheckUniqueColumnsValues(dgvMain, new List<string> { "Symbol" }))
+                    if (!DGVProcessing.CheckIfValueIsUnique(dgvMain,nameof(Staff_TC.Symbol), row))
                     {
                         MessageBox.Show("Символ должен быть уникальным!");
-                        row.Cells["Symbol"].Value = symbol_copy;
+                        row.Cells[symbolName].Value = symbolCopyValue;
                     }
+                    // find newItems and change its Symbol value
+                    var sttc = CreateNewObject(row);
+                    newItems.Find(x => x.ChildId == sttc.ChildId && x.Order == sttc.Order).Symbol = symbolValue;
                 }
             }
         }
