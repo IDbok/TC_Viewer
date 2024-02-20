@@ -1,4 +1,5 @@
 ﻿using TC_WinForms.DataProcessing;
+using TC_WinForms.WinForms.Work;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 
@@ -10,6 +11,9 @@ namespace TC_WinForms.WinForms
         private EModelType? _activeModelType = null;
         private Form _activeForm = null;
 
+        TechOperationForm techOperationForm;
+
+        EModelType? activeModelType = null;
         private TechnologicalCard _tc;
         private int _tcId;
         private DbConnector db = new DbConnector();
@@ -124,6 +128,19 @@ namespace TC_WinForms.WinForms
 
         private void btnShowWorkSteps_Click(object sender, EventArgs e)
         {
+            if (activeForm is TechOperationForm) return;
+            if (techOperationForm == null)
+                techOperationForm = new TechOperationForm(_tcId);
+            activeForm = techOperationForm;
+            LoadFormInPanel(activeForm);
+
+
+            //if (activeModelType == EModelType.WorkStep) return;
+            ////SaveDataFromDGV(activeModelType);
+            //DGVNewStructure(EModelType.WorkStep);
+            //activeModelType = EModelType.WorkStep;
+            //if (sender is Button)
+            //    WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
         } // todo - make it work
 
 

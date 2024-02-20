@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,8 +13,10 @@ namespace TcModels.Models.TcContent
     {
         public int Id { get; set; }
         public TechOperationWork techOperationWork { get; set; }
+        public int techOperationWorkId { get; set; }
 
         public TechTransition? techTransition { get; set; }
+        public int? techTransitionId { get; set; }
 
         public List<Staff_TC> Staffs { get; set; }
 
@@ -25,6 +28,7 @@ namespace TcModels.Models.TcContent
 
         public Guid? sumEw { get; set; }
         public Guid? maxEw { get; set; }
-
+       [NotMapped] public bool NewItem { get; set; }
+       [NotMapped] public bool Delete { get; set; }
     }
 }
