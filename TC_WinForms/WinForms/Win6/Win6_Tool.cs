@@ -160,7 +160,7 @@ namespace TC_WinForms.WinForms
 
             AddNewRowsToDGV(newItems, dgvMain);
         }
-        public void SaveChanges()
+        public async Task SaveChanges()
         {
             dgvMain.CurrentCell = null;// stops editing in dgvMain and save changes
 

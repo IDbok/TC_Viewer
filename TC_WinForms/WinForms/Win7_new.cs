@@ -111,21 +111,21 @@ namespace TC_WinForms.WinForms
         private void btnTool_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Tool);
 
 
-        private void ControlSaveEvent(object sender, KeyEventArgs e)
+        private async void ControlSaveEvent(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.S)
             {
-                Save(); 
+                await Save(); 
             }
         }
 
-        private void Save()
+        private async Task Save()
         {
             // todo - save all changes in all forms
             _forms.TryGetValue(WinNumber.TC, out var form);
             if (form is ISaveEventForm saveEventForm)
             {
-               saveEventForm.SaveChanges();
+               await saveEventForm.SaveChanges();
             }
             MessageBox.Show("Сохранено!");
         }

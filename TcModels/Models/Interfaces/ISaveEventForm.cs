@@ -8,6 +8,6 @@ namespace TcModels.Models.Interfaces
 {
     public interface ISaveEventForm
     {
-        public void SaveChanges();
+        Task SaveChanges();
     }
 }

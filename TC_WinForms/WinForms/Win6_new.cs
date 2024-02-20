@@ -128,11 +128,12 @@ namespace TC_WinForms.WinForms
 
         private void btnShowWorkSteps_Click(object sender, EventArgs e)
         {
-            if (activeForm is TechOperationForm) return;
-            if (techOperationForm == null)
-                techOperationForm = new TechOperationForm(_tcId);
-            activeForm = techOperationForm;
-            LoadFormInPanel(activeForm);
+            ShowForm(EModelType.WorkStep);
+            //if (_activeForm is TechOperationForm) return;
+            //if (techOperationForm == null)
+            //    techOperationForm = new TechOperationForm(_tcId);
+            //_activeForm = techOperationForm;
+            //LoadFormInPanel(_activeForm);
 
 
             //if (activeModelType == EModelType.WorkStep) return;

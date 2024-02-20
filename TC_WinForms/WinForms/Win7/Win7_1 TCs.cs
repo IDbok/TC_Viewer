@@ -106,23 +106,24 @@ namespace TC_WinForms.WinForms
         }
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void SaveChanges()
+        public async Task SaveChanges()
         {
+            // todo- check if in added tech card fulfilled all required fields
             if (_changedCards.Count == 0 && _newCards.Count == 0 && _deletedCards.Count == 0)
             {
                 return;
             }
             if (_newCards.Count > 0)
             {
-                SaveNewTechnologicalCards();
+                await SaveNewTechnologicalCards();
             }
             if (_changedCards.Count > 0)
             {
-                SaveChangedTechnologicalCards();
+                await SaveChangedTechnologicalCards();
             }
             if (_deletedCards.Count > 0)
             {
-                DeleteDeletedTechnologicalCards();
+                await DeleteDeletedTechnologicalCards();
             }
             // todo - change id in all new cards 
         }
