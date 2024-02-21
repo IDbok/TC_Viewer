@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Utilities;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 
@@ -22,46 +23,18 @@ namespace TC_WinForms.WinForms
             AccessInitialization(accessLevel);
         }
 
-
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
             await LoadTechnologicalCards();
-            SetupDataGridView();
+            DisplayedEntityHelper.SetupDataGridView<DisplayedTechnologicalCard>(dgvMain);
         }
         private async Task LoadTechnologicalCards()
         {
             var tcList = await Task.Run(()=>dbCon.GetObjectList<TechnologicalCard>()
-                .Select(tc => new DisplayedTechnologicalCard
-            {
-                Id = tc.Id,
-                Article = tc.Article,
-                Name = tc.Name,
-                Description = tc.Description,
-                Version = tc.Version,
-                Type = tc.Type,
-                NetworkVoltage = tc.NetworkVoltage,
-                TechnologicalProcessType = tc.TechnologicalProcessType,
-                TechnologicalProcessName = tc.TechnologicalProcessName,
-                TechnologicalProcessNumber = tc.TechnologicalProcessNumber,
-                Parameter = tc.Parameter,
-                FinalProduct = tc.FinalProduct,
-                Applicability = tc.Applicability,
-                Note = tc.Note,
-                DamageType = tc.DamageType,
-                RepairType = tc.RepairType,
-                IsCompleted = tc.IsCompleted
-
-            }).ToList());
-
+                .Select(tc => new DisplayedTechnologicalCard (tc)).ToList());
             _bindingList = new BindingList<DisplayedTechnologicalCard>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
-           
-        }
-        private void SetupDataGridView()
-        {
-            WinProcessing.SetTableHeadersNames(DisplayedTechnologicalCard.GetPropertiesNames(), dgvMain);
-            WinProcessing.SetTableColumnsOrder(DisplayedTechnologicalCard.GetPropertiesOrder(), dgvMain);
         }
         private void AccessInitialization(int accessLevel)
         {
@@ -77,37 +50,20 @@ namespace TC_WinForms.WinForms
 
         private void btnUpdateTC_Click(object sender, EventArgs e)
         {
-            UpdateSelectedTechnologicalCard();
+            UpdateSelected();
         }
 
         private void btnDeleteTC_Click(object sender, EventArgs e)
         {
-            if (dgvMain.SelectedRows.Count > 0)
-            {
-                var selectedDTCs = dgvMain.SelectedRows.Cast<DataGridViewRow>()
-                    .Select(row => row.DataBoundItem as DisplayedTechnologicalCard)
-                    .Where(dtc => dtc != null)
-                    .ToList();
-
-                string message = "Вы действительно хотите удалить выбранные карты?\n";
-                DialogResult result = MessageBox.Show(message, "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                if (result == DialogResult.Yes)
-                {
-                    foreach (var dtc in selectedDTCs)
-                    {
-                        _bindingList.Remove(dtc);
-                        _deletedCards.Add(dtc); 
-                    }
-                }
-
-                dgvMain.Refresh(); 
-            }
+            DeletSelected();
         }
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public async Task SaveChanges()
         {
+            
+            // stop editing cell
+            dgvMain.EndEdit();
             // todo- check if in added tech card fulfilled all required fields
             if (_changedCards.Count == 0 && _newCards.Count == 0 && _deletedCards.Count == 0)
             {
@@ -125,38 +81,38 @@ namespace TC_WinForms.WinForms
             {
                 await DeleteDeletedTechnologicalCards();
             }
+            dgvMain.Refresh();
+            // todo - add ids from db to new cards
             // todo - change id in all new cards 
         }
         private async Task SaveNewTechnologicalCards()
         {
-            var newTcs = _newCards.Select(dtc => new TechnologicalCard
+            var newTcs = _newCards.Select(dtc => CreateNewObject(dtc)).ToList();
+
+            await dbCon.AddObjectAsync(newTcs);
+            // set new ids to new cards matched them by Articles
+            foreach (var newCard in _newCards)
             {
-                Article = dtc.Article,
-                Name = dtc.Name,
-                Description = dtc.Description,
-                Version = dtc.Version,
-                Type = dtc.Type,
-                NetworkVoltage = dtc.NetworkVoltage,
-                TechnologicalProcessType = dtc.TechnologicalProcessType,
-                TechnologicalProcessName = dtc.TechnologicalProcessName,
-                TechnologicalProcessNumber = dtc.TechnologicalProcessNumber,
-                Parameter = dtc.Parameter,
-                FinalProduct = dtc.FinalProduct,
-                Applicability = dtc.Applicability,
-                Note = dtc.Note,
-                DamageType = dtc.DamageType,
-                RepairType = dtc.RepairType,
-                IsCompleted = dtc.IsCompleted
-            }).ToList();
+                var newId = newTcs.Where(s => s.Article == newCard.Article).FirstOrDefault().Id;
+                newCard.Id = newId;
+            } 
 
-            await dbCon.AddTcAsync(newTcs);
-
-            MessageBox.Show("Новые карты сохранены.");
+            //MessageBox.Show("Новые карты сохранены.");
             _newCards.Clear();
         }
         private async Task SaveChangedTechnologicalCards()
         {
-            var changedTcs = _changedCards.Select(dtc => new TechnologicalCard
+            var changedTcs = _changedCards.Select(dtc => CreateNewObject(dtc)).ToList();
+
+            await dbCon.UpdateTcListAsync(changedTcs);
+            //MessageBox.Show("Изменения сохранены.");
+            _changedCards.Clear();
+        }
+
+        
+        private TechnologicalCard CreateNewObject(DisplayedTechnologicalCard dtc)
+        {
+            return new TechnologicalCard
             {
                 Id = dtc.Id,
                 Article = dtc.Article,
@@ -176,48 +132,37 @@ namespace TC_WinForms.WinForms
                 RepairType = dtc.RepairType,
                 IsCompleted = dtc.IsCompleted
 
-            }).ToList();
-
-            await dbCon.UpdateTcListAsync(changedTcs);
-            MessageBox.Show("Изменения сохранены.");
-            _changedCards.Clear();
-        }
-        private async Task DeleteDeletedTechnologicalCards()
-        {
-            var deletedTcIds = _deletedCards.Select(dtc => dtc.Id).ToList();
-
-            await dbCon.DeleteTcAsync(deletedTcIds);
-            MessageBox.Show("Карты удалены.");
-            _deletedCards.Clear();
+            };
         }
         private void AddNewTechnologicalCard()
         {
-            if (_newCard != null && !IsValidNewCard(_newCard))
+            if (DisplayedEntityHelper.AddNewObject(ref _newCard))
             {
-                MessageBox.Show("Необходимо заполнить все обязательные поля для новой карты.");
-                return;
+                _newCards.Add(_newCard);
+                _bindingList.Insert(0, _newCard);
+                dgvMain.Refresh();
             }
-            var newDtc = new DisplayedTechnologicalCard
-            {
-                Name = "Новое карта",
+            // if new card already exists and required fields are empty, do nothing
+            //if (_newCard != null && !DisplayedEntityHelper.IsValidNewCard(_newCard))
+            //{
+            //    MessageBox.Show("Необходимо заполнить все обязательные поля для новой карты.");
+            //    return;
+            //}
+            //var newDtc = new DisplayedTechnologicalCard
+            //{
+            //    Name = "Новое карта",
 
-            };
-            _newCard = newDtc;
-            _newCards.Add(_newCard);
+            //};
+            //_newCard = newDtc;
+            //_newCards.Add(_newCard);
 
-            _bindingList.Insert(0, _newCard);
-            dgvMain.Refresh();
+            //_bindingList.Insert(0, _newCard);
+            //dgvMain.Refresh();
             // todo - ? highlight new row and all its required fields
             // todo - add check for all required fields (ex. Type can be only as "Ремонтная", "Монтажная", "ТТ")
 
         }
-        private bool IsValidNewCard(DisplayedTechnologicalCard card)
-        {
-            return !string.IsNullOrEmpty(card.Article)
-                && !string.IsNullOrEmpty(card.Type)
-                && card.NetworkVoltage > 0;
-        }
-        private void UpdateSelectedTechnologicalCard()
+        private void UpdateSelected()
         {
             if (dgvMain.SelectedRows.Count == 1)
             {
@@ -235,15 +180,65 @@ namespace TC_WinForms.WinForms
             var editorForm = new Win6_new(tcId);
             editorForm.Show();
         }
+        private void DeletSelected()
+        {
+            if (dgvMain.SelectedRows.Count > 0)
+            {
+                var selectedDTCs = dgvMain.SelectedRows.Cast<DataGridViewRow>()
+                    .Select(row => row.DataBoundItem as DisplayedTechnologicalCard)
+                    .Where(dtc => dtc != null)
+                    .ToList();
 
+                string message = "Вы действительно хотите удалить выбранные карты?\n";
+                DialogResult result = MessageBox.Show(message, "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    foreach (var dtc in selectedDTCs)
+                    {
+                        _bindingList.Remove(dtc);
+                        _deletedCards.Add(dtc);
+
+                        if (_newCards.Contains(dtc)) // if new card was deleted, remove it from new cards list
+                        {
+                            _newCards.Remove(dtc);
+                        }
+                    }
+                }
+
+                dgvMain.Refresh();
+            }
+        }
+        private async Task DeleteDeletedTechnologicalCards()
+        {
+            var deletedTcIds = _deletedCards.Select(dtc => dtc.Id).ToList();
+
+            await dbCon.DeleteTcAsync(deletedTcIds);
+            //MessageBox.Show("Карты удалены.");
+            _deletedCards.Clear();
+        }
         private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
         {
             if (e.ListChangedType == ListChangedType.ItemChanged)
             {
-                if (_newCards.Contains(_bindingList[e.NewIndex]))
+                // todo - add check of unique article
+                
+                // if changed _newCard check if all required fields are filled
+                if (_newCard != null && e.NewIndex == 0)
+                {
+                    if (!DisplayedEntityHelper.IsValidNewCard(_newCard))
+                    {
+                        return;
+                    }
+                    _newCard = null;
+                }
+
+                if (_newCards.Contains(_bindingList[e.NewIndex])) // if changed _newCards don't add it to _changedCards
                 {
                     return;
                 }
+                //todo - if required field was changed to empty, cancel action and throw message
+
                 var changedItem = _bindingList[e.NewIndex];
                 if (!_changedCards.Contains(changedItem))
                 {
@@ -264,9 +259,9 @@ namespace TC_WinForms.WinForms
             dgvMain.Columns.Add(cmbColumn);
         }
 
-        private class DisplayedTechnologicalCard : INotifyPropertyChanged
+        private class DisplayedTechnologicalCard : INotifyPropertyChanged, IDisplayedEntity
         {
-            public static Dictionary<string, string> GetPropertiesNames()
+            public Dictionary<string, string> GetPropertiesNames()
             {
                 return new Dictionary<string, string>
             {
@@ -285,7 +280,7 @@ namespace TC_WinForms.WinForms
                 { nameof(IsCompleted), "Наличие" }
             };
             }
-            public static List<string> GetPropertiesOrder()
+            public List<string> GetPropertiesOrder()
             {
                 return new List<string>
                 {
@@ -302,6 +297,15 @@ namespace TC_WinForms.WinForms
                     nameof(Id),
                     nameof(Version),
                     
+                };
+            }
+            public List<string> GetRequiredFields()
+            {
+                return new List<string>
+                {
+                    nameof(Article),
+                    nameof(Type),
+                    nameof(NetworkVoltage)
                 };
             }
 
@@ -322,6 +326,31 @@ namespace TC_WinForms.WinForms
             private string? damageType;
             private string? repairType;
             private bool isCompleted;
+
+            public DisplayedTechnologicalCard()
+            {
+                
+            }
+            public DisplayedTechnologicalCard(TechnologicalCard tc)
+            {
+                Id = tc.Id;
+                Article = tc.Article;
+                Name = tc.Name;
+                Description = tc.Description;
+                Version = tc.Version;
+                Type = tc.Type;
+                NetworkVoltage = tc.NetworkVoltage;
+                TechnologicalProcessType = tc.TechnologicalProcessType;
+                TechnologicalProcessName = tc.TechnologicalProcessName;
+                TechnologicalProcessNumber = tc.TechnologicalProcessNumber;
+                Parameter = tc.Parameter;
+                FinalProduct = tc.FinalProduct;
+                Applicability = tc.Applicability;
+                Note = tc.Note;
+                DamageType = tc.DamageType;
+                RepairType = tc.RepairType;
+                IsCompleted = tc.IsCompleted;
+            }
 
             public int Id { get; set; }
             public string Article

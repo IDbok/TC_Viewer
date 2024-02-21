@@ -33,6 +33,29 @@ namespace TC_WinForms.DataProcessing
                 }
             }
         }
+        public async Task AddObjectAsync<T>(T tc) where T : class, IIdentifiable
+        {
+            await AddObjectAsync(new List<T> { tc });
+        }
+        public async Task AddObjectAsync<T>(List<T> tcs) where T : class, IIdentifiable
+        {
+            using (var db = new MyDbContext())
+            {
+                var objectIds = tcs.Select(t => t.Id).ToList();
+                var existingObjects = await db.Set<T>()
+                    .Where(t => objectIds.Contains(t.Id))
+                    .Select(t => t.Id)
+                    .ToListAsync();
+
+                var newObjects = tcs.Where(t => !existingObjects.Contains(t.Id)).ToList();
+
+                if (newObjects.Any())
+                {
+                    await db.Set<T>().AddRangeAsync(newObjects);
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
         public async Task UpdateTcAsync(TechnologicalCard tc)
         {
             await UpdateTcListAsync(new List<TechnologicalCard> { tc });

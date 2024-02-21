@@ -85,6 +85,8 @@ namespace TC_WinForms.WinForms
                     return new Win6_Protection(_tcId);
                 case EModelType.Tool:
                     return new Win6_Tool(_tcId);
+                case EModelType.WorkStep:
+                    return new TechOperationForm(_tcId);
                 // Добавьте кейсы для других типов
                 default:
                     throw new ArgumentOutOfRangeException(nameof(modelType), "Неизвестный тип модели");

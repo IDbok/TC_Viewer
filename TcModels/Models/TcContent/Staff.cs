@@ -44,10 +44,10 @@ namespace TcModels.Models.TcContent
         
         public static List<string> GetPropertiesRequired { get; } = new List<string>
             {
-                { nameof(Name) },
-                { nameof(Type) },
-                { nameof(Functions) },
-                { nameof(Qualification)},
+                nameof(Name) ,
+                nameof(Type) ,
+                nameof(Functions) ,
+                nameof(Qualification),
             };
         
 
@@ -67,9 +67,6 @@ namespace TcModels.Models.TcContent
         public string Type { get; set; }
         public string Functions { get; set; }
         public string? CombineResponsibility { get; set; }
-
-        //public string? ElSaftyGroup { get; set; }
-        //public string? Grade { get; set; }
         public string Qualification { get; set; }
         public string? Comment { get; set; }
 

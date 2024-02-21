@@ -35,7 +35,6 @@
             lblProjectName = new Label();
             pnlControlBtns = new Panel();
             btnDeleteObj = new Button();
-            btnUpdateObj = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
@@ -103,7 +102,6 @@
             // pnlControlBtns
             // 
             pnlControlBtns.Controls.Add(btnDeleteObj);
-            pnlControlBtns.Controls.Add(btnUpdateObj);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
             pnlControlBtns.Location = new Point(410, 0);
@@ -123,19 +121,9 @@
             btnDeleteObj.UseVisualStyleBackColor = true;
             btnDeleteObj.Click += btnDeleteObj_Click;
             // 
-            // btnUpdateObj
-            // 
-            btnUpdateObj.Location = new Point(206, 15);
-            btnUpdateObj.Margin = new Padding(4);
-            btnUpdateObj.Name = "btnUpdateObj";
-            btnUpdateObj.Size = new Size(174, 55);
-            btnUpdateObj.TabIndex = 24;
-            btnUpdateObj.Text = "Редактировать";
-            btnUpdateObj.UseVisualStyleBackColor = true;
-            // 
             // btnAddNewObj
             // 
-            btnAddNewObj.Location = new Point(10, 15);
+            btnAddNewObj.Location = new Point(185, 15);
             btnAddNewObj.Margin = new Padding(4);
             btnAddNewObj.Name = "btnAddNewObj";
             btnAddNewObj.Size = new Size(174, 55);
@@ -181,7 +169,6 @@
         private Panel pnlControls;
         private Panel pnlControlBtns;
         private Button btnDeleteObj;
-        private Button btnUpdateObj;
         private Button btnAddNewObj;
         private Panel pnlFilters;
         private ComboBox cmbProjectName;
