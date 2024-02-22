@@ -3,10 +3,11 @@ using System.Reflection.Metadata;
 using System.Xml.Linq;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
+using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Staff : INameable, IDGViewable //1. Требования к составу бригады и квалификации
+    public class Staff : INameable, IDGViewable, IUpdatableEntity //1. Требования к составу бригады и квалификации
     {
         public static List<string> GetChangeablePropertiesNames { get; } = new List<string>
             {
@@ -69,6 +70,19 @@ namespace TcModels.Models.TcContent
         public string? CombineResponsibility { get; set; }
         public string Qualification { get; set; }
         public string? Comment { get; set; }
+
+        public void ApplyUpdates(IUpdatableEntity source)
+        {
+            if (source is Staff sourceCard)
+            {
+                Name = sourceCard.Name;
+                Type = sourceCard.Type;
+                Functions = sourceCard.Functions;
+                CombineResponsibility = sourceCard.CombineResponsibility;
+                Qualification = sourceCard.Qualification;
+                Comment = sourceCard.Comment;
+            }
+        }
 
         public string ToSring()
         {

@@ -21,6 +21,14 @@ namespace TC_WinForms.WinForms
         private List<Component_TC> deletedItems = new List<Component_TC>();
         private List<Component_TC> changedItems = new List<Component_TC>();
 
+        private bool isAddingForm = false;
+        private Button btnAddSelected;
+        private Button btnCancel;
+        public void SetAsAddingForm()
+        {
+            isAddingForm = true;
+        }
+
         public Win6_Component(int tcId)
         {
             InitializeComponent();

@@ -1,4 +1,5 @@
-﻿using TC_WinForms.DataProcessing;
+﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using TC_WinForms.DataProcessing;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 
@@ -121,12 +122,22 @@ namespace TC_WinForms.WinForms
 
         private async Task Save()
         {
-            // todo - save all changes in all forms
-            _forms.TryGetValue(WinNumber.TC, out var form);
-            if (form is ISaveEventForm saveEventForm)
+            // todo - save all changes in all forms 
+
+            
+            foreach (var frm in _forms)
             {
-               await saveEventForm.SaveChanges();
+                var form = frm.Value;
+                if (form is ISaveEventForm saveEventForm)
+                {
+                    await saveEventForm.SaveChanges();
+                }
             }
+            //_forms.TryGetValue(WinNumber.TC, out var form);
+            //if (form is ISaveEventForm saveEventForm)
+            //{
+            //    await saveEventForm.SaveChanges();
+            //}
             MessageBox.Show("Сохранено!");
         }
 

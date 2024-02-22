@@ -1,9 +1,10 @@
 ﻿using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
+using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Protection : IModelStructure, IClassifaerable, IDGViewable//4. Требования к средствам защиты
+    public class Protection : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity//4. Требования к средствам защиты
     {
 
         public static Dictionary<string, string> GetPropertiesNames()
@@ -63,5 +64,19 @@ namespace TcModels.Models.TcContent
         public string? Manufacturer { get; set; }
         public List<LinkEntety> Links { get; set; } = new();
         public string ClassifierCode { get; set; }
+        public void ApplyUpdates(IUpdatableEntity source)
+        {
+            if (source is Component sourceObject)
+            {
+                Name = sourceObject.Name;
+                Type = sourceObject.Type;
+                Unit = sourceObject.Unit;
+                Price = sourceObject.Price;
+                Description = sourceObject.Description;
+                Manufacturer = sourceObject.Manufacturer;
+                Links = sourceObject.Links;
+                ClassifierCode = sourceObject.ClassifierCode;
+            }
+        }
     }
 }

@@ -34,21 +34,38 @@ namespace TC_WinForms.DataProcessing.Utilities
             }
             return true;
         }
-        public static bool AddNewObject<T>(ref T obj) where T : IDisplayedEntity, new()
+        private static bool IsDefaultValue(object value)
         {
-            // if new card already exists and required fields are empty, do nothing
-            if (obj != null && !IsValidNewCard(obj))
+            if (value is string stringValue)
+            {
+                return string.IsNullOrEmpty(stringValue);
+            }
+            else
+            {
+                var type = value.GetType();
+                return value.Equals(Activator.CreateInstance(type));
+            }
+        }
+
+        public static void AddNewObjectToDGV<T>(
+            ref T newObject,
+            BindingList<T> bindingList,
+            List<T> newObjectsList,
+            DataGridView dgv) where T : class, IDisplayedEntity, new()
+        {
+            if (newObject != null && !IsValidNewCard(newObject))
             {
                 MessageBox.Show("Необходимо заполнить все обязательные поля для уже созданного объекта.");
-                return false;
+                return;
             }
-            var newDtc = new T();
-            obj = newDtc;
-            return true;
-            // todo - ? highlight new row and all its required fields
-            // todo - add check for all required fields (ex. Type can be only as "Ремонтная", "Монтажная", "ТТ")
 
+            newObject = new T(); 
+            newObjectsList.Add(newObject); 
+            bindingList.Insert(0, newObject); 
+            dgv.Refresh();
+            // TODO: - ? highlight new row and all its required fields
         }
+
         public static void DeleteSelectedObject<T>(
             DataGridView dgvMain,
             BindingList<T> bindingList,
@@ -82,24 +99,39 @@ namespace TC_WinForms.DataProcessing.Utilities
                 dgvMain.Refresh();
             }
         }
-        private static bool IsDefaultValue(object value)
-        {
-            if (value is string stringValue)
-            {
-                return string.IsNullOrEmpty(stringValue);
-            }
-            else
-            {
-                var type = value.GetType();
-                return value.Equals(Activator.CreateInstance(type));
-            }
-        }
+        
+
         public static void SetupDataGridView<T>(DataGridView dgv) where T : IDisplayedEntity, new()
         {
             var displayedobj = new T();
 
             WinProcessing.SetTableHeadersNames(displayedobj.GetPropertiesNames(), dgv);
             WinProcessing.SetTableColumnsOrder(displayedobj.GetPropertiesOrder(), dgv);
+        }
+        public static void ListChangedEventHandler<T>(ListChangedEventArgs e, BindingList<T> bindingList, List<T> newObjects, List<T> changedObjects, ref T newObject) where T : class, IDisplayedEntity, new()
+        {
+            if (e.ListChangedType == ListChangedType.ItemChanged)
+            {
+                if (newObject != null && e.NewIndex == 0) // if changed _newCard check if all required fields are filled
+                {
+                    if (!IsValidNewCard(newObject))
+                    {
+                        return;
+                    }
+                    newObject = null;
+                }
+
+                if (newObjects.Contains(bindingList[e.NewIndex])) // if changed new Objects don't add it to changed list
+                {
+                    return;
+                }
+
+                var changedItem = bindingList[e.NewIndex];
+                if (!changedObjects.Contains(changedItem))
+                {
+                    changedObjects.Add(changedItem);
+                }
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.Work;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -58,7 +59,7 @@ namespace TC_WinForms.DataProcessing
         }
         public async Task UpdateTcAsync(TechnologicalCard tc)
         {
-            await UpdateTcListAsync(new List<TechnologicalCard> { tc });
+            await UpdateObjectsListAsync(new List<TechnologicalCard> { tc });
         }
         public async Task UpdateTcListAsync(List<TechnologicalCard> updatedTcs)
         {
@@ -98,23 +99,43 @@ namespace TC_WinForms.DataProcessing
                 }
             }
         }
-        public async Task DeleteTcAsync(List<int> tcIds)
+        public async Task UpdateObjectsListAsync<T>(List<T> updatedTcs) where T : class, IUpdatableEntity
         {
             using (var db = new MyDbContext())
             {
-                var tcsToDelete = await db.TechnologicalCards
+                foreach (var updatedTc in updatedTcs)
+                {
+                    var existingTc = await db.TechnologicalCards
+                        .FirstOrDefaultAsync(t => t.Id == updatedTc.Id);
+
+                    if (existingTc != null)
+                    {
+                        existingTc.ApplyUpdates(updatedTc);
+                    }
+                }
+
+                if (db.ChangeTracker.HasChanges())
+                {
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+        public async Task DeleteTcAsync<T>(List<int> tcIds) where T : class, IIdentifiable
+        {
+            using (var db = new MyDbContext())
+            {
+                var tcsToDelete = await db.Set<T>()
                                           .Where(tc => tcIds.Contains(tc.Id))
                                           .ToListAsync();
 
                 if (tcsToDelete.Any())
                 {
-                    db.TechnologicalCards.RemoveRange(tcsToDelete);
+                    db.Set<T>().RemoveRange(tcsToDelete);
 
                     await db.SaveChangesAsync();
                 }
             }
         }
-
         public void UpdateCurrentTc(int id)
         {
             Program.currentTc = GetObject<TechnologicalCard>(id);

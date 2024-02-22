@@ -3,10 +3,11 @@ using System.Text.Json.Serialization;
 using System.Xml.Linq;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
+using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Component : IModelStructure, IClassifaerable, IDGViewable //2. Требования к материалам и комплектующим
+    public class Component : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity //2. Требования к материалам и комплектующим
     {
         static EModelType modelType = EModelType.Component;
         public static EModelType ModelType { get => modelType; }
@@ -67,6 +68,22 @@ namespace TcModels.Models.TcContent
         public List<LinkEntety> Links { get; set; } = new();
         public string Categoty { get; set; } = "StandComp";
         public string ClassifierCode { get; set; }
+
+        public void ApplyUpdates(IUpdatableEntity source)
+        {
+            if (source is Component sourceObject)
+            {
+                Name = sourceObject.Name;
+                Type = sourceObject.Type;
+                Unit = sourceObject.Unit;
+                Price = sourceObject.Price;
+                Description = sourceObject.Description;
+                Manufacturer = sourceObject.Manufacturer;
+                Links = sourceObject.Links;
+                Categoty = sourceObject.Categoty;
+                ClassifierCode = sourceObject.ClassifierCode;
+            }
+        }
 
         public override string ToString()
         {

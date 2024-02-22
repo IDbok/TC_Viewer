@@ -11,11 +11,11 @@ namespace TC_WinForms.WinForms
         private DbConnector dbCon = new DbConnector();
         private BindingList<DisplayedTechnologicalCard> _bindingList;
 
-        private List<DisplayedTechnologicalCard> _changedCards = new List<DisplayedTechnologicalCard>();
-        private List<DisplayedTechnologicalCard> _newCards = new List<DisplayedTechnologicalCard>();
-        private List<DisplayedTechnologicalCard> _deletedCards = new List<DisplayedTechnologicalCard>();
+        private List<DisplayedTechnologicalCard> _changedObjects = new List<DisplayedTechnologicalCard>();
+        private List<DisplayedTechnologicalCard> _newObjects = new List<DisplayedTechnologicalCard>();
+        private List<DisplayedTechnologicalCard> _deletedObjects = new List<DisplayedTechnologicalCard>();
 
-        private DisplayedTechnologicalCard _newCard;
+        private DisplayedTechnologicalCard _newObject;
 
         public Win7_1_TCs(int accessLevel)
         {
@@ -45,7 +45,11 @@ namespace TC_WinForms.WinForms
 
         private void btnCreateTC_Click(object sender, EventArgs e)
         {
-            AddNewTechnologicalCard();
+            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
+                _bindingList,
+                _newObjects,
+                dgvMain);
+            //AddNewTechnologicalCard();
         }
 
         private void btnUpdateTC_Click(object sender, EventArgs e)
@@ -65,19 +69,19 @@ namespace TC_WinForms.WinForms
             // stop editing cell
             dgvMain.EndEdit();
             // todo- check if in added tech card fulfilled all required fields
-            if (_changedCards.Count == 0 && _newCards.Count == 0 && _deletedCards.Count == 0)
+            if (_changedObjects.Count == 0 && _newObjects.Count == 0 && _deletedObjects.Count == 0)
             {
                 return;
             }
-            if (_newCards.Count > 0)
+            if (_newObjects.Count > 0)
             {
                 await SaveNewTechnologicalCards();
             }
-            if (_changedCards.Count > 0)
+            if (_changedObjects.Count > 0)
             {
                 await SaveChangedTechnologicalCards();
             }
-            if (_deletedCards.Count > 0)
+            if (_deletedObjects.Count > 0)
             {
                 await DeleteDeletedTechnologicalCards();
             }
@@ -87,26 +91,26 @@ namespace TC_WinForms.WinForms
         }
         private async Task SaveNewTechnologicalCards()
         {
-            var newTcs = _newCards.Select(dtc => CreateNewObject(dtc)).ToList();
+            var newTcs = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
             await dbCon.AddObjectAsync(newTcs);
             // set new ids to new cards matched them by Articles
-            foreach (var newCard in _newCards)
+            foreach (var newCard in _newObjects)
             {
                 var newId = newTcs.Where(s => s.Article == newCard.Article).FirstOrDefault().Id;
                 newCard.Id = newId;
             } 
 
             //MessageBox.Show("Новые карты сохранены.");
-            _newCards.Clear();
+            _newObjects.Clear();
         }
         private async Task SaveChangedTechnologicalCards()
         {
-            var changedTcs = _changedCards.Select(dtc => CreateNewObject(dtc)).ToList();
+            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-            await dbCon.UpdateTcListAsync(changedTcs);
+            await dbCon.UpdateObjectsListAsync(changedTcs);
             //MessageBox.Show("Изменения сохранены.");
-            _changedCards.Clear();
+            _changedObjects.Clear();
         }
 
         
@@ -134,34 +138,7 @@ namespace TC_WinForms.WinForms
 
             };
         }
-        private void AddNewTechnologicalCard()
-        {
-            if (DisplayedEntityHelper.AddNewObject(ref _newCard))
-            {
-                _newCards.Add(_newCard);
-                _bindingList.Insert(0, _newCard);
-                dgvMain.Refresh();
-            }
-            // if new card already exists and required fields are empty, do nothing
-            //if (_newCard != null && !DisplayedEntityHelper.IsValidNewCard(_newCard))
-            //{
-            //    MessageBox.Show("Необходимо заполнить все обязательные поля для новой карты.");
-            //    return;
-            //}
-            //var newDtc = new DisplayedTechnologicalCard
-            //{
-            //    Name = "Новое карта",
-
-            //};
-            //_newCard = newDtc;
-            //_newCards.Add(_newCard);
-
-            //_bindingList.Insert(0, _newCard);
-            //dgvMain.Refresh();
-            // todo - ? highlight new row and all its required fields
-            // todo - add check for all required fields (ex. Type can be only as "Ремонтная", "Монтажная", "ТТ")
-
-        }
+        
         private void UpdateSelected()
         {
             if (dgvMain.SelectedRows.Count == 1)
@@ -197,11 +174,11 @@ namespace TC_WinForms.WinForms
                     foreach (var dtc in selectedDTCs)
                     {
                         _bindingList.Remove(dtc);
-                        _deletedCards.Add(dtc);
+                        _deletedObjects.Add(dtc);
 
-                        if (_newCards.Contains(dtc)) // if new card was deleted, remove it from new cards list
+                        if (_newObjects.Contains(dtc)) // if new card was deleted, remove it from new cards list
                         {
-                            _newCards.Remove(dtc);
+                            _newObjects.Remove(dtc);
                         }
                     }
                 }
@@ -211,40 +188,17 @@ namespace TC_WinForms.WinForms
         }
         private async Task DeleteDeletedTechnologicalCards()
         {
-            var deletedTcIds = _deletedCards.Select(dtc => dtc.Id).ToList();
+            var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteTcAsync(deletedTcIds);
+            await dbCon.DeleteTcAsync<TechnologicalCard>(deletedTcIds);
             //MessageBox.Show("Карты удалены.");
-            _deletedCards.Clear();
+            _deletedObjects.Clear();
         }
         private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
         {
-            if (e.ListChangedType == ListChangedType.ItemChanged)
-            {
-                // todo - add check of unique article
-                
-                // if changed _newCard check if all required fields are filled
-                if (_newCard != null && e.NewIndex == 0)
-                {
-                    if (!DisplayedEntityHelper.IsValidNewCard(_newCard))
-                    {
-                        return;
-                    }
-                    _newCard = null;
-                }
-
-                if (_newCards.Contains(_bindingList[e.NewIndex])) // if changed _newCards don't add it to _changedCards
-                {
-                    return;
-                }
-                //todo - if required field was changed to empty, cancel action and throw message
-
-                var changedItem = _bindingList[e.NewIndex];
-                if (!_changedCards.Contains(changedItem))
-                {
-                    _changedCards.Add(changedItem);
-                }
-            }
+            // todo - add check of unique article
+            DisplayedEntityHelper.ListChangedEventHandler<DisplayedTechnologicalCard>
+                (e, _bindingList, _newObjects, _changedObjects, ref _newObject);
         }
         private void AddComboboxColumn() // must be added before datasourse to DGV
         {

@@ -1,9 +1,10 @@
 ﻿using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
+using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Machine : IModelStructure, IClassifaerable, IDGViewable  //3. Требования к механизмам
+    public class Machine : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity  //3. Требования к механизмам
     {
         static EModelType modelType = EModelType.Machine;
         public EModelType ModelType { get => modelType; }
@@ -62,5 +63,20 @@ namespace TcModels.Models.TcContent
         public string? Manufacturer { get; set; }
         public List<LinkEntety> Links { get; set; } = new();
         public string ClassifierCode { get; set; }
+
+        public void ApplyUpdates(IUpdatableEntity source)
+        {
+            if (source is Machine sourceObject)
+            {
+                Name = sourceObject.Name;
+                Type = sourceObject.Type;
+                Unit = sourceObject.Unit;
+                Price = sourceObject.Price;
+                Description = sourceObject.Description;
+                Manufacturer = sourceObject.Manufacturer;
+                Links = sourceObject.Links;
+                ClassifierCode = sourceObject.ClassifierCode;
+            }
+        }
     }
 }

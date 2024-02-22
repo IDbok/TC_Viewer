@@ -13,18 +13,11 @@ namespace TC_WinForms.WinForms
         private DbConnector dbCon = new DbConnector();
         private BindingList<DisplayedStaff> _bindingList;
 
-        private List<DisplayedStaff> _changedCards = new List<DisplayedStaff>();
-        private List<DisplayedStaff> _newCards = new List<DisplayedStaff>();
-        private List<DisplayedStaff> _deletedCards = new List<DisplayedStaff>();
+        private List<DisplayedStaff> _changedObjects = new List<DisplayedStaff>();
+        private List<DisplayedStaff> _newObjects = new List<DisplayedStaff>();
+        private List<DisplayedStaff> _deletedObjects = new List<DisplayedStaff>();
 
-        private DisplayedStaff _newCard;
-
-
-        private List<Staff> objList = new List<Staff>();
-        private List<int> changedItemId = new List<int>();
-        private List<int> deletedItemId = new List<int>();
-        private List<Staff> changedObjs = new List<Staff>();
-        private Staff newObj;
+        private DisplayedStaff _newObject;
 
         private bool isAddingForm = false;
         private Button btnAddSelected;
@@ -49,6 +42,8 @@ namespace TC_WinForms.WinForms
         {
             await LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedStaff>(dgvMain);
+
+            dgvMain.AllowUserToDeleteRows = false; // TODO: change it when add deleting by "del" Key press
 
             if (isAddingForm)
             {
@@ -79,113 +74,95 @@ namespace TC_WinForms.WinForms
             //action?.Invoke();
         }
 
-        private void Win7_3_Staff_FormClosing(object sender, FormClosingEventArgs e)
+        private async void Win7_3_Staff_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (newObj != null)
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
-                if (MessageBox.Show("Сохранить новую запись?", "Сохранение", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                e.Cancel = true;
+                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
+
+                if (result == DialogResult.Yes)
                 {
-                    MessageBox.Show("Сохраняю всё чт нужно в Staff ", "Сохранение");
-                    //dbCon.AddObject(newObj);
+                    await SaveChanges();
                 }
+                e.Cancel = false;
+                Close();
             }
         }
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            AddNewObject();
+            //AddNewObject();
+            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
+                _bindingList,
+                _newObjects,
+                dgvMain);
         }
         private void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            DeletSelected();
+            //DeletSelected();
+            DisplayedEntityHelper.DeleteSelectedObject(dgvMain, _bindingList, _newObjects, _deletedObjects);
         }
-        private void AddNewObject()
-        {
-
-            if(DisplayedEntityHelper.AddNewObject(ref _newCard))
-            {
-                _newCards.Add(_newCard);
-                _bindingList.Insert(0, _newCard);
-                dgvMain.Refresh();
-            }
-            
-        }
-        private void DeletSelected()
-        {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain, _bindingList, _newCards, _deletedCards);
-            //if (dgvMain.SelectedRows.Count > 0)
-            //{
-            //    string message = "Вы действительно хотите удалить выбранные объекты?\n";
-            //    DialogResult result = MessageBox.Show(message, "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            //    if (result == DialogResult.Yes)
-            //    {
-            //        var selectedDTCs = dgvMain.SelectedRows.Cast<DataGridViewRow>()
-            //        .Select(row => row.DataBoundItem as DisplayedStaff)
-            //        .Where(dtc => dtc != null)
-            //        .ToList();
-
-            //        foreach (var dtc in selectedDTCs)
-            //        {
-            //            _bindingList.Remove(dtc);
-            //            _deletedCards.Add(dtc);
-
-            //            if (_newCards.Contains(dtc)) // if new card was deleted, remove it from new cards list
-            //            {
-            //                _newCards.Remove(dtc);
-            //            }
-            //        }
-            //    }
-
-            //    dgvMain.Refresh();
-            //}
-        }
+        
         public async Task SaveChanges()
         {
-            // todo- check if in added tech card fulfilled all required fields
-            if (_changedCards.Count == 0 && _newCards.Count == 0 && _deletedCards.Count == 0)
+            // todo - check if in added tech card fulfilled all required fields
+            if (_changedObjects.Count == 0 && _newObjects.Count == 0 && _deletedObjects.Count == 0)
             {
                 return;
             }
-            if (_newCards.Count > 0)
+            if (_newObjects.Count > 0)
             {
-                await SaveNewTechnologicalCards();
+                await SaveNewObjects();
             }
-            if (_changedCards.Count > 0)
+            if (_changedObjects.Count > 0)
             {
-                await SaveChangedTechnologicalCards();
+                await SaveChangedObjects();
             }
-            if (_deletedCards.Count > 0)
+            if (_deletedObjects.Count > 0)
             {
-                await DeleteDeletedTechnologicalCards();
+                await DeleteDeletedObjects();
             }
             // todo - change id in all new cards 
+            dgvMain.Refresh();
         }
-        private async Task SaveNewTechnologicalCards()
+        private async Task SaveNewObjects()
         {
-            var newTcs = _newCards.Select(dtc => CreateNewObject(dtc)).ToList();
+            var newTcs = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
             await dbCon.AddObjectAsync(newTcs);
 
-            MessageBox.Show("Новые карты сохранены.");
-            _newCards.Clear();
+            // set new ids to new objects matched them by all params
+            foreach (var newCard in _newObjects)
+            {
+                var newId = newTcs.Where(s => s.Name == newCard.Name 
+                && s.Type == newCard.Type 
+                && s.Functions == newCard.Functions
+                && s.Qualification == newCard.Qualification
+                && s.CombineResponsibility == newCard.CombineResponsibility
+                && s.Comment == newCard.Comment
+                ).FirstOrDefault().Id;
+                newCard.Id = newId;
+            }
+            
+
+            _newObjects.Clear();
         }
-        private async Task SaveChangedTechnologicalCards()
+        private async Task SaveChangedObjects()
         {
-            var changedTcs = _changedCards.Select(dtc => CreateNewObject(dtc)).ToList();
+            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-            //await dbCon.UpdateTcListAsync(changedTcs);
-            MessageBox.Show("Изменения сохранены.");
-            _changedCards.Clear();
+            await dbCon.UpdateObjectsListAsync(changedTcs);
+            
+            _changedObjects.Clear();
         }
 
-        private async Task DeleteDeletedTechnologicalCards()
+        private async Task DeleteDeletedObjects()
         {
-            var deletedTcIds = _deletedCards.Select(dtc => dtc.Id).ToList();
+            var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteTcAsync(deletedTcIds);
-            MessageBox.Show("Карты удалены.");
-            _deletedCards.Clear();
+            await dbCon.DeleteTcAsync<Staff>(deletedTcIds);
+            _deletedObjects.Clear();
         }
         private Staff CreateNewObject(DisplayedStaff dtc)
         {
@@ -253,28 +230,8 @@ namespace TC_WinForms.WinForms
 
         private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
         {
-            if (e.ListChangedType == ListChangedType.ItemChanged)
-            {
-                if (_newCard != null && e.NewIndex == 0) // if changed _newCard check if all required fields are filled
-                {
-                    if (!DisplayedEntityHelper.IsValidNewCard(_newCard))
-                    {
-                        return;
-                    }
-                    _newCard = null;
-                }
-
-                if (_newCards.Contains(_bindingList[e.NewIndex])) // if changed new Objects don't add it to changed list
-                {
-                    return;
-                }
-
-                var changedItem = _bindingList[e.NewIndex];
-                if (!_changedCards.Contains(changedItem))
-                {
-                    _changedCards.Add(changedItem);
-                }
-            }
+            DisplayedEntityHelper.ListChangedEventHandler<DisplayedStaff>
+                (e, _bindingList, _newObjects, _changedObjects, ref _newObject);
         }
 
 
