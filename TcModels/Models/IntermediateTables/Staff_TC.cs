@@ -54,7 +54,7 @@ namespace TcModels.Models.IntermediateTables
 
         public override string ToString()
         {
-            return $"{Order}.{Child.Name} (id: {ChildId}) {Symbol}";
+            return $"{Order}.{Child?.Name} (id: {ChildId}) {Symbol}";
         }
     }
 }

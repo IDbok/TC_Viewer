@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Work
 {
@@ -17,5 +18,22 @@ namespace TC_WinForms.WinForms.Work
         public string TechTransition { get; set; }
 
         public string TechTransitionValue { get; set; }
+
+
+        public string Protections { get; set; }
+
+        public bool ItsTool = false;
+
+        public bool ItsComponent = false;
+
+
+        public string Etap = "";
+        public string Posled = "";
+
+        public string TimeEtap = "";
+
+        public bool Work = false;
+        public ExecutionWork techWork;
+
     }
 }

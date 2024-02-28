@@ -13,9 +13,9 @@ namespace TcModels.Models.TcContent
         public int Id { get; set; }
         public TechOperation techOperation { get; set; }
 
-        public  List<ToolWork> ToolWorks { get; set; } 
+        public  List<ToolWork> ToolWorks { get; set; } =new List<ToolWork>();
 
-        public List<ComponentWork> ComponentWorks { get; set; }
+        public List<ComponentWork> ComponentWorks { get; set; } = new List<ComponentWork>();
 
         public ICollection<ExecutionWork> executionWorks { get; set; } = new List<ExecutionWork>();
 
@@ -24,9 +24,10 @@ namespace TcModels.Models.TcContent
 
        [NotMapped] public bool Delete { get; set; } = false;
        [NotMapped] public bool NewItem { get; set; } = false;
+        
+       public int Order { get; set; }
 
-
-       public override string ToString()
+        public override string ToString()
        {
            return techOperation.Name;
        }

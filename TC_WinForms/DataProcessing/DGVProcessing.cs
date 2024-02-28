@@ -479,7 +479,15 @@ namespace TC_WinForms.DataProcessing
         public static void ReorderRows(DataGridViewRow row, int newOrder, DataGridView dgv)
         {
             // to row in dgvMain set new order and change row index
-            row.Cells["Order"].Value = newOrder;
+            try
+            {
+                row.Cells["Order"].Value = newOrder;
+            }
+            catch (Exception e)
+            {
+                row.Cells["Order1"].Value = newOrder;
+            }
+            
             dgv.Rows.Remove(row);
             if (newOrder > dgv.Rows.Count)
                 dgv.Rows.Insert(dgv.Rows.Count, row);
@@ -500,7 +508,14 @@ namespace TC_WinForms.DataProcessing
         {
             for (int i = 0; i < dgv.Rows.Count; i++)
             {
-                dgv.Rows[i].Cells["Order"].Value = i + 1;
+                try
+                {
+                    dgv.Rows[i].Cells["Order"].Value = i + 1;
+                }
+                catch (Exception e)
+                {
+                    dgv.Rows[i].Cells["Order1"].Value = i + 1;
+                }
             }
         }
         public static void SelectRows(List<DataGridViewRow> rowsToSelect, DataGridView dgv)

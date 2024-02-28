@@ -4,6 +4,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TC_WinForms.WinForms.Work;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -16,6 +17,10 @@ namespace TC_WinForms.DataProcessing
         private bool dragging;
 
         private DataGridView dgv;
+
+
+        public object EventsObj;
+        public int Table = 0;
 
         public void AddGragDropEvents(DataGridView dgv)
         {
@@ -49,12 +54,11 @@ namespace TC_WinForms.DataProcessing
             {
                 draggingRow = dataGridView.Rows[rowIndexFromMouseDown];
                 columnIndexFromMouseDown = dataGridView.HitTest(e.X, e.Y).ColumnIndex;
+
             }
-            else
-            {
-                draggingRow = null;
-            }
+
         }
+
         private void DataGridView_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left && draggingRow != null)
@@ -93,6 +97,21 @@ namespace TC_WinForms.DataProcessing
             DGVProcessing.ReorderRows(draggingRow, rowIndexTo+1, dataGridView);
 
             dragging = false;
+
+
+            if (EventsObj != null)
+            {
+                if (EventsObj is AddEditTechOperationForm)
+                {
+                    ((AddEditTechOperationForm)EventsObj).UpdateTable(Table);
+
+                }
+                else
+                {
+                    draggingRow = null;
+                }
+
+            }
         }
         
         private void DataGridView_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
