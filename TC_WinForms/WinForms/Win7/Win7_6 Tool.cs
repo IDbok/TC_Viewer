@@ -117,7 +117,7 @@ namespace TC_WinForms.WinForms
         }
         private async Task SaveNewObjects()
         {
-            var newObjects = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+            var newObjects = _newObjects.Select(dObj => CreateNewObject(dObj)).ToList();
 
             await dbCon.AddObjectAsync(newObjects);
 
@@ -154,7 +154,7 @@ namespace TC_WinForms.WinForms
         {
             var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteTcAsync<Tool>(deletedTcIds);
+            await dbCon.DeleteObjectAsync<Tool>(deletedTcIds);
             _deletedObjects.Clear();
         }
         private Tool CreateNewObject(DisplayedTool dObj)

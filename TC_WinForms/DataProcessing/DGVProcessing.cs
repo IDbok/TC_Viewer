@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
+using static TC_WinForms.WinForms.Win6_Staff;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -460,6 +461,11 @@ namespace TC_WinForms.DataProcessing
             dgv.ClearSelection();
             row.Selected = true;
 
+        }
+        public static void ReorderRows(List<DisplayedStaff_TC> displayedEntity)
+        {
+            // to row in dgvMain set new order and change row index
+            displayedEntity=displayedEntity.OrderBy(x => x.Order).ToList();
         }
         /// <summary>
         /// Set value to Order column in dgvMain as row index + 1

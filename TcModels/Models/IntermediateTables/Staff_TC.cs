@@ -2,10 +2,11 @@
 using System.Xml.Linq;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.IntermediateTables
 {
-    public class Staff_TC : IIntermediateTable<TechnologicalCard,Staff>, IDGViewable
+    public class Staff_TC : IIntermediateTable<TechnologicalCard,Staff>, IDGViewable, IUpdatableEntity
     {
         public static List<string> GetChangeablePropertiesNames { get; } = new List<string>
         {
@@ -51,7 +52,14 @@ namespace TcModels.Models.IntermediateTables
         public string Symbol { get; set; }
 
         public List<ExecutionWork> ExecutionWorks { get; set; }
-
+        public void ApplyUpdates(IUpdatableEntity source)
+        {
+            if (source is Staff_TC sourceCard)
+            {
+                Symbol = sourceCard.Symbol;
+                Order = sourceCard.Order;
+            }
+        }
         public override string ToString()
         {
             return $"{Order}.{Child.Name} (id: {ChildId}) {Symbol}";

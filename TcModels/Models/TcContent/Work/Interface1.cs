@@ -7,7 +7,7 @@ using TcModels.Models.Interfaces;
 
 namespace TcModels.Models.TcContent.Work
 {
-    public interface IUpdatableEntity : IIdentifiable
+    public interface IUpdatableEntity
     {
         void ApplyUpdates(IUpdatableEntity source);
     }

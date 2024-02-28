@@ -152,7 +152,7 @@ namespace TC_WinForms.WinForms
         {
             var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteTcAsync<Protection>(deletedTcIds);
+            await dbCon.DeleteObjectAsync<Protection>(deletedTcIds);
             _deletedObjects.Clear();
         }
         private Protection CreateNewObject(DisplayedProtection dObj)

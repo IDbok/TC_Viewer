@@ -190,7 +190,7 @@ namespace TC_WinForms.WinForms
         {
             var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteTcAsync<TechnologicalCard>(deletedTcIds);
+            await dbCon.DeleteObjectAsync<TechnologicalCard>(deletedTcIds);
             //MessageBox.Show("Карты удалены.");
             _deletedObjects.Clear();
         }

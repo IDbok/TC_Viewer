@@ -17,20 +17,20 @@ namespace TC_WinForms.DataProcessing
 
         private DataGridView dgv;
 
-        public void AddGragDropEvents(DataGridView dgv)
+        public void AddGragDropEvents(DataGridView dgv) // todo - Turn in on
         {
-            // Включаем поддержку перетаскивания строк
-            dgv.AllowDrop = true;
-            dgv.AllowUserToOrderColumns = true;
+            //// Включаем поддержку перетаскивания строк
+            //dgv.AllowDrop = true;
+            //dgv.AllowUserToOrderColumns = true;
 
-            // Обработчики событий для поддержки перетаскивания
-            dgv.MouseDown += DataGridView_MouseDown;
-            dgv.MouseMove += DataGridView_MouseMove;
-            dgv.DragOver += DataGridView_DragOver;
-            dgv.DragDrop += DataGridView_DragDrop;
+            //// Обработчики событий для поддержки перетаскивания
+            //dgv.MouseDown += DataGridView_MouseDown;
+            //dgv.MouseMove += DataGridView_MouseMove;
+            //dgv.DragOver += DataGridView_DragOver;
+            //dgv.DragDrop += DataGridView_DragDrop;
 
-            // Событие для отрисовки индекса строки
-            //dgv.RowPostPaint += DataGridView_RowPostPaint;
+            //// Событие для отрисовки индекса строки
+            ////dgv.RowPostPaint += DataGridView_RowPostPaint;
         }
 
         public void SetRowsUpAndDownEvents(Button btnMoveUp, Button btnMoveDown, DataGridView dgv) 
@@ -55,7 +55,7 @@ namespace TC_WinForms.DataProcessing
                 draggingRow = null;
             }
         }
-        private void DataGridView_MouseMove(object sender, MouseEventArgs e)
+        private void DataGridView_MouseMove(object sender, MouseEventArgs e) 
         {
             if (e.Button == MouseButtons.Left && draggingRow != null)
             {

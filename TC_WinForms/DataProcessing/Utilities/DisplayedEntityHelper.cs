@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.DirectoryServices.ActiveDirectory;
 using TcModels.Models.Interfaces;
+using TcModels.Models.IntermediateTables;
+using static TC_WinForms.WinForms.Win6_Staff;
 
 namespace TC_WinForms.DataProcessing.Utilities
 {
@@ -62,6 +64,7 @@ namespace TC_WinForms.DataProcessing.Utilities
             newObject = new T(); 
             newObjectsList.Add(newObject); 
             bindingList.Insert(0, newObject); 
+           
             dgv.Refresh();
             // TODO: - ? highlight new row and all its required fields
         }
@@ -127,6 +130,43 @@ namespace TC_WinForms.DataProcessing.Utilities
                 }
 
                 var changedItem = bindingList[e.NewIndex];
+                if (!changedObjects.Contains(changedItem))
+                {
+                    changedObjects.Add(changedItem);
+                }
+            }
+        }
+        public static void ListChangedEventHandlerIntermediate(ListChangedEventArgs e, BindingList<DisplayedStaff_TC> bindingList, 
+            List<DisplayedStaff_TC> newObjects, List<DisplayedStaff_TC> changedObjects, List<DisplayedStaff_TC> deletedObjects) 
+        {
+            if (e.ListChangedType == ListChangedType.ItemChanged)
+            {
+                if (newObjects.Contains(bindingList[e.NewIndex])) // if changed new Objects don't add it to changed list
+                {
+                    return;
+                }
+
+                var changedItem = bindingList[e.NewIndex];
+                // check if changed Symbol property adn get old value
+
+                if (e.PropertyDescriptor != null && e.PropertyDescriptor.Name == nameof(Staff_TC.Symbol))
+                {
+                    var oldValue = changedItem.GetOldValue(nameof(DisplayedStaff_TC.Symbol));
+                    if (oldValue != null)
+                    {
+                        var deletedItem = new DisplayedStaff_TC
+                        {
+                            ChildId = changedItem.ChildId,
+                            ParentId = changedItem.ParentId,
+                            Symbol = oldValue.ToString(),
+                        };
+
+                        deletedObjects.Add(deletedItem);
+                        newObjects.Add(changedItem);
+                    }
+                    return;
+                }
+
                 if (!changedObjects.Contains(changedItem))
                 {
                     changedObjects.Add(changedItem);

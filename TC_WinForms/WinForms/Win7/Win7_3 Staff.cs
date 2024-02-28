@@ -22,6 +22,7 @@ namespace TC_WinForms.WinForms
         private bool isAddingForm = false;
         private Button btnAddSelected;
         private Button btnCancel;
+        private Form _openedForm;
         public void SetAsAddingForm()
         {
             isAddingForm = true;
@@ -33,8 +34,9 @@ namespace TC_WinForms.WinForms
             AccessInitialization(accessLevel);
         }
 
-        public Win7_3_Staff() // this constructor is for adding form in TC editer
+        public Win7_3_Staff(Form openedForm) // this constructor is for adding form in TC editer
         {
+            _openedForm= openedForm;
             InitializeComponent();
         }
 
@@ -144,8 +146,6 @@ namespace TC_WinForms.WinForms
                 ).FirstOrDefault().Id;
                 newCard.Id = newId;
             }
-            
-
             _newObjects.Clear();
         }
         private async Task SaveChangedObjects()
@@ -161,7 +161,7 @@ namespace TC_WinForms.WinForms
         {
             var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteTcAsync<Staff>(deletedTcIds);
+            await dbCon.DeleteObjectAsync<Staff>(deletedTcIds);
             _deletedObjects.Clear();
         }
         private Staff CreateNewObject(DisplayedStaff dtc)
@@ -210,19 +210,23 @@ namespace TC_WinForms.WinForms
                 return;
             }
             // get selected objects
-            var selectedObjs = selectedRows.Select(r => r.DataBoundItem as Staff).ToList();
+            var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedStaff).ToList();
+            var newItems = new List<Staff>();
+            foreach ( var obj in selectedObjs)
+            {
+                newItems.Add(CreateNewObject(obj));
+            }
             // find opened form
-            var tcEditor = Application.OpenForms.OfType<Win6_Staff>().FirstOrDefault();
+            if (_openedForm is Win6_Staff tcEditor)
+            {
+                tcEditor.AddNewObjects(newItems);
+            }
 
-            tcEditor.AddNewObjects(selectedObjs);
-
-            // close form
-            this.Close();
+            Close();
         }
         void BtnCancel_Click(object sender, EventArgs e)
         {
-            // close form
-            this.Close();
+            Close();
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -159,7 +159,7 @@ namespace TC_WinForms.WinForms
         {
             var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteTcAsync<Component>(deletedTcIds);
+            await dbCon.DeleteObjectAsync<Component>(deletedTcIds);
             _deletedObjects.Clear();
         }
         private Component CreateNewObject(DisplayedComponent dObj)
