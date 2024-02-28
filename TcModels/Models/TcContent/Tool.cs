@@ -1,9 +1,10 @@
 ﻿using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
+using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Tool : IModelStructure, IClassifaerable, IDGViewable //5. Требования к инструментам и приспособлениям
+    public class Tool : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity //5. Требования к инструментам и приспособлениям
     {
         static private EModelType modelType = EModelType.Tool;
         public EModelType ModelType { get { return modelType; } }
@@ -68,5 +69,20 @@ namespace TcModels.Models.TcContent
         public List<LinkEntety> Links { get; set; } = new ();
         public string Categoty { get; set; } = "Tool";
         public string ClassifierCode { get; set; }
+        public void ApplyUpdates(IUpdatableEntity source)
+        {
+            if (source is Tool sourceObject)
+            {
+                Name = sourceObject.Name;
+                Type = sourceObject.Type;
+                Unit = sourceObject.Unit;
+                Price = sourceObject.Price;
+                Description = sourceObject.Description;
+                Manufacturer = sourceObject.Manufacturer;
+                Links = sourceObject.Links;
+                Categoty = sourceObject.Categoty;
+                ClassifierCode = sourceObject.ClassifierCode;
+            }
+        }
     }
 }

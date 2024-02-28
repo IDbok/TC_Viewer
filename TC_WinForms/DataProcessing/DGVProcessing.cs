@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
+using static TC_WinForms.WinForms.Win6_Staff;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -368,39 +369,18 @@ namespace TC_WinForms.DataProcessing
                 dgv.Rows.Remove(row);
             }
         }
-
-        public static bool CheckUniqueCombination(DataGridView dgv, string colName, string colName2)
+        public static bool CheckIfValueIsUnique(DataGridView dgv, string colName, DataGridViewRow row)
         {
-            var list = new List<string>();
-            foreach (DataGridViewRow row in dgv.Rows)
+            foreach (DataGridViewRow r in dgv.Rows)
             {
-                if (list.Contains(row.Cells[colName].Value.ToString() + row.Cells[colName2].Value.ToString()))
+                if (r.Index != row.Index)
                 {
-                    return true;
-                }
-                else
-                {
-                    list.Add(row.Cells[colName].Value.ToString() + row.Cells[colName2].Value.ToString());
+                    if (r.Cells[colName].Value.ToString() == row.Cells[colName].Value.ToString())
+                    {
+                        return false;
+                    }
                 }
             }
-
-            return false;
-        }
-        public static bool CheckUniqueCombination(DataGridView dgv, string colName)
-        {
-            var list = new List<string>();
-            foreach (DataGridViewRow row in dgv.Rows)
-            {
-                if (list.Contains(row.Cells[colName].Value.ToString()))
-                {
-                    return false;
-                }
-                else
-                {
-                    list.Add(row.Cells[colName].Value.ToString());
-                }
-            }
-
             return true;
         }
         public static bool CheckUniqueColumnsValues(DataGridView dgv, List<string> colNames)
@@ -416,16 +396,6 @@ namespace TC_WinForms.DataProcessing
                 }
                 list.Add(rowValue);
                 rowValue = null;
-            }
-
-            return CheckUniqueValues(list);
-        }
-        public static bool CheckUniqueCombination_2(DataGridView dgv, string colName)
-        {
-            var list = new List<string>();
-            foreach (DataGridViewRow row in dgv.Rows)
-            {
-                list.Add(row.Cells[colName].Value.ToString());
             }
 
             return CheckUniqueValues(list);
@@ -499,6 +469,11 @@ namespace TC_WinForms.DataProcessing
             dgv.ClearSelection();
             row.Selected = true;
 
+        }
+        public static void ReorderRows(List<DisplayedStaff_TC> displayedEntity)
+        {
+            // to row in dgvMain set new order and change row index
+            displayedEntity=displayedEntity.OrderBy(x => x.Order).ToList();
         }
         /// <summary>
         /// Set value to Order column in dgvMain as row index + 1

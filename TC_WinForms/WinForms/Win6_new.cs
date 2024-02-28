@@ -1,37 +1,23 @@
-﻿using Microsoft.VisualBasic.Devices;
-using OfficeOpenXml.Style;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using TC_WinForms.DataProcessing;
+﻿using TC_WinForms.DataProcessing;
 using TC_WinForms.WinForms.Work;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
-using TcModels.Models.IntermediateTables;
-using TcModels.Models.TcContent;
-using static System.ComponentModel.Design.ObjectSelectorEditor;
 
 namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form
     {
-        Win6_Staff win6_Staff;
-        Win6_Component win6_Component;
-        Win6_Machine win6_Machine;
-        Win6_Protection win6_Protection;
-        Win6_Tool win6_Tool;
-        //Win6_WorkStep win6_WorkStep;
+        private Dictionary<EModelType, Form> _formsCache = new Dictionary<EModelType, Form>();
+        private EModelType? _activeModelType = null;
+        private Form _activeForm = null;
 
         TechOperationForm techOperationForm;
 
         EModelType? activeModelType = null;
+        private TechnologicalCard _tc;
+        private int _tcId;
+        private DbConnector db = new DbConnector();
 
-        Form activeForm = null;
-
-        TechnologicalCard _tc;
-        int _tcId;
-
-        DbConnector db = new DbConnector();
 
         public Win6_new(int tcId)
         {
@@ -39,33 +25,21 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
 
             // download TC from db
-            var TC = db.GetObject<TechnologicalCard>(tcId);// Task.Run(()=>db.GetObject<TechnologicalCard>(tcId));
+            _tc = db.GetObject<TechnologicalCard>(tcId);// Task.Run(()=>db.GetObject<TechnologicalCard>(tcId));
 
-            btnShowStaffs_Click(null, null);
-            _tc = TC; //TC.Result; // todo - ??? why it is working longer with Task.Run ???
+            
+
+            this.KeyDown += ControlSaveEvent;
         }
 
-        private void LoadFormInPanel(Form form)
+        private void Win6_new_Load(object sender, EventArgs e)
         {
-            // hide all forms in panel
-            foreach (Form frm in pnlDataViewer.Controls)
-            {
-                frm.Hide();
-            }
-
-            form.TopLevel = false;
-            form.FormBorderStyle = FormBorderStyle.None;
-            form.Dock = DockStyle.Fill;
-
-            this.pnlDataViewer.Controls.Add(form);
-            form.Show();
+            this.Text = $"{_tc.Name} ({_tc.Article})";
+            ShowForm(EModelType.Staff); 
         }
         private void btnBack_Click(object sender, EventArgs e)
         {
             WinProcessing.BackFormBtn(this);
-        }
-        private void btnSaveChanges_Click(object sender, EventArgs e)
-        {
         }
 
         private void Win6_new_FormClosing(object sender, FormClosingEventArgs e)
@@ -83,77 +57,85 @@ namespace TC_WinForms.WinForms
         {
 
         }
-        /// <summary>
-        /// Add new rows to Table typeof DataGridView from obj
-        /// </summary>
-        /// <typeparam name="T">It is intermediate table type</typeparam>
-        /// <typeparam name="C">It is Child model that is implemented in intermediate table</typeparam>
-        /// <param name="obj"></param>
-        /// <param name="DGV"></param>
+        private void ShowForm(EModelType modelType)
+        {
+            if (_activeModelType == modelType) return;
 
+            if (!_formsCache.TryGetValue(modelType, out var form))
+            {
+                form = CreateForm(modelType);
+                _formsCache[modelType] = form;
+            }
+
+            SwitchActiveForm(form);
+            _activeModelType = modelType;
+        }
+
+        private Form CreateForm(EModelType modelType)
+        {
+            switch (modelType)
+            {
+                case EModelType.Staff:
+                    return new Win6_Staff(_tcId);
+                case EModelType.Component:
+                    return new Win6_Component(_tcId);
+                case EModelType.Machine:
+                    return new Win6_Machine(_tcId);
+                case EModelType.Protection:
+                    return new Win6_Protection(_tcId);
+                case EModelType.Tool:
+                    return new Win6_Tool(_tcId);
+                case EModelType.WorkStep:
+                    return new TechOperationForm(_tcId);
+                // Добавьте кейсы для других типов
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(modelType), "Неизвестный тип модели");
+            }
+        }
+        private void SwitchActiveForm(Form form) // todo - move to WinProcessing and add to win7
+        {
+            pnlDataViewer.Controls.Clear();
+            form.TopLevel = false;
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.Dock = DockStyle.Fill;
+            pnlDataViewer.Controls.Add(form);
+            form.Show();
+            _activeForm = form;
+        }
 
         private void btnShowStaffs_Click(object sender, EventArgs e)
         {
-            if(activeForm is Win6_Staff) return;
-            if(win6_Staff == null)
-                win6_Staff = new Win6_Staff(_tcId);
-            activeForm = win6_Staff;
-            LoadFormInPanel(activeForm); //new Win6_Staff_3(_tcId)); //LoadFormInPanel(new Win6_Staff_2(_tcId)); //
-            if (sender is Button)
-                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
+            ShowForm(EModelType.Staff);
         }
 
         private void btnShowComponents_Click(object sender, EventArgs e)
         {
-            if (activeForm is Win6_Component) return;
-            if (win6_Component == null)
-                win6_Component = new Win6_Component(_tcId);
-            activeForm = win6_Component;
-            LoadFormInPanel(activeForm);
-            if (sender is Button)
-                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
+            ShowForm(EModelType.Component); 
         }
 
         private void btnShowMachines_Click(object sender, EventArgs e)
         {
-            if (activeForm is Win6_Machine) return;
-            if (win6_Machine == null)
-                win6_Machine = new Win6_Machine(_tcId);
-            activeForm = win6_Machine;
-            LoadFormInPanel(activeForm);
-            if (sender is Button)
-                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
+            ShowForm(EModelType.Machine); 
         }
 
         private void btnShowProtections_Click(object sender, EventArgs e)
         {
-            if (activeForm is Win6_Protection) return;
-            if (win6_Protection == null)
-                win6_Protection = new Win6_Protection(_tcId);
-            activeForm = win6_Protection;
-            LoadFormInPanel(activeForm);
-            if (sender is Button)
-                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
+            ShowForm(EModelType.Protection); 
         }
 
         private void btnShowTools_Click(object sender, EventArgs e)
         {
-            if (activeForm is Win6_Tool) return;
-            if (win6_Tool == null)
-                win6_Tool = new Win6_Tool(_tcId);
-            activeForm = win6_Tool;
-            LoadFormInPanel(activeForm);
-            if (sender is Button)
-                WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
+            ShowForm(EModelType.Tool); 
         }
 
         private void btnShowWorkSteps_Click(object sender, EventArgs e)
         {
-            if (activeForm is TechOperationForm) return;
-            if (techOperationForm == null)
-                techOperationForm = new TechOperationForm(_tcId);
-            activeForm = techOperationForm;
-            LoadFormInPanel(activeForm);
+            ShowForm(EModelType.WorkStep);
+            //if (_activeForm is TechOperationForm) return;
+            //if (techOperationForm == null)
+            //    techOperationForm = new TechOperationForm(_tcId);
+            //_activeForm = techOperationForm;
+            //LoadFormInPanel(_activeForm);
 
 
             //if (activeModelType == EModelType.WorkStep) return;
@@ -165,65 +147,35 @@ namespace TC_WinForms.WinForms
         } // todo - make it work
 
 
-        private void SaveDataFromDGV(EModelType? ModelType) // todo - ??? mb better catch changes and save them in Program.CurrentTc
-        {
-
-
-        }
-
-
-        private void DGVStructure(Dictionary<string, string> columnNames)
-        {
-
-        }
-        /// <summary>
-        /// Add new columns to dgvTcObjects and set activeModelType
-        /// </summary>
-        /// <param name="modelType"> Enum that represents models of TC tables structure (Staff, Tool, etc)</param>
-        private void DGVNewStructure(EModelType modelType)
-        {
-
-        }
-
-        private void dgvTcObjects_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-        {
-
-        }
-
-        private void dgvTcObjects_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
-        {
-            // get indexes of removed rows
-
-            // !!! rows are removing one by one !!!
-
-
-            //int index = e.RowIndex - 1;
-
-            //int id = (int)dgvTcObjects.Rows[index].Cells["Id"].Value;
-            //int order = (int)dgvTcObjects.Rows[index].Cells["Num"].Value;
-
-            //MessageBox.Show($"RowRemoved: {string.Join(", ", index)}");
-        }
-
-        private void Win6_new_Load(object sender, EventArgs e)
-        {
-            // change form title
-            this.Text = $"{_tc.Name} ({_tc.Article})";
-        }
-
         private void toolStripButton4_Click(object sender, EventArgs e)
         {
-            // activate save button from all inner forms
-            // get all inner forms
-            foreach (Form frm in pnlDataViewer.Controls)
+            SaveAllChanges();
+        }
+        private void SaveAllChanges()
+        {
+            foreach (var form in _formsCache.Values)
             {
                 // is form is ISaveEventForm
-                if (frm is ISaveEventForm)
+                if (form is ISaveEventForm saveForm)
                 {
-                    // call save method
-                    (frm as ISaveEventForm).SaveChanges();
+                    saveForm.SaveChanges();
                 }
             }
+        }
+        private void ControlSaveEvent(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.S)
+            {
+                SaveAllChanges();
+            }
+        }
+        enum WinNumber
+        {
+            Staff = 1,
+            Component = 2,
+            Machine = 3,
+            Protection = 4,
+            Tool = 5
         }
     }
 

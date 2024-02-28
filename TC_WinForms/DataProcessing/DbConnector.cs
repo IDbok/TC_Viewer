@@ -5,11 +5,171 @@ using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.Work;
 
 namespace TC_WinForms.DataProcessing
 {
     public class DbConnector
     {
+        public async Task AddTcAsync(TechnologicalCard tc)
+        {
+            await AddTcAsync(new List<TechnologicalCard> { tc });
+        }
+        public async Task AddTcAsync(List<TechnologicalCard> tcs)
+        {
+            using (var db = new MyDbContext())
+            {
+                var tcIds = tcs.Select(t => t.Id).ToList();
+                var existingTcs = await db.TechnologicalCards
+                    .Where(t => tcIds.Contains(t.Id))
+                    .Select(t => t.Id)
+                    .ToListAsync();
+
+                var newTcs = tcs.Where(t => !existingTcs.Contains(t.Id)).ToList();
+
+                if (newTcs.Any())
+                {
+                    await db.TechnologicalCards.AddRangeAsync(newTcs);
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+        public async Task AddObjectAsync<T>(T tc) where T : class, IIdentifiable
+        {
+            await AddObjectAsync(new List<T> { tc });
+        }
+        public async Task AddObjectAsync<T>(List<T> objects) where T : class, IIdentifiable
+        {
+            using (var db = new MyDbContext())
+            {
+                var objectIds = objects.Select(t => t.Id).ToList();
+                var existingObjects = await db.Set<T>()
+                    .Where(t => objectIds.Contains(t.Id))
+                    .Select(t => t.Id)
+                    .ToListAsync();
+
+                var newObjects = objects.Where(t => !existingObjects.Contains(t.Id)).ToList();
+
+                if (newObjects.Any())
+                {
+                    await db.Set<T>().AddRangeAsync(newObjects);
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+        public async Task AddIntermediateObjectAsync(List<Staff_TC> staffTCs)// where T : class, IIntermediateTableIds
+        {
+            try
+            {
+                using (var db = new MyDbContext())
+                {
+                    var staffTCsIds = staffTCs.Select(t => new { t.ParentId, t.ChildId, t.Symbol }).ToList();
+
+                    var existingCombinations = await db.Set<Staff_TC>()
+                        .Where(o => o.ParentId == staffTCs[0].ParentId)
+                        .Select(t => new { t.ParentId, t.ChildId, t.Symbol })
+                        .ToListAsync();
+
+                    var newObjects = staffTCs.Where(t => !existingCombinations
+                        .Any(ec => ec.ParentId == t.ParentId && ec.ChildId == t.ChildId && ec.Symbol == t.Symbol))
+                        .ToList();
+
+                    if (newObjects.Any())
+                    {
+                        await db.Set<Staff_TC>().AddRangeAsync(newObjects);
+                        await db.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+        }
+        public async Task UpdateObjectsListAsync<T>(List<T> updatedObjects) where T : class, IUpdatableEntity, IIdentifiable
+        {
+            using (var db = new MyDbContext())
+            {
+                foreach (var updatedObject in updatedObjects)
+                {
+                    var existingTc = await db.Set<T>()
+                        .FirstOrDefaultAsync(t => t.Id == updatedObject.Id);
+
+                    if (existingTc != null)
+                    {
+                        existingTc.ApplyUpdates(updatedObject);
+                    }
+                }
+
+                if (db.ChangeTracker.HasChanges())
+                {
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+        public async Task UpdateIntermediateObjectAsync(List<Staff_TC> updatedStaffTCs)
+        { 
+            using (var db = new MyDbContext())
+            {
+                foreach (var updatedStaffTC in updatedStaffTCs)
+                {
+                    // Находим существующую запись на основе ParentId и ChildId
+                    var existingStaffTC = await db.Set<Staff_TC>()
+                        .FirstOrDefaultAsync(st => st.ParentId == updatedStaffTC.ParentId && st.ChildId == updatedStaffTC.ChildId);
+
+                    if (existingStaffTC != null)
+                    {
+                        existingStaffTC.ApplyUpdates(updatedStaffTC);
+                    }
+                }
+
+                // Сохраняем изменения в базе данных, если они есть
+                if (db.ChangeTracker.HasChanges())
+                {
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+        public async Task DeleteObjectAsync<T>(List<int> tcIds) where T : class, IIdentifiable
+        {
+            using (var db = new MyDbContext())
+            {
+                var tcsToDelete = await db.Set<T>()
+                                          .Where(tc => tcIds.Contains(tc.Id))
+                                          .ToListAsync();
+
+                if (tcsToDelete.Any())
+                {
+                    db.Set<T>().RemoveRange(tcsToDelete);
+
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+        public async Task DeleteIntermediateObjectAsync(List<Staff_TC> staffTCs)
+        {
+            using (var db = new MyDbContext())
+            {
+
+                var staffTCsIds = staffTCs.Select(t => new { t.ParentId, t.ChildId, t.Symbol }).ToList();
+
+                var existingCombinations = await db.Set<Staff_TC>()
+                    .Where(o => o.ParentId == staffTCs[0].ParentId)
+                    .Select(t => new { t.ParentId, t.ChildId, t.Symbol })
+                    .ToListAsync();
+
+                var staffTCsToDelete = staffTCs.Where(t => existingCombinations
+                    .Any(ec => ec.ParentId == t.ParentId && ec.ChildId == t.ChildId && ec.Symbol == t.Symbol))
+                    .ToList();
+
+                if (staffTCsToDelete.Any())
+                {
+                    db.Set<Staff_TC>().RemoveRange(staffTCsToDelete);
+
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
         public void UpdateCurrentTc(int id)
         {
             Program.currentTc = GetObject<TechnologicalCard>(id);

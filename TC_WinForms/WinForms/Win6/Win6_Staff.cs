@@ -1,7 +1,7 @@
-﻿
+﻿using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
-using TcModels.Models;
+using TC_WinForms.DataProcessing.Utilities;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -10,15 +10,15 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_Staff : Form, ISaveEventForm
     {
+
         private DbConnector dbCon = new DbConnector();
+        private BindingList<DisplayedStaff_TC> _bindingList;
+
+        private List<DisplayedStaff_TC> _changedObjects = new List<DisplayedStaff_TC>();
+        private List<DisplayedStaff_TC> _newObjects = new List<DisplayedStaff_TC>();
+        private List<DisplayedStaff_TC> _deletedObjects = new List<DisplayedStaff_TC>();
 
         private int _tcId;
-        private TechnologicalCard _tc;
-
-        private List<Staff_TC> newItems = new List<Staff_TC>();
-        private List<Staff_TC> deletedItems = new List<Staff_TC>();
-        private List<Staff_TC> changedItems = new List<Staff_TC>();
-
         public Win6_Staff(int tcId)
         {
             InitializeComponent();
@@ -28,54 +28,126 @@ namespace TC_WinForms.WinForms
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
 
-        private void Win6_Staff_Load(object sender, EventArgs e)
+        private async void Win6_Staff_Load(object sender, EventArgs e)
         {
-            var objects = Task.Run(() => dbCon.GetIntermediateObjectList<Staff_TC, Staff>(_tcId));
+            await LoadObjects();
+            DisplayedEntityHelper.SetupDataGridView<DisplayedStaff_TC>(dgvMain);
 
-            DGVProcessing.SetDGVColumnsNamesAndOrder(
-                GetColumnNames(), 
-                GetColumnOrder(), 
-                dgvMain,
-                Staff_TC.GetChangeablePropertiesNames);
+            dgvMain.AllowUserToDeleteRows = false;
+        }
+        private async Task LoadObjects()
+        {
+            var tcList = await Task.Run(() => dbCon.GetIntermediateObjectList<Staff_TC, Staff>(_tcId).OrderBy(obj => obj.Order)
+                .Select(obj => new DisplayedStaff_TC(obj)).ToList());
+            _bindingList = new BindingList<DisplayedStaff_TC>(tcList);
+            _bindingList.ListChanged += BindingList_ListChanged;
+            dgvMain.DataSource = _bindingList;
+        }
+        private async void Win6_Staff_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                e.Cancel = true;
+                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
 
-            SetDGVColumnsSettings();
+                if (result == DialogResult.Yes)
+                {
+                    await SaveChanges();
+                }
+                e.Cancel = false;
+                Close();
+            }
+        }
+        public void AddNewObjects(List<Staff> newObjs)
+        {
+            foreach (var obj in newObjs)
+            {
+                var newStaffTC = CreateNewObject(obj, _bindingList.Count + 1);
 
-            DGVProcessing.AddNewRowsToDGV(objects.Result, dgvMain);
+                var displayedStaffTC = new DisplayedStaff_TC(newStaffTC);
+                _bindingList.Add(displayedStaffTC);
+
+                _newObjects.Add(displayedStaffTC);
+            }
+            dgvMain.Refresh();
         }
 
-        private void Win6_Staff_FormClosing(object sender, FormClosingEventArgs e)
-        {
 
+
+        /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
+        public async Task SaveChanges()
+        {
+            // todo - check if in added tech card fulfilled all required fields
+            if (_changedObjects.Count == 0 && _newObjects.Count == 0 && _deletedObjects.Count == 0)
+            {
+                return;
+            }
+            if (_newObjects.Count > 0)
+            {
+                await SaveNewObjects();
+            }
+            if (_changedObjects.Count > 0)
+            {
+                await SaveChangedObjects();
+            }
+            if (_deletedObjects.Count > 0)
+            {
+                await DeleteDeletedObjects();
+            }
+
+            dgvMain.Refresh();
         }
+        private async Task SaveNewObjects()
+        {
+            var newObjects = _newObjects.Select(dObj => CreateNewObject(dObj)).ToList();
+
+            await dbCon.AddIntermediateObjectAsync(newObjects);
+
+            _newObjects.Clear();
+        }
+        private async Task SaveChangedObjects()
+        {
+            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+
+            await dbCon.UpdateIntermediateObjectAsync(changedTcs);
+
+            _changedObjects.Clear();
+        }
+
+        private async Task DeleteDeletedObjects()
+        {
+            var deletedObjects = _deletedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+            await dbCon.DeleteIntermediateObjectAsync(deletedObjects);
+            _deletedObjects.Clear();
+        }
+
+        private Staff_TC CreateNewObject(DisplayedStaff_TC dObj)
+        {
+            return new Staff_TC
+            {
+                ParentId = dObj.ParentId,
+                ChildId = dObj.ChildId,
+                Order = dObj.Order,
+                Symbol = dObj.Symbol
+            };
+        }
+        private Staff_TC CreateNewObject(Staff obj, int oreder)
+        {
+            return new Staff_TC
+            {
+                ParentId = _tcId,
+                ChildId = obj.Id,
+                Child = obj,
+                Order = oreder,
+                Symbol = "-"
+            };
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
 
-        private Dictionary<string, string> GetColumnNames()
-        {
-            var colNames = new Dictionary<string, string>();
-            foreach (var item in Staff_TC.GetPropertiesNames)
-            {
-                colNames.Add(item.Key, item.Value);
-            }
-            foreach (var item in Staff.GetPropertiesNames)
-            {
-                colNames.Add(item.Key, item.Value);
-            }
-            return colNames;
-        }
-        private Dictionary<string, int> GetColumnOrder()
-        {
-            var colOrder = new Dictionary<string, int>();
-            foreach (var item in Staff.GetPropertiesOrder)
-            {
-                colOrder.Add(item.Key, item.Value);
-            }
-            foreach (var item in Staff_TC.GetPropertiesOrder)
-            {
-                colOrder.Add(item.Key, item.Value);
-            }
-            return colOrder;
-        }
         void SetDGVColumnsSettings()
         {
 
@@ -123,199 +195,290 @@ namespace TC_WinForms.WinForms
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void AddNewObjects(List<Staff> newObjs)
-        {
-            int i = 1;
-            int lastOrder = dgvMain.Rows.Count;
-            foreach (Staff obj in newObjs)
-            {
-                var sttc = CreateNewObject(obj, lastOrder + i);
-                newItems.Add(sttc);
-                i++;
-            }
 
-            DGVProcessing.AddNewRowsToDGV(newItems, dgvMain);
-        }
-        public void SaveChanges()
-        {
-
-            dgvMain.CurrentCell = null;// stops editing in dgvMain and save changes
-
-            // check if all rows have unique combination of childId and Symbol fields
-            if (!DGVProcessing.CheckUniqueColumnsValues(dgvMain, new List<string> { "Id", "Symbol" }))
-            {
-                MessageBox.Show("Не все строки имеют уникальную комбинацию полей ID и Символ");
-                return;
-            }
-
-            // todo - check that for new rows symbol is unique and not "-"
-
-
-            if (!DetectChanges())
-            { MessageBox.Show("no changes in Staff"); return; } // check if rows in dgvMain have difference values in copy columns and add them to newItems, deletedItems, changedItems
-
-            var dbCon = new DbConnector();
-
-            //// save new rows in db
-            if (newItems.Count > 0)
-                dbCon.Add<Staff_TC, Staff>(newItems); newItems.Clear();
-
-            // Delete deleted rows from db
-            if (deletedItems.Count > 0)
-                dbCon.Delete<Staff_TC>(deletedItems); deletedItems.Clear();
-
-            // save changes in db
-            if (changedItems.Count > 0)
-                dbCon.Update<Staff_TC>(changedItems); changedItems.Clear();
-
-            // change values of copy columns to original
-            DGVProcessing.SetCopyColumnsValues(dgvMain, Staff_TC.GetChangeablePropertiesNames);
-        }
-        private bool DetectChanges()
-        {
-            bool result = false;
-            // check if rows in dgvMain have difference values in copy columns
-            foreach (var row in dgvMain.Rows.Cast<DataGridViewRow>())
-            {
-                if (DGVProcessing.CheckIfCellValueChanged(row, Staff_TC.GetChangeablePropertiesNames, () =>
-                {
-                    var newObj = CreateNewObject(row);
-                    changedItems.Add(newObj);
-                }))
-                    result = true;
-            }
-            return result;
-            //// check if rows in dgvMain have difference values in copy columns
-            //foreach (var row in dgvMain.Rows.Cast<DataGridViewRow>())
-            //{
-            //    CheckSymbolChanged(row);
-
-            //    CheckOrderChanged(row);
-            //}
-        }
-        //private void CheckOrderChanged(DataGridViewRow row)
-        //{
-        //    string order = row.Cells["Order"].Value.ToString();
-        //    string order_copy = row.Cells["Order_copy"].Value.ToString();
-        //    if (order != order_copy)
-        //    {
-        //        var sttc = CreateNewObject(row);
-        //        changedItems.Add(sttc);
-        //    }
-        //}
-        //private void CheckSymbolChanged(DataGridViewRow row)
-        //{
-        //    string symbol = row.Cells["Symbol"].Value.ToString();
-        //    string symbol_copy = row.Cells["Symbol_copy"].Value.ToString();
-
-        //    if (symbol != symbol_copy)
-        //    {
-        //        var sttc_new = CreateNewObject(row);
-        //        newItems.Add(sttc_new);
-
-        //        if (symbol_copy != "-")
-        //        {
-        //            var sttc_old = CreateNewObject(row);
-        //            sttc_old.Symbol = symbol_copy;
-        //            deletedItems.Add(sttc_old);
-        //        }
-        //    }
-        //}
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
             // load new form Win7_3_Staff as dictonary
-            var newForm = new Win7_3_Staff();
+            var newForm = new Win7_3_Staff(this);
             newForm.SetAsAddingForm();
             newForm.ShowDialog();
         }
 
         private void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            if (dgvMain.SelectedRows.Count > 0)
+            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+                _bindingList, _newObjects, _deletedObjects);
+        }
+
+
+        private bool CheckIfIsNewItems(DataGridViewRow row)
+        {
+            if (row.Cells["Symbol"].Value.ToString() == "-")
             {
-                List<DataGridViewRow> rowsToDelete = DGVProcessing.GetSelectedRows(dgvMain);
-
-                string message;
-                if (rowsToDelete.Count == 1)
-                    message = "Вы действительно хотите удалить выбранные объект?\n";
-                else
-                    message = "Вы действительно хотите удалить выбранные объекты?\n";
-
-                DialogResult result = MessageSender.SendQuestionDeliteObjects(message, rowsToDelete, "Id");
-
-                if (result == DialogResult.Yes)
-                {
-                    foreach (var row in rowsToDelete)
-                    {
-                        var sttc = CreateNewObject(row);
-                        deletedItems.Add(sttc);
-                    }
-                    DGVProcessing.DeleteRows(rowsToDelete, dgvMain);
-                }
-                dgvMain.Refresh();
+                return true;
             }
+            return false;
+        }
+
+        private void btnMoveUp_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnMoveDown_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
+
+            string symbolName = nameof(Staff_TC.Symbol);
+            string orderName = nameof(Staff_TC.Order);
+
             var row = dgvMain.Rows[e.RowIndex];
 
             // if changed cell is in Order column then reorder dgv
-            if (e.ColumnIndex == dgvMain.Columns["Order"].Index)
+            if (e.ColumnIndex == dgvMain.Columns[orderName].Index)
             {
                 // check if new cell value is a number
-                if (int.TryParse(row.Cells["Order"].Value.ToString(), out int orderValue))
+                if (int.TryParse(row.Cells[orderName].Value.ToString(), out int orderValue))
                 {
                     if (orderValue == e.RowIndex + 1) { return; }
-                    if (orderValue > 0 && orderValue <= dgvMain.Rows.Count)
-                    { DGVProcessing.ReorderRows(row, orderValue, dgvMain); }
-                    else
-                    { DGVProcessing.ReorderRows(row, dgvMain.Rows.Count, dgvMain); } // insert row to the end of dgv
+                    MoveRowAndUpdateOrder(e.RowIndex, orderValue - 1); // move row to new position (orderValue - 1 is new index for row
+                    //SortAndRefreshDGV();
+                    //_bindingList = _bindingList.OrderBy(x => x.Order);
+
+                    //if (orderValue > 0 && orderValue <= dgvMain.Rows.Count)
+                    //{ DGVProcessing.ReorderRows(row, orderValue, dgvMain); }
+                    //else
+                    //{ DGVProcessing.ReorderRows(row, dgvMain.Rows.Count, dgvMain); } // insert row to the end of dgv
 
                 }
                 else
                 {
                     MessageBox.Show("Ошибка ввода в поле \"№\"");
-                    row.Cells["Order"].Value = e.RowIndex + 1;
+                    row.Cells[orderName].Value = e.RowIndex + 1;
                 }
             }
-            else if (e.ColumnIndex == dgvMain.Columns["Symbol"].Index)
+            //else if (e.ColumnIndex == dgvMain.Columns[symbolName].Index) // todo: - check if symbol is unique
+            //{
+            //    string symbolValue = (string)row.Cells[symbolName].Value;
+            //    string symbolCopyValue = (string)row.Cells[symbolName + "_copy"].Value;
+            //    if (symbolValue != symbolCopyValue)
+            //    {
+            //        if (!DGVProcessing.CheckIfValueIsUnique(dgvMain, nameof(Staff_TC.Symbol), row))
+            //        {
+            //            MessageBox.Show("Символ должен быть уникальным!");
+            //            row.Cells[symbolName].Value = symbolCopyValue;
+            //        }
+            //    }
+            //}
+        }
+
+        private void SortAndRefreshDGV()
+        {
+            var sortedList = _bindingList.OrderBy(x => x.Order).ToList();
+            _bindingList.Clear();
+            foreach (var item in sortedList)
             {
-                string symbol = (string)row.Cells["Symbol"].Value;
-                string symbol_copy = (string)row.Cells["Symbol_copy"].Value;
-                if (symbol != symbol_copy)
+                _bindingList.Add(item);
+            }
+            UpdateOrderValues();
+            //_bindingList.ListChanged += BindingList_ListChanged;
+            dgvMain.Refresh(); // Обновляем DataGridView, чтобы отразить изменения
+        }
+        //private void UpdateOrderValues()
+        //{
+        //    for (int i = 0; i < dgvMain.Rows.Count; i++)
+        //    {
+        //        var displayedStaff = dgvMain.Rows[i].DataBoundItem as DisplayedStaff_TC;
+        //        if (displayedStaff != null)
+        //        {
+        //            displayedStaff.Order = i + 1; // Обновляем Order на основе позиции строки
+        //        }
+        //    }
+        //}
+        private void MoveRowAndUpdateOrder(int oldIndex, int newIndex)
+        {
+            if (oldIndex < 0 || oldIndex >= _bindingList.Count || newIndex < 0 || newIndex >= _bindingList.Count || oldIndex == newIndex)
+            {
+                return; // Проверка на валидность индексов
+            }
+
+            // Шаг 1: Удаление и вставка объекта в новую позицию
+            var itemToMove = _bindingList[oldIndex];
+            _bindingList.RemoveAt(oldIndex);
+            _bindingList.Insert(newIndex, itemToMove);
+
+            UpdateOrderValues();
+        }
+        private void UpdateOrderValues()
+        {
+            for (int i = 0; i < _bindingList.Count; i++)
+            {
+                _bindingList[i].Order = i + 1;
+            }
+        }
+        private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            DisplayedEntityHelper.ListChangedEventHandlerIntermediate
+                (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
+        }
+
+
+
+        public class DisplayedStaff_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity
+        {
+            public Dictionary<string, string> GetPropertiesNames()
+            {
+                return new Dictionary<string, string>
+            {
+                { nameof(ChildId), "ID" },
+                { nameof(ParentId), "ID тех. карты" },
+                { nameof(Order), "№" },
+                { nameof(Symbol), "Символ" },
+
+                { nameof(Name), "Название" },
+                { nameof(Type), "Тип" },
+                { nameof(Functions), "Функции" },
+                { nameof(CombineResponsibility), "Возможность совмещения обязанностей" },
+                { nameof(Qualification), "Квалификация" },
+                { nameof(Comment), "Комментарии" },
+            };
+            }
+            public List<string> GetPropertiesOrder()
+            {
+                return new List<string>
                 {
-                    // check if new symbol is unique
-                    if (!DGVProcessing.CheckUniqueColumnsValues(dgvMain, new List<string> { "Symbol" }))
+                    //nameof(ParentId),
+                    nameof(Order),
+
+                    nameof(ChildId),
+                    nameof(Name),
+                    nameof(Type),
+                    nameof(Functions),
+                    nameof(CombineResponsibility),
+                    nameof(Qualification),
+                    nameof(Comment),
+
+                    nameof(Symbol),
+                };
+            }
+            public List<string> GetRequiredFields()
+            {
+                return new List<string>
+                {
+                    nameof(ChildId) ,
+                    nameof(ParentId) ,
+                    nameof(Order) ,
+                    nameof(Symbol),
+                };
+            }
+            public List<string> GetKeyFields()
+            {
+                return new List<string>
+                {
+                    nameof(ChildId),
+                    nameof(ParentId),
+                    nameof(Symbol) ,
+                };
+            }
+
+            private int childId;
+            private int parentId;
+            private int order;
+            private string symbol;
+
+            private string name;
+            private string type;
+            private string functions;
+            private string? combineResponsibility;
+            private string qualification;
+            private string? comment;
+
+
+            public DisplayedStaff_TC()
+            {
+
+            }
+            public DisplayedStaff_TC(Staff_TC obj)
+            {
+                ChildId = obj.ChildId;
+                ParentId = obj.ParentId;
+                Order = obj.Order;
+                Symbol = obj.Symbol;
+
+                Name = obj.Child.Name;
+                Type = obj.Child.Type;
+                Functions = obj.Child.Functions;
+                CombineResponsibility = obj.Child.CombineResponsibility;
+                Qualification = obj.Child.Qualification;
+                Comment = obj.Child.Comment;
+            }
+
+            public int ChildId { get; set; }
+            public int ParentId { get; set; }
+            public int Order
+            {
+                get => order;
+                set
+                {
+                    if (order != value)
                     {
-                        MessageBox.Show("Символ должен быть уникальным!");
-                        row.Cells["Symbol"].Value = symbol_copy;
+                        order = value;
+                        OnPropertyChanged(nameof(Order));
                     }
                 }
             }
-        }
-        private Staff_TC CreateNewObject(DataGridViewRow row)
-        {
-            return new Staff_TC
+            public string Symbol
             {
-                ParentId = _tcId,
-                ChildId = int.Parse(row.Cells["Id"].Value.ToString()),
-                Order = int.Parse(row.Cells["Order"].Value.ToString()),
-                Symbol = row.Cells["Symbol"].Value.ToString()
-            };
-        }
-        private Staff_TC CreateNewObject(Staff obj, int oreder)
-        {
-            return new Staff_TC
+                get => symbol;
+                set
+                {
+                    if (symbol != value)
+                    {
+
+                        oldValueDict[nameof(Symbol)] = symbol;
+
+                        symbol = value;
+                        OnPropertyChanged(nameof(Symbol));
+                    }
+                }
+            }
+
+            public string Name { get; set; }
+
+            public string Type { get; set; }
+            public string Functions { get; set; }
+            public string? CombineResponsibility { get; set; }
+            public string Qualification { get; set; }
+            public string? Comment { get; set; }
+
+
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged(string propertyName)
             {
-                ParentId = _tcId,
-                ChildId = obj.Id,
-                Child = obj,
-                Order = oreder,
-                Symbol = "-"
-            };
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+
+            private Dictionary<string, object> oldValueDict = new Dictionary<string, object>();
+
+            public object GetOldValue(string propertyName)
+            {
+                if (oldValueDict.ContainsKey(propertyName))
+                {
+                    return oldValueDict[propertyName];
+                }
+
+                return null;
+            }
+
         }
+
+        
     }
 
 }

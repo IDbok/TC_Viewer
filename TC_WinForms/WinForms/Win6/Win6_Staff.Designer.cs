@@ -100,7 +100,7 @@
             btnMoveDown.TabIndex = 1;
             btnMoveDown.Text = "▼";
             btnMoveDown.UseVisualStyleBackColor = true;
-            //btnMoveDown.Click += btnMoveDown_Click;
+            btnMoveDown.Click += btnMoveDown_Click;
             // 
             // btnDeleteObj
             // 
@@ -121,7 +121,7 @@
             btnMoveUp.TabIndex = 0;
             btnMoveUp.Text = "▲";
             btnMoveUp.UseVisualStyleBackColor = true;
-            //btnMoveUp.Click += btnMoveUp_Click;
+            btnMoveUp.Click += btnMoveUp_Click;
             // 
             // btnUpdateObj
             // 

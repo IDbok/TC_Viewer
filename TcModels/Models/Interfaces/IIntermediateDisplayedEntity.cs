@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace TcModels.Models.Interfaces
 {
-    public interface ISaveEventForm
+    public interface IIntermediateDisplayedEntity : IDisplayedEntity
     {
-        Task SaveChanges();
+        List<string> GetKeyFields();
     }
 }

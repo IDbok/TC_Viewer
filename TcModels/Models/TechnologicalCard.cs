@@ -2,10 +2,11 @@
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models
 {
-    public class TechnologicalCard: INameable
+    public class TechnologicalCard: INameable, IUpdatableEntity
     {
         
         public static Dictionary<string, string> GetPropertiesNames()
@@ -58,7 +59,7 @@ namespace TcModels.Models
 
         public int Id { get; set; }
         public string Article { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public string? Description { get; set; }
         public string Version { get; set; } = "0.0.0.0";
 
@@ -147,7 +148,30 @@ namespace TcModels.Models
             //}
             return obj_tc;
         }
-
+        public void ApplyUpdates(IUpdatableEntity source)
+        {
+            if (source is TechnologicalCard sourceCard)
+            {
+                Article = sourceCard.Article;
+                Version = sourceCard.Version;
+                Description = sourceCard.Description;
+                Name = sourceCard.Name;
+                Type = sourceCard.Type;
+                NetworkVoltage = sourceCard.NetworkVoltage;
+                TechnologicalProcessType = sourceCard.TechnologicalProcessType;
+                TechnologicalProcessName = sourceCard.TechnologicalProcessName;
+                Parameter = sourceCard.Parameter;
+                FinalProduct = sourceCard.FinalProduct;
+                Applicability = sourceCard.Applicability;
+                Note = sourceCard.Note;
+                IsCompleted = sourceCard.IsCompleted;
+                TechnologicalProcessNumber = sourceCard.TechnologicalProcessNumber;
+                DamageType = sourceCard.DamageType;
+                RepairType = sourceCard.RepairType;
+                Data = sourceCard.Data;
+                TechnologicalProcess = sourceCard.TechnologicalProcess;
+            }
+        }
         public override string ToString()
         {
             return $"{Id}.{Article} {Name}";

@@ -305,6 +305,23 @@ namespace TC_WinForms
                     dgv.Columns[x].DisplayIndex = columnOrder[x];
             });
         }
+        public static void SetTableColumnsOrder(List<string> columnOrder, DataGridView dgv)
+        {
+            foreach (DataGridViewColumn col in dgv.Columns)
+            {
+                col.Visible = false;
+            }
+
+            for (int i = 0; i < columnOrder.Count; i++)
+            {
+                string columnName = columnOrder[i];
+                if (dgv.Columns.Contains(columnName))
+                {
+                    dgv.Columns[columnName].Visible = true;
+                    dgv.Columns[columnName].DisplayIndex = i;
+                }
+            }
+        }
         public static void SetTableHeadersNames(Dictionary<string, string> columnNames, DataGridView dgv)
         {
             columnNames.Keys.ToList().ForEach(x => dgv.Columns[x].HeaderText = columnNames[x]);

@@ -1,21 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
-using TcModels.Models;
+using TC_WinForms.DataProcessing.Utilities;
 using TcModels.Models.Interfaces;
+using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_5_Machine : Form
+    public partial class Win7_5_Machine : Form, ISaveEventForm
     {
+        private DbConnector dbCon = new DbConnector();
+
+        private BindingList<DisplayedMachine> _bindingList;
+
+        private List<DisplayedMachine> _changedObjects = new List<DisplayedMachine>();
+        private List<DisplayedMachine> _newObjects = new List<DisplayedMachine>();
+        private List<DisplayedMachine> _deletedObjects = new List<DisplayedMachine>();
+
+        private DisplayedMachine _newObject;
+
         private bool isAddingForm = false;
         private Button btnAddSelected;
         private Button btnCancel;
@@ -24,14 +28,6 @@ namespace TC_WinForms.WinForms
             isAddingForm = true;
         }
 
-        private DbConnector dbCon = new DbConnector();
-
-        private List<Machine> objList = new List<Machine>();
-        private List<int> changedItemId = new List<int>();
-        private List<int> deletedItemId = new List<int>();
-        private List<Machine> changedObjs = new List<Machine>();
-        private Machine newObj;
-        private List<string> requiredCols = new List<string>();
         public Win7_5_Machine(int accessLevel)
         {
             InitializeComponent();
@@ -42,137 +38,142 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
         }
 
-        private void Win7_5_Machine_Load(object sender, EventArgs e)
+        private async void Win7_5_Machine_Load(object sender, EventArgs e)
         {
-            dgvMain.Columns.Clear();
+            await LoadObjects();
+            DisplayedEntityHelper.SetupDataGridView<DisplayedMachine>(dgvMain);
 
-            objList = dbCon.GetObjectList<Machine>();
-
-            var bindingList = new BindingList<Machine>(objList);
-            dgvMain.DataSource = bindingList;
-
-            // set columns names
-            WinProcessing.SetTableHeadersNames(Machine.GetPropertiesNames(), dgvMain);
-            // set columns order and visibility
-            WinProcessing.SetTableColumnsOrder(Machine.GetPropertiesOrder(), dgvMain);
-
-            requiredCols = Machine.GetPropertiesRequired();
+            dgvMain.AllowUserToDeleteRows = false;
 
             if (isAddingForm)
             {
                 //isAddingFormSetControls();
-                WinProcessing.SetAddingFormControls(pnlControlBtns, dgvMain, out btnAddSelected, out btnCancel);
+                WinProcessing.SetAddingFormControls(pnlControlBtns, dgvMain,
+                    out btnAddSelected, out btnCancel);
                 SetAddingFormEvents();
             }
         }
-        private void Win7_5_Machine_FormClosing(object sender, FormClosingEventArgs e)
+        private async Task LoadObjects()
         {
-            if (newObj != null)
+            var tcList = await Task.Run(() => dbCon.GetObjectList<Machine>()
+                .Select(obj => new DisplayedMachine(obj)).ToList());
+            _bindingList = new BindingList<DisplayedMachine>(tcList);
+            _bindingList.ListChanged += BindingList_ListChanged;
+            dgvMain.DataSource = _bindingList;
+        }
+        private async void Win7_5_Machine_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
-                if (MessageBox.Show("Сохранить новую запись?", "Сохранение", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                e.Cancel = true;
+                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
+
+                if (result == DialogResult.Yes)
                 {
-                    MessageBox.Show("Сохраняю всё что нужно в Machine ", "Сохранение");
-                    //dbCon.AddObject(newObj);
+                    await SaveChanges();
                 }
+                e.Cancel = false;
+                Close();
             }
         }
         private void AccessInitialization(int accessLevel)
         {
-            // todo - make accessibility for all buttons
-            if (accessLevel == 0) // viewer
-            {
-                // hide all buttons
-                pnlControlBtns.Visible = false;
-                // pnlNavigationBtns.Visible = false;
-                btnAddNewObj.Enabled = false;
-                btnUpdateObj.Enabled = false;
-                btnDeleteObj.Enabled = false;
-            }
-            else if (accessLevel == 1) // TC editor
-            {
-
-            }
-            else if (accessLevel == 2) // Progect editor
-            {
-            }
         }
-
-
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-
-            // create new object and add it to newCard if newCard is null
-            if (newObj != null) // todo - add check for all required fields (ex. Type can be only as "Ремонтная", "Монтажная", "ТТ")
-
-                if (!CheckAllRequeredFields(newObj, requiredCols))
-                {
-                    MessageBox.Show($"Внесите обязательные для объекта с id({newObj.Id}) поля (Артикул, Тип карты, Сеть, кВ)");
-                    ColorizeEmptyRequiredCells();
-                    return;
-                };
-
-            newObj = DataProcessing.DataProcessing.addNewObject<Machine>();
-
-            objList.Insert(0, newObj);
-
-            // scroll to new row and refresh dgvMain
-            dgvMain.FirstDisplayedScrollingRowIndex = 0;
-            dgvMain.Refresh();
+            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
+                            _bindingList,
+                            _newObjects,
+                            dgvMain);
         }
 
         private void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            if (dgvMain.SelectedRows.Count > 0)
-            {
-                List<DataGridViewRow> rowsToDelete = DGVProcessing.GetSelectedRows(dgvMain);
-
-                string message = null;
-                if (rowsToDelete.Count == 1)
-                    message = "Вы действительно хотите удалить выбранные объект?\n"; 
-                else
-                    message = "Вы действительно хотите удалить выбранные объекты?\n";
-
-                DialogResult result = MessageSender.SendQuestionDeliteObjects(message, rowsToDelete, "Id");
-
-
-                if (result == DialogResult.Yes)
-                {
-                    DGVProcessing.DeleteRowsById<Machine>(rowsToDelete, dgvMain, dbCon);
-                }
-
-                dgvMain.Refresh();
-            }
+            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+                _bindingList, _newObjects, _deletedObjects);
         }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-        private void ColorizeEmptyRequiredCells() // todo - change call collore after value changed to non empty
+        /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
+        public async Task SaveChanges()
         {
-            DataGridViewRow row = dgvMain.Rows[0];
-            var colNames = Machine.GetPropertiesRequired();
-            foreach (var colName in colNames)
+            // todo - check if in added tech card fulfilled all required fields
+            if (_changedObjects.Count + _newObjects.Count + _deletedObjects.Count == 0)
             {
-                // get collumn index by name
-                var colIndex = dgvMain.Columns[colName].Index;
+                return;
+            }
+            if (_newObjects.Count > 0)
+            {
+                await SaveNewObjects();
+            }
+            if (_changedObjects.Count > 0)
+            {
+                await SaveChangedObjects();
+            }
+            if (_deletedObjects.Count > 0)
+            {
+                await DeleteDeletedObjects();
+            }
+            // todo - change id in all new cards 
+            dgvMain.Refresh();
+        }
+        private async Task SaveNewObjects()
+        {
+            var newObjects = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-                DGVProcessing.ColorizeCell(dgvMain, colIndex, row.Index, "Red");
+            await dbCon.AddObjectAsync(newObjects);
+
+            // set new ids to new objects matched them by all params
+            foreach (var newObj in _newObjects)
+            {
+                var newId = newObjects.Where(s =>
+                s.Name == newObj.Name
+                && s.Type == newObj.Type
+                && s.Unit == newObj.Unit
+                && s.Price == newObj.Price
+                && s.Description == newObj.Description
+                && s.Manufacturer == newObj.Manufacturer
+                && s.Links == newObj.Links
+                && s.ClassifierCode == newObj.ClassifierCode
+                ).FirstOrDefault().Id;
+                newObj.Id = newId;
             }
 
 
+            _newObjects.Clear();
+        }
+        private async Task SaveChangedObjects()
+        {
+            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+
+            await dbCon.UpdateObjectsListAsync(changedTcs);
+
+            _changedObjects.Clear();
+        }
+        private async Task DeleteDeletedObjects()
+        {
+            var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
+
+            await dbCon.DeleteObjectAsync<Machine>(deletedTcIds);
+            _deletedObjects.Clear();
+        }
+        private Machine CreateNewObject(DisplayedMachine dObj)
+        {
+            return new Machine
+            {
+                Id = dObj.Id,
+                Name = dObj.Name,
+                Type = dObj.Type,
+                Unit = dObj.Unit,
+                Price = dObj.Price,
+                Description = dObj.Description,
+                Manufacturer = dObj.Manufacturer,
+                Links = dObj.Links,
+                ClassifierCode = dObj.ClassifierCode,
+            };
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
-        private bool CheckAllRequeredFields<T>(T obj, List<string> reqCols)
-        {
-            foreach (var colName in reqCols)
-            {
-                if (obj.GetType().GetProperty(colName).GetValue(obj) == "")
-                    return false;
-            }
-            return true;
-        }
 
         /////////////////////////////////////////// * isAddingFormMethods and Events * ///////////////////////////////////////////
 
@@ -205,6 +206,211 @@ namespace TC_WinForms.WinForms
         {
             // close form
             this.Close();
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            if (e.ListChangedType == ListChangedType.ItemChanged)
+            {
+                if (_newObject != null && e.NewIndex == 0) // if changed _newCard check if all required fields are filled
+                {
+                    if (!DisplayedEntityHelper.IsValidNewCard(_newObject))
+                    {
+                        return;
+                    }
+                    _newObject = null;
+                }
+
+                if (_newObjects.Contains(_bindingList[e.NewIndex])) // if changed new Objects don't add it to changed list
+                {
+                    return;
+                }
+
+                var changedItem = _bindingList[e.NewIndex];
+                if (!_changedObjects.Contains(changedItem))
+                {
+                    _changedObjects.Add(changedItem);
+                }
+            }
+        }
+
+
+        private class DisplayedMachine : INotifyPropertyChanged, IDisplayedEntity
+        {
+            public Dictionary<string, string> GetPropertiesNames()
+            {
+                return new Dictionary<string, string>
+            {
+                { nameof(Id), "ID" },
+                { nameof(Name), "Наименование" },
+                { nameof(Type), "Тип" },
+                { nameof(Unit), "Ед.изм." },
+                { nameof(Price), "Стоимость, руб. без НДС" },
+                { nameof(Description), "Описание" },
+                { nameof(Manufacturer), "Производители (поставщики)" },
+                //{ nameof(Links), "Ссылки" },
+                { nameof(ClassifierCode), "Код в classifier" },
+            };
+            }
+            public List<string> GetPropertiesOrder()
+            {
+                return new List<string>
+                {
+                    nameof(Id),
+                    nameof(Name),
+                    nameof(Type),
+                    nameof(Unit),
+                    nameof(Price),
+                    nameof(Description),
+                    nameof(Manufacturer),
+                    nameof(ClassifierCode),
+                };
+            }
+            public List<string> GetRequiredFields()
+            {
+                return new List<string>
+                {
+                    nameof(Name) ,
+                    nameof(Type) ,
+                    nameof(Unit) ,
+                    nameof(ClassifierCode) ,
+                };
+            }
+
+            private int id;
+            private string name;
+            private string? type;
+            private string unit;
+            private float? price;
+            private string? description;
+            private string? manufacturer;
+            private List<LinkEntety> links = new();
+            private string classifierCode;
+
+            public DisplayedMachine()
+            {
+
+            }
+            public DisplayedMachine(Machine obj)
+            {
+                Id = obj.Id;
+                Name = obj.Name;
+                Type = obj.Type;
+                Unit = obj.Unit;
+                Price = obj.Price;
+                Description = obj.Description;
+                Manufacturer = obj.Manufacturer;
+                Links = obj.Links;
+                ClassifierCode = obj.ClassifierCode;
+            }
+
+
+            public int Id { get; set; }
+
+            public string Name
+            {
+                get => name;
+                set
+                {
+                    if (name != value)
+                    {
+                        name = value;
+                        OnPropertyChanged(nameof(Name));
+                    }
+                }
+            }
+
+            public string Type
+            {
+                get => type;
+                set
+                {
+                    if (type != value)
+                    {
+                        type = value;
+                        OnPropertyChanged(nameof(Type));
+                    }
+                }
+            }
+            public string Unit
+            {
+                get => unit;
+                set
+                {
+                    if (unit != value)
+                    {
+                        unit = value;
+                        OnPropertyChanged(nameof(unit));
+                    }
+                }
+            }
+            public float? Price
+            {
+                get => price;
+                set
+                {
+                    if (price != value)
+                    {
+                        price = value;
+                        OnPropertyChanged(nameof(Price));
+                    }
+                }
+            }
+            public string Description
+            {
+                get => description;
+                set
+                {
+                    if (description != value)
+                    {
+                        description = value;
+                        OnPropertyChanged(nameof(Description));
+                    }
+                }
+            }
+            public string Manufacturer
+            {
+                get => manufacturer;
+                set
+                {
+                    if (manufacturer != value)
+                    {
+                        manufacturer = value;
+                        OnPropertyChanged(nameof(Manufacturer));
+                    }
+                }
+            }
+            public List<LinkEntety> Links
+            {
+                get => links;
+                set
+                {
+                    if (links != value)
+                    {
+                        links = value;
+                        OnPropertyChanged(nameof(Links));
+                    }
+                }
+            }
+            public string ClassifierCode
+            {
+                get => classifierCode;
+                set
+                {
+                    if (classifierCode != value)
+                    {
+                        classifierCode = value;
+                        OnPropertyChanged(nameof(ClassifierCode));
+                    }
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged(string propertyName)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
     }
 }
