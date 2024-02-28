@@ -4,6 +4,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TC_WinForms.WinForms.Work;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -16,6 +17,9 @@ namespace TC_WinForms.DataProcessing
         private bool dragging;
 
         private DataGridView dgv;
+        public AddEditTechOperationForm EventsObj { get; set; }
+        public int Table { get; set; }
+
 
         public void AddGragDropEvents(DataGridView dgv) // todo - Turn in on
         {
