@@ -36,8 +36,8 @@ namespace TcModels.Models.TcContent
        [NotMapped] public Guid IdGuid { get; set; }
         
        public int Order { get; set; }
-       [NotMapped] public string Etap { get; set; } = "";
-       [NotMapped] public string Posled { get; set; } = "";
+       public string Etap { get; set; } = "";
+       public string Posled { get; set; } = "";
        [NotMapped] public double TempTimeExecution { get; set; }
 
        public override string ToString()

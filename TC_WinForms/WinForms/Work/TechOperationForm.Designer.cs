@@ -29,11 +29,9 @@
         private void InitializeComponent()
         {
             dgvMain = new DataGridView();
-            button1 = new Button();
-            groupBox1 = new GroupBox();
             button2 = new Button();
+            button1 = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
-            groupBox1.SuspendLayout();
             SuspendLayout();
             // 
             // dgvMain
@@ -49,29 +47,9 @@
             dgvMain.Size = new Size(1075, 539);
             dgvMain.TabIndex = 1;
             // 
-            // button1
-            // 
-            button1.Location = new Point(955, 12);
-            button1.Name = "button1";
-            button1.Size = new Size(94, 29);
-            button1.TabIndex = 2;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
-            // 
-            // groupBox1
-            // 
-            groupBox1.Controls.Add(button2);
-            groupBox1.Location = new Point(0, 2);
-            groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(295, 70);
-            groupBox1.TabIndex = 3;
-            groupBox1.TabStop = false;
-            groupBox1.Text = "Технологические операции";
-            // 
             // button2
             // 
-            button2.Location = new Point(44, 26);
+            button2.Location = new Point(45, 26);
             button2.Name = "button2";
             button2.Size = new Size(194, 29);
             button2.TabIndex = 0;
@@ -79,26 +57,34 @@
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
+            // button1
+            // 
+            button1.Location = new Point(276, 28);
+            button1.Name = "button1";
+            button1.Size = new Size(196, 27);
+            button1.TabIndex = 2;
+            button1.Text = "Сохранить";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click_1;
+            // 
             // TechOperationForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1077, 630);
-            Controls.Add(groupBox1);
             Controls.Add(button1);
+            Controls.Add(button2);
             Controls.Add(dgvMain);
             Name = "TechOperationForm";
             Text = "TechOperationForm";
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
-            groupBox1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
 
         private DataGridView dgvMain;
-        private Button button1;
-        private GroupBox groupBox1;
         private Button button2;
+        private Button button1;
     }
 }

@@ -17,27 +17,28 @@ namespace TC_WinForms.DataProcessing
         private bool dragging;
 
         private DataGridView dgv;
-        public AddEditTechOperationForm EventsObj { get; set; }
-        public int Table { get; set; }
 
 
-        public void AddGragDropEvents(DataGridView dgv) // todo - Turn in on
+        public object EventsObj;
+        public int Table = 0;
+
+        public void AddGragDropEvents(DataGridView dgv)
         {
-            //// Включаем поддержку перетаскивания строк
-            //dgv.AllowDrop = true;
-            //dgv.AllowUserToOrderColumns = true;
+            // Включаем поддержку перетаскивания строк
+            dgv.AllowDrop = true;
+            dgv.AllowUserToOrderColumns = true;
 
-            //// Обработчики событий для поддержки перетаскивания
-            //dgv.MouseDown += DataGridView_MouseDown;
-            //dgv.MouseMove += DataGridView_MouseMove;
-            //dgv.DragOver += DataGridView_DragOver;
-            //dgv.DragDrop += DataGridView_DragDrop;
+            // Обработчики событий для поддержки перетаскивания
+            dgv.MouseDown += DataGridView_MouseDown;
+            dgv.MouseMove += DataGridView_MouseMove;
+            dgv.DragOver += DataGridView_DragOver;
+            dgv.DragDrop += DataGridView_DragDrop;
 
-            //// Событие для отрисовки индекса строки
-            ////dgv.RowPostPaint += DataGridView_RowPostPaint;
+            // Событие для отрисовки индекса строки
+            //dgv.RowPostPaint += DataGridView_RowPostPaint;
         }
 
-        public void SetRowsUpAndDownEvents(Button btnMoveUp, Button btnMoveDown, DataGridView dgv) 
+        public void SetRowsUpAndDownEvents(Button btnMoveUp, Button btnMoveDown, DataGridView dgv)
         {
             this.dgv = dgv;
             btnMoveUp.Click += btnMoveUp_Click;
@@ -53,13 +54,12 @@ namespace TC_WinForms.DataProcessing
             {
                 draggingRow = dataGridView.Rows[rowIndexFromMouseDown];
                 columnIndexFromMouseDown = dataGridView.HitTest(e.X, e.Y).ColumnIndex;
+
             }
-            else
-            {
-                draggingRow = null;
-            }
+
         }
-        private void DataGridView_MouseMove(object sender, MouseEventArgs e) 
+
+        private void DataGridView_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left && draggingRow != null)
             {
@@ -94,11 +94,26 @@ namespace TC_WinForms.DataProcessing
             //dataGridView.Rows.Insert(rowIndexTo, newRow);
             //dataGridView.Rows.Remove(draggingRow);
 
-            DGVProcessing.ReorderRows(draggingRow, rowIndexTo+1, dataGridView);
+            DGVProcessing.ReorderRows(draggingRow, rowIndexTo + 1, dataGridView);
 
             dragging = false;
+
+
+            if (EventsObj != null)
+            {
+                if (EventsObj is AddEditTechOperationForm)
+                {
+                    ((AddEditTechOperationForm)EventsObj).UpdateTable(Table);
+
+                }
+                else
+                {
+                    draggingRow = null;
+                }
+
+            }
         }
-        
+
         private void DataGridView_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
             var dataGridView = (DataGridView)sender;

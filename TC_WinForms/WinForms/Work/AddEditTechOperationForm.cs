@@ -56,11 +56,20 @@ namespace TC_WinForms.WinForms.Work
 
 
             dataGridViewEtap.CellEndEdit += DataGridViewEtap_CellEndEdit;
+            dataGridViewEtap.CellContentClick += DataGridViewEtap_CellContentClick;
+            
+            dataGridViewMeha.CellContentClick += DataGridViewMeha_CellContentClick;
 
             var context = techOperationForm.context;
             AllStaff = context.Staff_TCs.Where(w => w.ParentId == TechOperationForm.tcId).Include(i => i.Child)
                 .Include(i => i.Parent).ToList();
 
+
+            textBoxPoiskTo.TextChanged += TextBoxPoiskTo_TextChanged;
+            textBoxPoiskComponent.TextChanged += TextBoxPoiskComponent_TextChanged;
+            textBoxPoiskTP.TextChanged += TextBoxPoiskTP_TextChanged;
+            textBoxPoiskSZ.TextChanged += TextBoxPoiskSZ_TextChanged;
+            textBoxPoiskMach.TextChanged += TextBoxPoiskMach_TextChanged;
 
             var Even = new DGVEvents();
             Even.EventsObj = this;
@@ -77,6 +86,8 @@ namespace TC_WinForms.WinForms.Work
             UpdateTO();
             UpdateLocalTO();
         }
+
+
 
 
 
@@ -134,7 +145,10 @@ namespace TC_WinForms.WinForms.Work
             ClickBoxAll();
         }
 
-
+        private void TextBoxPoiskTo_TextChanged(object? sender, EventArgs e)
+        {
+            UpdateTO();
+        }
         public void UpdateTO()
         {
             dataGridViewAllTO.Rows.Clear();
@@ -145,6 +159,13 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (TechOperation techOperation in allTO)
             {
+                if (textBoxPoiskTo.Text != "" &&
+                    techOperation.Name.ToLower().IndexOf(textBoxPoiskTo.Text.ToLower()) == -1)
+                {
+                    continue;
+                }
+
+
                 List<object> listItem = new List<object>();
 
                 listItem.Add(techOperation.Id);
@@ -260,6 +281,10 @@ namespace TC_WinForms.WinForms.Work
         }
 
 
+        private void TextBoxPoiskTP_TextChanged(object? sender, EventArgs e)
+        {
+            UpdateGridAllTP();
+        }
         public void UpdateGridAllTP()
         {
             dataGridViewTPAll.Rows.Clear();
@@ -273,6 +298,12 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (TechTransition techTransition in allTP)
             {
+                if (textBoxPoiskTP.Text != "" &&
+                    techTransition.Name.ToLower().IndexOf(textBoxPoiskTP.Text.ToLower()) == -1)
+                {
+                    continue;
+                }
+
                 List<object> listItem = new List<object>();
 
                 listItem.Add(techTransition.Id);
@@ -313,8 +344,18 @@ namespace TC_WinForms.WinForms.Work
             }
 
             listExecutionWork = new List<ExecutionWork>(LocalTP);
-            comboBoxStaff.DataSource = listExecutionWork;
-            comboBoxSZ.DataSource = listExecutionWork;
+
+            if (listExecutionWork.Count == 0)
+            {
+                comboBoxStaff.DataSource = null;
+                comboBoxSZ.DataSource = null;
+            }
+            else
+            {
+                comboBoxStaff.DataSource = listExecutionWork;
+                comboBoxSZ.DataSource = listExecutionWork;
+            }
+         
 
             //dataGridViewTO.Rows.Clear();
 
@@ -330,6 +371,9 @@ namespace TC_WinForms.WinForms.Work
             //List<TechOperationWork> list2 = new List<TechOperationWork>(list);
             //comboBoxTO.DataSource = list2;
         }
+
+       
+
 
         #endregion
 
@@ -393,11 +437,16 @@ namespace TC_WinForms.WinForms.Work
         public void UpdateGridStaff()
         {
             var ExecutionWorkBox = (ExecutionWork)comboBoxStaff.SelectedItem;
+            dataGridViewStaff.Rows.Clear();
+            if (ExecutionWorkBox == null)
+            {
+                return;
+            }
 
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
-            dataGridViewStaff.Rows.Clear();
+            
             foreach (Staff_TC staffTc in AllStaff)
             {
                 List<object> listItem = new List<object>();
@@ -460,11 +509,20 @@ namespace TC_WinForms.WinForms.Work
         }
 
 
+        private void TextBoxPoiskSZ_TextChanged(object? sender, EventArgs e)
+        {
+            UpdateGridAllSZ();
+        }
         public void UpdateGridAllSZ()
         {
             dataGridViewAllSZ.Rows.Clear();
 
             var work = (ExecutionWork)comboBoxSZ.SelectedItem;
+
+            if (work == null)
+            {
+                return;
+            }
 
             var context = TechOperationForm.context;
 
@@ -475,6 +533,13 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (Protection_TC prot in Allsz)
             {
+                if (textBoxPoiskSZ.Text != "" &&
+                    prot.Child.Name.ToLower().IndexOf(textBoxPoiskSZ.Text.ToLower()) == -1)
+                {
+                    continue;
+                }
+
+
                 if (LocalTP.SingleOrDefault(s => s.Child == prot.Child) != null)
                 {
                     continue;
@@ -497,6 +562,12 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (Protection prot in protection)
             {
+                if (textBoxPoiskSZ.Text != "" &&
+                    prot.Name.ToLower().IndexOf(textBoxPoiskSZ.Text.ToLower()) == -1)
+                {
+                    continue;
+                }
+
                 if (LocalTP.SingleOrDefault(s => s.Child == prot) != null)
                 {
                     continue;
@@ -525,6 +596,12 @@ namespace TC_WinForms.WinForms.Work
         {
             dataGridViewLocalSZ.Rows.Clear();
             var work = (ExecutionWork)comboBoxSZ.SelectedItem;
+
+            if (work == null)
+            {
+                return;
+            }
+
             var LocalTP = work.Protections.ToList();
 
             foreach (Protection_TC sz in LocalTP)
@@ -607,6 +684,12 @@ namespace TC_WinForms.WinForms.Work
 
         #region Component
 
+
+        private void TextBoxPoiskComponent_TextChanged(object? sender, EventArgs e)
+        {
+            UpdateComponentAll();
+        }
+
         public void UpdateComponentAll()
         {
             dataGridViewComponentAll.Rows.Clear();
@@ -615,15 +698,20 @@ namespace TC_WinForms.WinForms.Work
 
             var context = TechOperationForm.context;
 
-            var AllMyComponent = context.Component_TCs.Where(w => w.ParentId == TechOperationForm.tcId)
-                .Include(i => i.Child).ToList();
+            var AllMyComponent = TechOperationForm.TehCarta.Component_TCs.Where(w => w.ParentId == TechOperationForm.tcId).ToList();
 
-            var AllComponent = context.Components.Where(w => w.Component_TCs.All(a => a.ParentId != TechOperationForm.tcId)).ToList();
+            var AllComponent = context.Components.ToList();
 
             var LocalComponent = work.ComponentWorks.ToList();
 
             foreach (Component_TC componentTc in AllMyComponent)
             {
+                if (textBoxPoiskComponent.Text != "" &&
+                    componentTc.Child.Name.ToLower().IndexOf(textBoxPoiskComponent.Text.ToLower()) == -1)
+                {
+                    continue;
+                }
+
                 if (LocalComponent.SingleOrDefault(s => s.component == componentTc.Child) != null)
                 {
                     continue;
@@ -643,7 +731,18 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (Component component in AllComponent)
             {
+                if (textBoxPoiskComponent.Text != "" &&
+                    component.Name.ToLower().IndexOf(textBoxPoiskComponent.Text.ToLower()) == -1)
+                {
+                    continue;
+                }
+
                 if (LocalComponent.SingleOrDefault(s => s.component == component) != null)
+                {
+                    continue;
+                }
+
+                if (AllMyComponent.SingleOrDefault(s => s.Child == component) != null)
                 {
                     continue;
                 }
@@ -781,10 +880,9 @@ namespace TC_WinForms.WinForms.Work
 
             var context = TechOperationForm.context;
 
-            var AllMyInstr = context.Tool_TCs.Where(w => w.ParentId == TechOperationForm.tcId)
-                .Include(i => i.Child).ToList();
+            var AllMyInstr = TechOperationForm.TehCarta.Tool_TCs.ToList();
 
-            var AllInstr = context.Tools.Where(w => w.Tool_TCs.All(a => a.ParentId != TechOperationForm.tcId)).ToList();
+            var AllInstr = context.Tools.ToList();
 
             var LocalComponent = work.ToolWorks.ToList();
 
@@ -800,6 +898,7 @@ namespace TC_WinForms.WinForms.Work
                 {
                     continue;
                 }
+                
 
                 List<object> listItem = new List<object>();
                 listItem.Add(componentTc.Child);
@@ -918,11 +1017,85 @@ namespace TC_WinForms.WinForms.Work
         #region этапы
 
 
+
+        private void TextBoxPoiskMach_TextChanged(object? sender, EventArgs e)
+        {
+            dataGridViewMehaUpdate();
+        }
+
+        public void dataGridViewMehaUpdate()
+        {
+            dataGridViewMeha.Rows.Clear();
+
+            var Msch = TechOperationForm.TehCarta.Machine_TCs.ToList();
+            var context = TechOperationForm.context;
+            var all = context.Machines.ToList();
+
+            foreach (var machine in Msch)
+            {
+                if (textBoxPoiskMach.Text != "" &&
+                    machine.Child.Name.ToLower().IndexOf(textBoxPoiskMach.Text.ToLower()) == -1)
+                {
+                    continue;
+                }
+
+                List<object> listItem = new List<object>();
+                listItem.Add(machine.Child);
+                listItem.Add(true);
+                listItem.Add(machine.Child.Name);
+                listItem.Add(machine.Child.Type);
+                listItem.Add(machine.Child.Unit);
+                listItem.Add(machine.Quantity);
+                dataGridViewMeha.Rows.Add(listItem.ToArray());
+            }
+
+
+            foreach (Machine machine in all)
+            {
+                if (textBoxPoiskMach.Text != "" &&
+                    machine.Name.ToLower().IndexOf(textBoxPoiskMach.Text.ToLower()) == -1)
+                {
+                    continue;
+                }
+
+                var sin = Msch.SingleOrDefault(s => s.Child == machine);
+                if (sin == null)
+                {
+                    List<object> listItem = new List<object>();
+                    listItem.Add(machine);
+                    listItem.Add(false);
+                    listItem.Add(machine.Name);
+                    listItem.Add(machine.Type);
+                    listItem.Add(machine.Unit);
+                    listItem.Add("");
+                    dataGridViewMeha.Rows.Add(listItem.ToArray());
+                }
+            }
+
+
+        }
+
         public void dataGridViewEtapUpdate()
         {
             dataGridViewEtap.Rows.Clear();
 
             var al = TechOperationForm.TechOperationWorksList.OrderBy(o=>o.Order);
+
+            var allMsch = TechOperationForm.TehCarta.Machine_TCs.ToList();
+
+            while (dataGridViewEtap.Columns.Count>5)
+            {
+                dataGridViewEtap.Columns.RemoveAt(5);
+            }
+
+            foreach (var machine in allMsch)
+            {
+                var chach = new DataGridViewCheckBoxColumn();
+                chach.HeaderText = machine.Child.Name;
+
+                dataGridViewEtap.Columns.Add(chach);
+            }
+
 
             foreach (TechOperationWork techOperationWork in al)
             {
@@ -951,7 +1124,20 @@ namespace TC_WinForms.WinForms.Work
                     {
                         listItem.Add(Wor.Posled);
                     }
-                    
+
+                    foreach (var machine in allMsch)
+                    {
+                        var fv = Wor.Machines.SingleOrDefault(w => w.Child == machine.Child);
+                        if (fv == null)
+                        {
+                            listItem.Add(false);
+                        }
+                        else
+                        {
+                            listItem.Add(true);
+                        }
+                    }
+
                     dataGridViewEtap.Rows.Add(listItem.ToArray());
                 }
             }
@@ -983,6 +1169,79 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
+        private void DataGridViewEtap_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex > 4)
+            {
+                dataGridViewEtap.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                var che = (bool)dataGridViewEtap.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                var id = (ExecutionWork)dataGridViewEtap.Rows[e.RowIndex].Cells[0].Value;
+
+                var allMsch = TechOperationForm.TehCarta.Machine_TCs.ToList();
+                var mach = allMsch[e.ColumnIndex - 5];
+
+                var bn = id.Machines.SingleOrDefault(s => s == mach);
+                if (che)
+                {
+                    if (bn == null)
+                    {
+                        id.Machines.Add(mach);
+                        TechOperationForm.UpdateGrid();
+                    }
+                }
+                else
+                {
+                    if (bn != null)
+                    {
+                        id.Machines.Remove(bn);
+                        TechOperationForm.UpdateGrid();
+                    }
+                }
+            }
+        }
+        
+
+
+        private void DataGridViewMeha_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+        {
+           
+            if (e.ColumnIndex ==1)
+            {
+                dataGridViewMeha.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                var id = (Machine)dataGridViewMeha.Rows[e.RowIndex].Cells[0].Value;
+                var che = (bool)dataGridViewMeha.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+                var allMsch = TechOperationForm.TehCarta.Machines.ToList();
+
+                if (che)
+                {
+                    var bn = TechOperationForm.TehCarta.Machine_TCs.SingleOrDefault(s => s.Child == id);
+                    if (bn == null)
+                    {
+                        bn = new Machine_TC();
+                        bn.Child = id;
+                        bn.Quantity = 1;
+                        bn.Parent = TechOperationForm.TehCarta;
+                        TechOperationForm.TehCarta.Machine_TCs.Add(bn);
+                        dataGridViewEtapUpdate();
+                        dataGridViewMehaUpdate();
+                        TechOperationForm.UpdateGrid();
+                    }
+                }
+                else
+                {
+                    var bn = TechOperationForm.TehCarta.Machine_TCs.SingleOrDefault(s => s.Child == id);
+                    if (bn != null)
+                    {
+                        TechOperationForm.TehCarta.Machine_TCs.Remove(bn);
+                        dataGridViewEtapUpdate();
+                        dataGridViewMehaUpdate();
+                        TechOperationForm.UpdateGrid();
+                    }
+                }
+
+            }
+        }
 
 
         #endregion
@@ -1077,6 +1336,7 @@ namespace TC_WinForms.WinForms.Work
             if (tabControl1.SelectedTab.Name == "tabPage8")
             {
                 dataGridViewEtapUpdate();
+                dataGridViewMehaUpdate();
             }
 
 

@@ -34,6 +34,7 @@ namespace TC_WinForms.WinForms.Work
 
         public bool Work = false;
         public ExecutionWork techWork;
-
+        public List<bool> listMach = new List<bool>();
+        public List<string> listMachStr = new List<string>();
     }
 }
