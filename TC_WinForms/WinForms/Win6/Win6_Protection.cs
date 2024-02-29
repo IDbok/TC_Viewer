@@ -248,7 +248,7 @@ namespace TC_WinForms.WinForms
                 // check if new cell value is a number
                 if (int.TryParse(row.Cells["Order"].Value.ToString(), out int orderValue))
                 {
-                    if (orderValue == e.RowIndex + 1) { return; }
+                    if (orderValue == e.RowIndex + 1) { dgvMain.Enabled = true; return; }
                     if (orderValue > 0 && orderValue <= dgvMain.Rows.Count)
                     { ReorderRows(row, orderValue, dgvMain); }
                     else
