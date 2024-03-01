@@ -110,6 +110,33 @@ namespace TC_WinForms.DataProcessing.Utilities
 
             WinProcessing.SetTableHeadersNames(displayedobj.GetPropertiesNames(), dgv);
             WinProcessing.SetTableColumnsOrder(displayedobj.GetPropertiesOrder(), dgv);
+
+            //var propertiesOrder = displayedobj.GetPropertiesOrder();
+            //var propertiesNames = displayedobj.GetPropertiesNames();
+
+            //foreach (var propertyName in propertiesOrder)
+            //{
+            //    var propertyType = typeof(T).GetProperty(propertyName)?.PropertyType;
+
+            //    if (propertyType == typeof(bool) || propertyType == typeof(bool?))
+            //    {
+            //        var column = new DataGridViewCheckBoxColumn
+            //        {
+            //            Name = propertyName,
+            //            HeaderText = propertiesNames[propertyName],
+            //            DataPropertyName = propertyName,
+            //            AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+            //            TrueValue = true,
+            //            FalseValue = false,
+            //            IndeterminateValue = null // Adjust if necessary
+            //        };
+            //        dgv.Columns.Add(column);
+            //    }
+            //    else
+            //    {
+            //        dgv.Columns.Add(propertyName, propertiesNames[propertyName]);
+            //    }
+            //}
         }
         public static void ListChangedEventHandler<T>(ListChangedEventArgs e, BindingList<T> bindingList, List<T> newObjects, List<T> changedObjects, ref T newObject) where T : class, IDisplayedEntity, new()
         {
