@@ -27,15 +27,33 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            //CreateNewDb();
-            //string dataFolderPath = AppDomain.CurrentDomain.GetData("Serialised data").ToString();
-            //Console.WriteLine("Полный путь к папке с данными: " + dataFolderPath);
-            string cD = Directory.GetCurrentDirectory();
-            Console.WriteLine(cD);
-            string RealPath = Path.GetFullPath(Path.Combine(cD, @"..\..\..\..\"));
-            Console.WriteLine(RealPath);
-            string dataFolderPath = Path.Combine(RealPath, "Serialised data");
-            Console.WriteLine(dataFolderPath);
+            var parser = new WorkParser();
+
+            //var toList = parser.ParseExcelToObjectsTechOperation(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx", "Перечень ТО");
+
+            var toList = parser.ParseExcelToObjectsTechTransition(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx", "Типовые переходы");
+
+            foreach (var item in toList)
+            {
+                Console.WriteLine(item.Id + " " + item.Name + " " + item.Category);
+            }
+
+            using (var db = new MyDbContext())
+            {
+                var existingTO = db.TechTransitions.ToList();
+
+                //toList.ForEach(to =>
+                //{
+                //    if (!existingTO.Any(eTO => eTO.Id == to.Id))
+                //    {
+                //        db.TechTransitions.Add(to);
+                //    }
+                //});
+
+                db.TechTransitions.AddRange(toList);
+
+                db.SaveChanges();
+            }
 
         }
 
