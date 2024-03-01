@@ -504,7 +504,12 @@ namespace TC_WinForms.WinForms.Work
         {
             var vb = TechOperationWorksList.SingleOrDefault(s => s.techOperation == TechOperat);
 
-            var maxOrder = TechOperationWorksList.Max(m => m.Order);
+            int maxOrder = -1;
+
+            if (TechOperationWorksList.Count > 0)
+            {
+                maxOrder = TechOperationWorksList.Max(m => m.Order);
+            }
 
             if (vb == null)
             {

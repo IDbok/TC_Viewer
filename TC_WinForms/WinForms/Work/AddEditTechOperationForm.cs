@@ -151,6 +151,7 @@ namespace TC_WinForms.WinForms.Work
         }
         public void UpdateTO()
         {
+            var offScroll = dataGridViewAllTO.FirstDisplayedScrollingRowIndex;
             dataGridViewAllTO.Rows.Clear();
 
             var context = TechOperationForm.context;
@@ -184,12 +185,21 @@ namespace TC_WinForms.WinForms.Work
                 dataGridViewAllTO.Rows.Add(listItem.ToArray());
             }
 
+            try
+            {
+                dataGridViewAllTO.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+           
 
         }
 
 
         public void UpdateLocalTO()
         {
+            var offScroll = dataGridViewTO.FirstDisplayedScrollingRowIndex;
             dataGridViewTO.Rows.Clear();
 
             List<TechOperationWork> list = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false)
@@ -206,6 +216,15 @@ namespace TC_WinForms.WinForms.Work
             comboBoxTO.DataSource = list2;
             comboBoxTO2.DataSource = list2;
             comboBoxTO3.DataSource = list2;
+
+            try
+            {
+                dataGridViewTO.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+            
         }
 
 
@@ -287,6 +306,7 @@ namespace TC_WinForms.WinForms.Work
         }
         public void UpdateGridAllTP()
         {
+            var offScroll = dataGridViewTPAll.FirstDisplayedScrollingRowIndex;
             dataGridViewTPAll.Rows.Clear();
 
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
@@ -323,12 +343,22 @@ namespace TC_WinForms.WinForms.Work
 
                 dataGridViewTPAll.Rows.Add(listItem.ToArray());
             }
+
+            try
+            {
+                dataGridViewTPAll.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+           
         }
 
 
 
         public void UpdateGridLocalTP()
         {
+            var offScroll = dataGridViewTPLocal.FirstDisplayedScrollingRowIndex;
             dataGridViewTPLocal.Rows.Clear();
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Where(w => w.Delete == false).ToList();
@@ -355,7 +385,15 @@ namespace TC_WinForms.WinForms.Work
                 comboBoxStaff.DataSource = listExecutionWork;
                 comboBoxSZ.DataSource = listExecutionWork;
             }
-         
+
+            try
+            {
+                dataGridViewTPLocal.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+            
 
             //dataGridViewTO.Rows.Clear();
 
@@ -436,6 +474,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateGridStaff()
         {
+            var offScroll = dataGridViewStaff.FirstDisplayedScrollingRowIndex;
             var ExecutionWorkBox = (ExecutionWork)comboBoxStaff.SelectedItem;
             dataGridViewStaff.Rows.Clear();
             if (ExecutionWorkBox == null)
@@ -466,6 +505,15 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add(staffTc.Child.Name);
                 dataGridViewStaff.Rows.Add(listItem.ToArray());
             }
+
+            try
+            {
+                dataGridViewStaff.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+            
         }
 
         #endregion
@@ -515,6 +563,7 @@ namespace TC_WinForms.WinForms.Work
         }
         public void UpdateGridAllSZ()
         {
+            var offScroll = dataGridViewAllSZ.FirstDisplayedScrollingRowIndex;
             dataGridViewAllSZ.Rows.Clear();
 
             var work = (ExecutionWork)comboBoxSZ.SelectedItem;
@@ -590,10 +639,20 @@ namespace TC_WinForms.WinForms.Work
                 dataGridViewAllSZ.Rows.Add(listItem.ToArray());
             }
 
+            try
+            {
+                dataGridViewAllSZ.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+            
+
         }
 
         public void UpdateGridLocalSZ()
         {
+            var offScroll = dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex;
             dataGridViewLocalSZ.Rows.Clear();
             var work = (ExecutionWork)comboBoxSZ.SelectedItem;
 
@@ -617,6 +676,15 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add(sz.Quantity);
                 dataGridViewLocalSZ.Rows.Add(listItem.ToArray());
             }
+
+            try
+            {
+                dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+            
         }
 
         private void DataGridViewAllSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -692,6 +760,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateComponentAll()
         {
+            var offScroll = dataGridViewComponentAll.FirstDisplayedScrollingRowIndex;
             dataGridViewComponentAll.Rows.Clear();
 
             var work = (TechOperationWork)comboBoxTO2.SelectedItem;
@@ -758,10 +827,20 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add("");
                 dataGridViewComponentAll.Rows.Add(listItem.ToArray());
             }
+
+            try
+            {
+                dataGridViewComponentAll.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+            
         }
 
         public void UpdateComponentLocal()
         {
+            var offScroll = dataGridViewComponentLocal.FirstDisplayedScrollingRowIndex;
             dataGridViewComponentLocal.Rows.Clear();
             var work = (TechOperationWork)comboBoxTO2.SelectedItem;
             var LocalComponent = work.ComponentWorks.ToList();
@@ -779,6 +858,15 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add(componentWork.Quantity.ToString());
                 dataGridViewComponentLocal.Rows.Add(listItem.ToArray());
             }
+
+            try
+            {
+                dataGridViewComponentLocal.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+            
         }
 
 
@@ -853,6 +941,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateInstrumentLocal()
         {
+            var offScroll = dataGridViewInstrumentLocal.FirstDisplayedScrollingRowIndex;
             dataGridViewInstrumentLocal.Rows.Clear();
             var work = (TechOperationWork)comboBoxTO3.SelectedItem;
             var LocalInstrument = work.ToolWorks.ToList();
@@ -870,10 +959,20 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add(InstrumentWork.Quantity);
                 dataGridViewInstrumentLocal.Rows.Add(listItem.ToArray());
             }
+
+            try
+            {
+                dataGridViewInstrumentLocal.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+           
         }
 
         public void UpdateInstrumentAll()
         {
+            var offScroll = dataGridViewInstumentAll.FirstDisplayedScrollingRowIndex;
             dataGridViewInstumentAll.Rows.Clear();
 
             var work = (TechOperationWork)comboBoxTO3.SelectedItem;
@@ -936,6 +1035,15 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add("");
                 dataGridViewInstumentAll.Rows.Add(listItem.ToArray());
             }
+
+            try
+            {
+                dataGridViewInstumentAll.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+            
         }
 
 
@@ -1025,6 +1133,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void dataGridViewMehaUpdate()
         {
+            var offScroll = dataGridViewMeha.FirstDisplayedScrollingRowIndex;
             dataGridViewMeha.Rows.Clear();
 
             var Msch = TechOperationForm.TehCarta.Machine_TCs.ToList();
@@ -1072,11 +1181,20 @@ namespace TC_WinForms.WinForms.Work
                 }
             }
 
+            try
+            {
+                dataGridViewMeha.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
+            
 
         }
 
         public void dataGridViewEtapUpdate()
         {
+            var offScroll = dataGridViewEtap.FirstDisplayedScrollingRowIndex;
             dataGridViewEtap.Rows.Clear();
 
             var al = TechOperationForm.TechOperationWorksList.OrderBy(o=>o.Order);
@@ -1141,7 +1259,13 @@ namespace TC_WinForms.WinForms.Work
                     dataGridViewEtap.Rows.Add(listItem.ToArray());
                 }
             }
-            
+            try
+            {
+                dataGridViewEtap.FirstDisplayedScrollingRowIndex = offScroll;
+            }
+            catch (Exception e)
+            {
+            }
 
         }
 
