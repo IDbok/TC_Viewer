@@ -197,7 +197,7 @@ namespace TC_WinForms.WinForms.Work
             foreach (TechOperationWork techOperationWork in list)
             {
                 List<object> listItem = new List<object>();
-                listItem.Add(techOperationWork.Id);
+                listItem.Add(techOperationWork);
                 listItem.Add(techOperationWork.techOperation.Name);
                 dataGridViewTO.Rows.Add(listItem.ToArray());
             }
@@ -294,7 +294,7 @@ namespace TC_WinForms.WinForms.Work
             var context = TechOperationForm.context;
 
             allTP = context.TechTransitions.ToList();
-            var list = TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.ToList();
+            var list = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.ToList();
 
             foreach (TechTransition techTransition in allTP)
             {
@@ -331,7 +331,7 @@ namespace TC_WinForms.WinForms.Work
         {
             dataGridViewTPLocal.Rows.Clear();
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
-            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Where(w => w.Delete == false).ToList();
+            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Where(w => w.Delete == false).ToList();
 
             foreach (ExecutionWork executionWork in LocalTP)
             {
@@ -392,7 +392,7 @@ namespace TC_WinForms.WinForms.Work
 
             var ExecutionWorkBox = (ExecutionWork)comboBoxStaff.SelectedItem;
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
-            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
+            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
             foreach (DataGridViewRow? row in dataGridViewStaff.Rows)
             {
@@ -444,7 +444,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
-            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
+            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
             
             foreach (Staff_TC staffTc in AllStaff)
@@ -1253,11 +1253,11 @@ namespace TC_WinForms.WinForms.Work
                 var select = dataGridViewTO.SelectedRows;
                 if (select.Count > 0)
                 {
-                    var id = (int)select[0].Cells[0].Value;
+                    var id = (TechOperationWork)select[0].Cells[0].Value;
 
                     foreach (TechOperationWork item in comboBoxTO.Items)
                     {
-                        if (item.Id == id)
+                        if (item == id)
                         {
                             comboBoxTO.SelectedItem = item;
                         }
@@ -1270,11 +1270,11 @@ namespace TC_WinForms.WinForms.Work
                 var select = dataGridViewTO.SelectedRows;
                 if (select.Count > 0)
                 {
-                    var id = (int)select[0].Cells[0].Value;
+                    var id = (TechOperationWork)select[0].Cells[0].Value;
 
                     foreach (TechOperationWork item in comboBoxTO2.Items)
                     {
-                        if (item.Id == id)
+                        if (item == id)
                         {
                             comboBoxTO2.SelectedItem = item;
                         }
@@ -1287,11 +1287,11 @@ namespace TC_WinForms.WinForms.Work
                 var select = dataGridViewTO.SelectedRows;
                 if (select.Count > 0)
                 {
-                    var id = (int)select[0].Cells[0].Value;
+                    var id = (TechOperationWork)select[0].Cells[0].Value;
 
                     foreach (TechOperationWork item in comboBoxTO3.Items)
                     {
-                        if (item.Id == id)
+                        if (item == id)
                         {
                             comboBoxTO3.SelectedItem = item;
                         }
@@ -1350,9 +1350,9 @@ namespace TC_WinForms.WinForms.Work
                 var list = dataGridViewTO.Rows;
                 foreach (DataGridViewRow dataGridViewRow in list)
                 {
-                    var idd = (int)dataGridViewRow.Cells[0].Value;
+                    var idd = (TechOperationWork)dataGridViewRow.Cells[0].Value;
                     var ord = (int)dataGridViewRow.Cells["Order"].Value;
-                    TechOperationWork TechOperat = TechOperationForm.TechOperationWorksList.SingleOrDefault(s => s.techOperation.Id == idd);
+                    TechOperationWork TechOperat = TechOperationForm.TechOperationWorksList.SingleOrDefault(s => s == idd);
 
                     if (TechOperat != null)
                     {
