@@ -503,12 +503,16 @@ namespace TC_WinForms.WinForms.Work
         public void AddTechOperation(TechOperation TechOperat)
         {
             var vb = TechOperationWorksList.SingleOrDefault(s => s.techOperation == TechOperat);
+
+            var maxOrder = TechOperationWorksList.Max(m => m.Order);
+
             if (vb == null)
             {
                 TechOperationWork techOperationWork = new TechOperationWork();
                 techOperationWork.techOperation = TechOperat;
                 techOperationWork.technologicalCard = TehCarta;
                 techOperationWork.NewItem = true;
+                techOperationWork.Order = maxOrder + 1;
 
                 TechOperationWorksList.Add(techOperationWork);
             }
@@ -521,7 +525,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork)
         {
-            TechOperationWork TOWork = TechOperationWorksList.Single(s => s.Id == techOperationWork.Id);
+            TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
             var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
 
             if (exec.Count > 0)
@@ -553,7 +557,7 @@ namespace TC_WinForms.WinForms.Work
         }
         public void DeleteTechTransit(Guid IdGuid, TechOperationWork techOperationWork)
         {
-            TechOperationWork TOWork = TechOperationWorksList.Single(s => s.Id == techOperationWork.Id);
+            TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
             var vb = TOWork.executionWorks.SingleOrDefault(s => s.IdGuid == IdGuid);
             if (vb != null)
             {
