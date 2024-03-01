@@ -196,11 +196,17 @@ namespace TC_WinForms.WinForms
                 return;
             }
             // get selected objects
-            var selectedObjs = selectedRows.Select(r => r.DataBoundItem as Tool).ToList();
+            var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedTool).ToList();
+            var newItems = new List<Tool>();
+            foreach (var obj in selectedObjs)
+            {
+                newItems.Add(CreateNewObject(obj));
+            }
+
             // find opened form
             var tcEditor = Application.OpenForms.OfType<Win6_Tool>().FirstOrDefault();
 
-            tcEditor.AddNewObjects(selectedObjs);
+            tcEditor.AddNewObjects(newItems);
 
             // close form
             this.Close();

@@ -191,11 +191,16 @@ namespace TC_WinForms.WinForms
                 return;
             }
             // get selected objects
-            var selectedObjs = selectedRows.Select(r => r.DataBoundItem as Protection).ToList();
+            var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedProtection).ToList();
             // find opened form
             var tcEditor = Application.OpenForms.OfType<Win6_Protection>().FirstOrDefault();
+            var newItems = new List<Protection>();
+            foreach (var obj in selectedObjs)
+            {
+                newItems.Add(CreateNewObject(obj));
+            }
 
-            tcEditor.AddNewObjects(selectedObjs);
+            tcEditor.AddNewObjects(newItems);
 
             // close form
             this.Close();
