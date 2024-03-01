@@ -54,6 +54,9 @@
     <Compile Update="WinForms\Archive\Win6_Generic.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="WinForms\Win7\Win7_TechOperation.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="WinForms\Win7\Win7_7 Protection.cs">
       <SubType>Form</SubType>
     </Compile>

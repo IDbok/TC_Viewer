@@ -36,7 +36,7 @@
             toolStripButton3 = new ToolStripButton();
             pnlNavigationBlok = new Panel();
             pnlNavigationBtns = new Panel();
-            button8 = new Button();
+            btnTechOperation = new Button();
             btnTool = new Button();
             btnProtection = new Button();
             btnMachine = new Button();
@@ -46,6 +46,7 @@
             btnTechCard = new Button();
             pnlLable = new Panel();
             pnlDataViewer = new Panel();
+            btnWorkStep = new Button();
             pnlToolStrinp.SuspendLayout();
             toolStrip1.SuspendLayout();
             pnlNavigationBlok.SuspendLayout();
@@ -110,7 +111,8 @@
             // 
             // pnlNavigationBtns
             // 
-            pnlNavigationBtns.Controls.Add(button8);
+            pnlNavigationBtns.Controls.Add(btnWorkStep);
+            pnlNavigationBtns.Controls.Add(btnTechOperation);
             pnlNavigationBtns.Controls.Add(btnTool);
             pnlNavigationBtns.Controls.Add(btnProtection);
             pnlNavigationBtns.Controls.Add(btnMachine);
@@ -125,16 +127,17 @@
             pnlNavigationBtns.Size = new Size(248, 772);
             pnlNavigationBtns.TabIndex = 2;
             // 
-            // button8
+            // btnTechOperation
             // 
-            button8.Dock = DockStyle.Top;
-            button8.Location = new Point(0, 595);
-            button8.Margin = new Padding(4);
-            button8.Name = "button8";
-            button8.Size = new Size(248, 85);
-            button8.TabIndex = 9;
-            button8.Text = "Технологиеские операции";
-            button8.UseVisualStyleBackColor = true;
+            btnTechOperation.Dock = DockStyle.Top;
+            btnTechOperation.Location = new Point(0, 595);
+            btnTechOperation.Margin = new Padding(4);
+            btnTechOperation.Name = "btnTechOperation";
+            btnTechOperation.Size = new Size(248, 85);
+            btnTechOperation.TabIndex = 9;
+            btnTechOperation.Text = "Технологиеские операции";
+            btnTechOperation.UseVisualStyleBackColor = true;
+            btnTechOperation.Click += btnTechOperation_Click;
             // 
             // btnTool
             // 
@@ -239,6 +242,18 @@
             pnlDataViewer.Size = new Size(1230, 907);
             pnlDataViewer.TabIndex = 3;
             // 
+            // btnWorkStep
+            // 
+            btnWorkStep.Dock = DockStyle.Top;
+            btnWorkStep.Location = new Point(0, 680);
+            btnWorkStep.Margin = new Padding(4);
+            btnWorkStep.Name = "btnWorkStep";
+            btnWorkStep.Size = new Size(248, 85);
+            btnWorkStep.TabIndex = 10;
+            btnWorkStep.Text = "Технологиеские переходы";
+            btnWorkStep.UseVisualStyleBackColor = true;
+            btnWorkStep.Click += btnWorkStep_Click;
+            // 
             // Win7_new
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -276,10 +291,11 @@
         private Panel pnlLable;
         private Button btnStaff;
         private Button btnProject;
-        private Button button8;
+        private Button btnTechOperation;
         private Button btnTool;
         private Button btnProtection;
         private Button btnMachine;
         private Button btnComponent;
+        private Button btnWorkStep;
     }
 }

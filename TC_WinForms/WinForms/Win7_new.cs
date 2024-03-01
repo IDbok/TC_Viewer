@@ -11,7 +11,7 @@ namespace TC_WinForms.WinForms
         private readonly int _accessLevel;
 
         private readonly Dictionary<WinNumber, Form> _forms = new Dictionary<WinNumber, Form>();
-        
+
         public Win7_new(int accessLevel)
         {
             _accessLevel = accessLevel;
@@ -50,7 +50,7 @@ namespace TC_WinForms.WinForms
 
         }
 
-        
+
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         private void LoadFormInPanel(WinNumber winNumber)
@@ -90,6 +90,8 @@ namespace TC_WinForms.WinForms
                     return new Win7_7_Protection(_accessLevel);
                 case WinNumber.Tool:
                     return new Win7_6_Tool(_accessLevel);
+                case WinNumber.TechOperation:
+                    return new Win7_TechOperation(_accessLevel);
                 default:
                     return null;
             }
@@ -103,20 +105,26 @@ namespace TC_WinForms.WinForms
             }
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
         private void btnTechCard_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.TC);
         private void btnStaff_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Staff);
         private void btnComponent_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Component);
         private void btnMachine_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Machine);
         private void btnProtection_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Protection);
         private void btnTool_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Tool);
+        private void btnTechOperation_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.TechOperation);
+        
 
+        private void btnWorkStep_Click(object sender, EventArgs e)
+        {
+
+        }
 
         private async void ControlSaveEvent(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.S)
             {
-                await Save(); 
+                await Save();
             }
         }
 
@@ -124,7 +132,7 @@ namespace TC_WinForms.WinForms
         {
             // todo - save all changes in all forms 
 
-            
+
             foreach (var frm in _forms)
             {
                 var form = frm.Value;
@@ -141,6 +149,8 @@ namespace TC_WinForms.WinForms
             MessageBox.Show("Сохранено!");
         }
 
+        
+
         enum WinNumber
         {
             TC = 1,
@@ -149,7 +159,10 @@ namespace TC_WinForms.WinForms
             Component = 4,
             Machine = 5,
             Protection = 6,
-            Tool = 7
+            Tool = 7,
+
+            TechOperation = 8,
+            WorkStep = 9
         }
 
     }
