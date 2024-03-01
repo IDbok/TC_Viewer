@@ -776,7 +776,7 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add(componentWork.component.Name);
                 listItem.Add(componentWork.component.Type);
                 listItem.Add(componentWork.component.Unit);
-                listItem.Add(componentWork.Quantity);
+                listItem.Add(componentWork.Quantity.ToString());
                 dataGridViewComponentLocal.Rows.Add(listItem.ToArray());
             }
         }
@@ -908,7 +908,7 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add(componentTc.Child.Name);
                 listItem.Add(componentTc.Child.Type);
                 listItem.Add(componentTc.Child.Unit);
-                listItem.Add(componentTc.Quantity);
+                listItem.Add(componentTc.Quantity.ToString());
                 dataGridViewInstumentAll.Rows.Add(listItem.ToArray());
             }
 
