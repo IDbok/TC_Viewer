@@ -64,7 +64,7 @@ namespace TcModels.Models
         public string Version { get; set; } = "0.0.0.0";
 
         public string Type { get; set; } // Тип карты
-        public int NetworkVoltage { get; set; } // Сеть, кВ
+        public float NetworkVoltage { get; set; } // Сеть, кВ
         public string? TechnologicalProcessType { get; set; } // Тип тех. процесса
         public string? TechnologicalProcessName { get; set; } // Технологический процесс
         public string? TechnologicalProcessNumber { get; set; } // Номер тех. процесса

@@ -36,6 +36,7 @@
             toolStripButton3 = new ToolStripButton();
             pnlNavigationBlok = new Panel();
             pnlNavigationBtns = new Panel();
+            btnWorkStep = new Button();
             btnTechOperation = new Button();
             btnTool = new Button();
             btnProtection = new Button();
@@ -46,7 +47,6 @@
             btnTechCard = new Button();
             pnlLable = new Panel();
             pnlDataViewer = new Panel();
-            btnWorkStep = new Button();
             pnlToolStrinp.SuspendLayout();
             toolStrip1.SuspendLayout();
             pnlNavigationBlok.SuspendLayout();
@@ -126,6 +126,18 @@
             pnlNavigationBtns.Name = "pnlNavigationBtns";
             pnlNavigationBtns.Size = new Size(248, 772);
             pnlNavigationBtns.TabIndex = 2;
+            // 
+            // btnWorkStep
+            // 
+            btnWorkStep.Dock = DockStyle.Top;
+            btnWorkStep.Location = new Point(0, 680);
+            btnWorkStep.Margin = new Padding(4);
+            btnWorkStep.Name = "btnWorkStep";
+            btnWorkStep.Size = new Size(248, 85);
+            btnWorkStep.TabIndex = 10;
+            btnWorkStep.Text = "Технологиеские переходы";
+            btnWorkStep.UseVisualStyleBackColor = true;
+            btnWorkStep.Click += btnWorkStep_Click;
             // 
             // btnTechOperation
             // 
@@ -242,18 +254,6 @@
             pnlDataViewer.Size = new Size(1230, 907);
             pnlDataViewer.TabIndex = 3;
             // 
-            // btnWorkStep
-            // 
-            btnWorkStep.Dock = DockStyle.Top;
-            btnWorkStep.Location = new Point(0, 680);
-            btnWorkStep.Margin = new Padding(4);
-            btnWorkStep.Name = "btnWorkStep";
-            btnWorkStep.Size = new Size(248, 85);
-            btnWorkStep.TabIndex = 10;
-            btnWorkStep.Text = "Технологиеские переходы";
-            btnWorkStep.UseVisualStyleBackColor = true;
-            btnWorkStep.Click += btnWorkStep_Click;
-            // 
             // Win7_new
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -265,6 +265,7 @@
             Margin = new Padding(4);
             Name = "Win7_new";
             Text = "Form1";
+            WindowState = FormWindowState.Maximized;
             FormClosing += Win7_FormClosing;
             pnlToolStrinp.ResumeLayout(false);
             pnlToolStrinp.PerformLayout();

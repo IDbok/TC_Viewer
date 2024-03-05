@@ -127,7 +127,7 @@ namespace ExcelParsing.DataProcessing
                         Name = nameTc=="" ? NoName : nameTc,
 
                         Type = Convert.ToString(worksheet.Cells[row, 2].Value),
-                        NetworkVoltage = Convert.ToInt32(worksheet.Cells[row, 3].Value),
+                        NetworkVoltage = Convert.ToSingle(worksheet.Cells[row, 3].Value),
                         TechnologicalProcessType = Convert.ToString(worksheet.Cells[row, 4].Value),
                         TechnologicalProcessName = Convert.ToString(worksheet.Cells[row, 5].Value),
                         Parameter = Convert.ToString(worksheet.Cells[row, 6].Value),

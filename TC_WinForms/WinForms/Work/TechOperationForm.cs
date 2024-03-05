@@ -130,7 +130,7 @@ namespace TC_WinForms.WinForms.Work
             dgvMain.Columns[1].HeaderText = "Технологические операции";
             dgvMain.Columns[2].HeaderText = "Исполнитель";
             dgvMain.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            dgvMain.Columns[2].Width = 120;
+            dgvMain.Columns[2].Width = 120; 
             dgvMain.Columns[3].HeaderText = "Технологические переходы";
             dgvMain.Columns[4].HeaderText = "Время действ., мин.";
 

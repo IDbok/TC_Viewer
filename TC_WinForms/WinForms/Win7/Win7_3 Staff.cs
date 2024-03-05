@@ -42,6 +42,8 @@ namespace TC_WinForms.WinForms
 
         private async void Win7_3_Staff_Load(object sender, EventArgs e)
         {
+            progressBar.Visible = true;
+
             await LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedStaff>(dgvMain);
 
@@ -55,6 +57,7 @@ namespace TC_WinForms.WinForms
                 SetAddingFormEvents();
             }
 
+            progressBar.Visible = false;
         }
         private async Task LoadObjects()
         {
@@ -63,6 +66,8 @@ namespace TC_WinForms.WinForms
             _bindingList = new BindingList<DisplayedStaff>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
+
+            SetDGVColumnsSettings();
         }
         private void AccessInitialization(int accessLevel)
         {
@@ -177,20 +182,41 @@ namespace TC_WinForms.WinForms
                 Comment = dtc.Comment,
             };
         }
-        private void ColorizeEmptyRequiredCells() // todo - change call collore after value changed to non empty
-        {
-            DataGridViewRow row = dgvMain.Rows[0];
-            var colNames = Staff.GetPropertiesRequired;
-            foreach (var colName in colNames)
-            {
-                // get collumn index by name
-                var colIndex = dgvMain.Columns[colName].Index;
 
-                DGVProcessing.ColorizeCell(dgvMain, colIndex, row.Index, "Red");
+        ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
+
+        void SetDGVColumnsSettings()
+        {
+            // автоподбор ширины столбцов под ширину таблицы
+            dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvMain.RowHeadersWidth = 25;
+
+            //// автоперенос в ячейках
+            dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+            //    // ширина столбцов по содержанию
+            var autosizeColumn = new List<string>
+            {
+                nameof(DisplayedStaff.Id),
+                //nameof(DisplayedStaff.Name),
+                //nameof(DisplayedStaff.Type),
+                //nameof(DisplayedStaff.Functions),
+                //nameof(DisplayedStaff.CombineResponsibility),
+                //nameof(DisplayedStaff.Qualification),
+                //nameof(DisplayedStaff.Comment),
+            };
+            foreach (var column in autosizeColumn)
+            {
+                dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             }
 
 
+            dgvMain.Columns[nameof(DisplayedStaff.Id)].ReadOnly = true;
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /////////////////////////////////////////// * isAddingFormMethods and Events * ///////////////////////////////////////////
 
@@ -265,8 +291,6 @@ namespace TC_WinForms.WinForms
                     nameof(CombineResponsibility),
                     nameof(Qualification),
                     nameof(Comment),
-                    
-
                 };
             }
             public List<string> GetRequiredFields()

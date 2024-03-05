@@ -1,6 +1,7 @@
 ﻿
 using System.ComponentModel;
 using System.DirectoryServices.ActiveDirectory;
+using System.Xml;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using static TC_WinForms.WinForms.Win6_Staff;
@@ -200,5 +201,47 @@ namespace TC_WinForms.DataProcessing.Utilities
                 }
             }
         }
+        public static void ListChangedEventHandlerIntermediate<T>(ListChangedEventArgs e, 
+            BindingList<T> bindingList, List<T> newObjects, List<T> changedObjects, List<T> deletedObjects) 
+            where T : class, IDisplayedEntity, new()
+        {
+            if (e.ListChangedType == ListChangedType.ItemChanged)
+            {
+                var changedItem = bindingList[e.NewIndex];
+
+                //todo: ReorderRows remove from DGVprocessing to DisplayedEntityHelper in ListChangedEventHandlerIntermediate
+
+                if (newObjects.Contains(changedItem)) // if changed new Objects don't add it to changed list
+                {
+                    return;
+                }
+                
+                if (!changedObjects.Contains(changedItem))
+                {
+                    changedObjects.Add(changedItem);
+                }
+            }
+        }
+
+        //private static void OrderChangedEventHandler<T>(ListChangedEventArgs e, BindingList<T> bindingList, List<T> changedObjects) where T : class, IDisplayedEntity, IOrderable new()
+        //{
+        //    if (e.ListChangedType == ListChangedType.ItemChanged)
+        //    {
+        //        var changedItem = bindingList[e.NewIndex];
+
+        //        // check if changed Order property and get old value
+        //        if (e.PropertyDescriptor != null && e.PropertyDescriptor.Name == nameof(IOrderable.Order))
+        //        {
+        //            if (orderValue == e.RowIndex + 1) { return; }
+        //            MoveRowAndUpdateOrder(_bindingList, e.RowIndex, orderValue - 1);
+
+        //        }
+        //        if (!changedObjects.Contains(changedItem))
+        //        {
+        //            changedObjects.Add(changedItem);
+        //        }
+        //    }
+        //}
+
     }
 }

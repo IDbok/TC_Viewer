@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Reflection.Metadata;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TcModels.Models;
@@ -25,16 +26,22 @@ namespace TC_WinForms.WinForms
 
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
+            progressBar.Visible = true;
             await LoadTechnologicalCards();
             DisplayedEntityHelper.SetupDataGridView<DisplayedTechnologicalCard>(dgvMain);
+            progressBar.Visible = false;
         }
         private async Task LoadTechnologicalCards()
         {
-            var tcList = await Task.Run(()=>dbCon.GetObjectList<TechnologicalCard>()
-                .Select(tc => new DisplayedTechnologicalCard (tc)).ToList());
+            var tcList = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
+                .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
             _bindingList = new BindingList<DisplayedTechnologicalCard>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
+            ConfigureDgvWithComboBoxColumn();
+
             dgvMain.DataSource = _bindingList;
+
+            SetDGVColumnsSettings();
         }
         private void AccessInitialization(int accessLevel)
         {
@@ -65,7 +72,7 @@ namespace TC_WinForms.WinForms
 
         public async Task SaveChanges()
         {
-            
+
             // stop editing cell
             dgvMain.EndEdit();
             // todo- check if in added tech card fulfilled all required fields
@@ -99,7 +106,7 @@ namespace TC_WinForms.WinForms
             {
                 var newId = newTcs.Where(s => s.Article == newCard.Article).FirstOrDefault().Id;
                 newCard.Id = newId;
-            } 
+            }
 
             //MessageBox.Show("Новые карты сохранены.");
             _newObjects.Clear();
@@ -113,7 +120,7 @@ namespace TC_WinForms.WinForms
             _changedObjects.Clear();
         }
 
-        
+
         private TechnologicalCard CreateNewObject(DisplayedTechnologicalCard dtc)
         {
             return new TechnologicalCard
@@ -138,7 +145,68 @@ namespace TC_WinForms.WinForms
 
             };
         }
-        
+
+        ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
+
+        void SetDGVColumnsSettings()
+        {
+            //if (dgvMain.InvokeRequired)
+            //{
+            //    dgvMain.Invoke((MethodInvoker)(() => AutoSizeColumns()));
+            //}
+            //else
+            //{
+            //    AutoSizeColumns();
+            //}
+
+            // автоподбор ширины столбцов под ширину таблицы
+            dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            // dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvMain.RowHeadersWidth = 25;
+
+            //// автоперенос в ячейках
+            dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+
+            //    // ширина столбцов по содержанию
+            var autosizeColumn = new List<string>
+            {
+                nameof(DisplayedTechnologicalCard.Article),
+                nameof(DisplayedTechnologicalCard.Type),
+                nameof(DisplayedTechnologicalCard.NetworkVoltage),
+                //nameof(DisplayedTechnologicalCard.TechnologicalProcessType),
+                //nameof(DisplayedTechnologicalCard.TechnologicalProcessName),
+                nameof(DisplayedTechnologicalCard.Parameter),
+                //nameof(DisplayedTechnologicalCard.FinalProduct),
+                // nameof(DisplayedTechnologicalCard.Applicability),
+                // nameof(DisplayedTechnologicalCard.Note),
+                nameof(DisplayedTechnologicalCard.IsCompleted),
+                nameof(DisplayedTechnologicalCard.Id),
+                nameof(DisplayedTechnologicalCard.Version),
+            };
+            foreach (var column in autosizeColumn)
+            {
+                dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            }
+
+            //    //// make columns readonly
+            //    //foreach (DataGridViewColumn column in dgvMain.Columns)
+            //    //{
+            //    //    column.ReadOnly = true;
+            //    //}
+            //    //// make columns editable
+            //    //dgvMain.Columns["Order"].ReadOnly = false;
+
+            dgvMain.Columns[nameof(DisplayedTechnologicalCard.Id)].ReadOnly = true;
+            dgvMain.Columns[nameof(DisplayedTechnologicalCard.Version)].ReadOnly = true;
+
+
+
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void UpdateSelected()
         {
             if (dgvMain.SelectedRows.Count == 1)
@@ -200,18 +268,32 @@ namespace TC_WinForms.WinForms
             DisplayedEntityHelper.ListChangedEventHandler<DisplayedTechnologicalCard>
                 (e, _bindingList, _newObjects, _changedObjects, ref _newObject);
         }
-        private void AddComboboxColumn() // must be added before datasourse to DGV
+
+        private void ConfigureDgvWithComboBoxColumn()
         {
-            //comboBoxColumn.DataSource = new string[] { "Значение1", "Значение2", "Значение3" }; // Значения для выбора
-            
             DataGridViewComboBoxColumn cmbColumn = new DataGridViewComboBoxColumn();
             cmbColumn.HeaderText = "Тип карты";
-            cmbColumn.Name = "cmbType";
-            cmbColumn.Items.AddRange("Ремонтная", "Монтажная", "ТТ");
+            cmbColumn.Name = nameof(DisplayedTechnologicalCard.Type);
+            cmbColumn.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
+
             cmbColumn.DataPropertyName = nameof(DisplayedTechnologicalCard.Type);
-            cmbColumn.FlatStyle = FlatStyle.Flat; 
+
+            cmbColumn.FlatStyle = FlatStyle.Flat;
+
             dgvMain.Columns.Add(cmbColumn);
+
+            DataGridViewComboBoxColumn cmbColumn2 = new DataGridViewComboBoxColumn();
+            cmbColumn2.HeaderText = "Сеть, кВ";
+            cmbColumn2.Name = nameof(DisplayedTechnologicalCard.NetworkVoltage);
+            cmbColumn2.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f, 0f });
+
+            cmbColumn2.DataPropertyName = nameof(DisplayedTechnologicalCard.NetworkVoltage);
+
+            cmbColumn2.FlatStyle = FlatStyle.Flat;
+
+            dgvMain.Columns.Add(cmbColumn2);
         }
+
 
         private class DisplayedTechnologicalCard : INotifyPropertyChanged, IDisplayedEntity
         {
@@ -250,7 +332,7 @@ namespace TC_WinForms.WinForms
                     nameof(IsCompleted),
                     nameof(Id),
                     nameof(Version),
-                    
+
                 };
             }
             public List<string> GetRequiredFields()
@@ -269,7 +351,7 @@ namespace TC_WinForms.WinForms
             private string? description;
             private string version = "0.0.0.0";
             private string type;
-            private int networkVoltage;
+            private float networkVoltage;
             private string? technologicalProcessType;
             private string? technologicalProcessName;
             private string? technologicalProcessNumber;
@@ -283,7 +365,7 @@ namespace TC_WinForms.WinForms
 
             public DisplayedTechnologicalCard()
             {
-                
+
             }
             public DisplayedTechnologicalCard(TechnologicalCard tc)
             {
@@ -331,7 +413,7 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
-            public string? Description 
+            public string? Description
             {
                 get => description;
                 set
@@ -343,8 +425,8 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
-            public string Version 
-            { 
+            public string Version
+            {
                 get => version;
                 set
                 {
@@ -356,7 +438,7 @@ namespace TC_WinForms.WinForms
                 }
             }
 
-            public string Type 
+            public string Type
             {
                 get => type;
                 set
@@ -367,9 +449,9 @@ namespace TC_WinForms.WinForms
                         OnPropertyChanged(nameof(Type));
                     }
                 }
-            } 
-            public int NetworkVoltage 
-            { 
+            }
+            public float NetworkVoltage
+            {
                 get => networkVoltage;
                 set
                 {
@@ -380,8 +462,8 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
-            public string? TechnologicalProcessType 
-            { 
+            public string? TechnologicalProcessType
+            {
                 get => technologicalProcessType;
                 set
                 {
@@ -392,7 +474,7 @@ namespace TC_WinForms.WinForms
                     }
                 }
             } // Тип тех. процесса
-            public string? TechnologicalProcessName 
+            public string? TechnologicalProcessName
             {
                 get => technologicalProcessName;
                 set
@@ -404,8 +486,8 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
-            public string? TechnologicalProcessNumber 
-            { 
+            public string? TechnologicalProcessNumber
+            {
                 get => technologicalProcessNumber;
                 set
                 {
@@ -415,9 +497,9 @@ namespace TC_WinForms.WinForms
                         OnPropertyChanged(nameof(TechnologicalProcessNumber));
                     }
                 }
-            } 
-            public string? Parameter 
-            { 
+            }
+            public string? Parameter
+            {
                 get => parameter;
                 set
                 {
@@ -427,9 +509,9 @@ namespace TC_WinForms.WinForms
                         OnPropertyChanged(nameof(Parameter));
                     }
                 }
-            } 
-            public string? FinalProduct 
-            { 
+            }
+            public string? FinalProduct
+            {
                 get => finalProduct;
                 set
                 {
@@ -439,8 +521,8 @@ namespace TC_WinForms.WinForms
                         OnPropertyChanged(nameof(FinalProduct));
                     }
                 }
-            } 
-            public string? Applicability 
+            }
+            public string? Applicability
             {
                 get => applicability;
                 set
@@ -451,9 +533,9 @@ namespace TC_WinForms.WinForms
                         OnPropertyChanged(nameof(Applicability));
                     }
                 }
-            } 
-            public string? Note 
-            { 
+            }
+            public string? Note
+            {
                 get => note;
                 set
                 {
@@ -464,8 +546,8 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
-            public string? DamageType 
-            { 
+            public string? DamageType
+            {
                 get => damageType;
                 set
                 {
@@ -475,9 +557,9 @@ namespace TC_WinForms.WinForms
                         OnPropertyChanged(nameof(DamageType));
                     }
                 }
-            } 
-            public string? RepairType 
-            { 
+            }
+            public string? RepairType
+            {
                 get => repairType;
                 set
                 {
@@ -487,8 +569,8 @@ namespace TC_WinForms.WinForms
                         OnPropertyChanged(nameof(RepairType));
                     }
                 }
-            } 
-            public bool IsCompleted 
+            }
+            public bool IsCompleted
             {
                 get => isCompleted;
                 set
@@ -506,6 +588,11 @@ namespace TC_WinForms.WinForms
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace TC_WinForms.WinForms
+﻿using TC_WinForms.DataProcessing;
+
+namespace TC_WinForms.WinForms
 {
     partial class Win6_Staff
     {
@@ -35,7 +37,6 @@
             btnMoveDown = new Button();
             btnDeleteObj = new Button();
             btnMoveUp = new Button();
-            btnUpdateObj = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
@@ -83,7 +84,6 @@
             pnlControlBtns.Controls.Add(btnMoveDown);
             pnlControlBtns.Controls.Add(btnDeleteObj);
             pnlControlBtns.Controls.Add(btnMoveUp);
-            pnlControlBtns.Controls.Add(btnUpdateObj);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
             pnlControlBtns.Location = new Point(385, 0);
@@ -123,19 +123,9 @@
             btnMoveUp.UseVisualStyleBackColor = true;
             btnMoveUp.Click += btnMoveUp_Click;
             // 
-            // btnUpdateObj
-            // 
-            btnUpdateObj.Location = new Point(236, 11);
-            btnUpdateObj.Margin = new Padding(4);
-            btnUpdateObj.Name = "btnUpdateObj";
-            btnUpdateObj.Size = new Size(143, 53);
-            btnUpdateObj.TabIndex = 24;
-            btnUpdateObj.Text = "Редактировать";
-            btnUpdateObj.UseVisualStyleBackColor = true;
-            // 
             // btnAddNewObj
             // 
-            btnAddNewObj.Location = new Point(70, 11);
+            btnAddNewObj.Location = new Point(250, 11);
             btnAddNewObj.Margin = new Padding(4);
             btnAddNewObj.Name = "btnAddNewObj";
             btnAddNewObj.Size = new Size(143, 53);
@@ -179,7 +169,6 @@
         private Panel pnlControls;
         private Panel pnlControlBtns;
         private Button btnDeleteObj;
-        private Button btnUpdateObj;
         private Button btnAddNewObj;
         private Panel pnlFilters;
         private Panel pnlDataViewer;

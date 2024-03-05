@@ -40,6 +40,8 @@ namespace TC_WinForms.WinForms
 
         private async void Win7_4_Component_Load(object sender, EventArgs e)
         {
+            progressBar.Visible = true;
+
             await LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedComponent>(dgvMain);
 
@@ -52,6 +54,8 @@ namespace TC_WinForms.WinForms
                     out btnAddSelected, out btnCancel);
                 SetAddingFormEvents();
             }
+
+            progressBar.Visible = false;
         }
         private async Task LoadObjects()
         {
@@ -60,6 +64,8 @@ namespace TC_WinForms.WinForms
             _bindingList = new BindingList<DisplayedComponent>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
+
+            SetDGVColumnsSettings();
         }
         private async void Win7_4_Component_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -179,7 +185,40 @@ namespace TC_WinForms.WinForms
             };
         }
 
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
+
+        void SetDGVColumnsSettings()
+        {
+            // автоподбор ширины столбцов под ширину таблицы
+            dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvMain.RowHeadersWidth = 25;
+
+            //// автоперенос в ячейках
+            dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+            //    // ширина столбцов по содержанию
+            var autosizeColumn = new List<string>
+            {
+                nameof(DisplayedComponent.Id),
+                nameof(DisplayedComponent.Unit),
+                nameof(DisplayedComponent.Categoty),
+                //nameof(DisplayedComponent.ClassifierCode),
+            };
+            foreach (var column in autosizeColumn)
+            {
+                dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            }
+
+            dgvMain.Columns[nameof(DisplayedComponent.Price)].Width = 120;
+            dgvMain.Columns[nameof(DisplayedComponent.ClassifierCode)].Width = 150;
+
+            dgvMain.Columns[nameof(DisplayedComponent.Id)].ReadOnly = true; //ClassifierCode
+            dgvMain.Columns[nameof(DisplayedComponent.ClassifierCode)].ReadOnly = true;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /////////////////////////////////////////// * isAddingFormMethods and Events * ///////////////////////////////////////////
 
@@ -241,7 +280,7 @@ namespace TC_WinForms.WinForms
                 { nameof(Price), "Стоимость, руб. без НДС" },
                 { nameof(Description), "Описание" },
                 { nameof(Manufacturer), "Производители (поставщики)" },
-                //{ nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
+                // { nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
                 { nameof(Categoty), "Категория" },
                 { nameof(ClassifierCode), "Код в classifier" },
             };

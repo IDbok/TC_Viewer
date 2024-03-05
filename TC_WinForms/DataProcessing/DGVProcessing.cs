@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel;
 using System.DirectoryServices.ActiveDirectory;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using static TC_WinForms.WinForms.Win6_Staff;
@@ -471,11 +465,56 @@ namespace TC_WinForms.DataProcessing
             row.Selected = true;
 
         }
-        public static void ReorderRows(List<DisplayedStaff_TC> displayedEntity)
+        public static void ReorderRows<T>(DataGridView dgv,
+            DataGridViewCellEventArgs e, BindingList<T> _bindingList) where T : class, IOrderable
         {
-            // to row in dgvMain set new order and change row index
-            displayedEntity=displayedEntity.OrderBy(x => x.Order).ToList();
+            dgv.Enabled = false;
+
+            string orderName = nameof(IOrderable.Order);
+
+            var row = dgv.Rows[e.RowIndex];
+            
+
+            // if changed cell is in Order column then reorder dgv
+            if (e.ColumnIndex == dgv.Columns[orderName].Index)
+            {
+                // check if new cell value is a number
+                if (int.TryParse(row.Cells[orderName].Value.ToString(), out int orderValue))
+                {
+                    if (orderValue == e.RowIndex + 1) { dgv.Enabled = true; return; }
+                    MoveRowAndUpdateOrder(_bindingList, e.RowIndex, orderValue - 1); // move row to new position (orderValue - 1 is new index for row
+                }
+                else
+                {
+                    MessageBox.Show("Ошибка ввода в поле \"№\"");
+                    row.Cells[orderName].Value = e.RowIndex + 1;
+                }
+            }
+
+            dgv.Enabled = true;
         }
+        private static void MoveRowAndUpdateOrder<T>(BindingList<T> _bindingList, int oldIndex, int newIndex) where T : class, IOrderable
+        {
+            if (oldIndex < 0 || oldIndex >= _bindingList.Count || newIndex < 0 || newIndex >= _bindingList.Count || oldIndex == newIndex)
+            {
+                return; // Проверка на валидность индексов
+            }
+
+            // Шаг 1: Удаление и вставка объекта в новую позицию
+            var itemToMove = _bindingList[oldIndex];
+            _bindingList.RemoveAt(oldIndex);
+            _bindingList.Insert(newIndex, itemToMove);
+
+            UpdateOrderValues(_bindingList);
+        }
+        private static  void UpdateOrderValues<T>(BindingList<T> _bindingList) where T : class, IOrderable
+        {
+            for (int i = 0; i < _bindingList.Count; i++)
+            {
+                _bindingList[i].Order = i + 1;
+            }
+        }
+
         /// <summary>
         /// Set value to Order column in dgvMain as row index + 1
         /// </summary>

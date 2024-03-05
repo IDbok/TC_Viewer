@@ -37,6 +37,7 @@
             btnDeleteObj = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
+            progressBar = new ProgressBar();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -46,6 +47,7 @@
             // 
             // dgvMain
             // 
+            dgvMain.AllowUserToAddRows = false;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 0);
@@ -53,7 +55,7 @@
             dgvMain.Name = "dgvMain";
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
-            dgvMain.Size = new Size(1000, 480);
+            dgvMain.Size = new Size(1000, 462);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -64,7 +66,7 @@
             pnlControls.Location = new Point(0, 0);
             pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1000, 82);
+            pnlControls.Size = new Size(1000, 100);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
@@ -75,7 +77,7 @@
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(402, 82);
+            pnlFilters.Size = new Size(402, 100);
             pnlFilters.TabIndex = 25;
             // 
             // cmbProjectName
@@ -107,7 +109,7 @@
             pnlControlBtns.Location = new Point(410, 0);
             pnlControlBtns.Margin = new Padding(4);
             pnlControlBtns.Name = "pnlControlBtns";
-            pnlControlBtns.Size = new Size(590, 82);
+            pnlControlBtns.Size = new Size(590, 100);
             pnlControlBtns.TabIndex = 24;
             // 
             // btnDeleteObj
@@ -134,13 +136,25 @@
             // 
             // pnlDataViewer
             // 
+            pnlDataViewer.Controls.Add(progressBar);
             pnlDataViewer.Controls.Add(dgvMain);
             pnlDataViewer.Dock = DockStyle.Fill;
-            pnlDataViewer.Location = new Point(0, 82);
+            pnlDataViewer.Location = new Point(0, 100);
             pnlDataViewer.Margin = new Padding(4);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1000, 480);
+            pnlDataViewer.Size = new Size(1000, 462);
             pnlDataViewer.TabIndex = 2;
+            // 
+            // progressBar
+            // 
+            progressBar.Anchor = AnchorStyles.None;
+            progressBar.Location = new Point(226, 91);
+            progressBar.MarqueeAnimationSpeed = 30;
+            progressBar.Name = "progressBar";
+            progressBar.Size = new Size(564, 34);
+            progressBar.Style = ProgressBarStyle.Marquee;
+            progressBar.TabIndex = 5;
+            progressBar.Visible = false;
             // 
             // Win7_3_Staff
             // 
@@ -174,5 +188,6 @@
         private ComboBox cmbProjectName;
         private Label lblProjectName;
         private Panel pnlDataViewer;
+        private ProgressBar progressBar;
     }
 }
