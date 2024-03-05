@@ -2,6 +2,7 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
@@ -17,6 +18,7 @@ namespace TC_WinForms.WinForms.Work
 
         public List<TechOperationDataGridItem> list = null;
         public List<TechOperationWork> TechOperationWorksList;
+      //  public List<Staff_TC> Staff_TC;
         public TechnologicalCard TehCarta;
 
         public TechOperationForm()
@@ -42,16 +44,34 @@ namespace TC_WinForms.WinForms.Work
 
             context = new MyDbContext();
 
+
+
+
+
             DateTime t1 = DateTime.Now;
 
-            TehCarta = context.TechnologicalCards.Where(w=>w.Id== tcId)
+          var Staff_TC = context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child).ToList();
+            
+
+            DateTime t11 = DateTime.Now;
+
+            TehCarta = context.TechnologicalCards
                 .Include(t => t.Machines).Include(t => t.Machine_TCs)
-            .Include(t => t.Protection_TCs)
+                .Include(t => t.Protection_TCs)
             //.Include(t => t.Protections)
             .Include(t => t.Tool_TCs)
             .Include(t => t.Component_TCs)
-           // .Include(t => t.Components)
+                .Include(t=>t.Staff_TCs)
+
+                // .Include(t => t.Components)
             .Single(s => s.Id == tcId);
+
+
+            //foreach (Staff_TC sta in TehCarta.Staff_TCs)
+            //{
+            //    var bb = Staff_TC.Single(s => s.ChildId == sta.ChildId);
+            //    bb.Child = bb.Child;
+            //}
 
             DateTime t2 = DateTime.Now;
 
@@ -361,6 +381,43 @@ namespace TC_WinForms.WinForms.Work
             {
                 List<string> str = new List<string>();
 
+                if (techOperationDataGridItem.techWork!=null && techOperationDataGridItem.techWork.Repeat == true)
+                {
+
+                    string strP = "";
+
+                    foreach (ExecutionWork executionWork in techOperationDataGridItem.techWork.ListexecutionWorkRepeat2)
+                    {
+                        var bn = list.SingleOrDefault(s => s.techWork == executionWork);
+                        if (bn != null)
+                        {
+                            if (strP == "")
+                            {
+                                strP = "п. " + bn.Nomer;
+                            }
+                            else
+                            {
+                                strP += "," + bn.Nomer;
+                            }
+                        }
+                    }
+
+                    str.Add(techOperationDataGridItem.Nomer.ToString());
+                    str.Add(techOperationDataGridItem.TechOperation);
+                    str.Add(techOperationDataGridItem.Staff);
+                    str.Add("Повторить "+ strP);
+                    str.Add(techOperationDataGridItem.TechTransition);
+                    str.Add("");
+                    str.Add("");
+
+                    dgvMain.Rows.Add(str.ToArray());
+
+                    dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[3].Style.BackColor = Color.Yellow;
+                    dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = Color.Yellow;
+
+                    continue;
+                }
+
                 str.Add(techOperationDataGridItem.Nomer.ToString());
                 str.Add(techOperationDataGridItem.TechOperation);
                 str.Add(techOperationDataGridItem.Staff);
@@ -502,7 +559,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void AddTechOperation(TechOperation TechOperat)
         {
-            var vb = TechOperationWorksList.SingleOrDefault(s => s.techOperation == TechOperat);
+            var vb = TechOperationWorksList.Where(s => s.techOperation == TechOperat && s.Delete==true).ToList();
 
             int maxOrder = -1;
 
@@ -511,7 +568,11 @@ namespace TC_WinForms.WinForms.Work
                 maxOrder = TechOperationWorksList.Max(m => m.Order);
             }
 
-            if (vb == null)
+            if (vb.Count > 0)
+            {
+                vb[0].Delete = false;
+            }
+            else
             {
                 TechOperationWork techOperationWork = new TechOperationWork();
                 techOperationWork.techOperation = TechOperat;
@@ -521,10 +582,21 @@ namespace TC_WinForms.WinForms.Work
 
                 TechOperationWorksList.Add(techOperationWork);
             }
-            else
-            {
-                vb.Delete = false;
-            }
+
+            //if (vb == null)
+            //{
+            //    TechOperationWork techOperationWork = new TechOperationWork();
+            //    techOperationWork.techOperation = TechOperat;
+            //    techOperationWork.technologicalCard = TehCarta;
+            //    techOperationWork.NewItem = true;
+            //    techOperationWork.Order = maxOrder + 1;
+
+            //    TechOperationWorksList.Add(techOperationWork);
+            //}
+            //else
+            //{
+            //    vb.Delete = false;
+            //}
         }
 
 
@@ -533,6 +605,8 @@ namespace TC_WinForms.WinForms.Work
             TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
             var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
 
+            var max = TOWork.executionWorks.Max(w => w.Order);
+
             if (exec.Count > 0)
             {
                 var one = exec[0];
@@ -540,13 +614,29 @@ namespace TC_WinForms.WinForms.Work
             }
             else
             {
-                ExecutionWork techOpeWork = new ExecutionWork();
-                techOpeWork.IdGuid = Guid.NewGuid();
-                techOpeWork.techOperationWork = TOWork;
-                techOpeWork.NewItem = true;
-                techOpeWork.techTransition = tech;
-                techOpeWork.Value = tech.TimeExecution;
-                TOWork.executionWorks.Add(techOpeWork);
+                if (tech.Name != "Повторить")
+                {
+                    ExecutionWork techOpeWork = new ExecutionWork();
+                    techOpeWork.IdGuid = Guid.NewGuid();
+                    techOpeWork.techOperationWork = TOWork;
+                    techOpeWork.NewItem = true;
+                    techOpeWork.techTransition = tech;
+                    techOpeWork.Value = tech.TimeExecution;
+                    techOpeWork.Order = max + 1;
+                    TOWork.executionWorks.Add(techOpeWork);
+                }
+                else
+                {
+                    ExecutionWork techOpeWork = new ExecutionWork();
+                    techOpeWork.IdGuid = Guid.NewGuid();
+                    techOpeWork.techOperationWork = TOWork;
+                    techOpeWork.NewItem = true;
+                    techOpeWork.Repeat = true;
+                    techOpeWork.Order = max + 1;
+                    //techOpeWork.techTransition = tech;
+                    //techOpeWork.Value = tech.TimeExecution;
+                    TOWork.executionWorks.Add(techOpeWork);
+                }
             }
 
         }
@@ -700,6 +790,8 @@ namespace TC_WinForms.WinForms.Work
         private void button1_Click_1(object sender, EventArgs e)
         {
             //context
+
+           // TehCarta.Staff_TCs = Staff_TC;
 
             List<TechOperationWork> AllDele = TechOperationWorksList.Where(w => w.Delete == true).ToList();
             foreach (TechOperationWork techOperationWork in AllDele)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using TcModels.Models.IntermediateTables;
@@ -24,7 +25,13 @@ namespace TcModels.Models.TcContent
 
         public List<Machine_TC> Machines { get; set; } = new List<Machine_TC>();
 
-        public ExecutionWorkRepeat? executionWorkRepeat { get; set; }
+        public List<ExecutionWork> WorkRepeat { get; set; } = new List<ExecutionWork>();
+        public bool Repeat { get; set; } = false;
+
+       // public ExecutionWorkRepeat? executionWorkRepeat { get; set; }
+
+       public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();    
+        public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>();
 
         public Guid? sumEw { get; set; }
         public Guid? maxEw { get; set; }
@@ -48,7 +55,15 @@ namespace TcModels.Models.TcContent
            }
            else
            {
-               return base.ToString();
+               if (Repeat)
+               {
+                   return "Повторить";
+                }
+               else
+               {
+                   return base.ToString();
+                }
+
            }
        }
     }

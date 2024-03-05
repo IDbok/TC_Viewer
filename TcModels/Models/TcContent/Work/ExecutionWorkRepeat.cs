@@ -9,6 +9,7 @@ namespace TcModels.Models.TcContent
     public class ExecutionWorkRepeat
     {
         public int Id { get; set; }
+        public ExecutionWork OneexecutionWork { get; set; }
 
         public List<ExecutionWork> executionWork { get; set; }
     }

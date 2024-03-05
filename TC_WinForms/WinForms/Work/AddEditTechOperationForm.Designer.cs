@@ -33,10 +33,11 @@
             textBoxPoiskTo = new TextBox();
             dataGridViewAllTO = new DataGridView();
             Id = new DataGridViewTextBoxColumn();
-            Add = new DataGridViewCheckBoxColumn();
+            Add = new DataGridViewButtonColumn();
             NameTO = new DataGridViewTextBoxColumn();
             dataGridViewTO = new DataGridView();
             IdTO = new DataGridViewTextBoxColumn();
+            Column18 = new DataGridViewButtonColumn();
             Column1 = new DataGridViewTextBoxColumn();
             Order = new DataGridViewTextBoxColumn();
             tabControl1 = new TabControl();
@@ -97,11 +98,26 @@
             comboBoxTO = new ComboBox();
             tabPage4 = new TabPage();
             tableLayoutPanel4 = new TableLayoutPanel();
+            dataGridViewStaffAll = new DataGridView();
+            dataGridViewTextBoxColumn45 = new DataGridViewTextBoxColumn();
+            dataGridViewButtonColumn10 = new DataGridViewButtonColumn();
+            dataGridViewTextBoxColumn46 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn47 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn48 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn49 = new DataGridViewTextBoxColumn();
+            Column10 = new DataGridViewTextBoxColumn();
+            Column11 = new DataGridViewTextBoxColumn();
             dataGridViewStaff = new DataGridView();
             StaffIdGrid = new DataGridViewTextBoxColumn();
+            Column12 = new DataGridViewButtonColumn();
             StaffGridChechBox = new DataGridViewCheckBoxColumn();
             StaffSimvolGrid = new DataGridViewTextBoxColumn();
             StaffNAmeGrid = new DataGridViewTextBoxColumn();
+            Column13 = new DataGridViewTextBoxColumn();
+            Column14 = new DataGridViewTextBoxColumn();
+            Column15 = new DataGridViewTextBoxColumn();
+            Column16 = new DataGridViewTextBoxColumn();
+            Column17 = new DataGridViewTextBoxColumn();
             comboBoxStaff = new ComboBox();
             tabPage7 = new TabPage();
             tableLayoutPanel8 = new TableLayoutPanel();
@@ -122,6 +138,8 @@
             comboBoxSZ = new ComboBox();
             tabPage8 = new TabPage();
             tableLayoutPanel9 = new TableLayoutPanel();
+            groupBox7 = new GroupBox();
+            textBoxPoiskMach = new TextBox();
             dataGridViewMeha = new DataGridView();
             dataGridViewTextBoxColumn40 = new DataGridViewTextBoxColumn();
             dataGridViewButtonColumn9 = new DataGridViewCheckBoxColumn();
@@ -135,6 +153,13 @@
             dataGridViewTextBoxColumn39 = new DataGridViewTextBoxColumn();
             Column8 = new DataGridViewTextBoxColumn();
             Column9 = new DataGridViewTextBoxColumn();
+            tabPage9 = new TabPage();
+            tableLayoutPanel11 = new TableLayoutPanel();
+            dataGridViewPovtor = new DataGridView();
+            dataGridViewTextBoxColumn72 = new DataGridViewTextBoxColumn();
+            dataGridViewCheckBoxColumn4 = new DataGridViewCheckBoxColumn();
+            dataGridViewTextBoxColumn73 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn79 = new DataGridViewTextBoxColumn();
             tabPage3 = new TabPage();
             tableLayoutPanel2 = new TableLayoutPanel();
             dataGridView1 = new DataGridView();
@@ -156,8 +181,28 @@
             dataGridViewTextBoxColumn29 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn30 = new DataGridViewTextBoxColumn();
             tableLayoutPanel7 = new TableLayoutPanel();
-            groupBox7 = new GroupBox();
-            textBoxPoiskMach = new TextBox();
+            tableLayoutPanel10 = new TableLayoutPanel();
+            dataGridView5 = new DataGridView();
+            dataGridViewTextBoxColumn50 = new DataGridViewTextBoxColumn();
+            dataGridViewButtonColumn11 = new DataGridViewButtonColumn();
+            dataGridViewTextBoxColumn51 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn52 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn53 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn54 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn55 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn56 = new DataGridViewTextBoxColumn();
+            dataGridView6 = new DataGridView();
+            dataGridViewTextBoxColumn57 = new DataGridViewTextBoxColumn();
+            dataGridViewButtonColumn12 = new DataGridViewButtonColumn();
+            dataGridViewCheckBoxColumn3 = new DataGridViewCheckBoxColumn();
+            dataGridViewTextBoxColumn58 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn59 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn60 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn61 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn62 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn63 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn64 = new DataGridViewTextBoxColumn();
+            tabPage10 = new TabPage();
             tableLayoutPanel1.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).BeginInit();
@@ -181,6 +226,7 @@
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPLocal).BeginInit();
             tabPage4.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewStaffAll).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStaff).BeginInit();
             tabPage7.SuspendLayout();
             tableLayoutPanel8.SuspendLayout();
@@ -189,15 +235,21 @@
             ((System.ComponentModel.ISupportInitialize)dataGridViewLocalSZ).BeginInit();
             tabPage8.SuspendLayout();
             tableLayoutPanel9.SuspendLayout();
+            groupBox7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewMeha).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewEtap).BeginInit();
+            tabPage9.SuspendLayout();
+            tableLayoutPanel11.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewPovtor).BeginInit();
             tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView4).BeginInit();
             tableLayoutPanel7.SuspendLayout();
-            groupBox7.SuspendLayout();
+            tableLayoutPanel10.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridView5).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView6).BeginInit();
             SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -263,7 +315,8 @@
             Add.HeaderText = "";
             Add.MinimumWidth = 50;
             Add.Name = "Add";
-            Add.Width = 50;
+            Add.Resizable = DataGridViewTriState.True;
+            Add.Width = 125;
             // 
             // NameTO
             // 
@@ -282,7 +335,7 @@
             dataGridViewTO.AllowUserToDeleteRows = false;
             dataGridViewTO.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewTO.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewTO.Columns.AddRange(new DataGridViewColumn[] { IdTO, Column1, Order });
+            dataGridViewTO.Columns.AddRange(new DataGridViewColumn[] { IdTO, Column18, Column1, Order });
             dataGridViewTO.Location = new Point(3, 3);
             dataGridViewTO.MultiSelect = false;
             dataGridViewTO.Name = "dataGridViewTO";
@@ -301,6 +354,17 @@
             IdTO.ReadOnly = true;
             IdTO.Visible = false;
             IdTO.Width = 125;
+            // 
+            // Column18
+            // 
+            Column18.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column18.HeaderText = "";
+            Column18.MinimumWidth = 6;
+            Column18.Name = "Column18";
+            Column18.ReadOnly = true;
+            Column18.Resizable = DataGridViewTriState.True;
+            Column18.SortMode = DataGridViewColumnSortMode.Automatic;
+            Column18.Width = 125;
             // 
             // Column1
             // 
@@ -329,6 +393,7 @@
             tabControl1.Controls.Add(tabPage4);
             tabControl1.Controls.Add(tabPage7);
             tabControl1.Controls.Add(tabPage8);
+            tabControl1.Controls.Add(tabPage9);
             tabControl1.Location = new Point(0, 0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
@@ -885,16 +950,94 @@
             tableLayoutPanel4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel4.ColumnCount = 1;
             tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel4.Controls.Add(dataGridViewStaffAll, 0, 3);
             tableLayoutPanel4.Controls.Add(dataGridViewStaff, 0, 1);
             tableLayoutPanel4.Controls.Add(comboBoxStaff, 0, 0);
             tableLayoutPanel4.Location = new Point(0, 1);
             tableLayoutPanel4.Name = "tableLayoutPanel4";
-            tableLayoutPanel4.RowCount = 2;
+            tableLayoutPanel4.RowCount = 4;
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
-            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 60F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 40F));
             tableLayoutPanel4.Size = new Size(1220, 517);
             tableLayoutPanel4.TabIndex = 0;
+            // 
+            // dataGridViewStaffAll
+            // 
+            dataGridViewStaffAll.AllowUserToAddRows = false;
+            dataGridViewStaffAll.AllowUserToDeleteRows = false;
+            dataGridViewStaffAll.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridViewStaffAll.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewStaffAll.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewStaffAll.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn45, dataGridViewButtonColumn10, dataGridViewTextBoxColumn46, dataGridViewTextBoxColumn47, dataGridViewTextBoxColumn48, dataGridViewTextBoxColumn49, Column10, Column11 });
+            dataGridViewStaffAll.Location = new Point(3, 361);
+            dataGridViewStaffAll.Name = "dataGridViewStaffAll";
+            dataGridViewStaffAll.RowHeadersWidth = 51;
+            dataGridViewStaffAll.RowTemplate.Height = 29;
+            dataGridViewStaffAll.Size = new Size(1214, 153);
+            dataGridViewStaffAll.TabIndex = 4;
+            // 
+            // dataGridViewTextBoxColumn45
+            // 
+            dataGridViewTextBoxColumn45.HeaderText = "Id";
+            dataGridViewTextBoxColumn45.MinimumWidth = 6;
+            dataGridViewTextBoxColumn45.Name = "dataGridViewTextBoxColumn45";
+            dataGridViewTextBoxColumn45.Visible = false;
+            // 
+            // dataGridViewButtonColumn10
+            // 
+            dataGridViewButtonColumn10.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewButtonColumn10.HeaderText = "";
+            dataGridViewButtonColumn10.MinimumWidth = 100;
+            dataGridViewButtonColumn10.Name = "dataGridViewButtonColumn10";
+            dataGridViewButtonColumn10.Resizable = DataGridViewTriState.True;
+            dataGridViewButtonColumn10.Text = "Добавить";
+            dataGridViewButtonColumn10.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn46
+            // 
+            dataGridViewTextBoxColumn46.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn46.FillWeight = 167.914459F;
+            dataGridViewTextBoxColumn46.HeaderText = "Наименование";
+            dataGridViewTextBoxColumn46.MinimumWidth = 6;
+            dataGridViewTextBoxColumn46.Name = "dataGridViewTextBoxColumn46";
+            dataGridViewTextBoxColumn46.ReadOnly = true;
+            dataGridViewTextBoxColumn46.Resizable = DataGridViewTriState.True;
+            dataGridViewTextBoxColumn46.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // dataGridViewTextBoxColumn47
+            // 
+            dataGridViewTextBoxColumn47.HeaderText = "Тип";
+            dataGridViewTextBoxColumn47.MinimumWidth = 6;
+            dataGridViewTextBoxColumn47.Name = "dataGridViewTextBoxColumn47";
+            dataGridViewTextBoxColumn47.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn48
+            // 
+            dataGridViewTextBoxColumn48.HeaderText = "Фунции";
+            dataGridViewTextBoxColumn48.MinimumWidth = 6;
+            dataGridViewTextBoxColumn48.Name = "dataGridViewTextBoxColumn48";
+            dataGridViewTextBoxColumn48.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn49
+            // 
+            dataGridViewTextBoxColumn49.HeaderText = "Возможность совмещения обязанностей";
+            dataGridViewTextBoxColumn49.MinimumWidth = 6;
+            dataGridViewTextBoxColumn49.Name = "dataGridViewTextBoxColumn49";
+            dataGridViewTextBoxColumn49.ReadOnly = true;
+            // 
+            // Column10
+            // 
+            Column10.HeaderText = "Квалификация";
+            Column10.MinimumWidth = 6;
+            Column10.Name = "Column10";
+            // 
+            // Column11
+            // 
+            Column11.HeaderText = "Коментарии";
+            Column11.MinimumWidth = 6;
+            Column11.Name = "Column11";
             // 
             // dataGridViewStaff
             // 
@@ -902,13 +1045,13 @@
             dataGridViewStaff.AllowUserToDeleteRows = false;
             dataGridViewStaff.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewStaff.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewStaff.Columns.AddRange(new DataGridViewColumn[] { StaffIdGrid, StaffGridChechBox, StaffSimvolGrid, StaffNAmeGrid });
+            dataGridViewStaff.Columns.AddRange(new DataGridViewColumn[] { StaffIdGrid, Column12, StaffGridChechBox, StaffSimvolGrid, StaffNAmeGrid, Column13, Column14, Column15, Column16, Column17 });
             dataGridViewStaff.Location = new Point(3, 53);
             dataGridViewStaff.MultiSelect = false;
             dataGridViewStaff.Name = "dataGridViewStaff";
             dataGridViewStaff.RowHeadersWidth = 51;
             dataGridViewStaff.RowTemplate.Height = 29;
-            dataGridViewStaff.Size = new Size(1214, 461);
+            dataGridViewStaff.Size = new Size(1214, 232);
             dataGridViewStaff.TabIndex = 0;
             // 
             // StaffIdGrid
@@ -918,6 +1061,16 @@
             StaffIdGrid.Name = "StaffIdGrid";
             StaffIdGrid.Visible = false;
             StaffIdGrid.Width = 125;
+            // 
+            // Column12
+            // 
+            Column12.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column12.HeaderText = "";
+            Column12.MinimumWidth = 6;
+            Column12.Name = "Column12";
+            Column12.Resizable = DataGridViewTriState.True;
+            Column12.SortMode = DataGridViewColumnSortMode.Automatic;
+            Column12.Width = 125;
             // 
             // StaffGridChechBox
             // 
@@ -939,6 +1092,47 @@
             StaffNAmeGrid.HeaderText = "Наименование";
             StaffNAmeGrid.MinimumWidth = 6;
             StaffNAmeGrid.Name = "StaffNAmeGrid";
+            StaffNAmeGrid.ReadOnly = true;
+            // 
+            // Column13
+            // 
+            Column13.HeaderText = "Тип";
+            Column13.MinimumWidth = 6;
+            Column13.Name = "Column13";
+            Column13.ReadOnly = true;
+            Column13.Width = 125;
+            // 
+            // Column14
+            // 
+            Column14.HeaderText = "Функции";
+            Column14.MinimumWidth = 6;
+            Column14.Name = "Column14";
+            Column14.ReadOnly = true;
+            Column14.Width = 125;
+            // 
+            // Column15
+            // 
+            Column15.HeaderText = "Возможность совмещения обязанностей";
+            Column15.MinimumWidth = 6;
+            Column15.Name = "Column15";
+            Column15.ReadOnly = true;
+            Column15.Width = 125;
+            // 
+            // Column16
+            // 
+            Column16.HeaderText = "Квалификация";
+            Column16.MinimumWidth = 6;
+            Column16.Name = "Column16";
+            Column16.ReadOnly = true;
+            Column16.Width = 125;
+            // 
+            // Column17
+            // 
+            Column17.HeaderText = "Комментарии";
+            Column17.MinimumWidth = 6;
+            Column17.Name = "Column17";
+            Column17.ReadOnly = true;
+            Column17.Width = 125;
             // 
             // comboBoxStaff
             // 
@@ -1151,6 +1345,23 @@
             tableLayoutPanel9.Size = new Size(1221, 518);
             tableLayoutPanel9.TabIndex = 3;
             // 
+            // groupBox7
+            // 
+            groupBox7.Controls.Add(textBoxPoiskMach);
+            groupBox7.Location = new Point(3, 252);
+            groupBox7.Name = "groupBox7";
+            groupBox7.Size = new Size(292, 64);
+            groupBox7.TabIndex = 8;
+            groupBox7.TabStop = false;
+            groupBox7.Text = "Поиск";
+            // 
+            // textBoxPoiskMach
+            // 
+            textBoxPoiskMach.Location = new Point(16, 26);
+            textBoxPoiskMach.Name = "textBoxPoiskMach";
+            textBoxPoiskMach.Size = new Size(257, 27);
+            textBoxPoiskMach.TabIndex = 0;
+            // 
             // dataGridViewMeha
             // 
             dataGridViewMeha.AllowUserToAddRows = false;
@@ -1276,6 +1487,79 @@
             Column9.Resizable = DataGridViewTriState.True;
             Column9.SortMode = DataGridViewColumnSortMode.NotSortable;
             Column9.Width = 140;
+            // 
+            // tabPage9
+            // 
+            tabPage9.Controls.Add(tableLayoutPanel11);
+            tabPage9.Location = new Point(4, 29);
+            tabPage9.Name = "tabPage9";
+            tabPage9.Padding = new Padding(3);
+            tabPage9.Size = new Size(1227, 524);
+            tabPage9.TabIndex = 7;
+            tabPage9.Text = "Повторить";
+            tabPage9.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel11
+            // 
+            tableLayoutPanel11.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel11.ColumnCount = 1;
+            tableLayoutPanel11.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel11.Controls.Add(dataGridViewPovtor, 0, 1);
+            tableLayoutPanel11.Location = new Point(3, 4);
+            tableLayoutPanel11.Name = "tableLayoutPanel11";
+            tableLayoutPanel11.RowCount = 2;
+            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel11.Size = new Size(1220, 517);
+            tableLayoutPanel11.TabIndex = 1;
+            // 
+            // dataGridViewPovtor
+            // 
+            dataGridViewPovtor.AllowUserToAddRows = false;
+            dataGridViewPovtor.AllowUserToDeleteRows = false;
+            dataGridViewPovtor.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridViewPovtor.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewPovtor.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn72, dataGridViewCheckBoxColumn4, dataGridViewTextBoxColumn73, dataGridViewTextBoxColumn79 });
+            dataGridViewPovtor.Location = new Point(3, 73);
+            dataGridViewPovtor.MultiSelect = false;
+            dataGridViewPovtor.Name = "dataGridViewPovtor";
+            dataGridViewPovtor.RowHeadersWidth = 51;
+            dataGridViewPovtor.RowTemplate.Height = 29;
+            dataGridViewPovtor.Size = new Size(1214, 441);
+            dataGridViewPovtor.TabIndex = 0;
+            // 
+            // dataGridViewTextBoxColumn72
+            // 
+            dataGridViewTextBoxColumn72.HeaderText = "Id";
+            dataGridViewTextBoxColumn72.MinimumWidth = 6;
+            dataGridViewTextBoxColumn72.Name = "dataGridViewTextBoxColumn72";
+            dataGridViewTextBoxColumn72.Visible = false;
+            dataGridViewTextBoxColumn72.Width = 125;
+            // 
+            // dataGridViewCheckBoxColumn4
+            // 
+            dataGridViewCheckBoxColumn4.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewCheckBoxColumn4.HeaderText = "";
+            dataGridViewCheckBoxColumn4.MinimumWidth = 6;
+            dataGridViewCheckBoxColumn4.Name = "dataGridViewCheckBoxColumn4";
+            dataGridViewCheckBoxColumn4.Width = 50;
+            // 
+            // dataGridViewTextBoxColumn73
+            // 
+            dataGridViewTextBoxColumn73.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn73.HeaderText = "Технологические операции";
+            dataGridViewTextBoxColumn73.MinimumWidth = 6;
+            dataGridViewTextBoxColumn73.Name = "dataGridViewTextBoxColumn73";
+            // 
+            // dataGridViewTextBoxColumn79
+            // 
+            dataGridViewTextBoxColumn79.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn79.HeaderText = "Технологические переходы";
+            dataGridViewTextBoxColumn79.MinimumWidth = 6;
+            dataGridViewTextBoxColumn79.Name = "dataGridViewTextBoxColumn79";
+            dataGridViewTextBoxColumn79.ReadOnly = true;
             // 
             // tabPage3
             // 
@@ -1491,22 +1775,195 @@
             tableLayoutPanel7.Size = new Size(200, 100);
             tableLayoutPanel7.TabIndex = 0;
             // 
-            // groupBox7
+            // tableLayoutPanel10
             // 
-            groupBox7.Controls.Add(textBoxPoiskMach);
-            groupBox7.Location = new Point(3, 252);
-            groupBox7.Name = "groupBox7";
-            groupBox7.Size = new Size(292, 64);
-            groupBox7.TabIndex = 8;
-            groupBox7.TabStop = false;
-            groupBox7.Text = "Поиск";
+            tableLayoutPanel10.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel10.ColumnCount = 1;
+            tableLayoutPanel10.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel10.Controls.Add(dataGridView5, 0, 3);
+            tableLayoutPanel10.Location = new Point(0, 0);
+            tableLayoutPanel10.Name = "tableLayoutPanel10";
+            tableLayoutPanel10.RowCount = 4;
+            tableLayoutPanel10.Size = new Size(200, 100);
+            tableLayoutPanel10.TabIndex = 0;
             // 
-            // textBoxPoiskMach
+            // dataGridView5
             // 
-            textBoxPoiskMach.Location = new Point(16, 26);
-            textBoxPoiskMach.Name = "textBoxPoiskMach";
-            textBoxPoiskMach.Size = new Size(257, 27);
-            textBoxPoiskMach.TabIndex = 0;
+            dataGridView5.AllowUserToAddRows = false;
+            dataGridView5.AllowUserToDeleteRows = false;
+            dataGridView5.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridView5.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView5.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridView5.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn50, dataGridViewButtonColumn11, dataGridViewTextBoxColumn51, dataGridViewTextBoxColumn52, dataGridViewTextBoxColumn53, dataGridViewTextBoxColumn54, dataGridViewTextBoxColumn55, dataGridViewTextBoxColumn56 });
+            dataGridView5.Location = new Point(3, 3);
+            dataGridView5.Name = "dataGridView5";
+            dataGridView5.RowHeadersWidth = 51;
+            dataGridView5.RowTemplate.Height = 29;
+            dataGridView5.Size = new Size(194, 153);
+            dataGridView5.TabIndex = 4;
+            // 
+            // dataGridViewTextBoxColumn50
+            // 
+            dataGridViewTextBoxColumn50.HeaderText = "Id";
+            dataGridViewTextBoxColumn50.MinimumWidth = 6;
+            dataGridViewTextBoxColumn50.Name = "dataGridViewTextBoxColumn50";
+            dataGridViewTextBoxColumn50.Visible = false;
+            // 
+            // dataGridViewButtonColumn11
+            // 
+            dataGridViewButtonColumn11.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewButtonColumn11.HeaderText = "";
+            dataGridViewButtonColumn11.MinimumWidth = 100;
+            dataGridViewButtonColumn11.Name = "dataGridViewButtonColumn11";
+            dataGridViewButtonColumn11.Resizable = DataGridViewTriState.True;
+            dataGridViewButtonColumn11.Text = "Добавить";
+            dataGridViewButtonColumn11.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn51
+            // 
+            dataGridViewTextBoxColumn51.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn51.FillWeight = 167.914459F;
+            dataGridViewTextBoxColumn51.HeaderText = "Наименование";
+            dataGridViewTextBoxColumn51.MinimumWidth = 6;
+            dataGridViewTextBoxColumn51.Name = "dataGridViewTextBoxColumn51";
+            dataGridViewTextBoxColumn51.ReadOnly = true;
+            dataGridViewTextBoxColumn51.Resizable = DataGridViewTriState.True;
+            dataGridViewTextBoxColumn51.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // dataGridViewTextBoxColumn52
+            // 
+            dataGridViewTextBoxColumn52.HeaderText = "Тип";
+            dataGridViewTextBoxColumn52.MinimumWidth = 6;
+            dataGridViewTextBoxColumn52.Name = "dataGridViewTextBoxColumn52";
+            dataGridViewTextBoxColumn52.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn53
+            // 
+            dataGridViewTextBoxColumn53.HeaderText = "Фунции";
+            dataGridViewTextBoxColumn53.MinimumWidth = 6;
+            dataGridViewTextBoxColumn53.Name = "dataGridViewTextBoxColumn53";
+            dataGridViewTextBoxColumn53.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn54
+            // 
+            dataGridViewTextBoxColumn54.HeaderText = "Возможность совмещения обязанностей";
+            dataGridViewTextBoxColumn54.MinimumWidth = 6;
+            dataGridViewTextBoxColumn54.Name = "dataGridViewTextBoxColumn54";
+            dataGridViewTextBoxColumn54.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn55
+            // 
+            dataGridViewTextBoxColumn55.HeaderText = "Квалификация";
+            dataGridViewTextBoxColumn55.MinimumWidth = 6;
+            dataGridViewTextBoxColumn55.Name = "dataGridViewTextBoxColumn55";
+            // 
+            // dataGridViewTextBoxColumn56
+            // 
+            dataGridViewTextBoxColumn56.HeaderText = "Коментарии";
+            dataGridViewTextBoxColumn56.MinimumWidth = 6;
+            dataGridViewTextBoxColumn56.Name = "dataGridViewTextBoxColumn56";
+            // 
+            // dataGridView6
+            // 
+            dataGridView6.AllowUserToAddRows = false;
+            dataGridView6.AllowUserToDeleteRows = false;
+            dataGridView6.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridView6.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridView6.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn57, dataGridViewButtonColumn12, dataGridViewCheckBoxColumn3, dataGridViewTextBoxColumn58, dataGridViewTextBoxColumn59, dataGridViewTextBoxColumn60, dataGridViewTextBoxColumn61, dataGridViewTextBoxColumn62, dataGridViewTextBoxColumn63, dataGridViewTextBoxColumn64 });
+            dataGridView6.Location = new Point(3, 3);
+            dataGridView6.MultiSelect = false;
+            dataGridView6.Name = "dataGridView6";
+            dataGridView6.RowHeadersWidth = 51;
+            dataGridView6.RowTemplate.Height = 29;
+            dataGridView6.Size = new Size(194, 232);
+            dataGridView6.TabIndex = 0;
+            // 
+            // dataGridViewTextBoxColumn57
+            // 
+            dataGridViewTextBoxColumn57.HeaderText = "Id";
+            dataGridViewTextBoxColumn57.MinimumWidth = 6;
+            dataGridViewTextBoxColumn57.Name = "dataGridViewTextBoxColumn57";
+            dataGridViewTextBoxColumn57.Visible = false;
+            dataGridViewTextBoxColumn57.Width = 125;
+            // 
+            // dataGridViewButtonColumn12
+            // 
+            dataGridViewButtonColumn12.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewButtonColumn12.HeaderText = "";
+            dataGridViewButtonColumn12.MinimumWidth = 6;
+            dataGridViewButtonColumn12.Name = "dataGridViewButtonColumn12";
+            dataGridViewButtonColumn12.Resizable = DataGridViewTriState.True;
+            dataGridViewButtonColumn12.SortMode = DataGridViewColumnSortMode.Automatic;
+            dataGridViewButtonColumn12.Width = 125;
+            // 
+            // dataGridViewCheckBoxColumn3
+            // 
+            dataGridViewCheckBoxColumn3.HeaderText = "";
+            dataGridViewCheckBoxColumn3.MinimumWidth = 6;
+            dataGridViewCheckBoxColumn3.Name = "dataGridViewCheckBoxColumn3";
+            dataGridViewCheckBoxColumn3.Width = 50;
+            // 
+            // dataGridViewTextBoxColumn58
+            // 
+            dataGridViewTextBoxColumn58.HeaderText = "Обозначение";
+            dataGridViewTextBoxColumn58.MinimumWidth = 6;
+            dataGridViewTextBoxColumn58.Name = "dataGridViewTextBoxColumn58";
+            dataGridViewTextBoxColumn58.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn59
+            // 
+            dataGridViewTextBoxColumn59.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn59.HeaderText = "Наименование";
+            dataGridViewTextBoxColumn59.MinimumWidth = 6;
+            dataGridViewTextBoxColumn59.Name = "dataGridViewTextBoxColumn59";
+            dataGridViewTextBoxColumn59.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn60
+            // 
+            dataGridViewTextBoxColumn60.HeaderText = "Тип";
+            dataGridViewTextBoxColumn60.MinimumWidth = 6;
+            dataGridViewTextBoxColumn60.Name = "dataGridViewTextBoxColumn60";
+            dataGridViewTextBoxColumn60.ReadOnly = true;
+            dataGridViewTextBoxColumn60.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn61
+            // 
+            dataGridViewTextBoxColumn61.HeaderText = "Функции";
+            dataGridViewTextBoxColumn61.MinimumWidth = 6;
+            dataGridViewTextBoxColumn61.Name = "dataGridViewTextBoxColumn61";
+            dataGridViewTextBoxColumn61.ReadOnly = true;
+            dataGridViewTextBoxColumn61.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn62
+            // 
+            dataGridViewTextBoxColumn62.HeaderText = "Возможность совмещения обязанностей";
+            dataGridViewTextBoxColumn62.MinimumWidth = 6;
+            dataGridViewTextBoxColumn62.Name = "dataGridViewTextBoxColumn62";
+            dataGridViewTextBoxColumn62.ReadOnly = true;
+            dataGridViewTextBoxColumn62.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn63
+            // 
+            dataGridViewTextBoxColumn63.HeaderText = "Квалификация";
+            dataGridViewTextBoxColumn63.MinimumWidth = 6;
+            dataGridViewTextBoxColumn63.Name = "dataGridViewTextBoxColumn63";
+            dataGridViewTextBoxColumn63.ReadOnly = true;
+            dataGridViewTextBoxColumn63.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn64
+            // 
+            dataGridViewTextBoxColumn64.HeaderText = "Комментарии";
+            dataGridViewTextBoxColumn64.MinimumWidth = 6;
+            dataGridViewTextBoxColumn64.Name = "dataGridViewTextBoxColumn64";
+            dataGridViewTextBoxColumn64.ReadOnly = true;
+            dataGridViewTextBoxColumn64.Width = 125;
+            // 
+            // tabPage10
+            // 
+            tabPage10.Location = new Point(0, 0);
+            tabPage10.Name = "tabPage10";
+            tabPage10.Size = new Size(200, 100);
+            tabPage10.TabIndex = 0;
             // 
             // AddEditTechOperationForm
             // 
@@ -1543,6 +2000,7 @@
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPLocal).EndInit();
             tabPage4.ResumeLayout(false);
             tableLayoutPanel4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridViewStaffAll).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStaff).EndInit();
             tabPage7.ResumeLayout(false);
             tableLayoutPanel8.ResumeLayout(false);
@@ -1552,16 +2010,22 @@
             ((System.ComponentModel.ISupportInitialize)dataGridViewLocalSZ).EndInit();
             tabPage8.ResumeLayout(false);
             tableLayoutPanel9.ResumeLayout(false);
+            groupBox7.ResumeLayout(false);
+            groupBox7.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewMeha).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewEtap).EndInit();
+            tabPage9.ResumeLayout(false);
+            tableLayoutPanel11.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridViewPovtor).EndInit();
             tableLayoutPanel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView2).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView3).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView4).EndInit();
             tableLayoutPanel7.ResumeLayout(false);
-            groupBox7.ResumeLayout(false);
-            groupBox7.PerformLayout();
+            tableLayoutPanel10.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridView5).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView6).EndInit();
             ResumeLayout(false);
         }
 
@@ -1573,9 +2037,6 @@
         private TabPage tabPage1;
         private TabPage tabPage2;
         private DataGridView dataGridViewTO;
-        private DataGridViewTextBoxColumn Id;
-        private DataGridViewCheckBoxColumn Add;
-        private DataGridViewTextBoxColumn NameTO;
         private TableLayoutPanel tableLayoutPanel3;
         private DataGridView dataGridViewTPAll;
         private DataGridView dataGridViewTPLocal;
@@ -1594,10 +2055,6 @@
         private TableLayoutPanel tableLayoutPanel4;
         private DataGridView dataGridViewStaff;
         private ComboBox comboBoxStaff;
-        private DataGridViewTextBoxColumn StaffIdGrid;
-        private DataGridViewCheckBoxColumn StaffGridChechBox;
-        private DataGridViewTextBoxColumn StaffSimvolGrid;
-        private DataGridViewTextBoxColumn StaffNAmeGrid;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
         private DataGridViewButtonColumn dataGridViewCheckBoxColumn2;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
@@ -1664,9 +2121,6 @@
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn33;
         private DataGridViewTextBoxColumn Column6;
         private DataGridViewTextBoxColumn Column7;
-        private DataGridViewTextBoxColumn IdTO;
-        private DataGridViewTextBoxColumn Column1;
-        private DataGridViewTextBoxColumn Order;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
         private DataGridViewButtonColumn DateGridLocalTPDetete;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
@@ -1689,7 +2143,6 @@
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn44;
         private GroupBox groupBox2;
         private TextBox textBoxPoiskTo;
-        private GroupBox groupBox3;
         private TextBox textBoxPoiskComponent;
         private GroupBox groupBox4;
         private GroupBox groupBox5;
@@ -1698,5 +2151,60 @@
         private TextBox textBoxPoiskSZ;
         private GroupBox groupBox7;
         private TextBox textBoxPoiskMach;
+        private DataGridView dataGridViewStaffAll;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn45;
+        private DataGridViewButtonColumn dataGridViewButtonColumn10;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn46;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn47;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn48;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn49;
+        private DataGridViewTextBoxColumn Column10;
+        private DataGridViewTextBoxColumn Column11;
+        private DataGridViewTextBoxColumn StaffIdGrid;
+        private DataGridViewButtonColumn Column12;
+        private DataGridViewCheckBoxColumn StaffGridChechBox;
+        private DataGridViewTextBoxColumn StaffSimvolGrid;
+        private DataGridViewTextBoxColumn StaffNAmeGrid;
+        private DataGridViewTextBoxColumn Column13;
+        private DataGridViewTextBoxColumn Column14;
+        private DataGridViewTextBoxColumn Column15;
+        private DataGridViewTextBoxColumn Column16;
+        private DataGridViewTextBoxColumn Column17;
+        private DataGridViewTextBoxColumn Id;
+        private DataGridViewButtonColumn Add;
+        private DataGridViewTextBoxColumn NameTO;
+        private DataGridViewTextBoxColumn IdTO;
+        private DataGridViewButtonColumn Column18;
+        private DataGridViewTextBoxColumn Column1;
+        private DataGridViewTextBoxColumn Order;
+        private TabPage tabPage9;
+        private TableLayoutPanel tableLayoutPanel11;
+        private DataGridView dataGridViewPovtor;
+        private TableLayoutPanel tableLayoutPanel10;
+        private DataGridView dataGridView5;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn50;
+        private DataGridViewButtonColumn dataGridViewButtonColumn11;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn51;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn52;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn53;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn54;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn55;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn56;
+        private DataGridView dataGridView6;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn57;
+        private DataGridViewButtonColumn dataGridViewButtonColumn12;
+        private DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn3;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn58;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn59;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn60;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn61;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn62;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn63;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn64;
+        private TabPage tabPage10;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn72;
+        private DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn4;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn73;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn79;
     }
 }

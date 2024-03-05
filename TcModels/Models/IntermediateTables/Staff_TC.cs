@@ -40,7 +40,9 @@ namespace TcModels.Models.IntermediateTables
             { nameof(Order) },
             { nameof(Symbol)},
         };
+
         
+        public int IdAuto { get; set; } 
 
         public int ChildId { get; set; }
         public Staff? Child { get; set; }
@@ -51,7 +53,7 @@ namespace TcModels.Models.IntermediateTables
         public int Order { get; set; }
         public string Symbol { get; set; }
 
-        public List<ExecutionWork> ExecutionWorks { get; set; }
+        public List<ExecutionWork> ExecutionWorks { get; set; } = new List<ExecutionWork>(); 
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is Staff_TC sourceCard)

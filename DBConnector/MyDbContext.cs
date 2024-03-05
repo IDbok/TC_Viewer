@@ -22,7 +22,7 @@ namespace TcDbConnector
         public DbSet<TechOperation> TechOperations { get; set; } = null!;
 
         public DbSet<ComponentWork> ComponentWorks { get; set; } = null!;
-        public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
+       // public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
 
         //public DbSet<MaxEW> MaxEWs { get; set; } = null!;
         //public DbSet<SumEW> SumEWs { get; set; } = null!;
@@ -41,18 +41,24 @@ namespace TcDbConnector
         {
             //Database.EnsureDeleted();
             //Database.EnsureCreated(); // todo - create exception catch if db is unavailable
+
         }
       
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql("server=localhost;database=tavrida_db_v7;user=root;password=root",
+            optionsBuilder.UseMySql(TcDbConnector.StaticClass.ConnectString,
                 new MySqlServerVersion(new Version(5, 7, 24)));
 
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder
+                .Entity<ExecutionWork>()
+                .HasMany(c => c.ListexecutionWorkRepeat)
+                .WithMany(s => s.ListexecutionWorkRepeat2)
+                .UsingEntity(j => j.ToTable("ExecutionWorkRepeat"));
 
             modelBuilder
                 .Entity<Component>()
@@ -92,7 +98,8 @@ namespace TcDbConnector
                     {
                         j.Property(sttc => sttc.Symbol).HasDefaultValue("-");
                         j.Property(sttc => sttc.Order).HasDefaultValue(0);
-                        j.HasKey(t => new { t.ParentId, t.ChildId, t.Symbol});
+                        j.Property(f => f.IdAuto).ValueGeneratedOnAdd();
+                        j.HasKey(t => new { t.ParentId, t.ChildId, t.IdAuto});
                         j.ToTable("Staff_TC");
                         // j.HasIndex(t => t.Symbol).IsUnique();
                     });
