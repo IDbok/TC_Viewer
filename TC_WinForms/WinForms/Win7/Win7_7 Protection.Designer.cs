@@ -38,6 +38,7 @@
             btnUpdateObj = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
+            progressBar = new ProgressBar();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -51,11 +52,11 @@
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 0);
-            dgvMain.Margin = new Padding(4, 4, 4, 4);
+            dgvMain.Margin = new Padding(4);
             dgvMain.Name = "dgvMain";
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
-            dgvMain.Size = new Size(1000, 424);
+            dgvMain.Size = new Size(1000, 462);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -64,9 +65,9 @@
             pnlControls.Controls.Add(pnlControlBtns);
             pnlControls.Dock = DockStyle.Top;
             pnlControls.Location = new Point(0, 0);
-            pnlControls.Margin = new Padding(4, 4, 4, 4);
+            pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1000, 138);
+            pnlControls.Size = new Size(1000, 100);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
@@ -75,9 +76,9 @@
             pnlFilters.Controls.Add(lblProjectName);
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
-            pnlFilters.Margin = new Padding(4, 4, 4, 4);
+            pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(402, 138);
+            pnlFilters.Size = new Size(402, 100);
             pnlFilters.TabIndex = 25;
             // 
             // cmbProjectName
@@ -85,7 +86,7 @@
             cmbProjectName.FormattingEnabled = true;
             cmbProjectName.Items.AddRange(new object[] { "Карты по всем проектам", "Проект 1", "Проект 2", "Проект 3" });
             cmbProjectName.Location = new Point(10, 50);
-            cmbProjectName.Margin = new Padding(4, 4, 4, 4);
+            cmbProjectName.Margin = new Padding(4);
             cmbProjectName.Name = "cmbProjectName";
             cmbProjectName.Size = new Size(383, 33);
             cmbProjectName.TabIndex = 20;
@@ -108,15 +109,15 @@
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
             pnlControlBtns.Location = new Point(410, 0);
-            pnlControlBtns.Margin = new Padding(4, 4, 4, 4);
+            pnlControlBtns.Margin = new Padding(4);
             pnlControlBtns.Name = "pnlControlBtns";
-            pnlControlBtns.Size = new Size(590, 138);
+            pnlControlBtns.Size = new Size(590, 100);
             pnlControlBtns.TabIndex = 24;
             // 
             // btnDeleteObj
             // 
             btnDeleteObj.Location = new Point(400, 15);
-            btnDeleteObj.Margin = new Padding(4, 4, 4, 4);
+            btnDeleteObj.Margin = new Padding(4);
             btnDeleteObj.Name = "btnDeleteObj";
             btnDeleteObj.Size = new Size(174, 75);
             btnDeleteObj.TabIndex = 25;
@@ -127,7 +128,7 @@
             // btnUpdateObj
             // 
             btnUpdateObj.Location = new Point(206, 15);
-            btnUpdateObj.Margin = new Padding(4, 4, 4, 4);
+            btnUpdateObj.Margin = new Padding(4);
             btnUpdateObj.Name = "btnUpdateObj";
             btnUpdateObj.Size = new Size(174, 75);
             btnUpdateObj.TabIndex = 24;
@@ -137,7 +138,7 @@
             // btnAddNewObj
             // 
             btnAddNewObj.Location = new Point(10, 15);
-            btnAddNewObj.Margin = new Padding(4, 4, 4, 4);
+            btnAddNewObj.Margin = new Padding(4);
             btnAddNewObj.Name = "btnAddNewObj";
             btnAddNewObj.Size = new Size(174, 75);
             btnAddNewObj.TabIndex = 23;
@@ -147,13 +148,25 @@
             // 
             // pnlDataViewer
             // 
+            pnlDataViewer.Controls.Add(progressBar);
             pnlDataViewer.Controls.Add(dgvMain);
             pnlDataViewer.Dock = DockStyle.Fill;
-            pnlDataViewer.Location = new Point(0, 138);
-            pnlDataViewer.Margin = new Padding(4, 4, 4, 4);
+            pnlDataViewer.Location = new Point(0, 100);
+            pnlDataViewer.Margin = new Padding(4);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1000, 424);
+            pnlDataViewer.Size = new Size(1000, 462);
             pnlDataViewer.TabIndex = 2;
+            // 
+            // progressBar
+            // 
+            progressBar.Anchor = AnchorStyles.None;
+            progressBar.Location = new Point(226, 84);
+            progressBar.MarqueeAnimationSpeed = 30;
+            progressBar.Name = "progressBar";
+            progressBar.Size = new Size(564, 34);
+            progressBar.Style = ProgressBarStyle.Marquee;
+            progressBar.TabIndex = 2;
+            progressBar.Visible = false;
             // 
             // Win7_7_Protection
             // 
@@ -162,7 +175,7 @@
             ClientSize = new Size(1000, 562);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
-            Margin = new Padding(4, 4, 4, 4);
+            Margin = new Padding(4);
             Name = "Win7_7_Protection";
             Text = "Win7_7_Protection";
             FormClosing += Win7_7_Protection_FormClosing;
@@ -188,5 +201,6 @@
         private ComboBox cmbProjectName;
         private Label lblProjectName;
         private Panel pnlDataViewer;
+        private ProgressBar progressBar;
     }
 }

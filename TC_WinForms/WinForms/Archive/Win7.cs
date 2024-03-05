@@ -344,62 +344,7 @@ namespace TC_WinForms.WinForms
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private List<TechnologicalCard> GetTestTcList()
-        {
-            var tcList = new List<TechnologicalCard>();
-            int index = 1;
-            tcList.Add(new TechnologicalCard
-            {
-                Id = index,
-                Article = $"{index}",
-                Version = $"{index}",
-                Name = $"{index}",
-                Type = $"{index}",
-                NetworkVoltage = index,
-                TechnologicalProcessType = $"{index}",
-                TechnologicalProcessName = $"{index}",
-                Parameter = $"{index}",
-                FinalProduct = $"{index}",
-                Applicability = $"{index}",
-                Note = $"{index}",
-                IsCompleted = false
-            });
-            index++;
-            tcList.Add(new TechnologicalCard
-            {
-                Id = index,
-                Article = $"{index}",
-                Version = $"{index}",
-                Name = $"{index}",
-                Type = $"{index}",
-                NetworkVoltage = index,
-                TechnologicalProcessType = $"{index}",
-                TechnologicalProcessName = $"{index}",
-                Parameter = $"{index}",
-                FinalProduct = $"{index}",
-                Applicability = $"{index}",
-                Note = $"{index}",
-                IsCompleted = false
-            });
-            index++;
-            tcList.Add(new TechnologicalCard
-            {
-                Id = index,
-                Article = $"{index}",
-                Version = $"{index}",
-                Name = $"{index}",
-                Type = $"{index}",
-                NetworkVoltage = index,
-                TechnologicalProcessType = $"{index}",
-                TechnologicalProcessName = $"{index}",
-                Parameter = $"{index}",
-                FinalProduct = $"{index}",
-                Applicability = $"{index}",
-                Note = $"{index}",
-                IsCompleted = false
-            });
-            return tcList;
-        }
+        
 
         private void btnAddNewTC_Click(object sender, EventArgs e)
         {

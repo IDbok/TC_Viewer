@@ -42,9 +42,7 @@
     <Compile Update="WinForms\Win6\Win6_Machine.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="WinForms\Win6\Win6_Component.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="WinForms\Win6\Win6_Component.cs" />
     <Compile Update="WinForms\Win6\Win6_Staff.cs">
       <SubType>Form</SubType>
     </Compile>

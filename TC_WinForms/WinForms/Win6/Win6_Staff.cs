@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
@@ -24,7 +25,7 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
             this._tcId = tcId;
 
-            new DGVEvents().AddGragDropEvents(dgvMain);
+            // new DGVEvents().AddGragDropEvents(dgvMain);
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
 
@@ -42,6 +43,8 @@ namespace TC_WinForms.WinForms
             _bindingList = new BindingList<DisplayedStaff_TC>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
+            
+            SetDGVColumnsSettings();
         }
         private async void Win6_Staff_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -153,34 +156,29 @@ namespace TC_WinForms.WinForms
 
             // автоподбор ширины столбцов под ширину таблицы
             dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.RowHeadersWidth = 25;
 
-            // автоперенос в ячейках
+            //// автоперенос в ячейках
             dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+            dgvMain.Columns["Order"].DefaultCellStyle.BackColor = Color.LightGray;
+            dgvMain.Columns["Symbol"].DefaultCellStyle.BackColor = Color.LightGray; //Color.LightBlue;
 
             // ширина столбцов по содержанию
             var autosizeColumn = new List<string>
             {
                 "Order",
                 "Symbol",
-                "Id",
+                "ChildId",
                 "Name",
+                "Type",
             };
             foreach (var column in autosizeColumn)
             {
                 dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             }
-
-            // autosize only comment column to fill all free space
-            dgvMain.Columns["Comment"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-
-            dgvMain.Columns["Functions"].Width = 180;
-            dgvMain.Columns["CombineResponsibility"].Width = 140;
-
-            dgvMain.Columns["Qualification"].Width = 250;
-            dgvMain.Columns["Comment"].Width = 100;
-
-            dgvMain.Columns["Type"].Width = 70;
 
             // make columns readonly
             foreach (DataGridViewColumn column in dgvMain.Columns)
@@ -234,47 +232,8 @@ namespace TC_WinForms.WinForms
         private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
 
-            string symbolName = nameof(Staff_TC.Symbol);
-            string orderName = nameof(Staff_TC.Order);
+            DGVProcessing.ReorderRows(dgvMain, e, _bindingList);
 
-            var row = dgvMain.Rows[e.RowIndex];
-
-            // if changed cell is in Order column then reorder dgv
-            if (e.ColumnIndex == dgvMain.Columns[orderName].Index)
-            {
-                // check if new cell value is a number
-                if (int.TryParse(row.Cells[orderName].Value.ToString(), out int orderValue))
-                {
-                    if (orderValue == e.RowIndex + 1) { return; }
-                    MoveRowAndUpdateOrder(e.RowIndex, orderValue - 1); // move row to new position (orderValue - 1 is new index for row
-                    //SortAndRefreshDGV();
-                    //_bindingList = _bindingList.OrderBy(x => x.Order);
-
-                    //if (orderValue > 0 && orderValue <= dgvMain.Rows.Count)
-                    //{ DGVProcessing.ReorderRows(row, orderValue, dgvMain); }
-                    //else
-                    //{ DGVProcessing.ReorderRows(row, dgvMain.Rows.Count, dgvMain); } // insert row to the end of dgv
-
-                }
-                else
-                {
-                    MessageBox.Show("Ошибка ввода в поле \"№\"");
-                    row.Cells[orderName].Value = e.RowIndex + 1;
-                }
-            }
-            //else if (e.ColumnIndex == dgvMain.Columns[symbolName].Index) // todo: - check if symbol is unique
-            //{
-            //    string symbolValue = (string)row.Cells[symbolName].Value;
-            //    string symbolCopyValue = (string)row.Cells[symbolName + "_copy"].Value;
-            //    if (symbolValue != symbolCopyValue)
-            //    {
-            //        if (!DGVProcessing.CheckIfValueIsUnique(dgvMain, nameof(Staff_TC.Symbol), row))
-            //        {
-            //            MessageBox.Show("Символ должен быть уникальным!");
-            //            row.Cells[symbolName].Value = symbolCopyValue;
-            //        }
-            //    }
-            //}
         }
 
         private void SortAndRefreshDGV()
@@ -289,17 +248,6 @@ namespace TC_WinForms.WinForms
             //_bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.Refresh(); // Обновляем DataGridView, чтобы отразить изменения
         }
-        //private void UpdateOrderValues()
-        //{
-        //    for (int i = 0; i < dgvMain.Rows.Count; i++)
-        //    {
-        //        var displayedStaff = dgvMain.Rows[i].DataBoundItem as DisplayedStaff_TC;
-        //        if (displayedStaff != null)
-        //        {
-        //            displayedStaff.Order = i + 1; // Обновляем Order на основе позиции строки
-        //        }
-        //    }
-        //}
         private void MoveRowAndUpdateOrder(int oldIndex, int newIndex)
         {
             if (oldIndex < 0 || oldIndex >= _bindingList.Count || newIndex < 0 || newIndex >= _bindingList.Count || oldIndex == newIndex)
@@ -329,7 +277,7 @@ namespace TC_WinForms.WinForms
 
 
 
-        public class DisplayedStaff_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity
+        public class DisplayedStaff_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -355,7 +303,6 @@ namespace TC_WinForms.WinForms
                     //nameof(ParentId),
                     nameof(Order),
 
-                    nameof(ChildId),
                     nameof(Name),
                     nameof(Type),
                     nameof(Functions),
@@ -364,6 +311,8 @@ namespace TC_WinForms.WinForms
                     nameof(Comment),
 
                     nameof(Symbol),
+
+                    nameof(ChildId),
                 };
             }
             public List<string> GetRequiredFields()
@@ -480,5 +429,6 @@ namespace TC_WinForms.WinForms
 
         
     }
+
 
 }

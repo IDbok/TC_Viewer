@@ -38,6 +38,7 @@
             btnUpdateTC = new Button();
             btnCreateTC = new Button();
             pnlDataViewer = new Panel();
+            progressBar = new ProgressBar();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -55,7 +56,7 @@
             dgvMain.Name = "dgvMain";
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
-            dgvMain.Size = new Size(1000, 424);
+            dgvMain.Size = new Size(1000, 462);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -66,7 +67,7 @@
             pnlControls.Location = new Point(0, 0);
             pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1000, 138);
+            pnlControls.Size = new Size(1000, 100);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
@@ -77,14 +78,14 @@
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(402, 138);
+            pnlFilters.Size = new Size(402, 100);
             pnlFilters.TabIndex = 25;
             // 
             // cmbProjectName
             // 
             cmbProjectName.FormattingEnabled = true;
             cmbProjectName.Items.AddRange(new object[] { "Карты по всем проектам", "Проект 1", "Проект 2", "Проект 3" });
-            cmbProjectName.Location = new Point(10, 50);
+            cmbProjectName.Location = new Point(13, 37);
             cmbProjectName.Margin = new Padding(4);
             cmbProjectName.Name = "cmbProjectName";
             cmbProjectName.Size = new Size(383, 33);
@@ -94,7 +95,7 @@
             // lblProjectName
             // 
             lblProjectName.AutoSize = true;
-            lblProjectName.Location = new Point(9, 25);
+            lblProjectName.Location = new Point(12, 12);
             lblProjectName.Margin = new Padding(4, 0, 4, 0);
             lblProjectName.Name = "lblProjectName";
             lblProjectName.Size = new Size(157, 25);
@@ -110,7 +111,7 @@
             pnlControlBtns.Location = new Point(410, 0);
             pnlControlBtns.Margin = new Padding(4);
             pnlControlBtns.Name = "pnlControlBtns";
-            pnlControlBtns.Size = new Size(590, 138);
+            pnlControlBtns.Size = new Size(590, 100);
             pnlControlBtns.TabIndex = 24;
             // 
             // btnDeleteTC
@@ -148,13 +149,26 @@
             // 
             // pnlDataViewer
             // 
+            pnlDataViewer.Controls.Add(progressBar);
             pnlDataViewer.Controls.Add(dgvMain);
             pnlDataViewer.Dock = DockStyle.Fill;
-            pnlDataViewer.Location = new Point(0, 138);
+            pnlDataViewer.Location = new Point(0, 100);
             pnlDataViewer.Margin = new Padding(4);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1000, 424);
+            pnlDataViewer.Size = new Size(1000, 462);
             pnlDataViewer.TabIndex = 2;
+            // 
+            // progressBar
+            // 
+            progressBar.Anchor = AnchorStyles.None;
+            progressBar.Location = new Point(226, 84);
+            progressBar.MarqueeAnimationSpeed = 30;
+            progressBar.Name = "progressBar";
+            progressBar.Size = new Size(564, 34);
+            progressBar.Style = ProgressBarStyle.Marquee;
+            progressBar.TabIndex = 1;
+            progressBar.Visible = false;
+            progressBar.Click += progressBar1_Click;
             // 
             // Win7_1_TCs
             // 
@@ -188,5 +202,6 @@
         private ComboBox cmbProjectName;
         private Label lblProjectName;
         private Panel pnlDataViewer;
+        private ProgressBar progressBar;
     }
 }

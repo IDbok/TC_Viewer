@@ -1,7 +1,8 @@
 ﻿
-using OfficeOpenXml.Style;
+using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Utilities;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -13,268 +14,174 @@ namespace TC_WinForms.WinForms
     public partial class Win6_Machine : Form, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
-
         private int _tcId;
-        private TechnologicalCard _tc;
 
-        private List<Machine_TC> newItems = new List<Machine_TC>();
-        private List<Machine_TC> deletedItems = new List<Machine_TC>();
-        private List<Machine_TC> changedItems = new List<Machine_TC>();
+        private BindingList<DisplayedMachine_TC> _bindingList;
+        private List<DisplayedMachine_TC> _changedObjects = new List<DisplayedMachine_TC>();
+        private List<DisplayedMachine_TC> _newObjects = new List<DisplayedMachine_TC>();
+        private List<DisplayedMachine_TC> _deletedObjects = new List<DisplayedMachine_TC>();
 
         public Win6_Machine(int tcId)
         {
             InitializeComponent();
             this._tcId = tcId;
 
-            new DGVEvents().AddGragDropEvents(dgvMain);
+            // new DGVEvents().AddGragDropEvents(dgvMain);
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
 
-        private void Win6_Machine_Load(object sender, EventArgs e)
+        private async void Win6_Machine_Load(object sender, EventArgs e)
         {
-            var objects = Task.Run(() => dbCon.GetIntermediateObjectList<Machine_TC, Machine>(_tcId));
+            await LoadObjects();
+            DisplayedEntityHelper.SetupDataGridView<DisplayedMachine_TC>(dgvMain);
 
-            SetDGVColumnsNamesAndOrder(
-                GetColumnNames(), 
-                GetColumnOrder(), 
-                dgvMain,
-                Machine_TC.GetChangeablePropertiesNames);
+            dgvMain.AllowUserToDeleteRows = false;
+        }
+        private async Task LoadObjects()
+        {
+            var tcList = await Task.Run(() => dbCon.GetIntermediateObjectList<Machine_TC, Machine>(_tcId).OrderBy(obj => obj.Order)
+                .Select(obj => new DisplayedMachine_TC(obj)).ToList());
+            _bindingList = new BindingList<DisplayedMachine_TC>(tcList);
+            _bindingList.ListChanged += BindingList_ListChanged;
+            dgvMain.DataSource = _bindingList;
 
             SetDGVColumnsSettings();
-
-            AddNewRowsToDGV(objects.Result, dgvMain);
         }
-
-        private void Win6_Machine_FormClosing(object sender, FormClosingEventArgs e)
+        private async void Win6_Machine_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                e.Cancel = true;
+                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
 
+                if (result == DialogResult.Yes)
+                {
+                    await SaveChanges();
+                }
+                e.Cancel = false;
+                Close();
+            }
+        }
+        public void AddNewObjects(List<Machine> newObjs)
+        {
+            foreach (var obj in newObjs)
+            {
+                var newObj_TC = CreateNewObject(obj, _bindingList.Count + 1);
+
+                var displayedObj_TC = new DisplayedMachine_TC(newObj_TC);
+                _bindingList.Add(displayedObj_TC);
+
+                _newObjects.Add(displayedObj_TC);
+            }
+            dgvMain.Refresh();
         }
 
         ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
 
-        private Dictionary<string, string> GetColumnNames()
-        {
-            //var colNames = new Dictionary<string, string>();
-            //foreach (var item in Machine_TC.GetPropertiesNames)
-            //{
-            //    colNames.Add(item.Key, item.Value);
-            //}
-            //foreach (var item in Machine.GetPropertiesNames)
-            //{
-            //     colNames.Add(item.Key, item.Value);
-            //}
-            var colNames = new Dictionary<string, string>
-            {
-                { "ChildId", "ID Комплектующие" },
-                { "ParentId", "ID тех. карты" },
-                { "Order", "№" },
-                { "Quantity", "Количество" },
-                { "Note", "Примечание" },
-                { "Id", "ID" },
-                { "Name", "Наименование" },
-                { "Type", "Тип" },
-                { "Unit", "Ед.изм." },
-                { "Price", "Стоимость,\nруб. без НДС" },
-            };
-            return colNames;
-        }
-        private Dictionary<string, int> GetColumnOrder()
-        {
-            //var colOrder = new Dictionary<string, int>();
-            //foreach (var item in Machine.GetPropertiesOrder)
-            //{
-            //    colOrder.Add(item.Key, item.Value);
-            //}
-            //foreach (var item in Machine_TC.GetPropertiesOrder)
-            //{
-            //    colOrder.Add(item.Key, item.Value);
-            //}
-            var colOrder = new Dictionary<string, int>
-            {
-                { "ChildId", -1 },
-                { "ParentId", -1 },
-                { "Order", 0 },
-                { "Quantity", 1 },
-                { "Note", 7 },
-                { "Id", 2 },
-                { "Name", 3 },
-                { "Type", 4 },
-                { "Unit", 5 },
-                { "Price", 6 },
-            };
-            return colOrder;
-        }
         void SetDGVColumnsSettings()
         {
 
             // автоподбор ширины столбцов под ширину таблицы
             dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.RowHeadersWidth = 25;
 
-            // автоперенос в ячейках
+            //// автоперенос в ячейках
             dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+            dgvMain.Columns["Order"].DefaultCellStyle.BackColor = Color.LightGray;
+            dgvMain.Columns["Quantity"].DefaultCellStyle.BackColor = Color.LightGray; //Color.LightBlue;
+            dgvMain.Columns["Note"].DefaultCellStyle.BackColor = Color.LightGray;
 
             // ширина столбцов по содержанию
             var autosizeColumn = new List<string>
             {
                 "Order",
                 "Quantity",
-                "Id",
+                "Note",
+                "ChildId",
                 "Name",
+                "Type",
             };
             foreach (var column in autosizeColumn)
             {
                 dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             }
 
-            // autosize only comment column to fill all free space
-            dgvMain.Columns["Note"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-
-            dgvMain.Columns["Type"].Width = 70;
-
             // make columns readonly
             foreach (DataGridViewColumn column in dgvMain.Columns)
             {
                 column.ReadOnly = true;
             }
-            // make columns editable
-            foreach (var column in Machine_TC.GetChangeablePropertiesNames)
+            var changeableColumn = new List<string>
+            {
+                "Order",
+                "Quantity",
+                "Note",
+            };
+            foreach (var column in changeableColumn)
             {
                 dgvMain.Columns[column].ReadOnly = false;
             }
-
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        public void AddNewObjects(List<Machine> newObjs)
-        {
-            int i = 1;
-            int rowCount = dgvMain.Rows.Count;
-            foreach (Machine obj in newObjs)
-            {
-                var sttc = CreateNewObject(obj, rowCount + i);
-                newItems.Add(sttc);
-                i++;
-            }
-
-            AddNewRowsToDGV(newItems, dgvMain);
-        }
         public async Task SaveChanges()
         {
-            dgvMain.CurrentCell = null;// stops editing in dgvMain and save changes
 
-            // check if all rows have unique combination of childId and Symbol fields
-            if (!CheckUniqueColumnsValues(dgvMain, new List<string> { "Id" }))
+            if (_changedObjects.Count == 0 && _newObjects.Count == 0 && _deletedObjects.Count == 0)
             {
-                MessageBox.Show("Не все строки имеют уникальное поле ID");
                 return;
             }
-
-            if (!DetectChanges())
-            { MessageBox.Show("no changes in Machine"); return; }// check if rows in dgvMain have difference values in copy columns and add them to changedItems (not newItems, deletedItems)
-
-            // Delete deleted rows from db
-            if (deletedItems.Count > 0)
-                dbCon.Delete(deletedItems); deletedItems.Clear();
-            // save new rows in db
-            if (newItems.Count > 0)
-                dbCon.Add<Machine_TC, Machine>(newItems); newItems.Clear();
-            // save changes in db
-            if (changedItems.Count > 0)
-                dbCon.Update(changedItems); changedItems.Clear();
-
-            // change values of copy columns to original
-            SetCopyColumnsValues(dgvMain, Machine_TC.GetChangeablePropertiesNames);
-        }
-        private bool DetectChanges()
-        {
-            bool result = false;
-            // check if rows in dgvMain have difference values in copy columns
-            foreach (var row in dgvMain.Rows.Cast<DataGridViewRow>())
+            if (_newObjects.Count > 0)
             {
-                if (CheckIfCellValueChanged(row, Machine_TC.GetChangeablePropertiesNames, () =>
-                {
-                    var newObj = CreateNewObject(row);
-                    changedItems.Add(newObj);
-                }))
-                    result = true;
+                await SaveNewObjects();
             }
-            return result;
-        }
-
-        ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
-        private void btnAddNewObj_Click(object sender, EventArgs e)
-        {
-            // load new form Win7_3_Machine as dictonary
-            var newForm = new Win7_5_Machine();
-            newForm.SetAsAddingForm();
-            newForm.ShowDialog();
-        }
-
-        private void btnDeleteObj_Click(object sender, EventArgs e)
-        {
-            if (dgvMain.SelectedRows.Count > 0)
+            if (_changedObjects.Count > 0)
             {
-                List<DataGridViewRow> rowsToDelete = GetSelectedRows(dgvMain);
-
-                string message;
-                if (rowsToDelete.Count == 1)
-                    message = "Вы действительно хотите удалить выбранный объект?\n";
-                else
-                    message = "Вы действительно хотите удалить выбранные объекты?\n";
-
-                DialogResult result = MessageSender.SendQuestionDeliteObjects(message, rowsToDelete, "Id");
-
-                if (result == DialogResult.Yes)
-                {
-                    foreach (var row in rowsToDelete)
-                    {
-                        var objToDelite = CreateNewObject(row);
-                        deletedItems.Add(objToDelite);
-                    }
-                    DeleteRows(rowsToDelete, dgvMain);
-                }
-                dgvMain.Refresh();
+                await SaveChangedObjects();
             }
-        }
-
-        private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) // todo - fix problem with selection replacing row (error while remove it)
-        {
-            var row = dgvMain.Rows[e.RowIndex];
-            dgvMain.Enabled = false;
-            // if changed cell is in Order column then reorder dgv
-            if (e.ColumnIndex == dgvMain.Columns["Order"].Index)
+            if (_deletedObjects.Count > 0)
             {
-                // check if new cell value is a number
-                if (int.TryParse(row.Cells["Order"].Value.ToString(), out int orderValue))
-                {
-                    if (orderValue == e.RowIndex + 1) { dgvMain.Enabled = true; return; }
-                    if (orderValue > 0 && orderValue <= dgvMain.Rows.Count)
-                    { ReorderRows(row, orderValue, dgvMain); }
-                    else
-                    { ReorderRows(row, dgvMain.Rows.Count, dgvMain); } // insert row to the end of dgv
-
-                }
-                else
-                {
-                    MessageBox.Show("Ошибка ввода в поле \"№\"");
-                    row.Cells["Order"].Value = e.RowIndex + 1;
-                }
+                await DeleteDeletedObjects();
             }
-            // here we can add other columns to check cell's value change with some conditions
-            dgvMain.Enabled = true;
+
+            dgvMain.Refresh();
         }
-        private Machine_TC CreateNewObject(DataGridViewRow row) 
+        private async Task SaveNewObjects()
+        {
+            var newObjects = _newObjects.Select(dObj => CreateNewObject(dObj)).ToList();
+
+            await dbCon.AddIntermediateObjectAsync(newObjects);
+
+            _newObjects.Clear();
+        }
+        private async Task SaveChangedObjects()
+        {
+            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+
+            await dbCon.UpdateIntermediateObjectAsync(changedTcs);
+
+            _changedObjects.Clear();
+        }
+
+        private async Task DeleteDeletedObjects()
+        {
+            var deletedObjects = _deletedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+            await dbCon.DeleteIntermediateObjectAsync(deletedObjects);
+            _deletedObjects.Clear();
+        }
+
+        private Machine_TC CreateNewObject(DisplayedMachine_TC dObj)
         {
             return new Machine_TC
             {
-                ParentId = _tcId,
-                ChildId = int.Parse(row.Cells["Id"].Value.ToString()),
-
-                Order = int.Parse(row.Cells["Order"].Value.ToString()),
-                Quantity = double.Parse(row.Cells["Quantity"].Value.ToString()),
-                Note = row.Cells["Note"].Value?.ToString(),
+                ParentId = dObj.ParentId,
+                ChildId = dObj.ChildId,
+                Order = dObj.Order,
+                Quantity = dObj.Quantity,
+                Note = dObj.Note,
             };
         }
         private Machine_TC CreateNewObject(Machine obj, int oreder)
@@ -284,10 +191,191 @@ namespace TC_WinForms.WinForms
                 ParentId = _tcId,
                 ChildId = obj.Id,
                 Child = obj,
-
                 Order = oreder,
                 Quantity = 0,
+                Note = "",
             };
+        }
+
+        ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
+        private void btnAddNewObj_Click(object sender, EventArgs e)
+        {
+            var newForm = new Win7_5_Machine();
+            newForm.SetAsAddingForm();
+            newForm.ShowDialog();
+        }
+
+        private void btnDeleteObj_Click(object sender, EventArgs e)
+        {
+            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+                _bindingList, _newObjects, _deletedObjects);
+        }
+
+        private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) // todo - fix problem with selection replacing row (error while remove it)
+        {
+            ReorderRows(dgvMain, e, _bindingList);
+        }
+        private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            DisplayedEntityHelper.ListChangedEventHandlerIntermediate
+                (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
+        }
+
+        private class DisplayedMachine_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable
+        {
+            public Dictionary<string, string> GetPropertiesNames()
+            {
+                return new Dictionary<string, string>
+            {
+                { nameof(ChildId), "ID" },
+                { nameof(ParentId), "ID тех. карты" },
+                { nameof(Order), "№" },
+                { nameof(Quantity), "Количество" },
+                { nameof(Note), "Примечание" },
+
+                { nameof(Name), "Наименование" },
+                { nameof(Type), "Тип" },
+                { nameof(Unit), "Ед.изм." },
+                { nameof(Price), "Стоимость, руб. без НДС" },
+                { nameof(Description), "Описание" },
+                { nameof(Manufacturer), "Производители (поставщики)" },
+                { nameof(ClassifierCode), "Код в classifier" },
+            };
+            }
+            public List<string> GetPropertiesOrder()
+            {
+                return new List<string>
+                {
+                    //nameof(ParentId),
+                    nameof(Order),
+
+                    nameof(Name),
+                    nameof(Type),
+                    nameof(Unit),
+                    nameof(Price),
+                    nameof(Description),
+                    nameof(Manufacturer),
+                    nameof(ClassifierCode),
+
+                    nameof(Quantity),
+                    nameof(Note),
+
+                    nameof(ChildId),
+
+                };
+            }
+            public List<string> GetRequiredFields()
+            {
+                return new List<string>
+                {
+                    nameof(ChildId) ,
+                    nameof(ParentId) ,
+                    nameof(Order),
+                };
+            }
+            public List<string> GetKeyFields()
+            {
+                return new List<string>
+                {
+                    nameof(ChildId),
+                    nameof(ParentId),
+                };
+            }
+
+            private int childId;
+            private int parentId;
+            private int order;
+            private double quantity;
+            private string? note;
+
+            public DisplayedMachine_TC()
+            {
+
+            }
+            public DisplayedMachine_TC(Machine_TC obj)
+            {
+                ChildId = obj.ChildId;
+                ParentId = obj.ParentId;
+                Order = obj.Order;
+
+                Name = obj.Child.Name;
+                Type = obj.Child.Type;
+
+                Unit = obj.Child.Unit;
+                Price = obj.Child.Price;
+                Description = obj.Child.Description;
+                Manufacturer = obj.Child.Manufacturer;
+                ClassifierCode = obj.Child.ClassifierCode;
+            }
+
+            public int ChildId { get; set; }
+            public int ParentId { get; set; }
+            public int Order
+            {
+                get => order;
+                set
+                {
+                    if (order != value)
+                    {
+                        order = value;
+                        OnPropertyChanged(nameof(Order));
+                    }
+                }
+            }
+            public double Quantity
+            {
+                get => quantity;
+                set
+                {
+                    if (quantity != value)
+                    {
+                        quantity = value;
+                        OnPropertyChanged(nameof(Quantity));
+                    }
+                }
+            }
+            public string? Note
+            {
+                get => note;
+                set
+                {
+                    if (note != value)
+                    {
+                        note = value;
+                        OnPropertyChanged(nameof(Note));
+                    }
+                }
+            }
+
+            public string Name { get; set; }
+            public string? Type { get; set; }
+            public string Unit { get; set; }
+            public float? Price { get; set; }
+            public string? Description { get; set; }
+            public string? Manufacturer { get; set; }
+            //public List<LinkEntety> Links { get; set; } = new();
+            public string ClassifierCode { get; set; }
+
+
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged(string propertyName)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+
+            private Dictionary<string, object> oldValueDict = new Dictionary<string, object>();
+
+            public object GetOldValue(string propertyName)
+            {
+                if (oldValueDict.ContainsKey(propertyName))
+                {
+                    return oldValueDict[propertyName];
+                }
+
+                return null;
+            }
+
         }
 
     }

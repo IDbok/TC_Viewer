@@ -39,6 +39,8 @@ namespace TC_WinForms.WinForms
 
         private async void Win7_6_Tool_Load(object sender, EventArgs e)
         {
+            progressBar.Visible = true;
+
             await LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedTool>(dgvMain);
 
@@ -51,6 +53,8 @@ namespace TC_WinForms.WinForms
                     out btnAddSelected, out btnCancel);
                 SetAddingFormEvents();
             }
+
+            progressBar.Visible = false;
         }
         private async Task LoadObjects()
         {
@@ -59,6 +63,8 @@ namespace TC_WinForms.WinForms
             _bindingList = new BindingList<DisplayedTool>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
+
+            SetDGVColumnsSettings();
         }
         private async void Win7_6_Tool_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -174,7 +180,40 @@ namespace TC_WinForms.WinForms
             };
         }
 
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
+
+        void SetDGVColumnsSettings()
+        {
+            // автоподбор ширины столбцов под ширину таблицы
+            dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvMain.RowHeadersWidth = 25;
+
+            //// автоперенос в ячейках
+            dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+            //    // ширина столбцов по содержанию
+            var autosizeColumn = new List<string>
+            {
+                nameof(DisplayedTool.Id),
+                nameof(DisplayedTool.Unit),
+                nameof(DisplayedTool.Categoty),
+                //nameof(DisplayedTool.ClassifierCode),
+            };
+            foreach (var column in autosizeColumn)
+            {
+                dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            }
+
+            dgvMain.Columns[nameof(DisplayedTool.Price)].Width = 120;
+            dgvMain.Columns[nameof(DisplayedTool.ClassifierCode)].Width = 150;
+
+            dgvMain.Columns[nameof(DisplayedTool.Id)].ReadOnly = true;
+            dgvMain.Columns[nameof(DisplayedTool.ClassifierCode)].ReadOnly = true;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
         /////////////////////////////////////////// * isAddingFormMethods and Events * ///////////////////////////////////////////

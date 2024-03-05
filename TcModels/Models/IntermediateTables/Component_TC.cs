@@ -1,9 +1,10 @@
 ﻿using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.IntermediateTables
 {
-    public class Component_TC : IStructIntermediateTable<TechnologicalCard, Component>, IDGViewable
+    public class Component_TC : IStructIntermediateTable<TechnologicalCard, Component>, IDGViewable, IUpdatableEntity
     {
         public static Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
         {
@@ -52,6 +53,16 @@ namespace TcModels.Models.IntermediateTables
         public string? Note { get; set; }
 
         public List<TechOperationWork> TechOperationWorks { get; set; }
+
+        public void ApplyUpdates(IUpdatableEntity source)
+        {
+            if (source is Component_TC sourceCard)
+            {
+                Order = sourceCard.Order;
+                Quantity = sourceCard.Quantity;
+                Note = sourceCard.Note;
+            }
+        }
 
         public override string ToString()
         {
