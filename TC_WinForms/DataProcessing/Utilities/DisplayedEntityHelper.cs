@@ -100,7 +100,7 @@ namespace TC_WinForms.DataProcessing.Utilities
                     }
                 }
 
-                dgvMain.Refresh();
+                dgvMain.Refresh(); // TODO: reordering rows
             }
         }
         
@@ -164,43 +164,43 @@ namespace TC_WinForms.DataProcessing.Utilities
                 }
             }
         }
-        public static void ListChangedEventHandlerIntermediate(ListChangedEventArgs e, BindingList<DisplayedStaff_TC> bindingList, 
-            List<DisplayedStaff_TC> newObjects, List<DisplayedStaff_TC> changedObjects, List<DisplayedStaff_TC> deletedObjects) 
-        {
-            if (e.ListChangedType == ListChangedType.ItemChanged)
-            {
-                if (newObjects.Contains(bindingList[e.NewIndex])) // if changed new Objects don't add it to changed list
-                {
-                    return;
-                }
+        //public static void ListChangedEventHandlerIntermediate(ListChangedEventArgs e, BindingList<DisplayedStaff_TC> bindingList, 
+        //    List<DisplayedStaff_TC> newObjects, List<DisplayedStaff_TC> changedObjects, List<DisplayedStaff_TC> deletedObjects) 
+        //{
+        //    if (e.ListChangedType == ListChangedType.ItemChanged)
+        //    {
+        //        if (newObjects.Contains(bindingList[e.NewIndex])) // if changed new Objects don't add it to changed list
+        //        {
+        //            return;
+        //        }
 
-                var changedItem = bindingList[e.NewIndex];
-                // check if changed Symbol property adn get old value
+        //        var changedItem = bindingList[e.NewIndex];
+        //        // check if changed Symbol property adn get old value
 
-                if (e.PropertyDescriptor != null && e.PropertyDescriptor.Name == nameof(Staff_TC.Symbol))
-                {
-                    var oldValue = changedItem.GetOldValue(nameof(DisplayedStaff_TC.Symbol));
-                    if (oldValue != null)
-                    {
-                        var deletedItem = new DisplayedStaff_TC
-                        {
-                            ChildId = changedItem.ChildId,
-                            ParentId = changedItem.ParentId,
-                            Symbol = oldValue.ToString(),
-                        };
+        //        if (e.PropertyDescriptor != null && e.PropertyDescriptor.Name == nameof(Staff_TC.Symbol))
+        //        {
+        //            var oldValue = changedItem.GetOldValue(nameof(DisplayedStaff_TC.Symbol));
+        //            if (oldValue != null)
+        //            {
+        //                var deletedItem = new DisplayedStaff_TC
+        //                {
+        //                    ChildId = changedItem.ChildId,
+        //                    ParentId = changedItem.ParentId,
+        //                    Symbol = oldValue.ToString(),
+        //                };
 
-                        deletedObjects.Add(deletedItem);
-                        newObjects.Add(changedItem);
-                    }
-                    return;
-                }
+        //                deletedObjects.Add(deletedItem);
+        //                newObjects.Add(changedItem);
+        //            }
+        //            return;
+        //        }
 
-                if (!changedObjects.Contains(changedItem))
-                {
-                    changedObjects.Add(changedItem);
-                }
-            }
-        }
+        //        if (!changedObjects.Contains(changedItem))
+        //        {
+        //            changedObjects.Add(changedItem);
+        //        }
+        //    }
+        //}
         public static void ListChangedEventHandlerIntermediate<T>(ListChangedEventArgs e, 
             BindingList<T> bindingList, List<T> newObjects, List<T> changedObjects, List<T> deletedObjects) 
             where T : class, IDisplayedEntity, new()

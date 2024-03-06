@@ -27,8 +27,10 @@ namespace TC_WinForms.WinForms
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
             progressBar.Visible = true;
+
             await LoadTechnologicalCards();
             DisplayedEntityHelper.SetupDataGridView<DisplayedTechnologicalCard>(dgvMain);
+
             progressBar.Visible = false;
         }
         private async Task LoadTechnologicalCards()

@@ -18,7 +18,7 @@ namespace TcDbConnector
         {
             SetPath();
         }
-        private void SetPath()
+        public static void SetPath()
         {
             string cD = Directory.GetCurrentDirectory();
             string RealPath = Path.GetFullPath(Path.Combine(cD, @"..\..\..\..\"));
@@ -122,7 +122,7 @@ namespace TcDbConnector
                 Console.WriteLine("----------------- Staff_TC -----------------");
                 foreach (var objTc in objTcList)
                 {
-                    Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
+                    // Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
                     var objs = db.Staffs.Find(objTc.ChildId);
                     var tc = db.TechnologicalCards.Find(objTc.ParentId);
                     if (objs != null && tc != null)
@@ -154,7 +154,7 @@ namespace TcDbConnector
                     {
                         objTc.Child = objs;
                         objTc.Parent = tc;
-                        try { db.Component_TCs.Add(objTc); Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}"); } 
+                        try { db.Component_TCs.Add(objTc);/* Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");*/ } 
                         catch { itemsToRemove.Add(objTc); }
                         // db.Component_TCs.Add(objTc); // todo - something wrond with adding to db
                     }
@@ -164,7 +164,7 @@ namespace TcDbConnector
 
                     objTcList.Remove(item);
                     db.Entry(item).State = EntityState.Detached;
-                    Console.WriteLine($"entety Deleted: Parentid={item.ParentId}, ChieldId={item.ChildId}, Order={item.Order}");
+                    //Console.WriteLine($"entety Deleted: Parentid={item.ParentId}, ChieldId={item.ChildId}, Order={item.Order}");
                 }
                 db.Component_TCs.AddRange(objTcList);
                 db.SaveChanges();
@@ -180,7 +180,7 @@ namespace TcDbConnector
                 Console.WriteLine("----------------- Machine_TC -----------------");
                 foreach (var objTc in objTcList)
                 {
-                    Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
+                    //Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
                     var objs = db.Machines.Find(objTc.ChildId);
                     var tc = db.TechnologicalCards.Find(objTc.ParentId);
                     if (objs != null && tc != null)
@@ -204,7 +204,7 @@ namespace TcDbConnector
                 Console.WriteLine("----------------- Protection_TC -----------------");
                 foreach (var objTc in objTcList)
                 {
-                    Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
+                    // Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
                     var objs = db.Protections.Find(objTc.ChildId);
                     var tc = db.TechnologicalCards.Find(objTc.ParentId);
                     if (objs != null && tc != null)
@@ -238,7 +238,7 @@ namespace TcDbConnector
                         toolTc.Child = tool;
                         toolTc.Parent = tc;
                         try { db.Tool_TCs.Add(toolTc);
-                            Console.WriteLine($"entety: Parentid={toolTc.ParentId}, ChieldId={toolTc.ChildId}, Order={toolTc.Order}");
+                            //Console.WriteLine($"entety: Parentid={toolTc.ParentId}, ChieldId={toolTc.ChildId}, Order={toolTc.Order}");
                         } catch (Exception e) 
                         { itemsToRemove.Add(toolTc); }
                     }
@@ -247,7 +247,7 @@ namespace TcDbConnector
                 {
                     toolTcList.Remove(item);
                     db.Entry(item).State = EntityState.Detached;
-                    Console.WriteLine($"entety Deleted: Parentid={item.ParentId}, ChieldId={item.ChildId}, Order={item.Order}");
+                    //Console.WriteLine($"entety Deleted: Parentid={item.ParentId}, ChieldId={item.ChildId}, Order={item.Order}");
                 }
                 db.Tool_TCs.AddRange(toolTcList);
                 db.SaveChanges();

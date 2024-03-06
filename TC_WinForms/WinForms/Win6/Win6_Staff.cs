@@ -128,10 +128,12 @@ namespace TC_WinForms.WinForms
         {
             return new Staff_TC
             {
+                IdAuto = dObj.IdAuto,
                 ParentId = dObj.ParentId,
                 ChildId = dObj.ChildId,
                 Order = dObj.Order,
                 Symbol = dObj.Symbol
+
             };
         }
         private Staff_TC CreateNewObject(Staff obj, int oreder)
@@ -335,6 +337,8 @@ namespace TC_WinForms.WinForms
                 };
             }
 
+            private int idAuto;
+
             private int childId;
             private int parentId;
             private int order;
@@ -354,6 +358,8 @@ namespace TC_WinForms.WinForms
             }
             public DisplayedStaff_TC(Staff_TC obj)
             {
+                IdAuto = obj.IdAuto;
+
                 ChildId = obj.ChildId;
                 ParentId = obj.ParentId;
                 Order = obj.Order;
@@ -367,6 +373,7 @@ namespace TC_WinForms.WinForms
                 Comment = obj.Child.Comment;
             }
 
+            public int IdAuto { get; set; }
             public int ChildId { get; set; }
             public int ParentId { get; set; }
             public int Order

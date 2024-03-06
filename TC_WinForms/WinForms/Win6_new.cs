@@ -128,20 +128,7 @@ namespace TC_WinForms.WinForms
         private void btnShowWorkSteps_Click(object sender, EventArgs e)
         {
             ShowForm(EModelType.WorkStep);
-            //if (_activeForm is TechOperationForm) return;
-            //if (techOperationForm == null)
-            //    techOperationForm = new TechOperationForm(_tcId);
-            //_activeForm = techOperationForm;
-            //LoadFormInPanel(_activeForm);
-
-
-            //if (activeModelType == EModelType.WorkStep) return;
-            ////SaveDataFromDGV(activeModelType);
-            //DGVNewStructure(EModelType.WorkStep);
-            //activeModelType = EModelType.WorkStep;
-            //if (sender is Button)
-            //    WinProcessing.ColorizeOnlyChosenButton(sender as Button, pnlControls);
-        } // todo - make it work
+        } 
 
 
         private void toolStripButton4_Click(object sender, EventArgs e)
@@ -158,6 +145,7 @@ namespace TC_WinForms.WinForms
                     saveForm.SaveChanges();
                 }
             }
+            MessageBox.Show("Изменения сохранены"); // todo: add bool return value and show message only if changes were saved
         }
         private void ControlSaveEvent(object sender, KeyEventArgs e)
         {

@@ -42,7 +42,7 @@ namespace TcModels.Models.IntermediateTables
         };
 
         
-        public int IdAuto { get; set; } 
+        public int IdAuto { get; set; }  // TODO: change to long
 
         public int ChildId { get; set; }
         public Staff? Child { get; set; }

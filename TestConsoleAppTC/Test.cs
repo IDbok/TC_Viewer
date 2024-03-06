@@ -27,35 +27,38 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            var parser = new WorkParser();
+            DbCreator.SetPath();
+            DbCreator.AddDeserializedDataToDb();
 
-            //var toList = parser.ParseExcelToObjectsTechOperation(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx", "Перечень ТО");
+                //var parser = new WorkParser();
 
-            var toList = parser.ParseExcelToObjectsTechTransition(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx", "Типовые переходы");
+            ////var toList = parser.ParseExcelToObjectsTechOperation(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx", "Перечень ТО");
 
-            foreach (var item in toList)
-            {
-                Console.WriteLine(item.Id + " " + item.Name + " " + item.Category);
+            //var toList = parser.ParseExcelToObjectsTechTransition(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx", "Типовые переходы");
+
+            //foreach (var item in toList)
+            //{
+            //    Console.WriteLine(item.Id + " " + item.Name + " " + item.Category);
+            //}
+
+            //using (var db = new MyDbContext())
+            //{
+            //    var existingTO = db.TechTransitions.ToList();
+
+            //    //toList.ForEach(to =>
+            //    //{
+            //    //    if (!existingTO.Any(eTO => eTO.Id == to.Id))
+            //    //    {
+            //    //        db.TechTransitions.Add(to);
+            //    //    }
+            //    //});
+
+            //    db.TechTransitions.AddRange(toList);
+
+            //    db.SaveChanges();
+            //}
+
             }
-
-            using (var db = new MyDbContext())
-            {
-                var existingTO = db.TechTransitions.ToList();
-
-                //toList.ForEach(to =>
-                //{
-                //    if (!existingTO.Any(eTO => eTO.Id == to.Id))
-                //    {
-                //        db.TechTransitions.Add(to);
-                //    }
-                //});
-
-                db.TechTransitions.AddRange(toList);
-
-                db.SaveChanges();
-            }
-
-        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

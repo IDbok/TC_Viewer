@@ -47,7 +47,7 @@ namespace TcDbConnector
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(TcDbConnector.StaticClass.ConnectString,
+            optionsBuilder.UseMySql("server=localhost;database=tavrida_db_v8;user=root;password=root",//TcDbConnector.StaticClass.ConnectString,
                 new MySqlServerVersion(new Version(5, 7, 24)));
 
         }
@@ -99,10 +99,12 @@ namespace TcDbConnector
                         j.Property(sttc => sttc.Symbol).HasDefaultValue("-");
                         j.Property(sttc => sttc.Order).HasDefaultValue(0);
                         j.Property(f => f.IdAuto).ValueGeneratedOnAdd();
-                        j.HasKey(t => new { t.ParentId, t.ChildId, t.IdAuto});
+                        j.HasKey(t => new {  t.IdAuto}); //t.ParentId, t.ChildId,
                         j.ToTable("Staff_TC");
                         // j.HasIndex(t => t.Symbol).IsUnique();
                     });
+            //modelBuilder.Entity<Staff_TC>()
+            //    .HasKey(st => st.IdAuto);
             modelBuilder
                 .Entity<TechnologicalCard>()
                 .HasMany(tc => tc.Components)
