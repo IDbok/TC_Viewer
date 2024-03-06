@@ -122,6 +122,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
             dgvMain.Columns.Add("", "№ СЗ");
+            dgvMain.Columns.Add("", "Комментарии");
 
             dgvMain.Columns[0].HeaderText = "№";
             dgvMain.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
@@ -220,10 +221,7 @@ namespace TC_WinForms.WinForms.Work
                             mach.Add(true);
                         }
                     }
-
-
-
-
+                    
                     list.Add(new TechOperationDataGridItem
                     {
                         Nomer = nomer,
@@ -406,9 +404,44 @@ namespace TC_WinForms.WinForms.Work
                     str.Add(techOperationDataGridItem.TechOperation);
                     str.Add(techOperationDataGridItem.Staff);
                     str.Add("Повторить "+ strP);
-                    str.Add(techOperationDataGridItem.TechTransition);
-                    str.Add("");
-                    str.Add("");
+                    str.Add(techOperationDataGridItem.TechTransitionValue);
+                    str.Add(techOperationDataGridItem.TimeEtap);
+
+                    techOperationDataGridItem.listMachStr = new List<string>();
+                    if (techOperationDataGridItem.listMachStr.Count == 0 && techOperationDataGridItem.listMach.Count > 0)
+                    {
+                        for (var index = 0; index < TehCarta.Machine_TCs.Count; index++)
+                        {
+                            bool b = techOperationDataGridItem.listMach[index];
+                            if (b)
+                            {
+                                str.Add(techOperationDataGridItem.TimeEtap);
+                            }
+                            else
+                            {
+                                if (techOperationDataGridItem.TimeEtap == "-1")
+                                {
+                                    str.Add("-1");
+                                }
+                                else
+                                {
+                                    str.Add("");
+                                }
+                            }
+                        }
+                    }
+
+                    str.Add(techOperationDataGridItem.Protections);
+
+                    if (techOperationDataGridItem.techWork != null)
+                    {
+                        str.Add(techOperationDataGridItem.techWork.Comments);
+                    }
+                    else
+                    {
+                        str.Add("");
+                    }
+
 
                     dgvMain.Rows.Add(str.ToArray());
 
@@ -424,6 +457,7 @@ namespace TC_WinForms.WinForms.Work
                 str.Add(techOperationDataGridItem.TechTransition);
                 str.Add(techOperationDataGridItem.TechTransitionValue);
                 str.Add(techOperationDataGridItem.TimeEtap);
+               
 
                 techOperationDataGridItem.listMachStr = new List<string>();
 
@@ -451,6 +485,16 @@ namespace TC_WinForms.WinForms.Work
                 }
 
                 str.Add(techOperationDataGridItem.Protections);
+
+                if (techOperationDataGridItem.techWork != null)
+                {
+                    str.Add(techOperationDataGridItem.techWork.Comments);
+                }
+                else
+                {
+                    str.Add("");
+                }
+
                 dgvMain.Rows.Add(str.ToArray());
 
                 if (techOperationDataGridItem.ItsComponent)
@@ -605,7 +649,11 @@ namespace TC_WinForms.WinForms.Work
             TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
             var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
 
-            var max = TOWork.executionWorks.Max(w => w.Order);
+            int max = 0;
+            if (TOWork.executionWorks.Count > 0)
+            {
+                max = TOWork.executionWorks.Max(w => w.Order);
+            }
 
             if (exec.Count > 0)
             {

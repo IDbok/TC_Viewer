@@ -37,7 +37,7 @@ namespace TC_WinForms.WinForms.Work
             InitializeComponent();
             TechOperationForm = techOperationForm;
 
-           // dataGridViewAllTO.CellContentClick += DataGridViewAllTO_CellContentClick;
+            // dataGridViewAllTO.CellContentClick += DataGridViewAllTO_CellContentClick;
             dataGridViewAllTO.CellClick += DataGridViewAllTO_CellClick;
 
             dataGridViewTO.CellClick += DataGridViewTO_CellClick;
@@ -75,6 +75,9 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewPovtor.CellContentClick += DataGridViewPovtor_CellContentClick;
 
 
+            comboBoxFiltrCategor.SelectedIndexChanged += ComboBoxFiltrCategor_SelectedIndexChanged;
+            comboBoxFilterComponent.SelectedIndexChanged += ComboBoxFilterComponent_SelectedIndexChanged;
+
             textBoxPoiskTo.TextChanged += TextBoxPoiskTo_TextChanged;
             textBoxPoiskComponent.TextChanged += TextBoxPoiskComponent_TextChanged;
             textBoxPoiskTP.TextChanged += TextBoxPoiskTP_TextChanged;
@@ -96,8 +99,7 @@ namespace TC_WinForms.WinForms.Work
             UpdateTO();
             UpdateLocalTO();
         }
-
-     
+        
 
 
         #region TO
@@ -167,7 +169,7 @@ namespace TC_WinForms.WinForms.Work
             if (e.ColumnIndex == 1)
             {
                 var IddGuid = (TechOperation)dataGridViewAllTO.Rows[e.RowIndex].Cells[0].Value;
-                
+
                 TechOperationForm.AddTechOperation(IddGuid);
                 UpdateLocalTO();
                 TechOperationForm.UpdateGrid();
@@ -195,7 +197,7 @@ namespace TC_WinForms.WinForms.Work
             var context = TechOperationForm.context;
             allTO = context.TechOperations.ToList();
             var list = TechOperationForm.TechOperationWorksList;
-            
+
 
             foreach (TechOperation techOperation in allTO)
             {
@@ -301,6 +303,20 @@ namespace TC_WinForms.WinForms.Work
                         wor.Value = result;
                         TechOperationForm.UpdateGrid();
                     }
+                }
+            }
+
+            if (e.ColumnIndex == 4)
+            {
+                var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                // TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == idd).
+                var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
+                if (wor != null)
+                {
+                    wor.Comments = gg;
+                    TechOperationForm.UpdateGrid();
                 }
             }
         }
@@ -428,6 +444,9 @@ namespace TC_WinForms.WinForms.Work
                     listItem.Add(executionWork.techTransition?.Name);
                     listItem.Add(executionWork.techTransition?.TimeExecution);
                 }
+
+                listItem.Add(executionWork.Comments);
+
                 dataGridViewTPLocal.Rows.Add(listItem.ToArray());
             }
 
@@ -532,20 +551,20 @@ namespace TC_WinForms.WinForms.Work
                 var vv = TechOperationForm.TehCarta.Staff_TCs;
                 var Idd = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
                 var value = (string)dataGridViewStaff.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
- 
+
                 Idd.Symbol = value;
 
-                Staff_TC staffTc = new Staff_TC();
-                staffTc.Child = Idd.Child;
-                staffTc.Symbol = value;
+                //Staff_TC staffTc = new Staff_TC();
+                //staffTc.Child = Idd.Child;
+                //staffTc.Symbol = value;
 
-                foreach (ExecutionWork ex in Idd.ExecutionWorks)
-                {
-                    staffTc.ExecutionWorks.Add(ex);
-                }
-                vv.Remove(Idd);
-                vv.Add(staffTc);
-                
+                //foreach (ExecutionWork ex in Idd.ExecutionWorks)
+                //{
+                //    staffTc.ExecutionWorks.Add(ex);
+                //}
+                //vv.Remove(Idd);
+                //vv.Add(staffTc);
+
                 Task.Run(() =>
                 {
                     this.BeginInvoke((Action)(() => UpdateGridStaff()));
@@ -669,6 +688,13 @@ namespace TC_WinForms.WinForms.Work
             var allStaff = TechOperationForm.context.Staffs.ToList();
             foreach (Staff staff in allStaff)
             {
+                if (PoiskPersonal.Text != "" &&
+                    staff.Name.ToLower().IndexOf(PoiskPersonal.Text.ToLower()) == -1)
+                {
+                    continue;
+                }
+
+
                 List<object> listItem = new List<object>();
                 listItem.Add(staff);
                 listItem.Add("Добавить");
@@ -686,7 +712,7 @@ namespace TC_WinForms.WinForms.Work
 
         #endregion
 
-       
+
 
         #region средства защиты
 
@@ -898,6 +924,15 @@ namespace TC_WinForms.WinForms.Work
             UpdateComponentAll();
         }
 
+
+
+        private void ComboBoxFilterComponent_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            UpdateComponentAll();
+        }
+
+        private List<string> AllFilterComponent;
+
         public void UpdateComponentAll()
         {
             var offScroll = dataGridViewComponentAll.FirstDisplayedScrollingRowIndex;
@@ -913,6 +948,17 @@ namespace TC_WinForms.WinForms.Work
 
             var LocalComponent = work.ComponentWorks.ToList();
 
+
+            bool UpdFilt = false;
+
+            if (AllFilterComponent == null)
+            {
+                UpdFilt = true;
+                AllFilterComponent = new List<string>();
+                AllFilterComponent.Add("Все");
+            }
+
+
             foreach (Component_TC componentTc in AllMyComponent)
             {
                 if (textBoxPoiskComponent.Text != "" &&
@@ -925,6 +971,18 @@ namespace TC_WinForms.WinForms.Work
                 {
                     continue;
                 }
+
+                if (comboBoxFilterComponent.SelectedIndex > 0)
+                {
+                    var selCateg = (string)comboBoxFilterComponent.SelectedItem;
+
+                    if (selCateg != componentTc.Child.Categoty)
+                    {
+                        continue;
+                    }
+
+                }
+
 
                 List<object> listItem = new List<object>();
                 listItem.Add(componentTc.Child);
@@ -940,6 +998,15 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (Component component in AllComponent)
             {
+                if (UpdFilt)
+                {
+                    if (!AllFilterComponent.Contains(component.Categoty))
+                    {
+                        AllFilterComponent.Add(component.Categoty);
+                    }
+                }
+
+
                 if (textBoxPoiskComponent.Text != "" &&
                     component.Name.ToLower().IndexOf(textBoxPoiskComponent.Text.ToLower()) == -1)
                 {
@@ -956,6 +1023,19 @@ namespace TC_WinForms.WinForms.Work
                     continue;
                 }
 
+
+                if (comboBoxFilterComponent.SelectedIndex > 0)
+                {
+                    var selCateg = (string)comboBoxFilterComponent.SelectedItem;
+
+                    if (selCateg != component.Categoty)
+                    {
+                        continue;
+                    }
+
+                }
+
+
                 List<object> listItem = new List<object>();
                 listItem.Add(component);
 
@@ -967,6 +1047,14 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add("");
                 dataGridViewComponentAll.Rows.Add(listItem.ToArray());
             }
+
+
+            if (UpdFilt)
+            {
+                comboBoxFilterComponent.DataSource = AllFilterComponent;
+                comboBoxFilterComponent.SelectedIndex = 0;
+            }
+
 
             try
             {
@@ -1110,6 +1198,14 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
+
+        private void ComboBoxFiltrCategor_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            UpdateInstrumentAll();
+        }
+
+        private List<string> AllFilterInstrument;
+
         public void UpdateInstrumentAll()
         {
             var offScroll = dataGridViewInstumentAll.FirstDisplayedScrollingRowIndex;
@@ -1125,6 +1221,15 @@ namespace TC_WinForms.WinForms.Work
 
             var LocalComponent = work.ToolWorks.ToList();
 
+            bool UpdFilt = false;
+
+            if (AllFilterInstrument == null)
+            {
+                UpdFilt = true;
+                AllFilterInstrument = new List<string>();
+                AllFilterInstrument.Add("Все");
+            }
+
             foreach (var componentTc in AllMyInstr)
             {
                 if (LocalComponent.SingleOrDefault(s => s.tool == componentTc.Child) != null)
@@ -1136,6 +1241,17 @@ namespace TC_WinForms.WinForms.Work
                     componentTc.Child.Name.ToLower().IndexOf(textBoxPoiskInstrument.Text.ToLower()) == -1)
                 {
                     continue;
+                }
+
+                if (comboBoxFiltrCategor.SelectedIndex > 0 )
+                {
+                    var selCateg = (string)comboBoxFiltrCategor.SelectedItem;
+
+                    if (selCateg != componentTc.Child.Categoty)
+                    {
+                        continue;
+                    }
+
                 }
 
 
@@ -1153,6 +1269,15 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (var component in AllInstr)
             {
+                if (UpdFilt)
+                {
+                    if (!AllFilterInstrument.Contains(component.Categoty))
+                    {
+                        AllFilterInstrument.Add(component.Categoty);
+                    }
+                }
+
+
                 if (LocalComponent.SingleOrDefault(s => s.tool == component) != null)
                 {
                     continue;
@@ -1163,6 +1288,20 @@ namespace TC_WinForms.WinForms.Work
                 {
                     continue;
                 }
+
+
+
+                if (comboBoxFiltrCategor.SelectedIndex > 0)
+                {
+                    var selCateg = (string)comboBoxFiltrCategor.SelectedItem;
+
+                    if (selCateg != component.Categoty)
+                    {
+                        continue;
+                    }
+
+                }
+
 
                 List<object> listItem = new List<object>();
                 listItem.Add(component);
@@ -1175,6 +1314,13 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add("");
                 dataGridViewInstumentAll.Rows.Add(listItem.ToArray());
             }
+
+            if (UpdFilt)
+            {
+                comboBoxFiltrCategor.DataSource = AllFilterInstrument;
+                comboBoxFiltrCategor.SelectedIndex = 0;
+            }
+
 
             try
             {
@@ -1260,7 +1406,7 @@ namespace TC_WinForms.WinForms.Work
 
         #endregion
 
-       
+
 
         #region этапы
 
@@ -1372,7 +1518,7 @@ namespace TC_WinForms.WinForms.Work
                     {
                         listItem.Add(Wor.techTransition.Name);
                     }
-                    
+
                     if (Wor.Etap == "")
                     {
                         listItem.Add("0");
@@ -1620,7 +1766,7 @@ namespace TC_WinForms.WinForms.Work
         }
 
 
-       
+
 
         #endregion
 
@@ -1766,6 +1912,11 @@ namespace TC_WinForms.WinForms.Work
         }
 
         private void tableLayoutPanel4_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {
 
         }

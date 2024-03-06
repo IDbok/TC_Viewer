@@ -59,8 +59,11 @@
             dataGridViewTextBoxColumn17 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn18 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn19 = new DataGridViewTextBoxColumn();
+            tableLayoutPanel12 = new TableLayoutPanel();
             groupBox1 = new GroupBox();
             textBoxPoiskInstrument = new TextBox();
+            groupBox3 = new GroupBox();
+            comboBoxFiltrCategor = new ComboBox();
             tabPage5 = new TabPage();
             tableLayoutPanel5 = new TableLayoutPanel();
             dataGridViewComponentAll = new DataGridView();
@@ -78,8 +81,11 @@
             Column4 = new DataGridViewTextBoxColumn();
             Column5 = new DataGridViewTextBoxColumn();
             comboBoxTO2 = new ComboBox();
-            groupBox4 = new GroupBox();
+            tableLayoutPanel13 = new TableLayoutPanel();
+            groupBox8 = new GroupBox();
             textBoxPoiskComponent = new TextBox();
+            groupBox9 = new GroupBox();
+            comboBoxFilterComponent = new ComboBox();
             tabPage2 = new TabPage();
             tableLayoutPanel3 = new TableLayoutPanel();
             groupBox5 = new GroupBox();
@@ -90,11 +96,6 @@
             dataGridViewTextBoxColumn6 = new DataGridViewTextBoxColumn();
             TimeExecution = new DataGridViewTextBoxColumn();
             dataGridViewTPLocal = new DataGridView();
-            dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
-            DateGridLocalTPDetete = new DataGridViewButtonColumn();
-            dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
-            Time = new DataGridViewTextBoxColumn();
-            Order1 = new DataGridViewTextBoxColumn();
             comboBoxTO = new ComboBox();
             tabPage4 = new TabPage();
             tableLayoutPanel4 = new TableLayoutPanel();
@@ -203,6 +204,14 @@
             dataGridViewTextBoxColumn63 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn64 = new DataGridViewTextBoxColumn();
             tabPage10 = new TabPage();
+            dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
+            DateGridLocalTPDetete = new DataGridViewButtonColumn();
+            dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
+            Time = new DataGridViewTextBoxColumn();
+            Column19 = new DataGridViewTextBoxColumn();
+            Order1 = new DataGridViewTextBoxColumn();
+            groupBox4 = new GroupBox();
+            PoiskPersonal = new TextBox();
             tableLayoutPanel1.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).BeginInit();
@@ -213,12 +222,16 @@
             tableLayoutPanel6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewInstrumentLocal).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewInstumentAll).BeginInit();
+            tableLayoutPanel12.SuspendLayout();
             groupBox1.SuspendLayout();
+            groupBox3.SuspendLayout();
             tabPage5.SuspendLayout();
             tableLayoutPanel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewComponentAll).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewComponentLocal).BeginInit();
-            groupBox4.SuspendLayout();
+            tableLayoutPanel13.SuspendLayout();
+            groupBox8.SuspendLayout();
+            groupBox9.SuspendLayout();
             tabPage2.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
             groupBox5.SuspendLayout();
@@ -250,6 +263,7 @@
             tableLayoutPanel10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridView5).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView6).BeginInit();
+            groupBox4.SuspendLayout();
             SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -430,7 +444,7 @@
             tableLayoutPanel6.Controls.Add(dataGridViewInstrumentLocal, 0, 1);
             tableLayoutPanel6.Controls.Add(comboBoxTO3, 0, 0);
             tableLayoutPanel6.Controls.Add(dataGridViewInstumentAll, 0, 3);
-            tableLayoutPanel6.Controls.Add(groupBox1, 0, 2);
+            tableLayoutPanel6.Controls.Add(tableLayoutPanel12, 0, 2);
             tableLayoutPanel6.Location = new Point(3, 3);
             tableLayoutPanel6.Name = "tableLayoutPanel6";
             tableLayoutPanel6.RowCount = 4;
@@ -438,6 +452,7 @@
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel6.Size = new Size(1217, 516);
             tableLayoutPanel6.TabIndex = 3;
             // 
@@ -573,12 +588,27 @@
             dataGridViewTextBoxColumn19.MinimumWidth = 6;
             dataGridViewTextBoxColumn19.Name = "dataGridViewTextBoxColumn19";
             // 
+            // tableLayoutPanel12
+            // 
+            tableLayoutPanel12.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel12.ColumnCount = 2;
+            tableLayoutPanel12.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 320F));
+            tableLayoutPanel12.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel12.Controls.Add(groupBox1, 0, 0);
+            tableLayoutPanel12.Controls.Add(groupBox3, 1, 0);
+            tableLayoutPanel12.Location = new Point(3, 268);
+            tableLayoutPanel12.Name = "tableLayoutPanel12";
+            tableLayoutPanel12.RowCount = 1;
+            tableLayoutPanel12.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel12.Size = new Size(1211, 64);
+            tableLayoutPanel12.TabIndex = 4;
+            // 
             // groupBox1
             // 
             groupBox1.Controls.Add(textBoxPoiskInstrument);
-            groupBox1.Location = new Point(3, 268);
+            groupBox1.Location = new Point(3, 3);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(292, 64);
+            groupBox1.Size = new Size(292, 58);
             groupBox1.TabIndex = 3;
             groupBox1.TabStop = false;
             groupBox1.Text = "Поиск";
@@ -590,6 +620,24 @@
             textBoxPoiskInstrument.Size = new Size(257, 27);
             textBoxPoiskInstrument.TabIndex = 0;
             textBoxPoiskInstrument.TextChanged += textBoxPoiskInstrument_TextChanged;
+            // 
+            // groupBox3
+            // 
+            groupBox3.Controls.Add(comboBoxFiltrCategor);
+            groupBox3.Location = new Point(323, 3);
+            groupBox3.Name = "groupBox3";
+            groupBox3.Size = new Size(315, 58);
+            groupBox3.TabIndex = 4;
+            groupBox3.TabStop = false;
+            groupBox3.Text = "Фильтр категория";
+            // 
+            // comboBoxFiltrCategor
+            // 
+            comboBoxFiltrCategor.FormattingEnabled = true;
+            comboBoxFiltrCategor.Location = new Point(6, 26);
+            comboBoxFiltrCategor.Name = "comboBoxFiltrCategor";
+            comboBoxFiltrCategor.Size = new Size(303, 28);
+            comboBoxFiltrCategor.TabIndex = 0;
             // 
             // tabPage5
             // 
@@ -610,7 +658,7 @@
             tableLayoutPanel5.Controls.Add(dataGridViewComponentAll, 0, 3);
             tableLayoutPanel5.Controls.Add(dataGridViewComponentLocal, 0, 1);
             tableLayoutPanel5.Controls.Add(comboBoxTO2, 0, 0);
-            tableLayoutPanel5.Controls.Add(groupBox4, 0, 2);
+            tableLayoutPanel5.Controls.Add(tableLayoutPanel13, 0, 2);
             tableLayoutPanel5.Location = new Point(3, 3);
             tableLayoutPanel5.Name = "tableLayoutPanel5";
             tableLayoutPanel5.RowCount = 4;
@@ -618,7 +666,6 @@
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
-            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel5.Size = new Size(1217, 515);
             tableLayoutPanel5.TabIndex = 2;
             // 
@@ -754,22 +801,55 @@
             comboBoxTO2.TabIndex = 2;
             comboBoxTO2.SelectedIndexChanged += comboBoxTO2_SelectedIndexChanged;
             // 
-            // groupBox4
+            // tableLayoutPanel13
             // 
-            groupBox4.Controls.Add(textBoxPoiskComponent);
-            groupBox4.Location = new Point(3, 268);
-            groupBox4.Name = "groupBox4";
-            groupBox4.Size = new Size(292, 64);
-            groupBox4.TabIndex = 5;
-            groupBox4.TabStop = false;
-            groupBox4.Text = "Поиск";
+            tableLayoutPanel13.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel13.ColumnCount = 2;
+            tableLayoutPanel13.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 320F));
+            tableLayoutPanel13.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel13.Controls.Add(groupBox8, 0, 0);
+            tableLayoutPanel13.Controls.Add(groupBox9, 1, 0);
+            tableLayoutPanel13.Location = new Point(3, 268);
+            tableLayoutPanel13.Name = "tableLayoutPanel13";
+            tableLayoutPanel13.RowCount = 1;
+            tableLayoutPanel13.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel13.Size = new Size(1211, 64);
+            tableLayoutPanel13.TabIndex = 6;
+            // 
+            // groupBox8
+            // 
+            groupBox8.Controls.Add(textBoxPoiskComponent);
+            groupBox8.Location = new Point(3, 3);
+            groupBox8.Name = "groupBox8";
+            groupBox8.Size = new Size(292, 58);
+            groupBox8.TabIndex = 3;
+            groupBox8.TabStop = false;
+            groupBox8.Text = "Поиск";
             // 
             // textBoxPoiskComponent
             // 
-            textBoxPoiskComponent.Location = new Point(16, 26);
+            textBoxPoiskComponent.Location = new Point(6, 25);
             textBoxPoiskComponent.Name = "textBoxPoiskComponent";
             textBoxPoiskComponent.Size = new Size(257, 27);
             textBoxPoiskComponent.TabIndex = 0;
+            // 
+            // groupBox9
+            // 
+            groupBox9.Controls.Add(comboBoxFilterComponent);
+            groupBox9.Location = new Point(323, 3);
+            groupBox9.Name = "groupBox9";
+            groupBox9.Size = new Size(315, 58);
+            groupBox9.TabIndex = 4;
+            groupBox9.TabStop = false;
+            groupBox9.Text = "Фильтр категория";
+            // 
+            // comboBoxFilterComponent
+            // 
+            comboBoxFilterComponent.FormattingEnabled = true;
+            comboBoxFilterComponent.Location = new Point(6, 26);
+            comboBoxFilterComponent.Name = "comboBoxFilterComponent";
+            comboBoxFilterComponent.Size = new Size(303, 28);
+            comboBoxFilterComponent.TabIndex = 0;
             // 
             // tabPage2
             // 
@@ -875,7 +955,7 @@
             dataGridViewTPLocal.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewTPLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewTPLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Time, Order1 });
+            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Time, Column19, Order1 });
             dataGridViewTPLocal.Location = new Point(3, 43);
             dataGridViewTPLocal.Name = "dataGridViewTPLocal";
             dataGridViewTPLocal.RowHeadersWidth = 51;
@@ -883,47 +963,6 @@
             dataGridViewTPLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridViewTPLocal.Size = new Size(1215, 219);
             dataGridViewTPLocal.TabIndex = 1;
-            // 
-            // dataGridViewTextBoxColumn7
-            // 
-            dataGridViewTextBoxColumn7.HeaderText = "Id";
-            dataGridViewTextBoxColumn7.MinimumWidth = 6;
-            dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
-            dataGridViewTextBoxColumn7.Visible = false;
-            // 
-            // DateGridLocalTPDetete
-            // 
-            DateGridLocalTPDetete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            DateGridLocalTPDetete.HeaderText = "";
-            DateGridLocalTPDetete.MinimumWidth = 6;
-            DateGridLocalTPDetete.Name = "DateGridLocalTPDetete";
-            DateGridLocalTPDetete.Resizable = DataGridViewTriState.True;
-            DateGridLocalTPDetete.SortMode = DataGridViewColumnSortMode.Automatic;
-            DateGridLocalTPDetete.Text = "Удалить";
-            DateGridLocalTPDetete.Width = 125;
-            // 
-            // dataGridViewTextBoxColumn8
-            // 
-            dataGridViewTextBoxColumn8.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn8.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn8.HeaderText = "Технологические переходы";
-            dataGridViewTextBoxColumn8.MinimumWidth = 6;
-            dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
-            dataGridViewTextBoxColumn8.ReadOnly = true;
-            // 
-            // Time
-            // 
-            Time.FillWeight = 69.7860947F;
-            Time.HeaderText = "Время действ., мин.";
-            Time.MinimumWidth = 6;
-            Time.Name = "Time";
-            // 
-            // Order1
-            // 
-            Order1.HeaderText = "Order";
-            Order1.MinimumWidth = 6;
-            Order1.Name = "Order1";
-            Order1.Visible = false;
             // 
             // comboBoxTO
             // 
@@ -950,6 +989,7 @@
             tableLayoutPanel4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel4.ColumnCount = 1;
             tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel4.Controls.Add(groupBox4, 0, 2);
             tableLayoutPanel4.Controls.Add(dataGridViewStaffAll, 0, 3);
             tableLayoutPanel4.Controls.Add(dataGridViewStaff, 0, 1);
             tableLayoutPanel4.Controls.Add(comboBoxStaff, 0, 0);
@@ -960,6 +1000,7 @@
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 60F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 40F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel4.Size = new Size(1220, 517);
             tableLayoutPanel4.TabIndex = 0;
             // 
@@ -1965,6 +2006,70 @@
             tabPage10.Size = new Size(200, 100);
             tabPage10.TabIndex = 0;
             // 
+            // dataGridViewTextBoxColumn7
+            // 
+            dataGridViewTextBoxColumn7.HeaderText = "Id";
+            dataGridViewTextBoxColumn7.MinimumWidth = 6;
+            dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
+            dataGridViewTextBoxColumn7.Visible = false;
+            // 
+            // DateGridLocalTPDetete
+            // 
+            DateGridLocalTPDetete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            DateGridLocalTPDetete.HeaderText = "";
+            DateGridLocalTPDetete.MinimumWidth = 6;
+            DateGridLocalTPDetete.Name = "DateGridLocalTPDetete";
+            DateGridLocalTPDetete.Resizable = DataGridViewTriState.True;
+            DateGridLocalTPDetete.SortMode = DataGridViewColumnSortMode.Automatic;
+            DateGridLocalTPDetete.Text = "Удалить";
+            DateGridLocalTPDetete.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn8
+            // 
+            dataGridViewTextBoxColumn8.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn8.FillWeight = 69.7860947F;
+            dataGridViewTextBoxColumn8.HeaderText = "Технологические переходы";
+            dataGridViewTextBoxColumn8.MinimumWidth = 6;
+            dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
+            dataGridViewTextBoxColumn8.ReadOnly = true;
+            // 
+            // Time
+            // 
+            Time.FillWeight = 69.7860947F;
+            Time.HeaderText = "Время действ., мин.";
+            Time.MinimumWidth = 6;
+            Time.Name = "Time";
+            // 
+            // Column19
+            // 
+            Column19.HeaderText = "Комментарии";
+            Column19.MinimumWidth = 6;
+            Column19.Name = "Column19";
+            // 
+            // Order1
+            // 
+            Order1.HeaderText = "Order";
+            Order1.MinimumWidth = 6;
+            Order1.Name = "Order1";
+            Order1.Visible = false;
+            // 
+            // groupBox4
+            // 
+            groupBox4.Controls.Add(PoiskPersonal);
+            groupBox4.Location = new Point(3, 291);
+            groupBox4.Name = "groupBox4";
+            groupBox4.Size = new Size(292, 64);
+            groupBox4.TabIndex = 7;
+            groupBox4.TabStop = false;
+            groupBox4.Text = "Поиск";
+            // 
+            // PoiskPersonal
+            // 
+            PoiskPersonal.Location = new Point(16, 26);
+            PoiskPersonal.Name = "PoiskPersonal";
+            PoiskPersonal.Size = new Size(257, 27);
+            PoiskPersonal.TabIndex = 0;
+            // 
             // AddEditTechOperationForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -1984,14 +2089,18 @@
             tableLayoutPanel6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridViewInstrumentLocal).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewInstumentAll).EndInit();
+            tableLayoutPanel12.ResumeLayout(false);
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
+            groupBox3.ResumeLayout(false);
             tabPage5.ResumeLayout(false);
             tableLayoutPanel5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridViewComponentAll).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewComponentLocal).EndInit();
-            groupBox4.ResumeLayout(false);
-            groupBox4.PerformLayout();
+            tableLayoutPanel13.ResumeLayout(false);
+            groupBox8.ResumeLayout(false);
+            groupBox8.PerformLayout();
+            groupBox9.ResumeLayout(false);
             tabPage2.ResumeLayout(false);
             tableLayoutPanel3.ResumeLayout(false);
             groupBox5.ResumeLayout(false);
@@ -2026,6 +2135,8 @@
             tableLayoutPanel10.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridView5).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView6).EndInit();
+            groupBox4.ResumeLayout(false);
+            groupBox4.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -2121,11 +2232,6 @@
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn33;
         private DataGridViewTextBoxColumn Column6;
         private DataGridViewTextBoxColumn Column7;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
-        private DataGridViewButtonColumn DateGridLocalTPDetete;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
-        private DataGridViewTextBoxColumn Time;
-        private DataGridViewTextBoxColumn Order1;
         private TabPage tabPage8;
         private DataGridView dataGridViewEtap;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn37;
@@ -2144,7 +2250,6 @@
         private GroupBox groupBox2;
         private TextBox textBoxPoiskTo;
         private TextBox textBoxPoiskComponent;
-        private GroupBox groupBox4;
         private GroupBox groupBox5;
         private TextBox textBoxPoiskTP;
         private GroupBox groupBox6;
@@ -2206,5 +2311,20 @@
         private DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn4;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn73;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn79;
+        private TableLayoutPanel tableLayoutPanel12;
+        private GroupBox groupBox3;
+        private ComboBox comboBoxFiltrCategor;
+        private TableLayoutPanel tableLayoutPanel13;
+        private GroupBox groupBox8;
+        private GroupBox groupBox9;
+        private ComboBox comboBoxFilterComponent;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
+        private DataGridViewButtonColumn DateGridLocalTPDetete;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
+        private DataGridViewTextBoxColumn Time;
+        private DataGridViewTextBoxColumn Column19;
+        private DataGridViewTextBoxColumn Order1;
+        private GroupBox groupBox4;
+        private TextBox PoiskPersonal;
     }
 }
