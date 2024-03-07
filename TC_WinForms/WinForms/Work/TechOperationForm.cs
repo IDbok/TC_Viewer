@@ -867,26 +867,28 @@ namespace TC_WinForms.WinForms.Work
                 else
                 {
                     to = techOperationWork;
+                }
 
-                    //foreach (ExecutionWork executionWork in to.executionWorks)
-                    //{
-                    //    if (executionWork.Delete)
-                    //    {
-                    //        to.executionWorks.Remove(executionWork);
-                    //        continue;
-                    //    }
+                foreach (ToolWork toolWork in techOperationWork.ToolWorks)
+                {
+                    if (TehCarta.Tool_TCs.SingleOrDefault(s => s.Child == toolWork.tool) == null)
+                    {
+                        Tool_TC tool = new Tool_TC();
+                        tool.Child = toolWork.tool;
+                        tool.Quantity = toolWork.Quantity;
+                        TehCarta.Tool_TCs.Add(tool);
+                    }
+                }
 
-                    //    var exx = to.executionWorks.SingleOrDefault(s => s.Id != 0 && s.Id == executionWork.Id);
-                    //    if (exx == null)
-                    //    {
-                    //        to.executionWorks.Add(executionWork);
-                    //    }
-                    //    else
-                    //    {
-                            
-                    //    }
-
-                    //}
+                foreach (ComponentWork componentWork in techOperationWork.ComponentWorks)
+                {
+                    if (TehCarta.Component_TCs.SingleOrDefault(s => s.Child == componentWork.component) == null)
+                    {
+                        Component_TC Comp = new Component_TC();
+                        Comp.Child = componentWork.component;
+                        Comp.Quantity = componentWork.Quantity;
+                        TehCarta.Component_TCs.Add(Comp);
+                    }
                 }
             }
             
