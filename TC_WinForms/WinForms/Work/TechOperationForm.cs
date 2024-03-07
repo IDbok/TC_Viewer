@@ -845,11 +845,20 @@ namespace TC_WinForms.WinForms.Work
             foreach (TechOperationWork techOperationWork in AllDele)
             {
                 TechOperationWorksList.Remove(techOperationWork);
-                context.TechOperationWorks.Remove(techOperationWork);
+                if (techOperationWork.NewItem == false)
+                {
+                    context.TechOperationWorks.Remove(techOperationWork);
+                }
             }
 
             foreach (TechOperationWork techOperationWork in TechOperationWorksList)
             {
+                var allDel = techOperationWork.executionWorks.Where(w => w.Delete == true).ToList();
+                foreach (ExecutionWork executionWork in allDel)
+                {
+                    techOperationWork.executionWorks.Remove(executionWork);
+                }
+
                 var to = context.TechOperationWorks.SingleOrDefault(s => techOperationWork.Id!=0 && s.Id == techOperationWork.Id);
                 if (to == null)
                 {
@@ -889,7 +898,7 @@ namespace TC_WinForms.WinForms.Work
             }
             catch (Exception exception)
             {
-                MessageBox.Show(exception.Message);
+                MessageBox.Show(exception.Message+"\n"+exception.InnerException);
             }
 
             

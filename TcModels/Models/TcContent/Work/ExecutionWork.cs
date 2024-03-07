@@ -37,7 +37,7 @@ namespace TcModels.Models.TcContent
         public Guid? maxEw { get; set; }
 
         public double Value { get; set; }
-        public string Comments { get; set; }
+        public string Comments { get; set; } = "";
 
         [NotMapped] public bool NewItem { get; set; }
        [NotMapped] public bool Delete { get; set; }
