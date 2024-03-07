@@ -92,10 +92,12 @@ namespace TC_WinForms.WinForms
                 _bindingList, _newObjects, _deletedObjects);
         }
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
+        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
         public async Task SaveChanges()
         {
-            // todo - check if in added tech card fulfilled all required fields
-            if (_changedObjects.Count == 0 && _newObjects.Count == 0 && _deletedObjects.Count == 0)
+            // stop editing cell
+            dgvMain.EndEdit();
+            if (!HasChanges)
             {
                 return;
             }

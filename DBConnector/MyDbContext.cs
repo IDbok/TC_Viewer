@@ -47,7 +47,7 @@ namespace TcDbConnector
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql("server=localhost;database=tavrida_db_v8;user=root;password=root",//TcDbConnector.StaticClass.ConnectString,
+            optionsBuilder.UseMySql("server=localhost;database=tavrida_db_v9;user=root;password=root",//TcDbConnector.StaticClass.ConnectString,
                 new MySqlServerVersion(new Version(5, 7, 24)));
 
         }

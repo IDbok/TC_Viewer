@@ -8,6 +8,7 @@ namespace TcModels.Models.Interfaces
 {
     public interface ISaveEventForm
     {
+        bool HasChanges { get; }
         Task SaveChanges();
     }
 }

@@ -71,14 +71,13 @@ namespace TC_WinForms.WinForms
             DeletSelected();
         }
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
         public async Task SaveChanges()
         {
-
             // stop editing cell
             dgvMain.EndEdit();
             // todo- check if in added tech card fulfilled all required fields
-            if (_changedObjects.Count == 0 && _newObjects.Count == 0 && _deletedObjects.Count == 0)
+            if (!HasChanges)
             {
                 return;
             }

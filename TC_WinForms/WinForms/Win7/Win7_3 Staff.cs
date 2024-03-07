@@ -110,11 +110,14 @@ namespace TC_WinForms.WinForms
             //DeletSelected();
             DisplayedEntityHelper.DeleteSelectedObject(dgvMain, _bindingList, _newObjects, _deletedObjects);
         }
-        
+
+        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
         public async Task SaveChanges()
         {
-            // todo - check if in added tech card fulfilled all required fields
-            if (_changedObjects.Count == 0 && _newObjects.Count == 0 && _deletedObjects.Count == 0)
+            // stop editing cell
+            dgvMain.EndEdit();
+            // todo- check if in added tech card fulfilled all required fields
+            if (!HasChanges)
             {
                 return;
             }

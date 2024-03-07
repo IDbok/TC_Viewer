@@ -21,6 +21,7 @@ namespace TC_WinForms.WinForms
         private List<DisplayedMachine_TC> _newObjects = new List<DisplayedMachine_TC>();
         private List<DisplayedMachine_TC> _deletedObjects = new List<DisplayedMachine_TC>();
 
+
         public Win6_Machine(int tcId)
         {
             InitializeComponent();
@@ -127,10 +128,11 @@ namespace TC_WinForms.WinForms
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
         public async Task SaveChanges()
         {
 
-            if (_changedObjects.Count == 0 && _newObjects.Count == 0 && _deletedObjects.Count == 0)
+            if (!HasChanges)
             {
                 return;
             }

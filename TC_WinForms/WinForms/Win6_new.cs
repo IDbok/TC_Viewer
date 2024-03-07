@@ -19,6 +19,8 @@ namespace TC_WinForms.WinForms
         private DbConnector db = new DbConnector();
 
 
+
+
         public Win6_new(int tcId)
         {
             _tcId = tcId;
@@ -30,10 +32,10 @@ namespace TC_WinForms.WinForms
             this.KeyDown += ControlSaveEvent;
         }
 
-        private void Win6_new_Load(object sender, EventArgs e)
+        private async void Win6_new_Load(object sender, EventArgs e)
         {
             this.Text = $"{_tc.Name} ({_tc.Article})";
-            ShowForm(EModelType.Staff); 
+            await ShowForm(EModelType.Staff); 
         }
         private void btnBack_Click(object sender, EventArgs e)
         {
@@ -55,9 +57,52 @@ namespace TC_WinForms.WinForms
         {
 
         }
-        private void ShowForm(EModelType modelType)
+        private async Task ShowForm(EModelType modelType)
         {
+
             if (_activeModelType == modelType) return;
+
+            bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep;
+            bool hasUnsavedChanges = false;
+
+            if (isSwitchingFromOrToWorkStep)
+            {
+                foreach (var fm in _formsCache.Values)
+                {
+                    if (fm is ISaveEventForm saveForm && saveForm.HasChanges)
+                    {
+                        hasUnsavedChanges = true;
+                        break;
+                    }
+                }
+
+                if (hasUnsavedChanges)
+                {
+                    var result = MessageBox.Show("Вы хотите сохранить изменения перед переходом?", "Сохранение изменений", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
+                    {
+                        foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
+                        {
+                            await fm.SaveChanges();
+                        }
+                    }
+                    else if (result == DialogResult.Cancel)
+                    {
+                        return; 
+                    }
+                }
+
+                // Удаляем формы из кеша для их обновления при следующем доступе
+                foreach (var formKey in _formsCache.Keys.ToList())
+                {
+                    if (_formsCache[formKey] != null)
+                    {
+                        _formsCache[formKey].Close();
+                        _formsCache[formKey].Dispose();
+                    }
+                }
+                _formsCache.Clear(); // Очищаем кеш
+            }
 
             if (!_formsCache.TryGetValue(modelType, out var form))
             {
@@ -100,34 +145,34 @@ namespace TC_WinForms.WinForms
             _activeForm = form;
         }
 
-        private void btnShowStaffs_Click(object sender, EventArgs e)
+        private async void btnShowStaffs_Click(object sender, EventArgs e)
         {
-            ShowForm(EModelType.Staff);
+            await ShowForm(EModelType.Staff);
         }
 
-        private void btnShowComponents_Click(object sender, EventArgs e)
+        private async void btnShowComponents_Click(object sender, EventArgs e)
         {
-            ShowForm(EModelType.Component); 
+            await ShowForm(EModelType.Component); 
         }
 
-        private void btnShowMachines_Click(object sender, EventArgs e)
+        private async void btnShowMachines_Click(object sender, EventArgs e)
         {
-            ShowForm(EModelType.Machine); 
+            await ShowForm(EModelType.Machine); 
         }
 
-        private void btnShowProtections_Click(object sender, EventArgs e)
+        private async void btnShowProtections_Click(object sender, EventArgs e)
         {
-            ShowForm(EModelType.Protection); 
+            await ShowForm(EModelType.Protection); 
         }
 
-        private void btnShowTools_Click(object sender, EventArgs e)
+        private async void btnShowTools_Click(object sender, EventArgs e)
         {
-            ShowForm(EModelType.Tool); 
+            await ShowForm(EModelType.Tool); 
         }
 
-        private void btnShowWorkSteps_Click(object sender, EventArgs e)
+        private async void btnShowWorkSteps_Click(object sender, EventArgs e)
         {
-            ShowForm(EModelType.WorkStep);
+            await ShowForm(EModelType.WorkStep);
         } 
 
 

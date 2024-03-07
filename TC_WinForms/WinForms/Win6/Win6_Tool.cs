@@ -126,10 +126,10 @@ namespace TC_WinForms.WinForms
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
         public async Task SaveChanges()
         {
-
-            if (_changedObjects.Count == 0 && _newObjects.Count == 0 && _deletedObjects.Count == 0)
+            if (!HasChanges)
             {
                 return;
             }
