@@ -8,16 +8,16 @@ using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_TechOperation : Form, ISaveEventForm
+    public partial class Win8_TechTransition : Form, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
-        private BindingList<DisplayedTechOperation> _bindingList;
+        private BindingList<DisplayedTechTransition> _bindingList;
 
-        private List<DisplayedTechOperation> _changedObjects = new List<DisplayedTechOperation>();
-        private List<DisplayedTechOperation> _newObjects = new List<DisplayedTechOperation>();
-        private List<DisplayedTechOperation> _deletedObjects = new List<DisplayedTechOperation>();
+        private List<DisplayedTechTransition> _changedObjects = new List<DisplayedTechTransition>();
+        private List<DisplayedTechTransition> _newObjects = new List<DisplayedTechTransition>();
+        private List<DisplayedTechTransition> _deletedObjects = new List<DisplayedTechTransition>();
 
-        private DisplayedTechOperation _newObject;
+        private DisplayedTechTransition _newObject;
 
         private bool isAddingForm = false;
         private Button btnAddSelected;
@@ -26,20 +26,20 @@ namespace TC_WinForms.WinForms
         {
             isAddingForm = true;
         }
-        public Win7_TechOperation(int accessLevel)
+        public Win8_TechTransition(int accessLevel)
         {
             InitializeComponent();
             AccessInitialization(accessLevel);
         }
-        public Win7_TechOperation()
+        public Win8_TechTransition()
         {
             InitializeComponent();
         }
 
-        private async void Win7_TechOperation_Load(object sender, EventArgs e)
+        private async void Win8_TechTransition_Load(object sender, EventArgs e)
         {
             await LoadObjects();
-            DisplayedEntityHelper.SetupDataGridView<DisplayedTechOperation>(dgvMain);
+            DisplayedEntityHelper.SetupDataGridView<DisplayedTechTransition>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false;
 
@@ -53,16 +53,16 @@ namespace TC_WinForms.WinForms
         }
         private async Task LoadObjects()
         {
-            var tcList = await Task.Run(() => dbCon.GetObjectList<TechOperation>()
-                .Select(obj => new DisplayedTechOperation(obj)).ToList());
-            _bindingList = new BindingList<DisplayedTechOperation>(tcList);
+            var tcList = await Task.Run(() => dbCon.GetObjectList<TechTransition>()
+                .Select(obj => new DisplayedTechTransition(obj)).ToList());
+            _bindingList = new BindingList<DisplayedTechTransition>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
 
             SetDGVColumnsSettings();
             // ConfigureDgvWithComboBoxColumn();
         }
-        private async void Win7_TechOperation_FormClosing(object sender, FormClosingEventArgs e)
+        private async void Win8_TechTransition_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
@@ -154,7 +154,7 @@ namespace TC_WinForms.WinForms
             await dbCon.DeleteObjectAsync<TechOperation>(deletedTcIds);
             _deletedObjects.Clear();
         }
-        private TechOperation CreateNewObject(DisplayedTechOperation dObj)
+        private TechOperation CreateNewObject(DisplayedTechTransition dObj)
         {
             return new TechOperation
             {
@@ -180,23 +180,23 @@ namespace TC_WinForms.WinForms
             //    // ширина столбцов по содержанию
             var autosizeColumn = new List<string>
             {
-                nameof(DisplayedTechOperation.Id),
-                nameof(DisplayedTechOperation.Category),
+                nameof(DisplayedTechTransition.Id),
+                nameof(DisplayedTechTransition.Category),
             };
             foreach (var column in autosizeColumn)
             {
                 dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             }
 
-            dgvMain.Columns[nameof(DisplayedTechOperation.Id)].ReadOnly = true;
+            dgvMain.Columns[nameof(DisplayedTechTransition.Id)].ReadOnly = true;
         }
         private void ConfigureDgvWithComboBoxColumn()
         {
             DataGridViewComboBoxColumn cmbColumn = new DataGridViewComboBoxColumn();
             cmbColumn.HeaderText = "Тип карты";
-            cmbColumn.Name = nameof(DisplayedTechOperation.Category);
+            cmbColumn.Name = nameof(DisplayedTechTransition.Category);
 
-            cmbColumn.DataPropertyName = nameof(DisplayedTechOperation.Category);
+            cmbColumn.DataPropertyName = nameof(DisplayedTechTransition.Category);
 
             cmbColumn.FlatStyle = FlatStyle.Flat;
 
@@ -240,13 +240,13 @@ namespace TC_WinForms.WinForms
 
         private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
         {
-            DisplayedEntityHelper.ListChangedEventHandler<DisplayedTechOperation>
+            DisplayedEntityHelper.ListChangedEventHandler<DisplayedTechTransition>
                 (e, _bindingList, _newObjects, _changedObjects, ref _newObject);
         }
 
 
 
-        private class DisplayedTechOperation : INotifyPropertyChanged, IDisplayedEntity
+        private class DisplayedTechTransition : INotifyPropertyChanged, IDisplayedEntity
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -279,15 +279,14 @@ namespace TC_WinForms.WinForms
             private string name;
             private bool category;
 
-            public DisplayedTechOperation()
+            public DisplayedTechTransition()
             {
 
             }
-            public DisplayedTechOperation(TechOperation obj)
+            public DisplayedTechTransition(TechTransition obj)
             {
                 Id = obj.Id;
                 Name = obj.Name;
-                Category = obj.Category == "Типовая ТО" ? true : false;
             }
 
 

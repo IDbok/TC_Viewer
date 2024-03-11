@@ -6,7 +6,6 @@ using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.Work;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace TC_WinForms.DataProcessing
 {

@@ -79,6 +79,7 @@
             pnlFilters.Name = "pnlFilters";
             pnlFilters.Size = new Size(402, 100);
             pnlFilters.TabIndex = 25;
+            pnlFilters.Visible = false;
             // 
             // cmbProjectName
             // 

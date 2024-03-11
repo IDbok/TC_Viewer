@@ -1,6 +1,6 @@
 ﻿namespace TC_WinForms.WinForms
 {
-    partial class Win7_5_Machine
+    partial class Win8_TechTransition
     {
         /// <summary>
         /// Required designer variable.
@@ -37,7 +37,6 @@
             btnDeleteObj = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
-            progressBar = new ProgressBar();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -126,7 +125,7 @@
             // 
             // btnAddNewObj
             // 
-            btnAddNewObj.Location = new Point(218, 15);
+            btnAddNewObj.Location = new Point(218, 13);
             btnAddNewObj.Margin = new Padding(4);
             btnAddNewObj.Name = "btnAddNewObj";
             btnAddNewObj.Size = new Size(174, 75);
@@ -137,7 +136,6 @@
             // 
             // pnlDataViewer
             // 
-            pnlDataViewer.Controls.Add(progressBar);
             pnlDataViewer.Controls.Add(dgvMain);
             pnlDataViewer.Dock = DockStyle.Fill;
             pnlDataViewer.Location = new Point(0, 100);
@@ -146,18 +144,7 @@
             pnlDataViewer.Size = new Size(1000, 462);
             pnlDataViewer.TabIndex = 2;
             // 
-            // progressBar
-            // 
-            progressBar.Anchor = AnchorStyles.None;
-            progressBar.Location = new Point(226, 119);
-            progressBar.MarqueeAnimationSpeed = 30;
-            progressBar.Name = "progressBar";
-            progressBar.Size = new Size(564, 34);
-            progressBar.Style = ProgressBarStyle.Marquee;
-            progressBar.TabIndex = 4;
-            progressBar.Visible = false;
-            // 
-            // Win7_5_Machine
+            // Win8_TechTransition
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -165,10 +152,10 @@
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
             Margin = new Padding(4);
-            Name = "Win7_5_Machine";
-            Text = "Win7_5_Machine";
-            FormClosing += Win7_5_Machine_FormClosing;
-            Load += Win7_5_Machine_Load;
+            Name = "Win8_TechTransition";
+            Text = "Win8_TechTransition";
+            FormClosing += Win8_TechTransition_FormClosing;
+            Load += Win8_TechTransition_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);
@@ -189,6 +176,5 @@
         private ComboBox cmbProjectName;
         private Label lblProjectName;
         private Panel pnlDataViewer;
-        private ProgressBar progressBar;
     }
 }

@@ -1,8 +1,5 @@
-﻿
-using System.Data;
+﻿using System.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
