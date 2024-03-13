@@ -8,10 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="7.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\TcModels\TcModels.csproj" />
+	<ProjectReference Include="..\DBConnector\TcDbConnector.csproj" />
+	<ProjectReference Include="..\TcModels\TcModels.csproj" />
   </ItemGroup>
 
 </Project>

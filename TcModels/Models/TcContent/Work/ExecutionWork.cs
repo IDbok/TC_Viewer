@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using TcModels.Models.IntermediateTables;
-using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
@@ -28,15 +21,15 @@ namespace TcModels.Models.TcContent
         public List<ExecutionWork> WorkRepeat { get; set; } = new List<ExecutionWork>();
         public bool Repeat { get; set; } = false;
 
-       // public ExecutionWorkRepeat? executionWorkRepeat { get; set; }
+        // public ExecutionWorkRepeat? executionWorkRepeat { get; set; }
 
-       public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();    
-        public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>();
+        public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();    
+        public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>(); // adding repeat items
 
         public Guid? sumEw { get; set; }
         public Guid? maxEw { get; set; }
 
-        public double Value { get; set; }
+        public double Value { get; set; } // TimeExecution in the TC ???
         public string Comments { get; set; } = "";
 
         [NotMapped] public bool NewItem { get; set; }

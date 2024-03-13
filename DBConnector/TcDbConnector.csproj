@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExcelParsing\ExcelParsing.csproj" />
     <ProjectReference Include="..\TcModels\TcModels.csproj" />
   </ItemGroup>
 

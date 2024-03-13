@@ -2,7 +2,6 @@
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
-using TcModels.Models.TcContent.Work;
 
 namespace TcDbConnector
 {

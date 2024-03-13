@@ -698,5 +698,24 @@ namespace TC_WinForms.DataProcessing
 
             return newObject;
         }
+
+        public List<int> FindStaff_TCIds(string[] staff_TcsSymbols, int tcId)
+        {
+            List<int> staffIds = new List<int>();
+
+            using (var context = new MyDbContext())
+            {
+                foreach (var symbol in staff_TcsSymbols)
+                {
+                    var staff = context.Staff_TCs.Where(st => st.Symbol == symbol && st.ParentId == tcId).FirstOrDefault();
+                    if (staff != null)
+                    {
+                        staffIds.Add(staff.IdAuto);
+                    }
+                }
+            }
+
+            return staffIds;
+        }
     }
 }

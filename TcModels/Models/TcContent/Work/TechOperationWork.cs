@@ -12,6 +12,7 @@ namespace TcModels.Models.TcContent
     {
         public int Id { get; set; }
         public TechOperation techOperation { get; set; }
+        public int techOperationId { get; set; }
 
         public  List<ToolWork> ToolWorks { get; set; } =new List<ToolWork>();
 
