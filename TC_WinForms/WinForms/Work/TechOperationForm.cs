@@ -2,12 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using TcDbConnector;
 using TcModels.Models;
+using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Work
 {
-    public partial class TechOperationForm : Form
+    public partial class TechOperationForm : Form, ISaveEventForm
     {
         public MyDbContext context;
         public int tcId;
@@ -86,6 +87,7 @@ namespace TC_WinForms.WinForms.Work
                    .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
+                    .Include(r=>r.executionWorks).ThenInclude(t=>t.ListexecutionWorkRepeat2)
                    .Include(r=>r.ToolWorks).ThenInclude(r=>r.tool).ToList();
 
             DateTime t3 = DateTime.Now;
@@ -830,6 +832,7 @@ namespace TC_WinForms.WinForms.Work
         {
             AddEditTechOperationForm addEditTechOperationForm = new AddEditTechOperationForm(this);
             addEditTechOperationForm.Show();
+            HasChanges = true;
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -903,6 +906,12 @@ namespace TC_WinForms.WinForms.Work
             
 
 
+        }
+
+        public bool HasChanges { get; set; }
+        public async Task SaveChanges()
+        {
+            button1_Click_1(null, null);
         }
     }
 }
