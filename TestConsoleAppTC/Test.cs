@@ -28,7 +28,9 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            //SaveParsedDataToDb();
+            //CheckParser2();
+            SaveParsedDataToDb();
+                //var parser = new WorkParser();
 
         }
 
@@ -119,7 +121,7 @@ namespace TestConsoleAppTC
                     }
                 }
 
-                db.SaveChanges();
+                //db.SaveChanges();
             }
         }
 
