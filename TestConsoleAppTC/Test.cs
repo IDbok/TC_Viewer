@@ -28,44 +28,49 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            //CheckParser2();
-            SaveParsedDataToDb();
-                //var parser = new WorkParser();
+            //SaveParsedDataToDb();
 
-            ////var toList = parser.ParseExcelToObjectsTechOperation(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx", "Перечень ТО");
-
-            //var toList = parser.ParseExcelToObjectsTechTransition(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx", "Типовые переходы");
-
-            //foreach (var item in toList)
-            //{
-            //    Console.WriteLine(item.Id + " " + item.Name + " " + item.Category);
-            //}
-
-            //using (var db = new MyDbContext())
-            //{
-            //    var existingTO = db.TechTransitions.ToList();
-
-            //    //toList.ForEach(to =>
-            //    //{
-            //    //    if (!existingTO.Any(eTO => eTO.Id == to.Id))
-            //    //    {
-            //    //        db.TechTransitions.Add(to);
-            //    //    }
-            //    //});
-
-            //    db.TechTransitions.AddRange(toList);
-
-            //    db.SaveChanges();
-            //}
-
-            }
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         
-        public static void CheckParser2()
+        static void ParseNewDictionaty()
+        {
+            string filepath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
+            var parser = new ExcelParser();
+
+            var parsedDataStaff = parser.ParseExcelToObjectsStaff(filepath);
+            var parsedDataComponent = parser.ParseExcelToObjectsComponent(filepath);
+            var parsedDataMachine = parser.ParseExcelToObjectsMachine(filepath);
+            var parsedDataProtection = parser.ParseExcelToObjectsProtection(filepath);
+            var parsedDataTool = parser.ParseExcelToObjectsTool(filepath);
+
+            var jsonStaff = JsonConvert.SerializeObject(parsedDataStaff, Formatting.Indented);
+            File.WriteAllText("Staff.json", jsonStaff);
+
+            var jsonComponent = JsonConvert.SerializeObject(parsedDataComponent, Formatting.Indented);
+            File.WriteAllText("Component.json", jsonComponent);
+
+            var jsonMachine = JsonConvert.SerializeObject(parsedDataMachine, Formatting.Indented);
+            File.WriteAllText("Machine.json", jsonMachine);
+
+            var jsonProtection = JsonConvert.SerializeObject(parsedDataProtection, Formatting.Indented);
+            File.WriteAllText("Protection.json", jsonProtection);
+
+            var jsonTool = JsonConvert.SerializeObject(parsedDataTool, Formatting.Indented);
+            File.WriteAllText("Tool.json", jsonTool);
+
+            filepath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
+
+
+
+        }
+
+        public static void CheckParser()
         {
             string filepath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
+
             string sheetName = "WorkStep_TC and Tools";
             var parser = new WorkParser();
 
@@ -73,9 +78,7 @@ namespace TestConsoleAppTC
 
             //save result to json
             var json = JsonConvert.SerializeObject(parsedData, Formatting.Indented);
-            File.WriteAllText("parsedData2.json", json);
-
-            
+            File.WriteAllText("parsedData.json", json);
         }
 
         public static void SaveParsedDataToDb()
@@ -101,7 +104,7 @@ namespace TestConsoleAppTC
                             }
                             else
                             {
-
+                                Console.WriteLine($"нет объекта Staff_TC с AutoId {staffId}");
                             }
                         }
                     }

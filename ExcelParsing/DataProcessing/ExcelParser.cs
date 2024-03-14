@@ -17,7 +17,7 @@ namespace ExcelParsing.DataProcessing
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
         }
-        public List<Staff_TC> ParseExcelToStaffTcObjects(string filePath, out List<string> metaList)
+        public List<Staff_TC> ParseExcelToObjectsStaff_TC(string filePath, out List<string> metaList)
         {
 
             var objList = new List<Staff_TC>();
@@ -103,7 +103,7 @@ namespace ExcelParsing.DataProcessing
             return objList;
         }
 
-        public List<TechnologicalCard> ParseExcelToTcObjects(string filePath)
+        public List<TechnologicalCard> ParseExcelToObjectsTc(string filePath)
         {
             var objList = new List<TechnologicalCard>();
 
@@ -147,7 +147,7 @@ namespace ExcelParsing.DataProcessing
             }
             return objList;
         }
-        public List<Staff> ParseExcelToStaffObjects(string filePath)
+        public List<Staff> ParseExcelToObjectsStaff(string filePath)
         {
             var staffList = new List<Staff>();
 
