@@ -192,7 +192,7 @@ namespace ExcelParsing.DataProcessing
             string formula = stepSheet.Cells[row, stepColumnsNumbers["Этап, формула"]].Text;
             int rowNum = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["Строка"]].Value);
 
-            (int stage, int parallelIndex) = ParseStageFormula(formula, rowNum);
+            (string stage, string parallelIndex) = ParseStageFormula(formula, rowNum);
 
             var obj = new ExecutionWork
             {
@@ -249,12 +249,56 @@ namespace ExcelParsing.DataProcessing
             return columnsNumbers;
         }
 
-        private (int stage, int parallelIndex) ParseStageFormula(string formula, int rowNum)
+        private (string stage, string parallelIndex) ParseStageFormula(string formula, int rowNum)
         {
-            if (!formula.ToLower().Contains("SUM") || !formula.ToLower().Contains("MAX"))
+            if (!formula.ToLower().Contains("sum") || !formula.ToLower().Contains("max"))
             {
-                return (0, 0);
+                return ("0", "0");
             }
+
+            int b = formula.IndexOf('G');
+            var perv = formula.Substring(b, formula.IndexOf(')', b)-b);
+
+            var solit = perv.Split(':');
+            if (solit.Length > 0)
+            {
+                perv = solit[0];
+            }
+
+
+            int v = formula.LastIndexOf('G');
+            var Last = formula.Substring(v).Replace(")", "");
+
+
+            var bn = formula.Replace("MAX", "").Replace("SUM", "").Replace("(", "").Replace(")", "");
+            var df = bn.Split(',');
+
+
+            string finalPosled = "0";
+            foreach (string s in df)
+            {
+                var cc = s.Replace("G", "").Split(':');
+                if (cc.Length > 1)
+                {
+                    if (rowNum >= int.Parse(cc[0])   && rowNum <= int.Parse(cc[1]) )
+                    {
+                        finalPosled = s;
+                        break;
+                    }
+                }
+                else
+                {
+                    var nm = cc[0];
+                    if (rowNum == int.Parse(nm))
+                    {
+                        finalPosled = s;
+                        break;
+                    }
+                }
+            }
+
+
+
 
             // as stage number take combination of the first and the last number in the formula
 
@@ -269,7 +313,7 @@ namespace ExcelParsing.DataProcessing
             // 3. Возврат номера этапа и индекса группы параллельности
 
             // Заглушка: возвращаем этап и индекс параллельности
-            return (1, 1);
+            return (perv+ Last, finalPosled);
         }
     }
 }

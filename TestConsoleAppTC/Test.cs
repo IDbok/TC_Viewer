@@ -28,8 +28,8 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            //CheckParser2();
-            SaveParsedDataToDb();
+            CheckParser2();
+           // SaveParsedDataToDb();
                 //var parser = new WorkParser();
 
             ////var toList = parser.ParseExcelToObjectsTechOperation(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx", "Перечень ТО");
@@ -65,7 +65,7 @@ namespace TestConsoleAppTC
         
         public static void CheckParser2()
         {
-            string filepath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
+            string filepath = @"E:\200\0_Обработка_промежуточной_сущности_Ход_работ.xlsx";
             string sheetName = "WorkStep_TC and Tools";
             var parser = new WorkParser();
 
@@ -73,7 +73,7 @@ namespace TestConsoleAppTC
 
             //save result to json
             var json = JsonConvert.SerializeObject(parsedData, Formatting.Indented);
-            File.WriteAllText("parsedData2.json", json);
+            File.WriteAllText("parsedData.json", json);
 
             
         }
@@ -116,7 +116,7 @@ namespace TestConsoleAppTC
                     }
                 }
 
-                db.SaveChanges();
+                //db.SaveChanges();
             }
         }
 
