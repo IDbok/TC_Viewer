@@ -11,6 +11,7 @@ namespace TcModels.Models.TcContent
         public int Id { get; set; }
         public TechOperationWork techOperationWork { get; set; }
         public Component component { get; set; }
+        public int componentId { get; set; }
         public double Quantity { get; set; }
     }
 }

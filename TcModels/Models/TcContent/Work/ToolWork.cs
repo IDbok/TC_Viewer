@@ -12,6 +12,7 @@ namespace TcModels.Models.TcContent
         public TechOperationWork techOperationWork { get; set; }
 
         public Tool tool { get; set; }
+        public int toolId { get; set; }
         public double Quantity { get; set; }
 
     }

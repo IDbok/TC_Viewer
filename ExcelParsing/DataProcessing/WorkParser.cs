@@ -11,6 +11,13 @@ namespace ExcelParsing.DataProcessing
     {
         List<TechTransition> _newTransitions;
 
+        private const int StartRow = 2;
+        private readonly string[] _stepColumns = {
+            "Id ТО", "Id ТП", "TC_ID", "Артикул", "№",
+            "Технологические операции", "Исполнитель", "Технологические переходы",
+            "Время действ., мин.", "Время выполнения этапа, мин.", "№ СЗ",
+            "Примечание", "Индекс", "Категория ТО", "Инструменты", "Тип", "Этап, формула", "Строка"
+        };
         public WorkParser()
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -24,7 +31,7 @@ namespace ExcelParsing.DataProcessing
                 var worksheet = package.Workbook.Worksheets[sheetName];
                 int rowCount = worksheet.Dimension.Rows;
 
-                for (int row = 2; row <= rowCount; row++)
+                for (int row = StartRow; row <= rowCount; row++)
                 {
                     var linkValie = Convert.ToString(worksheet.Cells[row, 9].Value);
                     var manufacturer = Convert.ToString(worksheet.Cells[row, 8].Value);
@@ -45,130 +52,107 @@ namespace ExcelParsing.DataProcessing
             return objList;
         }
 
-        public List<TechTransition> ParseExcelToObjectsTechTransition(string filePath, string sheetName)
-        {
-            var objList = new List<TechTransition>();
 
-            using (var package = new ExcelPackage(new FileInfo(filePath)))
-            {
-                var worksheet = package.Workbook.Worksheets[sheetName];
-                int rowCount = worksheet.Dimension.Rows;
-
-                for (int row = 2; row <= rowCount; row++)
-                {
-                   
-
-                    var obj = new TechTransition
-                    {
-                        //Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
-                        Category = Convert.ToString(worksheet.Cells[row, 2].Value),
-                        Name = Convert.ToString(worksheet.Cells[row, 3].Value),
-                        TimeExecution = Convert.ToDouble(worksheet.Cells[row, 4].Value),
-
-                        CommentName = Convert.ToString(worksheet.Cells[row, 6].Value),
-                        CommentTimeExecution = Convert.ToString(worksheet.Cells[row, 7].Value),
-                        TimeExecutionChecked = Convert.ToBoolean(worksheet.Cells[row, 8].Value),
-
-                    };
-
-                    objList.Add(obj);
-                }
-            }
-
-            return objList;
-        }
-
-        public List<TechOperationWork> ParseExcelToObjectExecutionWork(string filePath, string stepSheetName, string toolSheetName, string repeatSheetName,out List<TechTransition> newTransitions)
+        public List<TechOperationWork> ParseExcelToObjectsTechOperationWork(string filePath, string stepSheetName)
         {
             var objList = new List<TechOperationWork>();
-            
-            int lastToOrderInTc = 0;
+            var fileInfo = new FileInfo(filePath);
+            if (!fileInfo.Exists)
+            {
+                throw new FileNotFoundException($"Файл {filePath} не найден.");
+            }
 
-            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            using (var package = new ExcelPackage(fileInfo))
             {
                 var stepSheet = package.Workbook.Worksheets[stepSheetName];
+                if (stepSheet == null)
+                {
+                    throw new Exception($"Лист {stepSheetName} не найден в файле.");
+                }
+
                 int stepRowCount = stepSheet.Dimension.Rows;
-                var stepColumns = new List<string>
+                var stepColumnsNumbers = GetColumnsNumbers(_stepColumns, 1, stepSheet);
+
+                int lastToOrderInTc = 0;
+                int previousToId = 0;
+                int previousTcId = 0;
+
+                for (int row = StartRow; row <= stepRowCount; row++)
                 {
-                    "Id ТО",
-                    "Id ТП",
-                    "TC_ID",
-                    "Артикул",
-                    "№",
-                    "Технологические операции",
-                    "Исполнитель",
-                    "Технологические переходы",
-                    "Время действ., мин.",
-                    "Время выполнения этапа, мин.",
-                    "№ СЗ",
-                    "Примечание",
-                    "Индекс",
-                    "Категория ТО",
-                };
-                GetColumnsNumbers(stepColumns, 1, stepSheet, out Dictionary<string, int> stepColumnsNumbers);
-
-                //var toolSheet = package.Workbook.Worksheets[toolSheetName];
-                //int toolRowCount = toolSheet.Dimension.Rows;
-
-                //var repeatSheet = package.Workbook.Worksheets[repeatSheetName];
-                //int repeatRowCount = repeatSheet.Dimension.Rows;
-
-                for (int row = 2; row <= stepRowCount; row++)
-                {
-                    int previousToId = 0;
-                    int previousTcId = 0;
-
-                    int currentTcId = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["TC_ID"]].Value);
-                    int currentToId = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["Id ТО"]].Value);
-
-                    ExecutionWork exWork = ParseTechExecutionWork(stepSheet, row, stepColumnsNumbers, currentTcId);
-
-                    if (row == 2 || currentToId != previousToId || currentTcId != previousTcId)
-                    {
-                        if (currentTcId != previousTcId)
-                        {
-                            previousTcId = currentTcId;
-                            lastToOrderInTc = 0;
-                        }
-                        lastToOrderInTc++;
-
-                        previousToId = currentToId;
-
-                        TechOperationWork techOperationWork =  new TechOperationWork
-                        {
-                            techOperationId = currentToId,
-                            TechnologicalCardId = currentTcId,
-                            Order = lastToOrderInTc,
-                        };
-
-                        techOperationWork.executionWorks.Add(exWork);
-
-                        objList.Add(techOperationWork);
-                    }
-                    else
-                    {
-                        objList[objList.Count - 1].executionWorks.Add(exWork);
-                    }
+                    ProcessRow(stepSheet, row, stepColumnsNumbers, 
+                        ref lastToOrderInTc, ref previousToId, ref previousTcId, objList);
                 }
             }
-            newTransitions = _newTransitions;
+
             return objList;
         }
 
-        private ExecutionWork ParseTechExecutionWork(ExcelWorksheet stepSheet, int row, Dictionary<string, int> stepColumnsNumbers, int tcId)
+        private void ProcessRow(ExcelWorksheet stepSheet, int row, Dictionary<string, int> stepColumnsNumbers, 
+            ref int lastToOrderInTc, ref int previousToId, ref int previousTcId, List<TechOperationWork> objList)
         {
+            int currentTcId = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["TC_ID"]].Value);
+            int currentToId = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["Id ТО"]].Value);
+
+
+
+            ExecutionWork exWork = ParseTechExecutionWork(stepSheet, row, stepColumnsNumbers, currentTcId, out var tool, out var component);
+
+
+            if (row == StartRow || currentToId != previousToId || currentTcId != previousTcId)
+            {
+                if (currentTcId != previousTcId)
+                {
+                    previousTcId = currentTcId;
+                    lastToOrderInTc = 0;
+                }
+
+                lastToOrderInTc++;
+                previousToId = currentToId;
+
+                var techOperationWork = new TechOperationWork
+                {
+                    techOperationId = currentToId,
+                    TechnologicalCardId = currentTcId,
+                    Order = lastToOrderInTc,
+                };
+
+                objList.Add(techOperationWork);
+            }
+
+            if (exWork != null)
+            {
+                objList[objList.Count - 1].executionWorks.Add(exWork);
+            }
+            else if (component != null)
+            {
+                objList[objList.Count - 1].ComponentWorks.Add(component);
+            }
+            else if (tool != null)
+            {
+                objList[objList.Count - 1].ToolWorks.Add(tool);
+            }
+        }
+        public ExecutionWork? ParseTechExecutionWork(ExcelWorksheet stepSheet, int row, Dictionary<string, int> stepColumnsNumbers, int tcId, 
+            out ToolWork? tool,
+            out ComponentWork? component)
+        {
+
+            tool = null;
+            component = null;
 
             int order = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["№"]].Value);
 
             TechTransition techTransition;
             int idTP = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["Id ТП"]].Value);
             
-            string name = Convert.ToString(stepSheet.Cells[row, stepColumnsNumbers["Технологические переходы"]].Value);
-            double timeExecution = Convert.ToDouble(stepSheet.Cells[row, stepColumnsNumbers["Время действ., мин."]].Value);
+            string name = stepSheet.Cells[row, stepColumnsNumbers["Технологические переходы"]].Text;
 
-            string comments = Convert.ToString(stepSheet.Cells[row, stepColumnsNumbers["Примечание"]].Value);
+            string timeExecutionString = stepSheet.Cells[row, stepColumnsNumbers["Время действ., мин."]].Text;
+            bool timeExecutionChecked = double.TryParse(timeExecutionString, out double timeExecution);
 
-            string listStaff = Convert.ToString(stepSheet.Cells[row, stepColumnsNumbers["Исполнитель"]].Value);
+            string comments = stepSheet.Cells[row, stepColumnsNumbers["Примечание"]].Text;
+
+            string listStaff = stepSheet.Cells[row, stepColumnsNumbers["Исполнитель"]].Text;
             string[] staffSymbols = listStaff.Split("\n");
             List<Staff_TC> staffIds = FindStaff_TCIds(staffSymbols, tcId);
 
@@ -183,22 +167,35 @@ namespace ExcelParsing.DataProcessing
                     // idTP = 140;
                     repeat = true;
                 }
-                else
+                else if (stepSheet.Cells[row, stepColumnsNumbers["Тип"]].Text == "Component")
                 {
-                    // create a new TechTransition
-                    techTransition = new TechTransition
+                    component = new ComponentWork
                     {
-                        Name = name,
-                        TimeExecution = timeExecution,
+                        componentId = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["Инструменты"]].Value),
+                        Quantity = timeExecution,
                     };
-                    _newTransitions.Add(techTransition);
+
+                    return null;
+                }
+                else if (stepSheet.Cells[row, stepColumnsNumbers["Тип"]].Text == "Tool")
+                {
+                    tool = new ToolWork
+                    {
+                        toolId = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["Инструменты"]].Value),
+                        Quantity = timeExecution,
+                    };
+
+                    return null;
                 }
             }
 
+            string formula = stepSheet.Cells[row, stepColumnsNumbers["Этап, формула"]].Text;
+            int rowNum = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["Строка"]].Value);
+
+            (int stage, int parallelIndex) = ParseStageFormula(formula, rowNum);
 
             var obj = new ExecutionWork
             {
-                // techOperationWorkId = idTO,
                 techTransitionId = idTP,
 
                 Order = order,
@@ -209,6 +206,10 @@ namespace ExcelParsing.DataProcessing
                 Staffs = staffIds,
 
                 Repeat = repeat,
+
+                Etap = stage.ToString(),
+                Posled = parallelIndex.ToString(),
+
             };
 
             return obj;
@@ -233,17 +234,42 @@ namespace ExcelParsing.DataProcessing
             return staff_TCs;
         }
 
-        private void GetColumnsNumbers(List<string> columns,int columnRow, ExcelWorksheet worksheet, out Dictionary<string, int> columnsNumbers)
+        public Dictionary<string, int> GetColumnsNumbers(string[] columns, int columnRow, ExcelWorksheet worksheet)
         {
-            columnsNumbers = new Dictionary<string, int>();
+            var columnsNumbers = new Dictionary<string, int>();
             for (int i = 1; i <= worksheet.Dimension.Columns; i++)
             {
-                string value = Convert.ToString(worksheet.Cells[columnRow, i].Value);
-                if (columns.Contains(value))
+                string value = worksheet.Cells[columnRow, i].Text;
+                if (Array.IndexOf(columns, value) >= 0)
                 {
-                    columnsNumbers.Add(value, i);
+                    columnsNumbers[value] = i;
                 }
+
             }
+            return columnsNumbers;
+        }
+
+        private (int stage, int parallelIndex) ParseStageFormula(string formula, int rowNum)
+        {
+            if (!formula.ToLower().Contains("SUM") || !formula.ToLower().Contains("MAX"))
+            {
+                return (0, 0);
+            }
+
+            // as stage number take combination of the first and the last number in the formula
+
+
+
+            // Здесь будет логика парсинга формулы "Этап, формула" и определения этапа и группы параллельности
+            // Это зависит от структуры ваших данных и требуемой логики
+
+            // Примерный псевдокод:
+            // 1. Разбор формулы на составные части
+            // 2. Поиск групп SUM() и их соответствия номерам строк
+            // 3. Возврат номера этапа и индекса группы параллельности
+
+            // Заглушка: возвращаем этап и индекс параллельности
+            return (1, 1);
         }
     }
 }

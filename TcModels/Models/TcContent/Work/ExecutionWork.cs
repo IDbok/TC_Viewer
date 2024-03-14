@@ -26,10 +26,10 @@ namespace TcModels.Models.TcContent
         public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();    
         public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>(); // adding repeat items
 
-        public Guid? sumEw { get; set; }
-        public Guid? maxEw { get; set; }
+        public Guid? sumEw { get; set; } // не актуально
+        public Guid? maxEw { get; set; } // не акутально
 
-        public double Value { get; set; } // TimeExecution in the TC ???
+        public double Value { get; set; }
         public string Comments { get; set; } = "";
 
         [NotMapped] public bool NewItem { get; set; }

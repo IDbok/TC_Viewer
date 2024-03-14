@@ -11,6 +11,7 @@ using TcModels.Models.Interfaces;
 using System.Reflection;
 using OfficeOpenXml.Style;
 using System.Dynamic;
+using OfficeOpenXml;
 
 namespace TestConsoleAppTC
 {
@@ -27,9 +28,8 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            DbCreator.SetPath();
-            DbCreator.AddDeserializedDataToDb();
-
+            //CheckParser2();
+            SaveParsedDataToDb();
                 //var parser = new WorkParser();
 
             ////var toList = parser.ParseExcelToObjectsTechOperation(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx", "Перечень ТО");
@@ -62,9 +62,62 @@ namespace TestConsoleAppTC
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public static void CreateNewDb()
+        
+        public static void CheckParser2()
         {
-            DbCreator.AddDeserializedDataToDb();
+            string filepath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
+            string sheetName = "WorkStep_TC and Tools";
+            var parser = new WorkParser();
+
+            var parsedData = parser.ParseExcelToObjectsTechOperationWork(filepath, sheetName);
+
+            //save result to json
+            var json = JsonConvert.SerializeObject(parsedData, Formatting.Indented);
+            File.WriteAllText("parsedData2.json", json);
+
+            
+        }
+
+        public static void SaveParsedDataToDb()
+        {
+            var parsedData = JsonConvert.DeserializeObject<List<TechOperationWork>>(File.ReadAllText("parsedData.json"));
+
+            using (var db = new MyDbContext())
+            {
+                var staffTcInDb = db.Staff_TCs.ToDictionary(st => st.IdAuto, st => st);
+
+                foreach (var techOperationWork in parsedData)
+                {
+                    foreach (var executionWork in techOperationWork.executionWorks)
+                    {
+                        var staffIds = executionWork.Staffs.Select(st => st.IdAuto).ToList();
+                        executionWork.Staffs.Clear(); 
+
+                        foreach (var staffId in staffIds)
+                        {
+                            if (staffTcInDb.TryGetValue(staffId, out var staffTc))
+                            {
+                                executionWork.Staffs.Add(staffTc);
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                    }
+
+                    if (techOperationWork.Id == 0)
+                    {
+                        db.TechOperationWorks.Add(techOperationWork);
+                    }
+                    else
+                    {
+                        db.TechOperationWorks.Update(techOperationWork);
+                    }
+                }
+
+                db.SaveChanges();
+            }
         }
 
         public static void ChangeSymbol()
