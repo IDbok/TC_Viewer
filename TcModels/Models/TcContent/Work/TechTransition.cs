@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using TcModels.Models.Interfaces;
+using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class TechTransition: IIdentifiable
+    public class TechTransition: IIdentifiable, IUpdatableEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -19,5 +16,20 @@ namespace TcModels.Models.TcContent
         public string? CommentTimeExecution { get; set; }
         
         public List<ExecutionWork> ExecutionWorks { get; set; }
+
+        public void ApplyUpdates(IUpdatableEntity source)
+        {
+            if (source is TechTransition sourceObject)
+            {
+                Name = sourceObject.Name;
+                TimeExecution = sourceObject.TimeExecution;
+                Category = sourceObject.Category;
+                TimeExecutionChecked = sourceObject.TimeExecutionChecked;
+                CommentName = sourceObject.CommentName;
+                CommentTimeExecution = sourceObject.CommentTimeExecution;
+                ExecutionWorks = sourceObject.ExecutionWorks;
+
+            }
+        }
     }
 }

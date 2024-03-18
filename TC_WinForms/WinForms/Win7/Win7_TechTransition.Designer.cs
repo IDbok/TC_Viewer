@@ -1,6 +1,6 @@
 ﻿namespace TC_WinForms.WinForms
 {
-    partial class Win8_TechTransition
+    partial class Win7_TechTransition
     {
         /// <summary>
         /// Required designer variable.
@@ -31,8 +31,10 @@
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
-            cmbProjectName = new ComboBox();
-            lblProjectName = new Label();
+            lblCategoryFilter = new Label();
+            cbxCategoryFilter = new ComboBox();
+            lblSearch = new Label();
+            txtSearch = new TextBox();
             pnlControlBtns = new Panel();
             btnDeleteObj = new Button();
             btnAddNewObj = new Button();
@@ -54,7 +56,7 @@
             dgvMain.Name = "dgvMain";
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
-            dgvMain.Size = new Size(1000, 462);
+            dgvMain.Size = new Size(1291, 462);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -65,48 +67,63 @@
             pnlControls.Location = new Point(0, 0);
             pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1000, 100);
+            pnlControls.Size = new Size(1291, 100);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
             // 
-            pnlFilters.Controls.Add(cmbProjectName);
-            pnlFilters.Controls.Add(lblProjectName);
+            pnlFilters.Controls.Add(lblCategoryFilter);
+            pnlFilters.Controls.Add(cbxCategoryFilter);
+            pnlFilters.Controls.Add(lblSearch);
+            pnlFilters.Controls.Add(txtSearch);
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(402, 100);
+            pnlFilters.Size = new Size(652, 100);
             pnlFilters.TabIndex = 25;
-            pnlFilters.Visible = false;
             // 
-            // cmbProjectName
+            // lblCategoryFilter
             // 
-            cmbProjectName.FormattingEnabled = true;
-            cmbProjectName.Items.AddRange(new object[] { "Карты по всем проектам", "Проект 1", "Проект 2", "Проект 3" });
-            cmbProjectName.Location = new Point(10, 50);
-            cmbProjectName.Margin = new Padding(4);
-            cmbProjectName.Name = "cmbProjectName";
-            cmbProjectName.Size = new Size(383, 33);
-            cmbProjectName.TabIndex = 20;
-            cmbProjectName.Text = "Карты по всем проектам";
+            lblCategoryFilter.AutoSize = true;
+            lblCategoryFilter.Location = new Point(280, 24);
+            lblCategoryFilter.Name = "lblCategoryFilter";
+            lblCategoryFilter.Size = new Size(99, 25);
+            lblCategoryFilter.TabIndex = 30;
+            lblCategoryFilter.Text = "Категория:";
             // 
-            // lblProjectName
+            // cbxCategoryFilter
             // 
-            lblProjectName.AutoSize = true;
-            lblProjectName.Location = new Point(9, 25);
-            lblProjectName.Margin = new Padding(4, 0, 4, 0);
-            lblProjectName.Name = "lblProjectName";
-            lblProjectName.Size = new Size(157, 25);
-            lblProjectName.TabIndex = 21;
-            lblProjectName.Text = "Выберите проект:";
+            cbxCategoryFilter.FormattingEnabled = true;
+            cbxCategoryFilter.Location = new Point(280, 52);
+            cbxCategoryFilter.Name = "cbxCategoryFilter";
+            cbxCategoryFilter.Size = new Size(167, 33);
+            cbxCategoryFilter.TabIndex = 29;
+            cbxCategoryFilter.SelectedIndexChanged += cbxCategoryFilter_SelectedIndexChanged;
+            // 
+            // lblSearch
+            // 
+            lblSearch.AutoSize = true;
+            lblSearch.Location = new Point(12, 26);
+            lblSearch.Name = "lblSearch";
+            lblSearch.Size = new Size(67, 25);
+            lblSearch.TabIndex = 28;
+            lblSearch.Text = "Поиск:";
+            // 
+            // txtSearch
+            // 
+            txtSearch.Location = new Point(12, 54);
+            txtSearch.Name = "txtSearch";
+            txtSearch.Size = new Size(224, 31);
+            txtSearch.TabIndex = 27;
+            txtSearch.TextChanged += txtSearch_TextChanged;
             // 
             // pnlControlBtns
             // 
             pnlControlBtns.Controls.Add(btnDeleteObj);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(410, 0);
+            pnlControlBtns.Location = new Point(701, 0);
             pnlControlBtns.Margin = new Padding(4);
             pnlControlBtns.Name = "pnlControlBtns";
             pnlControlBtns.Size = new Size(590, 100);
@@ -141,21 +158,21 @@
             pnlDataViewer.Location = new Point(0, 100);
             pnlDataViewer.Margin = new Padding(4);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1000, 462);
+            pnlDataViewer.Size = new Size(1291, 462);
             pnlDataViewer.TabIndex = 2;
             // 
-            // Win8_TechTransition
+            // Win7_TechTransition
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1000, 562);
+            ClientSize = new Size(1291, 562);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
             Margin = new Padding(4);
-            Name = "Win8_TechTransition";
+            Name = "Win7_TechTransition";
             Text = "Win8_TechTransition";
-            FormClosing += Win8_TechTransition_FormClosing;
-            Load += Win8_TechTransition_Load;
+            FormClosing += Win7_TechTransition_FormClosing;
+            Load += Win7_TechTransition_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);
@@ -173,8 +190,10 @@
         private Button btnDeleteObj;
         private Button btnAddNewObj;
         private Panel pnlFilters;
-        private ComboBox cmbProjectName;
-        private Label lblProjectName;
         private Panel pnlDataViewer;
+        private Label lblSearch;
+        private TextBox txtSearch;
+        private Label lblCategoryFilter;
+        private ComboBox cbxCategoryFilter;
     }
 }

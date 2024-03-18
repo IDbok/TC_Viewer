@@ -39,18 +39,20 @@
             dgvMain.AllowUserToDeleteRows = false;
             dgvMain.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvMain.ColumnHeadersHeight = 29;
-            dgvMain.Location = new Point(0, 90);
+            dgvMain.Location = new Point(0, 112);
+            dgvMain.Margin = new Padding(4, 4, 4, 4);
             dgvMain.Name = "dgvMain";
             dgvMain.ReadOnly = true;
             dgvMain.RowHeadersWidth = 51;
-            dgvMain.Size = new Size(1075, 539);
+            dgvMain.Size = new Size(1344, 674);
             dgvMain.TabIndex = 1;
             // 
             // button2
             // 
-            button2.Location = new Point(45, 26);
+            button2.Location = new Point(56, 32);
+            button2.Margin = new Padding(4, 4, 4, 4);
             button2.Name = "button2";
-            button2.Size = new Size(194, 29);
+            button2.Size = new Size(242, 36);
             button2.TabIndex = 0;
             button2.Text = "Редактировать";
             button2.UseVisualStyleBackColor = true;
@@ -58,13 +60,15 @@
             // 
             // TechOperationForm
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1077, 630);
+            ClientSize = new Size(1346, 788);
             Controls.Add(button2);
             Controls.Add(dgvMain);
+            Margin = new Padding(4, 4, 4, 4);
             Name = "TechOperationForm";
             Text = "TechOperationForm";
+            FormClosed += TechOperationForm_FormClosed;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             ResumeLayout(false);
         }

@@ -31,8 +31,12 @@
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
-            cmbProjectName = new ComboBox();
-            lblProjectName = new Label();
+            lblType = new Label();
+            cbxType = new ComboBox();
+            lblVoltageFilter = new Label();
+            lblSearch = new Label();
+            cbxNetworkVoltageFilter = new ComboBox();
+            txtSearch = new TextBox();
             pnlControlBtns = new Panel();
             btnDeleteTC = new Button();
             btnUpdateTC = new Button();
@@ -56,7 +60,7 @@
             dgvMain.Name = "dgvMain";
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
-            dgvMain.Size = new Size(1000, 462);
+            dgvMain.Size = new Size(1430, 462);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -67,41 +71,76 @@
             pnlControls.Location = new Point(0, 0);
             pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1000, 100);
+            pnlControls.Size = new Size(1430, 100);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
             // 
-            pnlFilters.Controls.Add(cmbProjectName);
-            pnlFilters.Controls.Add(lblProjectName);
+            pnlFilters.Controls.Add(lblType);
+            pnlFilters.Controls.Add(cbxType);
+            pnlFilters.Controls.Add(lblVoltageFilter);
+            pnlFilters.Controls.Add(lblSearch);
+            pnlFilters.Controls.Add(cbxNetworkVoltageFilter);
+            pnlFilters.Controls.Add(txtSearch);
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(402, 100);
+            pnlFilters.Size = new Size(813, 100);
             pnlFilters.TabIndex = 25;
-            pnlFilters.Visible = false;
             // 
-            // cmbProjectName
+            // lblType
             // 
-            cmbProjectName.FormattingEnabled = true;
-            cmbProjectName.Items.AddRange(new object[] { "Карты по всем проектам", "Проект 1", "Проект 2", "Проект 3" });
-            cmbProjectName.Location = new Point(13, 37);
-            cmbProjectName.Margin = new Padding(4);
-            cmbProjectName.Name = "cmbProjectName";
-            cmbProjectName.Size = new Size(383, 33);
-            cmbProjectName.TabIndex = 20;
-            cmbProjectName.Text = "Карты по всем проектам";
+            lblType.AutoSize = true;
+            lblType.Location = new Point(326, 60);
+            lblType.Name = "lblType";
+            lblType.Size = new Size(45, 25);
+            lblType.TabIndex = 27;
+            lblType.Text = "Тип:";
             // 
-            // lblProjectName
+            // cbxType
             // 
-            lblProjectName.AutoSize = true;
-            lblProjectName.Location = new Point(12, 12);
-            lblProjectName.Margin = new Padding(4, 0, 4, 0);
-            lblProjectName.Name = "lblProjectName";
-            lblProjectName.Size = new Size(157, 25);
-            lblProjectName.TabIndex = 21;
-            lblProjectName.Text = "Выберите проект:";
+            cbxType.FormattingEnabled = true;
+            cbxType.Location = new Point(369, 57);
+            cbxType.Name = "cbxType";
+            cbxType.Size = new Size(160, 33);
+            cbxType.TabIndex = 26;
+            cbxType.SelectedIndexChanged += cbxType_SelectedIndexChanged;
+            // 
+            // lblVoltageFilter
+            // 
+            lblVoltageFilter.AutoSize = true;
+            lblVoltageFilter.Location = new Point(252, 18);
+            lblVoltageFilter.Name = "lblVoltageFilter";
+            lblVoltageFilter.Size = new Size(119, 25);
+            lblVoltageFilter.TabIndex = 25;
+            lblVoltageFilter.Text = "Напряжение:";
+            // 
+            // lblSearch
+            // 
+            lblSearch.AutoSize = true;
+            lblSearch.Location = new Point(12, 26);
+            lblSearch.Name = "lblSearch";
+            lblSearch.Size = new Size(67, 25);
+            lblSearch.TabIndex = 24;
+            lblSearch.Text = "Поиск:";
+            // 
+            // cbxNetworkVoltageFilter
+            // 
+            cbxNetworkVoltageFilter.FormattingEnabled = true;
+            cbxNetworkVoltageFilter.Location = new Point(369, 18);
+            cbxNetworkVoltageFilter.Name = "cbxNetworkVoltageFilter";
+            cbxNetworkVoltageFilter.Size = new Size(160, 33);
+            cbxNetworkVoltageFilter.TabIndex = 23;
+            cbxNetworkVoltageFilter.SelectedIndexChanged += cbxNetworkVoltageFilter_SelectedIndexChanged;
+            // 
+            // txtSearch
+            // 
+            txtSearch.Location = new Point(12, 54);
+            txtSearch.Name = "txtSearch";
+            txtSearch.Size = new Size(224, 31);
+            txtSearch.TabIndex = 22;
+            txtSearch.TextChanged += txtSearch_TextChanged;
             // 
             // pnlControlBtns
             // 
@@ -109,7 +148,7 @@
             pnlControlBtns.Controls.Add(btnUpdateTC);
             pnlControlBtns.Controls.Add(btnCreateTC);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(410, 0);
+            pnlControlBtns.Location = new Point(840, 0);
             pnlControlBtns.Margin = new Padding(4);
             pnlControlBtns.Name = "pnlControlBtns";
             pnlControlBtns.Size = new Size(590, 100);
@@ -156,26 +195,25 @@
             pnlDataViewer.Location = new Point(0, 100);
             pnlDataViewer.Margin = new Padding(4);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1000, 462);
+            pnlDataViewer.Size = new Size(1430, 462);
             pnlDataViewer.TabIndex = 2;
             // 
             // progressBar
             // 
             progressBar.Anchor = AnchorStyles.None;
-            progressBar.Location = new Point(226, 84);
+            progressBar.Location = new Point(441, 84);
             progressBar.MarqueeAnimationSpeed = 30;
             progressBar.Name = "progressBar";
             progressBar.Size = new Size(564, 34);
             progressBar.Style = ProgressBarStyle.Marquee;
             progressBar.TabIndex = 1;
             progressBar.Visible = false;
-            progressBar.Click += progressBar1_Click;
             // 
             // Win7_1_TCs
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1000, 562);
+            ClientSize = new Size(1430, 562);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
             Margin = new Padding(4);
@@ -201,8 +239,13 @@
         private Button btnCreateTC;
         private Panel pnlFilters;
         private ComboBox cmbProjectName;
-        private Label lblProjectName;
         private Panel pnlDataViewer;
         private ProgressBar progressBar;
+        private TextBox txtSearch;
+        private ComboBox cbxNetworkVoltageFilter;
+        private Label lblSearch;
+        private Label lblVoltageFilter;
+        private Label lblType;
+        private ComboBox cbxType;
     }
 }

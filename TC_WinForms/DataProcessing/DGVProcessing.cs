@@ -439,7 +439,6 @@ namespace TC_WinForms.DataProcessing
                     dgv.Rows.Insert(index - 1, row);
                 }
             }
-
         }
         public static void ReorderRows(DataGridViewRow row, int newOrder, DataGridView dgv)
         {

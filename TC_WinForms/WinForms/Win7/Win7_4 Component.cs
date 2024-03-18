@@ -84,7 +84,7 @@ namespace TC_WinForms.WinForms
         }
         private void AccessInitialization(int accessLevel)
         {
-            
+
         }
 
 
@@ -99,7 +99,7 @@ namespace TC_WinForms.WinForms
 
         private void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain, 
+            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
                 _bindingList, _newObjects, _deletedObjects);
         }
 
@@ -259,7 +259,7 @@ namespace TC_WinForms.WinForms
             // close form
             this.Close();
         }
-        
+
 
         private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
         {
@@ -342,7 +342,7 @@ namespace TC_WinForms.WinForms
                 Categoty = obj.Categoty;
                 ClassifierCode = obj.ClassifierCode;
             }
-           
+
 
             public int Id { get; set; }
 
@@ -461,6 +461,41 @@ namespace TC_WinForms.WinForms
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+        }
+        private void FilterTechnologicalCards()
+        {
+            try
+            {
+                var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                }
+                else
+                {
+                    var filteredList = _bindingList.Where(obj =>
+                            (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                        ).ToList();
+
+                    dgvMain.DataSource = new BindingList<DisplayedComponent>(filteredList);
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.Message);
+            }
+
         }
     }
 }

@@ -98,6 +98,7 @@
             btnMoveDown.TabIndex = 1;
             btnMoveDown.Text = "▼";
             btnMoveDown.UseVisualStyleBackColor = true;
+            btnMoveDown.Visible = false;
             // 
             // btnDeleteObj
             // 
@@ -118,6 +119,7 @@
             btnMoveUp.TabIndex = 0;
             btnMoveUp.Text = "▲";
             btnMoveUp.UseVisualStyleBackColor = true;
+            btnMoveUp.Visible = false;
             // 
             // btnAddNewObj
             // 

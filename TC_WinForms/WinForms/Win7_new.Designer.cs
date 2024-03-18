@@ -33,7 +33,9 @@
             toolStrip1 = new ToolStrip();
             toolStripButton1 = new ToolStripButton();
             toolStripButton2 = new ToolStripButton();
-            toolStripButton3 = new ToolStripButton();
+            saveToolStripButton = new ToolStripButton();
+            toolStripButton5 = new ToolStripButton();
+            updateToolStripButton = new ToolStripButton();
             pnlNavigationBlok = new Panel();
             pnlNavigationBtns = new Panel();
             btnWorkStep = new Button();
@@ -67,7 +69,7 @@
             // 
             toolStrip1.BackColor = SystemColors.InactiveBorder;
             toolStrip1.ImageScalingSize = new Size(20, 20);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2, toolStripButton3 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2, saveToolStripButton, toolStripButton5, updateToolStripButton });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(1478, 34);
@@ -81,6 +83,7 @@
             toolStripButton1.Name = "toolStripButton1";
             toolStripButton1.Size = new Size(57, 29);
             toolStripButton1.Text = "Файл";
+            toolStripButton1.Visible = false;
             // 
             // toolStripButton2
             // 
@@ -89,14 +92,35 @@
             toolStripButton2.Name = "toolStripButton2";
             toolStripButton2.Size = new Size(80, 29);
             toolStripButton2.Text = "Главная";
+            toolStripButton2.Visible = false;
             // 
-            // toolStripButton3
+            // saveToolStripButton
             // 
-            toolStripButton3.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            toolStripButton3.ImageTransparentColor = Color.Magenta;
-            toolStripButton3.Name = "toolStripButton3";
-            toolStripButton3.Size = new Size(85, 29);
-            toolStripButton3.Text = "Справка";
+            saveToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            saveToolStripButton.ImageTransparentColor = Color.Magenta;
+            saveToolStripButton.Name = "saveToolStripButton";
+            saveToolStripButton.Size = new Size(85, 29);
+            saveToolStripButton.Text = "Справка";
+            saveToolStripButton.Visible = false;
+            // 
+            // toolStripButton5
+            // 
+            toolStripButton5.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            toolStripButton5.ImageTransparentColor = Color.Magenta;
+            toolStripButton5.Name = "toolStripButton5";
+            toolStripButton5.Size = new Size(102, 29);
+            toolStripButton5.Text = "Сохранить";
+            toolStripButton5.Click += toolStripButton5_Click;
+            // 
+            // updateToolStripButton
+            // 
+            updateToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            updateToolStripButton.Image = (Image)resources.GetObject("updateToolStripButton.Image");
+            updateToolStripButton.ImageTransparentColor = Color.Magenta;
+            updateToolStripButton.Name = "updateToolStripButton";
+            updateToolStripButton.Size = new Size(97, 29);
+            updateToolStripButton.Text = "Обновить";
+            updateToolStripButton.Click += updateToolStripButton_Click;
             // 
             // pnlNavigationBlok
             // 
@@ -135,7 +159,7 @@
             btnWorkStep.Name = "btnWorkStep";
             btnWorkStep.Size = new Size(248, 85);
             btnWorkStep.TabIndex = 10;
-            btnWorkStep.Text = "Технологиеские переходы";
+            btnWorkStep.Text = "Технологические переходы";
             btnWorkStep.UseVisualStyleBackColor = true;
             btnWorkStep.Click += btnWorkStep_Click;
             // 
@@ -147,7 +171,7 @@
             btnTechOperation.Name = "btnTechOperation";
             btnTechOperation.Size = new Size(248, 85);
             btnTechOperation.TabIndex = 9;
-            btnTechOperation.Text = "Технологиеские операции";
+            btnTechOperation.Text = "Технологические операции";
             btnTechOperation.UseVisualStyleBackColor = true;
             btnTechOperation.Click += btnTechOperation_Click;
             // 
@@ -221,6 +245,7 @@
             btnProject.TabIndex = 1;
             btnProject.Text = "Проекты";
             btnProject.UseVisualStyleBackColor = true;
+            btnProject.Visible = false;
             // 
             // btnTechCard
             // 
@@ -267,6 +292,7 @@
             Text = "Form1";
             WindowState = FormWindowState.Maximized;
             FormClosing += Win7_FormClosing;
+            Load += Win7_new_Load;
             pnlToolStrinp.ResumeLayout(false);
             pnlToolStrinp.PerformLayout();
             toolStrip1.ResumeLayout(false);
@@ -298,5 +324,8 @@
         private Button btnMachine;
         private Button btnComponent;
         private Button btnWorkStep;
+        private ToolStripButton saveToolStripButton;
+        private ToolStripButton toolStripButton5;
+        private ToolStripButton updateToolStripButton;
     }
 }

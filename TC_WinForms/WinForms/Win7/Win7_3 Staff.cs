@@ -27,7 +27,7 @@ namespace TC_WinForms.WinForms
         {
             isAddingForm = true;
         }
-        
+
         public Win7_3_Staff(int accessLevel)
         {
             InitializeComponent();
@@ -36,7 +36,7 @@ namespace TC_WinForms.WinForms
 
         public Win7_3_Staff(Form openedForm) // this constructor is for adding form in TC editer
         {
-            _openedForm= openedForm;
+            _openedForm = openedForm;
             InitializeComponent();
         }
 
@@ -52,7 +52,7 @@ namespace TC_WinForms.WinForms
             if (isAddingForm)
             {
                 //isAddingFormSetControls();
-                WinProcessing.SetAddingFormControls(pnlControlBtns, dgvMain, 
+                WinProcessing.SetAddingFormControls(pnlControlBtns, dgvMain,
                     out btnAddSelected, out btnCancel);
                 SetAddingFormEvents();
             }
@@ -145,8 +145,8 @@ namespace TC_WinForms.WinForms
             // set new ids to new objects matched them by all params
             foreach (var newCard in _newObjects)
             {
-                var newId = newTcs.Where(s => s.Name == newCard.Name 
-                && s.Type == newCard.Type 
+                var newId = newTcs.Where(s => s.Name == newCard.Name
+                && s.Type == newCard.Type
                 && s.Functions == newCard.Functions
                 && s.Qualification == newCard.Qualification
                 && s.CombineResponsibility == newCard.CombineResponsibility
@@ -161,7 +161,7 @@ namespace TC_WinForms.WinForms
             var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
             await dbCon.UpdateObjectsListAsync(changedTcs);
-            
+
             _changedObjects.Clear();
         }
 
@@ -241,7 +241,7 @@ namespace TC_WinForms.WinForms
             // get selected objects
             var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedStaff).ToList();
             var newItems = new List<Staff>();
-            foreach ( var obj in selectedObjs)
+            foreach (var obj in selectedObjs)
             {
                 newItems.Add(CreateNewObject(obj));
             }
@@ -331,7 +331,7 @@ namespace TC_WinForms.WinForms
             }
 
             public int Id { get; set; }
-            
+
             public string Name
             {
                 get => name;
@@ -411,6 +411,40 @@ namespace TC_WinForms.WinForms
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+        }
+        private void FilterTechnologicalCards()
+        {
+            try
+            {
+                var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                }
+                else
+                {
+                    var filteredList = _bindingList.Where(obj =>
+                            (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Functions?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.CombineResponsibility?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Qualification?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Comment?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) 
+                        ).ToList();
+
+                    dgvMain.DataSource = new BindingList<DisplayedStaff>(filteredList);
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.Message);
+            }
+
         }
     }
 }

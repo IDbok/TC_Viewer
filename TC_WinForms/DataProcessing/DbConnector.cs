@@ -178,21 +178,31 @@ namespace TC_WinForms.DataProcessing
                 }
             }
         }
-        public async Task DeleteObjectAsync<T>(List<int> objIds) where T : class, IIdentifiable
+        public async Task<bool> DeleteObjectAsync<T>(List<int> objIds) where T : class, IIdentifiable
         {
-            using (var db = new MyDbContext())
+            try
             {
-                var tcsToDelete = await db.Set<T>()
-                                          .Where(tc => objIds.Contains(tc.Id))
-                                          .ToListAsync();
-
-                if (tcsToDelete.Any())
+                using (var db = new MyDbContext())
                 {
-                    db.Set<T>().RemoveRange(tcsToDelete);
+                    var tcsToDelete = await db.Set<T>()
+                                              .Where(tc => objIds.Contains(tc.Id))
+                                              .ToListAsync();
 
-                    await db.SaveChangesAsync();
+                    if (tcsToDelete.Any())
+                    {
+                        db.Set<T>().RemoveRange(tcsToDelete);
+
+                        await db.SaveChangesAsync();
+                    }
                 }
+                return true;
             }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+                return false;
+            }
+            
         }
         public async Task DeleteIntermediateObjectAsync<T>(List<T> obj_TCs) where T : class, IIntermediateTableIds
         {

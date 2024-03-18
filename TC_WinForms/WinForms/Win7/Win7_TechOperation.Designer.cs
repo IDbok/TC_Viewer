@@ -31,12 +31,14 @@
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
-            cmbProjectName = new ComboBox();
-            lblProjectName = new Label();
+            lblSearch = new Label();
+            txtSearch = new TextBox();
             pnlControlBtns = new Panel();
             btnDeleteObj = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
+            lblCategoryFilter = new Label();
+            cbxCategoryFilter = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -54,7 +56,7 @@
             dgvMain.Name = "dgvMain";
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
-            dgvMain.Size = new Size(1000, 458);
+            dgvMain.Size = new Size(1274, 458);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -65,48 +67,45 @@
             pnlControls.Location = new Point(0, 0);
             pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1000, 104);
+            pnlControls.Size = new Size(1274, 104);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
             // 
-            pnlFilters.Controls.Add(cmbProjectName);
-            pnlFilters.Controls.Add(lblProjectName);
+            pnlFilters.Controls.Add(lblCategoryFilter);
+            pnlFilters.Controls.Add(cbxCategoryFilter);
+            pnlFilters.Controls.Add(lblSearch);
+            pnlFilters.Controls.Add(txtSearch);
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(402, 104);
+            pnlFilters.Size = new Size(612, 104);
             pnlFilters.TabIndex = 25;
-            pnlFilters.Visible = false;
             // 
-            // cmbProjectName
+            // lblSearch
             // 
-            cmbProjectName.FormattingEnabled = true;
-            cmbProjectName.Items.AddRange(new object[] { "Карты по всем проектам", "Проект 1", "Проект 2", "Проект 3" });
-            cmbProjectName.Location = new Point(10, 50);
-            cmbProjectName.Margin = new Padding(4);
-            cmbProjectName.Name = "cmbProjectName";
-            cmbProjectName.Size = new Size(383, 33);
-            cmbProjectName.TabIndex = 20;
-            cmbProjectName.Text = "Карты по всем проектам";
+            lblSearch.AutoSize = true;
+            lblSearch.Location = new Point(12, 26);
+            lblSearch.Name = "lblSearch";
+            lblSearch.Size = new Size(67, 25);
+            lblSearch.TabIndex = 28;
+            lblSearch.Text = "Поиск:";
             // 
-            // lblProjectName
+            // txtSearch
             // 
-            lblProjectName.AutoSize = true;
-            lblProjectName.Location = new Point(9, 25);
-            lblProjectName.Margin = new Padding(4, 0, 4, 0);
-            lblProjectName.Name = "lblProjectName";
-            lblProjectName.Size = new Size(157, 25);
-            lblProjectName.TabIndex = 21;
-            lblProjectName.Text = "Выберите проект:";
+            txtSearch.Location = new Point(12, 54);
+            txtSearch.Name = "txtSearch";
+            txtSearch.Size = new Size(224, 31);
+            txtSearch.TabIndex = 27;
+            txtSearch.TextChanged += txtSearch_TextChanged;
             // 
             // pnlControlBtns
             // 
             pnlControlBtns.Controls.Add(btnDeleteObj);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(410, 0);
+            pnlControlBtns.Location = new Point(684, 0);
             pnlControlBtns.Margin = new Padding(4);
             pnlControlBtns.Name = "pnlControlBtns";
             pnlControlBtns.Size = new Size(590, 104);
@@ -141,14 +140,32 @@
             pnlDataViewer.Location = new Point(0, 104);
             pnlDataViewer.Margin = new Padding(4);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1000, 458);
+            pnlDataViewer.Size = new Size(1274, 458);
             pnlDataViewer.TabIndex = 2;
+            // 
+            // lblCategoryFilter
+            // 
+            lblCategoryFilter.AutoSize = true;
+            lblCategoryFilter.Location = new Point(280, 24);
+            lblCategoryFilter.Name = "lblCategoryFilter";
+            lblCategoryFilter.Size = new Size(99, 25);
+            lblCategoryFilter.TabIndex = 32;
+            lblCategoryFilter.Text = "Категория:";
+            // 
+            // cbxCategoryFilter
+            // 
+            cbxCategoryFilter.FormattingEnabled = true;
+            cbxCategoryFilter.Location = new Point(280, 52);
+            cbxCategoryFilter.Name = "cbxCategoryFilter";
+            cbxCategoryFilter.Size = new Size(167, 33);
+            cbxCategoryFilter.TabIndex = 31;
+            cbxCategoryFilter.SelectedIndexChanged += cbxCategoryFilter_SelectedIndexChanged;
             // 
             // Win7_TechOperation
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1000, 562);
+            ClientSize = new Size(1274, 562);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
             Margin = new Padding(4);
@@ -173,8 +190,10 @@
         private Button btnDeleteObj;
         private Button btnAddNewObj;
         private Panel pnlFilters;
-        private ComboBox cmbProjectName;
-        private Label lblProjectName;
         private Panel pnlDataViewer;
+        private Label lblSearch;
+        private TextBox txtSearch;
+        private Label lblCategoryFilter;
+        private ComboBox cbxCategoryFilter;
     }
 }

@@ -459,5 +459,40 @@ namespace TC_WinForms.WinForms
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+        }
+        private void FilterTechnologicalCards()
+        {
+            try
+            {
+                var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                }
+                else
+                {
+                    var filteredList = _bindingList.Where(obj =>
+                            (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                        ).ToList();
+
+                    dgvMain.DataSource = new BindingList<DisplayedTool>(filteredList);
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.Message);
+            }
+
+        }
     }
 }

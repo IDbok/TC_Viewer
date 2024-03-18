@@ -3,12 +3,11 @@ using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TcModels.Models.Interfaces;
-using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win8_TechTransition : Form, ISaveEventForm
+    public partial class Win7_TechTransition : Form, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
         private BindingList<DisplayedTechTransition> _bindingList;
@@ -26,17 +25,17 @@ namespace TC_WinForms.WinForms
         {
             isAddingForm = true;
         }
-        public Win8_TechTransition(int accessLevel)
+        public Win7_TechTransition(int accessLevel)
         {
             InitializeComponent();
             AccessInitialization(accessLevel);
         }
-        public Win8_TechTransition()
+        public Win7_TechTransition()
         {
             InitializeComponent();
         }
 
-        private async void Win8_TechTransition_Load(object sender, EventArgs e)
+        private async void Win7_TechTransition_Load(object sender, EventArgs e)
         {
             await LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedTechTransition>(dgvMain);
@@ -45,24 +44,27 @@ namespace TC_WinForms.WinForms
 
             if (isAddingForm)
             {
-                //isAddingFormSetControls();
                 WinProcessing.SetAddingFormControls(pnlControlBtns, dgvMain,
                     out btnAddSelected, out btnCancel);
                 SetAddingFormEvents();
             }
+
+            SetupCategoryComboBox();
         }
         private async Task LoadObjects()
         {
             var tcList = await Task.Run(() => dbCon.GetObjectList<TechTransition>()
-                .Select(obj => new DisplayedTechTransition(obj)).ToList());
+                .Select(obj => new DisplayedTechTransition(obj))
+                .OrderBy(obj => obj.Category)
+                .ThenBy(obj => obj.Name)
+                .ToList());
             _bindingList = new BindingList<DisplayedTechTransition>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
 
             SetDGVColumnsSettings();
-            // ConfigureDgvWithComboBoxColumn();
         }
-        private async void Win8_TechTransition_FormClosing(object sender, FormClosingEventArgs e)
+        private async void Win7_TechTransition_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
@@ -151,16 +153,25 @@ namespace TC_WinForms.WinForms
         {
             var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteObjectAsync<TechOperation>(deletedTcIds);
+            var deletedCheck = await dbCon.DeleteObjectAsync<TechTransition>(deletedTcIds);
+            if (!deletedCheck)
+            {
+                // add deleted object to display list if it was not deleted in DB
+                foreach (var deletedObj in _deletedObjects)
+                {
+                    _bindingList.Insert(0, deletedObj);
+                }
+                dgvMain.Refresh();
+            }
             _deletedObjects.Clear();
         }
-        private TechOperation CreateNewObject(DisplayedTechTransition dObj)
+        private TechTransition CreateNewObject(DisplayedTechTransition dObj)
         {
-            return new TechOperation
+            return new TechTransition
             {
                 Id = dObj.Id,
                 Name = dObj.Name,
-                Category = dObj.Category == true ? "Типовая ТО" : "ТО",
+                Category = dObj.Category,
             };
         }
 
@@ -182,6 +193,9 @@ namespace TC_WinForms.WinForms
             {
                 nameof(DisplayedTechTransition.Id),
                 nameof(DisplayedTechTransition.Category),
+                nameof(DisplayedTechTransition.Name),
+                nameof(DisplayedTechTransition.TimeExecution),
+                nameof(DisplayedTechTransition.TimeExecutionChecked),
             };
             foreach (var column in autosizeColumn)
             {
@@ -245,7 +259,6 @@ namespace TC_WinForms.WinForms
         }
 
 
-
         private class DisplayedTechTransition : INotifyPropertyChanged, IDisplayedEntity
         {
             public Dictionary<string, string> GetPropertiesNames()
@@ -254,7 +267,11 @@ namespace TC_WinForms.WinForms
                     {
                         { nameof(Id), "ID" },
                         { nameof(Name), "Наименование" },
-                        { nameof(Category), "Типовое ТО" },
+                        { nameof(Category), "Категория" },
+                        { nameof(TimeExecution), "Время выполнения" },
+                        { nameof(TimeExecutionChecked), "Время проверено" },
+                        { nameof(CommentName), "Комментарий к наименованию" },
+                        { nameof(CommentTimeExecution), "Комментарий к времени выполнения" },
                     };
             }
             public List<string> GetPropertiesOrder()
@@ -262,8 +279,12 @@ namespace TC_WinForms.WinForms
                 return new List<string>
                 {
                     nameof(Id),
-                    nameof(Name),
                     nameof(Category),
+                    nameof(Name),
+                    nameof(TimeExecution),
+                    nameof(TimeExecutionChecked),
+                    nameof(CommentName),
+                    nameof(CommentTimeExecution),
                 };
             }
             public List<string> GetRequiredFields()
@@ -272,12 +293,18 @@ namespace TC_WinForms.WinForms
                 {
                     nameof(Name) ,
                     nameof(Category),
+                    // nameof(TimeExecution),
                 };
             }
 
             private int id;
             private string name;
-            private bool category;
+            private string category;
+            private double timeExecution = 0;
+            private bool timeExecutionChecked;
+            private string? commentName;
+            private string? commentTimeExecution;
+
 
             public DisplayedTechTransition()
             {
@@ -287,6 +314,11 @@ namespace TC_WinForms.WinForms
             {
                 Id = obj.Id;
                 Name = obj.Name;
+                TimeExecution = obj.TimeExecution;
+                Category = obj.Category;
+                TimeExecutionChecked = obj.TimeExecutionChecked ?? false;
+                CommentName = obj.CommentName;
+                CommentTimeExecution = obj.CommentTimeExecution;
             }
 
 
@@ -305,7 +337,7 @@ namespace TC_WinForms.WinForms
                 }
             }
 
-            public bool Category
+            public string? Category
             {
                 get => category;
                 set
@@ -318,11 +350,129 @@ namespace TC_WinForms.WinForms
                 }
             }
 
+            public double TimeExecution
+            {
+                get => timeExecution;
+                set
+                {
+                    if (timeExecution != value)
+                    {
+                        timeExecution = value;
+                        OnPropertyChanged(nameof(TimeExecution));
+                    }
+                }
+            }
+
+            public bool TimeExecutionChecked
+            {
+                get => timeExecutionChecked;
+                set
+                {
+                    if (timeExecutionChecked != value)
+                    {
+                        timeExecutionChecked = value;
+                        OnPropertyChanged(nameof(TimeExecutionChecked));
+                    }
+                }
+            }
+
+            public string? CommentName
+            {
+                get => commentName;
+                set
+                {
+                    if (commentName != value)
+                    {
+                        commentName = value;
+                        OnPropertyChanged(nameof(commentName));
+                    }
+                }
+            }
+
+            public string? CommentTimeExecution
+            {
+                get => commentTimeExecution;
+                set
+                {
+                    if (commentTimeExecution != value)
+                    {
+                        commentTimeExecution = value;
+                        OnPropertyChanged(nameof(commentTimeExecution));
+                    }
+                }
+            }
+
             public event PropertyChangedEventHandler PropertyChanged;
             protected virtual void OnPropertyChanged(string propertyName)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+        }
+        private void FilterTechnologicalCards()
+        {
+            try
+            {
+                var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+                var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
+
+                if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все" )
+                {
+                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                }
+                else
+                {
+                    dgvMain.DataSource = FilteredBindingList(searchText, categoryFilter);
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.Message);
+            }
+
+        }
+        private BindingList<DisplayedTechTransition> FilteredBindingList(string searchText, string categoryFilter)
+        {
+            var filteredList = _bindingList.Where(obj =>
+                        (searchText == ""
+                        ||
+
+                                (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                            || (obj.Category?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                        )
+                        &&
+                        (categoryFilter == "Все" || obj.Category?.ToString() == categoryFilter)
+                        ).ToList();
+
+            return new BindingList<DisplayedTechTransition>(filteredList);
+        }
+
+        private void cbxCategoryFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+            // set combobox width to item length
+            var width = TextRenderer.MeasureText(cbxCategoryFilter.SelectedItem.ToString(), cbxCategoryFilter.Font).Width + 20;
+            cbxCategoryFilter.Width = width < 160 ? 160 : width;
+        }
+        private void SetupCategoryComboBox()
+        {
+            // Set unique categories to combobox from binding list
+            var categories = _bindingList.Select(obj => obj.Category).Distinct().ToList();
+
+            cbxCategoryFilter.Items.Add("Все");
+            foreach (var category in categories)
+            {
+                   if (string.IsNullOrWhiteSpace(category)) { continue; }
+                cbxCategoryFilter.Items.Add(category);
+            }
+
+            cbxCategoryFilter.SelectedIndex = 0;
+
+            cbxCategoryFilter.DropDownWidth = cbxCategoryFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxCategoryFilter.Font).Width) + 20;
         }
     }
 }

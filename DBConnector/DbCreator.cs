@@ -53,23 +53,21 @@ namespace TcDbConnector
 
         //}
 
-        public static void AddDeserializedDataToDb(string path = null)
+        public static void AddDeserializedDataToDb(string pathToJsonFolder = null)
         {
-            if (path == null) { path = _path; }
-            else { _path = path; }
-
             //deserialize all objects from json
 
-            string jsonData = File.ReadAllText($@"{path}\Serialised data\staffList.json");
+            string jsonData = File.ReadAllText($@"{pathToJsonFolder}Staff.json");
             List<Staff> staffList = JsonConvert.DeserializeObject<List<Staff>>(jsonData);
-            jsonData = File.ReadAllText($@"{path}\Serialised data\ComponentList.json");
+            jsonData = File.ReadAllText($@"{pathToJsonFolder}Component.json");
             List<Component> componentList = JsonConvert.DeserializeObject<List<Component>>(jsonData);
-            jsonData = File.ReadAllText($@"{path}\Serialised data\MachineList.json");
+            jsonData = File.ReadAllText($@"{pathToJsonFolder}Machine.json");
             List<Machine> machineList = JsonConvert.DeserializeObject<List<Machine>>(jsonData);
-            jsonData = File.ReadAllText($@"{path}\Serialised data\ProtectionList.json");
+            jsonData = File.ReadAllText($@"{pathToJsonFolder}Protection.json");
             List<Protection> protectionList = JsonConvert.DeserializeObject<List<Protection>>(jsonData);
-            jsonData = File.ReadAllText($@"{path}\Serialised data\ToolList.json");
+            jsonData = File.ReadAllText($@"{pathToJsonFolder}Tool.json");
             List<Tool> toolList = JsonConvert.DeserializeObject<List<Tool>>(jsonData);
+
 
             //add all objects to new db
             using (var db = new MyDbContext())
@@ -94,11 +92,13 @@ namespace TcDbConnector
             DeserializeProtectionTcToDb();
             DeserializeToolTcToDb();
 
+            // DeserializeWorkStepsToDb();
+
         }
 
-        private static void DeserializeTcToDb()
+        private static void DeserializeTcToDb(string pathToJsonFolder = null)
         {
-            string jsonData = File.ReadAllText($@"{_path}\Serialised data\tcList.json");
+            string jsonData = File.ReadAllText($@"{pathToJsonFolder}TechnologicalCard.json");
             var tcList = JsonConvert.DeserializeObject<List<TechnologicalCard>>(jsonData);
 
             using (var db = new MyDbContext())
@@ -109,9 +109,9 @@ namespace TcDbConnector
             }
         }
 
-        private static void DeserializeStaffTcToDb()
+        private static void DeserializeStaffTcToDb(string pathToJsonFolder = null)
         {
-            string jsonData = File.ReadAllText($@"{_path}\Serialised data\staffTcList.json");
+            string jsonData = File.ReadAllText($@"{pathToJsonFolder}Staff_TC.json");
             var objTcList = JsonConvert.DeserializeObject<List<Staff_TC>>(jsonData);
 
             using (var db = new MyDbContext())
@@ -133,9 +133,9 @@ namespace TcDbConnector
                 db.SaveChanges();
             }
         }
-        private static void DeserializeComponentTcToDb()
+        private static void DeserializeComponentTcToDb(string pathToJsonFolder = null)
         {
-            string jsonData = File.ReadAllText($@"{_path}\Serialised data\componentTcList.json");
+            string jsonData = File.ReadAllText($@"{pathToJsonFolder}Component_TC.json");
             var objTcList = JsonConvert.DeserializeObject<List<Component_TC>>(jsonData);
 
             using (var db = new MyDbContext())
@@ -167,9 +167,9 @@ namespace TcDbConnector
                 db.SaveChanges();
             }
         }
-        private static void DeserializeMachineTcToDb()
+        private static void DeserializeMachineTcToDb(string pathToJsonFolder = null)
         {
-            string jsonData = File.ReadAllText($@"{_path}\Serialised data\machineTcList.json");
+            string jsonData = File.ReadAllText($@"{pathToJsonFolder}Machine_TC.json");
             var objTcList = JsonConvert.DeserializeObject<List<Machine_TC>>(jsonData);
 
             using (var db = new MyDbContext())
@@ -191,9 +191,10 @@ namespace TcDbConnector
                 db.SaveChanges();
             }
         }
-        private static void DeserializeProtectionTcToDb()
+
+        private static void DeserializeProtectionTcToDb(string pathToJsonFolder = null)
         {
-            string jsonData = File.ReadAllText($@"{_path}\Serialised data\protectionTcList.json");
+            string jsonData = File.ReadAllText($@"{pathToJsonFolder}Protection_TC.json");
             var objTcList = JsonConvert.DeserializeObject<List<Protection_TC>>(jsonData);
 
             using (var db = new MyDbContext())
@@ -215,9 +216,10 @@ namespace TcDbConnector
                 db.SaveChanges();
             }
         }
-        private static void DeserializeToolTcToDb()
+
+        private static void DeserializeToolTcToDb(string pathToJsonFolder = null)
         {
-            string jsonData = File.ReadAllText($@"{_path}\Serialised data\toolTcList.json");
+            string jsonData = File.ReadAllText($@"{pathToJsonFolder}Tool_TC.json");
             var toolTcList = JsonConvert.DeserializeObject<List<Tool_TC>>(jsonData);
 
             List<Tool_TC> itemsToRemove = new List<Tool_TC>();

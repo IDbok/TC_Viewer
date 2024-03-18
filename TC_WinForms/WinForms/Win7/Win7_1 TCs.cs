@@ -31,6 +31,9 @@ namespace TC_WinForms.WinForms
             await LoadTechnologicalCards();
             DisplayedEntityHelper.SetupDataGridView<DisplayedTechnologicalCard>(dgvMain);
 
+            SetupNetworkVoltageComboBox();
+            SetupTypeComboBox();
+
             progressBar.Visible = false;
         }
         private async Task LoadTechnologicalCards()
@@ -63,7 +66,14 @@ namespace TC_WinForms.WinForms
 
         private void btnUpdateTC_Click(object sender, EventArgs e)
         {
-            UpdateSelected();
+            if (_newObjects.Count != 0)
+            {
+                MessageBox.Show("Сохраните добавленные карты!");
+            }
+            else
+            {
+                UpdateSelected();
+            }
         }
 
         private void btnDeleteTC_Click(object sender, EventArgs e)
@@ -214,7 +224,12 @@ namespace TC_WinForms.WinForms
             {
                 var selectedRow = dgvMain.SelectedRows[0];
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
-                OpenTechnologicalCardEditor(id);
+                if (id != 0)
+                    OpenTechnologicalCardEditor(id);
+                else
+                {
+                    MessageBox.Show("Карта ещё не добавлена в БД.");
+                }
             }
             else
             {
@@ -591,9 +606,87 @@ namespace TC_WinForms.WinForms
             }
         }
 
-        private void progressBar1_Click(object sender, EventArgs e)
+        private void txtSearch_TextChanged(object sender, EventArgs e)
         {
+            FilterTechnologicalCards();
+        }
 
+        private void FilterTechnologicalCards()
+        {
+            try
+            {
+                var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+                var networkVoltageFilter = cbxNetworkVoltageFilter.SelectedItem?.ToString();
+                var typeFilter = cbxType.SelectedItem?.ToString();
+
+                if (string.IsNullOrWhiteSpace(searchText) && networkVoltageFilter == "Все" && typeFilter == "Все")
+                {
+                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                }
+                else
+                {
+                    var filteredList = _bindingList.Where(card =>
+                        (searchText == ""
+                        ||
+                            (card.Article?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            //(card.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (card.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            //(card.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (card.TechnologicalProcessType?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (card.TechnologicalProcessName?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (card.Parameter?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (card.FinalProduct?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (card.Applicability?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (card.Note?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                        )
+                        &&
+                        (networkVoltageFilter == "Все" || card.NetworkVoltage.ToString() == networkVoltageFilter)
+                        &&
+                        (typeFilter == "Все" || card.Type.ToString() == typeFilter)
+                        //card.NetworkVoltage.ToString().Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                        //card.Id.ToString().Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                        ).ToList();
+
+                    dgvMain.DataSource = new BindingList<DisplayedTechnologicalCard>(filteredList);
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.Message);
+            }
+            
+        }
+
+        private void cbxNetworkVoltageFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+        }
+        private void SetupNetworkVoltageComboBox()
+        {
+            // Предполагая, что comboBoxNetworkVoltage - это ваш ComboBox
+            cbxNetworkVoltageFilter.Items.Add("Все");
+            cbxNetworkVoltageFilter.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f, 0f });
+            cbxNetworkVoltageFilter.SelectedIndex = 0; // Выбираем "Все" по умолчанию
+
+            //cbxNetworkVoltageFilter.DropDownWidth = cbxNetworkVoltageFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxNetworkVoltageFilter.Font).Width) + 20;
+        }
+        private void SetupTypeComboBox()
+        {
+            // Предполагая, что comboBoxNetworkVoltage - это ваш ComboBox
+            cbxType.Items.Add("Все");
+            cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
+            cbxType.SelectedIndex = 0; // Выбираем "Все" по умолчанию
+
+            cbxType.DropDownWidth = cbxType.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxType.Font).Width) + 20;
+        }
+
+        private void cbxType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+            var width = TextRenderer.MeasureText(cbxType.SelectedItem.ToString(), cbxType.Font).Width + 20;
+            cbxType.Width = width < 160 ?
+                160
+                : width;
         }
     }
 }

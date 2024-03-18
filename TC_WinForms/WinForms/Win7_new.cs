@@ -12,6 +12,10 @@ namespace TC_WinForms.WinForms
 
         private readonly Dictionary<WinNumber, Form> _forms = new Dictionary<WinNumber, Form>();
 
+        private WinNumber? _currentWinNumber = WinNumber.TC;
+
+        private bool _isFormLoaded = false;
+
         public Win7_new(int accessLevel)
         {
             _accessLevel = accessLevel;
@@ -19,10 +23,16 @@ namespace TC_WinForms.WinForms
             AccessInitialization(accessLevel);
 
 
-            btnTechCard_Click(null, null);
+            //this.Shown += async (sender, e) => await LoadAllForms();
+
             this.KeyPreview = true;
 
             this.KeyDown += ControlSaveEvent;
+        }
+
+        private async void Win7_new_Load(object sender, EventArgs e)
+        {
+            await LoadAllForms();
         }
         private void AccessInitialization(int accessLevel)
         {
@@ -70,7 +80,12 @@ namespace TC_WinForms.WinForms
                 frm.Hide();
             }
 
-            form.Show();
+            if(_isFormLoaded || winNumber == WinNumber.TC)
+            {
+                form.Show();
+                _currentWinNumber = null;
+            }
+                
         }
         private Form CreateForm(WinNumber winNumber)
         {
@@ -92,6 +107,8 @@ namespace TC_WinForms.WinForms
                     return new Win7_6_Tool(_accessLevel);
                 case WinNumber.TechOperation:
                     return new Win7_TechOperation(_accessLevel);
+                case WinNumber.TechTransition:
+                    return new Win7_TechTransition(_accessLevel);
                 default:
                     return null;
             }
@@ -99,26 +116,24 @@ namespace TC_WinForms.WinForms
 
         private void ClosingForms(object sender, EventArgs e)
         {
-            foreach (Form frm in pnlDataViewer.Controls)
+            foreach (Form frm in _forms.Values)
             {
                 frm.Close();
             }
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private void btnTechCard_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.TC);
+        private void btnTechCard_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.TC); 
         private void btnStaff_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Staff);
         private void btnComponent_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Component);
         private void btnMachine_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Machine);
         private void btnProtection_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Protection);
         private void btnTool_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Tool);
         private void btnTechOperation_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.TechOperation);
-        
 
-        private void btnWorkStep_Click(object sender, EventArgs e)
-        {
 
-        }
+        private void btnWorkStep_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.TechTransition);
+
 
         private async void ControlSaveEvent(object sender, KeyEventArgs e)
         {
@@ -130,9 +145,6 @@ namespace TC_WinForms.WinForms
 
         private async Task Save()
         {
-            // todo - save all changes in all forms 
-
-
             foreach (var frm in _forms)
             {
                 var form = frm.Value;
@@ -141,15 +153,52 @@ namespace TC_WinForms.WinForms
                     await saveEventForm.SaveChanges();
                 }
             }
-            //_forms.TryGetValue(WinNumber.TC, out var form);
-            //if (form is ISaveEventForm saveEventForm)
-            //{
-            //    await saveEventForm.SaveChanges();
-            //}
             MessageBox.Show("Сохранено!");
         }
 
-        
+        private async void toolStripButton5_Click(object sender, EventArgs e)
+        {
+            await Save();
+        }
+
+        private async void updateToolStripButton_Click(object sender, EventArgs e)
+        {
+            _isFormLoaded = false;
+            // close all forms and load them again
+            foreach (var frm in _forms)
+            {
+                var form = frm.Value;
+                form.Close();
+            }
+            _forms.Clear();
+
+            await LoadAllForms();
+        }
+
+        private async Task LoadAllForms()
+        {
+            // block controels 
+            pnlNavigationBlok.Enabled = false;
+
+            foreach (var winNumber in Enum.GetValues(typeof(WinNumber)))
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    LoadFormInPanel((WinNumber)winNumber);
+                });
+            }
+            if (!_isFormLoaded)
+            {
+                _isFormLoaded = true;
+            }
+            this.Invoke((MethodInvoker)delegate
+            {
+                LoadFormInPanel(_currentWinNumber ?? WinNumber.TC);
+            });
+
+            pnlNavigationBlok.Enabled = true;
+        }
+
 
         enum WinNumber
         {
@@ -162,7 +211,7 @@ namespace TC_WinForms.WinForms
             Tool = 7,
 
             TechOperation = 8,
-            WorkStep = 9
+            TechTransition = 9
         }
 
     }

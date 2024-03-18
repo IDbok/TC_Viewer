@@ -31,13 +31,13 @@
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
-            cmbProjectName = new ComboBox();
-            lblProjectName = new Label();
             pnlControlBtns = new Panel();
             btnDeleteObj = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
             progressBar = new ProgressBar();
+            lblSearch = new Label();
+            txtSearch = new TextBox();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -71,36 +71,14 @@
             // 
             // pnlFilters
             // 
-            pnlFilters.Controls.Add(cmbProjectName);
-            pnlFilters.Controls.Add(lblProjectName);
+            pnlFilters.Controls.Add(lblSearch);
+            pnlFilters.Controls.Add(txtSearch);
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
             pnlFilters.Size = new Size(402, 100);
             pnlFilters.TabIndex = 25;
-            pnlFilters.Visible = false;
-            // 
-            // cmbProjectName
-            // 
-            cmbProjectName.FormattingEnabled = true;
-            cmbProjectName.Items.AddRange(new object[] { "Карты по всем проектам", "Проект 1", "Проект 2", "Проект 3" });
-            cmbProjectName.Location = new Point(10, 50);
-            cmbProjectName.Margin = new Padding(4);
-            cmbProjectName.Name = "cmbProjectName";
-            cmbProjectName.Size = new Size(383, 33);
-            cmbProjectName.TabIndex = 20;
-            cmbProjectName.Text = "Карты по всем проектам";
-            // 
-            // lblProjectName
-            // 
-            lblProjectName.AutoSize = true;
-            lblProjectName.Location = new Point(9, 25);
-            lblProjectName.Margin = new Padding(4, 0, 4, 0);
-            lblProjectName.Name = "lblProjectName";
-            lblProjectName.Size = new Size(157, 25);
-            lblProjectName.TabIndex = 21;
-            lblProjectName.Text = "Выберите проект:";
             // 
             // pnlControlBtns
             // 
@@ -157,6 +135,23 @@
             progressBar.TabIndex = 2;
             progressBar.Visible = false;
             // 
+            // lblSearch
+            // 
+            lblSearch.AutoSize = true;
+            lblSearch.Location = new Point(12, 26);
+            lblSearch.Name = "lblSearch";
+            lblSearch.Size = new Size(67, 25);
+            lblSearch.TabIndex = 28;
+            lblSearch.Text = "Поиск:";
+            // 
+            // txtSearch
+            // 
+            txtSearch.Location = new Point(12, 54);
+            txtSearch.Name = "txtSearch";
+            txtSearch.Size = new Size(224, 31);
+            txtSearch.TabIndex = 27;
+            txtSearch.TextChanged += txtSearch_TextChanged;
+            // 
             // Win7_7_Protection
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -186,9 +181,9 @@
         private Button btnDeleteObj;
         private Button btnAddNewObj;
         private Panel pnlFilters;
-        private ComboBox cmbProjectName;
-        private Label lblProjectName;
         private Panel pnlDataViewer;
         private ProgressBar progressBar;
+        private Label lblSearch;
+        private TextBox txtSearch;
     }
 }

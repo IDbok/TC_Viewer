@@ -51,8 +51,6 @@ namespace TcModels.Models.TcContent
                 nameof(Qualification),
             };
         
-
-
         static private EModelType modelType = EModelType.Staff;
         public EModelType ModelType { get { return modelType; } }
 

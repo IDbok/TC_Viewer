@@ -435,5 +435,43 @@ namespace TC_WinForms.WinForms
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+        }
+        private void FilterTechnologicalCards()
+        {
+            try
+            {
+                var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                }
+                else
+                {
+                    dgvMain.DataSource = FilteredBindingList(searchText);//new BindingList<DisplayedProtection>(filteredList);
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.Message);
+            }
+
+        }
+        private BindingList<DisplayedProtection> FilteredBindingList(string searchText)
+        {
+            var filteredList = _bindingList.Where(obj =>
+                        (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                        ).ToList();
+
+            return new BindingList<DisplayedProtection>(filteredList);
+        }
     }
 }

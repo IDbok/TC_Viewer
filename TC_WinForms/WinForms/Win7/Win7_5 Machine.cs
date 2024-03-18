@@ -210,7 +210,7 @@ namespace TC_WinForms.WinForms
             dgvMain.Columns[nameof(DisplayedMachine.Price)].Width = 120;
             dgvMain.Columns[nameof(DisplayedMachine.ClassifierCode)].Width = 150;
 
-            dgvMain.Columns[nameof(DisplayedMachine.Id)].ReadOnly = true; 
+            dgvMain.Columns[nameof(DisplayedMachine.Id)].ReadOnly = true;
             dgvMain.Columns[nameof(DisplayedMachine.ClassifierCode)].ReadOnly = true;
         }
 
@@ -458,6 +458,40 @@ namespace TC_WinForms.WinForms
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+        }
+        private void FilterTechnologicalCards()
+        {
+            try
+            {
+                var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                }
+                else
+                {
+                    var filteredList = _bindingList.Where(obj =>
+                            (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                        ).ToList();
+
+                    dgvMain.DataSource = new BindingList<DisplayedMachine>(filteredList);
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.Message);
+            }
+
         }
     }
 }

@@ -12,6 +12,7 @@ using System.Reflection;
 using OfficeOpenXml.Style;
 using System.Dynamic;
 using OfficeOpenXml;
+using ExcelParsing;
 
 namespace TestConsoleAppTC
 {
@@ -28,45 +29,20 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
 
-            //CheckParser2();
-            SaveParsedDataToDb();
-                //var parser = new WorkParser();
+            ParseNewDictionaty();
 
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        
         static void ParseNewDictionaty()
         {
-            string filepath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
-            var parser = new ExcelParser();
+            string structFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
+            string tcFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Список ТК.xlsx";
+            string intermediateDictionaryFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
+            string workStepsFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
 
-            var parsedDataStaff = parser.ParseExcelToObjectsStaff(filepath);
-            var parsedDataComponent = parser.ParseExcelToObjectsComponent(filepath);
-            var parsedDataMachine = parser.ParseExcelToObjectsMachine(filepath);
-            var parsedDataProtection = parser.ParseExcelToObjectsProtection(filepath);
-            var parsedDataTool = parser.ParseExcelToObjectsTool(filepath);
-
-            var jsonStaff = JsonConvert.SerializeObject(parsedDataStaff, Formatting.Indented);
-            File.WriteAllText("Staff.json", jsonStaff);
-
-            var jsonComponent = JsonConvert.SerializeObject(parsedDataComponent, Formatting.Indented);
-            File.WriteAllText("Component.json", jsonComponent);
-
-            var jsonMachine = JsonConvert.SerializeObject(parsedDataMachine, Formatting.Indented);
-            File.WriteAllText("Machine.json", jsonMachine);
-
-            var jsonProtection = JsonConvert.SerializeObject(parsedDataProtection, Formatting.Indented);
-            File.WriteAllText("Protection.json", jsonProtection);
-
-            var jsonTool = JsonConvert.SerializeObject(parsedDataTool, Formatting.Indented);
-            File.WriteAllText("Tool.json", jsonTool);
-
-            filepath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
-
-
-
+            DbCreatorParser.ParseAll(structFilePath, tcFilePath, intermediateDictionaryFilePath, workStepsFilePath);
         }
 
         public static void CheckParser()

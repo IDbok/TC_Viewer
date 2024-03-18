@@ -100,6 +100,7 @@ namespace TC_WinForms.WinForms
             btnMoveDown.TabIndex = 1;
             btnMoveDown.Text = "▼";
             btnMoveDown.UseVisualStyleBackColor = true;
+            btnMoveDown.Visible = false;
             btnMoveDown.Click += btnMoveDown_Click;
             // 
             // btnDeleteObj
@@ -121,6 +122,7 @@ namespace TC_WinForms.WinForms
             btnMoveUp.TabIndex = 0;
             btnMoveUp.Text = "▲";
             btnMoveUp.UseVisualStyleBackColor = true;
+            btnMoveUp.Visible = false;
             btnMoveUp.Click += btnMoveUp_Click;
             // 
             // btnAddNewObj

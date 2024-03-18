@@ -8,7 +8,15 @@ namespace ExcelParsing
 {
     public class DbCreatorParser
     {
-        public static void ParseDictionaty(string structFilePath,string folderToSaveJson)
+        public static void ParseAll(string structFilePath, string tcFilePath, string intermediateDictionaryFilePath, string workStepsFilePath, string folderToSaveJson = null)
+        {
+            ParseDictionaty(structFilePath, folderToSaveJson);
+            ParseTechnologicalCard(tcFilePath, folderToSaveJson);
+            ParseIntermediateObjects(intermediateDictionaryFilePath, folderToSaveJson);
+            ParseWorkSteps(workStepsFilePath, folderToSaveJson);
+        }
+
+        public static void ParseDictionaty(string structFilePath,string folderToSaveJson = null)
         {
             string filepath = structFilePath; //@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
 
@@ -37,7 +45,7 @@ namespace ExcelParsing
 
         }
 
-        public static void ParseTechnologicalCard(string tcFilePath, string folderToSaveJson)
+        public static void ParseTechnologicalCard(string tcFilePath, string folderToSaveJson = null)
         {
             string filepath = tcFilePath; //@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
 
@@ -49,7 +57,7 @@ namespace ExcelParsing
             File.WriteAllText(folderToSaveJson + "TechnologicalCard.json", jsonTechnologicalCard);
         }
 
-        public static void ParseIntermediateObjects(string intermediateDictionaryFilePath,  string folderToSaveJson)
+        public static void ParseIntermediateObjects(string intermediateDictionaryFilePath,  string folderToSaveJson = null)
         {
             string filepath = intermediateDictionaryFilePath; //@""C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточных сущностей.xlsx"";
 
@@ -77,7 +85,7 @@ namespace ExcelParsing
             File.WriteAllText(folderToSaveJson + "Tool_TC.json", jsonTool);
         }
 
-        public static void ParseWorkSteps(string workStepsFilePath, string folderToSaveJson)
+        public static void ParseWorkSteps(string workStepsFilePath, string folderToSaveJson = null)
         {
             string filepath = workStepsFilePath; //@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
             string sheetName = "WorkStep_TC and Tools";

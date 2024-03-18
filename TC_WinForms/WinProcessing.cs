@@ -17,8 +17,6 @@ namespace TC_WinForms
         public static bool isDataToSave { get; set; } = false;
         private static void SaveData() 
         {
-
-            // todo - save data from all forms
             Form[] allForms = Program.FormsBack.Concat(Program.FormsForward).ToArray();
             foreach (Form form in allForms)
             {
@@ -28,15 +26,6 @@ namespace TC_WinForms
                     //DataJsonSerializer.Serialize<TcData>(saveableForm.tp, saveableForm.GetPath());
                 }
             }
-            //Form[] allForms = Program.FormsBack.Concat(Program.FormsForward).ToArray();
-            //foreach (Form form in allForms)
-            //{
-            //    if (form is ISaveableForm)
-            //    {
-            //        ISaveableForm saveableForm = (ISaveableForm)form;
-            //        DataJsonSerializer.Serialize(saveableForm.DataToSave(), saveableForm.GetPath());
-            //    }
-            //}
             MessageBox.Show("Данные сохранены", "Сохранение", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         
@@ -337,8 +326,8 @@ namespace TC_WinForms
             // add checkbox in row header
             var col = new DataGridViewCheckBoxColumn();
             col.Name = "Selected";
-            col.HeaderText = "";
-            col.Width = 30;
+            col.HeaderText = "Выбор";
+            col.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             col.ReadOnly = false;
             dgv.Columns.Insert(0, col);
 

@@ -16,8 +16,10 @@ namespace TC_WinForms.WinForms.Work
 
         public List<TechOperationDataGridItem> list = null;
         public List<TechOperationWork> TechOperationWorksList;
-      //  public List<Staff_TC> Staff_TC;
+        //  public List<Staff_TC> Staff_TC;
         public TechnologicalCard TehCarta;
+
+        private AddEditTechOperationForm _editForm;
 
         public TechOperationForm()
         {
@@ -48,8 +50,8 @@ namespace TC_WinForms.WinForms.Work
 
             DateTime t1 = DateTime.Now;
 
-          var Staff_TC = context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child).ToList();
-            
+            var Staff_TC = context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child).ToList();
+
 
             DateTime t11 = DateTime.Now;
 
@@ -59,9 +61,9 @@ namespace TC_WinForms.WinForms.Work
             //.Include(t => t.Protections)
             .Include(t => t.Tool_TCs)
             .Include(t => t.Component_TCs)
-                .Include(t=>t.Staff_TCs)
+                .Include(t => t.Staff_TCs)
 
-                // .Include(t => t.Components)
+            // .Include(t => t.Components)
             .Single(s => s.Id == tcId);
 
 
@@ -75,20 +77,20 @@ namespace TC_WinForms.WinForms.Work
 
             TechOperationWorksList =
                context.TechOperationWorks.Where(w => w.TechnologicalCardId == tcId)
-                    //.Include(i=>i.technologicalCard).ThenInclude(t=>t.Machine_TCs)
-                    //.Include(i => i.technologicalCard).ThenInclude(t => t.Machines)
+                   //.Include(i=>i.technologicalCard).ThenInclude(t=>t.Machine_TCs)
+                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Machines)
                    .Include(i => i.techOperation)
                    //.Include(i => i.technologicalCard).ThenInclude(t => t.Protection_TCs)
                    //.Include(i => i.technologicalCard).ThenInclude(t => t.Protections)
                    //.Include(i => i.technologicalCard).ThenInclude(t => t.Tool_TCs)
                    //.Include(i => i.technologicalCard).ThenInclude(t => t.Component_TCs)
-                   .Include(i => i.ComponentWorks).ThenInclude(t=>t.component)
-                  
+                   .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+
                    .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-                    .Include(r=>r.executionWorks).ThenInclude(t=>t.ListexecutionWorkRepeat2)
-                   .Include(r=>r.ToolWorks).ThenInclude(r=>r.tool).ToList();
+                    .Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2)
+                   .Include(r => r.ToolWorks).ThenInclude(r => r.tool).ToList();
 
             DateTime t3 = DateTime.Now;
 
@@ -96,7 +98,10 @@ namespace TC_WinForms.WinForms.Work
 
             DateTime t4 = DateTime.Now;
         }
-
+        private void TechOperationForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _editForm?.Close();
+        }
         public void UpdateGrid()
         {
             dgvMain.Rows.Clear();
@@ -130,7 +135,7 @@ namespace TC_WinForms.WinForms.Work
             dgvMain.Columns[1].HeaderText = "Технологические операции";
             dgvMain.Columns[2].HeaderText = "Исполнитель";
             dgvMain.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            dgvMain.Columns[2].Width = 120; 
+            dgvMain.Columns[2].Width = 120;
             dgvMain.Columns[3].HeaderText = "Технологические переходы";
             dgvMain.Columns[4].HeaderText = "Время действ., мин.";
 
@@ -220,7 +225,7 @@ namespace TC_WinForms.WinForms.Work
                             mach.Add(true);
                         }
                     }
-                    
+
                     list.Add(new TechOperationDataGridItem
                     {
                         Nomer = nomer,
@@ -378,7 +383,7 @@ namespace TC_WinForms.WinForms.Work
             {
                 List<string> str = new List<string>();
 
-                if (techOperationDataGridItem.techWork!=null && techOperationDataGridItem.techWork.Repeat == true)
+                if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat == true)
                 {
 
                     string strP = "";
@@ -402,7 +407,7 @@ namespace TC_WinForms.WinForms.Work
                     str.Add(techOperationDataGridItem.Nomer.ToString());
                     str.Add(techOperationDataGridItem.TechOperation);
                     str.Add(techOperationDataGridItem.Staff);
-                    str.Add("Повторить "+ strP);
+                    str.Add("Повторить " + strP);
                     str.Add(techOperationDataGridItem.TechTransitionValue);
                     str.Add(techOperationDataGridItem.TimeEtap);
 
@@ -456,11 +461,11 @@ namespace TC_WinForms.WinForms.Work
                 str.Add(techOperationDataGridItem.TechTransition);
                 str.Add(techOperationDataGridItem.TechTransitionValue);
                 str.Add(techOperationDataGridItem.TimeEtap);
-               
+
 
                 techOperationDataGridItem.listMachStr = new List<string>();
 
-                if (techOperationDataGridItem.listMachStr.Count == 0 && techOperationDataGridItem.listMach.Count>0)
+                if (techOperationDataGridItem.listMachStr.Count == 0 && techOperationDataGridItem.listMach.Count > 0)
                 {
                     for (var index = 0; index < TehCarta.Machine_TCs.Count; index++)
                     {
@@ -602,7 +607,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void AddTechOperation(TechOperation TechOperat)
         {
-            var vb = TechOperationWorksList.Where(s => s.techOperation == TechOperat && s.Delete==true).ToList();
+            var vb = TechOperationWorksList.Where(s => s.techOperation == TechOperat && s.Delete == true).ToList();
 
             int maxOrder = -1;
 
@@ -830,8 +835,11 @@ namespace TC_WinForms.WinForms.Work
 
         private void button2_Click(object sender, EventArgs e)
         {
-            AddEditTechOperationForm addEditTechOperationForm = new AddEditTechOperationForm(this);
-            addEditTechOperationForm.Show();
+            //AddEditTechOperationForm addEditTechOperationForm = new AddEditTechOperationForm(this);
+            //addEditTechOperationForm.Show();
+            _editForm = new AddEditTechOperationForm(this);
+            _editForm.Show();
+
             HasChanges = true;
         }
 
@@ -839,7 +847,7 @@ namespace TC_WinForms.WinForms.Work
         {
             //context
 
-           // TehCarta.Staff_TCs = Staff_TC;
+            // TehCarta.Staff_TCs = Staff_TC;
 
             List<TechOperationWork> AllDele = TechOperationWorksList.Where(w => w.Delete == true).ToList();
             foreach (TechOperationWork techOperationWork in AllDele)
@@ -859,7 +867,7 @@ namespace TC_WinForms.WinForms.Work
                     techOperationWork.executionWorks.Remove(executionWork);
                 }
 
-                var to = context.TechOperationWorks.SingleOrDefault(s => techOperationWork.Id!=0 && s.Id == techOperationWork.Id);
+                var to = context.TechOperationWorks.SingleOrDefault(s => techOperationWork.Id != 0 && s.Id == techOperationWork.Id);
                 if (to == null)
                 {
                     context.TechOperationWorks.Add(techOperationWork);
@@ -891,7 +899,7 @@ namespace TC_WinForms.WinForms.Work
                     }
                 }
             }
-            
+
 
             try
             {
@@ -900,10 +908,10 @@ namespace TC_WinForms.WinForms.Work
             }
             catch (Exception exception)
             {
-                MessageBox.Show(exception.Message+"\n"+exception.InnerException);
+                MessageBox.Show(exception.Message + "\n" + exception.InnerException);
             }
 
-            
+
 
 
         }
@@ -913,5 +921,7 @@ namespace TC_WinForms.WinForms.Work
         {
             button1_Click_1(null, null);
         }
+
+        
     }
 }

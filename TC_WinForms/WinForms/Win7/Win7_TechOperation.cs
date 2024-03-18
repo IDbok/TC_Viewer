@@ -50,6 +50,8 @@ namespace TC_WinForms.WinForms
                     out btnAddSelected, out btnCancel);
                 SetAddingFormEvents();
             }
+
+            SetupCategoryComboBox();
         }
         private async Task LoadObjects()
         {
@@ -60,11 +62,10 @@ namespace TC_WinForms.WinForms
             dgvMain.DataSource = _bindingList;
 
             SetDGVColumnsSettings();
-            // ConfigureDgvWithComboBoxColumn();
         }
         private async void Win7_TechOperation_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            if (HasChanges)
             {
                 e.Cancel = true;
                 var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
@@ -254,7 +255,7 @@ namespace TC_WinForms.WinForms
                     {
                         { nameof(Id), "ID" },
                         { nameof(Name), "Наименование" },
-                        { nameof(Category), "Типовое ТО" },
+                        { nameof(Category), "Типовая ТО" },
                     };
             }
             public List<string> GetPropertiesOrder()
@@ -271,7 +272,6 @@ namespace TC_WinForms.WinForms
                 return new List<string>
                 {
                     nameof(Name) ,
-                    nameof(Category),
                 };
             }
 
@@ -324,6 +324,70 @@ namespace TC_WinForms.WinForms
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+        }
+        private void FilterTechnologicalCards()
+        {
+            try
+            {
+                var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+                var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
+
+                if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все")
+                {
+                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                }
+                else
+                {
+                    dgvMain.DataSource = FilteredBindingList(searchText, categoryFilter);//new BindingList<DisplayedProtection>(filteredList);
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.Message);
+            }
+
+        }
+        private BindingList<DisplayedTechOperation> FilteredBindingList(string searchText, string categoryFilter)
+        {
+            var filteredList = _bindingList.Where(obj =>
+                        (categoryFilter != "Все" 
+                        ?
+                            (
+                                (categoryFilter == "Типовая ТО" ? obj.Category == true : false) ||
+                                (categoryFilter == "ТО" ? obj.Category == false : false)
+                            )
+                        : (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                        )
+
+                        ).ToList();
+
+            return new BindingList<DisplayedTechOperation>(filteredList);
+        }
+        private void cbxCategoryFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+            // set combobox width to item length
+            var width = TextRenderer.MeasureText(cbxCategoryFilter.SelectedItem.ToString(), cbxCategoryFilter.Font).Width + 20;
+            cbxCategoryFilter.Width = width < 160 ? 160 : width;
+        }
+
+        private void SetupCategoryComboBox()
+        {
+            // Set unique categories to combobox from binding list
+            var categories = _bindingList.Select(obj => obj.Category).Distinct().ToList();
+
+            cbxCategoryFilter.Items.Add("Все");
+            cbxCategoryFilter.Items.Add("ТО");
+            cbxCategoryFilter.Items.Add("Типовая ТО");
+
+            cbxCategoryFilter.SelectedIndex = 0;
+
+            cbxCategoryFilter.DropDownWidth = cbxCategoryFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxCategoryFilter.Font).Width) + 20;
         }
     }
 }
