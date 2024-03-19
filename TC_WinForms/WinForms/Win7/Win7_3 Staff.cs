@@ -2,16 +2,17 @@
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_3_Staff : Form, ISaveEventForm
+    public partial class Win7_3_Staff : Form, ISaveEventForm, ILoadDataAsyncForm
     {
 
         private DbConnector dbCon = new DbConnector();
-        private BindingList<DisplayedStaff> _bindingList;
+        private static BindingList<DisplayedStaff> _bindingList;
 
         private List<DisplayedStaff> _changedObjects = new List<DisplayedStaff>();
         private List<DisplayedStaff> _newObjects = new List<DisplayedStaff>();
@@ -23,6 +24,8 @@ namespace TC_WinForms.WinForms
         private Button btnAddSelected;
         private Button btnCancel;
         private Form _openedForm;
+
+        public bool _isDataLoaded = false;
         public void SetAsAddingForm()
         {
             isAddingForm = true;
@@ -37,14 +40,18 @@ namespace TC_WinForms.WinForms
         public Win7_3_Staff(Form openedForm) // this constructor is for adding form in TC editer
         {
             _openedForm = openedForm;
+            isAddingForm = true;
             InitializeComponent();
         }
 
         private async void Win7_3_Staff_Load(object sender, EventArgs e)
         {
-            progressBar.Visible = true;
+            //progressBar.Visible = true;
 
-            await LoadObjects();
+            if(!_isDataLoaded)
+                await LoadDataAsync();
+
+            SetDGVColumnsSettings();
             DisplayedEntityHelper.SetupDataGridView<DisplayedStaff>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false; // TODO: change it when add deleting by "del" Key press
@@ -57,17 +64,21 @@ namespace TC_WinForms.WinForms
                 SetAddingFormEvents();
             }
 
-            progressBar.Visible = false;
+            //progressBar.Visible = false;
         }
-        private async Task LoadObjects()
+        public async Task LoadDataAsync()
         {
             var tcList = await Task.Run(() => dbCon.GetObjectList<Staff>()
                 .Select(obj => new DisplayedStaff(obj)).ToList());
+
             _bindingList = new BindingList<DisplayedStaff>(tcList);
+
+            dgvMain.DataSource = null; // cancel update of dgv while data is loading
             _bindingList.ListChanged += BindingList_ListChanged;
+
             dgvMain.DataSource = _bindingList;
 
-            SetDGVColumnsSettings();
+            _isDataLoaded = true;
         }
         private void AccessInitialization(int accessLevel)
         {
@@ -263,7 +274,7 @@ namespace TC_WinForms.WinForms
 
         private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
         {
-            DisplayedEntityHelper.ListChangedEventHandler<DisplayedStaff>
+            DisplayedEntityHelper.ListChangedEventHandler
                 (e, _bindingList, _newObjects, _changedObjects, ref _newObject);
         }
 

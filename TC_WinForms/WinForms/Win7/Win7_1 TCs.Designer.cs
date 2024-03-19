@@ -32,7 +32,7 @@
             pnlControls = new Panel();
             pnlFilters = new Panel();
             lblType = new Label();
-            cbxType = new ComboBox();
+            cbxTypeFilter = new ComboBox();
             lblVoltageFilter = new Label();
             lblSearch = new Label();
             cbxNetworkVoltageFilter = new ComboBox();
@@ -77,7 +77,7 @@
             // pnlFilters
             // 
             pnlFilters.Controls.Add(lblType);
-            pnlFilters.Controls.Add(cbxType);
+            pnlFilters.Controls.Add(cbxTypeFilter);
             pnlFilters.Controls.Add(lblVoltageFilter);
             pnlFilters.Controls.Add(lblSearch);
             pnlFilters.Controls.Add(cbxNetworkVoltageFilter);
@@ -100,12 +100,12 @@
             // 
             // cbxType
             // 
-            cbxType.FormattingEnabled = true;
-            cbxType.Location = new Point(369, 57);
-            cbxType.Name = "cbxType";
-            cbxType.Size = new Size(160, 33);
-            cbxType.TabIndex = 26;
-            cbxType.SelectedIndexChanged += cbxType_SelectedIndexChanged;
+            cbxTypeFilter.FormattingEnabled = true;
+            cbxTypeFilter.Location = new Point(369, 57);
+            cbxTypeFilter.Name = "cbxType";
+            cbxTypeFilter.Size = new Size(160, 33);
+            cbxTypeFilter.TabIndex = 26;
+            cbxTypeFilter.SelectedIndexChanged += cbxType_SelectedIndexChanged;
             // 
             // lblVoltageFilter
             // 
@@ -246,6 +246,6 @@
         private Label lblSearch;
         private Label lblVoltageFilter;
         private Label lblType;
-        private ComboBox cbxType;
+        private ComboBox cbxTypeFilter;
     }
 }

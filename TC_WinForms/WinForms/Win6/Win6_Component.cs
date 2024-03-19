@@ -12,6 +12,7 @@ namespace TC_WinForms.WinForms
     public partial class Win6_Component : Form, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
+
         private int _tcId;
 
         private BindingList<DisplayedComponent_TC> _bindingList;

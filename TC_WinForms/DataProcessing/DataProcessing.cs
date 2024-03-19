@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.DirectoryServices.ActiveDirectory;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TC_WinForms.WinForms;
-using TcModels.Models;
+﻿using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
 
@@ -14,20 +6,9 @@ namespace TC_WinForms.DataProcessing
 {
     public static class DataProcessing
     {
-        //public static bool AddNewTC(Win7_1_TCs form)
-        //{
-        //    var newObject = form.dbCon.AddNewObjAndReturnIt(CreateTCWithRandomName());
-
-        //    form._newCard = newObject;
-        //    return true;
-
-        //}
         public static async void AddNewTC()
         {
             var dbCon = new DbConnector();
-            
-
-
         }
         public static Staff AddNewStaff()
         {

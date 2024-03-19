@@ -2,13 +2,14 @@
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_5_Machine : Form, ISaveEventForm
+    public partial class Win7_5_Machine : Form, ISaveEventForm, ILoadDataAsyncForm
     {
         private DbConnector dbCon = new DbConnector();
 
@@ -23,6 +24,9 @@ namespace TC_WinForms.WinForms
         private bool isAddingForm = false;
         private Button btnAddSelected;
         private Button btnCancel;
+
+        public bool _isDataLoaded = false;
+
         public void SetAsAddingForm()
         {
             isAddingForm = true;
@@ -42,7 +46,10 @@ namespace TC_WinForms.WinForms
         {
             progressBar.Visible = true;
 
-            await LoadObjects();
+            if(!_isDataLoaded)
+                await LoadDataAsync();
+            
+            SetDGVColumnsSettings();
             DisplayedEntityHelper.SetupDataGridView<DisplayedMachine>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false;
@@ -57,15 +64,29 @@ namespace TC_WinForms.WinForms
 
             progressBar.Visible = false;
         }
-        private async Task LoadObjects()
+        //private async Task LoadObjects()
+        //{
+        //    var tcList = await Task.Run(() => dbCon.GetObjectList<Machine>()
+        //        .Select(obj => new DisplayedMachine(obj)).ToList());
+        //    _bindingList = new BindingList<DisplayedMachine>(tcList);
+        //    _bindingList.ListChanged += BindingList_ListChanged;
+        //    dgvMain.DataSource = _bindingList;
+
+        //    SetDGVColumnsSettings();
+        //}
+        public async Task LoadDataAsync()
         {
             var tcList = await Task.Run(() => dbCon.GetObjectList<Machine>()
                 .Select(obj => new DisplayedMachine(obj)).ToList());
+
             _bindingList = new BindingList<DisplayedMachine>(tcList);
+
+            dgvMain.DataSource = null; // cancel update of dgv while data is loading
             _bindingList.ListChanged += BindingList_ListChanged;
+
             dgvMain.DataSource = _bindingList;
 
-            SetDGVColumnsSettings();
+            _isDataLoaded = true;
         }
         private async void Win7_5_Machine_FormClosing(object sender, FormClosingEventArgs e)
         {

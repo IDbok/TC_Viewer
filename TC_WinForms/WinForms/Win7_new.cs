@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.Interfaces;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 
@@ -14,7 +15,7 @@ namespace TC_WinForms.WinForms
 
         private WinNumber? _currentWinNumber = WinNumber.TC;
 
-        private bool _isFormLoaded = false;
+        private bool _isAllFormsLoading = false;
 
         public Win7_new(int accessLevel)
         {
@@ -28,11 +29,23 @@ namespace TC_WinForms.WinForms
             this.KeyPreview = true;
 
             this.KeyDown += ControlSaveEvent;
+
+            SetTagsToButtons();
         }
 
         private async void Win7_new_Load(object sender, EventArgs e)
         {
-            await LoadAllForms();
+            //SetLoadingState(true);
+            //await LoadAllForms();
+
+            //this.BeginInvoke((MethodInvoker)(() =>
+            //{
+            //    AddFormToPanel(WinNumber.TC);
+            //}));
+
+            //SetLoadingState(false);
+
+            btnTechCard_Click(sender,e);
         }
         private void AccessInitialization(int accessLevel)
         {
@@ -63,7 +76,35 @@ namespace TC_WinForms.WinForms
 
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
-        private void LoadFormInPanel(WinNumber winNumber)
+        private async Task LoadAllForms()
+        {
+
+            var tasks = new List<Task>();
+            foreach (var winNumber in Enum.GetValues(typeof(WinNumber)))
+            {
+                tasks.Add(LoadForm((WinNumber)winNumber));
+            }
+
+            await Task.WhenAll(tasks);
+        }
+        private async Task LoadFormInPanel(WinNumber winNumber)
+        {
+            SetLoadingState(true);
+
+            var form = await LoadForm(winNumber);
+
+            pnlDataViewer.Controls.Clear();
+            pnlDataViewer.Controls.Add(form);
+
+            form.Show();
+
+            _currentWinNumber = winNumber;
+            form.BringToFront();
+            UpdateButtonsState(winNumber);
+
+            SetLoadingState(false);
+        }
+        private async Task<Form> LoadForm(WinNumber winNumber)
         {
             if (!_forms.TryGetValue(winNumber, out var form))
             {
@@ -72,20 +113,46 @@ namespace TC_WinForms.WinForms
                 form.TopLevel = false;
                 form.FormBorderStyle = FormBorderStyle.None;
                 form.Dock = DockStyle.Fill;
-                pnlDataViewer.Controls.Add(form);
-            }
 
-            foreach (var frm in pnlDataViewer.Controls.OfType<Form>())
-            {
-                frm.Hide();
+                var loadDataTask = (form as ILoadDataAsyncForm)?.LoadDataAsync();
+                if (loadDataTask != null)
+                {
+                    await loadDataTask; //.ConfigureAwait(false);
+                }
             }
-
-            if(_isFormLoaded || winNumber == WinNumber.TC)
+            return form;
+        }
+        private void AddFormToPanel(WinNumber winNumber)
+        {
+            pnlDataViewer.Controls.Clear(); // Очищаем предыдущие формы
+            var form = _forms[winNumber];
+            if (form != null)
             {
+                pnlDataViewer.Controls.Add(form); // Добавляем загруженную форму
                 form.Show();
-                _currentWinNumber = null;
             }
-                
+        }
+
+        private void SetLoadingState(bool isLoading)
+        {
+            
+            _isAllFormsLoading = isLoading;
+
+            if (isLoading)
+            {
+                progressBarLoad.Maximum = Enum.GetNames(typeof(WinNumber)).Length + 1;
+                progressBarLoad.Value = 0;
+            }
+            else
+            {
+                progressBarLoad.Value = progressBarLoad.Maximum;
+            }
+            Cursor.Current = isLoading ? Cursors.WaitCursor : Cursors.Default;
+            progressBarLoad.Visible = isLoading;
+
+            pnlDataViewer.Visible = !isLoading;
+
+            pnlNavigationBlok.Enabled = !isLoading;
         }
         private Form CreateForm(WinNumber winNumber)
         {
@@ -123,16 +190,44 @@ namespace TC_WinForms.WinForms
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private void btnTechCard_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.TC); 
-        private void btnStaff_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Staff);
-        private void btnComponent_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Component);
-        private void btnMachine_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Machine);
-        private void btnProtection_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Protection);
-        private void btnTool_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.Tool);
-        private void btnTechOperation_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.TechOperation);
+        private async void btnTechCard_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TC).ConfigureAwait(false); 
+        private async void btnStaff_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Staff).ConfigureAwait(false);
+        private async void btnComponent_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Component).ConfigureAwait(false);
+        private async void btnMachine_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Machine).ConfigureAwait(false);
+        private async void btnProtection_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Protection).ConfigureAwait(false);
+        private async void btnTool_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Tool).ConfigureAwait(false);
+        private async void btnTechOperation_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechOperation).ConfigureAwait(false);
+        private async void btnWorkStep_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechTransition).ConfigureAwait(false);
 
+        private void UpdateButtonsState(WinNumber activeModelType)
+        {
+            foreach (Control control in pnlNavigationBtns.Controls)
+            {
+                if (control is Button button)
+                {
+                    button.BackColor = SystemColors.Control;
+                    button.ForeColor = SystemColors.ControlText;
 
-        private void btnWorkStep_Click(object sender, EventArgs e) => LoadFormInPanel(WinNumber.TechTransition);
+                    if (button.Tag is WinNumber buttonModelType && buttonModelType == activeModelType)
+                    {
+                        button.BackColor = Color.FromArgb(10, 107, 88);
+                        button.ForeColor = Color.White;
+                    }
+                }
+            }
+        }
+        private void SetTagsToButtons()
+        {
+            btnTechCard.Tag = WinNumber.TC;
+            btnProject.Tag = WinNumber.Project;
+            btnStaff.Tag = WinNumber.Staff;
+            btnComponent.Tag = WinNumber.Component;
+            btnMachine.Tag = WinNumber.Machine;
+            btnProtection.Tag = WinNumber.Protection;
+            btnTool.Tag = WinNumber.Tool;
+            btnTechOperation.Tag = WinNumber.TechOperation;
+            btnWorkStep.Tag = WinNumber.TechTransition;
+        }
 
 
         private async void ControlSaveEvent(object sender, KeyEventArgs e)
@@ -163,7 +258,6 @@ namespace TC_WinForms.WinForms
 
         private async void updateToolStripButton_Click(object sender, EventArgs e)
         {
-            _isFormLoaded = false;
             // close all forms and load them again
             foreach (var frm in _forms)
             {
@@ -175,29 +269,7 @@ namespace TC_WinForms.WinForms
             await LoadAllForms();
         }
 
-        private async Task LoadAllForms()
-        {
-            // block controels 
-            pnlNavigationBlok.Enabled = false;
 
-            foreach (var winNumber in Enum.GetValues(typeof(WinNumber)))
-            {
-                this.Invoke((MethodInvoker)delegate
-                {
-                    LoadFormInPanel((WinNumber)winNumber);
-                });
-            }
-            if (!_isFormLoaded)
-            {
-                _isFormLoaded = true;
-            }
-            this.Invoke((MethodInvoker)delegate
-            {
-                LoadFormInPanel(_currentWinNumber ?? WinNumber.TC);
-            });
-
-            pnlNavigationBlok.Enabled = true;
-        }
 
 
         enum WinNumber

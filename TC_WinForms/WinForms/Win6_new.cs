@@ -30,6 +30,8 @@ namespace TC_WinForms.WinForms
             _tc = db.GetObject<TechnologicalCard>(tcId);// Task.Run(()=>db.GetObject<TechnologicalCard>(tcId));
 
             this.KeyDown += ControlSaveEvent;
+
+            SetTagsToButtons();
         }
 
         private async void Win6_new_Load(object sender, EventArgs e)
@@ -112,6 +114,8 @@ namespace TC_WinForms.WinForms
 
             SwitchActiveForm(form);
             _activeModelType = modelType;
+
+            UpdateButtonsState(modelType);
         }
 
         private Form CreateForm(EModelType modelType)
@@ -145,41 +149,42 @@ namespace TC_WinForms.WinForms
             _activeForm = form;
         }
 
-        private async void btnShowStaffs_Click(object sender, EventArgs e)
+        private async void btnShowStaffs_Click(object sender, EventArgs e) => await ShowForm(EModelType.Staff);
+        private async void btnShowComponents_Click(object sender, EventArgs e) => await ShowForm(EModelType.Component); 
+        private async void btnShowMachines_Click(object sender, EventArgs e) => await ShowForm(EModelType.Machine);
+        private async void btnShowProtections_Click(object sender, EventArgs e) => await ShowForm(EModelType.Protection);
+        private async void btnShowTools_Click(object sender, EventArgs e) => await ShowForm(EModelType.Tool);
+        private async void btnShowWorkSteps_Click(object sender, EventArgs e) => await ShowForm(EModelType.WorkStep);
+
+        private void UpdateButtonsState(EModelType activeModelType)
         {
-            await ShowForm(EModelType.Staff);
+            foreach (Control control in pnlControls.Controls)
+            {
+                if (control is Button button)
+                {
+                    button.BackColor = SystemColors.Control;
+                    button.ForeColor = SystemColors.ControlText;
+
+                    if (button.Tag is EModelType buttonModelType && buttonModelType == activeModelType)
+                    {
+                        button.BackColor = Color.FromArgb(10, 107, 88);
+                        button.ForeColor = Color.White;
+                    }
+                }
+            }
         }
 
-        private async void btnShowComponents_Click(object sender, EventArgs e)
+        private void SetTagsToButtons()
         {
-            await ShowForm(EModelType.Component); 
+            btnShowStaffs.Tag = EModelType.Staff;
+            btnShowComponents.Tag = EModelType.Component;
+            btnShowMachines.Tag = EModelType.Machine;
+            btnShowProtections.Tag = EModelType.Protection;
+            btnShowTools.Tag = EModelType.Tool;
+            btnShowWorkSteps.Tag = EModelType.WorkStep;
         }
 
-        private async void btnShowMachines_Click(object sender, EventArgs e)
-        {
-            await ShowForm(EModelType.Machine); 
-        }
-
-        private async void btnShowProtections_Click(object sender, EventArgs e)
-        {
-            await ShowForm(EModelType.Protection); 
-        }
-
-        private async void btnShowTools_Click(object sender, EventArgs e)
-        {
-            await ShowForm(EModelType.Tool); 
-        }
-
-        private async void btnShowWorkSteps_Click(object sender, EventArgs e)
-        {
-            await ShowForm(EModelType.WorkStep);
-        } 
-
-
-        private void toolStripButton4_Click(object sender, EventArgs e)
-        {
-            SaveAllChanges();
-        }
+        private void toolStripButton4_Click(object sender, EventArgs e) => SaveAllChanges();
         private void SaveAllChanges()
         {
             foreach (var form in _formsCache.Values)

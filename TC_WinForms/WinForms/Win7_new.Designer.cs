@@ -49,6 +49,7 @@
             btnTechCard = new Button();
             pnlLable = new Panel();
             pnlDataViewer = new Panel();
+            progressBarLoad = new ProgressBar();
             pnlToolStrinp.SuspendLayout();
             toolStrip1.SuspendLayout();
             pnlNavigationBlok.SuspendLayout();
@@ -120,6 +121,7 @@
             updateToolStripButton.Name = "updateToolStripButton";
             updateToolStripButton.Size = new Size(97, 29);
             updateToolStripButton.Text = "Обновить";
+            updateToolStripButton.Visible = false;
             updateToolStripButton.Click += updateToolStripButton_Click;
             // 
             // pnlNavigationBlok
@@ -279,11 +281,22 @@
             pnlDataViewer.Size = new Size(1230, 907);
             pnlDataViewer.TabIndex = 3;
             // 
+            // progressBarLoad
+            // 
+            progressBarLoad.Anchor = AnchorStyles.None;
+            progressBarLoad.Location = new Point(517, 202);
+            progressBarLoad.Name = "progressBarLoad";
+            progressBarLoad.Size = new Size(731, 34);
+            progressBarLoad.Style = ProgressBarStyle.Marquee;
+            progressBarLoad.TabIndex = 0;
+            progressBarLoad.Visible = false;
+            // 
             // Win7_new
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1478, 941);
+            Controls.Add(progressBarLoad);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlNavigationBlok);
             Controls.Add(pnlToolStrinp);
@@ -327,5 +340,6 @@
         private ToolStripButton saveToolStripButton;
         private ToolStripButton toolStripButton5;
         private ToolStripButton updateToolStripButton;
+        private ProgressBar progressBarLoad;
     }
 }

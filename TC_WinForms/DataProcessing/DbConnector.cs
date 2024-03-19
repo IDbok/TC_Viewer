@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Windows.Forms;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -11,6 +10,36 @@ namespace TC_WinForms.DataProcessing
 {
     public class DbConnector
     {
+        public enum MessageType
+        {
+            Error,
+            Warning,
+            Info
+        }
+
+        public delegate void MessageToUI(string message, MessageType type);
+
+        public event MessageToUI OnMessageToUI;
+
+        public DbConnector()
+        {
+            OnMessageToUI += HandleMessage;
+        }
+        private void HandleMessage(string message, MessageType type)
+        {
+            switch (type)
+            {
+                case MessageType.Error:
+                    MessageBox.Show(message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+                case MessageType.Warning:
+                    MessageBox.Show(message, "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    break;
+                case MessageType.Info:
+                    MessageBox.Show(message, "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    break;
+            }
+        }
         public async Task AddTcAsync(TechnologicalCard tc)
         {
             await AddTcAsync(new List<TechnologicalCard> { tc });
@@ -359,7 +388,7 @@ namespace TC_WinForms.DataProcessing
                 var trackedEntities = context.ChangeTracker.Entries();
                 foreach (var entry in trackedEntities)
                 {
-                    Console.WriteLine($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}");
+                    OnMessageToUI?.Invoke($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}", MessageType.Info);
                 }
                 // todo add mechanism to increase version of object if it was version field
 
@@ -394,7 +423,7 @@ namespace TC_WinForms.DataProcessing
                 trackedEntities = context.ChangeTracker.Entries();
                 foreach (var entry in trackedEntities)
                 {
-                    Console.WriteLine($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}");
+                    OnMessageToUI?.Invoke($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}", MessageType.Info);
                 }
 
                 //context.TechnologicalCards.Attach(updatingobj);
@@ -404,7 +433,7 @@ namespace TC_WinForms.DataProcessing
                 trackedEntities = context.ChangeTracker.Entries();
                 foreach (var entry in trackedEntities)
                 {
-                    Console.WriteLine($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}");
+                    OnMessageToUI?.Invoke($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}", MessageType.Info);
                 }
                 context.Update(updatingobj);
 
@@ -461,7 +490,7 @@ namespace TC_WinForms.DataProcessing
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n"+e.ToString(), MessageType.Error);
                 throw;
             }
         }
@@ -493,7 +522,7 @@ namespace TC_WinForms.DataProcessing
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
                 throw;
             }
         }
@@ -512,7 +541,7 @@ namespace TC_WinForms.DataProcessing
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
                 throw;
             }
         }

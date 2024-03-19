@@ -354,5 +354,7 @@ namespace TC_WinForms
             btnCancel.Width = 150;
             pnlControlBtns.Controls.Add(btnCancel);
         }
+
+        
     }
 }

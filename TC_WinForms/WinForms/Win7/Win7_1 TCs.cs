@@ -2,12 +2,13 @@
 using System.Reflection.Metadata;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_1_TCs : Form, ISaveEventForm
+    public partial class Win7_1_TCs : Form, ISaveEventForm, ILoadDataAsyncForm
     {
         private DbConnector dbCon = new DbConnector();
         private BindingList<DisplayedTechnologicalCard> _bindingList;
@@ -18,6 +19,7 @@ namespace TC_WinForms.WinForms
 
         private DisplayedTechnologicalCard _newObject;
 
+        public bool _isDataLoaded = false;
         public Win7_1_TCs(int accessLevel)
         {
             InitializeComponent();
@@ -27,8 +29,12 @@ namespace TC_WinForms.WinForms
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
             progressBar.Visible = true;
-
-            await LoadTechnologicalCards();
+            if (!_isDataLoaded)
+            {
+                await LoadDataAsync();
+            }
+            //await LoadDataAsync();
+            SetDGVColumnsSettings();
             DisplayedEntityHelper.SetupDataGridView<DisplayedTechnologicalCard>(dgvMain);
 
             SetupNetworkVoltageComboBox();
@@ -36,7 +42,7 @@ namespace TC_WinForms.WinForms
 
             progressBar.Visible = false;
         }
-        private async Task LoadTechnologicalCards()
+        public async Task LoadDataAsync()
         {
             var tcList = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
                 .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
@@ -46,7 +52,8 @@ namespace TC_WinForms.WinForms
 
             dgvMain.DataSource = _bindingList;
 
-            SetDGVColumnsSettings();
+            _isDataLoaded = true;
+
         }
         private void AccessInitialization(int accessLevel)
         {
@@ -617,7 +624,7 @@ namespace TC_WinForms.WinForms
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
                 var networkVoltageFilter = cbxNetworkVoltageFilter.SelectedItem?.ToString();
-                var typeFilter = cbxType.SelectedItem?.ToString();
+                var typeFilter = cbxTypeFilter.SelectedItem?.ToString();
 
                 if (string.IsNullOrWhiteSpace(searchText) && networkVoltageFilter == "Все" && typeFilter == "Все")
                 {
@@ -663,28 +670,44 @@ namespace TC_WinForms.WinForms
         }
         private void SetupNetworkVoltageComboBox()
         {
-            // Предполагая, что comboBoxNetworkVoltage - это ваш ComboBox
+            var voltagies = _bindingList.Select(obj => obj.NetworkVoltage).Distinct().ToList();
+            
+            voltagies.Sort((a, b) => b.CompareTo(a));
+
             cbxNetworkVoltageFilter.Items.Add("Все");
-            cbxNetworkVoltageFilter.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f, 0f });
+            foreach (var voltage in voltagies)
+            {
+                cbxNetworkVoltageFilter.Items.Add(voltage);
+            }
+
+            //cbxNetworkVoltageFilter.Items.Add("Все");
+            //cbxNetworkVoltageFilter.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f, 0f });
             cbxNetworkVoltageFilter.SelectedIndex = 0; // Выбираем "Все" по умолчанию
 
             //cbxNetworkVoltageFilter.DropDownWidth = cbxNetworkVoltageFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxNetworkVoltageFilter.Font).Width) + 20;
         }
         private void SetupTypeComboBox()
         {
-            // Предполагая, что comboBoxNetworkVoltage - это ваш ComboBox
-            cbxType.Items.Add("Все");
-            cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
-            cbxType.SelectedIndex = 0; // Выбираем "Все" по умолчанию
+            var types = _bindingList.Select(obj => obj.Type).Distinct().ToList();
+            types.Sort();
 
-            cbxType.DropDownWidth = cbxType.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxType.Font).Width) + 20;
+            cbxTypeFilter.Items.Add("Все");
+            foreach (var type in types)
+            {
+                if (string.IsNullOrWhiteSpace(type)) { continue; }
+                    cbxTypeFilter.Items.Add(type);
+            }
+            //cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
+            cbxTypeFilter.SelectedIndex = 0; // Выбираем "Все" по умолчанию
+
+            cbxTypeFilter.DropDownWidth = cbxTypeFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxTypeFilter.Font).Width) + 20;
         }
 
         private void cbxType_SelectedIndexChanged(object sender, EventArgs e)
         {
             FilterTechnologicalCards();
-            var width = TextRenderer.MeasureText(cbxType.SelectedItem.ToString(), cbxType.Font).Width + 20;
-            cbxType.Width = width < 160 ?
+            var width = TextRenderer.MeasureText(cbxTypeFilter.SelectedItem.ToString(), cbxTypeFilter.Font).Width + 20;
+            cbxTypeFilter.Width = width < 160 ?
                 160
                 : width;
         }

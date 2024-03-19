@@ -202,7 +202,7 @@ namespace TC_WinForms.WinForms
         {
             // load new form Win7_3_Staff as dictonary
             var newForm = new Win7_3_Staff(this);
-            newForm.SetAsAddingForm();
+            //newForm.SetAsAddingForm();
             newForm.ShowDialog();
         }
 

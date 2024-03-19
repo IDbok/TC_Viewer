@@ -462,12 +462,13 @@ namespace TC_WinForms.WinForms
         {
             // Set unique categories to combobox from binding list
             var categories = _bindingList.Select(obj => obj.Category).Distinct().ToList();
+            categories.Sort();
 
             cbxCategoryFilter.Items.Add("Все");
             foreach (var category in categories)
             {
-                   if (string.IsNullOrWhiteSpace(category)) { continue; }
-                cbxCategoryFilter.Items.Add(category);
+                if (string.IsNullOrWhiteSpace(category)) { continue; }
+                    cbxCategoryFilter.Items.Add(category);
             }
 
             cbxCategoryFilter.SelectedIndex = 0;
