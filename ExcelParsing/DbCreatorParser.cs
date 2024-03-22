@@ -1,6 +1,7 @@
 ﻿
 using ExcelParsing.DataProcessing;
 using Newtonsoft.Json;
+using TcDbConnector;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
@@ -10,13 +11,40 @@ namespace ExcelParsing
     {
         public static void ParseAll(string structFilePath, string tcFilePath, string intermediateDictionaryFilePath, string workStepsFilePath, string folderToSaveJson = null)
         {
-            ParseDictionaty(structFilePath, folderToSaveJson);
+            if (string.IsNullOrEmpty(structFilePath) || string.IsNullOrEmpty(tcFilePath) || string.IsNullOrEmpty(intermediateDictionaryFilePath) || string.IsNullOrEmpty(workStepsFilePath))
+            {
+                throw new ArgumentException("One or more paths are invalid");
+            }
+            if (!File.Exists(structFilePath) || !File.Exists(tcFilePath) || !File.Exists(intermediateDictionaryFilePath) || !File.Exists(workStepsFilePath))
+            {
+                throw new ArgumentException("One or more files do not exist");
+            }
+
+            ParseDictionaries(structFilePath, folderToSaveJson);
             ParseTechnologicalCard(tcFilePath, folderToSaveJson);
             ParseIntermediateObjects(intermediateDictionaryFilePath, folderToSaveJson);
+
+            ParseWorkDictionaries(workStepsFilePath, folderToSaveJson);
+
+            // create new DB to parsed data
+            CreateDb();
+
+            DbCreator.AddDeserializedDataToDb();
+
             ParseWorkSteps(workStepsFilePath, folderToSaveJson);
         }
 
-        public static void ParseDictionaty(string structFilePath,string folderToSaveJson = null)
+        private static void CreateDb()
+        {
+            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v11;user=root;password=root";
+
+            using (var db = new MyDbContext())
+            {
+                db.Database.EnsureDeleted();
+                db.Database.EnsureCreated();
+            }
+        }
+        public static void ParseDictionaries(string structFilePath,string folderToSaveJson = null)
         {
             string filepath = structFilePath; //@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
 
@@ -43,6 +71,19 @@ namespace ExcelParsing
             var jsonTool = JsonConvert.SerializeObject(parsedDataTool, Formatting.Indented);
             File.WriteAllText(folderToSaveJson + "Tool.json", jsonTool);
 
+
+        }
+        public static void ParseWorkDictionaries(string filePath, string folderToSaveJson = null)
+        {
+            var workParser = new WorkParser();
+
+            var parsedDataTechOperation = workParser.ParseExcelToObjectsTechOperation(filePath);
+            var jsonTechOperation = JsonConvert.SerializeObject(parsedDataTechOperation, Formatting.Indented);
+            File.WriteAllText(folderToSaveJson + "TechOperation.json", jsonTechOperation);
+
+            var parsedDataTechTransition = workParser.ParseExcelToObjectsTechTransition(filePath);
+            var jsonTechTransition = JsonConvert.SerializeObject(parsedDataTechTransition, Formatting.Indented);
+            File.WriteAllText(folderToSaveJson + "TechTransition.json", jsonTechTransition);
         }
 
         public static void ParseTechnologicalCard(string tcFilePath, string folderToSaveJson = null)
@@ -94,7 +135,11 @@ namespace ExcelParsing
 
             var parsedDataWorkSteps = parser.ParseExcelToObjectsTechOperationWork(filepath, sheetName);
 
-            var jsonWorkSteps = JsonConvert.SerializeObject(parsedDataWorkSteps, Formatting.Indented);
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            var jsonWorkSteps = JsonConvert.SerializeObject(parsedDataWorkSteps, Formatting.Indented,settings);
             File.WriteAllText(folderToSaveJson + "WorkSteps.json", jsonWorkSteps);
         }
     }

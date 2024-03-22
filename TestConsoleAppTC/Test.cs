@@ -13,6 +13,8 @@ using OfficeOpenXml.Style;
 using System.Dynamic;
 using OfficeOpenXml;
 using ExcelParsing;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace TestConsoleAppTC
 {
@@ -28,24 +30,325 @@ namespace TestConsoleAppTC
         static void Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
+            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v11;user=root;password=root";
 
-            ParseNewDictionaty();
+            DeleteAllTO();
 
+            ParseWS();
+
+            //ParseNewDictionaty();
+            // AddTOandTPtoDB();
+            // CheckTechOperationWorkParser();
+
+            
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        static int ComputeLevenshteinDistance(string source, string target)
+        {
+            var n = source.Length;
+            var m = target.Length;
+            var matrix = new int[n + 1, m + 1];
+
+            if (n == 0)
+                return m;
+
+            if (m == 0)
+                return n;
+
+            for (int i = 0; i <= n; matrix[i, 0] = i++) { }
+            for (int j = 0; j <= m; matrix[0, j] = j++) { }
+
+            for (int i = 1; i <= n; i++)
+            {
+                for (int j = 1; j <= m; j++)
+                {
+                    int cost = (target[j - 1] == source[i - 1]) ? 0 : 1;
+
+                    int left = matrix[i - 1, j] + 1;
+                    int right = matrix[i, j - 1] + 1;
+                    int corner = matrix[i - 1, j - 1] + cost;
+
+                    int result = Math.Min(
+                        Math.Min(left, right),
+                        corner);
+                    matrix[i, j] = result;
+                }
+            }
+
+            return matrix[n, m];
+        }
         static void ParseNewDictionaty()
         {
             string structFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
             string tcFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Список ТК.xlsx";
-            string intermediateDictionaryFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
+            string intermediateDictionaryFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточных сущностей.xlsx";
             string workStepsFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
 
             DbCreatorParser.ParseAll(structFilePath, tcFilePath, intermediateDictionaryFilePath, workStepsFilePath);
+
+            //DbCreator.DeserializeWorkStepsToDb();
         }
 
-        public static void CheckParser()
+        static void DeleteAllTO()
+        {
+            using (var db = new MyDbContext())
+            {
+                var allTO = db.TechOperationWorks.ToList();
+                db.TechOperationWorks.RemoveRange(allTO);
+                db.SaveChanges();
+            }
+        }
+        static void ParseWS()
+        {
+
+            string filepath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
+            string sheetName = "WorkStep_TC and Tools";
+
+            var parser = new WorkParser();
+
+            var parsedDataWorkSteps = parser.ParseExcelToObjectsTechOperationWork(filepath, sheetName);
+
+
+            var TOWList = parsedDataWorkSteps;
+            using (var db = new MyDbContext())
+            {
+
+                Console.WriteLine("----------------- TechOperationWork -----------------");
+
+                //find all intermediate objects from db
+                var staffTcList = db.Staff_TCs.ToList();
+                var componentTcList = db.Component_TCs.ToList();
+                var machineTcList = db.Machine_TCs.ToList();
+
+
+                foreach (var TOW in TOWList)
+                {
+                    var TO = db.TechOperations.Find(TOW.techOperationId);
+                    var TC = db.TechnologicalCards.Find(TOW.TechnologicalCardId);
+
+                    if (TO != null && TC != null)
+                    {
+                        TOW.techOperation = TO;
+                        TOW.technologicalCard = TC;
+
+                        foreach (var exW in TOW.executionWorks)
+                        {
+                            var staff_TCList = new List<Staff_TC>();
+                            foreach (var staff in exW.Staffs)
+                            {
+                                var existingStaff = db.Staff_TCs.Find(staff.IdAuto);
+                                if (existingStaff == null)
+                                {
+                                    // Если сотрудник не найден, добавляем его в контекст
+                                    db.Staff_TCs.Add(staff);
+                                    staff_TCList.Add(staff);
+                                }
+                                else
+                                {
+                                    // Если сотрудник уже существует, используем существующий экземпляр
+                                    staff_TCList.Add(existingStaff);
+                                }
+                            }
+
+                            var protection_TCList = new List<Protection_TC>();
+                            foreach (var protection in exW.Protections)
+                            {
+                                var existingobj = db.Protection_TCs.Where(x => x.ParentId == protection.ParentId && x.ChildId == protection.ChildId).FirstOrDefault();
+                                if (existingobj == null)
+                                {
+                                    // Если сотрудник не найден, добавляем его в контекст
+                                    db.Protection_TCs.Add(protection);
+                                    protection_TCList.Add(protection);
+                                }
+                                else
+                                {
+                                    // Если сотрудник уже существует, используем существующий экземпляр
+                                    protection_TCList.Add(existingobj);
+                                }
+                            }
+
+                            var machine_TCList = new List<Machine_TC>();
+                            foreach (var machine in exW.Machines)
+                            {
+                                var existingobj = db.Machine_TCs.Where(x => x.ParentId == machine.ParentId && x.ChildId == machine.ChildId).FirstOrDefault();
+                                if (existingobj == null)
+                                {
+                                    // Если сотрудник не найден, добавляем его в контекст
+                                    db.Machine_TCs.Add(machine);
+                                    machine_TCList.Add(machine);
+                                }
+                                else
+                                {
+                                    // Если сотрудник уже существует, используем существующий экземпляр
+                                    machine_TCList.Add(existingobj);
+                                }
+                            }
+
+                            //exW.Staffs = staff_TCList;
+                            //exW.Protections = protection_TCList;
+                            //exW.Machines = machine_TCList;
+
+                            //var staff_TCList = new List<Staff_TC>();
+                            //var machine_TCList = new List<Machine_TC>();
+                            //var protection_TCList = new List<Protection_TC>();
+                            //foreach (var staff in exW.Staffs)
+                            //{
+                            //    var s = db.Staff_TCs.Find(staff.IdAuto);
+                            //    if (s != null)
+                            //    {
+                            //        staff_TCList.Add(s);
+                            //    }
+                            //}
+                            //foreach (var machine in exW.Machines)
+                            //{
+                            //    var m = db.Machine_TCs.Where(x=> x.ChildId == machine.ChildId && x.ParentId == machine.ParentId).FirstOrDefault();
+                            //    if (m != null)
+                            //    {
+                            //        machine_TCList.Add(m);
+                            //    }
+                            //}
+                            //foreach (var protection in exW.Protections)
+                            //{
+                            //    var p = db.Protection_TCs.Where(x => x.ChildId == protection.ChildId && x.ParentId == protection.ParentId).FirstOrDefault();
+                            //    if (p != null)
+                            //    {
+                            //        protection_TCList.Add(p);
+                            //    }
+                            //}
+                            exW.Staffs.Clear();
+                            exW.Machines.Clear();
+                            exW.Protections.Clear();
+
+                            exW.Staffs = staff_TCList;
+                            exW.Machines = machine_TCList;
+                            exW.Protections = protection_TCList;
+
+                            var tT = db.TechTransitions.Find(exW.techTransitionId);
+                            if (tT != null)
+                            {
+                                exW.techTransition = tT;
+                            }
+
+                            exW.techOperationWork = TOW;
+                        }
+
+                        foreach (var cw in TOW.ComponentWorks)
+                        {
+                            //var combponentWorkList = new List<ComponentWork>();
+                            //foreach (var staff in exW.Staffs)
+                            //{
+                            //    var existingStaff = db.Staff_TCs.Find(staff.IdAuto);
+                            //    if (existingStaff == null)
+                            //    {
+                            //        // Если сотрудник не найден, добавляем его в контекст
+                            //        db.Staff_TCs.Add(staff);
+                            //        staff_TCList.Add(staff);
+                            //    }
+                            //    else
+                            //    {
+                            //        // Если сотрудник уже существует, используем существующий экземпляр
+                            //        staff_TCList.Add(existingStaff);
+                            //    }
+                            //}
+
+                            var existingComponentId = db.Components.Any(c => c.Id == cw.componentId);
+
+                            if (!existingComponentId)
+                            {
+                                // Логика обработки случая, когда componentId не найден
+                                Console.WriteLine($"Component с ID {cw.componentId} не найден в таблице Components. TO:{TOW.Id} TC:{TOW.TechnologicalCardId}");
+                            }
+                        }
+
+
+                        db.TechOperationWorks.Update(TOW);
+                        //try
+                        //{
+                        //    db.TechOperationWorks.Add(TOW);
+                        //    //Console.WriteLine($"entety: Parentid={toolTc.ParentId}, ChieldId={toolTc.ChildId}, Order={toolTc.Order}");
+                        //}
+                        //catch (Exception e)
+                        //{ itemsToRemove.Add(TOW); }
+                    }
+                }
+
+                //foreach (var item in itemsToRemove)
+                //{
+                //    TOWList.Remove(item);
+                //    db.Entry(item).State = EntityState.Detached;
+                //    //Console.WriteLine($"entety Deleted: Parentid={item.ParentId}, ChieldId={item.ChildId}, Order={item.Order}");
+                //}
+                //db.TechOperationWorks.AddRange(TOWList);
+                //db.SaveChanges();
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Ошибка при сохранении изменений: {e.Message}");
+                }
+            }
+        }
+        static void TechOperationWork()
+        {
+            string jsonData = File.ReadAllText($@"WorkSteps.json");
+            var TOWList = JsonConvert.DeserializeObject<List<TechOperationWork>>(jsonData);
+
+            using (var db = new MyDbContext())
+            {
+                foreach (var techOperationWork in TOWList)
+                {
+                    foreach(var ex in techOperationWork.executionWorks)
+                    {
+                        var tT = db.TechTransitions.Find(ex.techTransitionId);
+                        if (tT == null)
+                        {
+                            Console.WriteLine($"TechTransition {ex.techTransitionId} in TC:{techOperationWork.TechnologicalCardId} TO order {techOperationWork.Order} not found");
+                        }
+                    }
+                }
+            }
+        }
+
+        static void AddTOandTPtoDB()
+        {
+            var jsonData = File.ReadAllText($@"TechOperation.json");
+            List<TechOperation> TOList = JsonConvert.DeserializeObject<List<TechOperation>>(jsonData);
+
+            jsonData = File.ReadAllText($@"TechTransition.json");
+            List<TechTransition> TPList = JsonConvert.DeserializeObject<List<TechTransition>>(jsonData);
+
+            //add all objects to new db
+            using (var db = new MyDbContext())
+            {
+
+                db.TechOperations.AddRange(TOList);
+                db.TechTransitions.AddRange(TPList);
+
+                db.SaveChanges();
+            }
+        }
+        public static void  ParseTOandTP()
+        {
+            string filepath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
+
+            string sheetNameTO = "Перечень ТО";
+            string sheetNameTP = "Типовые переходы";
+            var parser = new WorkParser();
+
+            var parsedData = parser.ParseExcelToObjectsTechOperation(filepath, sheetNameTO);
+            var parsedDataTP = parser.ParseExcelToObjectsTechTransition(filepath, sheetNameTP); 
+            //save result to json
+            var json = JsonConvert.SerializeObject(parsedData, Formatting.Indented);
+            File.WriteAllText("TechOperation.json", json);
+
+            var jsonTP = JsonConvert.SerializeObject(parsedDataTP, Formatting.Indented);
+            File.WriteAllText("TechTransition.json", jsonTP);
+        }
+        public static void CheckTechOperationWorkParser()
         {
             string filepath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
 

@@ -27,7 +27,6 @@ namespace ExcelParsing.DataProcessing
             {
                 var sheetName = typeof(Staff_TC).Name;
 
-
                 var worksheet = package.Workbook.Worksheets[sheetName];
                 int rowCount = worksheet.Dimension.Rows;
 
@@ -94,7 +93,18 @@ namespace ExcelParsing.DataProcessing
                             Note = isNote == "" ? null : isNote,
                         };
 
-                        objList.Add(obj);
+
+                        // check if object with the same id pairs already exists in the list
+                        
+                        if (objList.Exists(x => x.ParentId == obj.ParentId && x.ChildId == obj.ChildId))
+                        {
+                            var exObj = objList.Where(x => x.ParentId == obj.ParentId && x.ChildId == obj.ChildId).FirstOrDefault();
+                            exObj.Quantity += obj.Quantity;
+                        }
+                        else 
+                        { 
+                            objList.Add(obj); 
+                        }
                     }
                     else
                         metaList.Add($"Ошибка парсинга строке {isIndex}");
@@ -102,6 +112,51 @@ namespace ExcelParsing.DataProcessing
             }
             return objList;
         }
+        //public List<TechnologicalCard> ParseExcelToObjectsTc(string filePath)
+        //{
+        //    var objList = new List<TechnologicalCard>();
+
+        //    using (var package = new ExcelPackage(new FileInfo(filePath)))
+        //    {
+        //        var worksheet = package.Workbook.Worksheets["ТК"];
+        //        int rowCount = worksheet.Dimension.Rows;
+
+        //        for (int row = 2; row <= rowCount; row++)
+        //        {
+        //            var isCompleted = Convert.ToString(worksheet.Cells[row, 13].Value);
+        //            var nameTc = Convert.ToString(worksheet.Cells[row, 14].Value);
+        //            string NoName = "Без названия";
+
+        //            var obj = new TechnologicalCard
+        //            {
+        //                Id = Convert.ToInt32(worksheet.Cells[row, 16].Value),
+
+        //                Article = Convert.ToString(worksheet.Cells[row, 1].Value),
+
+        //                Name = nameTc == "" ? NoName : nameTc,
+
+        //                Type = Convert.ToString(worksheet.Cells[row, 2].Value),
+        //                NetworkVoltage = Convert.ToSingle(worksheet.Cells[row, 3].Value),
+        //                TechnologicalProcessType = Convert.ToString(worksheet.Cells[row, 4].Value),
+        //                TechnologicalProcessName = Convert.ToString(worksheet.Cells[row, 5].Value),
+        //                Parameter = Convert.ToString(worksheet.Cells[row, 6].Value),
+        //                TechnologicalProcessNumber = Convert.ToString(worksheet.Cells[row, 7].Value),
+        //                FinalProduct = Convert.ToString(worksheet.Cells[row, 8].Value),
+        //                Applicability = Convert.ToString(worksheet.Cells[row, 9].Value),
+        //                Note = Convert.ToString(worksheet.Cells[row, 10].Value),
+        //                DamageType = Convert.ToString(worksheet.Cells[row, 11].Value),
+        //                RepairType = Convert.ToString(worksheet.Cells[row, 12].Value),
+
+        //                IsCompleted = isCompleted == "Есть" ? true : false,
+
+        //            };
+
+
+        //            objList.Add(obj);
+        //        }
+        //    }
+        //    return objList;
+        //}
 
         public List<TechnologicalCard> ParseExcelToObjectsTc(string filePath)
         {
@@ -120,7 +175,7 @@ namespace ExcelParsing.DataProcessing
 
                     var obj = new TechnologicalCard
                     {
-                        Id = Convert.ToInt32(worksheet.Cells[row, 15].Value),
+                        Id = Convert.ToInt32(worksheet.Cells[row, 16].Value),
 
                         Article = Convert.ToString(worksheet.Cells[row, 1].Value),
 
@@ -138,9 +193,10 @@ namespace ExcelParsing.DataProcessing
                         DamageType = Convert.ToString(worksheet.Cells[row, 11].Value),
                         RepairType = Convert.ToString(worksheet.Cells[row, 12].Value),
 
-                        IsCompleted = isCompleted == "Есть" ? true:false ,
+                        IsCompleted = isCompleted == "Есть" ? true : false,
 
                     };
+
 
                     objList.Add(obj);
                 }

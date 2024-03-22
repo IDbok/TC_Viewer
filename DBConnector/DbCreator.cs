@@ -68,6 +68,11 @@ namespace TcDbConnector
             jsonData = File.ReadAllText($@"{pathToJsonFolder}Tool.json");
             List<Tool> toolList = JsonConvert.DeserializeObject<List<Tool>>(jsonData);
 
+            jsonData = File.ReadAllText($@"{pathToJsonFolder}TechOperation.json");
+            List<TechOperation> TOList = JsonConvert.DeserializeObject<List<TechOperation>>(jsonData);
+
+            jsonData = File.ReadAllText($@"{pathToJsonFolder}TechTransition.json");
+            List<TechTransition> TPList = JsonConvert.DeserializeObject<List<TechTransition>>(jsonData);
 
             //add all objects to new db
             using (var db = new MyDbContext())
@@ -80,6 +85,9 @@ namespace TcDbConnector
                 db.Machines.AddRange(machineList);
                 db.Protections.AddRange(protectionList);
                 db.Tools.AddRange(toolList);
+
+                db.TechOperations.AddRange(TOList);
+                db.TechTransitions.AddRange(TPList);
 
                 db.SaveChanges();
             }
@@ -205,10 +213,13 @@ namespace TcDbConnector
                     // Console.WriteLine($"entety: Parentid={objTc.ParentId}, ChieldId={objTc.ChildId}, Order={objTc.Order}");
                     var objs = db.Protections.Find(objTc.ChildId);
                     var tc = db.TechnologicalCards.Find(objTc.ParentId);
+
                     if (objs != null && tc != null)
                     {
                         objTc.Child = objs;
                         objTc.Parent = tc;
+
+
                         db.Protection_TCs.Add(objTc);
                     }
                 }
@@ -254,6 +265,177 @@ namespace TcDbConnector
                 db.Tool_TCs.AddRange(toolTcList);
                 db.SaveChanges();
             }
+        }
+
+        public static void DeserializeWorkStepsToDb(string pathToJsonFolder = null)
+        {
+            string jsonData = File.ReadAllText($@"{pathToJsonFolder}WorkSteps.json");
+            var TOWList = JsonConvert.DeserializeObject<List<TechOperationWork>>(jsonData);
+
+            List<TechOperationWork> itemsToRemove = new List<TechOperationWork>();
+            using (var db = new MyDbContext())
+            {
+
+                Console.WriteLine("----------------- TechOperationWork -----------------");
+
+                //find all intermediate objects from db
+                var staffTcList = db.Staff_TCs.ToList();
+                var componentTcList = db.Component_TCs.ToList();
+                var machineTcList = db.Machine_TCs.ToList();
+
+                foreach (var TOW in TOWList)
+                {
+                    var TO = db.TechOperations.Find(TOW.techOperationId);
+                    var TC = db.TechnologicalCards.Find(TOW.TechnologicalCardId);
+
+                    if (TO != null && TC != null)
+                    {
+                        TOW.techOperation = TO;
+                        TOW.technologicalCard = TC;
+
+                        foreach(var exW in TOW.executionWorks)
+                        {
+                            var staff_TCList = new List<Staff_TC>();
+                            foreach (var staff in exW.Staffs)
+                            {
+                                var existingStaff = db.Staff_TCs.Find(staff.IdAuto);
+                                if (existingStaff == null)
+                                {
+                                    // Если сотрудник не найден, добавляем его в контекст
+                                    db.Staff_TCs.Add(staff);
+                                    staff_TCList.Add(staff);
+                                }
+                                else
+                                {
+                                    // Если сотрудник уже существует, используем существующий экземпляр
+                                    staff_TCList.Add(existingStaff);
+                                }
+                            }
+
+                            exW.Staffs = staff_TCList;
+
+                            //var staff_TCList = new List<Staff_TC>();
+                            //var machine_TCList = new List<Machine_TC>();
+                            //var protection_TCList = new List<Protection_TC>();
+                            //foreach (var staff in exW.Staffs)
+                            //{
+                            //    var s = db.Staff_TCs.Find(staff.IdAuto);
+                            //    if (s != null)
+                            //    {
+                            //        staff_TCList.Add(s);
+                            //    }
+                            //}
+                            //foreach (var machine in exW.Machines)
+                            //{
+                            //    var m = db.Machine_TCs.Where(x=> x.ChildId == machine.ChildId && x.ParentId == machine.ParentId).FirstOrDefault();
+                            //    if (m != null)
+                            //    {
+                            //        machine_TCList.Add(m);
+                            //    }
+                            //}
+                            //foreach (var protection in exW.Protections)
+                            //{
+                            //    var p = db.Protection_TCs.Where(x => x.ChildId == protection.ChildId && x.ParentId == protection.ParentId).FirstOrDefault();
+                            //    if (p != null)
+                            //    {
+                            //        protection_TCList.Add(p);
+                            //    }
+                            //}
+                            //exW.Staffs.Clear();
+                            //exW.Machines.Clear();
+                            //exW.Protections.Clear();
+
+                            //exW.Staffs = staff_TCList;
+                            //exW.Machines = machine_TCList;
+                            //exW.Protections = protection_TCList;
+
+                            var tT = db.TechTransitions.Find(exW.techTransitionId);
+                            if (tT != null)
+                            {
+                                exW.techTransition = tT;
+                            }
+                            
+                            exW.techOperationWork = TOW;
+                        }
+
+                        foreach (var cw in TOW.ComponentWorks)
+                        {
+                            //var combponentWorkList = new List<ComponentWork>();
+                            //foreach (var staff in exW.Staffs)
+                            //{
+                            //    var existingStaff = db.Staff_TCs.Find(staff.IdAuto);
+                            //    if (existingStaff == null)
+                            //    {
+                            //        // Если сотрудник не найден, добавляем его в контекст
+                            //        db.Staff_TCs.Add(staff);
+                            //        staff_TCList.Add(staff);
+                            //    }
+                            //    else
+                            //    {
+                            //        // Если сотрудник уже существует, используем существующий экземпляр
+                            //        staff_TCList.Add(existingStaff);
+                            //    }
+                            //}
+
+                            var existingComponentId = db.Components.Any(c => c.Id == cw.componentId);
+
+                            if (!existingComponentId)
+                            {
+                                // Логика обработки случая, когда componentId не найден
+                                Console.WriteLine($"Component с ID {cw.componentId} не найден в таблице Components. TO:{TOW.Id} TC:{TOW.TechnologicalCardId}");
+                            }
+                        }
+
+
+                        db.TechOperationWorks.Update(TOW);
+                        //try
+                        //{
+                        //    db.TechOperationWorks.Add(TOW);
+                        //    //Console.WriteLine($"entety: Parentid={toolTc.ParentId}, ChieldId={toolTc.ChildId}, Order={toolTc.Order}");
+                        //}
+                        //catch (Exception e)
+                        //{ itemsToRemove.Add(TOW); }
+                    }
+                }
+
+                //foreach (var item in itemsToRemove)
+                //{
+                //    TOWList.Remove(item);
+                //    db.Entry(item).State = EntityState.Detached;
+                //    //Console.WriteLine($"entety Deleted: Parentid={item.ParentId}, ChieldId={item.ChildId}, Order={item.Order}");
+                //}
+                //db.TechOperationWorks.AddRange(TOWList);
+                //db.SaveChanges();
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Ошибка при сохранении изменений: {e.Message}");
+                }
+            }
+        }
+        public static void AddComponentWorkWithComponentCheck(MyDbContext db, ComponentWork componentWork)
+        {
+            // Проверяем, существует ли компонент в базе данных
+            var component = db.Components.FirstOrDefault(c => c.Id == componentWork.componentId);
+
+            if (component == null)
+            {
+                // Если компонент не найден, создаем и добавляем новый компонент
+                component = new Component
+                {
+                    Id = componentWork.componentId,
+                    // Задаем необходимые свойства нового компонента
+                };
+                db.Components.Add(component);
+                db.SaveChanges(); // Важно сохранить изменения, чтобы новый компонент был доступен в базе данных
+            }
+
+            // Теперь безопасно добавляем ComponentWork, поскольку уверены в наличии соответствующего Component
+            db.ComponentWorks.Add(componentWork);
+            db.SaveChanges();
         }
 
         //private static void SerializeComponent(string filePath)
