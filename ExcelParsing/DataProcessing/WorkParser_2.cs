@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using System.Data;
 using System.Data.Common;
-using System.Text.RegularExpressions;
 using TcDbConnector;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -10,7 +10,7 @@ using TcModels.Models.TcContent;
 
 namespace ExcelParsing.DataProcessing
 {
-    public class WorkParser
+    public class WorkParser_2
     {
         List<TechTransition> _newTransitions;
 
@@ -21,10 +21,13 @@ namespace ExcelParsing.DataProcessing
             "Время действ., мин.", "Время выполнения этапа, мин.", "№ СЗ",
             "Примечание", "Индекс", "Категория ТО", "Инструменты", "Тип", "Этап, формула", "Строка", "Machinery"
         };
-        public WorkParser()
+        public WorkParser_2()
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
         }
+
+
+
         public List<TechOperation> ParseExcelToObjectsTechOperation(string filePath, string sheetName = "Перечень ТО")
         {
             var objList = new List<TechOperation>();
@@ -79,6 +82,118 @@ namespace ExcelParsing.DataProcessing
             }
 
             return objList;
+        }
+
+        public void SetStepFormulaToTechTransitions(string filePath, DataTable sheetsInfoTable)
+        {
+            var tbl = sheetsInfoTable;
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                foreach(DataRow sheetInfoRow in sheetsInfoTable.Rows)
+                {
+                    
+                    bool.TryParse(sheetInfoRow["Наличие таблицы 6"].ToString(), out bool isTableExist);
+
+                    if (!isTableExist) continue;
+
+                    var sheetName = sheetInfoRow["Артикул"].ToString();
+                    var headerRow = Convert.ToInt32(sheetInfoRow["Строка заголовков"]);
+                    var stageColumnNum = Convert.ToInt32(sheetInfoRow["Столбец с этапом"]);
+                    var newColumnNum = Convert.ToInt32(sheetInfoRow["Номер нового столбца"]);
+
+                    var isSheetExist = package.Workbook.Worksheets.Any(ws => ws.Name == sheetName);
+                    if (!isSheetExist)
+                    {
+                        Console.WriteLine($"Лист {sheetName} не существует");
+                        continue;
+                    }
+
+                    var wsTarget = package.Workbook.Worksheets[sheetName];
+
+
+                    
+
+                    var lastRow = FindEndOfSection(wsTarget, headerRow); // find last row or set 2000
+
+                    wsTarget.Cells[headerRow, newColumnNum].Value = "Этап, формула";
+
+                    for (int i = headerRow + 1; i <= lastRow; i++)
+                    {
+                        wsTarget.Cells[i, newColumnNum].Value = ExtractCellFormula(wsTarget.Cells[i, stageColumnNum]);
+                    }
+
+                    
+                }
+
+
+                package.Save();
+            }
+        }
+
+        public DataTable GetTableWithRowsAndColumns(string filePath, string sheetName, string tableName)
+        {
+            DataTable table = new DataTable();
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var ws = package.Workbook.Worksheets[sheetName];
+                var tbl = ws.Tables[tableName];
+                var tableRange = ws.Cells[tbl.Address.Address];//[tbl.Address.Start.Row, tbl.Address.Start.Column, tbl.Address.End.Row, tbl.Address.End.Column];
+                
+                var tableHeadersRow = tbl.Address.Start.Row;
+                var tableHeadersColumn = tbl.Address.Start.Column;
+
+                for (int i = 1; i <= tbl.Columns.Count; i++)
+                {
+                    table.Columns.Add(ws.Cells[tableHeadersRow, tableHeadersColumn + i - 1].Value.ToString());
+                }
+
+                for (int i = 1 ; i <= tbl.Address.End.Row; i++)
+                {
+                    var row = table.NewRow();
+                    for (int j = 1; j <= tbl.Columns.Count; j++)
+                    {
+                        row[j - 1] = ws.Cells[tableHeadersRow + i, tableHeadersColumn + j - 1].Value;
+                    }
+                    table.Rows.Add(row);
+                }
+            }
+
+            return table;
+        }
+        string ExtractCellFormula(ExcelRangeBase selectedCell)
+        {
+            if (selectedCell.Formula != null)
+            {
+                return selectedCell.Formula;
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        int FindEndOfSection(ExcelWorksheet ws, int startRow)
+        {
+            int currentRow = startRow;
+
+            while (ws.Cells[currentRow + 1, 1].Value != null)
+            {
+                currentRow++;
+                if(currentRow == 2000)
+                {
+                    break;
+                }   
+            }
+
+            return currentRow;
+        }
+
+        object GetValueFromRow(ExcelRangeBase row, string columnName)
+        {
+            var colIndex = row.Worksheet.Names[columnName].Start.Column;
+            return row.Offset(0, colIndex - 1).Value;
         }
         public List<TechOperationWork> ParseExcelToObjectsTechOperationWork(string filePath, string stepSheetName)
         {
@@ -210,11 +325,9 @@ namespace ExcelParsing.DataProcessing
                     var repeatObjsNumbers = GetExecutinWorksNumbers(name);
                     foreach (var n in repeatObjsNumbers)
                     {
-                        var repeatingObj = executionWorks.Find(e => e.techOperationWork.TechnologicalCardId == tcId && e.Order == n && n != order);
-                        if (repeatingObj != null)
-                        {
-                            repeatObjs.Add(repeatingObj);
-                        }
+                        var repeatingObj = executionWorks.Find(e => e.techOperationWork.TechnologicalCardId == tcId && e.Order == n);
+                        repeatObjs.Add(repeatingObj);
+                        //continue;
                     }
                 }
                 else if (stepSheet.Cells[row, stepColumnsNumbers["Тип"]].Text == "Component")
@@ -242,7 +355,7 @@ namespace ExcelParsing.DataProcessing
             string formula = stepSheet.Cells[row, stepColumnsNumbers["Этап, формула"]].Text;
             int rowNum = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["Строка"]].Value);
 
-            (string stage, string parallelIndex) = ParseStageFormula2(formula, rowNum);
+            (string stage, string parallelIndex) = ParseStageFormula(formula, rowNum);
 
             var obj = new ExecutionWork
             {
@@ -282,6 +395,23 @@ namespace ExcelParsing.DataProcessing
                 foreach (var s in split)
                 {
                     ExtractRange(s, numbers);
+
+                    //if (s.Contains("-") || s.Contains(","))
+                    //{
+                    //    if(s.Contains(","))
+                    //    {
+                    //        var range = s.Split(",");
+                    //        foreach (var r in range)
+                    //        {
+                    //            SplitRange(r).ForEach(n => numbers.Add(n));
+                    //        }
+                    //    }
+                    //    SplitRange(s).ForEach(n => numbers.Add(n));
+                    //}
+                    //else if (int.TryParse(s, out int n))
+                    //{
+                    //    numbers.Add(n);
+                    //}
                 }
             }
             return numbers;
@@ -479,7 +609,7 @@ namespace ExcelParsing.DataProcessing
             return columnsNumbers;
         }
 
-        public (string stage, string parallelIndex) ParseStageFormula(string formula, int rowNum)
+        private (string stage, string parallelIndex) ParseStageFormula(string formula, int rowNum)
         {
             if (!formula.ToLower().Contains("sum") || !formula.ToLower().Contains("max"))
             {
@@ -527,138 +657,6 @@ namespace ExcelParsing.DataProcessing
                 }
             }
             return (perv+ Last, finalPosled);
-        }
-        public (string stage, string parallelIndex) ParseStageFormula2(string formula, int rowNum)
-        {
-            // Инициализируем переменные для хранения результатов
-            string stage = "0";
-            string parallelIndex = "0";
-
-            // Ищем максимальноt и минимально число в формуле и присваиваем их в stage
-            (int minValue, int maxValue) = GetMinAndMaxValue(formula);
-            stage = $"{minValue}{maxValue}";
-
-            // Убираем из строки все, кроме цифр и диапазонов
-            string cleanFormula = new string(formula.Where(c => char.IsDigit(c) || c == ';' || c == '+' || c == ':' || c == ',').ToArray());
-
-            // Разделяем на диапазоны
-            string[] ranges = cleanFormula.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-            int posledIndex = 0;
-            foreach (string range in ranges)
-            {
-                posledIndex++; // Увеличиваем индекс последовательности для каждого диапазона
-
-                if (range.Contains('+') || range.Contains(';'))
-                {
-                    // Получаем начало и конец диапазона
-                    string[] ranges2 = range.Split(new char[] { '+', ';' }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string range2 in ranges2)
-                    {
-                        // Проверяем, является ли текущий элемент диапазоном
-                        if (range2.Contains(':'))
-                        {
-                            // Получаем начало и конец диапазона
-                            int start = int.Parse(range2.Split(':')[0]);
-                            int end = int.Parse(range2.Split(':')[1]);
-
-                            // Проверяем, попадает ли rowNum в диапазон
-                            if (rowNum >= start && rowNum <= end)
-                            {
-                                parallelIndex = posledIndex.ToString();
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            // Обработка случая, когда указан один номер строки
-                            int line = int.Parse(range2);
-
-                            if (rowNum == line)
-                            {
-                                parallelIndex = posledIndex.ToString();
-                                break;
-                            }
-                        }
-                    }
-                }
-                else if (!formula.Contains("SUM"))
-                {
-                    // Проверяем, является ли текущий элемент диапазоном
-                    if (range.Contains(':'))
-                    {
-                        // Получаем начало и конец диапазона
-                        int start = int.Parse(range.Split(':')[0]);
-                        int end = int.Parse(range.Split(':')[1]);
-
-                        // Проверяем, попадает ли rowNum в диапазон
-                        if (rowNum >= start && rowNum <= end)
-                        {
-                            parallelIndex = "0";
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        // Обработка случая, когда указан один номер строки
-                        int line = int.Parse(range);
-
-                        if (rowNum == line)
-                        {
-                            parallelIndex = "0"; // Для одиночных строк индекс последовательности равен 0
-                            break;
-                        }
-                    }
-                }
-                else 
-                {
-                    // Проверяем, является ли текущий элемент диапазоном
-                    if (range.Contains(':'))
-                    {
-                        // Получаем начало и конец диапазона
-                        int start = int.Parse(range.Split(':')[0]);
-                        int end = int.Parse(range.Split(':')[1]);
-
-                        // Проверяем, попадает ли rowNum в диапазон
-                        if (rowNum >= start && rowNum <= end)
-                        {
-                            parallelIndex = posledIndex.ToString();
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        // Обработка случая, когда указан один номер строки
-                        int line = int.Parse(range);
-
-                        if (rowNum == line)
-                        {
-                            parallelIndex = "0"; // Для одиночных строк индекс последовательности равен 0
-                            break;
-                        }
-                    }
-                }
-
-            }
-
-            // Возвращаем индекс параллельности и последовательности
-            return (stage, parallelIndex);
-        }
-        public (int min, int max) GetMinAndMaxValue(string formula)
-        {
-            string text = formula;
-
-            // Использование регулярного выражения для извлечения всех чисел из текста
-            var matches = Regex.Matches(text, @"\d+");
-
-            // Преобразование найденных чисел из строки в int
-            var numbers = matches.Cast<Match>().Select(m => int.Parse(m.Value)).ToList();
-
-            // Поиск минимального и максимального значения
-            int min = numbers.Min();
-            int max = numbers.Max();
-
-            return (min, max);
         }
     }
 }

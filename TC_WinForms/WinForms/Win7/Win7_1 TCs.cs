@@ -11,6 +11,7 @@ namespace TC_WinForms.WinForms
     public partial class Win7_1_TCs : Form, ISaveEventForm, ILoadDataAsyncForm
     {
         private DbConnector dbCon = new DbConnector();
+        private List<DisplayedTechnologicalCard> _displayedtechnologicalCards;
         private BindingList<DisplayedTechnologicalCard> _bindingList;
 
         private List<DisplayedTechnologicalCard> _changedObjects = new List<DisplayedTechnologicalCard>();
@@ -44,9 +45,9 @@ namespace TC_WinForms.WinForms
         }
         public async Task LoadDataAsync()
         {
-            var tcList = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
+            _displayedtechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
                 .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
-            _bindingList = new BindingList<DisplayedTechnologicalCard>(tcList);
+            _bindingList = new BindingList<DisplayedTechnologicalCard>(_displayedtechnologicalCards);
             _bindingList.ListChanged += BindingList_ListChanged;
             ConfigureDgvWithComboBoxColumn();
 
@@ -297,7 +298,10 @@ namespace TC_WinForms.WinForms
             DataGridViewComboBoxColumn cmbColumn = new DataGridViewComboBoxColumn();
             cmbColumn.HeaderText = "Тип карты";
             cmbColumn.Name = nameof(DisplayedTechnologicalCard.Type);
-            cmbColumn.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
+
+            var types = _bindingList.Select(obj => obj.Type).Distinct().ToList();
+            types.Sort();
+            cmbColumn.Items.AddRange(types.ToArray());
 
             cmbColumn.DataPropertyName = nameof(DisplayedTechnologicalCard.Type);
 
@@ -308,7 +312,10 @@ namespace TC_WinForms.WinForms
             DataGridViewComboBoxColumn cmbColumn2 = new DataGridViewComboBoxColumn();
             cmbColumn2.HeaderText = "Сеть, кВ";
             cmbColumn2.Name = nameof(DisplayedTechnologicalCard.NetworkVoltage);
-            cmbColumn2.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f, 0f });
+
+            List<float> voltages = _bindingList.Select(obj => obj.NetworkVoltage).Distinct().ToList();
+            voltages.Sort((a, b) => b.CompareTo(a));
+            cmbColumn2.Items.AddRange(voltages.Cast<object>().ToArray());
 
             cmbColumn2.DataPropertyName = nameof(DisplayedTechnologicalCard.NetworkVoltage);
 

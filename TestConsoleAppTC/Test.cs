@@ -15,6 +15,7 @@ using OfficeOpenXml;
 using ExcelParsing;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System;
 
 namespace TestConsoleAppTC
 {
@@ -31,7 +32,27 @@ namespace TestConsoleAppTC
         {
             Console.WriteLine("Hello, World!");
             TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v11;user=root;password=root";
+            var parser2 = new WorkParser_2();
+            var prepTable = parser2.GetTableWithRowsAndColumns(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка_macro.xlsm", "Этапы", "ТаблицаЭтапов");
 
+            //var parser = new WorkParser();
+            //var max = "MAX((SUM(G87:G90)+SUM(G93:G100)),(SUM(G103:G105)+SUM(G110:G118)))";
+            //var max2 = "MAX(SUM(G180:G189)+G177,G192)";
+            //var max22 = "MAX(SUM(G180:G189;G177),G192)";
+            //var max222 = "MAX(SUM(G177;G180:G189),G192)";
+            //var max3 = "MAX(G124,(SUM(G125)+SUM(G130:G138)))";
+
+            //var num = 192;
+            //for(int i = num; i < 192+1; i++)
+            //{
+            //    var result = ParseStageFormula(max222, num);
+            //    Console.Write(num + " =>"); Console.WriteLine(result);
+            //    num++;
+            //}
+            //var result = ParseStageFormula(max222, num);
+            //Console.Write(num + " =>"); Console.WriteLine(result);
+            //parser2.SetStepFormulaToTechTransitions(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\ТК_ТТ_v4.1_Уфа — копия.xlsx", prepTable);
+            
             DeleteAllTO();
 
             ParseWS();
@@ -40,10 +61,11 @@ namespace TestConsoleAppTC
             // AddTOandTPtoDB();
             // CheckTechOperationWorkParser();
 
-            
+
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
 
         static int ComputeLevenshteinDistance(string source, string target)
         {
@@ -95,7 +117,17 @@ namespace TestConsoleAppTC
         {
             using (var db = new MyDbContext())
             {
-                var allTO = db.TechOperationWorks.ToList();
+                var allTO = db.TechOperationWorks
+                    .Include(db => db.ComponentWorks)
+                    .Include(db => db.ToolWorks)
+                    .Include(db => db.executionWorks)
+                    .ThenInclude(db => db.Staffs)
+                    .Include(db => db.executionWorks)
+                    .ThenInclude(db => db.Machines)
+                    .Include(db => db.executionWorks)
+                    .ThenInclude(db => db.Protections)
+
+                    .ToList();
                 db.TechOperationWorks.RemoveRange(allTO);
                 db.SaveChanges();
             }
@@ -110,7 +142,7 @@ namespace TestConsoleAppTC
 
             var parsedDataWorkSteps = parser.ParseExcelToObjectsTechOperationWork(filepath, sheetName);
 
-
+            int i = 0;
             var TOWList = parsedDataWorkSteps;
             using (var db = new MyDbContext())
             {
@@ -125,6 +157,13 @@ namespace TestConsoleAppTC
 
                 foreach (var TOW in TOWList)
                 {
+                    // find inxef of TOW in TOWList
+                    int index = TOWList.IndexOf(TOW);
+
+                    if (index == 842)
+                    {
+                        Console.WriteLine("TOW is not null");
+                    }
                     var TO = db.TechOperations.Find(TOW.techOperationId);
                     var TC = db.TechnologicalCards.Find(TOW.TechnologicalCardId);
 
@@ -185,38 +224,6 @@ namespace TestConsoleAppTC
                                     machine_TCList.Add(existingobj);
                                 }
                             }
-
-                            //exW.Staffs = staff_TCList;
-                            //exW.Protections = protection_TCList;
-                            //exW.Machines = machine_TCList;
-
-                            //var staff_TCList = new List<Staff_TC>();
-                            //var machine_TCList = new List<Machine_TC>();
-                            //var protection_TCList = new List<Protection_TC>();
-                            //foreach (var staff in exW.Staffs)
-                            //{
-                            //    var s = db.Staff_TCs.Find(staff.IdAuto);
-                            //    if (s != null)
-                            //    {
-                            //        staff_TCList.Add(s);
-                            //    }
-                            //}
-                            //foreach (var machine in exW.Machines)
-                            //{
-                            //    var m = db.Machine_TCs.Where(x=> x.ChildId == machine.ChildId && x.ParentId == machine.ParentId).FirstOrDefault();
-                            //    if (m != null)
-                            //    {
-                            //        machine_TCList.Add(m);
-                            //    }
-                            //}
-                            //foreach (var protection in exW.Protections)
-                            //{
-                            //    var p = db.Protection_TCs.Where(x => x.ChildId == protection.ChildId && x.ParentId == protection.ParentId).FirstOrDefault();
-                            //    if (p != null)
-                            //    {
-                            //        protection_TCList.Add(p);
-                            //    }
-                            //}
                             exW.Staffs.Clear();
                             exW.Machines.Clear();
                             exW.Protections.Clear();
@@ -236,22 +243,6 @@ namespace TestConsoleAppTC
 
                         foreach (var cw in TOW.ComponentWorks)
                         {
-                            //var combponentWorkList = new List<ComponentWork>();
-                            //foreach (var staff in exW.Staffs)
-                            //{
-                            //    var existingStaff = db.Staff_TCs.Find(staff.IdAuto);
-                            //    if (existingStaff == null)
-                            //    {
-                            //        // Если сотрудник не найден, добавляем его в контекст
-                            //        db.Staff_TCs.Add(staff);
-                            //        staff_TCList.Add(staff);
-                            //    }
-                            //    else
-                            //    {
-                            //        // Если сотрудник уже существует, используем существующий экземпляр
-                            //        staff_TCList.Add(existingStaff);
-                            //    }
-                            //}
 
                             var existingComponentId = db.Components.Any(c => c.Id == cw.componentId);
 
@@ -262,26 +253,9 @@ namespace TestConsoleAppTC
                             }
                         }
 
-
                         db.TechOperationWorks.Update(TOW);
-                        //try
-                        //{
-                        //    db.TechOperationWorks.Add(TOW);
-                        //    //Console.WriteLine($"entety: Parentid={toolTc.ParentId}, ChieldId={toolTc.ChildId}, Order={toolTc.Order}");
-                        //}
-                        //catch (Exception e)
-                        //{ itemsToRemove.Add(TOW); }
                     }
                 }
-
-                //foreach (var item in itemsToRemove)
-                //{
-                //    TOWList.Remove(item);
-                //    db.Entry(item).State = EntityState.Detached;
-                //    //Console.WriteLine($"entety Deleted: Parentid={item.ParentId}, ChieldId={item.ChildId}, Order={item.Order}");
-                //}
-                //db.TechOperationWorks.AddRange(TOWList);
-                //db.SaveChanges();
                 try
                 {
                     db.SaveChanges();
