@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using TcDbConnector;
 using TcModels.Models;
@@ -87,6 +88,7 @@ namespace TC_WinForms.WinForms.Work
                    .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
 
                    .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
+                   .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
                     .Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2)
@@ -196,17 +198,21 @@ namespace TC_WinForms.WinForms.Work
                     }
 
 
-
+                    var protectList = new List<int>();
                     string ProtectStr = "";
                     foreach (Protection_TC executionWorkProtection in executionWork.Protections)
                     {
-                        if (ProtectStr != "")
-                        {
-                            ProtectStr += ",";
-                        }
+                        protectList.Add(executionWorkProtection.Order);
+                        //if (ProtectStr != "")
+                        //{
+                        //    ProtectStr += ",";
+                        //}
 
-                        ProtectStr += executionWorkProtection.Order;
+                        //ProtectStr += executionWorkProtection.Order;
                     }
+
+                    ProtectStr = ConvertListToRangeString(protectList);
+
 
                     List<bool> mach = new List<bool>();
 
@@ -385,7 +391,7 @@ namespace TC_WinForms.WinForms.Work
 
                 if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat == true)
                 {
-
+                    var repeatNumList = new List<int>();
                     string strP = "";
 
                     foreach (ExecutionWork executionWork in techOperationDataGridItem.techWork.ListexecutionWorkRepeat2)
@@ -393,21 +399,23 @@ namespace TC_WinForms.WinForms.Work
                         var bn = list.SingleOrDefault(s => s.techWork == executionWork);
                         if (bn != null)
                         {
-                            if (strP == "")
-                            {
-                                strP = "п. " + bn.Nomer;
-                            }
-                            else
-                            {
-                                strP += "," + bn.Nomer;
-                            }
+                            repeatNumList.Add(bn.Nomer);
+                            //if (strP == "")
+                            //{
+                            //    strP = "п. " + bn.Nomer;
+                            //}
+                            //else
+                            //{
+                            //    strP += "," + bn.Nomer;
+                            //}
                         }
                     }
+                    strP = ConvertListToRangeString(repeatNumList);
 
                     str.Add(techOperationDataGridItem.Nomer.ToString());
                     str.Add(techOperationDataGridItem.TechOperation);
                     str.Add(techOperationDataGridItem.Staff);
-                    str.Add("Повторить " + strP);
+                    str.Add("Повторить п." + strP);
                     str.Add(techOperationDataGridItem.TechTransitionValue);
                     str.Add(techOperationDataGridItem.TimeEtap);
 
@@ -922,6 +930,48 @@ namespace TC_WinForms.WinForms.Work
             button1_Click_1(null, null);
         }
 
-        
+        private string ConvertListToRangeString(List<int> numbers)
+        {
+            if (numbers == null || !numbers.Any())
+                return string.Empty;
+
+            // Сортировка списка
+            numbers.Sort();
+
+            StringBuilder stringBuilder = new StringBuilder();
+            int start = numbers[0];
+            int end = start;
+
+            for (int i = 1; i < numbers.Count; i++)
+            {
+                // Проверяем, идут ли числа последовательно
+                if (numbers[i] == end + 1)
+                {
+                    end = numbers[i];
+                }
+                else
+                {
+                    // Добавляем текущий диапазон в результат
+                    if (start == end)
+                        stringBuilder.Append($"{start}, ");
+                    else
+                        stringBuilder.Append($"{start}-{end}, ");
+
+                    // Начинаем новый диапазон
+                    start = end = numbers[i];
+                }
+            }
+
+            // Добавляем последний диапазон
+            if (start == end)
+                stringBuilder.Append($"{start}");
+            else
+                stringBuilder.Append($"{start}-{end}");
+
+            return stringBuilder.ToString().TrimEnd(',', ' ');
+            
+            
+        }
+
     }
 }

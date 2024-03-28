@@ -16,6 +16,7 @@ using ExcelParsing;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System;
+using System.Text;
 
 namespace TestConsoleAppTC
 {
@@ -52,21 +53,23 @@ namespace TestConsoleAppTC
             //var result = ParseStageFormula(max222, num);
             //Console.Write(num + " =>"); Console.WriteLine(result);
             //parser2.SetStepFormulaToTechTransitions(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\ТК_ТТ_v4.1_Уфа — копия.xlsx", prepTable);
-            
-            
 
-            ParseNewDictionaty();
+
+
+            //ParseNewDictionaty();
             //AddTOandTPtoDB();
             //CheckTechOperationWorkParser();
 
             //DeleteAllTO();
 
-            ParseWS();
+            //ParseWS();
+
+
 
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+        
 
         static int ComputeLevenshteinDistance(string source, string target)
         {
