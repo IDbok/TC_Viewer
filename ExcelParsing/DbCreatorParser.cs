@@ -27,16 +27,16 @@ namespace ExcelParsing
             ParseWorkDictionaries(workStepsFilePath, folderToSaveJson);
 
             // create new DB to parsed data
-            CreateDb();
+            // CreateDb();
 
             DbCreator.AddDeserializedDataToDb();
 
-            ParseWorkSteps(workStepsFilePath, folderToSaveJson);
+            //ParseWorkSteps(workStepsFilePath, folderToSaveJson);
         }
 
         private static void CreateDb()
         {
-            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v11;user=root;password=root";
+            //TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v11;user=root;password=root";
 
             using (var db = new MyDbContext())
             {

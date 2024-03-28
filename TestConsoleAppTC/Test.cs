@@ -31,9 +31,9 @@ namespace TestConsoleAppTC
         static void Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
-            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v11;user=root;password=root";
-            var parser2 = new WorkParser_2();
-            var prepTable = parser2.GetTableWithRowsAndColumns(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка_macro.xlsm", "Этапы", "ТаблицаЭтапов");
+            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v12;user=root;password=root";
+            //var parser2 = new WorkParser_2();
+            //var prepTable = parser2.GetTableWithRowsAndColumns(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка_macro.xlsm", "Этапы", "ТаблицаЭтапов");
 
             //var parser = new WorkParser();
             //var max = "MAX((SUM(G87:G90)+SUM(G93:G100)),(SUM(G103:G105)+SUM(G110:G118)))";
@@ -53,19 +53,20 @@ namespace TestConsoleAppTC
             //Console.Write(num + " =>"); Console.WriteLine(result);
             //parser2.SetStepFormulaToTechTransitions(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\ТК_ТТ_v4.1_Уфа — копия.xlsx", prepTable);
             
-            DeleteAllTO();
+            
+
+            ParseNewDictionaty();
+            //AddTOandTPtoDB();
+            //CheckTechOperationWorkParser();
+
+            //DeleteAllTO();
 
             ParseWS();
-
-            //ParseNewDictionaty();
-            // AddTOandTPtoDB();
-            // CheckTechOperationWorkParser();
-
 
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
 
         static int ComputeLevenshteinDistance(string source, string target)
         {
@@ -160,10 +161,6 @@ namespace TestConsoleAppTC
                     // find inxef of TOW in TOWList
                     int index = TOWList.IndexOf(TOW);
 
-                    if (index == 842)
-                    {
-                        Console.WriteLine("TOW is not null");
-                    }
                     var TO = db.TechOperations.Find(TOW.techOperationId);
                     var TC = db.TechnologicalCards.Find(TOW.TechnologicalCardId);
 
