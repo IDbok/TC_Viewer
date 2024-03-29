@@ -93,7 +93,7 @@ namespace TcModels.Models
         public List<Tool> Tools { get; set; } = new();
         public List<Tool_TC> Tool_TCs { get; set; } = new();
 
-        public List<TechOperationWork> techOperationWork { get; set; } = new();
+        public List<TechOperationWork> TechOperationWorks { get; set; } = new();
 
         //public int? WorkStepsId { get; set; }
         //public List<WorkStep> WorkSteps { get; set; } = new();

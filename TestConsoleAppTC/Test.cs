@@ -32,43 +32,34 @@ namespace TestConsoleAppTC
         static void Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
-            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v12;user=root;password=root";
-            //var parser2 = new WorkParser_2();
-            //var prepTable = parser2.GetTableWithRowsAndColumns(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка_macro.xlsm", "Этапы", "ТаблицаЭтапов");
+            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v11;user=root;password=root";
+            
+            var export = new TCExcelExporter();
 
-            //var parser = new WorkParser();
-            //var max = "MAX((SUM(G87:G90)+SUM(G93:G100)),(SUM(G103:G105)+SUM(G110:G118)))";
-            //var max2 = "MAX(SUM(G180:G189)+G177,G192)";
-            //var max22 = "MAX(SUM(G180:G189;G177),G192)";
-            //var max222 = "MAX(SUM(G177;G180:G189),G192)";
-            //var max3 = "MAX(G124,(SUM(G125)+SUM(G130:G138)))";
+            using (var db = new MyDbContext())
+            {
+                var tc = db.TechnologicalCards.Where(tc => tc.Id == 2)
 
-            //var num = 192;
-            //for(int i = num; i < 192+1; i++)
-            //{
-            //    var result = ParseStageFormula(max222, num);
-            //    Console.Write(num + " =>"); Console.WriteLine(result);
-            //    num++;
-            //}
-            //var result = ParseStageFormula(max222, num);
-            //Console.Write(num + " =>"); Console.WriteLine(result);
-            //parser2.SetStepFormulaToTechTransitions(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\ТК_ТТ_v4.1_Уфа — копия.xlsx", prepTable);
+                    .Include(tc => tc.Staff_TCs).ThenInclude(tc => tc.Child)
+                    .Include(tc => tc.Component_TCs).ThenInclude(tc => tc.Child)
+                    .Include(tc => tc.Tool_TCs).ThenInclude(tc => tc.Child)
+                    .Include(tc => tc.Machine_TCs).ThenInclude(tc => tc.Child)
+                    .Include(tc => tc.Protection_TCs).ThenInclude(tc => tc.Child)
 
+                    //.Include(tc => tc.TechOperationWorks).ThenInclude(tc => tc.Child)
 
+                    .FirstOrDefault();
 
-            //ParseNewDictionaty();
-            //AddTOandTPtoDB();
-            //CheckTechOperationWorkParser();
-
-            //DeleteAllTO();
-
-            //ParseWS();
-
-
+                if (tc != null)
+                {
+                    export.CreateTC(@"C:\Tests\", tc);
+                }
+            }
 
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
         
 
         static int ComputeLevenshteinDistance(string source, string target)

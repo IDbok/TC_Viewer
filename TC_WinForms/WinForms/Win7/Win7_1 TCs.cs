@@ -88,6 +88,7 @@ namespace TC_WinForms.WinForms
         {
             DeletSelected();
         }
+
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
         public async Task SaveChanges()
