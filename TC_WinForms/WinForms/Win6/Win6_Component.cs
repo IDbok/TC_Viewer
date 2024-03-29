@@ -21,6 +21,19 @@ namespace TC_WinForms.WinForms
         private List<DisplayedComponent_TC> _deletedObjects = new List<DisplayedComponent_TC>();
 
 
+        public bool CloseFormsNoSave { get; set; } = false;
+
+        public bool GetDontSaveData()
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         public Win6_Component(int tcId)
         {
             InitializeComponent();
@@ -49,6 +62,10 @@ namespace TC_WinForms.WinForms
         }
         private async void Win6_Component_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (CloseFormsNoSave)
+            {
+                return;
+            }
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
                 e.Cancel = true;

@@ -21,6 +21,7 @@ namespace TC_WinForms.WinForms.Work
         public TechnologicalCard TehCarta;
 
         private AddEditTechOperationForm _editForm;
+        public bool CloseFormsNoSave { get; set; } = false;
 
         public TechOperationForm()
         {
@@ -100,6 +101,14 @@ namespace TC_WinForms.WinForms.Work
 
             DateTime t4 = DateTime.Now;
         }
+
+
+        public bool GetDontSaveData()
+        {
+            return HasChanges;
+        }
+
+
         private void TechOperationForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             _editForm?.Close();

@@ -22,6 +22,7 @@ namespace TC_WinForms.WinForms
         private bool isAddingForm = false;
         private Button btnAddSelected;
         private Button btnCancel;
+        public bool CloseFormsNoSave { get; set; } = false;
         public void SetAsAddingForm()
         {
             isAddingForm = true;
@@ -36,6 +37,19 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
         }
 
+
+
+        public bool GetDontSaveData()
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         private async void Win7_7_Protection_Load(object sender, EventArgs e)
         {
             progressBar.Visible = true;
@@ -67,6 +81,11 @@ namespace TC_WinForms.WinForms
         }
         private async void Win7_7_Protection_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (CloseFormsNoSave)
+            {
+                return;
+            }
+
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
                 e.Cancel = true;

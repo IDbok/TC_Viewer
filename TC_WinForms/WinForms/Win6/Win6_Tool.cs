@@ -19,6 +19,7 @@ namespace TC_WinForms.WinForms
         private List<DisplayedTool_TC> _changedObjects = new List<DisplayedTool_TC>();
         private List<DisplayedTool_TC> _newObjects = new List<DisplayedTool_TC>();
         private List<DisplayedTool_TC> _deletedObjects = new List<DisplayedTool_TC>();
+        public bool CloseFormsNoSave { get; set; } = false;
         public Win6_Tool(int tcId)
         {
             InitializeComponent();
@@ -28,6 +29,18 @@ namespace TC_WinForms.WinForms
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
 
+
+        public bool GetDontSaveData()
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         private async void Win6_Tool_Load(object sender, EventArgs e)
         {
             await LoadObjects();
@@ -48,6 +61,10 @@ namespace TC_WinForms.WinForms
 
         private async void Win6_Tool_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (CloseFormsNoSave)
+            {
+                return;
+            }
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
                 e.Cancel = true;

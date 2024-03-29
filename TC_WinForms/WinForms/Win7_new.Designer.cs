@@ -38,6 +38,7 @@
             updateToolStripButton = new ToolStripButton();
             pnlNavigationBlok = new Panel();
             pnlNavigationBtns = new Panel();
+            btnProcess = new Button();
             btnWorkStep = new Button();
             btnTechOperation = new Button();
             btnTool = new Button();
@@ -61,9 +62,8 @@
             pnlToolStrinp.Controls.Add(toolStrip1);
             pnlToolStrinp.Dock = DockStyle.Top;
             pnlToolStrinp.Location = new Point(0, 0);
-            pnlToolStrinp.Margin = new Padding(4);
             pnlToolStrinp.Name = "pnlToolStrinp";
-            pnlToolStrinp.Size = new Size(1478, 34);
+            pnlToolStrinp.Size = new Size(1273, 27);
             pnlToolStrinp.TabIndex = 0;
             // 
             // toolStrip1
@@ -73,7 +73,7 @@
             toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2, saveToolStripButton, toolStripButton5, updateToolStripButton });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(1478, 34);
+            toolStrip1.Size = new Size(1273, 27);
             toolStrip1.TabIndex = 2;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -82,7 +82,7 @@
             toolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Text;
             toolStripButton1.ImageTransparentColor = Color.Magenta;
             toolStripButton1.Name = "toolStripButton1";
-            toolStripButton1.Size = new Size(57, 29);
+            toolStripButton1.Size = new Size(49, 24);
             toolStripButton1.Text = "Файл";
             toolStripButton1.Visible = false;
             // 
@@ -91,7 +91,7 @@
             toolStripButton2.DisplayStyle = ToolStripItemDisplayStyle.Text;
             toolStripButton2.ImageTransparentColor = Color.Magenta;
             toolStripButton2.Name = "toolStripButton2";
-            toolStripButton2.Size = new Size(80, 29);
+            toolStripButton2.Size = new Size(69, 24);
             toolStripButton2.Text = "Главная";
             toolStripButton2.Visible = false;
             // 
@@ -100,7 +100,7 @@
             saveToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             saveToolStripButton.ImageTransparentColor = Color.Magenta;
             saveToolStripButton.Name = "saveToolStripButton";
-            saveToolStripButton.Size = new Size(85, 29);
+            saveToolStripButton.Size = new Size(71, 24);
             saveToolStripButton.Text = "Справка";
             saveToolStripButton.Visible = false;
             // 
@@ -109,7 +109,7 @@
             toolStripButton5.DisplayStyle = ToolStripItemDisplayStyle.Text;
             toolStripButton5.ImageTransparentColor = Color.Magenta;
             toolStripButton5.Name = "toolStripButton5";
-            toolStripButton5.Size = new Size(102, 29);
+            toolStripButton5.Size = new Size(87, 24);
             toolStripButton5.Text = "Сохранить";
             toolStripButton5.Click += toolStripButton5_Click;
             // 
@@ -119,9 +119,8 @@
             updateToolStripButton.Image = (Image)resources.GetObject("updateToolStripButton.Image");
             updateToolStripButton.ImageTransparentColor = Color.Magenta;
             updateToolStripButton.Name = "updateToolStripButton";
-            updateToolStripButton.Size = new Size(97, 29);
+            updateToolStripButton.Size = new Size(82, 24);
             updateToolStripButton.Text = "Обновить";
-            updateToolStripButton.Visible = false;
             updateToolStripButton.Click += updateToolStripButton_Click;
             // 
             // pnlNavigationBlok
@@ -129,14 +128,14 @@
             pnlNavigationBlok.Controls.Add(pnlNavigationBtns);
             pnlNavigationBlok.Controls.Add(pnlLable);
             pnlNavigationBlok.Dock = DockStyle.Left;
-            pnlNavigationBlok.Location = new Point(0, 34);
-            pnlNavigationBlok.Margin = new Padding(4);
+            pnlNavigationBlok.Location = new Point(0, 27);
             pnlNavigationBlok.Name = "pnlNavigationBlok";
-            pnlNavigationBlok.Size = new Size(248, 907);
+            pnlNavigationBlok.Size = new Size(198, 812);
             pnlNavigationBlok.TabIndex = 1;
             // 
             // pnlNavigationBtns
             // 
+            pnlNavigationBtns.Controls.Add(btnProcess);
             pnlNavigationBtns.Controls.Add(btnWorkStep);
             pnlNavigationBtns.Controls.Add(btnTechOperation);
             pnlNavigationBtns.Controls.Add(btnTool);
@@ -147,19 +146,28 @@
             pnlNavigationBtns.Controls.Add(btnProject);
             pnlNavigationBtns.Controls.Add(btnTechCard);
             pnlNavigationBtns.Dock = DockStyle.Fill;
-            pnlNavigationBtns.Location = new Point(0, 135);
-            pnlNavigationBtns.Margin = new Padding(4);
+            pnlNavigationBtns.Location = new Point(0, 108);
             pnlNavigationBtns.Name = "pnlNavigationBtns";
-            pnlNavigationBtns.Size = new Size(248, 772);
+            pnlNavigationBtns.Size = new Size(198, 704);
             pnlNavigationBtns.TabIndex = 2;
+            // 
+            // btnProcess
+            // 
+            btnProcess.Dock = DockStyle.Top;
+            btnProcess.Location = new Point(0, 612);
+            btnProcess.Name = "btnProcess";
+            btnProcess.Size = new Size(198, 68);
+            btnProcess.TabIndex = 11;
+            btnProcess.Text = "Проекты";
+            btnProcess.UseVisualStyleBackColor = true;
+            btnProcess.Click += this.btnProcess_Click;
             // 
             // btnWorkStep
             // 
             btnWorkStep.Dock = DockStyle.Top;
-            btnWorkStep.Location = new Point(0, 680);
-            btnWorkStep.Margin = new Padding(4);
+            btnWorkStep.Location = new Point(0, 544);
             btnWorkStep.Name = "btnWorkStep";
-            btnWorkStep.Size = new Size(248, 85);
+            btnWorkStep.Size = new Size(198, 68);
             btnWorkStep.TabIndex = 10;
             btnWorkStep.Text = "Технологические переходы";
             btnWorkStep.UseVisualStyleBackColor = true;
@@ -168,10 +176,9 @@
             // btnTechOperation
             // 
             btnTechOperation.Dock = DockStyle.Top;
-            btnTechOperation.Location = new Point(0, 595);
-            btnTechOperation.Margin = new Padding(4);
+            btnTechOperation.Location = new Point(0, 476);
             btnTechOperation.Name = "btnTechOperation";
-            btnTechOperation.Size = new Size(248, 85);
+            btnTechOperation.Size = new Size(198, 68);
             btnTechOperation.TabIndex = 9;
             btnTechOperation.Text = "Технологические операции";
             btnTechOperation.UseVisualStyleBackColor = true;
@@ -180,10 +187,9 @@
             // btnTool
             // 
             btnTool.Dock = DockStyle.Top;
-            btnTool.Location = new Point(0, 510);
-            btnTool.Margin = new Padding(4);
+            btnTool.Location = new Point(0, 408);
             btnTool.Name = "btnTool";
-            btnTool.Size = new Size(248, 85);
+            btnTool.Size = new Size(198, 68);
             btnTool.TabIndex = 8;
             btnTool.Text = "Инструменты и приспособления";
             btnTool.UseVisualStyleBackColor = true;
@@ -192,10 +198,9 @@
             // btnProtection
             // 
             btnProtection.Dock = DockStyle.Top;
-            btnProtection.Location = new Point(0, 425);
-            btnProtection.Margin = new Padding(4);
+            btnProtection.Location = new Point(0, 340);
             btnProtection.Name = "btnProtection";
-            btnProtection.Size = new Size(248, 85);
+            btnProtection.Size = new Size(198, 68);
             btnProtection.TabIndex = 7;
             btnProtection.Text = "Средства защиты";
             btnProtection.UseVisualStyleBackColor = true;
@@ -204,10 +209,9 @@
             // btnMachine
             // 
             btnMachine.Dock = DockStyle.Top;
-            btnMachine.Location = new Point(0, 340);
-            btnMachine.Margin = new Padding(4);
+            btnMachine.Location = new Point(0, 272);
             btnMachine.Name = "btnMachine";
-            btnMachine.Size = new Size(248, 85);
+            btnMachine.Size = new Size(198, 68);
             btnMachine.TabIndex = 6;
             btnMachine.Text = "Механизмы";
             btnMachine.UseVisualStyleBackColor = true;
@@ -216,10 +220,9 @@
             // btnComponent
             // 
             btnComponent.Dock = DockStyle.Top;
-            btnComponent.Location = new Point(0, 255);
-            btnComponent.Margin = new Padding(4);
+            btnComponent.Location = new Point(0, 204);
             btnComponent.Name = "btnComponent";
-            btnComponent.Size = new Size(248, 85);
+            btnComponent.Size = new Size(198, 68);
             btnComponent.TabIndex = 5;
             btnComponent.Text = "Материалы и комплектующие";
             btnComponent.UseVisualStyleBackColor = true;
@@ -228,10 +231,9 @@
             // btnStaff
             // 
             btnStaff.Dock = DockStyle.Top;
-            btnStaff.Location = new Point(0, 170);
-            btnStaff.Margin = new Padding(4);
+            btnStaff.Location = new Point(0, 136);
             btnStaff.Name = "btnStaff";
-            btnStaff.Size = new Size(248, 85);
+            btnStaff.Size = new Size(198, 68);
             btnStaff.TabIndex = 3;
             btnStaff.Text = "Персонал";
             btnStaff.UseVisualStyleBackColor = true;
@@ -240,10 +242,9 @@
             // btnProject
             // 
             btnProject.Dock = DockStyle.Top;
-            btnProject.Location = new Point(0, 85);
-            btnProject.Margin = new Padding(4);
+            btnProject.Location = new Point(0, 68);
             btnProject.Name = "btnProject";
-            btnProject.Size = new Size(248, 85);
+            btnProject.Size = new Size(198, 68);
             btnProject.TabIndex = 1;
             btnProject.Text = "Проекты";
             btnProject.UseVisualStyleBackColor = true;
@@ -253,9 +254,8 @@
             // 
             btnTechCard.Dock = DockStyle.Top;
             btnTechCard.Location = new Point(0, 0);
-            btnTechCard.Margin = new Padding(4);
             btnTechCard.Name = "btnTechCard";
-            btnTechCard.Size = new Size(248, 85);
+            btnTechCard.Size = new Size(198, 68);
             btnTechCard.TabIndex = 0;
             btnTechCard.Text = "Технологические карты";
             btnTechCard.UseVisualStyleBackColor = true;
@@ -267,40 +267,38 @@
             pnlLable.BackgroundImageLayout = ImageLayout.Zoom;
             pnlLable.Dock = DockStyle.Top;
             pnlLable.Location = new Point(0, 0);
-            pnlLable.Margin = new Padding(4);
             pnlLable.Name = "pnlLable";
-            pnlLable.Size = new Size(248, 135);
+            pnlLable.Size = new Size(198, 108);
             pnlLable.TabIndex = 1;
             // 
             // pnlDataViewer
             // 
             pnlDataViewer.Dock = DockStyle.Fill;
-            pnlDataViewer.Location = new Point(248, 34);
-            pnlDataViewer.Margin = new Padding(4);
+            pnlDataViewer.Location = new Point(198, 27);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1230, 907);
+            pnlDataViewer.Size = new Size(1075, 812);
             pnlDataViewer.TabIndex = 3;
             // 
             // progressBarLoad
             // 
             progressBarLoad.Anchor = AnchorStyles.None;
-            progressBarLoad.Location = new Point(517, 202);
+            progressBarLoad.Location = new Point(459, 205);
+            progressBarLoad.Margin = new Padding(2);
             progressBarLoad.Name = "progressBarLoad";
-            progressBarLoad.Size = new Size(731, 34);
+            progressBarLoad.Size = new Size(585, 27);
             progressBarLoad.Style = ProgressBarStyle.Marquee;
             progressBarLoad.TabIndex = 0;
             progressBarLoad.Visible = false;
             // 
             // Win7_new
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1478, 941);
+            ClientSize = new Size(1273, 839);
             Controls.Add(progressBarLoad);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlNavigationBlok);
             Controls.Add(pnlToolStrinp);
-            Margin = new Padding(4);
             Name = "Win7_new";
             Text = "Form1";
             WindowState = FormWindowState.Maximized;
@@ -341,5 +339,6 @@
         private ToolStripButton toolStripButton5;
         private ToolStripButton updateToolStripButton;
         private ProgressBar progressBarLoad;
+        private Button btnProcess;
     }
 }

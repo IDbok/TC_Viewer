@@ -22,6 +22,7 @@ namespace TC_WinForms.WinForms
         private List<DisplayedProtection_TC> _newObjects = new List<DisplayedProtection_TC>();
         private List<DisplayedProtection_TC> _deletedObjects = new List<DisplayedProtection_TC>();
 
+        public bool CloseFormsNoSave { get; set; } = false;
         public Win6_Protection(int tcId)
         {
             InitializeComponent();
@@ -31,6 +32,18 @@ namespace TC_WinForms.WinForms
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
 
+
+        public bool GetDontSaveData()
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         private async void Win6_Protection_Load(object sender, EventArgs e)
         {
             await LoadObjects();
@@ -51,6 +64,10 @@ namespace TC_WinForms.WinForms
 
         private async void Win6_Protection_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (CloseFormsNoSave)
+            {
+                return;
+            }
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
                 e.Cancel = true;

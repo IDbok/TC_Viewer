@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
+using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 
@@ -19,6 +21,7 @@ namespace TC_WinForms.WinForms
 
         public Win7_new(int accessLevel)
         {
+            StaticWinForms.Win7_new = this;
             _accessLevel = accessLevel;
             InitializeComponent();
             AccessInitialization(accessLevel);
@@ -45,7 +48,7 @@ namespace TC_WinForms.WinForms
 
             //SetLoadingState(false);
 
-            btnTechCard_Click(sender,e);
+            btnTechCard_Click(sender, e);
         }
         private void AccessInitialization(int accessLevel)
         {
@@ -135,7 +138,7 @@ namespace TC_WinForms.WinForms
 
         private void SetLoadingState(bool isLoading)
         {
-            
+
             _isAllFormsLoading = isLoading;
 
             if (isLoading)
@@ -176,6 +179,8 @@ namespace TC_WinForms.WinForms
                     return new Win7_TechOperation(_accessLevel);
                 case WinNumber.TechTransition:
                     return new Win7_TechTransition(_accessLevel);
+                case WinNumber.Process:
+                    return new Win7_Process(_accessLevel);
                 default:
                     return null;
             }
@@ -190,7 +195,7 @@ namespace TC_WinForms.WinForms
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private async void btnTechCard_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TC).ConfigureAwait(false); 
+        private async void btnTechCard_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TC).ConfigureAwait(false);
         private async void btnStaff_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Staff).ConfigureAwait(false);
         private async void btnComponent_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Component).ConfigureAwait(false);
         private async void btnMachine_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Machine).ConfigureAwait(false);
@@ -198,6 +203,9 @@ namespace TC_WinForms.WinForms
         private async void btnTool_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Tool).ConfigureAwait(false);
         private async void btnTechOperation_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechOperation).ConfigureAwait(false);
         private async void btnWorkStep_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechTransition).ConfigureAwait(false);
+
+        private async void btnProcess_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Process).ConfigureAwait(false);
+
 
         private void UpdateButtonsState(WinNumber activeModelType)
         {
@@ -256,19 +264,73 @@ namespace TC_WinForms.WinForms
             await Save();
         }
 
-        private async void updateToolStripButton_Click(object sender, EventArgs e)
+
+        public async void UpdateTC()
         {
+            _forms.Remove(WinNumber.TC);
+            LoadForm(WinNumber.TC);
+
+            if (_currentWinNumber != null)
+                await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
+        }
+
+        public async void updateToolStripButton_Click(object sender, EventArgs e)
+        {
+            bool next = true;
+            foreach (var frm in _forms)
+            {
+                if (frm.Value is ISaveEventForm)
+                {
+                    if (((ISaveEventForm)frm.Value).GetDontSaveData() == true)
+                    {
+                        next = false;
+                    }
+                }
+            }
+
+            if (next == false)
+            {
+                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение",
+                    MessageBoxButtons.YesNo);
+                if (result == DialogResult.Yes)
+                {
+                    foreach (var frm in _forms)
+                    {
+                        if (frm.Value is ISaveEventForm)
+                        {
+                            await ((ISaveEventForm)frm.Value).SaveChanges();
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var frm in _forms)
+                    {
+                        if (frm.Value is ISaveEventForm)
+                        {
+                            ((ISaveEventForm)frm.Value).CloseFormsNoSave = true;
+                        }
+                    }
+                }
+
+
+            }
+
             // close all forms and load them again
             foreach (var frm in _forms)
             {
                 var form = frm.Value;
                 form.Close();
             }
+
             _forms.Clear();
 
             await LoadAllForms();
-        }
 
+            if (_currentWinNumber != null)
+                await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
+
+        }
 
 
 
@@ -283,7 +345,8 @@ namespace TC_WinForms.WinForms
             Tool = 7,
 
             TechOperation = 8,
-            TechTransition = 9
+            TechTransition = 9,
+            Process = 10
         }
 
     }

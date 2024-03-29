@@ -21,6 +21,7 @@ namespace TC_WinForms.WinForms
         private List<DisplayedMachine_TC> _newObjects = new List<DisplayedMachine_TC>();
         private List<DisplayedMachine_TC> _deletedObjects = new List<DisplayedMachine_TC>();
 
+        public bool CloseFormsNoSave { get; set; } = false;
 
         public Win6_Machine(int tcId)
         {
@@ -29,6 +30,19 @@ namespace TC_WinForms.WinForms
 
             // new DGVEvents().AddGragDropEvents(dgvMain);
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
+        }
+
+
+        public bool GetDontSaveData()
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private async void Win6_Machine_Load(object sender, EventArgs e)
@@ -50,6 +64,10 @@ namespace TC_WinForms.WinForms
         }
         private async void Win6_Machine_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (CloseFormsNoSave)
+            {
+                return;
+            }
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
                 e.Cancel = true;

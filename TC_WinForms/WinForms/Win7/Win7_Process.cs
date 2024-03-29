@@ -1,25 +1,25 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
-using Component = TcModels.Models.TcContent.Component; 
+using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_4_Component : Form, ISaveEventForm, ILoadDataAsyncForm
+    public partial class Win7_Process : Form, ISaveEventForm, ILoadDataAsyncForm
     {
         private DbConnector dbCon = new DbConnector();
-        private BindingList<DisplayedComponent> _bindingList;
+        private BindingList<DisplayedTool> _bindingList;
 
-        private List<DisplayedComponent> _changedObjects = new List<DisplayedComponent>();
-        private List<DisplayedComponent> _newObjects = new List<DisplayedComponent>();
-        private List<DisplayedComponent> _deletedObjects = new List<DisplayedComponent>();
+        private List<DisplayedTool> _changedObjects = new List<DisplayedTool>();
+        private List<DisplayedTool> _newObjects = new List<DisplayedTool>();
+        private List<DisplayedTool> _deletedObjects = new List<DisplayedTool>();
 
-        private DisplayedComponent _newObject;
+        private DisplayedTool _newObject;
 
         private bool isAddingForm = false;
         private Button btnAddSelected;
@@ -31,7 +31,18 @@ namespace TC_WinForms.WinForms
         {
             isAddingForm = true;
         }
-        
+
+        public Win7_Process(int accessLevel)
+        {
+            InitializeComponent();
+            AccessInitialization(accessLevel);
+        }
+        public Win7_Process()
+        {
+            InitializeComponent();
+        }
+
+
 
         public bool GetDontSaveData()
         {
@@ -44,27 +55,16 @@ namespace TC_WinForms.WinForms
                 return false;
             }
         }
-        public Win7_4_Component(int accessLevel)
+        private async void Win7_6_Tool_Load(object sender, EventArgs e)
         {
-            InitializeComponent();
-            AccessInitialization(accessLevel);
-        }
-        public Win7_4_Component()
-        {
-            InitializeComponent();
-        }
-
-        private async void Win7_4_Component_Load(object sender, EventArgs e)
-        {
-            //progressBar.Visible = true;
+            progressBar.Visible = true;
 
             if (!_isDataLoaded)
-            {
                 await LoadDataAsync();
-            }
+
             SetDGVColumnsSettings();
 
-            DisplayedEntityHelper.SetupDataGridView<DisplayedComponent>(dgvMain);
+            DisplayedEntityHelper.SetupDataGridView<DisplayedTool>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false;
 
@@ -76,14 +76,24 @@ namespace TC_WinForms.WinForms
                 SetAddingFormEvents();
             }
 
-            //progressBar.Visible = false;
+            progressBar.Visible = false;
+        }
+        private async Task LoadObjects()
+        {
+            var tcList = await Task.Run(() => dbCon.GetObjectList<TechnologicalProcess>()
+                .Select(obj => new DisplayedTool(obj)).ToList());
+            _bindingList = new BindingList<DisplayedTool>(tcList);
+            _bindingList.ListChanged += BindingList_ListChanged;
+            dgvMain.DataSource = _bindingList;
+
+            SetDGVColumnsSettings();
         }
         public async Task LoadDataAsync()
         {
-            var tcList = await Task.Run(() => dbCon.GetObjectList<Component>()
-                .Select(obj => new DisplayedComponent(obj)).ToList());
+            var tcList = await Task.Run(() => dbCon.GetObjectList<TechnologicalProcess>()
+                .Select(obj => new DisplayedTool(obj)).ToList());
 
-            _bindingList = new BindingList<DisplayedComponent>(tcList);
+            _bindingList = new BindingList<DisplayedTool>(tcList);
 
             dgvMain.DataSource = null; // cancel update of dgv while data is loading
             _bindingList.ListChanged += BindingList_ListChanged;
@@ -92,7 +102,7 @@ namespace TC_WinForms.WinForms
 
             _isDataLoaded = true;
         }
-        private async void Win7_4_Component_FormClosing(object sender, FormClosingEventArgs e)
+        private async void Win7_6_Tool_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (CloseFormsNoSave)
             {
@@ -113,17 +123,17 @@ namespace TC_WinForms.WinForms
         }
         private void AccessInitialization(int accessLevel)
         {
-
         }
-
-
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
-                _bindingList,
-                _newObjects,
-                dgvMain);
+            //DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
+            //    _bindingList,
+            //    _newObjects,
+            //    dgvMain);
+
+            Win7_ProcessEdit win7_ProcessEdit = new Win7_ProcessEdit();
+            win7_ProcessEdit.ShowDialog();
         }
 
         private void btnDeleteObj_Click(object sender, EventArgs e)
@@ -131,7 +141,6 @@ namespace TC_WinForms.WinForms
             DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
                 _bindingList, _newObjects, _deletedObjects);
         }
-
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
         public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
         public async Task SaveChanges()
@@ -159,7 +168,7 @@ namespace TC_WinForms.WinForms
         }
         private async Task SaveNewObjects()
         {
-            var newObjects = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+            var newObjects = _newObjects.Select(dObj => CreateNewObject(dObj)).ToList();
 
             await dbCon.AddObjectAsync(newObjects);
 
@@ -169,13 +178,7 @@ namespace TC_WinForms.WinForms
                 var newId = newObjects.Where(s =>
                 s.Name == newObj.Name
                 && s.Type == newObj.Type
-                && s.Unit == newObj.Unit
-                && s.Price == newObj.Price
                 && s.Description == newObj.Description
-                && s.Manufacturer == newObj.Manufacturer
-                && s.Links == newObj.Links
-                && s.Categoty == newObj.Categoty
-                && s.ClassifierCode == newObj.ClassifierCode
                 ).FirstOrDefault().Id;
                 newObj.Id = newId;
             }
@@ -196,23 +199,17 @@ namespace TC_WinForms.WinForms
         {
             var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteObjectAsync<Component>(deletedTcIds);
+            await dbCon.DeleteObjectAsync<TechnologicalProcess>(deletedTcIds);
             _deletedObjects.Clear();
         }
-        private Component CreateNewObject(DisplayedComponent dObj)
+        private TechnologicalProcess CreateNewObject(DisplayedTool dObj)
         {
-            return new Component
+            return new TechnologicalProcess
             {
                 Id = dObj.Id,
                 Name = dObj.Name,
                 Type = dObj.Type,
-                Unit = dObj.Unit,
-                Price = dObj.Price,
-                Description = dObj.Description,
-                Manufacturer = dObj.Manufacturer,
-                Links = dObj.Links,
-                Categoty = dObj.Categoty,
-                ClassifierCode = dObj.ClassifierCode,
+                Description = dObj.Description
             };
         }
 
@@ -232,73 +229,73 @@ namespace TC_WinForms.WinForms
             //    // ширина столбцов по содержанию
             var autosizeColumn = new List<string>
             {
-                nameof(DisplayedComponent.Id),
-                nameof(DisplayedComponent.Unit),
-                nameof(DisplayedComponent.Categoty),
-                //nameof(DisplayedComponent.ClassifierCode),
+                nameof(DisplayedTool.Id)
+                //nameof(DisplayedTool.ClassifierCode),
             };
             foreach (var column in autosizeColumn)
             {
                 dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             }
 
-            dgvMain.Columns[nameof(DisplayedComponent.Price)].Width = 120;
-            dgvMain.Columns[nameof(DisplayedComponent.ClassifierCode)].Width = 150;
+            //dgvMain.Columns[nameof(DisplayedTool.Price)].Width = 120;
+            //dgvMain.Columns[nameof(DisplayedTool.ClassifierCode)].Width = 150;
 
-            dgvMain.Columns[nameof(DisplayedComponent.Id)].ReadOnly = true; //ClassifierCode
-            dgvMain.Columns[nameof(DisplayedComponent.ClassifierCode)].ReadOnly = true;
+            //dgvMain.Columns[nameof(DisplayedTool.Id)].ReadOnly = true;
+            //dgvMain.Columns[nameof(DisplayedTool.ClassifierCode)].ReadOnly = true;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         /////////////////////////////////////////// * isAddingFormMethods and Events * ///////////////////////////////////////////
 
         void SetAddingFormEvents()
         {
-            btnAddSelected.Click += BtnAddSelected_Click;
+            //btnAddSelected.Click += BtnAddSelected_Click;
             btnCancel.Click += BtnCancel_Click;
         }
 
-        void BtnAddSelected_Click(object sender, EventArgs e)
-        {
-            // get selected rows
-            var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
-            if (selectedRows.Count == 0)
-            {
-                MessageBox.Show("Выберите строки для добавления");
-                return;
-            }
-            // get selected objects
-            var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedComponent).ToList();
-            // find opened form
-            var tcEditor = Application.OpenForms.OfType<Win6_Component>().FirstOrDefault();
-            var newItems = new List<Component>();
-            foreach (var obj in selectedObjs)
-            {
-                newItems.Add(CreateNewObject(obj));
-            }
+        //void BtnAddSelected_Click(object sender, EventArgs e)
+        //{
+        //    // get selected rows
+        //    var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>()
+        //        .Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
+        //    if (selectedRows.Count == 0)
+        //    {
+        //        MessageBox.Show("Выберите строки для добавления");
+        //        return;
+        //    }
+        //    // get selected objects
+        //    var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedTool).ToList();
+        //    var newItems = new List<Tool>();
+        //    foreach (var obj in selectedObjs)
+        //    {
+        //        newItems.Add(CreateNewObject(obj));
+        //    }
 
-            tcEditor.AddNewObjects(newItems);
+        //    // find opened form
+        //    var tcEditor = Application.OpenForms.OfType<Win6_Tool>().FirstOrDefault();
 
-            // close form
-            this.Close();
-        }
+        //    tcEditor.AddNewObjects(newItems);
+
+        //    // close form
+        //    this.Close();
+        //}
         void BtnCancel_Click(object sender, EventArgs e)
         {
             // close form
             this.Close();
         }
 
-
         private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
         {
-            DisplayedEntityHelper.ListChangedEventHandler<DisplayedComponent>
+            DisplayedEntityHelper.ListChangedEventHandler<DisplayedTool>
                 (e, _bindingList, _newObjects, _changedObjects, ref _newObject);
         }
 
 
 
-        private class DisplayedComponent : INotifyPropertyChanged, IDisplayedEntity
+        private class DisplayedTool : INotifyPropertyChanged, IDisplayedEntity
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -307,13 +304,7 @@ namespace TC_WinForms.WinForms
                 { nameof(Id), "ID" },
                 { nameof(Name), "Наименование" },
                 { nameof(Type), "Тип" },
-                { nameof(Unit), "Ед.изм." },
-                { nameof(Price), "Стоимость, руб. без НДС" },
-                { nameof(Description), "Описание" },
-                { nameof(Manufacturer), "Производители (поставщики)" },
-                // { nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
-                { nameof(Categoty), "Категория" },
-                { nameof(ClassifierCode), "Код в classifier" },
+                { nameof(Description), "Описание" }
             };
             }
             public List<string> GetPropertiesOrder()
@@ -323,12 +314,7 @@ namespace TC_WinForms.WinForms
                     nameof(Id),
                     nameof(Name),
                     nameof(Type),
-                    nameof(Unit),
-                    nameof(Price),
-                    nameof(Description),
-                    nameof(Manufacturer),
-                    nameof(Categoty),
-                    nameof(ClassifierCode),
+                    nameof(Description)
                 };
             }
             public List<string> GetRequiredFields()
@@ -336,40 +322,25 @@ namespace TC_WinForms.WinForms
                 return new List<string>
                 {
                     nameof(Name) ,
-                    nameof(Type) ,
-                    nameof(Unit) ,
-                    nameof(Categoty) ,
-                    nameof(ClassifierCode) ,
+                    nameof(Type)
                 };
             }
 
             private int id;
             private string name;
             private string? type;
-            private string unit;
-            private float? price;
             private string? description;
-            private string? manufacturer;
-            private List<LinkEntety> links = new();
-            private string categoty = "StandComp";
-            private string classifierCode;
 
-            public DisplayedComponent()
+            public DisplayedTool()
             {
 
             }
-            public DisplayedComponent(Component obj)
+            public DisplayedTool(TechnologicalProcess obj)
             {
                 Id = obj.Id;
                 Name = obj.Name;
                 Type = obj.Type;
-                Unit = obj.Unit;
-                Price = obj.Price;
                 Description = obj.Description;
-                Manufacturer = obj.Manufacturer;
-                Links = obj.Links;
-                Categoty = obj.Categoty;
-                ClassifierCode = obj.ClassifierCode;
             }
 
 
@@ -400,30 +371,6 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
-            public string Unit
-            {
-                get => unit;
-                set
-                {
-                    if (unit != value)
-                    {
-                        unit = value;
-                        OnPropertyChanged(nameof(unit));
-                    }
-                }
-            }
-            public float? Price
-            {
-                get => price;
-                set
-                {
-                    if (price != value)
-                    {
-                        price = value;
-                        OnPropertyChanged(nameof(Price));
-                    }
-                }
-            }
             public string Description
             {
                 get => description;
@@ -433,54 +380,6 @@ namespace TC_WinForms.WinForms
                     {
                         description = value;
                         OnPropertyChanged(nameof(Description));
-                    }
-                }
-            }
-            public string Manufacturer
-            {
-                get => manufacturer;
-                set
-                {
-                    if (manufacturer != value)
-                    {
-                        manufacturer = value;
-                        OnPropertyChanged(nameof(Manufacturer));
-                    }
-                }
-            }
-            public List<LinkEntety> Links
-            {
-                get => links;
-                set
-                {
-                    if (links != value)
-                    {
-                        links = value;
-                        OnPropertyChanged(nameof(Links));
-                    }
-                }
-            }
-            public string Categoty
-            {
-                get => categoty;
-                set
-                {
-                    if (categoty != value)
-                    {
-                        categoty = value;
-                        OnPropertyChanged(nameof(Categoty));
-                    }
-                }
-            }
-            public string ClassifierCode
-            {
-                get => classifierCode;
-                set
-                {
-                    if (classifierCode != value)
-                    {
-                        classifierCode = value;
-                        OnPropertyChanged(nameof(ClassifierCode));
                     }
                 }
             }
@@ -511,13 +410,10 @@ namespace TC_WinForms.WinForms
                     var filteredList = _bindingList.Where(obj =>
                             (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                            (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                            //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                            (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                            (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                            (obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
                         ).ToList();
 
-                    dgvMain.DataSource = new BindingList<DisplayedComponent>(filteredList);
+                    dgvMain.DataSource = new BindingList<DisplayedTool>(filteredList);
                 }
             }
             catch (Exception e)
@@ -525,6 +421,24 @@ namespace TC_WinForms.WinForms
                 //MessageBox.Show(e.Message);
             }
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.SelectedRows.Count == 1)
+            {
+                var selectedRow = dgvMain.SelectedRows[0];
+                int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
+                if (id != 0)
+                {
+                    Win7_ProcessEdit win71TCsWindow = new Win7_ProcessEdit(id);
+                    win71TCsWindow.Show();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Выберите одну карту для редактирования.");
+            }
         }
     }
 }

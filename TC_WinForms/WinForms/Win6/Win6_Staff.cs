@@ -20,6 +20,7 @@ namespace TC_WinForms.WinForms
         private List<DisplayedStaff_TC> _deletedObjects = new List<DisplayedStaff_TC>();
 
         private int _tcId;
+        public bool CloseFormsNoSave { get; set; } = false;
         public Win6_Staff(int tcId)
         {
             InitializeComponent();
@@ -29,6 +30,19 @@ namespace TC_WinForms.WinForms
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
 
+
+
+        public bool GetDontSaveData()
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         private async void Win6_Staff_Load(object sender, EventArgs e)
         {
             await LoadObjects();
@@ -48,6 +62,10 @@ namespace TC_WinForms.WinForms
         }
         private async void Win6_Staff_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (CloseFormsNoSave)
+            {
+                return;
+            }
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
                 e.Cancel = true;

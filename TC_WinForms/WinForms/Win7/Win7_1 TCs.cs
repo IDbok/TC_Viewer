@@ -21,12 +21,25 @@ namespace TC_WinForms.WinForms
         private DisplayedTechnologicalCard _newObject;
 
         public bool _isDataLoaded = false;
+        public bool CloseFormsNoSave { get; set; } = false;
         public Win7_1_TCs(int accessLevel)
         {
             InitializeComponent();
             AccessInitialization(accessLevel);
         }
 
+
+        public bool GetDontSaveData()
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
             progressBar.Visible = true;
@@ -65,11 +78,14 @@ namespace TC_WinForms.WinForms
 
         private void btnCreateTC_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
-                _bindingList,
-                _newObjects,
-                dgvMain);
+            //DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
+            //    _bindingList,
+            //    _newObjects,
+            //    dgvMain);
             //AddNewTechnologicalCard();
+
+            Win7_1_TCs_Window win71TCsWindow = new Win7_1_TCs_Window();
+            win71TCsWindow.Show();
         }
 
         private void btnUpdateTC_Click(object sender, EventArgs e)
@@ -234,7 +250,11 @@ namespace TC_WinForms.WinForms
                 var selectedRow = dgvMain.SelectedRows[0];
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
                 if (id != 0)
-                    OpenTechnologicalCardEditor(id);
+                {
+                    Win7_1_TCs_Window win71TCsWindow = new Win7_1_TCs_Window(id);
+                    win71TCsWindow.Show();
+                    //OpenTechnologicalCardEditor(id);
+                }
                 else
                 {
                     MessageBox.Show("Карта ещё не добавлена в БД.");

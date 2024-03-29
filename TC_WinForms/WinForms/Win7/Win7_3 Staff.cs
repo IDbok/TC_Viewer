@@ -31,6 +31,19 @@ namespace TC_WinForms.WinForms
             isAddingForm = true;
         }
 
+        public bool CloseFormsNoSave { get; set; } = false;
+
+        public bool GetDontSaveData()
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         public Win7_3_Staff(int accessLevel)
         {
             InitializeComponent();
@@ -94,6 +107,10 @@ namespace TC_WinForms.WinForms
 
         private async void Win7_3_Staff_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (CloseFormsNoSave)
+            {
+                return;
+            }
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
                 e.Cancel = true;

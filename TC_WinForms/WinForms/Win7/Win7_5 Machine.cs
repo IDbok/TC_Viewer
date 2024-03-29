@@ -26,6 +26,8 @@ namespace TC_WinForms.WinForms
         private Button btnCancel;
 
         public bool _isDataLoaded = false;
+        
+        public bool CloseFormsNoSave { get; set; } = false;
 
         public void SetAsAddingForm()
         {
@@ -90,19 +92,38 @@ namespace TC_WinForms.WinForms
         }
         private async void Win7_5_Machine_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (CloseFormsNoSave)
+            {
+                return;
+            }
+
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
             {
-                e.Cancel = true;
+                //e.Cancel = true;
                 var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
 
                 if (result == DialogResult.Yes)
                 {
                     await SaveChanges();
                 }
-                e.Cancel = false;
-                Close();
+              //  e.Cancel = false;
+               // Close();
             }
         }
+
+        public bool GetDontSaveData()
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
         private void AccessInitialization(int accessLevel)
         {
         }
@@ -145,6 +166,8 @@ namespace TC_WinForms.WinForms
             // todo - change id in all new cards 
             dgvMain.Refresh();
         }
+
+
         private async Task SaveNewObjects()
         {
             var newObjects = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
