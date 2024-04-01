@@ -28,6 +28,7 @@ namespace TC_WinForms.WinForms
 
             dataGridViewAllTP.CellClick += DataGridViewAllTP_CellClick;
             dataGridViewTPLocal.CellClick += DataGridViewTPLocal_CellClick;
+                       
 
             context = new MyDbContext();
             if (id == -1)
@@ -38,9 +39,9 @@ namespace TC_WinForms.WinForms
             }
             else
             {
-                process = context.TechnologicalProcesses.Include(i=>i.TechnologicalCards).Single(s => s.Id == id); 
-                
-                
+                process = context.TechnologicalProcesses.Include(i => i.TechnologicalCards).Single(s => s.Id == id);
+
+
                 this.Text = process.Name;
 
                 textBox1.Text = process.Name;
@@ -55,15 +56,32 @@ namespace TC_WinForms.WinForms
 
         private void DataGridViewTPLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            try
             {
-                var Idd = (TechnologicalCard)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
+                if (e.ColumnIndex == 1)
+                {
+                    var Idd = (TechnologicalCard)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                process.TechnologicalCards.Remove(Idd);
+                    process.TechnologicalCards.Remove(Idd);
 
-                dataGridViewAll();
-                dataGridViewLocalAll();
+                    dataGridViewAll();
+                    dataGridViewLocalAll();
+                }
+
+                if (e.ColumnIndex == 2)
+                {
+                    var Idd = (TechnologicalCard)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
+
+                    var editorForm = new Win6_new(Idd.Id);
+                    editorForm.Show();
+
+                }
             }
+            catch (Exception)
+            {
+
+            }          
+            
         }
 
         private void DataGridViewAllTP_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -89,6 +107,18 @@ namespace TC_WinForms.WinForms
             {
                 if (process.TechnologicalCards.SingleOrDefault(s => s == card) == null)
                 {
+                    if (textBoxPoisk.Text != "")
+                    {
+                        if (card.Article.ToLower().IndexOf(textBoxPoisk.Text.ToLower()) == -1)
+                        {
+                            if (card.Name?.ToLower().IndexOf(textBoxPoisk.Text.ToLower()) == -1)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+
+
                     List<object> listItem = new List<object>();
                     listItem.Add(card);
 
@@ -114,6 +144,7 @@ namespace TC_WinForms.WinForms
                 listItem.Add(card);
 
                 listItem.Add("Удалить");
+                listItem.Add("Открыть");
 
                 listItem.Add(card.Article);
                 listItem.Add(card.Name);
@@ -141,6 +172,16 @@ namespace TC_WinForms.WinForms
         private void button2_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void textBoxPoisk_TextChanged(object sender, EventArgs e)
+        {
+            dataGridViewAll();
         }
     }
 }

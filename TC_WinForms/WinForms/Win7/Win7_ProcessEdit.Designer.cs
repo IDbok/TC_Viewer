@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             tableLayoutPanel1 = new TableLayoutPanel();
+            groupBox2 = new GroupBox();
+            textBoxPoisk = new TextBox();
             dataGridViewTPLocal = new DataGridView();
             panel1 = new Panel();
             button2 = new Button();
@@ -40,15 +42,17 @@
             textBox1 = new TextBox();
             label1 = new Label();
             dataGridViewAllTP = new DataGridView();
-            dataGridViewTextBoxColumn12 = new DataGridViewTextBoxColumn();
-            dataGridViewButtonColumn2 = new DataGridViewButtonColumn();
-            dataGridViewTextBoxColumn13 = new DataGridViewTextBoxColumn();
-            Column2 = new DataGridViewTextBoxColumn();
             Id = new DataGridViewTextBoxColumn();
             Add = new DataGridViewButtonColumn();
             NameTO = new DataGridViewTextBoxColumn();
             Column1 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn12 = new DataGridViewTextBoxColumn();
+            dataGridViewButtonColumn2 = new DataGridViewButtonColumn();
+            Column3 = new DataGridViewButtonColumn();
+            dataGridViewTextBoxColumn13 = new DataGridViewTextBoxColumn();
+            Column2 = new DataGridViewTextBoxColumn();
             tableLayoutPanel1.SuspendLayout();
+            groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPLocal).BeginInit();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTP).BeginInit();
@@ -59,6 +63,7 @@
             tableLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel1.ColumnCount = 1;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.Controls.Add(groupBox2, 0, 2);
             tableLayoutPanel1.Controls.Add(dataGridViewTPLocal, 0, 1);
             tableLayoutPanel1.Controls.Add(panel1, 0, 0);
             tableLayoutPanel1.Controls.Add(dataGridViewAllTP, 0, 3);
@@ -67,11 +72,29 @@
             tableLayoutPanel1.RowCount = 4;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 130F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel1.Size = new Size(1529, 772);
             tableLayoutPanel1.TabIndex = 1;
+            // 
+            // groupBox2
+            // 
+            groupBox2.Controls.Add(textBoxPoisk);
+            groupBox2.Location = new Point(3, 419);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new Size(292, 64);
+            groupBox2.TabIndex = 5;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "Поиск";
+            // 
+            // textBoxPoisk
+            // 
+            textBoxPoisk.Location = new Point(16, 26);
+            textBoxPoisk.Name = "textBoxPoisk";
+            textBoxPoisk.Size = new Size(257, 27);
+            textBoxPoisk.TabIndex = 0;
+            textBoxPoisk.TextChanged += textBoxPoisk_TextChanged;
             // 
             // dataGridViewTPLocal
             // 
@@ -80,13 +103,13 @@
             dataGridViewTPLocal.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewTPLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewTPLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn12, dataGridViewButtonColumn2, dataGridViewTextBoxColumn13, Column2 });
+            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn12, dataGridViewButtonColumn2, Column3, dataGridViewTextBoxColumn13, Column2 });
             dataGridViewTPLocal.Location = new Point(3, 133);
             dataGridViewTPLocal.Name = "dataGridViewTPLocal";
             dataGridViewTPLocal.RowHeadersWidth = 51;
             dataGridViewTPLocal.RowTemplate.Height = 29;
             dataGridViewTPLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewTPLocal.Size = new Size(1523, 290);
+            dataGridViewTPLocal.Size = new Size(1523, 280);
             dataGridViewTPLocal.TabIndex = 2;
             // 
             // panel1
@@ -181,47 +204,12 @@
             dataGridViewAllTP.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewAllTP.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewAllTP.Columns.AddRange(new DataGridViewColumn[] { Id, Add, NameTO, Column1 });
-            dataGridViewAllTP.Location = new Point(3, 479);
+            dataGridViewAllTP.Location = new Point(3, 489);
             dataGridViewAllTP.Name = "dataGridViewAllTP";
             dataGridViewAllTP.RowHeadersWidth = 51;
             dataGridViewAllTP.RowTemplate.Height = 29;
-            dataGridViewAllTP.Size = new Size(1523, 290);
+            dataGridViewAllTP.Size = new Size(1523, 280);
             dataGridViewAllTP.TabIndex = 1;
-            // 
-            // dataGridViewTextBoxColumn12
-            // 
-            dataGridViewTextBoxColumn12.HeaderText = "Id";
-            dataGridViewTextBoxColumn12.MinimumWidth = 6;
-            dataGridViewTextBoxColumn12.Name = "dataGridViewTextBoxColumn12";
-            dataGridViewTextBoxColumn12.Visible = false;
-            // 
-            // dataGridViewButtonColumn2
-            // 
-            dataGridViewButtonColumn2.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            dataGridViewButtonColumn2.HeaderText = "";
-            dataGridViewButtonColumn2.MinimumWidth = 6;
-            dataGridViewButtonColumn2.Name = "dataGridViewButtonColumn2";
-            dataGridViewButtonColumn2.Resizable = DataGridViewTriState.True;
-            dataGridViewButtonColumn2.SortMode = DataGridViewColumnSortMode.Automatic;
-            dataGridViewButtonColumn2.Text = "Удалить";
-            dataGridViewButtonColumn2.Width = 125;
-            // 
-            // dataGridViewTextBoxColumn13
-            // 
-            dataGridViewTextBoxColumn13.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn13.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn13.HeaderText = "Артикл";
-            dataGridViewTextBoxColumn13.MinimumWidth = 6;
-            dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
-            dataGridViewTextBoxColumn13.ReadOnly = true;
-            // 
-            // Column2
-            // 
-            Column2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Column2.HeaderText = "Название";
-            Column2.MinimumWidth = 6;
-            Column2.Name = "Column2";
-            Column2.ReadOnly = true;
             // 
             // Id
             // 
@@ -259,6 +247,51 @@
             Column1.Name = "Column1";
             Column1.ReadOnly = true;
             // 
+            // dataGridViewTextBoxColumn12
+            // 
+            dataGridViewTextBoxColumn12.HeaderText = "Id";
+            dataGridViewTextBoxColumn12.MinimumWidth = 6;
+            dataGridViewTextBoxColumn12.Name = "dataGridViewTextBoxColumn12";
+            dataGridViewTextBoxColumn12.SortMode = DataGridViewColumnSortMode.NotSortable;
+            dataGridViewTextBoxColumn12.Visible = false;
+            // 
+            // dataGridViewButtonColumn2
+            // 
+            dataGridViewButtonColumn2.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewButtonColumn2.HeaderText = "";
+            dataGridViewButtonColumn2.MinimumWidth = 6;
+            dataGridViewButtonColumn2.Name = "dataGridViewButtonColumn2";
+            dataGridViewButtonColumn2.Resizable = DataGridViewTriState.True;
+            dataGridViewButtonColumn2.Text = "Удалить";
+            dataGridViewButtonColumn2.Width = 125;
+            // 
+            // Column3
+            // 
+            Column3.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column3.HeaderText = "";
+            Column3.MinimumWidth = 6;
+            Column3.Name = "Column3";
+            Column3.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn13
+            // 
+            dataGridViewTextBoxColumn13.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn13.FillWeight = 69.7860947F;
+            dataGridViewTextBoxColumn13.HeaderText = "Артикл";
+            dataGridViewTextBoxColumn13.MinimumWidth = 6;
+            dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
+            dataGridViewTextBoxColumn13.ReadOnly = true;
+            dataGridViewTextBoxColumn13.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Column2
+            // 
+            Column2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Column2.HeaderText = "Название";
+            Column2.MinimumWidth = 6;
+            Column2.Name = "Column2";
+            Column2.ReadOnly = true;
+            Column2.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
             // Win7_ProcessEdit
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -268,6 +301,8 @@
             Name = "Win7_ProcessEdit";
             Text = "Win7_Process";
             tableLayoutPanel1.ResumeLayout(false);
+            groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPLocal).EndInit();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
@@ -288,13 +323,16 @@
         private DataGridView dataGridViewTPLocal;
         private Button button2;
         private Button button1;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
-        private DataGridViewButtonColumn dataGridViewButtonColumn2;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
-        private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Id;
         private DataGridViewButtonColumn Add;
         private DataGridViewTextBoxColumn NameTO;
         private DataGridViewTextBoxColumn Column1;
+        private GroupBox groupBox2;
+        private TextBox textBoxPoisk;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
+        private DataGridViewButtonColumn dataGridViewButtonColumn2;
+        private DataGridViewButtonColumn Column3;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
+        private DataGridViewTextBoxColumn Column2;
     }
 }
