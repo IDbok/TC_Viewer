@@ -536,7 +536,7 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
-
+        
 
         private void DgvMain_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {

@@ -100,24 +100,26 @@ namespace TC_WinForms.WinForms
       
         bool Save()
         {
-            TechnologicalCard card = new TechnologicalCard();
-            card.Article = textBox1.Text;
-            card.Type = comboBoxType.Text;
-            card.NetworkVoltage = float.Parse(comboBoxNetworkVoltage.Text);
-            card.TechnologicalProcessType = textBox4.Text;
-            card.TechnologicalProcessName = textBox5.Text;
-            card.Parameter = textBox6.Text;
-            card.FinalProduct = textBox7.Text;
-            card.Applicability = textBox8.Text;
-            card.Note = textBox9.Text;
-            card.IsCompleted = checkBox1.Checked;
+            if(LocalCard==null)
+            {
+                LocalCard = new TechnologicalCard();
+                context.TechnologicalCards.Add(LocalCard);
+            }
 
-            context.TechnologicalCards.Add(card);
+            LocalCard.Article = textBox1.Text;
+            LocalCard.Type = comboBoxType.Text;
+            LocalCard.NetworkVoltage = float.Parse(comboBoxNetworkVoltage.Text);
+            LocalCard.TechnologicalProcessType = textBox4.Text;
+            LocalCard.TechnologicalProcessName = textBox5.Text;
+            LocalCard.Parameter = textBox6.Text;
+            LocalCard.FinalProduct = textBox7.Text;
+            LocalCard.Applicability = textBox8.Text;
+            LocalCard.Note = textBox9.Text;
+            LocalCard.IsCompleted = checkBox1.Checked;
 
             try
             {
                 context.SaveChanges();
-                LocalCard = card;
                 StaticWinForms.Win7_new.UpdateTC();
             }
             catch (Exception exception)
