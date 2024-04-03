@@ -3,6 +3,9 @@ using OfficeOpenXml;
 using System.Drawing;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
+using TcModels.Models.TcContent;
+using System.Text;
+using System;
 
 namespace ExcelParsing.DataProcessing
 {
@@ -11,9 +14,37 @@ namespace ExcelParsing.DataProcessing
         private ExcelPackage _excelPackage;
         private ExcelExporter _exporter;
 
-        private Color _lightGreen = Color.FromArgb(197, 224, 180);
-        private Color _lightYellow = Color.FromArgb(237, 125, 49);
-        private Color _lightGey = Color.FromArgb(242, 242, 242);
+        private readonly Color _lightGreen = Color.FromArgb(197, 224, 180);
+        private readonly Color _lightYellow = Color.FromArgb(237, 125, 49);
+        private readonly Color _lightGey = Color.FromArgb(242, 242, 242);
+
+        private readonly Color _lightBlue = Color.FromArgb(221, 235, 247);
+        private readonly Color _lightRed = Color.FromArgb(252, 228, 214);
+
+        private readonly Color _yellow = Color.FromArgb(255, 255, 0);
+
+        private Dictionary<int, double> _columnWidths = new Dictionary<int, double>
+            {
+                { 1, 3.45 },
+                { 2, 11 },
+                { 3, 4.27 },
+                { 4, 19.27 },
+                { 5, 16.27 },
+                { 6, 6.27 },
+                { 7, 6.82 },
+                { 8, 6.82}, // Квалификация, Стоим., руб. без НДС, Время выполнения этапа, мин.
+            };
+        private Dictionary<int, double> _addingColumnWidths = new Dictionary<int, double>
+            {
+                { 1, 6.82 }, // № СЗ
+                { 2, 32 }, // Примечание
+                { 3, 6.82 }, // Обозначение, Рисунок
+            };
+
+        private Dictionary<Machine_TC,int> machineColumnNumber = new Dictionary<Machine_TC, int>();
+
+        private readonly  double _defaultRowHeight = 14.5;
+        private readonly double _defaultColumnWidth = 6.82;
 
         public TCExcelExporter()
         {
@@ -21,11 +52,27 @@ namespace ExcelParsing.DataProcessing
             _excelPackage = new ExcelPackage();
             _exporter = new ExcelExporter();
         }
+        public void CompliteColumnsWidthWithMachines( int newColumnNum)
+        {
+            var lastColumn = _columnWidths.Keys.Max();
+            for(int i = 1; i<= newColumnNum; i++)
+            {
+                _columnWidths.Add(++lastColumn, _defaultColumnWidth);
+            }
 
-        public void CreateTC(string fileFolderPath, TechnologicalCard tc)
+            foreach (var columnWidth in _addingColumnWidths)
+            {
+                _columnWidths.Add(columnWidth.Key + lastColumn, columnWidth.Value);
+            }
+        }
+
+        public void ExportTCtoFile(string fileFolderPath, TechnologicalCard tc)
         {
             string article = tc.Article;
-            string filePath = fileFolderPath + article + ".xlsx";
+            string filePath = fileFolderPath;// + article + ".xlsx";
+            var machine_TCs = tc.Machine_TCs.OrderBy(x => x.Order).ToList();
+
+            CompliteColumnsWidthWithMachines(machine_TCs.Count());
 
             CreateNewFile(filePath);
 
@@ -38,16 +85,17 @@ namespace ExcelParsing.DataProcessing
 
             lastRow = AddComponentDataToExcel(tc.Component_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
 
-            lastRow = AddMachineDataToExcel(tc.Machine_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
+            lastRow = AddMachineDataToExcel(machine_TCs, sheet, lastRow + 1);
 
             lastRow = AddProtectionDataToExcel(tc.Protection_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
 
             lastRow = AddToolDataToExcel(tc.Tool_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
 
+            lastRow = AddTechOperationDataToExcel(tc.TechOperationWorks.OrderBy(x => x.Order).ToList(), machine_TCs, sheet, lastRow + 1);
+
             Save();
             Close();
         }
-
         public void CreateNewFile(string filePath)
         {
             // Создание нового файла Excel (если файл уже существует, он будет перезаписан)
@@ -60,28 +108,26 @@ namespace ExcelParsing.DataProcessing
         }
         private void SetColumnWigth(ExcelWorksheet sheet)
         {
-            // Ширина колонок
-            sheet.Column(1).Width = 3.91;
-            sheet.Column(2).Width = 16.92;
-            sheet.Column(3).Width = 44;
-            sheet.Column(4).Width = 19.27;
-            sheet.Column(5).Width = 13.27;
-            sheet.Column(6).Width = 11.91;
-            sheet.Column(7).Width = 11.36;
-            sheet.Column(8).Width = 11.36;
-            sheet.Column(9).Width = 11;
-            sheet.Column(10).Width = 2.73;
-            sheet.Column(11).Width = 8;
-            sheet.Column(12).Width = 8.8;
-            sheet.Column(13).Width = 8.8;
-            sheet.Column(14).Width = 14.4;
-            sheet.Column(15).Width = 12.4;
+            foreach (var columnWidth in _columnWidths)
+            {
+                sheet.Column(columnWidth.Key).Width = columnWidth.Value * 1.15;
+            }
         }
         public int AddStaffDataToExcel(List<Staff_TC> staff_tcList, ExcelWorksheet sheet, int headRow)
         {
+            Dictionary<string, int> headersColumns = new Dictionary<string, int>
+            {
+                { "№", 1 },
+                { "Наименование", 2 },
+                { "Тип (исполнение)", 5 },
+                { "Возможность совмещения обязанностей", 6 },
+                { "Квалификация", 8 },
+                { "Обозначение в ТК", _columnWidths.Keys.Max() },
+                {"конец", _columnWidths.Keys.Max()+1 }
+            };
             // Добавление заголовков
-            string[] headers = new string[] { "№", "Наименование", "Тип (исполнение)", "Возможность совмещения обязанностей", "Квалификация", "Обозначение в ТК" };
-            int[] columnNums = new int[] { 1, 2, 4, 5, 7, 14 ,15}; // начала для всех столбцов, для последнего столбца указана позиция начала и конца после последней ячейки
+            string[] headers = headersColumns.Keys.Where(x=> !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
+            int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
 
             // Добавляем заголовок всей таблицы
             _exporter.AddTableHeader(sheet, "1. Требования к составу бригады и квалификации", headRow - 1, columnNums);
@@ -119,7 +165,7 @@ namespace ExcelParsing.DataProcessing
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
 
                 // Установка высоты строки
-                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, 15);
+                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, _defaultRowHeight, _columnWidths, columnNums);
 
                 // Переход к следующей строке
                 currentRow++;
@@ -128,7 +174,7 @@ namespace ExcelParsing.DataProcessing
             // Высота строки заголовка
             var row = sheet.Row(headRow);
             row.CustomHeight = true;
-            row.Height = 33;
+            row.Height = 40;
 
             // Применяем стили для всех ячеек
             _exporter.ApplyCellFormatting(sheet.Cells[headRow-1, columnNums[0], currentRow-1, columnNums[columnNums.Length - 1] - 1]);
@@ -141,9 +187,24 @@ namespace ExcelParsing.DataProcessing
 
         public int AddComponentDataToExcel(List<Component_TC> object_tcList, ExcelWorksheet sheet, int headRow)
         {
+            Dictionary<string, int> headersColumns = new Dictionary<string, int>
+            {
+                { "№", 1 },
+                { "Наименование", 2 },
+                { "Тип (исполнение)", 5 },
+                { "Ед. Изм.", 6 },
+                { "Кол-во", 7 },
+                { "Стоим., руб. без НДС", 8 },
+                { "Примечание", 9 },
+                {"конец", _columnWidths.Keys.Max() - 1 }
+            };
             // Добавление заголовков
-            string[] headers = new string[] { "№", "Наименование", "Тип (исполнение)", "Ед. Изм.", "Кол-во"};
-            int[] columnNums = new int[] { 1, 2, 4, 5, 6, 7 }; // начала для всех столбцов, для последнего столбца указана позиция начала и конца после последней ячейки
+            string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
+            int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
+
+            // Добавление заголовков
+            //string[] headers = new string[] { "№", "Наименование", "Тип (исполнение)", "Ед. Изм.", "Кол-во"};
+            //int[] columnNums = new int[] { 1, 2, 4, 5, 6, 7 }; // начала для всех столбцов, для последнего столбца указана позиция начала и конца после последней ячейки
 
             // Добавляем заголовок всей таблицы
             _exporter.AddTableHeader(sheet, "2. Требования к материалам и комплектующим", headRow - 1, columnNums);
@@ -178,7 +239,8 @@ namespace ExcelParsing.DataProcessing
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
 
                 // Установка высоты строки
-                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, 15);
+                //_exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, 15);
+                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, _defaultRowHeight, _columnWidths, columnNums);
 
                 // Переход к следующей строке
                 currentRow++;
@@ -187,7 +249,7 @@ namespace ExcelParsing.DataProcessing
             // Высота строки заголовка
             var row = sheet.Row(headRow);
             row.CustomHeight = true;
-            row.Height = 33;
+            row.Height = 40;
 
             // Применяем стили для всех ячеек
             _exporter.ApplyCellFormatting(sheet.Cells[headRow - 1, columnNums[0], currentRow - 1, columnNums[columnNums.Length - 1] - 1]);
@@ -200,9 +262,22 @@ namespace ExcelParsing.DataProcessing
 
         public int AddMachineDataToExcel(List<Machine_TC> object_tcList, ExcelWorksheet sheet, int headRow)
         {
+            Dictionary<string, int> headersColumns = new Dictionary<string, int>
+            {
+                { "№", 1 },
+                { "Наименование", 2 },
+                { "Тип (исполнение)", 5 },
+                { "Ед. Изм.", 6 },
+                { "Кол-во", 7 },
+                {"конец", 8 }
+            };
             // Добавление заголовков
-            string[] headers = new string[] { "№", "Наименование", "Тип (исполнение)", "Ед. Изм.", "Кол-во" };
-            int[] columnNums = new int[] { 1, 2, 4, 5, 6, 7 }; // начала для всех столбцов, для последнего столбца указана позиция начала и конца после последней ячейки
+            string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
+            int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
+
+            //// Добавление заголовков
+            //string[] headers = new string[] { "№", "Наименование", "Тип (исполнение)", "Ед. Изм.", "Кол-во" };
+            //int[] columnNums = new int[] { 1, 2, 4, 5, 6, 7 }; // начала для всех столбцов, для последнего столбца указана позиция начала и конца после последней ячейки
 
             // Добавляем заголовок всей таблицы
             _exporter.AddTableHeader(sheet, "3. Требования к механизмам", headRow - 1, columnNums);
@@ -237,7 +312,7 @@ namespace ExcelParsing.DataProcessing
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
 
                 // Установка высоты строки
-                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, 15);
+                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, _defaultRowHeight, _columnWidths, columnNums);
 
                 // Переход к следующей строке
                 currentRow++;
@@ -259,9 +334,18 @@ namespace ExcelParsing.DataProcessing
 
         public int AddProtectionDataToExcel(List<Protection_TC> object_tcList, ExcelWorksheet sheet, int headRow)
         {
+            Dictionary<string, int> headersColumns = new Dictionary<string, int>
+            {
+                { "№", 1 },
+                { "Наименование", 2 },
+                { "Тип (исполнение)", 5 },
+                { "Ед. Изм.", 6 },
+                { "Кол-во", 7 },
+                {"конец", 8 }
+            };
             // Добавление заголовков
-            string[] headers = new string[] { "№", "Наименование", "Тип (исполнение)", "Ед. Изм.", "Кол-во" };
-            int[] columnNums = new int[] { 1, 2, 4, 5, 6, 7 }; // начала для всех столбцов, для последнего столбца указана позиция начала и конца после последней ячейки
+            string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
+            int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
 
             // Добавляем заголовок всей таблицы
             _exporter.AddTableHeader(sheet, "4. Требования к средствам защиты", headRow - 1, columnNums);
@@ -296,7 +380,8 @@ namespace ExcelParsing.DataProcessing
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
 
                 // Установка высоты строки
-                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, 15);
+                //_exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, 15);
+                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, _defaultRowHeight, _columnWidths, columnNums);
 
                 // Переход к следующей строке
                 currentRow++;
@@ -317,9 +402,18 @@ namespace ExcelParsing.DataProcessing
         }
         public int AddToolDataToExcel(List<Tool_TC> object_tcList, ExcelWorksheet sheet, int headRow)
         {
+            Dictionary<string, int> headersColumns = new Dictionary<string, int>
+            {
+                { "№", 1 },
+                { "Наименование", 2 },
+                { "Тип (исполнение)", 5 },
+                { "Ед. Изм.", 6 },
+                { "Кол-во", 7 },
+                {"конец", 8 }
+            };
             // Добавление заголовков
-            string[] headers = new string[] { "№", "Наименование", "Тип (исполнение)", "Ед. Изм.", "Кол-во" };
-            int[] columnNums = new int[] { 1, 2, 4, 5, 6, 7 }; // начала для всех столбцов, для последнего столбца указана позиция начала и конца после последней ячейки
+            string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
+            int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
 
             // Добавляем заголовок всей таблицы
             _exporter.AddTableHeader(sheet, "5. Требования к инструментам и приспособлениям", headRow - 1, columnNums);
@@ -354,7 +448,8 @@ namespace ExcelParsing.DataProcessing
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
 
                 // Установка высоты строки
-                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, 15);
+                //_exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, 15);
+                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, _defaultRowHeight, _columnWidths, columnNums);
 
                 // Переход к следующей строке
                 currentRow++;
@@ -372,6 +467,486 @@ namespace ExcelParsing.DataProcessing
             _exporter.ColorizeEditableColumn(sheet, columnNums[4], headRow + 1, currentRow - 1);
 
             return currentRow;
+        }
+
+        public int AddTechOperationDataToExcel(List<TechOperationWork> object_tcList, List<Machine_TC> machine_TCs, ExcelWorksheet sheet, int headRow)
+        {
+
+            if (object_tcList.Count == 0)
+            {
+                return headRow;
+            }
+
+            Dictionary<string, int> headersColumns = new Dictionary<string, int>
+            {
+                { "№", 1 },//0
+                { "Технологические операции", 2 },//1
+                { "Исполнитель", 3 },//2
+                { "Технологические переходы", 4 },//3
+                { "Время действ., мин.", 7 },//4
+                { "Время этапа, мин.", 8 },//5
+            };
+
+            Dictionary<string, int> additinghHadersColumns = new Dictionary<string, int> 
+            { {"№ СЗ" ,1}, { "Примечание", 2 }, { "Рисунок", 3 }, { "конец", 4 } };
+
+            int lastColumn = headersColumns["Время этапа, мин."];
+
+            foreach (var machine_tc in machine_TCs)
+            {
+                headersColumns.Add($"Время {machine_tc.Child.Name.ToLower()}, мин." , ++lastColumn); // todo: форматировать название механизма в соответствии с его склонением
+                machineColumnNumber.Add(machine_tc, lastColumn);
+            }
+
+            foreach (var additinghHader in additinghHadersColumns)
+            {
+                headersColumns.Add(additinghHader.Key, additinghHader.Value + lastColumn);
+            }
+
+            // Добавление заголовков
+            string[] headers = headersColumns.Keys.Where(x=> !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
+            int[] columnNums = headersColumns.Values.ToArray(); // начала для всех столбцов, для последнего столбца указана позиция начала и конца после последней ячейки
+
+            // Добавляем заголовок всей таблицы
+            _exporter.AddTableHeader(sheet, "6. Выполнение работ", headRow - 1, columnNums);
+
+            _exporter.AddTableHeaders(sheet, headers, headRow, columnNums);
+
+            _exporter.ApplyCellFormatting(sheet.Cells[headRow, columnNums[0], headRow, columnNums[columnNums.Length - 1] - 1]);
+
+            // Добавление данных
+            int currentRow = headRow + 1;
+            int rowOrder = 1;
+
+            string currentStage = "";
+            int startStageRow = 0;
+            ExecutionWork startStageEW = new ExecutionWork();
+            List<ExecutionWork> currentStageEWList = new List<ExecutionWork>();
+
+            var startItemRow =0;
+            int itemCount = 0;
+
+            int startTechOperationRow = 0;
+            foreach (var obj_tc in object_tcList)
+            {
+                startTechOperationRow = currentRow;
+
+                foreach (var executionWork in obj_tc.executionWorks)
+                {
+                    SetExecutionWorkData(executionWork, obj_tc, currentRow, columnNums,
+                            ref startStageRow, ref currentStage, currentStageEWList);
+                    // Переход к следующей строке
+                    NextRow();
+                }
+
+                startItemRow = currentRow;
+                itemCount = 0;
+
+                // добавляем Компоненты и инструменты
+                foreach (var component in obj_tc.ComponentWorks)
+                {
+
+                    sheet.Cells[currentRow, columnNums[0]].Value = rowOrder;
+
+                    sheet.Cells[currentRow, 4].Value = component.component.Name;
+                    sheet.Cells[currentRow, 5].Value = component.component.Type;
+                    sheet.Cells[currentRow, 6].Value = component.component.Unit;
+                    sheet.Cells[currentRow, 7].Value = component.Quantity;
+
+                    ColorizeRange(sheet.Cells[currentRow, 4, currentRow, 7], _lightBlue);
+
+                    RowFormat();
+
+                    itemCount++;
+                    NextRow();
+                }
+                foreach (var component in obj_tc.ToolWorks)
+                {
+                    sheet.Cells[currentRow, columnNums[0]].Value = rowOrder;
+
+                    sheet.Cells[currentRow, 4].Value = component.tool.Name;
+                    sheet.Cells[currentRow, 5].Value = component.tool.Type;
+                    sheet.Cells[currentRow, 6].Value = component.tool.Unit;
+                    sheet.Cells[currentRow, 7].Value = component.Quantity;
+
+                    ColorizeRange(sheet.Cells[currentRow, 4, currentRow, 7], _lightRed);
+
+                    RowFormat();
+
+                    itemCount++;
+                    NextRow();
+                }
+
+                
+
+                // Объединение ячеек между строками в столбце "Технологические операции"
+                sheet.Cells[startTechOperationRow, columnNums[1], currentRow - 1, columnNums[1]].Merge = true;
+
+                // Объединение ячеек между строками в столбце "Исполнитель" для компонентов и инструментов
+                if (startItemRow <= currentRow - 1)
+                {
+                    if(startItemRow != currentRow - 1)// если в строке больше чем один элемент
+                    {
+                        SetBordersForRange(range: sheet.Cells[startItemRow, headersColumns["Исполнитель"], currentRow - 1, headersColumns["Исполнитель"]]);
+
+                        SetBordersForRange(range: sheet.Cells[startItemRow, headersColumns["Время этапа, мин."], currentRow - 1, headersColumns["№ СЗ"]-1]);
+                        //sheet.Cells[startItemRow, columnNums[2], currentRow - 1, columnNums[2]].Merge = true;Исполнитель
+                    }
+                }
+            }
+
+            SetStageTimes();
+
+
+            // Высота строки заголовка
+            var row = sheet.Row(headRow);
+            row.CustomHeight = true;
+            row.Height = 63;
+
+
+            // Подсветка столбца с обозначением в ТК
+            _exporter.ColorizeEditableColumn(sheet, headersColumns["Примечание"], headRow + 1, currentRow - 1);
+            sheet.Cells[headRow + 1, headersColumns["Примечание"], currentRow - 1, headersColumns["Примечание"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            _exporter.ColorizeEditableColumn(sheet, headersColumns["Рисунок"], headRow + 1, currentRow - 1);
+
+            return currentRow;
+
+            void NextRow()
+            {
+                currentRow++;
+                rowOrder++;
+            }
+
+            void SetExecutionWorkData(ExecutionWork executionWork, TechOperationWork obj_tc, int currentRow, int[] columnNums, 
+                ref int startStageRow, ref string currentStage, List<ExecutionWork> currentStageEWList)
+            {
+                if (executionWork.Repeat)
+                {
+                    // Номер и наименование
+                    sheet.Cells[currentRow, headersColumns["№"]].Value = rowOrder;
+
+                    sheet.Cells[currentRow, headersColumns["Технологические операции"]].Value = obj_tc.techOperation?.Name;
+
+                    var listRepeatedOtemOrders = executionWork.ListexecutionWorkRepeat2.Select(x => x.Order).ToList();
+                    sheet.Cells[currentRow, headersColumns["Технологические переходы"]].Value = "Повторить п. "
+                        + ConvertListToRangeString(listRepeatedOtemOrders);
+
+                    ColorizeRange(sheet.Cells[currentRow, headersColumns["Технологические переходы"]], _yellow);
+
+                    // Время действия и времени этапа
+                    var repeatTime = executionWork.ListexecutionWorkRepeat2.Sum(x => x.Value);
+                    sheet.Cells[currentRow, headersColumns["Время действ., мин."]].Value = executionWork.Value != 0 ? executionWork.Value : repeatTime;
+
+                }
+                else
+                {
+                    // Номер и наименование
+                    sheet.Cells[currentRow, headersColumns["№"]].Value = rowOrder;//executionWork.Order; columnNums[0]].Value
+
+                    sheet.Cells[currentRow, headersColumns["Технологические операции"]].Value = obj_tc.techOperation?.Name ?? "error";
+
+                    // Исполнитель
+                    sheet.Cells[currentRow, headersColumns["Исполнитель"]].Value = SetStaffsString(executionWork.Staffs);
+
+                    // Технологические переходы
+                    sheet.Cells[currentRow, headersColumns["Технологические переходы"]].Value = executionWork.techTransition?.Name ?? "error";
+
+                    // Время действия и времени этапа
+                    sheet.Cells[currentRow, headersColumns["Время действ., мин."]].Value = executionWork.Value;
+                }
+
+                if (executionWork.Etap != currentStage)
+                {
+                    SetStageTimes();
+
+                    startStageRow = currentRow;
+                    currentStage = executionWork.Etap;
+
+                    currentStageEWList.Clear();
+                    currentStageEWList.Add(executionWork);
+                    startStageEW = executionWork;
+                }
+                else
+                {
+                    currentStageEWList.Add(executionWork);
+                }
+
+                // Номер СЗ
+                sheet.Cells[currentRow, headersColumns["№ СЗ"]].Value = ConvertListToRangeString(ExtractProtectionOrder(executionWork.Protections));
+
+                // Примечание
+                sheet.Cells[currentRow, headersColumns["Примечание"]].Value = executionWork.Comments;
+
+                // Объединение ячеек между столбцами
+                _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
+
+                // Установка высоты строки
+                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, _defaultRowHeight, _columnWidths, columnNums);
+
+                RowFormat();
+            }
+
+            void SetRepeatData(ExecutionWork executionWork, TechOperationWork obj_tc, int currentRow, int[] columnNums)
+            {
+                // Номер и наименование
+                sheet.Cells[currentRow, headersColumns["№"]].Value = rowOrder;
+
+                sheet.Cells[currentRow, headersColumns["Технологические операции"]].Value = obj_tc.techOperation?.Name;
+
+                var listRepeatedOtemOrders = executionWork.ListexecutionWorkRepeat2.Select(x => x.Order).ToList();
+                sheet.Cells[currentRow, headersColumns["Технологические переходы"]].Value = "Повторить п. "
+                    + ConvertListToRangeString(listRepeatedOtemOrders);
+
+                // Время действия и времени этапа
+                var repeatTime = executionWork.ListexecutionWorkRepeat2.Sum(x => x.Value);
+                sheet.Cells[currentRow, headersColumns["Время действ., мин."]].Value = executionWork.Value != 0 ? executionWork.Value : repeatTime;
+
+                if (executionWork.Etap != currentStage)
+                {
+                    if (startStageRow != 0)
+                    {
+                        sheet.Cells[startStageRow, headersColumns["Время этапа, мин."], currentRow - 1, headersColumns["Время этапа, мин."]].Merge = true;
+                        double previousStageTime = GetTimeExecution(currentStageEWList);
+                        sheet.Cells[startStageRow, headersColumns["Время этапа, мин."]].Value = previousStageTime;
+
+                        // устанавливаем время этапа для механизмов
+                        int column = 0;
+                        foreach (var machine_tc in machine_TCs)
+                        {
+                            var machine = machineColumnNumber.Keys.Where(x => x.ChildId == machine_tc.ChildId).FirstOrDefault();
+                            column = machineColumnNumber[machine];
+                            sheet.Cells[startStageRow, column, currentRow - 1, column].Merge = true;
+
+                            // устанавливаем время этапа для механизмов, которые учавствуют в этапе
+                            if (executionWork.Machines.Select(x => x.ChildId).ToList().Contains(machine_tc.ChildId))
+                            {
+                                sheet.Cells[startStageRow, column].Value = previousStageTime;
+                            }
+                        }
+                    }
+                    startStageRow = currentRow;
+                    currentStage = executionWork.Etap;
+                    sheet.Cells[currentRow, columnNums[5]].Value = $"этап {executionWork.Etap}";//executionWork.TempTimeExecution;
+
+                    currentStageEWList.Clear();
+                    currentStageEWList.Add(executionWork);
+                }
+                else
+                {
+                    currentStageEWList.Add(executionWork);
+                }
+
+                // Номер СЗ
+                sheet.Cells[currentRow, headersColumns["№ СЗ"]].Value = ConvertListToRangeString(ExtractProtectionOrder(executionWork.Protections));
+
+                // Примечание
+                sheet.Cells[currentRow, headersColumns["Примечание"]].Value = executionWork.Comments;
+
+                // Объединение ячеек между столбцами
+                _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
+
+                // Установка высоты строки
+                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, _defaultRowHeight, _columnWidths, columnNums);
+
+                RowFormat();
+
+                ColorizeRange(sheet.Cells[currentRow, headersColumns["Технологические переходы"]], _yellow);
+            }
+
+            void SetStageTimes()
+            {
+                if (startStageRow != 0)
+                {
+                    if(startItemRow + itemCount == currentRow)
+                    {
+                        sheet.Cells[startStageRow, headersColumns["Время этапа, мин."], currentRow - 1 - itemCount, headersColumns["Время этапа, мин."]].Merge = true;
+                    } // если этап закончился до добавления компонентов и инструментов
+                    else
+                    {
+                        sheet.Cells[startStageRow, headersColumns["Время этапа, мин."], currentRow - 1, headersColumns["Время этапа, мин."]].Merge = true;
+                    }
+
+                    double previousStageTime = GetTimeExecution(currentStageEWList);
+                    sheet.Cells[startStageRow, headersColumns["Время этапа, мин."]].Value = previousStageTime;
+
+                    // устанавливаем время этапа для механизмов
+                    int column = 0;
+                    foreach (var machine_tc in machine_TCs)
+                    {
+                        var machine = machineColumnNumber.Keys.Where(x => x.ChildId == machine_tc.ChildId).FirstOrDefault();
+                        column = machineColumnNumber[machine];
+
+                        if (startItemRow + itemCount == currentRow)
+                        {
+                            sheet.Cells[startStageRow, column, currentRow - 1 - itemCount, column].Merge = true;
+                            _exporter.ApplyCellFormatting(sheet.Cells[startStageRow, column, currentRow - 1 - itemCount, column]);
+                        }
+                        else
+                        {
+                            sheet.Cells[startStageRow, column, currentRow - 1, column].Merge = true;
+                            _exporter.ApplyCellFormatting(sheet.Cells[startStageRow, column, currentRow - 1, column]);
+                        }
+                        
+                        // устанавливаем время этапа для механизмов, которые учавствуют в этапе
+                        if (startStageEW.Machines.Select(x => x.ChildId).ToList().Contains(machine_tc.ChildId))
+                        {
+                            sheet.Cells[startStageRow, column].Value = previousStageTime;
+                        }
+                    }
+                }
+            }
+
+            void RowFormat()
+            {
+                // Применяем стили для всех ячеек
+                _exporter.ApplyCellFormatting(sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1]);
+
+                FormatCells(sheet.Cells[currentRow , columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1]);
+                sheet.Cells[currentRow, columnNums[1], currentRow, columnNums[4] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            }
+            double GetTimeExecution(List<ExecutionWork> executionWorks)
+            {
+                var etapGroups = executionWorks.GroupBy(w => w.Etap);
+                if (etapGroups.Count() != 1)
+                {
+                    Console.WriteLine("Ошибка в группировке по этапам");
+                    return 0;
+                }
+
+                var posledGroups = executionWorks.GroupBy(w => w.Posled);
+                double etapTotalTime = 0;
+
+                foreach (var posledGroup in posledGroups)
+                {
+                    if (posledGroup.Key == "0" || posledGroup.Count() == 1) // Если Posled = 0 или группа уникальна, работаем как с параллельными задачами
+                    {
+                        etapTotalTime = Math.Max(etapTotalTime, posledGroup.Max(w => w.Value));
+                    }
+                    else // Если Posled не 0 и есть повторяющиеся элементы, работаем как с последовательными задачами
+                    {
+                        etapTotalTime = Math.Max(etapTotalTime, posledGroup.Sum(w => w.Value));
+                    }
+                }
+
+                return etapTotalTime;
+            }
+
+            string SetStaffsString(List<Staff_TC> staffs_Tc)
+            {
+                var staffsSymbol = staffs_Tc.Select(x => x.Symbol).ToList();
+                //var staffsNames = staffs.Select(x => x.).ToList();
+                return string.Join(", ", staffsSymbol);
+            }
+
+            List<int> ExtractProtectionOrder(List<Protection_TC> protection_TCs)
+            {
+                return protection_TCs.Select(x => x.Order).ToList();
+            }
+
+            void ColorizeRange(ExcelRange range, Color color)
+            {
+                range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(color);
+
+            }
+           
+            string ConvertListToRangeString(List<int> numbers)
+            {
+                if (numbers == null || !numbers.Any())
+                    return string.Empty;
+
+                // Сортировка списка
+                numbers.Sort();
+
+                StringBuilder stringBuilder = new StringBuilder();
+                int start = numbers[0];
+                int end = start;
+
+                for (int i = 1; i < numbers.Count; i++)
+                {
+                    // Проверяем, идут ли числа последовательно
+                    if (numbers[i] == end + 1)
+                    {
+                        end = numbers[i];
+                    }
+                    else
+                    {
+                        // Добавляем текущий диапазон в результат
+                        if (start == end)
+                            stringBuilder.Append($"{start}, ");
+                        else
+                            stringBuilder.Append($"{start}-{end}, ");
+
+                        // Начинаем новый диапазон
+                        start = end = numbers[i];
+                    }
+                }
+
+                // Добавляем последний диапазон
+                if (start == end)
+                    stringBuilder.Append($"{start}");
+                else
+                    stringBuilder.Append($"{start}-{end}");
+
+                return stringBuilder.ToString().TrimEnd(',', ' ');
+
+
+            }
+
+            void FormatCells(ExcelRange range)
+            {
+                range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                // Включаем перенос слов в ячейке
+                range.Style.WrapText = true;
+            }
+
+            void UnFormatCells(ExcelRange cells)
+            {
+                // удалить границы
+                cells.Style.Border.Top.Style = ExcelBorderStyle.None;
+                cells.Style.Border.Left.Style = ExcelBorderStyle.None;
+                cells.Style.Border.Right.Style = ExcelBorderStyle.None;
+                cells.Style.Border.Bottom.Style = ExcelBorderStyle.None;
+            }
+
+            void SetBordersForRange(ExcelRange range)
+            {
+                // Получение адресов начальной и конечной ячеек диапазона
+                var start = range.Start;
+                var end = range.End;
+                
+                if (start == end)
+                {
+                    _exporter.ApplyCellFormatting(range.Worksheet.Cells[start.Row, start.Column]);
+                    return;
+                }
+                UnFormatCells(range);
+
+                // Установка границ для верхней строки диапазона
+                for (int col = start.Column; col <= end.Column; col++)
+                {
+                    range.Worksheet.Cells[start.Row, col].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                }
+
+                // Установка границ для нижней строки диапазона
+                for (int col = start.Column; col <= end.Column; col++)
+                {
+                    range.Worksheet.Cells[end.Row, col].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                }
+
+                // Установка границ для левого столбца диапазона
+                for (int row = start.Row; row <= end.Row; row++)
+                {
+                    range.Worksheet.Cells[row, start.Column].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                }
+
+                // Установка границ для правого столбца диапазона
+                for (int row = start.Row; row <= end.Row; row++)
+                {
+                    range.Worksheet.Cells[row, end.Column].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                }
+            }
         }
         public void Save()
         {

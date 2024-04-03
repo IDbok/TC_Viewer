@@ -16,7 +16,7 @@ namespace TcModels.Models.TcContent
 
         public List<Protection_TC> Protections { get; set; } = new List<Protection_TC>();
 
-        public List<Machine_TC> Machines { get; set; } = new List<Machine_TC>();
+        public List<Machine_TC> Machines { get; set; } = new List<Machine_TC>(); // если присутствует machine_tc значит участвует в этапе
 
         public List<ExecutionWork> WorkRepeat { get; set; } = new List<ExecutionWork>();
         public bool Repeat { get; set; } = false;

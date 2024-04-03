@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ExcelParsing.DataProcessing;
+using OfficeOpenXml;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -20,12 +22,13 @@ namespace TC_WinForms.WinForms
     public partial class Win7_1_TCs_Window : Form
     {
         public MyDbContext context;
+        private DbConnector dbCon = new DbConnector();
 
         private List<object> AllEllement = new List<object>();
 
         private TechnologicalCard LocalCard = null;
 
-        public Win7_1_TCs_Window(int? tcId=null)
+        public Win7_1_TCs_Window(int? tcId = null)
         {
             InitializeComponent();
 
@@ -97,10 +100,10 @@ namespace TC_WinForms.WinForms
             return ValueRet;
         }
 
-      
+
         bool Save()
         {
-            if(LocalCard==null)
+            if (LocalCard == null)
             {
                 LocalCard = new TechnologicalCard();
                 context.TechnologicalCards.Add(LocalCard);
@@ -167,6 +170,45 @@ namespace TC_WinForms.WinForms
             ((ComboBox)sender).BackColor = Color.White;
         }
 
-        
+        private async void btnExportExcel_Click(object sender, EventArgs e)
+        {
+            // спрашиваем у пользователя о пути сохранения файла
+            await SaveTCtoExcelFile();
+        }
+        public async Task SaveTCtoExcelFile()
+        {
+            
+
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                // Настройка диалога сохранения файла
+                saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+                saveFileDialog.FilterIndex = 1;
+                saveFileDialog.RestoreDirectory = true;
+
+                saveFileDialog.FileName = LocalCard.Article;
+
+                // Показ диалога пользователю и проверка, что он нажал кнопку "Сохранить"
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        var tc = await dbCon.GetTechnologicalCardToExportAsync(LocalCard.Id);
+                        if (tc == null)
+                        {
+                            MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                        var excelExporter = new TCExcelExporter();
+                        excelExporter.ExportTCtoFile(saveFileDialog.FileName, tc);
+                    }
+                    catch (Exception ex)
+                    {
+                    MessageBox.Show("Произошла ошибка при загрузке данных: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+            }
+            }
+        }
     }
 }

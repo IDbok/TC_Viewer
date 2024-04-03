@@ -9,6 +9,7 @@ namespace TcModels.Models.TcContent
     public class ToolWork
     {
         public int Id { get; set; }
+        public int techOperationWorkId { get; set; }
         public TechOperationWork techOperationWork { get; set; }
 
         public Tool tool { get; set; }

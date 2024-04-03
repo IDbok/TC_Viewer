@@ -29,7 +29,7 @@ namespace TestConsoleAppTC
         // create dictionarys with start and end rows for EModelType from keyValuePairs
         static DbConnectorTest dbCon = new DbConnectorTest();
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
             TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v11;user=root;password=root";
@@ -46,13 +46,39 @@ namespace TestConsoleAppTC
                     .Include(tc => tc.Machine_TCs).ThenInclude(tc => tc.Child)
                     .Include(tc => tc.Protection_TCs).ThenInclude(tc => tc.Child)
 
-                    //.Include(tc => tc.TechOperationWorks).ThenInclude(tc => tc.Child)
+                    .Include(tc => tc.TechOperationWorks).ThenInclude(tc => tc.techOperation)
 
                     .FirstOrDefault();
+                var towIds = tc.TechOperationWorks.Select(tow => tow.Id).ToList();
+
+                var ew = await db.ExecutionWorks.Where(ew => towIds.Contains(ew.techOperationWorkId))
+                    .Include(ew => ew.Staffs)
+                    .Include(ew => ew.Machines)
+                    .Include(ew => ew.Protections)
+                    .Include(ew => ew.techTransition)
+                    .Include(ew => ew.ListexecutionWorkRepeat2)
+                    .ToListAsync();
+                var tw = await db.ToolWorks.Where(tw => towIds.Contains(tw.techOperationWorkId))
+                    .Include(tw => tw.tool)
+                    .ToListAsync();
+                var cw = await db.ComponentWorks.Where(cw => towIds.Contains(cw.techOperationWorkId))
+                    .Include(cw => cw.component)
+                    .ToListAsync();
+
+                foreach(var tow in tc.TechOperationWorks)
+                {
+                    var ewList = ew.Where(ew => ew.techOperationWorkId == tow.Id).ToList();
+                    var twList = tw.Where(tw => tw.techOperationWorkId == tow.Id).ToList();
+                    var cwList = cw.Where(cw => cw.techOperationWorkId == tow.Id).ToList();
+
+                    tow.executionWorks = ewList;
+                    tow.ToolWorks = twList;
+                    tow.ComponentWorks = cwList;
+                }
 
                 if (tc != null)
                 {
-                    export.CreateTC(@"C:\Tests\", tc);
+                    export.ExportTCtoFile(@"C:\Tests\", tc);
                 }
             }
 

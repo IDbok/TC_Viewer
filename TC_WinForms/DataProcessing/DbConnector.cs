@@ -494,6 +494,51 @@ namespace TC_WinForms.DataProcessing
                 throw;
             }
         }
+        public async Task<TechnologicalCard?> GetTechnologicalCardToExportAsync(int id)
+        {
+            using (var db = new MyDbContext())
+            {
+                var tc = db.TechnologicalCards.Where(tc => tc.Id == id)
+
+                    .Include(tc => tc.Staff_TCs).ThenInclude(tc => tc.Child)
+                    .Include(tc => tc.Component_TCs).ThenInclude(tc => tc.Child)
+                    .Include(tc => tc.Tool_TCs).ThenInclude(tc => tc.Child)
+                    .Include(tc => tc.Machine_TCs).ThenInclude(tc => tc.Child)
+                    .Include(tc => tc.Protection_TCs).ThenInclude(tc => tc.Child)
+
+                    .Include(tc => tc.TechOperationWorks).ThenInclude(tc => tc.techOperation)
+
+                    .FirstOrDefault();
+                var towIds = tc.TechOperationWorks.Select(tow => tow.Id).ToList();
+
+                var ew = await db.ExecutionWorks.Where(ew => towIds.Contains(ew.techOperationWorkId))
+                    .Include(ew => ew.Staffs)
+                    .Include(ew => ew.Machines)
+                    .Include(ew => ew.Protections)
+                    .Include(ew => ew.techTransition)
+                    .Include(ew => ew.ListexecutionWorkRepeat2)
+                    .ToListAsync();
+                var tw = await db.ToolWorks.Where(tw => towIds.Contains(tw.techOperationWorkId))
+                    .Include(tw => tw.tool)
+                    .ToListAsync();
+                var cw = await db.ComponentWorks.Where(cw => towIds.Contains(cw.techOperationWorkId))
+                    .Include(cw => cw.component)
+                    .ToListAsync();
+
+                foreach (var tow in tc.TechOperationWorks)
+                {
+                    var ewList = ew.Where(ew => ew.techOperationWorkId == tow.Id).ToList();
+                    var twList = tw.Where(tw => tw.techOperationWorkId == tow.Id).ToList();
+                    var cwList = cw.Where(cw => cw.techOperationWorkId == tow.Id).ToList();
+
+                    tow.executionWorks = ewList;
+                    tow.ToolWorks = twList;
+                    tow.ComponentWorks = cwList;
+                }
+
+                return tc;
+            }
+        }
 
         public List<T> GetObjectList<T>() where T : class, IIdentifiable
         {

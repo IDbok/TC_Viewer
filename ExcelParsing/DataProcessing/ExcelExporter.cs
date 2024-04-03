@@ -87,8 +87,14 @@ namespace ExcelParsing.DataProcessing
                 sheet.Cells[rowNumber, startColumn, rowNumber, endColumn].Merge = true;
             }
         }
+        public void MergeColumnCellsByRows(ExcelWorksheet sheet, int startRow, int endRow, int columnNumber)
+        {
+            // Объединяем ячейки для текущего диапазона
+            sheet.Cells[startRow, columnNumber, endRow, columnNumber].Merge = true;
+        }
         public void ColorizeEditableColumn(ExcelWorksheet sheet, int columnNumber, int startRow, int endRow)
         {
+            if (startRow > endRow) return;
             // Применяем стиль к столбцу
             sheet.Cells[startRow, columnNumber, endRow, columnNumber].Style.Fill.PatternType = ExcelFillStyle.Solid;
             sheet.Cells[startRow, columnNumber, endRow, columnNumber].Style.Fill.BackgroundColor.SetColor(_lightGey);
@@ -127,18 +133,53 @@ namespace ExcelParsing.DataProcessing
             row.Height = maxHeight;
         }
 
+        public void AutoFitRowHeightForMergedCells(ExcelWorksheet sheet, int rowNumber, double defaultRowHeight, Dictionary<int, double> columnWidths, int[] columnNums)
+        {
+            double maxHeight = defaultRowHeight;
+            var row = sheet.Row(rowNumber);
+
+            for (int i = 0; i < columnNums.Length-1; i++)
+            {
+                int startCol = columnNums[i];
+                int endCol = (i <= columnNums.Length - 1) ? columnNums[i + 1] - 1 : sheet.Dimension.End.Column;
+
+                double mergedCellWidth = 0;
+                for (int col = startCol; col <= endCol; col++)
+                {
+                    if (columnWidths.TryGetValue(col, out double width))
+                    {
+                        mergedCellWidth += width;
+                    }
+                }
+
+                var cell = sheet.Cells[rowNumber, startCol];
+                double requiredHeight = CalculateRequiredHeight(cell.Text, mergedCellWidth);
+                maxHeight = Math.Max(maxHeight, requiredHeight);
+            }
+
+            row.CustomHeight = true;
+            row.Height = maxHeight;
+        }
+
+
         // Вспомогательный метод для расчёта высоты на основе текста и ширины ячейки
         private double CalculateRequiredHeight(string text, double cellWidth)
         {
             // Приблизительный расчёт, нужно подстроить под ваш конкретный случай
-            double approximateCharWidth = 0.1; // Подберите значение экспериментально
+            double approximateCharWidth = 1.1; // Подберите значение экспериментально
             double maxCharsPerRow = cellWidth / approximateCharWidth;
             int numRows = (int)Math.Ceiling(text.Length / maxCharsPerRow);
 
-            int newLineCount = text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).Length - 1;
-            numRows += newLineCount;
+            var splitText = text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
+            int newLineCount = splitText.Length - 1;
+            foreach (var line in splitText)
+            {
+                newLineCount += (int)Math.Ceiling(line.Length / maxCharsPerRow) -1 ;
+            }
 
-            double singleRowHeight = 15; // Подберите значение экспериментально
+            numRows = Math.Max(newLineCount, numRows);
+
+            double singleRowHeight = 14.5; // Подберите значение экспериментально
 
             return numRows * singleRowHeight; // Возвращает расчётную высоту
         }
