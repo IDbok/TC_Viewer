@@ -1185,6 +1185,7 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add(InstrumentWork.tool.Type);
                 listItem.Add(InstrumentWork.tool.Unit);
                 listItem.Add(InstrumentWork.Quantity);
+                listItem.Add(InstrumentWork.Comments);
                 dataGridViewInstrumentLocal.Rows.Add(listItem.ToArray());
             }
 
@@ -1395,6 +1396,17 @@ namespace TC_WinForms.WinForms.Work
                 //UpdateComponentLocal();
                 TechOperationForm.UpdateGrid();
             }
+
+            if (e.ColumnIndex == 6)
+            {
+                var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+                var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
+                var value = (string)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[6].Value;
+
+                Idd.Comments = value;
+                TechOperationForm.UpdateGrid();
+            }
+
         }
 
 

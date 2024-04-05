@@ -187,6 +187,15 @@ namespace TC_WinForms.WinForms.Work
             {
                 List<ExecutionWork> bb = techOperationWork.executionWorks.Where(w => w.Delete == false).OrderBy(o => o.Order).ToList();
 
+                if(bb.Count == 0)
+                {
+                    list.Add(new TechOperationDataGridItem
+                    {
+                        Nomer = -1,
+                        TechOperation = techOperationWork.techOperation.Name
+                    });
+                }
+
                 foreach (ExecutionWork executionWork in bb)
                 {
                     if (executionWork.IdGuid == new Guid())
@@ -272,7 +281,9 @@ namespace TC_WinForms.WinForms.Work
                         TechOperation = techOperationWork.techOperation.Name,
                         TechTransition = strComp,
                         TechTransitionValue = toolWork.Quantity.ToString(),
-                        ItsTool = true
+                        ItsTool = true,   
+                        Comments = toolWork.Comments
+
                     });
                     nomer++;
                 }
@@ -472,7 +483,16 @@ namespace TC_WinForms.WinForms.Work
                     continue;
                 }
 
-                str.Add(techOperationDataGridItem.Nomer.ToString());
+
+                if (techOperationDataGridItem.Nomer != -1)
+                {
+                    str.Add(techOperationDataGridItem.Nomer.ToString());
+                }
+                else
+                {
+                    str.Add("");
+                }
+
                 str.Add(techOperationDataGridItem.TechOperation);
                 str.Add(techOperationDataGridItem.Staff);
                 str.Add(techOperationDataGridItem.TechTransition);
@@ -482,9 +502,10 @@ namespace TC_WinForms.WinForms.Work
 
                 techOperationDataGridItem.listMachStr = new List<string>();
 
-                if (techOperationDataGridItem.listMachStr.Count == 0 && techOperationDataGridItem.listMach.Count > 0)
+
+                for (var index = 0; index < TehCarta.Machine_TCs.Count; index++)
                 {
-                    for (var index = 0; index < TehCarta.Machine_TCs.Count; index++)
+                    if (techOperationDataGridItem.listMachStr.Count == 0 && techOperationDataGridItem.listMach.Count > 0)
                     {
                         bool b = techOperationDataGridItem.listMach[index];
                         if (b)
@@ -502,8 +523,13 @@ namespace TC_WinForms.WinForms.Work
                                 str.Add("");
                             }
                         }
+
                     }
-                }
+                    else
+                    {
+                        str.Add("");                        
+                    }                    
+                }               
 
                 str.Add(techOperationDataGridItem.Protections);
 
@@ -513,7 +539,7 @@ namespace TC_WinForms.WinForms.Work
                 }
                 else
                 {
-                    str.Add("");
+                    str.Add(techOperationDataGridItem.Comments);
                 }
 
                 dgvMain.Rows.Add(str.ToArray());

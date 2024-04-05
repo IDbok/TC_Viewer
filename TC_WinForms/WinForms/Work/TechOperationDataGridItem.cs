@@ -36,5 +36,9 @@ namespace TC_WinForms.WinForms.Work
         public ExecutionWork techWork;
         public List<bool> listMach = new List<bool>();
         public List<string> listMachStr = new List<string>();
+
+        public string Comments = "";
+
+
     }
 }

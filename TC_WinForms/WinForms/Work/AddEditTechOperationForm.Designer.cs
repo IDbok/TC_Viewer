@@ -45,12 +45,6 @@
             tabPage6 = new TabPage();
             tableLayoutPanel6 = new TableLayoutPanel();
             dataGridViewInstrumentLocal = new DataGridView();
-            dataGridViewTextBoxColumn20 = new DataGridViewTextBoxColumn();
-            dataGridViewButtonColumn4 = new DataGridViewButtonColumn();
-            dataGridViewTextBoxColumn21 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn22 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn23 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn24 = new DataGridViewTextBoxColumn();
             comboBoxTO3 = new ComboBox();
             dataGridViewInstumentAll = new DataGridView();
             dataGridViewTextBoxColumn15 = new DataGridViewTextBoxColumn();
@@ -96,9 +90,17 @@
             dataGridViewTextBoxColumn6 = new DataGridViewTextBoxColumn();
             TimeExecution = new DataGridViewTextBoxColumn();
             dataGridViewTPLocal = new DataGridView();
+            dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
+            DateGridLocalTPDetete = new DataGridViewButtonColumn();
+            dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
+            Time = new DataGridViewTextBoxColumn();
+            Column19 = new DataGridViewTextBoxColumn();
+            Order1 = new DataGridViewTextBoxColumn();
             comboBoxTO = new ComboBox();
             tabPage4 = new TabPage();
             tableLayoutPanel4 = new TableLayoutPanel();
+            groupBox4 = new GroupBox();
+            PoiskPersonal = new TextBox();
             dataGridViewStaffAll = new DataGridView();
             dataGridViewTextBoxColumn45 = new DataGridViewTextBoxColumn();
             dataGridViewButtonColumn10 = new DataGridViewButtonColumn();
@@ -204,14 +206,13 @@
             dataGridViewTextBoxColumn63 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn64 = new DataGridViewTextBoxColumn();
             tabPage10 = new TabPage();
-            dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
-            DateGridLocalTPDetete = new DataGridViewButtonColumn();
-            dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
-            Time = new DataGridViewTextBoxColumn();
-            Column19 = new DataGridViewTextBoxColumn();
-            Order1 = new DataGridViewTextBoxColumn();
-            groupBox4 = new GroupBox();
-            PoiskPersonal = new TextBox();
+            dataGridViewTextBoxColumn20 = new DataGridViewTextBoxColumn();
+            dataGridViewButtonColumn4 = new DataGridViewButtonColumn();
+            dataGridViewTextBoxColumn21 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn22 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn23 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn24 = new DataGridViewTextBoxColumn();
+            Column20 = new DataGridViewTextBoxColumn();
             tableLayoutPanel1.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).BeginInit();
@@ -239,6 +240,7 @@
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPLocal).BeginInit();
             tabPage4.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
+            groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStaffAll).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStaff).BeginInit();
             tabPage7.SuspendLayout();
@@ -263,7 +265,6 @@
             tableLayoutPanel10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridView5).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView6).BeginInit();
-            groupBox4.SuspendLayout();
             SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -463,7 +464,7 @@
             dataGridViewInstrumentLocal.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewInstrumentLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewInstrumentLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewInstrumentLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn20, dataGridViewButtonColumn4, dataGridViewTextBoxColumn21, dataGridViewTextBoxColumn22, dataGridViewTextBoxColumn23, dataGridViewTextBoxColumn24 });
+            dataGridViewInstrumentLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn20, dataGridViewButtonColumn4, dataGridViewTextBoxColumn21, dataGridViewTextBoxColumn22, dataGridViewTextBoxColumn23, dataGridViewTextBoxColumn24, Column20 });
             dataGridViewInstrumentLocal.Location = new Point(3, 43);
             dataGridViewInstrumentLocal.Name = "dataGridViewInstrumentLocal";
             dataGridViewInstrumentLocal.RowHeadersWidth = 51;
@@ -471,53 +472,6 @@
             dataGridViewInstrumentLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridViewInstrumentLocal.Size = new Size(1211, 219);
             dataGridViewInstrumentLocal.TabIndex = 1;
-            // 
-            // dataGridViewTextBoxColumn20
-            // 
-            dataGridViewTextBoxColumn20.HeaderText = "Id";
-            dataGridViewTextBoxColumn20.MinimumWidth = 6;
-            dataGridViewTextBoxColumn20.Name = "dataGridViewTextBoxColumn20";
-            dataGridViewTextBoxColumn20.Visible = false;
-            // 
-            // dataGridViewButtonColumn4
-            // 
-            dataGridViewButtonColumn4.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            dataGridViewButtonColumn4.HeaderText = "";
-            dataGridViewButtonColumn4.MinimumWidth = 6;
-            dataGridViewButtonColumn4.Name = "dataGridViewButtonColumn4";
-            dataGridViewButtonColumn4.Resizable = DataGridViewTriState.True;
-            dataGridViewButtonColumn4.SortMode = DataGridViewColumnSortMode.Automatic;
-            dataGridViewButtonColumn4.Text = "Удалить";
-            dataGridViewButtonColumn4.Width = 125;
-            // 
-            // dataGridViewTextBoxColumn21
-            // 
-            dataGridViewTextBoxColumn21.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn21.HeaderText = "Наименование";
-            dataGridViewTextBoxColumn21.MinimumWidth = 6;
-            dataGridViewTextBoxColumn21.Name = "dataGridViewTextBoxColumn21";
-            dataGridViewTextBoxColumn21.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn22
-            // 
-            dataGridViewTextBoxColumn22.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn22.HeaderText = "Тип (исполнение)";
-            dataGridViewTextBoxColumn22.MinimumWidth = 6;
-            dataGridViewTextBoxColumn22.Name = "dataGridViewTextBoxColumn22";
-            dataGridViewTextBoxColumn22.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn23
-            // 
-            dataGridViewTextBoxColumn23.HeaderText = "Ед. Изм.";
-            dataGridViewTextBoxColumn23.MinimumWidth = 6;
-            dataGridViewTextBoxColumn23.Name = "dataGridViewTextBoxColumn23";
-            dataGridViewTextBoxColumn23.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn24
-            // 
-            dataGridViewTextBoxColumn24.HeaderText = "Кол-во";
-            dataGridViewTextBoxColumn24.MinimumWidth = 6;
-            dataGridViewTextBoxColumn24.Name = "dataGridViewTextBoxColumn24";
             // 
             // comboBoxTO3
             // 
@@ -964,6 +918,53 @@
             dataGridViewTPLocal.Size = new Size(1215, 219);
             dataGridViewTPLocal.TabIndex = 1;
             // 
+            // dataGridViewTextBoxColumn7
+            // 
+            dataGridViewTextBoxColumn7.HeaderText = "Id";
+            dataGridViewTextBoxColumn7.MinimumWidth = 6;
+            dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
+            dataGridViewTextBoxColumn7.Visible = false;
+            // 
+            // DateGridLocalTPDetete
+            // 
+            DateGridLocalTPDetete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            DateGridLocalTPDetete.HeaderText = "";
+            DateGridLocalTPDetete.MinimumWidth = 6;
+            DateGridLocalTPDetete.Name = "DateGridLocalTPDetete";
+            DateGridLocalTPDetete.Resizable = DataGridViewTriState.True;
+            DateGridLocalTPDetete.SortMode = DataGridViewColumnSortMode.Automatic;
+            DateGridLocalTPDetete.Text = "Удалить";
+            DateGridLocalTPDetete.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn8
+            // 
+            dataGridViewTextBoxColumn8.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn8.FillWeight = 69.7860947F;
+            dataGridViewTextBoxColumn8.HeaderText = "Технологические переходы";
+            dataGridViewTextBoxColumn8.MinimumWidth = 6;
+            dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
+            dataGridViewTextBoxColumn8.ReadOnly = true;
+            // 
+            // Time
+            // 
+            Time.FillWeight = 69.7860947F;
+            Time.HeaderText = "Время действ., мин.";
+            Time.MinimumWidth = 6;
+            Time.Name = "Time";
+            // 
+            // Column19
+            // 
+            Column19.HeaderText = "Комментарии";
+            Column19.MinimumWidth = 6;
+            Column19.Name = "Column19";
+            // 
+            // Order1
+            // 
+            Order1.HeaderText = "Order";
+            Order1.MinimumWidth = 6;
+            Order1.Name = "Order1";
+            Order1.Visible = false;
+            // 
             // comboBoxTO
             // 
             comboBoxTO.FormattingEnabled = true;
@@ -1003,6 +1004,23 @@
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel4.Size = new Size(1220, 517);
             tableLayoutPanel4.TabIndex = 0;
+            // 
+            // groupBox4
+            // 
+            groupBox4.Controls.Add(PoiskPersonal);
+            groupBox4.Location = new Point(3, 291);
+            groupBox4.Name = "groupBox4";
+            groupBox4.Size = new Size(292, 64);
+            groupBox4.TabIndex = 7;
+            groupBox4.TabStop = false;
+            groupBox4.Text = "Поиск";
+            // 
+            // PoiskPersonal
+            // 
+            PoiskPersonal.Location = new Point(16, 26);
+            PoiskPersonal.Name = "PoiskPersonal";
+            PoiskPersonal.Size = new Size(257, 27);
+            PoiskPersonal.TabIndex = 0;
             // 
             // dataGridViewStaffAll
             // 
@@ -2006,69 +2024,61 @@
             tabPage10.Size = new Size(200, 100);
             tabPage10.TabIndex = 0;
             // 
-            // dataGridViewTextBoxColumn7
+            // dataGridViewTextBoxColumn20
             // 
-            dataGridViewTextBoxColumn7.HeaderText = "Id";
-            dataGridViewTextBoxColumn7.MinimumWidth = 6;
-            dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
-            dataGridViewTextBoxColumn7.Visible = false;
+            dataGridViewTextBoxColumn20.HeaderText = "Id";
+            dataGridViewTextBoxColumn20.MinimumWidth = 6;
+            dataGridViewTextBoxColumn20.Name = "dataGridViewTextBoxColumn20";
+            dataGridViewTextBoxColumn20.Visible = false;
             // 
-            // DateGridLocalTPDetete
+            // dataGridViewButtonColumn4
             // 
-            DateGridLocalTPDetete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            DateGridLocalTPDetete.HeaderText = "";
-            DateGridLocalTPDetete.MinimumWidth = 6;
-            DateGridLocalTPDetete.Name = "DateGridLocalTPDetete";
-            DateGridLocalTPDetete.Resizable = DataGridViewTriState.True;
-            DateGridLocalTPDetete.SortMode = DataGridViewColumnSortMode.Automatic;
-            DateGridLocalTPDetete.Text = "Удалить";
-            DateGridLocalTPDetete.Width = 125;
+            dataGridViewButtonColumn4.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewButtonColumn4.HeaderText = "";
+            dataGridViewButtonColumn4.MinimumWidth = 6;
+            dataGridViewButtonColumn4.Name = "dataGridViewButtonColumn4";
+            dataGridViewButtonColumn4.Resizable = DataGridViewTriState.True;
+            dataGridViewButtonColumn4.SortMode = DataGridViewColumnSortMode.Automatic;
+            dataGridViewButtonColumn4.Text = "Удалить";
+            dataGridViewButtonColumn4.Width = 125;
             // 
-            // dataGridViewTextBoxColumn8
+            // dataGridViewTextBoxColumn21
             // 
-            dataGridViewTextBoxColumn8.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn8.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn8.HeaderText = "Технологические переходы";
-            dataGridViewTextBoxColumn8.MinimumWidth = 6;
-            dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
-            dataGridViewTextBoxColumn8.ReadOnly = true;
+            dataGridViewTextBoxColumn21.FillWeight = 69.7860947F;
+            dataGridViewTextBoxColumn21.HeaderText = "Наименование";
+            dataGridViewTextBoxColumn21.MinimumWidth = 6;
+            dataGridViewTextBoxColumn21.Name = "dataGridViewTextBoxColumn21";
+            dataGridViewTextBoxColumn21.ReadOnly = true;
             // 
-            // Time
+            // dataGridViewTextBoxColumn22
             // 
-            Time.FillWeight = 69.7860947F;
-            Time.HeaderText = "Время действ., мин.";
-            Time.MinimumWidth = 6;
-            Time.Name = "Time";
+            dataGridViewTextBoxColumn22.FillWeight = 69.7860947F;
+            dataGridViewTextBoxColumn22.HeaderText = "Тип (исполнение)";
+            dataGridViewTextBoxColumn22.MinimumWidth = 6;
+            dataGridViewTextBoxColumn22.Name = "dataGridViewTextBoxColumn22";
+            dataGridViewTextBoxColumn22.ReadOnly = true;
             // 
-            // Column19
+            // dataGridViewTextBoxColumn23
             // 
-            Column19.HeaderText = "Комментарии";
-            Column19.MinimumWidth = 6;
-            Column19.Name = "Column19";
+            dataGridViewTextBoxColumn23.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewTextBoxColumn23.HeaderText = "Ед. Изм.";
+            dataGridViewTextBoxColumn23.MinimumWidth = 6;
+            dataGridViewTextBoxColumn23.Name = "dataGridViewTextBoxColumn23";
+            dataGridViewTextBoxColumn23.ReadOnly = true;
             // 
-            // Order1
+            // dataGridViewTextBoxColumn24
             // 
-            Order1.HeaderText = "Order";
-            Order1.MinimumWidth = 6;
-            Order1.Name = "Order1";
-            Order1.Visible = false;
+            dataGridViewTextBoxColumn24.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewTextBoxColumn24.HeaderText = "Кол-во";
+            dataGridViewTextBoxColumn24.MinimumWidth = 6;
+            dataGridViewTextBoxColumn24.Name = "dataGridViewTextBoxColumn24";
             // 
-            // groupBox4
+            // Column20
             // 
-            groupBox4.Controls.Add(PoiskPersonal);
-            groupBox4.Location = new Point(3, 291);
-            groupBox4.Name = "groupBox4";
-            groupBox4.Size = new Size(292, 64);
-            groupBox4.TabIndex = 7;
-            groupBox4.TabStop = false;
-            groupBox4.Text = "Поиск";
-            // 
-            // PoiskPersonal
-            // 
-            PoiskPersonal.Location = new Point(16, 26);
-            PoiskPersonal.Name = "PoiskPersonal";
-            PoiskPersonal.Size = new Size(257, 27);
-            PoiskPersonal.TabIndex = 0;
+            Column20.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Column20.HeaderText = "Комментарии";
+            Column20.MinimumWidth = 6;
+            Column20.Name = "Column20";
             // 
             // AddEditTechOperationForm
             // 
@@ -2109,6 +2119,8 @@
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPLocal).EndInit();
             tabPage4.ResumeLayout(false);
             tableLayoutPanel4.ResumeLayout(false);
+            groupBox4.ResumeLayout(false);
+            groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStaffAll).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStaff).EndInit();
             tabPage7.ResumeLayout(false);
@@ -2135,8 +2147,6 @@
             tableLayoutPanel10.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridView5).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView6).EndInit();
-            groupBox4.ResumeLayout(false);
-            groupBox4.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -2197,12 +2207,6 @@
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn18;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn19;
         private DataGridView dataGridViewInstrumentLocal;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn20;
-        private DataGridViewButtonColumn dataGridViewButtonColumn4;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn21;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn22;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn23;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn24;
         private ComboBox comboBoxTO3;
         private GroupBox groupBox1;
         private TextBox textBoxPoiskInstrument;
@@ -2326,5 +2330,12 @@
         private DataGridViewTextBoxColumn Order1;
         private GroupBox groupBox4;
         private TextBox PoiskPersonal;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn20;
+        private DataGridViewButtonColumn dataGridViewButtonColumn4;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn21;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn22;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn23;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn24;
+        private DataGridViewTextBoxColumn Column20;
     }
 }
