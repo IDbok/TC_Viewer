@@ -29,26 +29,26 @@
         private void InitializeComponent()
         {
             label1 = new Label();
-            textBox1 = new TextBox();
+            txtArticle = new TextBox();
             label2 = new Label();
             label3 = new Label();
-            textBox4 = new TextBox();
+            txtTechProcessType = new TextBox();
             label4 = new Label();
-            textBox5 = new TextBox();
+            txtTechProcess = new TextBox();
             label5 = new Label();
-            textBox6 = new TextBox();
+            txtParametr = new TextBox();
             label6 = new Label();
-            textBox7 = new TextBox();
+            txtFinalProduct = new TextBox();
             label7 = new Label();
-            textBox8 = new TextBox();
+            txtApplicability = new TextBox();
             label8 = new Label();
-            textBox9 = new TextBox();
+            txtNote = new TextBox();
             label9 = new Label();
             label10 = new Label();
-            checkBox1 = new CheckBox();
-            comboBoxType = new ComboBox();
-            comboBoxNetworkVoltage = new ComboBox();
-            button1 = new Button();
+            chbxIsCompleted = new CheckBox();
+            cbxType = new ComboBox();
+            cbxNetworkVoltage = new ComboBox();
+            btnSaveAndOpen = new Button();
             button2 = new Button();
             btnExportExcel = new Button();
             SuspendLayout();
@@ -64,14 +64,14 @@
             label1.TabIndex = 0;
             label1.Text = "Артикул";
             // 
-            // textBox1
+            // txtArticle
             // 
-            textBox1.Location = new Point(276, 30);
-            textBox1.Margin = new Padding(4);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(628, 31);
-            textBox1.TabIndex = 1;
-            textBox1.TextChanged += textBox1_TextChanged;
+            txtArticle.Location = new Point(276, 30);
+            txtArticle.Margin = new Padding(4);
+            txtArticle.Name = "txtArticle";
+            txtArticle.Size = new Size(628, 31);
+            txtArticle.TabIndex = 1;
+            txtArticle.TextChanged += textBox1_TextChanged;
             // 
             // label2
             // 
@@ -95,14 +95,14 @@
             label3.TabIndex = 4;
             label3.Text = "Сеть, кВ";
             // 
-            // textBox4
+            // txtTechProcessType
             // 
-            textBox4.Location = new Point(276, 192);
-            textBox4.Margin = new Padding(4);
-            textBox4.Name = "textBox4";
-            textBox4.Size = new Size(628, 31);
-            textBox4.TabIndex = 7;
-            textBox4.TextChanged += textBox1_TextChanged;
+            txtTechProcessType.Location = new Point(276, 192);
+            txtTechProcessType.Margin = new Padding(4);
+            txtTechProcessType.Name = "txtTechProcessType";
+            txtTechProcessType.Size = new Size(628, 31);
+            txtTechProcessType.TabIndex = 7;
+            txtTechProcessType.TextChanged += textBox1_TextChanged;
             // 
             // label4
             // 
@@ -114,14 +114,14 @@
             label4.TabIndex = 6;
             label4.Text = "Тип тех. процесса";
             // 
-            // textBox5
+            // txtTechProcess
             // 
-            textBox5.Location = new Point(276, 249);
-            textBox5.Margin = new Padding(4);
-            textBox5.Name = "textBox5";
-            textBox5.Size = new Size(628, 31);
-            textBox5.TabIndex = 9;
-            textBox5.TextChanged += textBox1_TextChanged;
+            txtTechProcess.Location = new Point(276, 249);
+            txtTechProcess.Margin = new Padding(4);
+            txtTechProcess.Name = "txtTechProcess";
+            txtTechProcess.Size = new Size(628, 31);
+            txtTechProcess.TabIndex = 9;
+            txtTechProcess.TextChanged += textBox1_TextChanged;
             // 
             // label5
             // 
@@ -133,14 +133,14 @@
             label5.TabIndex = 8;
             label5.Text = "Тех. процесс";
             // 
-            // textBox6
+            // txtParametr
             // 
-            textBox6.Location = new Point(276, 305);
-            textBox6.Margin = new Padding(4);
-            textBox6.Name = "textBox6";
-            textBox6.Size = new Size(628, 31);
-            textBox6.TabIndex = 11;
-            textBox6.TextChanged += textBox1_TextChanged;
+            txtParametr.Location = new Point(276, 305);
+            txtParametr.Margin = new Padding(4);
+            txtParametr.Name = "txtParametr";
+            txtParametr.Size = new Size(628, 31);
+            txtParametr.TabIndex = 11;
+            txtParametr.TextChanged += textBox1_TextChanged;
             // 
             // label6
             // 
@@ -152,14 +152,14 @@
             label6.TabIndex = 10;
             label6.Text = "Параметр";
             // 
-            // textBox7
+            // txtFinalProduct
             // 
-            textBox7.Location = new Point(276, 362);
-            textBox7.Margin = new Padding(4);
-            textBox7.Name = "textBox7";
-            textBox7.Size = new Size(628, 31);
-            textBox7.TabIndex = 13;
-            textBox7.TextChanged += textBox1_TextChanged;
+            txtFinalProduct.Location = new Point(276, 362);
+            txtFinalProduct.Margin = new Padding(4);
+            txtFinalProduct.Name = "txtFinalProduct";
+            txtFinalProduct.Size = new Size(628, 31);
+            txtFinalProduct.TabIndex = 13;
+            txtFinalProduct.TextChanged += textBox1_TextChanged;
             // 
             // label7
             // 
@@ -171,14 +171,14 @@
             label7.TabIndex = 12;
             label7.Text = "Конечный продукт";
             // 
-            // textBox8
+            // txtApplicability
             // 
-            textBox8.Location = new Point(276, 416);
-            textBox8.Margin = new Padding(4);
-            textBox8.Name = "textBox8";
-            textBox8.Size = new Size(628, 31);
-            textBox8.TabIndex = 15;
-            textBox8.TextChanged += textBox1_TextChanged;
+            txtApplicability.Location = new Point(276, 416);
+            txtApplicability.Margin = new Padding(4);
+            txtApplicability.Name = "txtApplicability";
+            txtApplicability.Size = new Size(628, 31);
+            txtApplicability.TabIndex = 15;
+            txtApplicability.TextChanged += textBox1_TextChanged;
             // 
             // label8
             // 
@@ -190,14 +190,14 @@
             label8.TabIndex = 14;
             label8.Text = "Применимость тех. карты";
             // 
-            // textBox9
+            // txtNote
             // 
-            textBox9.Location = new Point(276, 474);
-            textBox9.Margin = new Padding(4);
-            textBox9.Name = "textBox9";
-            textBox9.Size = new Size(628, 31);
-            textBox9.TabIndex = 17;
-            textBox9.TextChanged += textBox1_TextChanged;
+            txtNote.Location = new Point(276, 474);
+            txtNote.Margin = new Padding(4);
+            txtNote.Name = "txtNote";
+            txtNote.Size = new Size(628, 31);
+            txtNote.TabIndex = 17;
+            txtNote.TextChanged += textBox1_TextChanged;
             // 
             // label9
             // 
@@ -219,46 +219,46 @@
             label10.TabIndex = 18;
             label10.Text = "Наличие";
             // 
-            // checkBox1
+            // chbxIsCompleted
             // 
-            checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(276, 534);
-            checkBox1.Margin = new Padding(4);
-            checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(22, 21);
-            checkBox1.TabIndex = 19;
-            checkBox1.UseVisualStyleBackColor = true;
+            chbxIsCompleted.AutoSize = true;
+            chbxIsCompleted.Location = new Point(276, 534);
+            chbxIsCompleted.Margin = new Padding(4);
+            chbxIsCompleted.Name = "chbxIsCompleted";
+            chbxIsCompleted.Size = new Size(22, 21);
+            chbxIsCompleted.TabIndex = 19;
+            chbxIsCompleted.UseVisualStyleBackColor = true;
             // 
-            // comboBoxType
+            // cbxType
             // 
-            comboBoxType.FormattingEnabled = true;
-            comboBoxType.Location = new Point(276, 84);
-            comboBoxType.Margin = new Padding(4);
-            comboBoxType.Name = "comboBoxType";
-            comboBoxType.Size = new Size(319, 33);
-            comboBoxType.TabIndex = 20;
-            comboBoxType.SelectedIndexChanged += comboBoxType_SelectedIndexChanged;
+            cbxType.FormattingEnabled = true;
+            cbxType.Location = new Point(276, 84);
+            cbxType.Margin = new Padding(4);
+            cbxType.Name = "cbxType";
+            cbxType.Size = new Size(319, 33);
+            cbxType.TabIndex = 20;
+            cbxType.SelectedIndexChanged += comboBoxType_SelectedIndexChanged;
             // 
-            // comboBoxNetworkVoltage
+            // cbxNetworkVoltage
             // 
-            comboBoxNetworkVoltage.FormattingEnabled = true;
-            comboBoxNetworkVoltage.Location = new Point(276, 139);
-            comboBoxNetworkVoltage.Margin = new Padding(4);
-            comboBoxNetworkVoltage.Name = "comboBoxNetworkVoltage";
-            comboBoxNetworkVoltage.Size = new Size(319, 33);
-            comboBoxNetworkVoltage.TabIndex = 21;
-            comboBoxNetworkVoltage.SelectedIndexChanged += comboBoxType_SelectedIndexChanged;
+            cbxNetworkVoltage.FormattingEnabled = true;
+            cbxNetworkVoltage.Location = new Point(276, 139);
+            cbxNetworkVoltage.Margin = new Padding(4);
+            cbxNetworkVoltage.Name = "cbxNetworkVoltage";
+            cbxNetworkVoltage.Size = new Size(319, 33);
+            cbxNetworkVoltage.TabIndex = 21;
+            cbxNetworkVoltage.SelectedIndexChanged += comboBoxType_SelectedIndexChanged;
             // 
-            // button1
+            // btnSaveAndOpen
             // 
-            button1.Location = new Point(38, 629);
-            button1.Margin = new Padding(4);
-            button1.Name = "button1";
-            button1.Size = new Size(261, 79);
-            button1.TabIndex = 22;
-            button1.Text = "Сохранить и открыть";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            btnSaveAndOpen.Location = new Point(38, 629);
+            btnSaveAndOpen.Margin = new Padding(4);
+            btnSaveAndOpen.Name = "btnSaveAndOpen";
+            btnSaveAndOpen.Size = new Size(261, 79);
+            btnSaveAndOpen.TabIndex = 22;
+            btnSaveAndOpen.Text = "Открыть";
+            btnSaveAndOpen.UseVisualStyleBackColor = true;
+            btnSaveAndOpen.Click += btnSaveAndOpen_Click;
             // 
             // button2
             // 
@@ -286,31 +286,33 @@
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(984, 780);
+            ClientSize = new Size(948, 784);
             Controls.Add(btnExportExcel);
             Controls.Add(button2);
-            Controls.Add(button1);
-            Controls.Add(comboBoxNetworkVoltage);
-            Controls.Add(comboBoxType);
-            Controls.Add(checkBox1);
+            Controls.Add(btnSaveAndOpen);
+            Controls.Add(cbxNetworkVoltage);
+            Controls.Add(cbxType);
+            Controls.Add(chbxIsCompleted);
             Controls.Add(label10);
-            Controls.Add(textBox9);
+            Controls.Add(txtNote);
             Controls.Add(label9);
-            Controls.Add(textBox8);
+            Controls.Add(txtApplicability);
             Controls.Add(label8);
-            Controls.Add(textBox7);
+            Controls.Add(txtFinalProduct);
             Controls.Add(label7);
-            Controls.Add(textBox6);
+            Controls.Add(txtParametr);
             Controls.Add(label6);
-            Controls.Add(textBox5);
+            Controls.Add(txtTechProcess);
             Controls.Add(label5);
-            Controls.Add(textBox4);
+            Controls.Add(txtTechProcessType);
             Controls.Add(label4);
             Controls.Add(label3);
             Controls.Add(label2);
-            Controls.Add(textBox1);
+            Controls.Add(txtArticle);
             Controls.Add(label1);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Margin = new Padding(4);
+            MinimumSize = new Size(970, 840);
             Name = "Win7_1_TCs_Window";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Win7_1_TCs_Window";
@@ -321,26 +323,26 @@
         #endregion
 
         private Label label1;
-        private TextBox textBox1;
+        private TextBox txtArticle;
         private Label label2;
         private Label label3;
-        private TextBox textBox4;
+        private TextBox txtTechProcessType;
         private Label label4;
-        private TextBox textBox5;
+        private TextBox txtTechProcess;
         private Label label5;
-        private TextBox textBox6;
+        private TextBox txtParametr;
         private Label label6;
-        private TextBox textBox7;
+        private TextBox txtFinalProduct;
         private Label label7;
-        private TextBox textBox8;
+        private TextBox txtApplicability;
         private Label label8;
-        private TextBox textBox9;
+        private TextBox txtNote;
         private Label label9;
         private Label label10;
-        private CheckBox checkBox1;
-        private ComboBox comboBoxType;
-        private ComboBox comboBoxNetworkVoltage;
-        private Button button1;
+        private CheckBox chbxIsCompleted;
+        private ComboBox cbxType;
+        private ComboBox cbxNetworkVoltage;
+        private Button btnSaveAndOpen;
         private Button button2;
         private Button btnExportExcel;
     }

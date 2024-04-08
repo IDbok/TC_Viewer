@@ -17,8 +17,5 @@ namespace TcModels.Models.TcContent
         public double Quantity { get; set; }
 
         public string Comments { get; set; }
-
-
-
     }
 }

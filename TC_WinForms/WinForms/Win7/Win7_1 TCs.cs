@@ -8,7 +8,7 @@ using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_1_TCs : Form, ISaveEventForm, ILoadDataAsyncForm
+    public partial class Win7_1_TCs : Form, ISaveEventForm, ILoadDataAsyncForm, IPaginationControl
     {
         private DbConnector dbCon = new DbConnector();
         private List<DisplayedTechnologicalCard> _displayedtechnologicalCards;
@@ -22,6 +22,24 @@ namespace TC_WinForms.WinForms
 
         public bool _isDataLoaded = false;
         public bool CloseFormsNoSave { get; set; } = false;
+
+        private int currentPageIndex = 0;
+        private int pageSize = 50;
+        private int totalPageCount;
+
+        private bool isFiltered = false;
+
+        private List<DisplayedTechnologicalCard> _filteredList;
+        private int filteredPageIndex = 0;
+        private int totalFilteredPageCount;
+
+        public event EventHandler<PageInfoEventArgs> PageInfoChanged;
+
+        public void RaisePageInfoChanged(PageInfoEventArgs e)
+        {
+            PageInfoChanged?.Invoke(this, e);
+        }
+
         public Win7_1_TCs(int accessLevel)
         {
             InitializeComponent();
@@ -43,11 +61,12 @@ namespace TC_WinForms.WinForms
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
             progressBar.Visible = true;
+            dgvMain.Visible = false;
             if (!_isDataLoaded)
             {
                 await LoadDataAsync();
             }
-            //await LoadDataAsync();
+
             SetDGVColumnsSettings();
             DisplayedEntityHelper.SetupDataGridView<DisplayedTechnologicalCard>(dgvMain);
 
@@ -55,23 +74,56 @@ namespace TC_WinForms.WinForms
             SetupTypeComboBox();
 
             progressBar.Visible = false;
+            dgvMain.Visible = true;
+            _isDataLoaded = true;
         }
         public async Task LoadDataAsync()
         {
             _displayedtechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
+                .OrderBy(tc => tc.NetworkVoltage)
+                    .ThenBy(tc => tc.Type)
+                    .ThenBy(tc => tc.Article)
                 .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
-            _bindingList = new BindingList<DisplayedTechnologicalCard>(_displayedtechnologicalCards);
-            _bindingList.ListChanged += BindingList_ListChanged;
-            ConfigureDgvWithComboBoxColumn();
 
-            dgvMain.DataSource = _bindingList;
-
-            _isDataLoaded = true;
-
+            //_bindingList = new BindingList<DisplayedTechnologicalCard>(_displayedtechnologicalCards);
+            //_bindingList.ListChanged += BindingList_ListChanged;
+            //ConfigureDgvWithComboBoxColumn();
+            totalPageCount = (int)Math.Ceiling(_displayedtechnologicalCards.Count / (double)pageSize);
+            UpdateDisplayedData();
+            //dgvMain.DataSource = _bindingList;
         }
         private void AccessInitialization(int accessLevel)
         {
         }
+        private void UpdateDisplayedData()
+        {
+            // Расчет отображаемых записей
+            var displayedData = isFiltered ? _filteredList : _displayedtechnologicalCards;
+            int totalRecords = displayedData.Count;
+            int startRecord = isFiltered ? filteredPageIndex * pageSize + 1 : currentPageIndex * pageSize + 1;
+            // Обеспечиваем, что endRecord не превышает общее количество записей
+            int endRecord = Math.Min(startRecord + pageSize - 1, totalRecords);
+
+            int skipedItems = isFiltered ? filteredPageIndex * pageSize : currentPageIndex * pageSize;
+
+            // Обновляем данные
+            var pageData = displayedData.Skip(skipedItems).Take(pageSize).ToList();
+            _bindingList = new BindingList<DisplayedTechnologicalCard>(pageData);
+            dgvMain.DataSource = _bindingList;
+
+            // Подготовка данных для события
+            PageInfoEventArgs pageInfoEventArgs = new PageInfoEventArgs
+            {
+                StartRecord = startRecord,
+                EndRecord = endRecord,
+                TotalRecords = totalRecords
+            };
+
+            // Вызов события с подготовленными данными
+            RaisePageInfoChanged(pageInfoEventArgs);
+        }
+
+        
 
         /////////////////////////////// btnNavigation events /////////////////////////////////////////////////////////////////
 
@@ -186,18 +238,9 @@ namespace TC_WinForms.WinForms
 
         void SetDGVColumnsSettings()
         {
-            //if (dgvMain.InvokeRequired)
-            //{
-            //    dgvMain.Invoke((MethodInvoker)(() => AutoSizeColumns()));
-            //}
-            //else
-            //{
-            //    AutoSizeColumns();
-            //}
-
             // автоподбор ширины столбцов под ширину таблицы
             dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            // dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.RowHeadersWidth = 25;
 
@@ -226,16 +269,6 @@ namespace TC_WinForms.WinForms
                 dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             }
 
-            //    //// make columns readonly
-            //    //foreach (DataGridViewColumn column in dgvMain.Columns)
-            //    //{
-            //    //    column.ReadOnly = true;
-            //    //}
-            //    //// make columns editable
-            //    //dgvMain.Columns["Order"].ReadOnly = false;
-
-            dgvMain.Columns[nameof(DisplayedTechnologicalCard.Id)].ReadOnly = true;
-            dgvMain.Columns[nameof(DisplayedTechnologicalCard.Version)].ReadOnly = true;
 
 
 
@@ -380,9 +413,9 @@ namespace TC_WinForms.WinForms
                     nameof(FinalProduct),
                     nameof(Applicability),
                     nameof(Note),
-                    nameof(IsCompleted),
-                    nameof(Id),
-                    nameof(Version),
+                    // nameof(IsCompleted),
+                    // nameof(Id),
+                    // nameof(Version),
 
                 };
             }
@@ -648,6 +681,8 @@ namespace TC_WinForms.WinForms
 
         private void FilterTechnologicalCards()
         {
+            if (!_isDataLoaded) { return; }
+
             try
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
@@ -656,11 +691,20 @@ namespace TC_WinForms.WinForms
 
                 if (string.IsNullOrWhiteSpace(searchText) && networkVoltageFilter == "Все" && typeFilter == "Все")
                 {
-                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+
+                    isFiltered= false;
+                    filteredPageIndex = 0;
+
+                    UpdateDisplayedData();
+                    //dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
                 }
                 else
                 {
-                    var filteredList = _bindingList.Where(card =>
+
+                    isFiltered = true;
+                    filteredPageIndex = 0;
+
+                    var filteredList = _displayedtechnologicalCards.Where(card =>
                         (searchText == ""
                         ||
                             (card.Article?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -678,11 +722,12 @@ namespace TC_WinForms.WinForms
                         (networkVoltageFilter == "Все" || card.NetworkVoltage.ToString() == networkVoltageFilter)
                         &&
                         (typeFilter == "Все" || card.Type.ToString() == typeFilter)
-                        //card.NetworkVoltage.ToString().Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                        //card.Id.ToString().Contains(searchText, StringComparison.OrdinalIgnoreCase)
                         ).ToList();
 
-                    dgvMain.DataSource = new BindingList<DisplayedTechnologicalCard>(filteredList);
+                    totalFilteredPageCount = (int)Math.Ceiling(filteredList.Count / (double)pageSize);
+                    _filteredList = filteredList;
+
+                    UpdateDisplayedData();
                 }
             }
             catch (Exception e)
@@ -698,7 +743,7 @@ namespace TC_WinForms.WinForms
         }
         private void SetupNetworkVoltageComboBox()
         {
-            var voltagies = _bindingList.Select(obj => obj.NetworkVoltage).Distinct().ToList();
+            var voltagies = _displayedtechnologicalCards.Select(obj => obj.NetworkVoltage).Distinct().ToList();
             
             voltagies.Sort((a, b) => b.CompareTo(a));
 
@@ -716,7 +761,7 @@ namespace TC_WinForms.WinForms
         }
         private void SetupTypeComboBox()
         {
-            var types = _bindingList.Select(obj => obj.Type).Distinct().ToList();
+            var types = _displayedtechnologicalCards.Select(obj => obj.Type).Distinct().ToList();
             types.Sort();
 
             cbxTypeFilter.Items.Add("Все");
@@ -734,10 +779,53 @@ namespace TC_WinForms.WinForms
         private void cbxType_SelectedIndexChanged(object sender, EventArgs e)
         {
             FilterTechnologicalCards();
+
             var width = TextRenderer.MeasureText(cbxTypeFilter.SelectedItem.ToString(), cbxTypeFilter.Font).Width + 20;
             cbxTypeFilter.Width = width < 160 ?
                 160
                 : width;
+        }
+
+        
+
+        public void GoToNextPage()
+        {
+            if (isFiltered)
+            {
+                if (filteredPageIndex < totalFilteredPageCount - 1)
+                {
+                    filteredPageIndex++;
+                    UpdateDisplayedData();
+                }
+            }
+            else
+            {
+                if (currentPageIndex < totalPageCount - 1)
+                {
+                    currentPageIndex++;
+                    UpdateDisplayedData();
+                }
+            }
+        }
+
+        public void GoToPreviousPage()
+        {
+            if(isFiltered)
+            {
+                if (filteredPageIndex > 0)
+                {
+                    filteredPageIndex--;
+                    UpdateDisplayedData();
+                }
+            }
+            else
+            {
+                if (currentPageIndex > 0)
+                {
+                    currentPageIndex--;
+                    UpdateDisplayedData();
+                }
+            }
         }
     }
 }

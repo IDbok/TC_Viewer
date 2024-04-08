@@ -32,12 +32,13 @@ namespace TC_WinForms.WinForms
             this.KeyDown += ControlSaveEvent;
 
             SetTagsToButtons();
+
         }
 
         private async void Win6_new_Load(object sender, EventArgs e)
         {
             this.Text = $"{_tc.Name} ({_tc.Article})";
-            await ShowForm(EModelType.Staff); 
+            await ShowForm(EModelType.Staff);
         }
         private void btnBack_Click(object sender, EventArgs e)
         {
@@ -53,6 +54,7 @@ namespace TC_WinForms.WinForms
             }
             this.Dispose();
             // todo - if there are some changes - ask user if he wants to save them
+
         }
 
         private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
@@ -140,7 +142,10 @@ namespace TC_WinForms.WinForms
         }
         private void SwitchActiveForm(Form form) // todo - move to WinProcessing and add to win7
         {
-            pnlDataViewer.Controls.Clear();
+            if (_activeForm != null)
+            {
+                _activeForm.Hide();
+            }
             form.TopLevel = false;
             form.FormBorderStyle = FormBorderStyle.None;
             form.Dock = DockStyle.Fill;

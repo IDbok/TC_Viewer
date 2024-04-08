@@ -109,23 +109,39 @@ namespace TC_WinForms.WinForms
             //// автоперенос в ячейках
             dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
-            dgvMain.Columns["Order"].DefaultCellStyle.BackColor = Color.LightGray;
-            dgvMain.Columns["Quantity"].DefaultCellStyle.BackColor = Color.LightGray; //Color.LightBlue;
-            dgvMain.Columns["Note"].DefaultCellStyle.BackColor = Color.LightGray;
+            //// ширина столбцов по содержанию
+            //var autosizeColumn = new List<string>
+            //{
+            //    nameof(DisplayedMachine_TC.Order),
+            //    nameof(DisplayedMachine_TC.Name),
+            //    nameof(DisplayedMachine_TC.Type),
+            //    nameof(DisplayedMachine_TC.Unit),
+            //    nameof(DisplayedMachine_TC.Quantity),
 
-            // ширина столбцов по содержанию
-            var autosizeColumn = new List<string>
+            //    nameof(DisplayedMachine_TC.ChildId),
+
+            //};
+            //foreach (var column in autosizeColumn)
+            //{
+            //    dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            //}
+
+            int pixels = 35;
+            // Минимальные ширины столбцов
+            Dictionary<string, int> fixColumnWidths = new Dictionary<string, int>
             {
-                "Order",
-                "Quantity",
-                "Note",
-                "ChildId",
-                "Name",
-                "Type",
+                { nameof(DisplayedMachine_TC.Order), 1*pixels },
+                { nameof(DisplayedMachine_TC.Type), 4*pixels },
+                { nameof(DisplayedMachine_TC.Unit), 2*pixels },
+                { nameof(DisplayedMachine_TC.Quantity), 3*pixels },
+                { nameof(DisplayedMachine_TC.ChildId), 2*pixels },
+
             };
-            foreach (var column in autosizeColumn)
+            foreach (var column in fixColumnWidths)
             {
-                dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                dgvMain.Columns[column.Key].Width = column.Value;
+                dgvMain.Columns[column.Key].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                dgvMain.Columns[column.Key].Resizable = DataGridViewTriState.False;
             }
 
             // make columns readonly
@@ -135,13 +151,13 @@ namespace TC_WinForms.WinForms
             }
             var changeableColumn = new List<string>
             {
-                "Order",
-                "Quantity",
-                "Note",
+                nameof(DisplayedMachine_TC.Order),
+                nameof(DisplayedMachine_TC.Quantity),
             };
             foreach (var column in changeableColumn)
             {
                 dgvMain.Columns[column].ReadOnly = false;
+                dgvMain.Columns[column].DefaultCellStyle.BackColor = Color.LightGray;
             }
         }
 
@@ -272,13 +288,13 @@ namespace TC_WinForms.WinForms
                     nameof(Name),
                     nameof(Type),
                     nameof(Unit),
-                    nameof(Price),
-                    nameof(Description),
-                    nameof(Manufacturer),
-                    nameof(ClassifierCode),
+                    // nameof(Description),
+                    // nameof(Manufacturer),
+                    // nameof(ClassifierCode),
 
                     nameof(Quantity),
-                    nameof(Note),
+                   // nameof(Price),
+                    //nameof(Note),
 
                     nameof(ChildId),
 

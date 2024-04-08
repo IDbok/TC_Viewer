@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OfficeOpenXml.Style;
 using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;

@@ -55,7 +55,7 @@ namespace TC_WinForms.WinForms
             dgvMain.Name = "dgvMain";
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
-            dgvMain.Size = new Size(1000, 474);
+            dgvMain.Size = new Size(1378, 456);
             dgvMain.TabIndex = 0;
             dgvMain.CellEndEdit += dgvMain_CellEndEdit;
             // 
@@ -67,7 +67,7 @@ namespace TC_WinForms.WinForms
             pnlControls.Location = new Point(0, 0);
             pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1000, 88);
+            pnlControls.Size = new Size(1378, 88);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
@@ -86,7 +86,7 @@ namespace TC_WinForms.WinForms
             pnlControlBtns.Controls.Add(btnMoveUp);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(385, 0);
+            pnlControlBtns.Location = new Point(763, 0);
             pnlControlBtns.Margin = new Padding(4);
             pnlControlBtns.Name = "pnlControlBtns";
             pnlControlBtns.Size = new Size(615, 88);
@@ -143,17 +143,18 @@ namespace TC_WinForms.WinForms
             pnlDataViewer.Location = new Point(0, 88);
             pnlDataViewer.Margin = new Padding(4);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1000, 474);
+            pnlDataViewer.Size = new Size(1378, 456);
             pnlDataViewer.TabIndex = 2;
             // 
             // Win6_Staff
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1000, 562);
+            ClientSize = new Size(1378, 544);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
             Margin = new Padding(4);
+            MinimumSize = new Size(1400, 600);
             Name = "Win6_Staff";
             Text = "Win6_Staff";
             FormClosing += Win6_Staff_FormClosing;

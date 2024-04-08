@@ -1,18 +1,9 @@
 ﻿using ExcelParsing.DataProcessing;
-using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TcDbConnector;
 using TcModels.Models;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using ComboBox = System.Windows.Forms.ComboBox;
 using TextBox = System.Windows.Forms.TextBox;
@@ -36,9 +27,11 @@ namespace TC_WinForms.WinForms
 
             ConfigureComboBox();
 
-            AllEllement.Add(textBox1);
-            AllEllement.Add(comboBoxType);
-            AllEllement.Add(comboBoxNetworkVoltage);
+            AllEllement.Add(txtArticle);
+            AllEllement.Add(cbxType);
+            AllEllement.Add(cbxNetworkVoltage);
+
+            SubscribeToChanges(); // подписываемся на изменения сразу всех полей
 
             if (tcId != null)
             {
@@ -51,22 +44,22 @@ namespace TC_WinForms.WinForms
 
         public void load(TechnologicalCard LocalCard)
         {
-            textBox1.Text = LocalCard.Article;
-            comboBoxType.Text = LocalCard.Type;
-            comboBoxNetworkVoltage.Text = LocalCard.NetworkVoltage.ToString();
-            textBox4.Text = LocalCard.TechnologicalProcessType;
-            textBox5.Text = LocalCard.TechnologicalProcessName;
-            textBox6.Text = LocalCard.Parameter;
-            textBox7.Text = LocalCard.FinalProduct;
-            textBox8.Text = LocalCard.Applicability;
-            textBox9.Text = LocalCard.Note;
-            checkBox1.Checked = LocalCard.IsCompleted;
+            txtArticle.Text = LocalCard.Article;
+            cbxType.Text = LocalCard.Type;
+            cbxNetworkVoltage.Text = LocalCard.NetworkVoltage.ToString();
+            txtTechProcessType.Text = LocalCard.TechnologicalProcessType;
+            txtTechProcess.Text = LocalCard.TechnologicalProcessName;
+            txtParametr.Text = LocalCard.Parameter;
+            txtFinalProduct.Text = LocalCard.FinalProduct;
+            txtApplicability.Text = LocalCard.Applicability;
+            txtNote.Text = LocalCard.Note;
+            chbxIsCompleted.Checked = LocalCard.IsCompleted;
         }
 
         private void ConfigureComboBox()
         {
-            comboBoxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
-            comboBoxNetworkVoltage.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f, 0f });
+            cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
+            cbxNetworkVoltage.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f, 0f });
         }
 
         bool NoEmptiness()
@@ -94,9 +87,7 @@ namespace TC_WinForms.WinForms
                         ValueRet = false;
                     }
                 }
-
             }
-
             return ValueRet;
         }
 
@@ -109,16 +100,16 @@ namespace TC_WinForms.WinForms
                 context.TechnologicalCards.Add(LocalCard);
             }
 
-            LocalCard.Article = textBox1.Text;
-            LocalCard.Type = comboBoxType.Text;
-            LocalCard.NetworkVoltage = float.Parse(comboBoxNetworkVoltage.Text);
-            LocalCard.TechnologicalProcessType = textBox4.Text;
-            LocalCard.TechnologicalProcessName = textBox5.Text;
-            LocalCard.Parameter = textBox6.Text;
-            LocalCard.FinalProduct = textBox7.Text;
-            LocalCard.Applicability = textBox8.Text;
-            LocalCard.Note = textBox9.Text;
-            LocalCard.IsCompleted = checkBox1.Checked;
+            LocalCard.Article = txtArticle.Text;
+            LocalCard.Type = cbxType.Text;
+            LocalCard.NetworkVoltage = float.Parse(cbxNetworkVoltage.Text);
+            LocalCard.TechnologicalProcessType = txtTechProcessType.Text;
+            LocalCard.TechnologicalProcessName = txtTechProcess.Text;
+            LocalCard.Parameter = txtParametr.Text;
+            LocalCard.FinalProduct = txtFinalProduct.Text;
+            LocalCard.Applicability = txtApplicability.Text;
+            LocalCard.Note = txtNote.Text;
+            LocalCard.IsCompleted = chbxIsCompleted.Checked;
 
             try
             {
@@ -145,17 +136,17 @@ namespace TC_WinForms.WinForms
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnSaveAndOpen_Click(object sender, EventArgs e)
         {
             if (NoEmptiness())
             {
-                if (Save())
-                {
-                    var nn = LocalCard.Id;
-                    var editorForm = new Win6_new(nn);
-                    editorForm.Show();
-                    this.Close();
-                }
+                if (HasChanges()) 
+                    if (Save()) return;
+
+                var nn = LocalCard.Id;
+                var editorForm = new Win6_new(nn);
+                editorForm.Show();
+                this.Close();
             }
         }
 
@@ -210,5 +201,52 @@ namespace TC_WinForms.WinForms
             }
             }
         }
+        private bool HasChanges()
+        {
+            if (LocalCard == null) return false;
+
+            bool hasChanges = false;
+
+            hasChanges |= LocalCard.Article != txtArticle.Text;
+            hasChanges |= LocalCard.Type != cbxType.Text;
+            hasChanges |= LocalCard.NetworkVoltage.ToString() != cbxNetworkVoltage.Text;
+            hasChanges |= LocalCard.TechnologicalProcessType != txtTechProcessType.Text;
+            hasChanges |= LocalCard.TechnologicalProcessName != txtTechProcess.Text;
+            hasChanges |= LocalCard.Parameter != txtParametr.Text;
+            hasChanges |= LocalCard.FinalProduct != txtFinalProduct.Text;
+            hasChanges |= LocalCard.Applicability != txtApplicability.Text;
+            hasChanges |= LocalCard.Note != txtNote.Text;
+            hasChanges |= LocalCard.IsCompleted != chbxIsCompleted.Checked;
+
+            return hasChanges;
+        }
+        private void SubscribeToChanges()
+        {
+            txtArticle.TextChanged += ComponentChanged;
+            txtTechProcessType.TextChanged += ComponentChanged;
+            txtTechProcess.TextChanged += ComponentChanged;
+            txtParametr.TextChanged += ComponentChanged;
+            txtFinalProduct.TextChanged += ComponentChanged;
+            txtApplicability.TextChanged += ComponentChanged;
+            txtNote.TextChanged += ComponentChanged;
+
+            cbxType.SelectedIndexChanged += ComponentChanged;
+            cbxNetworkVoltage.SelectedIndexChanged += ComponentChanged;
+
+            chbxIsCompleted.CheckedChanged += ComponentChanged;
+        }
+
+        private void ComponentChanged(object sender, EventArgs e)
+        {
+            if(HasChanges())
+            {
+                btnSaveAndOpen.Text = "Сохранить и открыть";
+            }else
+            {
+                btnSaveAndOpen.Text = "Открыть";
+            }
+        }
+
+
     }
 }

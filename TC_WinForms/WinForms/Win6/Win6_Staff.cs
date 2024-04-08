@@ -28,6 +28,9 @@ namespace TC_WinForms.WinForms
 
             // new DGVEvents().AddGragDropEvents(dgvMain);
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
+
+
+            //this.Resize += (s, e) => AdjustColumnWidths();
         }
 
 
@@ -46,7 +49,6 @@ namespace TC_WinForms.WinForms
         private async void Win6_Staff_Load(object sender, EventArgs e)
         {
             await LoadObjects();
-            DisplayedEntityHelper.SetupDataGridView<DisplayedStaff_TC>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false;
         }
@@ -57,7 +59,7 @@ namespace TC_WinForms.WinForms
             _bindingList = new BindingList<DisplayedStaff_TC>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
-            
+
             SetDGVColumnsSettings();
         }
         private async void Win6_Staff_FormClosing(object sender, FormClosingEventArgs e)
@@ -184,22 +186,40 @@ namespace TC_WinForms.WinForms
             //// автоперенос в ячейках
             dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
-            dgvMain.Columns["Order"].DefaultCellStyle.BackColor = Color.LightGray;
-            dgvMain.Columns["Symbol"].DefaultCellStyle.BackColor = Color.LightGray; //Color.LightBlue;
-
             // ширина столбцов по содержанию
-            var autosizeColumn = new List<string>
+            //var autosizeColumn = new List<string>
+            //{
+            //    //nameof(DisplayedStaff_TC.Order),
+            //    //nameof(DisplayedStaff_TC.Name),
+            //    //nameof(DisplayedStaff_TC.Type),
+            //    //nameof(DisplayedStaff_TC.CombineResponsibility),
+            //    //nameof(DisplayedStaff_TC.Symbol),
+            //    //nameof(DisplayedStaff_TC.ChildId),
+            //};
+            //foreach (var column in autosizeColumn)
+            //{
+            //    dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            //}
+            int pixels = 35;
+
+            // Минимальные ширины столбцов
+            Dictionary<string, int> fixColumnWidths = new Dictionary<string, int>
             {
-                "Order",
-                "Symbol",
-                "ChildId",
-                "Name",
-                "Type",
+                { nameof(DisplayedStaff_TC.Order), 1*pixels },//40
+                //{ nameof(DisplayedStaff_TC.Name), 10*pixels }, //400
+                { nameof(DisplayedStaff_TC.Type), 4*pixels }, // 160 (219 стандарт)
+                { nameof(DisplayedStaff_TC.CombineResponsibility), 7*pixels },
+                //{ nameof(DisplayedStaff_TC.Qualification), 13*pixels },//82+82+359
+                { nameof(DisplayedStaff_TC.Symbol), 3*pixels },
+                {nameof(DisplayedStaff_TC.ChildId), 2*pixels }
             };
-            foreach (var column in autosizeColumn)
+            foreach (var column in fixColumnWidths)
             {
-                dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                dgvMain.Columns[column.Key].Width = column.Value;
+                dgvMain.Columns[column.Key].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                dgvMain.Columns[column.Key].Resizable = DataGridViewTriState.False;
             }
+
 
             // make columns readonly
             foreach (DataGridViewColumn column in dgvMain.Columns)
@@ -207,8 +227,13 @@ namespace TC_WinForms.WinForms
                 column.ReadOnly = true;
             }
             // make columns editable
-            dgvMain.Columns["Order"].ReadOnly = false;
-            dgvMain.Columns["Symbol"].ReadOnly = false;
+            dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = false;
+            dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = false;
+
+            dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = Color.LightGray;
+
+            DisplayedEntityHelper.SetupDataGridView<DisplayedStaff_TC>(dgvMain);
 
         }
 
@@ -307,7 +332,7 @@ namespace TC_WinForms.WinForms
                 { nameof(ChildId), "ID" },
                 { nameof(ParentId), "ID тех. карты" },
                 { nameof(Order), "№" },
-                { nameof(Symbol), "Символ" },
+                { nameof(Symbol), "Обозначение" },
 
                 { nameof(Name), "Название" },
                 { nameof(Type), "Тип" },
@@ -321,19 +346,13 @@ namespace TC_WinForms.WinForms
             {
                 return new List<string>
                 {
-                    //nameof(ParentId),
                     nameof(Order),
-
                     nameof(Name),
                     nameof(Type),
-                    nameof(Functions),
                     nameof(CombineResponsibility),
                     nameof(Qualification),
-                    nameof(Comment),
-
                     nameof(Symbol),
-
-                    nameof(ChildId),
+                    nameof(ChildId)
                 };
             }
             public List<string> GetRequiredFields()
@@ -451,6 +470,103 @@ namespace TC_WinForms.WinForms
                 return null;
             }
 
+        }
+
+
+        private void AdjustColumnWidths()
+        {
+            int dgvWidth = dgvMain.ClientSize.Width - dgvMain.RowHeadersWidth;
+            int totalMinWidth = 0;
+            int totalFixedWidth = 0;
+            int availableWidth;
+            int extraAdditionalWidth = 0;
+
+            int pixels = 40;
+
+            Dictionary<string, int> minColumnWidths = new Dictionary<string, int>
+            {
+                { nameof(DisplayedStaff_TC.Order), 1*pixels },//40
+                { nameof(DisplayedStaff_TC.Name), 10*pixels }, //400
+                { nameof(DisplayedStaff_TC.Type), 4*pixels }, // 160 (219 стандарт)
+                { nameof(DisplayedStaff_TC.CombineResponsibility), 7*pixels },
+                { nameof(DisplayedStaff_TC.Qualification), 13*pixels },//82+82+359
+                { nameof(DisplayedStaff_TC.Symbol), 2*pixels },
+                {nameof(DisplayedStaff_TC.ChildId), 1*pixels }
+            };
+            Dictionary<string, int> maxColumnWidths = new Dictionary<string, int>
+            {
+                { nameof(DisplayedStaff_TC.Order), 1*pixels },
+                { nameof(DisplayedStaff_TC.Type), 6*pixels },
+                { nameof(DisplayedStaff_TC.CombineResponsibility), 11*pixels },
+                { nameof(DisplayedStaff_TC.Symbol), 2*pixels },
+                { nameof(DisplayedStaff_TC.ChildId), 1*pixels }
+
+            };
+
+            // Рассчитайте общую минимальную ширину
+            foreach (var minWidth in minColumnWidths)
+            {
+                totalMinWidth += minWidth.Value;
+                if (maxColumnWidths.ContainsKey(minWidth.Key))
+                {
+                    totalFixedWidth += maxColumnWidths[minWidth.Key];
+                }
+            }
+
+            // Проверяем, достаточно ли места для минимальной ширины столбцов
+            if (dgvWidth > totalMinWidth)
+            {
+                availableWidth = dgvWidth - totalMinWidth;
+
+                // Распределяем доступную ширину между столбцами
+                foreach (DataGridViewColumn column in dgvMain.Columns)
+                {
+                    if (minColumnWidths.ContainsKey(column.Name))
+                    {
+                        int additionalWidth = (int)((double)availableWidth / minColumnWidths.Count);
+                        int proposedWidth = minColumnWidths[column.Name] + additionalWidth;
+
+                        if (maxColumnWidths.ContainsKey(column.Name))
+                        {
+                            if (proposedWidth > maxColumnWidths[column.Name])
+                            {
+                                extraAdditionalWidth += proposedWidth - maxColumnWidths[column.Name];
+                            }
+                            // Учитываем максимальную ширину для столбца
+                            column.Width = Math.Min(proposedWidth, maxColumnWidths[column.Name]);
+                        }
+                        else
+                        {
+                            column.Width = proposedWidth + extraAdditionalWidth;
+                        }
+                    }
+                }
+
+                // распределяем оставшееся место между столбцами не имеющими максимальной ширины
+                if (extraAdditionalWidth > 0)
+                {
+                    int extraWidth = (int)((double)extraAdditionalWidth / (minColumnWidths.Count - maxColumnWidths.Count));
+                    foreach (DataGridViewColumn column in dgvMain.Columns)
+                    {
+                        if (minColumnWidths.ContainsKey(column.Name) && !maxColumnWidths.ContainsKey(column.Name))
+                        {
+                            column.Width += extraWidth;
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                // Если места недостаточно, устанавливаем минимальные ширины
+                foreach (DataGridViewColumn column in dgvMain.Columns)
+                {
+                    if (minColumnWidths.ContainsKey(column.Name))
+                    {
+                        column.Width = minColumnWidths[column.Name];
+                    }
+                }
+            }
         }
 
         

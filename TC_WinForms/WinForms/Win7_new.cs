@@ -19,9 +19,15 @@ namespace TC_WinForms.WinForms
 
         private bool _isAllFormsLoading = false;
 
+        public void SetPageInfo(int startRecord, int endRecord, int totalRecords)
+        {
+            lblPageInfo.Text = $"Показаны результаты с {startRecord} по {endRecord} из {totalRecords}";
+        }
+
         public Win7_new(int accessLevel)
         {
             StaticWinForms.Win7_new = this;
+
             _accessLevel = accessLevel;
             InitializeComponent();
             AccessInitialization(accessLevel);
@@ -123,6 +129,14 @@ namespace TC_WinForms.WinForms
                     await loadDataTask; //.ConfigureAwait(false);
                 }
             }
+
+            if (form is IPaginationControl paginationForm)
+            {
+                SubscribeToPageInfoChanged(paginationForm);
+                pnlPageControls.Visible = true;
+            }
+            else { pnlPageControls.Visible = false;}
+
             return form;
         }
         private void AddFormToPanel(WinNumber winNumber)
@@ -235,6 +249,7 @@ namespace TC_WinForms.WinForms
             btnTool.Tag = WinNumber.Tool;
             btnTechOperation.Tag = WinNumber.TechOperation;
             btnWorkStep.Tag = WinNumber.TechTransition;
+            btnProcess.Tag = WinNumber.Process;
         }
 
 
@@ -264,6 +279,17 @@ namespace TC_WinForms.WinForms
             await Save();
         }
 
+        public async void UpdateTС(TechnologicalCard tc)
+        {
+            // найти ТК в форме с данным id и обновить ее
+            if (_forms.TryGetValue(WinNumber.TC, out var form))
+            {
+                if (form is Win7_1_TCs tcForm)
+                {
+                    //await tcForm.UpdateTc(tc);
+                }
+            }
+        }
 
         public async void UpdateTC()
         {
@@ -332,7 +358,35 @@ namespace TC_WinForms.WinForms
 
         }
 
+        private void btnNextPage_Click(object sender, EventArgs e)
+        {
+            if (_forms.TryGetValue(_currentWinNumber.Value, out var activeForm) && activeForm is IPaginationControl paginationControl)
+            {
+                paginationControl.GoToNextPage();
+            }
+        }
 
+        private void btnPreviousPage_Click(object sender, EventArgs e)
+        {
+            if (_forms.TryGetValue(_currentWinNumber.Value, out var activeForm) && activeForm is IPaginationControl paginationControl)
+            {
+                paginationControl.GoToPreviousPage();
+            }
+        }
+
+        private void SubscribeToPageInfoChanged(IPaginationControl form)
+        {
+            form.PageInfoChanged += Form_PageInfoChanged;
+        }
+
+        private void Form_PageInfoChanged(object sender, PageInfoEventArgs e)
+        {
+            // Может потребоваться использовать Invoke для обновления UI из другого потока.
+            lblPageInfo.Invoke((MethodInvoker)delegate
+            {
+                lblPageInfo.Text = $"Показаны результаты с {e.StartRecord} по {e.EndRecord} из {e.TotalRecords}";
+            });
+        }
 
         enum WinNumber
         {

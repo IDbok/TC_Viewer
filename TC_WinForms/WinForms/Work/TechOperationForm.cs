@@ -282,7 +282,7 @@ namespace TC_WinForms.WinForms.Work
                         TechTransition = strComp,
                         TechTransitionValue = toolWork.Quantity.ToString(),
                         ItsTool = true,   
-                        Comments = toolWork.Comments
+                        Comments = toolWork.Comments ?? ""
 
                     });
                     nomer++;
