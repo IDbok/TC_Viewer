@@ -145,8 +145,9 @@ namespace TC_WinForms.WinForms
 
                 var nn = LocalCard.Id;
                 var editorForm = new Win6_new(nn);
-                editorForm.Show();
                 this.Close();
+                editorForm.Show();
+
             }
         }
 

@@ -16,6 +16,6 @@ namespace TcModels.Models.TcContent
         public int toolId { get; set; }
         public double Quantity { get; set; }
 
-        public string Comments { get; set; }
+        public string Comments { get; set; } = "";
     }
 }

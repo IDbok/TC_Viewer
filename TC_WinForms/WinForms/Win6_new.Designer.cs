@@ -52,7 +52,7 @@
             toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2, toolStripButton3, toolStripButton4 });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(1700, 34);
+            toolStrip1.Size = new Size(1363, 27);
             toolStrip1.TabIndex = 19;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -61,7 +61,7 @@
             toolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Text;
             toolStripButton1.ImageTransparentColor = Color.Magenta;
             toolStripButton1.Name = "toolStripButton1";
-            toolStripButton1.Size = new Size(57, 29);
+            toolStripButton1.Size = new Size(49, 24);
             toolStripButton1.Text = "Файл";
             // 
             // toolStripButton2
@@ -69,7 +69,7 @@
             toolStripButton2.DisplayStyle = ToolStripItemDisplayStyle.Text;
             toolStripButton2.ImageTransparentColor = Color.Magenta;
             toolStripButton2.Name = "toolStripButton2";
-            toolStripButton2.Size = new Size(80, 29);
+            toolStripButton2.Size = new Size(69, 24);
             toolStripButton2.Text = "Главная";
             // 
             // toolStripButton3
@@ -77,7 +77,7 @@
             toolStripButton3.DisplayStyle = ToolStripItemDisplayStyle.Text;
             toolStripButton3.ImageTransparentColor = Color.Magenta;
             toolStripButton3.Name = "toolStripButton3";
-            toolStripButton3.Size = new Size(85, 29);
+            toolStripButton3.Size = new Size(71, 24);
             toolStripButton3.Text = "Справка";
             // 
             // toolStripButton4
@@ -86,17 +86,16 @@
             toolStripButton4.Image = (Image)resources.GetObject("toolStripButton4.Image");
             toolStripButton4.ImageTransparentColor = Color.Magenta;
             toolStripButton4.Name = "toolStripButton4";
-            toolStripButton4.Size = new Size(102, 29);
+            toolStripButton4.Size = new Size(87, 24);
             toolStripButton4.Text = "Сохранить";
             toolStripButton4.Click += toolStripButton4_Click;
             // 
             // btnShowStaffs
             // 
             btnShowStaffs.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowStaffs.Location = new Point(6, 5);
-            btnShowStaffs.Margin = new Padding(4);
+            btnShowStaffs.Location = new Point(5, 4);
             btnShowStaffs.Name = "btnShowStaffs";
-            btnShowStaffs.Size = new Size(280, 62);
+            btnShowStaffs.Size = new Size(224, 50);
             btnShowStaffs.TabIndex = 27;
             btnShowStaffs.Text = "Требования к составу бригады и квалификации";
             btnShowStaffs.UseVisualStyleBackColor = true;
@@ -105,10 +104,9 @@
             // btnShowComponents
             // 
             btnShowComponents.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowComponents.Location = new Point(6, 75);
-            btnShowComponents.Margin = new Padding(4);
+            btnShowComponents.Location = new Point(5, 60);
             btnShowComponents.Name = "btnShowComponents";
-            btnShowComponents.Size = new Size(280, 62);
+            btnShowComponents.Size = new Size(224, 50);
             btnShowComponents.TabIndex = 28;
             btnShowComponents.Text = " Требования к материалам и комплектующим";
             btnShowComponents.UseVisualStyleBackColor = true;
@@ -117,10 +115,9 @@
             // btnShowMachines
             // 
             btnShowMachines.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowMachines.Location = new Point(6, 145);
-            btnShowMachines.Margin = new Padding(4);
+            btnShowMachines.Location = new Point(5, 116);
             btnShowMachines.Name = "btnShowMachines";
-            btnShowMachines.Size = new Size(280, 62);
+            btnShowMachines.Size = new Size(224, 50);
             btnShowMachines.TabIndex = 29;
             btnShowMachines.Text = "Требования к механизмам";
             btnShowMachines.UseVisualStyleBackColor = true;
@@ -129,10 +126,9 @@
             // btnShowProtections
             // 
             btnShowProtections.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowProtections.Location = new Point(6, 215);
-            btnShowProtections.Margin = new Padding(4);
+            btnShowProtections.Location = new Point(5, 172);
             btnShowProtections.Name = "btnShowProtections";
-            btnShowProtections.Size = new Size(280, 62);
+            btnShowProtections.Size = new Size(224, 50);
             btnShowProtections.TabIndex = 30;
             btnShowProtections.Text = "Требования к средствам защиты";
             btnShowProtections.UseVisualStyleBackColor = true;
@@ -141,10 +137,9 @@
             // btnShowTools
             // 
             btnShowTools.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowTools.Location = new Point(6, 285);
-            btnShowTools.Margin = new Padding(4);
+            btnShowTools.Location = new Point(5, 228);
             btnShowTools.Name = "btnShowTools";
-            btnShowTools.Size = new Size(280, 62);
+            btnShowTools.Size = new Size(224, 50);
             btnShowTools.TabIndex = 31;
             btnShowTools.Text = "Требования к инструментам и приспособлениям";
             btnShowTools.UseVisualStyleBackColor = true;
@@ -153,10 +148,9 @@
             // btnShowWorkSteps
             // 
             btnShowWorkSteps.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowWorkSteps.Location = new Point(6, 355);
-            btnShowWorkSteps.Margin = new Padding(4);
+            btnShowWorkSteps.Location = new Point(5, 284);
             btnShowWorkSteps.Name = "btnShowWorkSteps";
-            btnShowWorkSteps.Size = new Size(280, 62);
+            btnShowWorkSteps.Size = new Size(224, 50);
             btnShowWorkSteps.TabIndex = 32;
             btnShowWorkSteps.Text = "Ход работ";
             btnShowWorkSteps.UseVisualStyleBackColor = true;
@@ -171,31 +165,28 @@
             pnlControls.Controls.Add(btnShowComponents);
             pnlControls.Controls.Add(btnShowStaffs);
             pnlControls.Dock = DockStyle.Left;
-            pnlControls.Location = new Point(0, 34);
-            pnlControls.Margin = new Padding(4);
+            pnlControls.Location = new Point(0, 27);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(294, 532);
+            pnlControls.Size = new Size(235, 426);
             pnlControls.TabIndex = 34;
             // 
             // pnlDataViewer
             // 
             pnlDataViewer.Dock = DockStyle.Fill;
-            pnlDataViewer.Location = new Point(294, 34);
-            pnlDataViewer.Margin = new Padding(4);
+            pnlDataViewer.Location = new Point(235, 27);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1406, 532);
+            pnlDataViewer.Size = new Size(1128, 426);
             pnlDataViewer.TabIndex = 35;
             // 
             // Win6_new
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1700, 566);
+            ClientSize = new Size(1363, 453);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
             Controls.Add(toolStrip1);
-            Margin = new Padding(4);
-            MinimumSize = new Size(1722, 600);
+            MinimumSize = new Size(1381, 489);
             Name = "Win6_new";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Win6_new";

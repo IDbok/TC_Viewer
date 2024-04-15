@@ -33,6 +33,7 @@ namespace TC_WinForms.WinForms
 
             SetTagsToButtons();
 
+
         }
 
         private async void Win6_new_Load(object sender, EventArgs e)

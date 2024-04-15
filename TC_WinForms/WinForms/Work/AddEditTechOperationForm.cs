@@ -34,6 +34,7 @@ namespace TC_WinForms.WinForms.Work
 
             dataGridViewTPAll.CellContentClick += DataGridViewTPAll_CellContentClick;
             dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
+            dataGridViewTPAll.SelectionChanged += DataGridViewTPAll_SelectionChanged;
             dataGridViewTPLocal.CellClick += DataGridViewTPLocal_CellClick;
             dataGridViewTPLocal.CellEndEdit += DataGridViewTPLocal_CellEndEdit;
 
@@ -74,6 +75,8 @@ namespace TC_WinForms.WinForms.Work
             textBoxPoiskSZ.TextChanged += TextBoxPoiskSZ_TextChanged;
             textBoxPoiskMach.TextChanged += TextBoxPoiskMach_TextChanged;
 
+            comboBoxTPCategoriya.SelectedIndexChanged += ComboBoxTPCategoriya_SelectedIndexChanged;
+
             var Even = new DGVEvents();
             Even.EventsObj = this;
             Even.Table = 1;
@@ -89,7 +92,9 @@ namespace TC_WinForms.WinForms.Work
             UpdateTO();
             UpdateLocalTO();
         }
-        
+
+     
+
 
 
         #region TO
@@ -156,7 +161,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewAllTO_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var IddGuid = (TechOperation)dataGridViewAllTO.Rows[e.RowIndex].Cells[0].Value;
 
@@ -169,7 +174,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTO_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1 && e.RowIndex>=0)
             {
                 var IddGuid = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
 
@@ -320,7 +325,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 var IddGuid = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -336,7 +341,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
@@ -347,6 +352,17 @@ namespace TC_WinForms.WinForms.Work
         }
 
 
+        private void DataGridViewTPAll_SelectionChanged(object? sender, EventArgs e)
+        {
+           if(dataGridViewTPAll.SelectedRows.Count>0)
+            {
+                var dc = (TechTransition)dataGridViewTPAll.SelectedRows[0].Cells[0].Value;
+
+                labelComName.Text = dc.CommentName;
+                labelComTime.Text = dc.CommentTimeExecution;
+            }            
+        }
+
         private void TextBoxPoiskTP_TextChanged(object? sender, EventArgs e)
         {
             UpdateGridAllTP();
@@ -355,6 +371,13 @@ namespace TC_WinForms.WinForms.Work
         {
             var offScroll = dataGridViewTPAll.FirstDisplayedScrollingRowIndex;
             dataGridViewTPAll.Rows.Clear();
+
+            bool AddCategor = false;
+            if(comboBoxTPCategoriya.Items.Count == 0 )
+            {
+                AddCategor = true;
+                comboBoxTPCategoriya.Items.Add("Все");
+            }
 
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
@@ -379,6 +402,26 @@ namespace TC_WinForms.WinForms.Work
                 {
                     continue;
                 }
+
+                if(AddCategor)
+                {
+                    if (!string.IsNullOrEmpty(techTransition.Category))
+                    {
+                        if (comboBoxTPCategoriya.Items.Contains(techTransition.Category) == false)
+                        {
+                            comboBoxTPCategoriya.Items.Add(techTransition.Category);
+                        }
+                    }
+                }
+
+                if(comboBoxTPCategoriya.SelectedIndex>0)
+                {
+                    if((string)comboBoxTPCategoriya.SelectedItem!= techTransition.Category)
+                    {
+                        continue;
+                    }
+                }
+
 
                 List<object> listItem = new List<object>();
 
@@ -411,6 +454,11 @@ namespace TC_WinForms.WinForms.Work
         }
 
 
+
+        private void ComboBoxTPCategoriya_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            UpdateGridAllTP();
+        }
 
         public void UpdateGridLocalTP()
         {
@@ -564,7 +612,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewStaffAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var idd = (Staff)dataGridViewStaffAll.Rows[e.RowIndex].Cells[0].Value;
                 var vv = TechOperationForm.TehCarta.Staff_TCs;
@@ -588,17 +636,19 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewStaff_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var idd = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
 
                 if (idd != null)
                 {
-                    var vv = TechOperationForm.TehCarta.Staff_TCs;
-                    vv.Remove(idd);
-                    //TechOperationForm.TehCarta.Staff_TCs.Remove(idd);
+                    if(MessageBox.Show("Вы дейстивтельно хотите удалить?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk)==DialogResult.Yes)
+                    {
+                        var vv = TechOperationForm.TehCarta.Staff_TCs;
+                        vv.Remove(idd);
 
-                    UpdateGridStaff();
+                        UpdateGridStaff();
+                    }                   
                 }
 
             }
@@ -845,7 +895,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewAllSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var work = (ExecutionWork)comboBoxSZ.SelectedItem;
                 var Idd = (Protection)dataGridViewAllSZ.Rows[e.RowIndex].Cells[0].Value;
@@ -889,7 +939,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewLocalSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var work = (ExecutionWork)comboBoxSZ.SelectedItem;
                 var Idd = (Protection_TC)dataGridViewLocalSZ.Rows[e.RowIndex].Cells[0].Value;
@@ -1097,7 +1147,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewComponentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var work = (TechOperationWork)comboBoxTO2.SelectedItem;
                 var Idd = (Component)dataGridViewComponentAll.Rows[e.RowIndex].Cells[0].Value;
@@ -1115,7 +1165,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewComponentLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var work = (TechOperationWork)comboBoxTO2.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -1268,6 +1318,11 @@ namespace TC_WinForms.WinForms.Work
                     }
                 }
 
+                if(AllMyInstr.Any(a=>a.Child== component))
+                {
+                    continue;
+                }
+
 
                 if (LocalComponent.SingleOrDefault(s => s.tool == component) != null)
                 {
@@ -1333,7 +1388,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewInstumentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var work = (TechOperationWork)comboBoxTO3.SelectedItem;
                 var Idd = (Tool)dataGridViewInstumentAll.Rows[e.RowIndex].Cells[0].Value;
@@ -1352,7 +1407,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewInstrumentLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var work = (TechOperationWork)comboBoxTO3.SelectedItem;
                 var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -1625,7 +1680,7 @@ namespace TC_WinForms.WinForms.Work
         private void DataGridViewMeha_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
 
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 dataGridViewMeha.CommitEdit(DataGridViewDataErrorContexts.Commit);
                 var id = (Machine)dataGridViewMeha.Rows[e.RowIndex].Cells[0].Value;
@@ -1674,7 +1729,7 @@ namespace TC_WinForms.WinForms.Work
         {
             dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
-            if (e.ColumnIndex == 1)
+            if (e.ColumnIndex == 1&& e.RowIndex>=0)
             {
                 var id = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
                 var che = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;

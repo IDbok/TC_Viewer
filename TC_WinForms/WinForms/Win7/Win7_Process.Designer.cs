@@ -49,6 +49,7 @@
             // dgvMain
             // 
             dgvMain.AllowUserToAddRows = false;
+            dgvMain.AllowUserToDeleteRows = false;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 0);
