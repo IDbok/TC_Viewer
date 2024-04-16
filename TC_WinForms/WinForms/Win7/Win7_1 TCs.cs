@@ -24,7 +24,7 @@ namespace TC_WinForms.WinForms
         public bool CloseFormsNoSave { get; set; } = false;
 
         private int currentPageIndex = 0;
-        private int pageSize = 50;
+        private readonly int _pageSize = 50;
         private int totalPageCount;
 
         private bool isFiltered = false;
@@ -88,7 +88,7 @@ namespace TC_WinForms.WinForms
             //_bindingList = new BindingList<DisplayedTechnologicalCard>(_displayedtechnologicalCards);
             //_bindingList.ListChanged += BindingList_ListChanged;
             //ConfigureDgvWithComboBoxColumn();
-            totalPageCount = (int)Math.Ceiling(_displayedtechnologicalCards.Count / (double)pageSize);
+            totalPageCount = (int)Math.Ceiling(_displayedtechnologicalCards.Count / (double)_pageSize);
             UpdateDisplayedData();
             //dgvMain.DataSource = _bindingList;
         }
@@ -100,14 +100,14 @@ namespace TC_WinForms.WinForms
             // Расчет отображаемых записей
             var displayedData = isFiltered ? _filteredList : _displayedtechnologicalCards;
             int totalRecords = displayedData.Count;
-            int startRecord = isFiltered ? filteredPageIndex * pageSize + 1 : currentPageIndex * pageSize + 1;
+            int startRecord = isFiltered ? filteredPageIndex * _pageSize + 1 : currentPageIndex * _pageSize + 1;
             // Обеспечиваем, что endRecord не превышает общее количество записей
-            int endRecord = Math.Min(startRecord + pageSize - 1, totalRecords);
+            int endRecord = Math.Min(startRecord + _pageSize - 1, totalRecords);
 
-            int skipedItems = isFiltered ? filteredPageIndex * pageSize : currentPageIndex * pageSize;
+            int skipedItems = isFiltered ? filteredPageIndex * _pageSize : currentPageIndex * _pageSize;
 
             // Обновляем данные
-            var pageData = displayedData.Skip(skipedItems).Take(pageSize).ToList();
+            var pageData = displayedData.Skip(skipedItems).Take(_pageSize).ToList();
             _bindingList = new BindingList<DisplayedTechnologicalCard>(pageData);
             dgvMain.DataSource = _bindingList;
 
@@ -724,7 +724,7 @@ namespace TC_WinForms.WinForms
                         (typeFilter == "Все" || card.Type.ToString() == typeFilter)
                         ).ToList();
 
-                    totalFilteredPageCount = (int)Math.Ceiling(filteredList.Count / (double)pageSize);
+                    totalFilteredPageCount = (int)Math.Ceiling(filteredList.Count / (double)_pageSize);
                     _filteredList = filteredList;
 
                     UpdateDisplayedData();

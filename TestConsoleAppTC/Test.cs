@@ -34,17 +34,186 @@ namespace TestConsoleAppTC
             Console.WriteLine("Hello, World!");
             TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v11;user=root;password=root";
 
-            var export = new TCExcelExporter();
+            //GetAllUnits();
+            //GetAllCategories();
+            //GetAllTypes();
+            //GetEmptyStringUnits();
+            //var export = new TCExcelExporter();
 
-            var tc = await GetTechnologicalCardToExportAsync(2);
-            if (tc != null)
-            {
-                export.ExportTCtoFile(@"C:\Tests\Тест3.xlsx", tc);
-            }
+            //var tc = await GetTechnologicalCardToExportAsync(2);
+            //if (tc != null)
+            //{
+            //    export.ExportTCtoFile(@"C:\Tests\Тест3.xlsx", tc);
+            //}
 
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        static void GetAllTypes()
+        {
+            using (var db = new MyDbContext())
+            {
+                List<string> allTypes = new List<string>();
+                // get all units from db
+                var allComp = db.Components.ToList();
+                var allTypesComp = SelectUniqueTypes(allComp);
+                ShowTypes(allTypesComp, "Components");
+                CombineTypes(allTypesComp);
+
+                var allTools = db.Tools.ToList();
+                var allTypesTools = SelectUniqueTypes(allTools);//.Select(tool => tool.Unit).Distinct().ToList();
+                ShowTypes(allTypesTools, "Tools");
+                CombineTypes(allTypesTools);
+
+                var allMachines = db.Machines.ToList();
+                var allTypesMachines = SelectUniqueTypes(allMachines);
+                ShowTypes(allTypesMachines, "Machines");
+                CombineTypes(allTypesMachines);
+
+                var allProtections = db.Protections.ToList();
+                var allTypesProtections = SelectUniqueTypes(allProtections);
+                ShowTypes(allTypesProtections, "Protections");
+                CombineTypes(allTypesProtections);
+
+                // get unique units
+                var uniqueTypes = allTypesComp.Union(allTypesTools).Union(allTypesMachines).Union(allTypesProtections).Distinct().ToList();
+
+                ShowTypes(uniqueTypes, "Unique types");
+                CombineTypes(uniqueTypes);
+            }
+
+            void CombineTypes(List<string> units)
+            {
+                var combinedUnits = string.Join(",", units);
+                Console.WriteLine(combinedUnits);
+            }
+            void ShowTypes(List<string> types, string listName)
+            {
+                Console.WriteLine(listName);
+                foreach (var type in types)
+                {
+                    Console.WriteLine(type);
+                }
+                Console.WriteLine();
+            }
+            List<string> SelectUniqueTypes<T>(List<T> objList) where T : class, IModelStructure
+            {
+                return objList.GroupBy(comp => comp.Type)
+                          .OrderByDescending(group => group.Count())
+                          .Select(group => group.Key)
+                          .ToList();
+            }
+        }
+        static void GetAllCategories()
+        {
+            using(var db = new MyDbContext())
+            {
+                var allComp = db.Components.ToList();
+                var uniqueComp = allComp.GroupBy(comp => comp.Categoty)
+                          .OrderByDescending(group => group.Count())
+                          .Select(group => group.Key)
+                          .ToList();
+                ShowCategories(uniqueComp, "Components");
+                CombineCategories(uniqueComp);
+
+                Console.WriteLine();
+
+                var allTools = db.Tools.ToList();
+                var uniqueTools = allTools.GroupBy(comp => comp.Categoty)
+                          .OrderByDescending(group => group.Count())
+                          .Select(group => group.Key)
+                          .ToList();
+                ShowCategories(uniqueTools, "Tools");
+                CombineCategories(uniqueTools);
+                Console.WriteLine();
+
+            }
+            void CombineCategories(List<string> cat)
+            {
+                var combinedUnits = string.Join(",", cat);
+                Console.WriteLine(combinedUnits);
+            }
+            void ShowCategories(List<string> units, string listName)
+            {
+                Console.WriteLine(listName);
+                foreach (var unit in units)
+                {
+                    Console.WriteLine(unit);
+                }
+            }
+        }
+        static void GetAllUnits()
+        {
+            using (var db = new MyDbContext())
+            {
+                List<string> allUnits = new List<string>();
+                // get all units from db
+                var allComp = db.Components.ToList();
+                var allUnitsComp = SelectUniqueUnits(allComp);
+                ShowUnits(allUnitsComp, "Components");
+                CombineUnits(allUnitsComp);
+
+                var allTools = db.Tools.ToList();
+                var allUnitsTools = SelectUniqueUnits(allTools);//.Select(tool => tool.Unit).Distinct().ToList();
+                ShowUnits(allUnitsTools, "Tools");
+                CombineUnits(allUnitsTools);
+                
+                var allMachines = db.Machines.ToList();
+                var allUnitsMachines = SelectUniqueUnits(allMachines);
+                ShowUnits(allUnitsMachines, "Machines");
+                CombineUnits(allUnitsMachines);
+
+                var allProtections = db.Protections.ToList();
+                var allUnitsProtections = SelectUniqueUnits(allProtections);
+                ShowUnits(allUnitsProtections, "Protections");
+                CombineUnits(allUnitsProtections);
+
+                // get unique units
+                var uniqueUnits = allUnitsComp.Union(allUnitsTools).Union(allUnitsMachines).Union(allUnitsProtections).Distinct().ToList();
+
+                ShowUnits(uniqueUnits, "Unique units");
+                CombineUnits(uniqueUnits);
+            }
+            
+            void CombineUnits(List<string> units)
+            {
+                var combinedUnits = string.Join(",", units);
+                Console.WriteLine(combinedUnits);
+            }
+            void ShowUnits(List<string> units, string listName)
+            {
+                Console.WriteLine(listName);
+                foreach (var unit in units)
+                {
+                    Console.WriteLine(unit);
+                }
+                Console.WriteLine();
+            }
+            List<string> SelectUniqueUnits<T>(List<T> objList) where T : class, IModelStructure
+            {
+                return  objList.GroupBy(comp => comp.Unit)
+                          .OrderByDescending(group => group.Count())
+                          .Select(group => group.Key)
+                          .ToList();
+            }
+        }
+        
+        static void GetEmptyStringUnits()
+        {
+            using (var db = new MyDbContext())
+            {
+
+                var allComp = db.Tools.ToList();
+                var allUnitsComp = allComp.Where(comp => comp.Unit == "").ToList();
+                foreach (var comp in allUnitsComp)
+                {
+                    Console.WriteLine(comp.Name);
+                }
+            }
+
+
+        }
         static async Task<TechnologicalCard?> GetTechnologicalCardToExportAsync(int id)
         {
             using (var db = new MyDbContext())

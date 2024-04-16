@@ -141,20 +141,20 @@ namespace TC_WinForms.WinForms
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        private void ColorizeEmptyRequiredCells() // todo - change call collore after value changed to non empty
-        {
-            DataGridViewRow row = dgvMain.Rows[0];
-            var colNames = Machine.GetPropertiesRequired();
-            foreach (var colName in colNames)
-            {
-                // get collumn index by name
-                var colIndex = dgvMain.Columns[colName].Index;
+        //private void ColorizeEmptyRequiredCells() // todo - change call collore after value changed to non empty
+        //{
+        //    DataGridViewRow row = dgvMain.Rows[0];
+        //    var colNames = Machine.GetPropertiesRequired();
+        //    foreach (var colName in colNames)
+        //    {
+        //        // get collumn index by name
+        //        var colIndex = dgvMain.Columns[colName].Index;
 
-                DGVProcessing.ColorizeCell(dgvMain, colIndex, row.Index, "Red");
-            }
+        //        DGVProcessing.ColorizeCell(dgvMain, colIndex, row.Index, "Red");
+        //    }
 
 
-        }
+        //}
 
         private bool CheckAllRequeredFields<T>(T obj, List<string> reqCols)
         {

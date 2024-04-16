@@ -53,10 +53,11 @@
             // dgvMain
             // 
             dgvMain.AllowUserToAddRows = false;
+            dgvMain.AllowUserToDeleteRows = false;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 0);
-            dgvMain.Margin = new Padding(4, 4, 4, 4);
+            dgvMain.Margin = new Padding(4);
             dgvMain.Name = "dgvMain";
             dgvMain.ReadOnly = true;
             dgvMain.RowHeadersWidth = 51;
@@ -71,7 +72,7 @@
             pnlControls.Controls.Add(pnlControlBtns);
             pnlControls.Dock = DockStyle.Top;
             pnlControls.Location = new Point(0, 0);
-            pnlControls.Margin = new Padding(4, 4, 4, 4);
+            pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
             pnlControls.Size = new Size(1430, 100);
             pnlControls.TabIndex = 1;
@@ -86,7 +87,7 @@
             pnlFilters.Controls.Add(txtSearch);
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
-            pnlFilters.Margin = new Padding(4, 4, 4, 4);
+            pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
             pnlFilters.Size = new Size(577, 100);
             pnlFilters.TabIndex = 25;
@@ -157,7 +158,7 @@
             pnlControlBtns.Controls.Add(btnCreateTC);
             pnlControlBtns.Dock = DockStyle.Right;
             pnlControlBtns.Location = new Point(840, 0);
-            pnlControlBtns.Margin = new Padding(4, 4, 4, 4);
+            pnlControlBtns.Margin = new Padding(4);
             pnlControlBtns.Name = "pnlControlBtns";
             pnlControlBtns.Size = new Size(590, 100);
             pnlControlBtns.TabIndex = 24;
@@ -165,7 +166,7 @@
             // btnDeleteTC
             // 
             btnDeleteTC.Location = new Point(400, 15);
-            btnDeleteTC.Margin = new Padding(4, 4, 4, 4);
+            btnDeleteTC.Margin = new Padding(4);
             btnDeleteTC.Name = "btnDeleteTC";
             btnDeleteTC.Size = new Size(174, 75);
             btnDeleteTC.TabIndex = 25;
@@ -176,7 +177,7 @@
             // btnUpdateTC
             // 
             btnUpdateTC.Location = new Point(206, 15);
-            btnUpdateTC.Margin = new Padding(4, 4, 4, 4);
+            btnUpdateTC.Margin = new Padding(4);
             btnUpdateTC.Name = "btnUpdateTC";
             btnUpdateTC.Size = new Size(174, 75);
             btnUpdateTC.TabIndex = 24;
@@ -187,7 +188,7 @@
             // btnCreateTC
             // 
             btnCreateTC.Location = new Point(10, 15);
-            btnCreateTC.Margin = new Padding(4, 4, 4, 4);
+            btnCreateTC.Margin = new Padding(4);
             btnCreateTC.Name = "btnCreateTC";
             btnCreateTC.Size = new Size(174, 75);
             btnCreateTC.TabIndex = 23;
@@ -201,7 +202,7 @@
             pnlDataViewer.Controls.Add(dgvMain);
             pnlDataViewer.Dock = DockStyle.Fill;
             pnlDataViewer.Location = new Point(0, 100);
-            pnlDataViewer.Margin = new Padding(4, 4, 4, 4);
+            pnlDataViewer.Margin = new Padding(4);
             pnlDataViewer.Name = "pnlDataViewer";
             pnlDataViewer.Size = new Size(1430, 462);
             pnlDataViewer.TabIndex = 2;
@@ -225,7 +226,7 @@
             ClientSize = new Size(1430, 562);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
-            Margin = new Padding(4, 4, 4, 4);
+            Margin = new Padding(4);
             Name = "Win7_1_TCs";
             Text = "Win7_1_TCs";
             Load += Win7_1_TCs_Load;

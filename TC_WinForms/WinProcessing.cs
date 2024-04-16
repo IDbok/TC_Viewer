@@ -14,6 +14,8 @@ namespace TC_WinForms
 {
     internal static class WinProcessing
     {
+
+
         private static Author author = new();
         public static bool isDataToSave { get; set; } = false;
         private static void SaveData() 
@@ -191,7 +193,7 @@ namespace TC_WinForms
             }
             return closeApp;
         }
-        public static void CloseingApp(FormClosingEventArgs e) 
+        public static void ClosingApp(FormClosingEventArgs e, Action action = null) 
         {
             bool closeApp = CloseAppMessage(e, out bool saveData);
             e.Cancel = !closeApp;
@@ -199,7 +201,11 @@ namespace TC_WinForms
             {
                 SaveData();
             }
-            if (closeApp) Application.ExitThread();
+            if (closeApp)
+            {
+                action?.Invoke();
+                Application.ExitThread();
+            }
         }
         // todo - ovverload colorization method with except buttons array (not change their color) (default olny one button)
 
@@ -319,11 +325,13 @@ namespace TC_WinForms
 
         public static void SetAddingFormControls(Panel pnlControlBtns, DataGridView dgv, out Button btnAddSelected,out Button btnCancel)
         {
-            // make all collumns readonly
+            // make all columns readonly
+            dgv.ReadOnly = false;
             foreach (DataGridViewColumn c in dgv.Columns)
             {
                 c.ReadOnly = true;
             }
+
             // add checkbox in row header
             var col = new DataGridViewCheckBoxColumn();
             col.Name = "Selected";

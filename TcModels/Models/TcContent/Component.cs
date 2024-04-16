@@ -7,12 +7,12 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Component : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity //2. Требования к материалам и комплектующим
+    public class Component : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable //2. Требования к материалам и комплектующим
     {
         static EModelType modelType = EModelType.Component;
         public static EModelType ModelType { get => modelType; }
 
-        public static Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
+        public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
             {
                 { nameof(Id), "ID" },
                 { nameof(Name), "Наименование" },
@@ -41,7 +41,7 @@ namespace TcModels.Models.TcContent
 
             };
         
-        public static List<string> GetPropertiesRequired { get; } = new List<string>
+        public List<string> GetPropertiesRequired { get; } = new List<string>
             {
                 { nameof(Name)},
                 { nameof(Unit) },
@@ -79,9 +79,39 @@ namespace TcModels.Models.TcContent
                 Price = sourceObject.Price;
                 Description = sourceObject.Description;
                 Manufacturer = sourceObject.Manufacturer;
-                Links = sourceObject.Links;
                 Categoty = sourceObject.Categoty;
+                CompareLinks(sourceObject.Links);
                 ClassifierCode = sourceObject.ClassifierCode;
+            }
+        }
+
+        private void CompareLinks(List<LinkEntety> sourceLinks)
+        {
+            var linksToRemove = new List<LinkEntety>();
+            foreach (var link in Links)
+            {
+                if (!sourceLinks.Contains(link))
+                {
+                    linksToRemove.Add(link);
+                }
+            }
+
+            foreach (var link in linksToRemove)
+            {
+                Links.Remove(link);
+            }
+
+            foreach (var link in sourceLinks)
+            {
+                if (!Links.Contains(link))
+                {
+                    Links.Add(link);
+                }
+                else
+                {
+                    // обновить поля ссылки
+                    Links.Find(l => l.Id == link.Id)!.ApplyUpdates(link);
+                }
             }
         }
 

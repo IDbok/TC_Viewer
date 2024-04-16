@@ -4,7 +4,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Staff : INameable, IDGViewable, IUpdatableEntity //1. Требования к составу бригады и квалификации
+    public class Staff : INameable, IDGViewable, IUpdatableEntity, IRequiredProperties //1. Требования к составу бригады и квалификации
     {
         public static List<string> GetChangeablePropertiesNames { get; } = new List<string>
             {
@@ -17,7 +17,7 @@ namespace TcModels.Models.TcContent
 
             };
         
-        public static Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
+        public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
             {
                 { nameof(Id), "ID" },
                 { nameof(Name), "Название" },
@@ -40,7 +40,7 @@ namespace TcModels.Models.TcContent
 
             };
         
-        public static List<string> GetPropertiesRequired { get; } = new List<string>
+        public List<string> GetPropertiesRequired { get; } = new List<string>
             {
                 nameof(Name) ,
                 nameof(Type) ,

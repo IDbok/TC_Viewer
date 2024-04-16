@@ -165,6 +165,26 @@ namespace TC_WinForms.DataProcessing
                 }
             }
         }
+        public async Task UpdateObjectsAsync<T>(T updatedObject) where T : class, IUpdatableEntity, IIdentifiable, IModelStructure
+        {
+            using (var db = new MyDbContext())
+            {
+                var existingObj = await db.Set<T>()
+                    .Include(nameof(IModelStructure.Links))
+                    .FirstOrDefaultAsync(t => t.Id == updatedObject.Id);
+
+                if (existingObj != null)
+                {
+                    //var linksToDelete = existingObj.Links.Where(l => !updatedObject.Links.Any(ul => ul.Id == l.Id)).ToList();
+                    existingObj.ApplyUpdates(updatedObject);
+                }
+
+                if (db.ChangeTracker.HasChanges())
+                {
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
         public async Task UpdateIntermediateObjectAsync<T>(List<T> obj_TCs) where T : class, IIntermediateTableIds, IUpdatableEntity
         {
             using (var db = new MyDbContext())
@@ -231,7 +251,6 @@ namespace TC_WinForms.DataProcessing
                 MessageBox.Show(e.Message);
                 return false;
             }
-            
         }
         public async Task DeleteIntermediateObjectAsync<T>(List<T> obj_TCs) where T : class, IIntermediateTableIds
         {
@@ -540,37 +559,71 @@ namespace TC_WinForms.DataProcessing
             }
         }
 
-        public List<T> GetObjectList<T>() where T : class, IIdentifiable
+        //public List<T> GetObjectList<T>(bool includeLinks = false) where T : class, IIdentifiable
+        //{
+        //    try
+        //    {
+        //        using (var context = new MyDbContext())
+        //        {
+        //            if (typeof(T) == typeof(TechnologicalProcess))
+        //                return context.Set<TechnologicalProcess>()
+        //                                //.Include(tp => tp.TechnologicalCards)
+        //                                .Cast<T>()
+        //                                .ToList();
+
+        //            else if (typeof(T) == typeof(TechnologicalCard))
+        //                return context.Set<TechnologicalCard>()
+        //                                //.Include(tc => tc.Staffs)
+        //                                //.Include(tc => tc.Components)
+        //                                //.Include(tc => tc.Tools)
+        //                                //.Include(tc => tc.Machines)
+        //                                //.Include(tc => tc.Protections)
+        //                                //.Include(tc => tc.WorkSteps)
+        //                                .Cast<T>()
+        //                                .ToList();
+        //             return context.Set<T>().ToList();
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
+        //        throw;
+        //    }
+        //}
+        public List<T> GetObjectList<T>(bool includeLinks = false) where T : class, IIdentifiable
         {
             try
             {
                 using (var context = new MyDbContext())
                 {
-                    if (typeof(T) == typeof(TechnologicalProcess))
-                        return context.Set<TechnologicalProcess>()
-                                        //.Include(tp => tp.TechnologicalCards)
-                                        .Cast<T>()
-                                        .ToList();
+                    IQueryable<T> query = context.Set<T>();
 
+                    if (typeof(T) == typeof(TechnologicalProcess))
+                    {
+                        query = query.Cast<TechnologicalProcess>()
+                                     .Cast<T>();
+                    }
                     else if (typeof(T) == typeof(TechnologicalCard))
-                        return context.Set<TechnologicalCard>()
-                                        //.Include(tc => tc.Staffs)
-                                        //.Include(tc => tc.Components)
-                                        //.Include(tc => tc.Tools)
-                                        //.Include(tc => tc.Machines)
-                                        //.Include(tc => tc.Protections)
-                                        //.Include(tc => tc.WorkSteps)
-                                        .Cast<T>()
-                                        .ToList();
-                    else return context.Set<T>().ToList();
+                    {
+                        query = query.Cast<TechnologicalCard>()
+                                     .Cast<T>();
+                    }
+
+                    if (includeLinks && typeof(IModelStructure).IsAssignableFrom(typeof(T)))
+                    {
+                        query = query.Include(nameof(IModelStructure.Links));
+                    }
+
+                    return query.ToList();
                 }
             }
             catch (Exception e)
             {
-                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
+                OnMessageToUI?.Invoke("Произошла ошибка при попытке подключиться к БД.\n" + e.ToString(), MessageType.Error);
                 throw;
             }
         }
+
         public List<T> GetIntermediateObjectList<T,C>(int parentId) where T : class, IIntermediateTable<TechnologicalCard, C>
         {
             try
@@ -627,8 +680,17 @@ namespace TC_WinForms.DataProcessing
                 else obj = context.Set<T>().Where(tc => tc.Id == id).FirstOrDefault();
             }
             return obj;
-
-
+        }
+        public T? GetObjectWithLinks<T>(int id) where T : class, IModelStructure
+        {
+            T? obj = null;
+            using (var context = new MyDbContext())
+            {
+                obj = context.Set<T>().Where(tc => tc.Id == id)
+                    .Include(x=> x.Links)
+                    .FirstOrDefault();
+            }
+            return obj;
         }
         public T? GetObject<T, C>(int TC_id, int obj_id) 
             where T : class, IIntermediateTable<TechnologicalCard, C>

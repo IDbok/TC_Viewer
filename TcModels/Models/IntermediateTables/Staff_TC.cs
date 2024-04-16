@@ -13,7 +13,7 @@ namespace TcModels.Models.IntermediateTables
             nameof(Order),
             nameof(Symbol),
         };
-        public static Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
+        public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
         {
                 { nameof(ChildId), "ID персонал" },
                 { nameof(Child), "" },
@@ -33,7 +33,7 @@ namespace TcModels.Models.IntermediateTables
                 { nameof(Order), 0 },
                 { nameof(Symbol), 1 },
         };
-        public static List<string> GetPropertiesRequired { get; } = new List<string>
+        public List<string> GetPropertiesRequired { get; } = new List<string>
         {
             { nameof(ChildId) },
             { nameof(ParentId) },

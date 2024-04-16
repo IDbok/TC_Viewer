@@ -33,7 +33,7 @@ namespace TC_WinForms
 
         private void Win3_FormClosing(object sender, FormClosingEventArgs e)
         {
-            WinProcessing.CloseingApp(e);
+            WinProcessing.ClosingApp(e);
         }
 
         private void btnUpdateTC_Click(object sender, EventArgs e)

@@ -30,7 +30,7 @@ namespace TC_WinForms
 
         private void Win4_FormClosing(object sender, FormClosingEventArgs e)
         {
-            WinProcessing.CloseingApp(e);
+            WinProcessing.ClosingApp(e);
         }
 
         private void btnBack_Click(object sender, EventArgs e)

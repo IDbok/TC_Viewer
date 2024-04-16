@@ -7,9 +7,7 @@ namespace TcModels.Models.TcContent
     public class Protection : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity//4. Требования к средствам защиты
     {
 
-        public static Dictionary<string, string> GetPropertiesNames()
-        {
-            return new Dictionary<string, string>
+        public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
             {
                 { nameof(Id), "ID" },
                 { nameof(Name), "Наименование" },
@@ -21,7 +19,7 @@ namespace TcModels.Models.TcContent
                 //{ nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
                 { nameof(ClassifierCode), "Код в classifier" },
             };
-        }
+        
         public static Dictionary<string, int> GetPropertiesOrder()
         {
             int i = 0;
@@ -39,15 +37,13 @@ namespace TcModels.Models.TcContent
 
             };
         }
-        public static List<string> GetPropertiesRequired()
-        {
-            return new List<string>
+        public List<string> GetPropertiesRequired { get; } = new List<string>
             {
                 { nameof(Name)},
                 { nameof(Unit) },
                 { nameof(ClassifierCode) },
             };
-        }
+        
 
         static private EModelType modelType = EModelType.Protection;
         public EModelType ModelType { get { return modelType; } }
@@ -74,8 +70,38 @@ namespace TcModels.Models.TcContent
                 Price = sourceObject.Price;
                 Description = sourceObject.Description;
                 Manufacturer = sourceObject.Manufacturer;
-                Links = sourceObject.Links;
+                CompareLinks(sourceObject.Links);
                 ClassifierCode = sourceObject.ClassifierCode;
+            }
+        }
+
+        private void CompareLinks(List<LinkEntety> sourceLinks)
+        {
+            var linksToRemove = new List<LinkEntety>();
+            foreach (var link in Links)
+            {
+                if (!sourceLinks.Contains(link))
+                {
+                    linksToRemove.Add(link);
+                }
+            }
+
+            foreach (var link in linksToRemove)
+            {
+                Links.Remove(link);
+            }
+
+            foreach (var link in sourceLinks)
+            {
+                if (!Links.Contains(link))
+                {
+                    Links.Add(link);
+                }
+                else
+                {
+                    // обновить поля ссылки
+                    Links.Find(l => l.Id == link.Id)!.ApplyUpdates(link);
+                }
             }
         }
     }

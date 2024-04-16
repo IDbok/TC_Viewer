@@ -4,14 +4,12 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Tool : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity //5. Требования к инструментам и приспособлениям
+    public class Tool : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable //5. Требования к инструментам и приспособлениям
     {
         static private EModelType modelType = EModelType.Tool;
         public EModelType ModelType { get { return modelType; } }
 
-        public static Dictionary<string, string> GetPropertiesNames()
-        {
-            return new Dictionary<string, string>
+        public Dictionary<string, string> GetPropertiesNames { get; } =  new Dictionary<string, string>
             {
                 { nameof(Id), "ID" },
                 { nameof(Name), "Наименование" },
@@ -23,7 +21,7 @@ namespace TcModels.Models.TcContent
                 //{ nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
                 { nameof(ClassifierCode), "Код в classifier" },
             };
-        }
+        
         public static Dictionary<string, int> GetPropertiesOrder()
         {
             int i = 0;
@@ -41,15 +39,13 @@ namespace TcModels.Models.TcContent
 
             };
         }
-        public static List<string> GetPropertiesRequired()
-        {
-            return new List<string>
+        public List<string> GetPropertiesRequired { get; } = new List<string>
             {
                 { nameof(Name)},
                 { nameof(Unit) },
                 { nameof(ClassifierCode) },
             };
-        }
+        
 
         //public List<Tool> Parents = new();
         //public List<Tool> Childrens = new();
@@ -67,7 +63,7 @@ namespace TcModels.Models.TcContent
         public string? Description { get; set; }
         public string? Manufacturer { get; set; }
         public List<LinkEntety> Links { get; set; } = new ();
-        public string Categoty { get; set; } = "Tool";
+        public string Categoty { get; set; } = "Tool";  // todo: исправить название на Category
         public string ClassifierCode { get; set; }
         public void ApplyUpdates(IUpdatableEntity source)
         {
@@ -79,9 +75,39 @@ namespace TcModels.Models.TcContent
                 Price = sourceObject.Price;
                 Description = sourceObject.Description;
                 Manufacturer = sourceObject.Manufacturer;
-                Links = sourceObject.Links;
                 Categoty = sourceObject.Categoty;
+                CompareLinks(sourceObject.Links);
                 ClassifierCode = sourceObject.ClassifierCode;
+            }
+        }
+
+        private void CompareLinks(List<LinkEntety> sourceLinks)
+        {
+            var linksToRemove = new List<LinkEntety>();
+            foreach (var link in Links)
+            {
+                if (!sourceLinks.Contains(link))
+                {
+                    linksToRemove.Add(link);
+                }
+            }
+
+            foreach (var link in linksToRemove)
+            {
+                Links.Remove(link);
+            }
+
+            foreach (var link in sourceLinks)
+            {
+                if (!Links.Contains(link))
+                {
+                    Links.Add(link);
+                }
+                else
+                {
+                    // обновить поля ссылки
+                    Links.Find(l => l.Id == link.Id)!.ApplyUpdates(link);
+                }
             }
         }
     }

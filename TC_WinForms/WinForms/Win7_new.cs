@@ -76,9 +76,7 @@ namespace TC_WinForms.WinForms
         }
         private void Win7_FormClosing(object sender, FormClosingEventArgs e)
         {
-            ClosingForms(sender, e);
-
-            WinProcessing.CloseingApp(e);
+            WinProcessing.ClosingApp(e, ClosingForms);
 
         }
 
@@ -200,7 +198,7 @@ namespace TC_WinForms.WinForms
             }
         }
 
-        private void ClosingForms(object sender, EventArgs e)
+        private void ClosingForms()
         {
             foreach (Form frm in _forms.Values)
             {

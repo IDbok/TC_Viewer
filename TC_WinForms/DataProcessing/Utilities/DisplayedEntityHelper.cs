@@ -1,7 +1,9 @@
 ﻿
 using System.ComponentModel;
 using System.DirectoryServices.ActiveDirectory;
+using System.Drawing;
 using System.Xml;
+using TC_WinForms.Interfaces;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using static TC_WinForms.WinForms.Win6_Staff;
@@ -10,6 +12,8 @@ namespace TC_WinForms.DataProcessing.Utilities
 {
     public class DisplayedEntityHelper
     {
+        private static DbConnector dbCon = new DbConnector();
+
         public static bool IsValidNewCard<T>(T obj) where T : IDisplayedEntity
         {
             List<string> requiredFields = obj.GetRequiredFields();
@@ -103,7 +107,98 @@ namespace TC_WinForms.DataProcessing.Utilities
                 dgvMain.Refresh(); // TODO: reordering rows
             }
         }
-        
+        public static async Task DeleteSelectedObjectWithLinks<TDisp,TObj>(
+            DataGridView dgvMain,
+            BindingList<TDisp> bindingList) 
+            where TDisp : class, IDisplayedEntity, IIdentifiable, IModelStructure, new()
+            where TObj : class, IIdentifiable, new()
+        {
+            if (dgvMain.SelectedRows.Count > 0)
+            {
+                string message = "Вы действительно хотите удалить выбранные объекты?\n";
+                DialogResult result = MessageBox.Show(message, "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+
+                    var selectedRows = dgvMain.SelectedRows.Cast<DataGridViewRow>()
+                        .Select(row => row.DataBoundItem as TDisp)
+                        .Where(obj => obj != null)
+                            .ToList();
+
+                    var linksIdsToDelete = selectedRows.SelectMany(obj => obj!.Links.Select(l => l.Id)).ToList();
+                    if(linksIdsToDelete.Count !=0)
+                    {
+                        bool isLinksDeleted = await dbCon.DeleteObjectAsync<LinkEntety>(linksIdsToDelete);
+                    }
+                    // todo : сделать операции удаления в одной транзакции
+
+
+                    //if (!isLinksDeleted)
+                    //{
+                    //    MessageBox.Show("Ошибка удаления ссылок");
+                    //    return;
+                    //}
+                    var selectedRowIds = selectedRows.Select(obj => obj!.Id).ToList();
+
+                    bool isObjDeleted = await dbCon.DeleteObjectAsync<TObj>(selectedRowIds);
+
+                    if (isObjDeleted)
+                    {
+                        // Удаляем объекты из BindingList
+                        foreach (var obj in selectedRowIds)
+                        {
+                            var objToDelete = bindingList.FirstOrDefault(o => o.Id == obj);
+                            if (objToDelete != null)
+                            {
+                                bindingList.Remove(objToDelete);
+                            }
+                        }
+                    }
+                }
+
+                dgvMain.Refresh();
+            }
+        }
+        public static async Task DeleteSelectedObjectAsync<TDisp,TDbObj>(
+            DataGridView dgvMain,
+            BindingList<TDisp> bindingList) 
+            where TDisp : class, IDisplayedEntity, IIdentifiable, new()
+            where TDbObj : class, IIdentifiable, new()
+        {
+            if (dgvMain.SelectedRows.Count > 0)
+            {
+                string message = "Вы действительно хотите удалить выбранные объекты?\n";
+                DialogResult result = MessageBox.Show(message, "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+
+                    var selectedRowIds = dgvMain.SelectedRows.Cast<DataGridViewRow>()
+                        .Select(row => row.DataBoundItem as TDisp)
+                        .Where(obj => obj != null)
+                        .Select(obj => obj!.Id)
+                            .ToList();
+                    
+                    bool isSuccess = await dbCon.DeleteObjectAsync<TDbObj>(selectedRowIds);
+                    
+                    if (isSuccess)
+                    {
+                        // Удаляем объекты из BindingList
+                        foreach (var obj in selectedRowIds)
+                        {
+                            var objToDelete = bindingList.FirstOrDefault(o => o.Id == obj);
+                            if (objToDelete != null)
+                            {
+                                bindingList.Remove(objToDelete);
+                            }
+                        }
+                    }
+                }
+
+                dgvMain.Refresh();
+            }
+        }
 
         public static void SetupDataGridView<T>(DataGridView dgv) where T : IDisplayedEntity, new()
         {

@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace TcModels.Models.Interfaces
 {
-    public interface IDGViewable
+    public interface IDGViewable : IRequiredProperties
     {
-        public static Dictionary<string, string>  GetPropertiesNames { get; } = null!;
-        public static Dictionary<string, int> GetPropertiesOrder { get; } = null!;
-        public static List<string> GetPropertiesRequired { get; } = null!;
-        public static List<string> GetChangeablePropertiesNames { get; } = null!;
+        
+        static Dictionary<string, int> GetPropertiesOrder { get; } = null!;
+        static List<string> GetChangeablePropertiesNames { get; } = null!;
     }
 }

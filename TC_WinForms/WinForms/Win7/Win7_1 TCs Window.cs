@@ -56,7 +56,7 @@ namespace TC_WinForms.WinForms
             chbxIsCompleted.Checked = LocalCard.IsCompleted;
         }
 
-        private void ConfigureComboBox()
+        private void ConfigureComboBox() // todo: обновить список в соответствии с разрешенными значениями (нужно их ещё ввести)
         {
             cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
             cbxNetworkVoltage.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f, 0f });
@@ -168,38 +168,44 @@ namespace TC_WinForms.WinForms
         }
         public async Task SaveTCtoExcelFile()
         {
-            
-
-            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            try
             {
-                // Настройка диалога сохранения файла
-                saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
-                saveFileDialog.FilterIndex = 1;
-                saveFileDialog.RestoreDirectory = true;
-
-                saveFileDialog.FileName = LocalCard.Article;
-
-                // Показ диалога пользователю и проверка, что он нажал кнопку "Сохранить"
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
                 {
-                    try
-                    {
-                        var tc = await dbCon.GetTechnologicalCardToExportAsync(LocalCard.Id);
-                        if (tc == null)
-                        {
-                            MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-                        var excelExporter = new TCExcelExporter();
-                        excelExporter.ExportTCtoFile(saveFileDialog.FileName, tc);
-                    }
-                    catch (Exception ex)
-                    {
-                    MessageBox.Show("Произошла ошибка при загрузке данных: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    // Настройка диалога сохранения файла
+                    saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+                    saveFileDialog.FilterIndex = 1;
+                    saveFileDialog.RestoreDirectory = true;
 
+                    saveFileDialog.FileName = LocalCard.Article;
+
+                    // Показ диалога пользователю и проверка, что он нажал кнопку "Сохранить"
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        try
+                        {
+                            var tc = await dbCon.GetTechnologicalCardToExportAsync(LocalCard.Id);
+                            if (tc == null)
+                            {
+                                MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            var excelExporter = new TCExcelExporter();
+                            excelExporter.ExportTCtoFile(saveFileDialog.FileName, tc);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Произошла ошибка при загрузке данных: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Произошла ошибка при сохранении файла: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            
         }
         private bool HasChanges()
         {

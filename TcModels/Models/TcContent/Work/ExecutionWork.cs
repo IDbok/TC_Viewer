@@ -23,7 +23,7 @@ namespace TcModels.Models.TcContent
 
         // public ExecutionWorkRepeat? executionWorkRepeat { get; set; }
 
-        public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();    
+        public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();  
         public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>(); // adding repeat items
 
         public Guid? sumEw { get; set; } // не актуально

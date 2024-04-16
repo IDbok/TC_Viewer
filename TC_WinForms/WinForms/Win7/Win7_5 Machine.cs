@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
@@ -14,6 +15,7 @@ namespace TC_WinForms.WinForms
         private DbConnector dbCon = new DbConnector();
 
         private BindingList<DisplayedMachine> _bindingList;
+        private List<Machine> _objects = new List<Machine>();
 
         private List<DisplayedMachine> _changedObjects = new List<DisplayedMachine>();
         private List<DisplayedMachine> _newObjects = new List<DisplayedMachine>();
@@ -26,7 +28,7 @@ namespace TC_WinForms.WinForms
         private Button btnCancel;
 
         public bool _isDataLoaded = false;
-        
+
         public bool CloseFormsNoSave { get; set; } = false;
 
         public void SetAsAddingForm()
@@ -48,9 +50,9 @@ namespace TC_WinForms.WinForms
         {
             progressBar.Visible = true;
 
-            if(!_isDataLoaded)
+            if (!_isDataLoaded)
                 await LoadDataAsync();
-            
+
             SetDGVColumnsSettings();
             DisplayedEntityHelper.SetupDataGridView<DisplayedMachine>(dgvMain);
 
@@ -66,27 +68,19 @@ namespace TC_WinForms.WinForms
 
             progressBar.Visible = false;
         }
-        //private async Task LoadObjects()
-        //{
-        //    var tcList = await Task.Run(() => dbCon.GetObjectList<Machine>()
-        //        .Select(obj => new DisplayedMachine(obj)).ToList());
-        //    _bindingList = new BindingList<DisplayedMachine>(tcList);
-        //    _bindingList.ListChanged += BindingList_ListChanged;
-        //    dgvMain.DataSource = _bindingList;
-
-        //    SetDGVColumnsSettings();
-        //}
         public async Task LoadDataAsync()
         {
-            var tcList = await Task.Run(() => dbCon.GetObjectList<Machine>()
+            var objList = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
                 .Select(obj => new DisplayedMachine(obj)).ToList());
 
-            _bindingList = new BindingList<DisplayedMachine>(tcList);
+            _bindingList = new BindingList<DisplayedMachine>(objList);
 
             dgvMain.DataSource = null; // cancel update of dgv while data is loading
             _bindingList.ListChanged += BindingList_ListChanged;
 
             dgvMain.DataSource = _bindingList;
+            //SetLinkColumn();
+            dgvMain.CellContentClick += dgvMain_CellContentClick;
 
             _isDataLoaded = true;
         }
@@ -106,8 +100,8 @@ namespace TC_WinForms.WinForms
                 {
                     await SaveChanges();
                 }
-              //  e.Cancel = false;
-               // Close();
+                //  e.Cancel = false;
+                // Close();
             }
         }
 
@@ -130,16 +124,117 @@ namespace TC_WinForms.WinForms
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
-                            _bindingList,
-                            _newObjects,
-                            dgvMain);
+            //DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
+            //                _bindingList,
+            //                _newObjects,
+            //                dgvMain);
+            var objEditor = new Win7_LinkObjectEditor(new Machine(), isNewObject: true);
+
+            objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Machine, DisplayedMachine>(createdObj as Machine);
+
+            objEditor.ShowDialog();
+        }
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            if(dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return;
+            }
+
+            var selectedObj = dgvMain.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
+            var obj = selectedObj?.DataBoundItem as DisplayedMachine;
+
+            if (obj != null)
+            {
+                var machine = dbCon.GetObjectWithLinks<Machine>(obj.Id);
+
+                if (machine != null)
+                {
+                    var objEditor = new Win7_LinkObjectEditor(machine);
+
+                    objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView<Machine, DisplayedMachine>(updatedObj as Machine);
+
+                    objEditor.ShowDialog();
+                }
+            }
         }
 
-        private void btnDeleteObj_Click(object sender, EventArgs e)
+        private async void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
-                _bindingList, _newObjects, _deletedObjects);
+            await DisplayedEntityHelper.DeleteSelectedObjectWithLinks<DisplayedMachine,Machine>(dgvMain,
+                _bindingList);
+
+            //await DisplayedEntityHelper.DeleteSelectedObjectAsync<DisplayedMachine,Machine>(dgvMain,
+            //    _bindingList);
+
+            //if (dgvMain.SelectedRows.Count > 0)
+            //{
+            //    string message = "Вы действительно хотите удалить выбранные объекты?\n";
+            //    DialogResult result = MessageBox.Show(message, "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            //    if (result == DialogResult.Yes)
+            //    {
+
+            //        var selectedRows = dgvMain.SelectedRows.Cast<DataGridViewRow>()
+            //            .Select(row => row.DataBoundItem as DisplayedMachine)
+            //            .Where(obj => obj != null)
+            //                .ToList();
+
+            //        List<LinkEntety> linksToDelete = new();
+            //        foreach (var obj in selectedRows)
+            //        {
+            //            linksToDelete.AddRange(obj!.Links);
+            //        }
+
+            //        var linkIds = linksToDelete.Select(l => l.Id).ToList();
+
+            //        bool isLinksDeleted = await dbCon.DeleteObjectAsync<LinkEntety>(linkIds);
+
+            //        if (!isLinksDeleted)
+            //        {
+            //            MessageBox.Show("Ошибка удаления ссылок");
+            //            return;
+            //        }
+            //        var selectedRowIds = selectedRows.Select(obj => obj!.Id).ToList();
+
+            //        bool isObjDeleted = await dbCon.DeleteObjectAsync<Machine>(selectedRowIds);
+
+            //        if (isObjDeleted)
+            //        {
+            //            // Удаляем объекты из BindingList
+            //            foreach (var obj in selectedRowIds)
+            //            {
+            //                var objToDelete = _bindingList.FirstOrDefault(o => o.Id == obj);
+            //                if (objToDelete != null)
+            //                {
+            //                    _bindingList.Remove(objToDelete);
+            //                }
+            //            }
+            //        }
+            //    }
+
+            //    dgvMain.Refresh();
+            //}
+
+
+            //var selectedRowIds = dgvMain.SelectedRows.Cast<DataGridViewRow>()
+            //    .Select(row => row.DataBoundItem as DisplayedMachine)
+            //    .Where(obj => obj != null)
+            //    .Select(obj => obj!.Id)
+            //    .ToList();
+
+            //await dbCon.DeleteObjectAsync<Machine>(selectedRowIds);
+
+            //// Удаляем объекты из BindingList
+            //foreach (var obj in selectedRowIds)
+            //{
+            //    var objToDelete = _bindingList.FirstOrDefault(o => o.Id == obj);
+            //    if (objToDelete != null)
+            //    {
+            //        _bindingList.Remove(objToDelete);
+            //    }
+            //}
         }
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
         public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
@@ -253,9 +348,29 @@ namespace TC_WinForms.WinForms
 
             dgvMain.Columns[nameof(DisplayedMachine.Price)].Width = 120;
             dgvMain.Columns[nameof(DisplayedMachine.ClassifierCode)].Width = 150;
+            dgvMain.Columns[nameof(DisplayedMachine.LinkNames)].Width = 120;
 
-            dgvMain.Columns[nameof(DisplayedMachine.Id)].ReadOnly = true;
-            dgvMain.Columns[nameof(DisplayedMachine.ClassifierCode)].ReadOnly = true;
+            //dgvMain.Columns[nameof(DisplayedMachine.Id)].ReadOnly = true;
+            //dgvMain.Columns[nameof(DisplayedMachine.ClassifierCode)].ReadOnly = true;
+        }
+
+        private void SetLinkColumn()
+        {
+            // Добавление столбца ссылок, если он ещё не добавлен
+            if (!dgvMain.Columns.Contains("DefaultLink"))
+            {
+                var linkColumn = new DataGridViewLinkColumn
+                {
+                    Name = "DefaultLink",
+                    HeaderText = "Ссылки",
+                    DataPropertyName = "DefaultLink",
+                    ReadOnly = true,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells,
+                    Width = 100,
+                };
+                linkColumn.UseColumnTextForLinkValue = true;
+                dgvMain.Columns.Add(linkColumn);
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -327,7 +442,7 @@ namespace TC_WinForms.WinForms
         }
 
 
-        private class DisplayedMachine : INotifyPropertyChanged, IDisplayedEntity
+        private class DisplayedMachine : INotifyPropertyChanged, IDisplayedEntity, IModelStructure
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -341,6 +456,7 @@ namespace TC_WinForms.WinForms
                 { nameof(Description), "Описание" },
                 { nameof(Manufacturer), "Производители (поставщики)" },
                 //{ nameof(Links), "Ссылки" },
+                { nameof(LinkNames), "Ссылка" },
                 { nameof(ClassifierCode), "Код в classifier" },
             };
             }
@@ -355,6 +471,7 @@ namespace TC_WinForms.WinForms
                     nameof(Price),
                     nameof(Description),
                     nameof(Manufacturer),
+                    nameof(LinkNames),
                     nameof(ClassifierCode),
                 };
             }
@@ -379,6 +496,22 @@ namespace TC_WinForms.WinForms
             private List<LinkEntety> links = new();
             private string classifierCode;
 
+            private string GetDefaultLinkOrFirst() 
+            {
+                if(links.Count > 0)
+                {
+                    // Все названия существующих ссылок с новой строки
+                    //var linksNames = string.Join("\n", links.Select(l => l.Name).ToList());
+                    var defLink = links.Where(l => l.IsDefault).FirstOrDefault();
+                    if(defLink == null)
+                    {
+                        return links[0].Name ?? links[0].Link;
+                    }
+                    //defLink.Name = linksNames;
+                    return defLink.Name ?? defLink.Link;
+                }
+                return string.Empty;
+            }
             public DisplayedMachine()
             {
 
@@ -462,7 +595,7 @@ namespace TC_WinForms.WinForms
             }
             public string Manufacturer
             {
-                get => manufacturer;
+                get => manufacturer ?? string.Empty;
                 set
                 {
                     if (manufacturer != value)
@@ -472,6 +605,11 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
+            public string LinkNames
+            {
+                get => GetDefaultLinkOrFirst();
+            }
+
             public List<LinkEntety> Links
             {
                 get => links;
@@ -536,6 +674,75 @@ namespace TC_WinForms.WinForms
                 //MessageBox.Show(e.Message);
             }
 
+        }
+
+        private void dgvMain_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            UrlClick(sender, e);
+        }
+        private void UrlClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedMachine.LinkNames) && e.RowIndex >= 0)
+            {
+                var displayedMachine = dgvMain.Rows[e.RowIndex].DataBoundItem as DisplayedMachine;
+                if (displayedMachine != null)
+                {
+                    var link = displayedMachine.Links.FirstOrDefault(l => l.IsDefault) ?? displayedMachine.Links.FirstOrDefault();
+                    if (link != null && Uri.TryCreate(link.Link, UriKind.Absolute, out var uri))
+                    {
+                        var result = MessageBox.Show($"Открыть ссылку в браузере?\n{link}", "Ссылка", MessageBoxButtons.YesNo);
+                        if (result == DialogResult.Yes)
+                        {
+                            Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
+                        }
+                    }
+                }
+            }
+        }
+        public void UpdateObjectInDataGridView<TModel,TDisplayed>(TModel modelObject)
+            where TModel : IModelStructure
+            where TDisplayed : class, IModelStructure
+        {
+            // Обновляем объект в DataGridView
+            var displayedObject = _bindingList.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
+            if (displayedObject != null)
+            {
+                displayedObject.Name = modelObject.Name;
+                displayedObject.Type = modelObject.Type;
+                displayedObject.Unit = modelObject.Unit;
+                displayedObject.Price = modelObject.Price;
+                displayedObject.Description = modelObject.Description;
+                displayedObject.Manufacturer = modelObject.Manufacturer;
+                displayedObject.Links = modelObject.Links;
+                displayedObject.ClassifierCode = modelObject.ClassifierCode;
+
+                dgvMain.Refresh();
+            }
+        }
+
+        public void AddNewObjectInDataGridView<TModel, TDisplayed>(TModel modelObject)
+            where TModel : IModelStructure
+            where TDisplayed : class, IModelStructure
+        {
+            var newDisplayedObject = Activator.CreateInstance<TDisplayed>();
+            if (newDisplayedObject is DisplayedMachine displayedObject)
+            {
+                displayedObject.Id = modelObject.Id;
+                displayedObject.Name = modelObject.Name;
+                displayedObject.Type = modelObject.Type;
+                displayedObject.Unit = modelObject.Unit;
+                displayedObject.Price = modelObject.Price;
+                displayedObject.Description = modelObject.Description;
+                displayedObject.Manufacturer = modelObject.Manufacturer;
+                displayedObject.Links = modelObject.Links;
+                displayedObject.ClassifierCode = modelObject.ClassifierCode;
+                if (displayedObject is ICategoryable objectWithCategory && modelObject is ICategoryable modelWithCategory)
+                {
+                    objectWithCategory.Categoty = modelWithCategory.Categoty;
+                }
+
+                _bindingList.Insert(0, displayedObject);
+            }
         }
     }
 }

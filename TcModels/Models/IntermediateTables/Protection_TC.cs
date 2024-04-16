@@ -6,7 +6,7 @@ namespace TcModels.Models.IntermediateTables
 {
     public class Protection_TC : IStructIntermediateTable<TechnologicalCard,Protection>, IDGViewable, IUpdatableEntity
     {
-        public static Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
+        public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
         {
             { nameof(ChildId), "ID Оборудование" },
             { nameof(Child), "" },
@@ -28,7 +28,7 @@ namespace TcModels.Models.IntermediateTables
             { nameof(Note), 2 },
 
         };
-        public static List<string> GetPropertiesRequired { get; } = new List<string>
+        public List<string> GetPropertiesRequired { get; } = new List<string>
         {
             nameof(ChildId),
             nameof(ParentId),

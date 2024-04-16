@@ -214,7 +214,7 @@ namespace TC_WinForms.WinForms
             {
                 dbCon.Delete<TechnologicalCard>(newCard.Id);
             }
-            WinProcessing.CloseingApp(e);
+            WinProcessing.ClosingApp(e);
         }
 
         private void dgvMain_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)

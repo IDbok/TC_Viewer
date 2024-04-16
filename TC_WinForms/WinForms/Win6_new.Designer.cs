@@ -199,7 +199,6 @@
             Name = "Win6_new";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Win6_new";
-            WindowState = FormWindowState.Minimized;
             FormClosing += Win6_new_FormClosing;
             Load += Win6_new_Load;
             toolStrip1.ResumeLayout(false);

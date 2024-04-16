@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TcModels.Models.Interfaces;
@@ -71,11 +72,14 @@ namespace TC_WinForms.WinForms
         }
         private async Task LoadObjects()
         {
-            var tcList = await Task.Run(() => dbCon.GetObjectList<Protection>()
+            var tcList = await Task.Run(() => dbCon.GetObjectList<Protection>(includeLinks: true)
                 .Select(obj => new DisplayedProtection(obj)).ToList());
+
             _bindingList = new BindingList<DisplayedProtection>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
+
+            dgvMain.CellContentClick += dgvMain_CellContentClick;
 
             SetDGVColumnsSettings();
         }
@@ -105,16 +109,23 @@ namespace TC_WinForms.WinForms
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
-                _bindingList,
-                _newObjects,
-                dgvMain);
+            //DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
+            //    _bindingList,
+            //    _newObjects,
+            //    dgvMain);
+            var objEditor = new Win7_LinkObjectEditor(new Protection(), isNewObject: true);
+
+            objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Protection, DisplayedProtection>(createdObj as Protection);
+
+            objEditor.ShowDialog();
         }
 
-        private void btnDeleteObj_Click(object sender, EventArgs e)
+        private async void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
-                _bindingList, _newObjects, _deletedObjects);
+            //DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+            //    _bindingList, _newObjects, _deletedObjects);
+            await DisplayedEntityHelper.DeleteSelectedObjectWithLinks<DisplayedProtection, Protection>(dgvMain,
+                _bindingList);
         }
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
         public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
@@ -225,9 +236,7 @@ namespace TC_WinForms.WinForms
 
             dgvMain.Columns[nameof(DisplayedProtection.Price)].Width = 120;
             dgvMain.Columns[nameof(DisplayedProtection.ClassifierCode)].Width = 150;
-
-            dgvMain.Columns[nameof(DisplayedProtection.Id)].ReadOnly = true;
-            dgvMain.Columns[nameof(DisplayedProtection.ClassifierCode)].ReadOnly = true;
+            dgvMain.Columns[nameof(DisplayedProtection.LinkNames)].Width = 120;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -278,7 +287,7 @@ namespace TC_WinForms.WinForms
 
 
 
-        private class DisplayedProtection : INotifyPropertyChanged, IDisplayedEntity
+        private class DisplayedProtection : INotifyPropertyChanged, IDisplayedEntity, IModelStructure
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -292,6 +301,7 @@ namespace TC_WinForms.WinForms
                 { nameof(Description), "Описание" },
                 { nameof(Manufacturer), "Производители (поставщики)" },
                 //{ nameof(Links), "Ссылки" },
+                { nameof(LinkNames), "Ссылка" },
                 { nameof(ClassifierCode), "Код в classifier" },
             };
             }
@@ -306,6 +316,7 @@ namespace TC_WinForms.WinForms
                     nameof(Price),
                     nameof(Description),
                     nameof(Manufacturer),
+                    nameof(LinkNames),
                     nameof(ClassifierCode),
                 };
             }
@@ -435,6 +446,25 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
+            public string LinkNames
+            {
+                get => GetDefaultLinkOrFirst();
+            }
+            private string GetDefaultLinkOrFirst()
+            {
+                if (links.Count > 0)
+                {
+                    // Все названия существующих ссылок с новой строки
+                    var defLink = links.Where(l => l.IsDefault).FirstOrDefault();
+                    if (defLink == null)
+                    {
+                        return links[0].Name ?? links[0].Link;
+                    }
+                    //defLink.Name = linksNames;
+                    return defLink.Name ?? defLink.Link;
+                }
+                return string.Empty;
+            }
             public string ClassifierCode
             {
                 get => classifierCode;
@@ -491,6 +521,105 @@ namespace TC_WinForms.WinForms
                         ).ToList();
 
             return new BindingList<DisplayedProtection>(filteredList);
+        }
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return;
+            }
+
+            var selectedObj = dgvMain.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
+            var obj = selectedObj?.DataBoundItem as DisplayedProtection;
+
+            if (obj != null)
+            {
+                var machine = dbCon.GetObjectWithLinks<Protection>(obj.Id);
+
+                if (machine != null)
+                {
+                    var objEditor = new Win7_LinkObjectEditor(machine);
+
+                    objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView<Protection, DisplayedProtection>(updatedObj as Protection);
+
+                    objEditor.ShowDialog();
+                }
+            }
+        }
+
+        public void UpdateObjectInDataGridView<TModel, TDisplayed>(TModel modelObject)
+            where TModel : IModelStructure
+            where TDisplayed : class, IModelStructure
+        {
+            // Обновляем объект в DataGridView
+            var displayedObject = _bindingList.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
+            if (displayedObject != null)
+            {
+                displayedObject.Name = modelObject.Name;
+                displayedObject.Type = modelObject.Type;
+                displayedObject.Unit = modelObject.Unit;
+                displayedObject.Price = modelObject.Price;
+                displayedObject.Description = modelObject.Description;
+                displayedObject.Manufacturer = modelObject.Manufacturer;
+                displayedObject.Links = modelObject.Links;
+                displayedObject.ClassifierCode = modelObject.ClassifierCode;
+                if (displayedObject is ICategoryable objectWithCategory && modelObject is ICategoryable modelWithCategory)
+                {
+                    objectWithCategory.Categoty = modelWithCategory.Categoty;
+                }
+
+                dgvMain.Refresh();
+            }
+        }
+
+        public void AddNewObjectInDataGridView<TModel, TDisplayed>(TModel modelObject)
+            where TModel : IModelStructure
+            where TDisplayed : class, IModelStructure
+        {
+            var newDisplayedObject = Activator.CreateInstance<TDisplayed>();
+            if (newDisplayedObject is DisplayedProtection displayedObject)
+            {
+                displayedObject.Id = modelObject.Id;
+                displayedObject.Name = modelObject.Name;
+                displayedObject.Type = modelObject.Type;
+                displayedObject.Unit = modelObject.Unit;
+                displayedObject.Price = modelObject.Price;
+                displayedObject.Description = modelObject.Description;
+                displayedObject.Manufacturer = modelObject.Manufacturer;
+                displayedObject.Links = modelObject.Links;
+                displayedObject.ClassifierCode = modelObject.ClassifierCode;
+                if (displayedObject is ICategoryable objectWithCategory && modelObject is ICategoryable modelWithCategory)
+                {
+                    objectWithCategory.Categoty = modelWithCategory.Categoty;
+                }
+
+                _bindingList.Insert(0, displayedObject);
+            }
+        }
+
+        private void dgvMain_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            UrlClick(sender, e);
+        }
+        private void UrlClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedProtection.LinkNames) && e.RowIndex >= 0)
+            {
+                var displayedMachine = dgvMain.Rows[e.RowIndex].DataBoundItem as DisplayedProtection;
+                if (displayedMachine != null)
+                {
+                    var link = displayedMachine.Links.FirstOrDefault(l => l.IsDefault) ?? displayedMachine.Links.FirstOrDefault();
+                    if (link != null && Uri.TryCreate(link.Link, UriKind.Absolute, out var uri))
+                    {
+                        var result = MessageBox.Show($"Открыть ссылку в браузере?\n{link}", "Ссылка", MessageBoxButtons.YesNo);
+                        if (result == DialogResult.Yes)
+                        {
+                            Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
+                        }
+                    }
+                }
+            }
         }
     }
 }

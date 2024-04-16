@@ -37,7 +37,7 @@ namespace TC_WinForms
         }
         private void Win2_FormClosing(object sender, FormClosingEventArgs e)
         {
-            WinProcessing.CloseingApp(e);
+            WinProcessing.ClosingApp(e);
         }
         private Control[] GetEnableAfterChoise() => new Control[] { gbxProjectData, btnNext };
         private void btnTcTransPoint_Click(object sender, EventArgs e)

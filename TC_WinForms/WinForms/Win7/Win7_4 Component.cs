@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
@@ -31,7 +32,7 @@ namespace TC_WinForms.WinForms
         {
             isAddingForm = true;
         }
-        
+
 
         public bool GetDontSaveData()
         {
@@ -80,7 +81,7 @@ namespace TC_WinForms.WinForms
         }
         public async Task LoadDataAsync()
         {
-            var tcList = await Task.Run(() => dbCon.GetObjectList<Component>()
+            var tcList = await Task.Run(() => dbCon.GetObjectList<Component>(includeLinks: true)
                 .Select(obj => new DisplayedComponent(obj)).ToList());
 
             _bindingList = new BindingList<DisplayedComponent>(tcList);
@@ -89,6 +90,8 @@ namespace TC_WinForms.WinForms
             _bindingList.ListChanged += BindingList_ListChanged;
 
             dgvMain.DataSource = _bindingList;
+
+            dgvMain.CellContentClick += dgvMain_CellContentClick;
 
             _isDataLoaded = true;
         }
@@ -120,16 +123,17 @@ namespace TC_WinForms.WinForms
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
-                _bindingList,
-                _newObjects,
-                dgvMain);
+            var objEditor = new Win7_LinkObjectEditor(new Component(), isNewObject: true);
+
+            objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Component, DisplayedComponent>(createdObj as Component);
+
+            objEditor.ShowDialog();
         }
 
-        private void btnDeleteObj_Click(object sender, EventArgs e)
+        private async void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
-                _bindingList, _newObjects, _deletedObjects);
+            await DisplayedEntityHelper.DeleteSelectedObjectWithLinks<DisplayedComponent, Component>(dgvMain,
+                _bindingList);
         }
 
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
@@ -179,7 +183,6 @@ namespace TC_WinForms.WinForms
                 ).FirstOrDefault().Id;
                 newObj.Id = newId;
             }
-
 
             _newObjects.Clear();
         }
@@ -244,9 +247,7 @@ namespace TC_WinForms.WinForms
 
             dgvMain.Columns[nameof(DisplayedComponent.Price)].Width = 120;
             dgvMain.Columns[nameof(DisplayedComponent.ClassifierCode)].Width = 150;
-
-            dgvMain.Columns[nameof(DisplayedComponent.Id)].ReadOnly = true; //ClassifierCode
-            dgvMain.Columns[nameof(DisplayedComponent.ClassifierCode)].ReadOnly = true;
+            dgvMain.Columns[nameof(DisplayedComponent.LinkNames)].Width = 120;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -298,7 +299,7 @@ namespace TC_WinForms.WinForms
 
 
 
-        private class DisplayedComponent : INotifyPropertyChanged, IDisplayedEntity
+        private class DisplayedComponent : INotifyPropertyChanged, IDisplayedEntity, IModelStructure, ICategoryable
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -306,12 +307,13 @@ namespace TC_WinForms.WinForms
             {
                 { nameof(Id), "ID" },
                 { nameof(Name), "Наименование" },
-                { nameof(Type), "Тип" },
+                { nameof(Type), "Тип (исполнение)" },
                 { nameof(Unit), "Ед.изм." },
                 { nameof(Price), "Стоимость, руб. без НДС" },
                 { nameof(Description), "Описание" },
                 { nameof(Manufacturer), "Производители (поставщики)" },
-                // { nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
+                //{ nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
+                { nameof(LinkNames), "Ссылка" },
                 { nameof(Categoty), "Категория" },
                 { nameof(ClassifierCode), "Код в classifier" },
             };
@@ -324,11 +326,13 @@ namespace TC_WinForms.WinForms
                     nameof(Name),
                     nameof(Type),
                     nameof(Unit),
+                    nameof(ClassifierCode),
                     nameof(Price),
                     nameof(Description),
                     nameof(Manufacturer),
+                    nameof(LinkNames),
+                    //nameof(Links),
                     nameof(Categoty),
-                    nameof(ClassifierCode),
                 };
             }
             public List<string> GetRequiredFields()
@@ -354,9 +358,10 @@ namespace TC_WinForms.WinForms
             private string categoty = "StandComp";
             private string classifierCode;
 
+            
             public DisplayedComponent()
             {
-
+                
             }
             public DisplayedComponent(Component obj)
             {
@@ -460,6 +465,39 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
+            public string LinkNames
+            {
+                get => GetDefaultLinkOrFirst();
+            }
+            private string GetDefaultLinkOrFirst()
+            {
+                if (links.Count > 0)
+                {
+                    // Все названия существующих ссылок с новой строки
+                    var defLink = links.Where(l => l.IsDefault).FirstOrDefault();
+                    if (defLink == null)
+                    {
+                        return GetLinkName(links[0]);
+                    }
+                    return GetLinkName(defLink);
+                }
+                return string.Empty;
+
+                string GetLinkName(LinkEntety link)
+                {
+                    string linkName;
+                    if (link.Name != null && link.Name != "")
+                    {
+                        linkName = link.Name;
+                    }
+                    else
+                    {
+                        linkName = link.Link;
+                    }
+                    
+                    return linkName;
+                }
+            }
             public string Categoty
             {
                 get => categoty;
@@ -525,6 +563,106 @@ namespace TC_WinForms.WinForms
                 //MessageBox.Show(e.Message);
             }
 
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return;
+            }
+
+            var selectedObj = dgvMain.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
+            var obj = selectedObj?.DataBoundItem as DisplayedComponent;
+
+            if (obj != null)
+            {
+                var machine = dbCon.GetObjectWithLinks<Component>(obj.Id);
+
+                if (machine != null)
+                {
+                    var objEditor = new Win7_LinkObjectEditor(machine);
+
+                    objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView<Component, DisplayedComponent>(updatedObj as Component);
+
+                    objEditor.ShowDialog();
+                }
+            }
+        }
+
+        public void UpdateObjectInDataGridView<TModel, TDisplayed>(TModel modelObject)
+            where TModel : IModelStructure
+            where TDisplayed : class, IModelStructure
+        {
+            // Обновляем объект в DataGridView
+            var displayedObject = _bindingList.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
+            if (displayedObject != null)
+            {
+                displayedObject.Name = modelObject.Name;
+                displayedObject.Type = modelObject.Type;
+                displayedObject.Unit = modelObject.Unit;
+                displayedObject.Price = modelObject.Price;
+                displayedObject.Description = modelObject.Description;
+                displayedObject.Manufacturer = modelObject.Manufacturer;
+                displayedObject.Links = modelObject.Links;
+                displayedObject.ClassifierCode = modelObject.ClassifierCode;
+                if (displayedObject is ICategoryable objectWithCategory && modelObject is ICategoryable modelWithCategory)
+                {
+                    objectWithCategory.Categoty = modelWithCategory.Categoty; 
+                }
+
+                dgvMain.Refresh();
+            }
+        }
+
+        public void AddNewObjectInDataGridView<TModel, TDisplayed>(TModel modelObject)
+            where TModel : IModelStructure
+            where TDisplayed : class, IModelStructure
+        {
+            var newDisplayedObject = Activator.CreateInstance<TDisplayed>();
+            if (newDisplayedObject is DisplayedComponent displayedObject)
+            {
+                displayedObject.Id = modelObject.Id;
+                displayedObject.Name = modelObject.Name;
+                displayedObject.Type = modelObject.Type;
+                displayedObject.Unit = modelObject.Unit;
+                displayedObject.Price = modelObject.Price;
+                displayedObject.Description = modelObject.Description;
+                displayedObject.Manufacturer = modelObject.Manufacturer;
+                displayedObject.Links = modelObject.Links;
+                displayedObject.ClassifierCode = modelObject.ClassifierCode;
+                if (displayedObject is ICategoryable objectWithCategory && modelObject is ICategoryable modelWithCategory)
+                {
+                    objectWithCategory.Categoty = modelWithCategory.Categoty;
+                }
+
+                _bindingList.Insert(0, displayedObject);
+            }
+        }
+
+        private void dgvMain_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            UrlClick(sender, e);
+        }
+        private void UrlClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedComponent.LinkNames) && e.RowIndex >= 0)
+            {
+                var displayedMachine = dgvMain.Rows[e.RowIndex].DataBoundItem as DisplayedComponent;
+                if (displayedMachine != null)
+                {
+                    var link = displayedMachine.Links.FirstOrDefault(l => l.IsDefault) ?? displayedMachine.Links.FirstOrDefault();
+                    if (link != null && Uri.TryCreate(link.Link, UriKind.Absolute, out var uri))
+                    {
+                        var result = MessageBox.Show($"Открыть ссылку в браузере?\n{link}", "Ссылка", MessageBoxButtons.YesNo);
+                        if (result == DialogResult.Yes)
+                        {
+                            Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
+                        }
+                    }
+                }
+            }
         }
     }
 }

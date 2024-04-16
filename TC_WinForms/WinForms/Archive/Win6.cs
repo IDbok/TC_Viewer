@@ -99,7 +99,7 @@ namespace TC_WinForms.WinForms
 
         private void Win6_FormClosing(object sender, FormClosingEventArgs e)
         {
-            WinProcessing.CloseingApp(e);
+            WinProcessing.ClosingApp(e);
         }
 
         private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
