@@ -165,17 +165,26 @@ namespace TC_WinForms.DataProcessing
                 }
             }
         }
-        public async Task UpdateObjectsAsync<T>(T updatedObject) where T : class, IUpdatableEntity, IIdentifiable, IModelStructure
+        public async Task UpdateObjectsAsync<T>(T updatedObject) where T : class, IUpdatableEntity, IIdentifiable //, IModelStructure
         {
             using (var db = new MyDbContext())
             {
-                var existingObj = await db.Set<T>()
+                T? existingObj = null;
+
+                if(updatedObject is IModelStructure obj)
+                {
+                    existingObj = await db.Set<T>()
                     .Include(nameof(IModelStructure.Links))
                     .FirstOrDefaultAsync(t => t.Id == updatedObject.Id);
+                }
+                else
+                {
+                    existingObj = await db.Set<T>()
+                    .FirstOrDefaultAsync(t => t.Id == updatedObject.Id);
+                }
 
                 if (existingObj != null)
                 {
-                    //var linksToDelete = existingObj.Links.Where(l => !updatedObject.Links.Any(ul => ul.Id == l.Id)).ToList();
                     existingObj.ApplyUpdates(updatedObject);
                 }
 

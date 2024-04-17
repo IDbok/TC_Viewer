@@ -38,7 +38,7 @@ namespace TC_WinForms.WinForms
             SetCbxCategory();
 
             SetLinksDGVDataSources();
-            
+
             if (_isNewObject)
             {
                 this.Text = "Создание нового объекта";
@@ -55,7 +55,7 @@ namespace TC_WinForms.WinForms
                 rtxtManufacturer.Text = _editingObj.Manufacturer;
                 txtClassifierCode.Text = _editingObj.ClassifierCode;
 
-                if(_editingObj is ICategoryable categoryable)
+                if (_editingObj is ICategoryable categoryable)
                 {
                     cbxCategory.SelectedIndex = cbxCategory.FindStringExact(categoryable.Categoty);
                 }
@@ -218,23 +218,6 @@ namespace TC_WinForms.WinForms
                 btnAddLink, btnEditLink, btnDeleteLink, 
                 btnSave, btnClose);
 
-            //lblDescription.Location = new Point(lblDescription.Location.X, lblDescription.Location.Y + changePixelsY);
-            //rtxtDescription.Location = new Point(rtxtDescription.Location.X, rtxtDescription.Location.Y + changePixelsY);
-
-            //lblManufacturer.Location = new Point(lblManufacturer.Location.X, lblManufacturer.Location.Y + changePixelsY);
-            //rtxtManufacturer.Location = new Point(rtxtManufacturer.Location.X, rtxtManufacturer.Location.Y + changePixelsY);
-
-            //lblLinks.Location = new Point(lblLinks.Location.X, lblLinks.Location.Y + changePixelsY);
-            //dgvLinks.Location = new Point(dgvLinks.Location.X, dgvLinks.Location.Y + changePixelsY);
-
-            //btnAddLink.Location = new Point(btnAddLink.Location.X, btnAddLink.Location.Y + changePixelsY);
-            //btnEditLink.Location = new Point(btnEditLink.Location.X, btnEditLink.Location.Y + changePixelsY);
-            //btnDeleteLink.Location = new Point(btnDeleteLink.Location.X, btnDeleteLink.Location.Y + changePixelsY);
-
-            //btnSave.Location = new Point(btnSave.Location.X, btnSave.Location.Y + changePixelsY);
-            //btnClose.Location = new Point(btnClose.Location.X, btnClose.Location.Y + changePixelsY);
-
-            //this.Height += changePixelsY;
         }
         private void CategorylessObject()
         {
@@ -421,7 +404,6 @@ namespace TC_WinForms.WinForms
         {
             CreateSmallForm("Добавление новой ссылки").ShowDialog();
         }
-
         private Form CreateSmallForm(string formName, string? name = null, string? link = null, bool editLink = false)
         {
             var smallForm = new Form();
@@ -509,7 +491,6 @@ namespace TC_WinForms.WinForms
                 _links.RemoveAt(row.Index);
             }
         }
-
         private void btnEditLink_Click(object sender, EventArgs e)
         {
             var selectedRows = dgvLinks.SelectedRows;
@@ -533,8 +514,6 @@ namespace TC_WinForms.WinForms
             txtClassifierCode.TextChanged += ComponentChanged;
 
             cbxUnit.SelectedIndexChanged += ComponentChanged;
-
-
         }
 
         private void ComponentChanged(object sender, EventArgs e)

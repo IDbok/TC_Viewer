@@ -107,6 +107,45 @@ namespace TC_WinForms.DataProcessing.Utilities
                 dgvMain.Refresh(); // TODO: reordering rows
             }
         }
+        public static async Task DeleteSelectedObject<TDisp, TObj>(
+            DataGridView dgvMain,
+            BindingList<TDisp> bindingList) 
+            where TDisp : class, IDisplayedEntity, IIdentifiable, new()
+            where TObj : class, IIdentifiable, new()
+        {
+            if (dgvMain.SelectedRows.Count > 0)
+            {
+                string message = "Вы действительно хотите удалить выбранные объекты?\n";
+                DialogResult result = MessageBox.Show(message, "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    var selectedRows = dgvMain.SelectedRows.Cast<DataGridViewRow>()
+                    .Select(row => row.DataBoundItem as TDisp)
+                    .Where(dtc => dtc != null)
+                    .ToList();
+
+
+                    var selectedRowIds = selectedRows.Select(obj => obj!.Id).ToList();
+                    bool isObjDeleted = await dbCon.DeleteObjectAsync<TObj>(selectedRowIds);
+
+                    if (isObjDeleted)
+                    {
+                        foreach (var dtc in selectedRows)
+                        {
+                            bindingList.Remove(dtc);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Ошибка удаления объектов");
+                    }
+                    
+                }
+
+                dgvMain.Refresh(); // TODO: reordering rows
+            }
+        }
         public static async Task DeleteSelectedObjectWithLinks<TDisp,TObj>(
             DataGridView dgvMain,
             BindingList<TDisp> bindingList) 

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
@@ -127,16 +128,20 @@ namespace TC_WinForms.WinForms
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            //AddNewObject();
-            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
-                _bindingList,
-                _newObjects,
-                dgvMain);
+            ////AddNewObject();
+            //DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
+            //    _bindingList,
+            //    _newObjects,
+            //    dgvMain);
+            var objEditor = new Win7_StaffEditor(new Staff(), isNewObject: true);
+
+            objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView(createdObj);
+
+            objEditor.ShowDialog();
         }
-        private void btnDeleteObj_Click(object sender, EventArgs e)
+        private async void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            //DeletSelected();
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain, _bindingList, _newObjects, _deletedObjects);
+            await DisplayedEntityHelper.DeleteSelectedObject<DisplayedStaff,Staff>(dgvMain, _bindingList);
         }
 
         public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
@@ -296,7 +301,7 @@ namespace TC_WinForms.WinForms
         }
 
 
-        private class DisplayedStaff : INotifyPropertyChanged, IDisplayedEntity
+        private class DisplayedStaff : INotifyPropertyChanged, IDisplayedEntity, IIdentifiable
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -474,5 +479,65 @@ namespace TC_WinForms.WinForms
             }
 
         }
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return;
+            }
+
+            var selectedObj = dgvMain.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
+            var obj = selectedObj?.DataBoundItem as DisplayedStaff;
+
+            if (obj != null)
+            {
+                var staff = dbCon.GetObject<Staff>(obj.Id);
+
+                if (staff != null)
+                {
+                    var objEditor = new Win7_StaffEditor(staff);
+
+                    objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView(updatedObj as Staff);
+
+                    objEditor.ShowDialog();
+                }
+            }
+        }
+
+        public void UpdateObjectInDataGridView(Staff modelObject)
+        {
+            // Обновляем объект в DataGridView
+            var displayedObject = _bindingList.OfType<DisplayedStaff>().FirstOrDefault(obj => obj.Id == modelObject.Id);
+            if (displayedObject != null)
+            {
+                displayedObject.Name = modelObject.Name;
+                displayedObject.Type = modelObject.Type;
+                displayedObject.Functions = modelObject.Functions;
+                displayedObject.CombineResponsibility = modelObject.CombineResponsibility;
+                displayedObject.Qualification = modelObject.Qualification;
+                displayedObject.Comment = modelObject.Comment;
+
+                dgvMain.Refresh();
+            }
+        }
+
+        public void AddNewObjectInDataGridView(Staff modelObject)
+        {
+            var newDisplayedObject = Activator.CreateInstance<DisplayedStaff>();
+            if (newDisplayedObject is DisplayedStaff displayedObject)
+            {
+                displayedObject.Id = modelObject.Id;
+                displayedObject.Name = modelObject.Name;
+                displayedObject.Type = modelObject.Type;
+                displayedObject.Functions = modelObject.Functions;
+                displayedObject.CombineResponsibility = modelObject.CombineResponsibility;
+                displayedObject.Qualification = modelObject.Qualification;
+                displayedObject.Comment = modelObject.Comment;
+
+                _bindingList.Insert(0, displayedObject);
+            }
+        }
+
     }
 }
