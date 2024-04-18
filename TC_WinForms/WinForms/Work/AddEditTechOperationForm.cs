@@ -1,5 +1,4 @@
-﻿
-using System.Data;
+﻿using System.Data;
 using TC_WinForms.DataProcessing;
 using TcDbConnector;
 using TcModels.Models.IntermediateTables;
@@ -92,9 +91,6 @@ namespace TC_WinForms.WinForms.Work
             UpdateTO();
             UpdateLocalTO();
         }
-
-     
-
 
 
         #region TO
@@ -530,7 +526,6 @@ namespace TC_WinForms.WinForms.Work
 
         #endregion
 
-
         #region Staff
         private void DataGridViewStaff_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
@@ -752,8 +747,6 @@ namespace TC_WinForms.WinForms.Work
 
         #endregion
 
-
-
         #region средства защиты
 
         private void comboBoxSZ_SelectedIndexChanged(object sender, EventArgs e)
@@ -952,9 +945,6 @@ namespace TC_WinForms.WinForms.Work
         }
 
         #endregion
-
-
-
 
         #region Component
 
@@ -1202,7 +1192,6 @@ namespace TC_WinForms.WinForms.Work
         }
 
         #endregion
-
 
         #region Instument
 
@@ -1463,8 +1452,6 @@ namespace TC_WinForms.WinForms.Work
 
         #endregion
 
-
-
         #region этапы
 
 
@@ -1721,7 +1708,6 @@ namespace TC_WinForms.WinForms.Work
 
         #endregion
 
-
         #region Повторить
 
 
@@ -1927,7 +1913,6 @@ namespace TC_WinForms.WinForms.Work
 
 
         }
-
 
         public void UpdateTable(int table)
         {

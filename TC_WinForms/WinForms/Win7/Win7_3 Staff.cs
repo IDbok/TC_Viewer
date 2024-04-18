@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using TC_WinForms.DataProcessing;
@@ -248,8 +249,11 @@ namespace TC_WinForms.WinForms
                 dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             }
 
+            dgvMain.Columns[nameof(DisplayedStaff.Name)].Width = 200;
+            dgvMain.Columns[nameof(DisplayedStaff.Type)].Width = 200;
+            dgvMain.Columns[nameof(DisplayedStaff.Functions)].Width = 290;
+            dgvMain.Columns[nameof(DisplayedStaff.CombineResponsibility)].Width = 290;
 
-            dgvMain.Columns[nameof(DisplayedStaff.Id)].ReadOnly = true;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,8 +312,9 @@ namespace TC_WinForms.WinForms
                 return new Dictionary<string, string>
             {
                 { nameof(Id), "ID" },
-                { nameof(Name), "Название" },
-                { nameof(Type), "Тип" },
+                { nameof(Name), "Наименование" },
+                { nameof(Type), "Тип (исполнение)" },
+                //{ nameof(ClassifierCode), "Код в classifier" },
                 { nameof(Functions), "Функции" },
                 { nameof(CombineResponsibility), "Возможность совмещения обязанностей" },
                 { nameof(Qualification), "Квалификация" },
@@ -323,6 +328,7 @@ namespace TC_WinForms.WinForms
                     nameof(Id),
                     nameof(Name),
                     nameof(Type),
+                    //nameof(ClassifierCode),
                     nameof(Functions),
                     nameof(CombineResponsibility),
                     nameof(Qualification),
@@ -337,6 +343,7 @@ namespace TC_WinForms.WinForms
                     nameof(Type) ,
                     nameof(Functions) ,
                     nameof(Qualification),
+                    //nameof(ClassifierCode),
                 };
             }
 
@@ -347,6 +354,7 @@ namespace TC_WinForms.WinForms
             private string? combineResponsibility;
             private string qualification;
             private string? comment;
+            //private string classifierCode;
 
             public DisplayedStaff()
             {
@@ -357,6 +365,7 @@ namespace TC_WinForms.WinForms
                 Id = obj.Id;
                 Name = obj.Name;
                 Type = obj.Type;
+                //ClassifierCode = obj.ClassifierCode;
                 Functions = obj.Functions;
                 CombineResponsibility = obj.CombineResponsibility;
                 Qualification = obj.Qualification;
@@ -390,6 +399,18 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
+            //public string ClassifierCode
+            //{
+            //    get => classifierCode;
+            //    set
+            //    {
+            //        if (classifierCode != value)
+            //        {
+            //            classifierCode = value;
+            //            OnPropertyChanged(nameof(ClassifierCode));
+            //        }
+            //    }
+            //}
             public string Functions
             {
                 get => functions;

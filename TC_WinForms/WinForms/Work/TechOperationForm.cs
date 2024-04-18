@@ -878,10 +878,8 @@ namespace TC_WinForms.WinForms.Work
 
         private void button2_Click(object sender, EventArgs e)
         {
-            //AddEditTechOperationForm addEditTechOperationForm = new AddEditTechOperationForm(this);
-            //addEditTechOperationForm.Show();
             _editForm = new AddEditTechOperationForm(this);
-            _editForm.Show();
+            _editForm.ShowDialog();
 
             HasChanges = true;
         }

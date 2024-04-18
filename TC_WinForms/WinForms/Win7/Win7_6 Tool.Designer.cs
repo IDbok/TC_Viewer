@@ -31,6 +31,8 @@
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
+            lblCategory = new Label();
+            cbxCategoryFilter = new ComboBox();
             lblSearch = new Label();
             txtSearch = new TextBox();
             pnlControlBtns = new Panel();
@@ -59,7 +61,7 @@
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
             dgvMain.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvMain.Size = new Size(1000, 462);
+            dgvMain.Size = new Size(1305, 462);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -70,24 +72,44 @@
             pnlControls.Location = new Point(0, 0);
             pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1000, 100);
+            pnlControls.Size = new Size(1305, 100);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
             // 
+            pnlFilters.Controls.Add(lblCategory);
+            pnlFilters.Controls.Add(cbxCategoryFilter);
             pnlFilters.Controls.Add(lblSearch);
             pnlFilters.Controls.Add(txtSearch);
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(402, 100);
+            pnlFilters.Size = new Size(644, 100);
             pnlFilters.TabIndex = 25;
+            // 
+            // lblCategory
+            // 
+            lblCategory.AutoSize = true;
+            lblCategory.Location = new Point(270, 20);
+            lblCategory.Name = "lblCategory";
+            lblCategory.Size = new Size(99, 25);
+            lblCategory.TabIndex = 30;
+            lblCategory.Text = "Категория:";
+            // 
+            // cbxCategoryFilter
+            // 
+            cbxCategoryFilter.FormattingEnabled = true;
+            cbxCategoryFilter.Location = new Point(270, 50);
+            cbxCategoryFilter.Name = "cbxCategoryFilter";
+            cbxCategoryFilter.Size = new Size(182, 33);
+            cbxCategoryFilter.TabIndex = 29;
+            cbxCategoryFilter.SelectedIndexChanged += cbxCategory_SelectedIndexChanged;
             // 
             // lblSearch
             // 
             lblSearch.AutoSize = true;
-            lblSearch.Location = new Point(12, 26);
+            lblSearch.Location = new Point(12, 20);
             lblSearch.Name = "lblSearch";
             lblSearch.Size = new Size(67, 25);
             lblSearch.TabIndex = 28;
@@ -95,7 +117,7 @@
             // 
             // txtSearch
             // 
-            txtSearch.Location = new Point(12, 54);
+            txtSearch.Location = new Point(12, 50);
             txtSearch.Name = "txtSearch";
             txtSearch.Size = new Size(224, 31);
             txtSearch.TabIndex = 27;
@@ -107,7 +129,7 @@
             pnlControlBtns.Controls.Add(btnDeleteObj);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(410, 0);
+            pnlControlBtns.Location = new Point(715, 0);
             pnlControlBtns.Margin = new Padding(4);
             pnlControlBtns.Name = "pnlControlBtns";
             pnlControlBtns.Size = new Size(590, 100);
@@ -154,13 +176,13 @@
             pnlDataViewer.Location = new Point(0, 100);
             pnlDataViewer.Margin = new Padding(4);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1000, 462);
+            pnlDataViewer.Size = new Size(1305, 462);
             pnlDataViewer.TabIndex = 2;
             // 
             // progressBar
             // 
             progressBar.Anchor = AnchorStyles.None;
-            progressBar.Location = new Point(226, 100);
+            progressBar.Location = new Point(378, 100);
             progressBar.MarqueeAnimationSpeed = 30;
             progressBar.Name = "progressBar";
             progressBar.Size = new Size(564, 34);
@@ -172,7 +194,7 @@
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1000, 562);
+            ClientSize = new Size(1305, 562);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
             Margin = new Padding(4);
@@ -202,5 +224,7 @@
         private Label lblSearch;
         private TextBox txtSearch;
         private Button btnUpdate;
+        private Label lblCategory;
+        private ComboBox cbxCategoryFilter;
     }
 }

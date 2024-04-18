@@ -262,11 +262,11 @@ namespace TC_WinForms.WinForms
                 { nameof(ChildId), "ID" },
                 { nameof(ParentId), "ID тех. карты" },
                 { nameof(Order), "№" },
-                { nameof(Quantity), "Количество" },
+                { nameof(Quantity), "Кол-во" },
                 { nameof(Note), "Примечание" },
 
                 { nameof(Name), "Наименование" },
-                { nameof(Type), "Тип" },
+                { nameof(Type), "Тип (исполнение)" },
                 { nameof(Unit), "Ед.изм." },
                 { nameof(Price), "Стоимость, руб. без НДС" },
                 { nameof(Description), "Описание" },

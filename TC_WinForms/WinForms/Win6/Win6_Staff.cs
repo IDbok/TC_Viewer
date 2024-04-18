@@ -334,8 +334,8 @@ namespace TC_WinForms.WinForms
                 { nameof(Order), "№" },
                 { nameof(Symbol), "Обозначение" },
 
-                { nameof(Name), "Название" },
-                { nameof(Type), "Тип" },
+                { nameof(Name), "Наименование" },
+                { nameof(Type), "Тип (исполнение)" },
                 { nameof(Functions), "Функции" },
                 { nameof(CombineResponsibility), "Возможность совмещения обязанностей" },
                 { nameof(Qualification), "Квалификация" },

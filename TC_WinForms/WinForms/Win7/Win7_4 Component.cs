@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
@@ -64,6 +65,7 @@ namespace TC_WinForms.WinForms
                 await LoadDataAsync();
             }
             SetDGVColumnsSettings();
+            SetupCategoryComboBox();
 
             DisplayedEntityHelper.SetupDataGridView<DisplayedComponent>(dgvMain);
 
@@ -245,9 +247,33 @@ namespace TC_WinForms.WinForms
                 dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             }
 
+            dgvMain.Columns[nameof(DisplayedComponent.Name)].Width = 250;
+            dgvMain.Columns[nameof(DisplayedComponent.Type)].Width = 200;
+
+
             dgvMain.Columns[nameof(DisplayedComponent.Price)].Width = 120;
             dgvMain.Columns[nameof(DisplayedComponent.ClassifierCode)].Width = 150;
-            dgvMain.Columns[nameof(DisplayedComponent.LinkNames)].Width = 120;
+            dgvMain.Columns[nameof(DisplayedComponent.ClassifierCode)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+
+            dgvMain.Columns[nameof(DisplayedComponent.LinkNames)].Width = 100;
+            dgvMain.Columns[nameof(DisplayedComponent.LinkNames)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+        }
+
+        private void SetupCategoryComboBox()
+        {
+            var types = _bindingList.Select(obj => obj.Categoty).Distinct().ToList();
+            types.Sort();
+
+            cbxCategoryFilter.Items.Add("Все");
+            foreach (var type in types)
+            {
+                if (string.IsNullOrWhiteSpace(type)) { continue; }
+                cbxCategoryFilter.Items.Add(type);
+            }
+            //cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
+            //cbxCategoryFilter.SelectedIndex = 0; // Выбираем "Все" по умолчанию
+
+            cbxCategoryFilter.DropDownWidth = cbxCategoryFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxCategoryFilter.Font).Width) + 20;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -309,13 +335,13 @@ namespace TC_WinForms.WinForms
                 { nameof(Name), "Наименование" },
                 { nameof(Type), "Тип (исполнение)" },
                 { nameof(Unit), "Ед.изм." },
+                { nameof(ClassifierCode), "Код в classifier" },
                 { nameof(Price), "Стоимость, руб. без НДС" },
                 { nameof(Description), "Описание" },
                 { nameof(Manufacturer), "Производители (поставщики)" },
                 //{ nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
                 { nameof(LinkNames), "Ссылка" },
                 { nameof(Categoty), "Категория" },
-                { nameof(ClassifierCode), "Код в classifier" },
             };
             }
             public List<string> GetPropertiesOrder()
@@ -358,10 +384,10 @@ namespace TC_WinForms.WinForms
             private string categoty = "StandComp";
             private string classifierCode;
 
-            
+
             public DisplayedComponent()
             {
-                
+
             }
             public DisplayedComponent(Component obj)
             {
@@ -494,7 +520,7 @@ namespace TC_WinForms.WinForms
                     {
                         linkName = link.Link;
                     }
-                    
+
                     return linkName;
                 }
             }
@@ -534,25 +560,35 @@ namespace TC_WinForms.WinForms
         {
             FilterTechnologicalCards();
         }
+
+        private void cbxCategoryFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+        }
         private void FilterTechnologicalCards()
         {
             try
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+                var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
 
-                if (string.IsNullOrWhiteSpace(searchText))
+                if (string.IsNullOrWhiteSpace(searchText) && (categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter)))
                 {
                     dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
                 }
                 else
                 {
                     var filteredList = _bindingList.Where(obj =>
+                        (searchText == ""
+                            ||
                             (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                        ) &&
+                        (categoryFilter == "Все" || obj.Categoty?.ToString() == categoryFilter)
                         ).ToList();
 
                     dgvMain.DataSource = new BindingList<DisplayedComponent>(filteredList);
@@ -609,7 +645,7 @@ namespace TC_WinForms.WinForms
                 displayedObject.ClassifierCode = modelObject.ClassifierCode;
                 if (displayedObject is ICategoryable objectWithCategory && modelObject is ICategoryable modelWithCategory)
                 {
-                    objectWithCategory.Categoty = modelWithCategory.Categoty; 
+                    objectWithCategory.Categoty = modelWithCategory.Categoty;
                 }
 
                 dgvMain.Refresh();
@@ -664,5 +700,6 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
+
     }
 }

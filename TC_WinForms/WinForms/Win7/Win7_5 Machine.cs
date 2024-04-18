@@ -348,10 +348,9 @@ namespace TC_WinForms.WinForms
 
             dgvMain.Columns[nameof(DisplayedMachine.Price)].Width = 120;
             dgvMain.Columns[nameof(DisplayedMachine.ClassifierCode)].Width = 150;
-            dgvMain.Columns[nameof(DisplayedMachine.LinkNames)].Width = 120;
-
-            //dgvMain.Columns[nameof(DisplayedMachine.Id)].ReadOnly = true;
-            //dgvMain.Columns[nameof(DisplayedMachine.ClassifierCode)].ReadOnly = true;
+            dgvMain.Columns[nameof(DisplayedMachine.ClassifierCode)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dgvMain.Columns[nameof(DisplayedMachine.LinkNames)].Width = 100;
+            dgvMain.Columns[nameof(DisplayedMachine.LinkNames)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
         }
 
         private void SetLinkColumn()
@@ -450,14 +449,14 @@ namespace TC_WinForms.WinForms
             {
                 { nameof(Id), "ID" },
                 { nameof(Name), "Наименование" },
-                { nameof(Type), "Тип" },
+                { nameof(Type), "Тип (исполнение)" },
                 { nameof(Unit), "Ед.изм." },
-                { nameof(Price), "Стоимость, руб. без НДС" },
+                { nameof(ClassifierCode), "Код в classifier" },
+                //{ nameof(Price), "Стоимость, руб. без НДС" },
                 { nameof(Description), "Описание" },
-                { nameof(Manufacturer), "Производители (поставщики)" },
+                { nameof(Manufacturer), "Производитель" },
                 //{ nameof(Links), "Ссылки" },
                 { nameof(LinkNames), "Ссылка" },
-                { nameof(ClassifierCode), "Код в classifier" },
             };
             }
             public List<string> GetPropertiesOrder()
@@ -468,11 +467,11 @@ namespace TC_WinForms.WinForms
                     nameof(Name),
                     nameof(Type),
                     nameof(Unit),
-                    nameof(Price),
+                    nameof(ClassifierCode),
+                    //nameof(Price),
                     nameof(Description),
                     nameof(Manufacturer),
                     nameof(LinkNames),
-                    nameof(ClassifierCode),
                 };
             }
             public List<string> GetRequiredFields()

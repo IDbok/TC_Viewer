@@ -234,9 +234,15 @@ namespace TC_WinForms.WinForms
                 dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             }
 
-            dgvMain.Columns[nameof(DisplayedProtection.Price)].Width = 120;
+            dgvMain.Columns[nameof(DisplayedProtection.Name)].Width = 250;
+            dgvMain.Columns[nameof(DisplayedProtection.Type)].Width = 200;
+
+            //dgvMain.Columns[nameof(DisplayedProtection.Price)].Width = 120;
             dgvMain.Columns[nameof(DisplayedProtection.ClassifierCode)].Width = 150;
-            dgvMain.Columns[nameof(DisplayedProtection.LinkNames)].Width = 120;
+            dgvMain.Columns[nameof(DisplayedProtection.ClassifierCode)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+
+            dgvMain.Columns[nameof(DisplayedProtection.LinkNames)].Width = 100;
+            dgvMain.Columns[nameof(DisplayedProtection.LinkNames)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -295,14 +301,14 @@ namespace TC_WinForms.WinForms
             {
                 { nameof(Id), "ID" },
                 { nameof(Name), "Наименование" },
-                { nameof(Type), "Тип" },
+                { nameof(Type), "Тип (исполнение)" },
                 { nameof(Unit), "Ед.изм." },
-                { nameof(Price), "Стоимость, руб. без НДС" },
+                { nameof(ClassifierCode), "Код в classifier" },
+                //{ nameof(Price), "Стоимость, руб. без НДС" },
                 { nameof(Description), "Описание" },
                 { nameof(Manufacturer), "Производители (поставщики)" },
                 //{ nameof(Links), "Ссылки" },
                 { nameof(LinkNames), "Ссылка" },
-                { nameof(ClassifierCode), "Код в classifier" },
             };
             }
             public List<string> GetPropertiesOrder()
@@ -313,11 +319,11 @@ namespace TC_WinForms.WinForms
                     nameof(Name),
                     nameof(Type),
                     nameof(Unit),
-                    nameof(Price),
+                    nameof(ClassifierCode),
+                    //nameof(Price),
                     nameof(Description),
                     nameof(Manufacturer),
                     nameof(LinkNames),
-                    nameof(ClassifierCode),
                 };
             }
             public List<string> GetRequiredFields()

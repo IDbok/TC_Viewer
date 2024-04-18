@@ -63,6 +63,7 @@ namespace TC_WinForms.WinForms
                 await LoadDataAsync();
 
             SetDGVColumnsSettings();
+            SetupCategoryComboBox();
 
             DisplayedEntityHelper.SetupDataGridView<DisplayedTool>(dgvMain);
 
@@ -245,9 +246,28 @@ namespace TC_WinForms.WinForms
 
             dgvMain.Columns[nameof(DisplayedTool.Price)].Width = 120;
             dgvMain.Columns[nameof(DisplayedTool.ClassifierCode)].Width = 150;
-            dgvMain.Columns[nameof(DisplayedTool.LinkNames)].Width = 120;
+            dgvMain.Columns[nameof(DisplayedTool.ClassifierCode)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+
+            dgvMain.Columns[nameof(DisplayedTool.LinkNames)].Width = 100;
+            dgvMain.Columns[nameof(DisplayedTool.LinkNames)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
         }
 
+        private void SetupCategoryComboBox()
+        {
+            var types = _bindingList.Select(obj => obj.Categoty).Distinct().ToList();
+            types.Sort();
+
+            cbxCategoryFilter.Items.Add("Все");
+            foreach (var type in types)
+            {
+                if (string.IsNullOrWhiteSpace(type)) { continue; }
+                cbxCategoryFilter.Items.Add(type);
+            }
+            //cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
+            //cbxCategoryFilter.SelectedIndex = 0; // Выбираем "Все" по умолчанию
+
+            cbxCategoryFilter.DropDownWidth = cbxCategoryFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxCategoryFilter.Font).Width) + 20;
+        }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -309,13 +329,13 @@ namespace TC_WinForms.WinForms
                 { nameof(Name), "Наименование" },
                 { nameof(Type), "Тип" },
                 { nameof(Unit), "Ед.изм." },
-                { nameof(Price), "Стоимость, руб. без НДС" },
+                { nameof(ClassifierCode), "Код в classifier" },
+                //{ nameof(Price), "Стоимость, руб. без НДС" },
                 { nameof(Description), "Описание" },
                 { nameof(Manufacturer), "Производители (поставщики)" },
                 //{ nameof(Links), "Ссылки" },
                 { nameof(LinkNames), "Ссылка" },
                 { nameof(Categoty), "Категория" },
-                { nameof(ClassifierCode), "Код в classifier" },
             };
             }
             public List<string> GetPropertiesOrder()
@@ -326,12 +346,12 @@ namespace TC_WinForms.WinForms
                     nameof(Name),
                     nameof(Type),
                     nameof(Unit),
-                    nameof(Price),
+                    nameof(ClassifierCode),
+                    //nameof(Price),
                     nameof(Description),
                     nameof(Manufacturer),
                     nameof(LinkNames),
                     nameof(Categoty),
-                    nameof(ClassifierCode),
                 };
             }
             public List<string> GetRequiredFields()
@@ -518,25 +538,34 @@ namespace TC_WinForms.WinForms
         {
             FilterTechnologicalCards();
         }
+        private void cbxCategory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            FilterTechnologicalCards();
+        }
         private void FilterTechnologicalCards()
         {
             try
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+                var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
 
-                if (string.IsNullOrWhiteSpace(searchText))
+                if (string.IsNullOrWhiteSpace(searchText) && (categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter)))
                 {
                     dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
                 }
                 else
                 {
                     var filteredList = _bindingList.Where(obj =>
+                        (searchText == ""
+                            ||
                             (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                            (obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                        ) &&
+                        (categoryFilter == "Все" || obj.Categoty?.ToString() == categoryFilter)
                         ).ToList();
 
                     dgvMain.DataSource = new BindingList<DisplayedTool>(filteredList);
@@ -647,5 +676,7 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
+
+        
     }
 }

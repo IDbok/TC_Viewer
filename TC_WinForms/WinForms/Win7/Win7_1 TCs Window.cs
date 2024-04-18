@@ -3,8 +3,6 @@ using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TcDbConnector;
 using TcModels.Models;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using ComboBox = System.Windows.Forms.ComboBox;
 using TextBox = System.Windows.Forms.TextBox;
 

@@ -689,9 +689,10 @@ namespace TC_WinForms.WinForms
                 var networkVoltageFilter = cbxNetworkVoltageFilter.SelectedItem?.ToString();
                 var typeFilter = cbxTypeFilter.SelectedItem?.ToString();
 
-                if (string.IsNullOrWhiteSpace(searchText) && networkVoltageFilter == "Все" && typeFilter == "Все")
+                if (string.IsNullOrWhiteSpace(searchText) && (
+                    (networkVoltageFilter == "Все" && typeFilter == "Все") || 
+                    (string.IsNullOrWhiteSpace(networkVoltageFilter) && string.IsNullOrWhiteSpace(typeFilter))))
                 {
-
                     isFiltered= false;
                     filteredPageIndex = 0;
 

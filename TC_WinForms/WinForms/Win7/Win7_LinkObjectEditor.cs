@@ -36,6 +36,7 @@ namespace TC_WinForms.WinForms
         {
             SetCbxUnits();
             SetCbxCategory();
+            SetFormSettings();
 
             SetLinksDGVDataSources();
 
@@ -202,6 +203,14 @@ namespace TC_WinForms.WinForms
 
                 cbxCategory.DataSource = categories;
         }
+        private void SetFormSettings()
+        {
+            if (_editingObj is Tool) 
+            {
+                PricelessObject();
+            }
+        }
+
 
         private void PricelessObject()
         {

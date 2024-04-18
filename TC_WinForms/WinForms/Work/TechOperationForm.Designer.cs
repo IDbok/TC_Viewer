@@ -39,18 +39,18 @@
             dgvMain.AllowUserToDeleteRows = false;
             dgvMain.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvMain.ColumnHeadersHeight = 29;
-            dgvMain.Location = new Point(0, 112);
-            dgvMain.Margin = new Padding(4, 4, 4, 4);
+            dgvMain.Location = new Point(0, 65);
+            dgvMain.Margin = new Padding(4);
             dgvMain.Name = "dgvMain";
             dgvMain.ReadOnly = true;
             dgvMain.RowHeadersWidth = 51;
-            dgvMain.Size = new Size(1344, 674);
+            dgvMain.Size = new Size(1344, 721);
             dgvMain.TabIndex = 1;
             // 
             // button2
             // 
-            button2.Location = new Point(56, 32);
-            button2.Margin = new Padding(4, 4, 4, 4);
+            button2.Location = new Point(47, 13);
+            button2.Margin = new Padding(4);
             button2.Name = "button2";
             button2.Size = new Size(242, 36);
             button2.TabIndex = 0;
@@ -65,7 +65,7 @@
             ClientSize = new Size(1346, 788);
             Controls.Add(button2);
             Controls.Add(dgvMain);
-            Margin = new Padding(4, 4, 4, 4);
+            Margin = new Padding(4);
             Name = "TechOperationForm";
             Text = "TechOperationForm";
             FormClosed += TechOperationForm_FormClosed;
