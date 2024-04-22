@@ -10,10 +10,12 @@ using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_3_Staff : Form, ISaveEventForm, ILoadDataAsyncForm
+    public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
     {
 
         private DbConnector dbCon = new DbConnector();
+
+        private List<DisplayedStaff> _displayedObjects;
         private static BindingList<DisplayedStaff> _bindingList;
 
         private List<DisplayedStaff> _changedObjects = new List<DisplayedStaff>();
@@ -28,24 +30,26 @@ namespace TC_WinForms.WinForms
         private Form _openedForm;
 
         public bool _isDataLoaded = false;
+
+        private  bool _isFiltered = false;
         public void SetAsAddingForm()
         {
             isAddingForm = true;
         }
 
-        public bool CloseFormsNoSave { get; set; } = false;
+        //public bool CloseFormsNoSave { get; set; } = false;
 
-        public bool GetDontSaveData()
-        {
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        //public bool GetDontSaveData()
+        //{
+        //    if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+        //    {
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //}
         public Win7_3_Staff(int accessLevel)
         {
             InitializeComponent();
@@ -83,13 +87,14 @@ namespace TC_WinForms.WinForms
         }
         public async Task LoadDataAsync()
         {
-            var tcList = await Task.Run(() => dbCon.GetObjectList<Staff>()
+            _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Staff>()
                 .Select(obj => new DisplayedStaff(obj)).ToList());
 
-            _bindingList = new BindingList<DisplayedStaff>(tcList);
+            _bindingList = new BindingList<DisplayedStaff>(_displayedObjects);
 
             dgvMain.DataSource = null; // cancel update of dgv while data is loading
-            _bindingList.ListChanged += BindingList_ListChanged;
+
+            //_bindingList.ListChanged += BindingList_ListChanged;
 
             dgvMain.DataSource = _bindingList;
 
@@ -109,22 +114,22 @@ namespace TC_WinForms.WinForms
 
         private async void Win7_3_Staff_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (CloseFormsNoSave)
-            {
-                return;
-            }
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-            {
-                e.Cancel = true;
-                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
+            //if (CloseFormsNoSave)
+            //{
+            //    return;
+            //}
+            //if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            //{
+            //    e.Cancel = true;
+            //    var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
 
-                if (result == DialogResult.Yes)
-                {
-                    await SaveChanges();
-                }
-                e.Cancel = false;
-                Close();
-            }
+            //    if (result == DialogResult.Yes)
+            //    {
+            //        await SaveChanges();
+            //    }
+            //    e.Cancel = false;
+            //    Close();
+            //}
         }
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
@@ -142,70 +147,71 @@ namespace TC_WinForms.WinForms
         }
         private async void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            await DisplayedEntityHelper.DeleteSelectedObject<DisplayedStaff,Staff>(dgvMain, _bindingList);
+                await DisplayedEntityHelper.DeleteSelectedObject<DisplayedStaff, Staff>(dgvMain,
+                _bindingList, _isFiltered ? _displayedObjects : null );
         }
 
-        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
-        public async Task SaveChanges()
-        {
-            // stop editing cell
-            dgvMain.EndEdit();
-            // todo- check if in added tech card fulfilled all required fields
-            if (!HasChanges)
-            {
-                return;
-            }
-            if (_newObjects.Count > 0)
-            {
-                await SaveNewObjects();
-            }
-            if (_changedObjects.Count > 0)
-            {
-                await SaveChangedObjects();
-            }
-            if (_deletedObjects.Count > 0)
-            {
-                await DeleteDeletedObjects();
-            }
-            // todo - change id in all new cards 
-            dgvMain.Refresh();
-        }
-        private async Task SaveNewObjects()
-        {
-            var newTcs = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+        //public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
+        //public async Task SaveChanges()
+        //{
+        //    // stop editing cell
+        //    dgvMain.EndEdit();
+        //    // todo- check if in added tech card fulfilled all required fields
+        //    if (!HasChanges)
+        //    {
+        //        return;
+        //    }
+        //    if (_newObjects.Count > 0)
+        //    {
+        //        await SaveNewObjects();
+        //    }
+        //    if (_changedObjects.Count > 0)
+        //    {
+        //        await SaveChangedObjects();
+        //    }
+        //    if (_deletedObjects.Count > 0)
+        //    {
+        //        await DeleteDeletedObjects();
+        //    }
+        //    // todo - change id in all new cards 
+        //    dgvMain.Refresh();
+        //}
+        //private async Task SaveNewObjects()
+        //{
+        //    var newTcs = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-            await dbCon.AddObjectAsync(newTcs);
+        //    await dbCon.AddObjectAsync(newTcs);
 
-            // set new ids to new objects matched them by all params
-            foreach (var newCard in _newObjects)
-            {
-                var newId = newTcs.Where(s => s.Name == newCard.Name
-                && s.Type == newCard.Type
-                && s.Functions == newCard.Functions
-                && s.Qualification == newCard.Qualification
-                && s.CombineResponsibility == newCard.CombineResponsibility
-                && s.Comment == newCard.Comment
-                ).FirstOrDefault().Id;
-                newCard.Id = newId;
-            }
-            _newObjects.Clear();
-        }
-        private async Task SaveChangedObjects()
-        {
-            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+        //    // set new ids to new objects matched them by all params
+        //    foreach (var newCard in _newObjects)
+        //    {
+        //        var newId = newTcs.Where(s => s.Name == newCard.Name
+        //        && s.Type == newCard.Type
+        //        && s.Functions == newCard.Functions
+        //        && s.Qualification == newCard.Qualification
+        //        && s.CombineResponsibility == newCard.CombineResponsibility
+        //        && s.Comment == newCard.Comment
+        //        ).FirstOrDefault().Id;
+        //        newCard.Id = newId;
+        //    }
+        //    _newObjects.Clear();
+        //}
+        //private async Task SaveChangedObjects()
+        //{
+        //    var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-            await dbCon.UpdateObjectsListAsync(changedTcs);
+        //    await dbCon.UpdateObjectsListAsync(changedTcs);
 
-            _changedObjects.Clear();
-        }
+        //    _changedObjects.Clear();
+        //}
 
-        private async Task DeleteDeletedObjects()
-        {
-            var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
+        //private async Task DeleteDeletedObjects()
+        //{
+        //    var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteObjectAsync<Staff>(deletedTcIds);
-            _deletedObjects.Clear();
-        }
+        //    await dbCon.DeleteObjectAsync<Staff>(deletedTcIds);
+        //    _deletedObjects.Clear();
+        //}
         private Staff CreateNewObject(DisplayedStaff dtc)
         {
             return new Staff
@@ -298,11 +304,11 @@ namespace TC_WinForms.WinForms
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
-        {
-            DisplayedEntityHelper.ListChangedEventHandler
-                (e, _bindingList, _newObjects, _changedObjects, ref _newObject);
-        }
+        //private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
+        //{
+        //    DisplayedEntityHelper.ListChangedEventHandler
+        //        (e, _bindingList, _newObjects, _changedObjects, ref _newObject);
+        //}
 
 
         private class DisplayedStaff : INotifyPropertyChanged, IDisplayedEntity, IIdentifiable
@@ -478,11 +484,13 @@ namespace TC_WinForms.WinForms
 
                 if (string.IsNullOrWhiteSpace(searchText))
                 {
-                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                    _bindingList = new BindingList<DisplayedStaff>(_displayedObjects);
+                    //dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                    _isFiltered = false;
                 }
                 else
                 {
-                    var filteredList = _bindingList.Where(obj =>
+                    var filteredList = _displayedObjects.Where(obj =>
                             (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Functions?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -491,8 +499,12 @@ namespace TC_WinForms.WinForms
                             (obj.Comment?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) 
                         ).ToList();
 
-                    dgvMain.DataSource = new BindingList<DisplayedStaff>(filteredList);
+                    _bindingList = new BindingList<DisplayedStaff>(filteredList);
+                    // dgvMain.DataSource = new BindingList<DisplayedStaff>(filteredList);
+                    _isFiltered = true;
                 }
+
+                dgvMain.DataSource = _bindingList;
             }
             catch (Exception e)
             {
@@ -540,6 +552,14 @@ namespace TC_WinForms.WinForms
                 displayedObject.Comment = modelObject.Comment;
 
                 dgvMain.Refresh();
+
+                // обновляем в список всех объектов изменённый объект
+                if (_isFiltered)
+                {
+                    var editedObject = _displayedObjects.OfType<DisplayedStaff>().FirstOrDefault(obj => obj.Id == modelObject.Id);
+                    editedObject = displayedObject;
+                    FilterTechnologicalCards();
+                }
             }
         }
 
@@ -557,6 +577,13 @@ namespace TC_WinForms.WinForms
                 displayedObject.Comment = modelObject.Comment;
 
                 _bindingList.Insert(0, displayedObject);
+
+                // добавляем в список всех объектов новый объект
+                if (_isFiltered)
+                {
+                    _displayedObjects.Add(displayedObject);
+                    FilterTechnologicalCards();
+                }
             }
         }
 

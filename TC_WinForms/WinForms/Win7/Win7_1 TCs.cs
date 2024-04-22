@@ -8,10 +8,10 @@ using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_1_TCs : Form, ISaveEventForm, ILoadDataAsyncForm, IPaginationControl
+    public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
-        private List<DisplayedTechnologicalCard> _displayedtechnologicalCards;
+        private List<DisplayedTechnologicalCard> _displayedTechnologicalCards;
         private BindingList<DisplayedTechnologicalCard> _bindingList;
 
         private List<DisplayedTechnologicalCard> _changedObjects = new List<DisplayedTechnologicalCard>();
@@ -21,7 +21,7 @@ namespace TC_WinForms.WinForms
         private DisplayedTechnologicalCard _newObject;
 
         public bool _isDataLoaded = false;
-        public bool CloseFormsNoSave { get; set; } = false;
+        //public bool CloseFormsNoSave { get; set; } = false;
 
         private int currentPageIndex = 0;
         private readonly int _pageSize = 50;
@@ -47,17 +47,17 @@ namespace TC_WinForms.WinForms
         }
 
 
-        public bool GetDontSaveData()
-        {
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        //public bool GetDontSaveData()
+        //{
+        //    if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+        //    {
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //}
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
             progressBar.Visible = true;
@@ -79,7 +79,7 @@ namespace TC_WinForms.WinForms
         }
         public async Task LoadDataAsync()
         {
-            _displayedtechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
+            _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
                 .OrderBy(tc => tc.NetworkVoltage)
                     .ThenBy(tc => tc.Type)
                     .ThenBy(tc => tc.Article)
@@ -88,7 +88,7 @@ namespace TC_WinForms.WinForms
             //_bindingList = new BindingList<DisplayedTechnologicalCard>(_displayedtechnologicalCards);
             //_bindingList.ListChanged += BindingList_ListChanged;
             //ConfigureDgvWithComboBoxColumn();
-            totalPageCount = (int)Math.Ceiling(_displayedtechnologicalCards.Count / (double)_pageSize);
+            totalPageCount = (int)Math.Ceiling(_displayedTechnologicalCards.Count / (double)_pageSize);
             UpdateDisplayedData();
             //dgvMain.DataSource = _bindingList;
         }
@@ -98,7 +98,7 @@ namespace TC_WinForms.WinForms
         private void UpdateDisplayedData()
         {
             // Расчет отображаемых записей
-            var displayedData = isFiltered ? _filteredList : _displayedtechnologicalCards;
+            var displayedData = isFiltered ? _filteredList : _displayedTechnologicalCards;
             int totalRecords = displayedData.Count;
             int startRecord = isFiltered ? filteredPageIndex * _pageSize + 1 : currentPageIndex * _pageSize + 1;
             // Обеспечиваем, что endRecord не превышает общее количество записей
@@ -154,85 +154,85 @@ namespace TC_WinForms.WinForms
 
         private void btnDeleteTC_Click(object sender, EventArgs e)
         {
-            DeletSelected();
+            DeleteSelected();
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
-        public async Task SaveChanges()
-        {
-            // stop editing cell
-            dgvMain.EndEdit();
-            // todo- check if in added tech card fulfilled all required fields
-            if (!HasChanges)
-            {
-                return;
-            }
-            if (_newObjects.Count > 0)
-            {
-                await SaveNewTechnologicalCards();
-            }
-            if (_changedObjects.Count > 0)
-            {
-                await SaveChangedTechnologicalCards();
-            }
-            if (_deletedObjects.Count > 0)
-            {
-                await DeleteDeletedTechnologicalCards();
-            }
-            dgvMain.Refresh();
-            // todo - add ids from db to new cards
-            // todo - change id in all new cards 
-        }
-        private async Task SaveNewTechnologicalCards()
-        {
-            var newTcs = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+        //public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
+        //public async Task SaveChanges()
+        //{
+        //    // stop editing cell
+        //    dgvMain.EndEdit();
+        //    // todo- check if in added tech card fulfilled all required fields
+        //    if (!HasChanges)
+        //    {
+        //        return;
+        //    }
+        //    if (_newObjects.Count > 0)
+        //    {
+        //        await SaveNewTechnologicalCards();
+        //    }
+        //    if (_changedObjects.Count > 0)
+        //    {
+        //        await SaveChangedTechnologicalCards();
+        //    }
+        //    if (_deletedObjects.Count > 0)
+        //    {
+        //        await DeleteDeletedTechnologicalCards();
+        //    }
+        //    dgvMain.Refresh();
+        //    // todo - add ids from db to new cards
+        //    // todo - change id in all new cards 
+        //}
+        //private async Task SaveNewTechnologicalCards()
+        //{
+        //    var newTcs = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-            await dbCon.AddObjectAsync(newTcs);
-            // set new ids to new cards matched them by Articles
-            foreach (var newCard in _newObjects)
-            {
-                var newId = newTcs.Where(s => s.Article == newCard.Article).FirstOrDefault().Id;
-                newCard.Id = newId;
-            }
+        //    await dbCon.AddObjectAsync(newTcs);
+        //    // set new ids to new cards matched them by Articles
+        //    foreach (var newCard in _newObjects)
+        //    {
+        //        var newId = newTcs.Where(s => s.Article == newCard.Article).FirstOrDefault().Id;
+        //        newCard.Id = newId;
+        //    }
 
-            //MessageBox.Show("Новые карты сохранены.");
-            _newObjects.Clear();
-        }
-        private async Task SaveChangedTechnologicalCards()
-        {
-            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+        //    //MessageBox.Show("Новые карты сохранены.");
+        //    _newObjects.Clear();
+        //}
+        //private async Task SaveChangedTechnologicalCards()
+        //{
+        //    var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-            await dbCon.UpdateObjectsListAsync(changedTcs);
-            //MessageBox.Show("Изменения сохранены.");
-            _changedObjects.Clear();
-        }
+        //    await dbCon.UpdateObjectsListAsync(changedTcs);
+        //    //MessageBox.Show("Изменения сохранены.");
+        //    _changedObjects.Clear();
+        //}
 
 
-        private TechnologicalCard CreateNewObject(DisplayedTechnologicalCard dtc)
-        {
-            return new TechnologicalCard
-            {
-                Id = dtc.Id,
-                Article = dtc.Article,
-                Name = dtc.Name,
-                Description = dtc.Description,
-                Version = dtc.Version,
-                Type = dtc.Type,
-                NetworkVoltage = dtc.NetworkVoltage,
-                TechnologicalProcessType = dtc.TechnologicalProcessType,
-                TechnologicalProcessName = dtc.TechnologicalProcessName,
-                TechnologicalProcessNumber = dtc.TechnologicalProcessNumber,
-                Parameter = dtc.Parameter,
-                FinalProduct = dtc.FinalProduct,
-                Applicability = dtc.Applicability,
-                Note = dtc.Note,
-                DamageType = dtc.DamageType,
-                RepairType = dtc.RepairType,
-                IsCompleted = dtc.IsCompleted
+        //private TechnologicalCard CreateNewObject(DisplayedTechnologicalCard dtc)
+        //{
+        //    return new TechnologicalCard
+        //    {
+        //        Id = dtc.Id,
+        //        Article = dtc.Article,
+        //        Name = dtc.Name,
+        //        Description = dtc.Description,
+        //        Version = dtc.Version,
+        //        Type = dtc.Type,
+        //        NetworkVoltage = dtc.NetworkVoltage,
+        //        TechnologicalProcessType = dtc.TechnologicalProcessType,
+        //        TechnologicalProcessName = dtc.TechnologicalProcessName,
+        //        TechnologicalProcessNumber = dtc.TechnologicalProcessNumber,
+        //        Parameter = dtc.Parameter,
+        //        FinalProduct = dtc.FinalProduct,
+        //        Applicability = dtc.Applicability,
+        //        Note = dtc.Note,
+        //        DamageType = dtc.DamageType,
+        //        RepairType = dtc.RepairType,
+        //        IsCompleted = dtc.IsCompleted
 
-            };
-        }
+        //    };
+        //}
 
         ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
 
@@ -298,12 +298,12 @@ namespace TC_WinForms.WinForms
                 MessageBox.Show("Выберите одну карту для редактирования.");
             }
         }
-        private void OpenTechnologicalCardEditor(int tcId)
-        {
-            var editorForm = new Win6_new(tcId);
-            editorForm.Show();
-        }
-        private void DeletSelected()
+        //private void OpenTechnologicalCardEditor(int tcId)
+        //{
+        //    var editorForm = new Win6_new(tcId);
+        //    editorForm.Show();
+        //}
+        private void DeleteSelected()
         {
             if (dgvMain.SelectedRows.Count > 0)
             {
@@ -705,7 +705,7 @@ namespace TC_WinForms.WinForms
                     isFiltered = true;
                     filteredPageIndex = 0;
 
-                    var filteredList = _displayedtechnologicalCards.Where(card =>
+                    var filteredList = _displayedTechnologicalCards.Where(card =>
                         (searchText == ""
                         ||
                             (card.Article?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -744,7 +744,7 @@ namespace TC_WinForms.WinForms
         }
         private void SetupNetworkVoltageComboBox()
         {
-            var voltagies = _displayedtechnologicalCards.Select(obj => obj.NetworkVoltage).Distinct().ToList();
+            var voltagies = _displayedTechnologicalCards.Select(obj => obj.NetworkVoltage).Distinct().ToList();
             
             voltagies.Sort((a, b) => b.CompareTo(a));
 
@@ -762,7 +762,7 @@ namespace TC_WinForms.WinForms
         }
         private void SetupTypeComboBox()
         {
-            var types = _displayedtechnologicalCards.Select(obj => obj.Type).Distinct().ToList();
+            var types = _displayedTechnologicalCards.Select(obj => obj.Type).Distinct().ToList();
             types.Sort();
 
             cbxTypeFilter.Items.Add("Все");

@@ -336,8 +336,6 @@ namespace TC_WinForms.WinForms
                         }
                     }
                 }
-
-
             }
 
             // close all forms and load them again

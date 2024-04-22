@@ -109,7 +109,8 @@ namespace TC_WinForms.DataProcessing.Utilities
         }
         public static async Task DeleteSelectedObject<TDisp, TObj>(
             DataGridView dgvMain,
-            BindingList<TDisp> bindingList) 
+            BindingList<TDisp> bindingList,
+            List<TDisp>? displayedObjects = null) 
             where TDisp : class, IDisplayedEntity, IIdentifiable, new()
             where TObj : class, IIdentifiable, new()
         {
@@ -134,6 +135,14 @@ namespace TC_WinForms.DataProcessing.Utilities
                         foreach (var dtc in selectedRows)
                         {
                             bindingList.Remove(dtc);
+                            if (displayedObjects != null)
+                            {
+                                var objToDelete2 = displayedObjects.FirstOrDefault(o => o.Id == dtc.Id);
+                                if (objToDelete2 != null)
+                                {
+                                    displayedObjects.Remove(objToDelete2);
+                                }
+                            }
                         }
                     }
                     else
@@ -148,7 +157,8 @@ namespace TC_WinForms.DataProcessing.Utilities
         }
         public static async Task DeleteSelectedObjectWithLinks<TDisp,TObj>(
             DataGridView dgvMain,
-            BindingList<TDisp> bindingList) 
+            BindingList<TDisp> bindingList,
+            List<TDisp>? displayedObjects = null) 
             where TDisp : class, IDisplayedEntity, IIdentifiable, IModelStructure, new()
             where TObj : class, IIdentifiable, new()
         {
@@ -191,6 +201,14 @@ namespace TC_WinForms.DataProcessing.Utilities
                             if (objToDelete != null)
                             {
                                 bindingList.Remove(objToDelete);
+                            }
+                            if (displayedObjects != null)
+                            {
+                                var objToDelete2 = displayedObjects.FirstOrDefault(o => o.Id == obj);
+                                if (objToDelete2 != null)
+                                {
+                                    displayedObjects.Remove(objToDelete2);
+                                }
                             }
                         }
                     }

@@ -10,10 +10,11 @@ using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_5_Machine : Form, ISaveEventForm, ILoadDataAsyncForm
+    public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
 
+        private List<DisplayedMachine> _displayedObjects;
         private BindingList<DisplayedMachine> _bindingList;
         private List<Machine> _objects = new List<Machine>();
 
@@ -28,8 +29,9 @@ namespace TC_WinForms.WinForms
         private Button btnCancel;
 
         public bool _isDataLoaded = false;
+        private bool _isFiltered = false;
 
-        public bool CloseFormsNoSave { get; set; } = false;
+        //public bool CloseFormsNoSave { get; set; } = false;
 
         public void SetAsAddingForm()
         {
@@ -70,13 +72,13 @@ namespace TC_WinForms.WinForms
         }
         public async Task LoadDataAsync()
         {
-            var objList = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
+            _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
                 .Select(obj => new DisplayedMachine(obj)).ToList());
 
-            _bindingList = new BindingList<DisplayedMachine>(objList);
+            _bindingList = new BindingList<DisplayedMachine>(_displayedObjects);
 
             dgvMain.DataSource = null; // cancel update of dgv while data is loading
-            _bindingList.ListChanged += BindingList_ListChanged;
+            //_bindingList.ListChanged += BindingList_ListChanged;
 
             dgvMain.DataSource = _bindingList;
             //SetLinkColumn();
@@ -86,36 +88,36 @@ namespace TC_WinForms.WinForms
         }
         private async void Win7_5_Machine_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (CloseFormsNoSave)
-            {
-                return;
-            }
+            //if (CloseFormsNoSave)
+            //{
+            //    return;
+            //}
 
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-            {
-                //e.Cancel = true;
-                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
+            //if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            //{
+            //    //e.Cancel = true;
+            //    var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
 
-                if (result == DialogResult.Yes)
-                {
-                    await SaveChanges();
-                }
-                //  e.Cancel = false;
-                // Close();
-            }
+            //    if (result == DialogResult.Yes)
+            //    {
+            //        await SaveChanges();
+            //    }
+            //    //  e.Cancel = false;
+            //    // Close();
+            //}
         }
 
-        public bool GetDontSaveData()
-        {
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        //public bool GetDontSaveData()
+        //{
+        //    if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+        //    {
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //}
 
 
         private void AccessInitialization(int accessLevel)
@@ -163,146 +165,75 @@ namespace TC_WinForms.WinForms
         private async void btnDeleteObj_Click(object sender, EventArgs e)
         {
             await DisplayedEntityHelper.DeleteSelectedObjectWithLinks<DisplayedMachine,Machine>(dgvMain,
-                _bindingList);
-
-            //await DisplayedEntityHelper.DeleteSelectedObjectAsync<DisplayedMachine,Machine>(dgvMain,
-            //    _bindingList);
-
-            //if (dgvMain.SelectedRows.Count > 0)
-            //{
-            //    string message = "Вы действительно хотите удалить выбранные объекты?\n";
-            //    DialogResult result = MessageBox.Show(message, "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            //    if (result == DialogResult.Yes)
-            //    {
-
-            //        var selectedRows = dgvMain.SelectedRows.Cast<DataGridViewRow>()
-            //            .Select(row => row.DataBoundItem as DisplayedMachine)
-            //            .Where(obj => obj != null)
-            //                .ToList();
-
-            //        List<LinkEntety> linksToDelete = new();
-            //        foreach (var obj in selectedRows)
-            //        {
-            //            linksToDelete.AddRange(obj!.Links);
-            //        }
-
-            //        var linkIds = linksToDelete.Select(l => l.Id).ToList();
-
-            //        bool isLinksDeleted = await dbCon.DeleteObjectAsync<LinkEntety>(linkIds);
-
-            //        if (!isLinksDeleted)
-            //        {
-            //            MessageBox.Show("Ошибка удаления ссылок");
-            //            return;
-            //        }
-            //        var selectedRowIds = selectedRows.Select(obj => obj!.Id).ToList();
-
-            //        bool isObjDeleted = await dbCon.DeleteObjectAsync<Machine>(selectedRowIds);
-
-            //        if (isObjDeleted)
-            //        {
-            //            // Удаляем объекты из BindingList
-            //            foreach (var obj in selectedRowIds)
-            //            {
-            //                var objToDelete = _bindingList.FirstOrDefault(o => o.Id == obj);
-            //                if (objToDelete != null)
-            //                {
-            //                    _bindingList.Remove(objToDelete);
-            //                }
-            //            }
-            //        }
-            //    }
-
-            //    dgvMain.Refresh();
-            //}
-
-
-            //var selectedRowIds = dgvMain.SelectedRows.Cast<DataGridViewRow>()
-            //    .Select(row => row.DataBoundItem as DisplayedMachine)
-            //    .Where(obj => obj != null)
-            //    .Select(obj => obj!.Id)
-            //    .ToList();
-
-            //await dbCon.DeleteObjectAsync<Machine>(selectedRowIds);
-
-            //// Удаляем объекты из BindingList
-            //foreach (var obj in selectedRowIds)
-            //{
-            //    var objToDelete = _bindingList.FirstOrDefault(o => o.Id == obj);
-            //    if (objToDelete != null)
-            //    {
-            //        _bindingList.Remove(objToDelete);
-            //    }
-            //}
+                _bindingList, _isFiltered ? _displayedObjects : null);
         }
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
-        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
-        public async Task SaveChanges()
-        {
-            // stop editing cell
-            dgvMain.EndEdit();
-            if (!HasChanges)
-            {
-                return;
-            }
-            if (_newObjects.Count > 0)
-            {
-                await SaveNewObjects();
-            }
-            if (_changedObjects.Count > 0)
-            {
-                await SaveChangedObjects();
-            }
-            if (_deletedObjects.Count > 0)
-            {
-                await DeleteDeletedObjects();
-            }
-            // todo - change id in all new cards 
-            dgvMain.Refresh();
-        }
+        //public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
+        //public async Task SaveChanges()
+        //{
+        //    // stop editing cell
+        //    dgvMain.EndEdit();
+        //    if (!HasChanges)
+        //    {
+        //        return;
+        //    }
+        //    if (_newObjects.Count > 0)
+        //    {
+        //        await SaveNewObjects();
+        //    }
+        //    if (_changedObjects.Count > 0)
+        //    {
+        //        await SaveChangedObjects();
+        //    }
+        //    if (_deletedObjects.Count > 0)
+        //    {
+        //        await DeleteDeletedObjects();
+        //    }
+        //    // todo - change id in all new cards 
+        //    dgvMain.Refresh();
+        //}
 
 
-        private async Task SaveNewObjects()
-        {
-            var newObjects = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+        //private async Task SaveNewObjects()
+        //{
+        //    var newObjects = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-            await dbCon.AddObjectAsync(newObjects);
+        //    await dbCon.AddObjectAsync(newObjects);
 
-            // set new ids to new objects matched them by all params
-            foreach (var newObj in _newObjects)
-            {
-                var newId = newObjects.Where(s =>
-                s.Name == newObj.Name
-                && s.Type == newObj.Type
-                && s.Unit == newObj.Unit
-                && s.Price == newObj.Price
-                && s.Description == newObj.Description
-                && s.Manufacturer == newObj.Manufacturer
-                && s.Links == newObj.Links
-                && s.ClassifierCode == newObj.ClassifierCode
-                ).FirstOrDefault().Id;
-                newObj.Id = newId;
-            }
+        //    // set new ids to new objects matched them by all params
+        //    foreach (var newObj in _newObjects)
+        //    {
+        //        var newId = newObjects.Where(s =>
+        //        s.Name == newObj.Name
+        //        && s.Type == newObj.Type
+        //        && s.Unit == newObj.Unit
+        //        && s.Price == newObj.Price
+        //        && s.Description == newObj.Description
+        //        && s.Manufacturer == newObj.Manufacturer
+        //        && s.Links == newObj.Links
+        //        && s.ClassifierCode == newObj.ClassifierCode
+        //        ).FirstOrDefault().Id;
+        //        newObj.Id = newId;
+        //    }
 
 
-            _newObjects.Clear();
-        }
-        private async Task SaveChangedObjects()
-        {
-            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+        //    _newObjects.Clear();
+        //}
+        //private async Task SaveChangedObjects()
+        //{
+        //    var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-            await dbCon.UpdateObjectsListAsync(changedTcs);
+        //    await dbCon.UpdateObjectsListAsync(changedTcs);
 
-            _changedObjects.Clear();
-        }
-        private async Task DeleteDeletedObjects()
-        {
-            var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
+        //    _changedObjects.Clear();
+        //}
+        //private async Task DeleteDeletedObjects()
+        //{
+        //    var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            await dbCon.DeleteObjectAsync<Machine>(deletedTcIds);
-            _deletedObjects.Clear();
-        }
+        //    await dbCon.DeleteObjectAsync<Machine>(deletedTcIds);
+        //    _deletedObjects.Clear();
+        //}
         private Machine CreateNewObject(DisplayedMachine dObj)
         {
             return new Machine
@@ -353,24 +284,24 @@ namespace TC_WinForms.WinForms
             dgvMain.Columns[nameof(DisplayedMachine.LinkNames)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
         }
 
-        private void SetLinkColumn()
-        {
-            // Добавление столбца ссылок, если он ещё не добавлен
-            if (!dgvMain.Columns.Contains("DefaultLink"))
-            {
-                var linkColumn = new DataGridViewLinkColumn
-                {
-                    Name = "DefaultLink",
-                    HeaderText = "Ссылки",
-                    DataPropertyName = "DefaultLink",
-                    ReadOnly = true,
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells,
-                    Width = 100,
-                };
-                linkColumn.UseColumnTextForLinkValue = true;
-                dgvMain.Columns.Add(linkColumn);
-            }
-        }
+        //private void SetLinkColumn()
+        //{
+        //    // Добавление столбца ссылок, если он ещё не добавлен
+        //    if (!dgvMain.Columns.Contains("DefaultLink"))
+        //    {
+        //        var linkColumn = new DataGridViewLinkColumn
+        //        {
+        //            Name = "DefaultLink",
+        //            HeaderText = "Ссылки",
+        //            DataPropertyName = "DefaultLink",
+        //            ReadOnly = true,
+        //            AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells,
+        //            Width = 100,
+        //        };
+        //        linkColumn.UseColumnTextForLinkValue = true;
+        //        dgvMain.Columns.Add(linkColumn);
+        //    }
+        //}
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -414,31 +345,31 @@ namespace TC_WinForms.WinForms
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
-        {
-            if (e.ListChangedType == ListChangedType.ItemChanged)
-            {
-                if (_newObject != null && e.NewIndex == 0) // if changed _newCard check if all required fields are filled
-                {
-                    if (!DisplayedEntityHelper.IsValidNewCard(_newObject))
-                    {
-                        return;
-                    }
-                    _newObject = null;
-                }
+        //private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
+        //{
+        //    if (e.ListChangedType == ListChangedType.ItemChanged)
+        //    {
+        //        if (_newObject != null && e.NewIndex == 0) // if changed _newCard check if all required fields are filled
+        //        {
+        //            if (!DisplayedEntityHelper.IsValidNewCard(_newObject))
+        //            {
+        //                return;
+        //            }
+        //            _newObject = null;
+        //        }
 
-                if (_newObjects.Contains(_bindingList[e.NewIndex])) // if changed new Objects don't add it to changed list
-                {
-                    return;
-                }
+        //        if (_newObjects.Contains(_bindingList[e.NewIndex])) // if changed new Objects don't add it to changed list
+        //        {
+        //            return;
+        //        }
 
-                var changedItem = _bindingList[e.NewIndex];
-                if (!_changedObjects.Contains(changedItem))
-                {
-                    _changedObjects.Add(changedItem);
-                }
-            }
-        }
+        //        var changedItem = _bindingList[e.NewIndex];
+        //        if (!_changedObjects.Contains(changedItem))
+        //        {
+        //            _changedObjects.Add(changedItem);
+        //        }
+        //    }
+        //}
 
 
         private class DisplayedMachine : INotifyPropertyChanged, IDisplayedEntity, IModelStructure
@@ -653,11 +584,12 @@ namespace TC_WinForms.WinForms
 
                 if (string.IsNullOrWhiteSpace(searchText))
                 {
-                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                    _bindingList = new BindingList<DisplayedMachine>(_displayedObjects);
+                    _isFiltered = false;
                 }
                 else
                 {
-                    var filteredList = _bindingList.Where(obj =>
+                    var filteredList = _displayedObjects.Where(obj =>
                             (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -665,8 +597,10 @@ namespace TC_WinForms.WinForms
                             (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
                         ).ToList();
 
-                    dgvMain.DataSource = new BindingList<DisplayedMachine>(filteredList);
+                    _bindingList = new BindingList<DisplayedMachine>(filteredList);
+                    _isFiltered = true;
                 }
+                dgvMain.DataSource = _bindingList; 
             }
             catch (Exception e)
             {
@@ -716,13 +650,23 @@ namespace TC_WinForms.WinForms
                 displayedObject.ClassifierCode = modelObject.ClassifierCode;
 
                 dgvMain.Refresh();
+
+                // обновляем в список всех объектов изменённый объект
+                if (_isFiltered)
+                {
+                    var editedObject = _displayedObjects.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
+                    editedObject = displayedObject;
+                    FilterTechnologicalCards();
+                }
             }
+            
         }
 
         public void AddNewObjectInDataGridView<TModel, TDisplayed>(TModel modelObject)
             where TModel : IModelStructure
             where TDisplayed : class, IModelStructure
         {
+
             var newDisplayedObject = Activator.CreateInstance<TDisplayed>();
             if (newDisplayedObject is DisplayedMachine displayedObject)
             {
@@ -741,7 +685,15 @@ namespace TC_WinForms.WinForms
                 }
 
                 _bindingList.Insert(0, displayedObject);
+
+                // добавляем в список всех объектов новый объект
+                if (_isFiltered)
+                {
+                    _displayedObjects.Add(displayedObject);
+                    FilterTechnologicalCards();
+                }
             }
+            
         }
     }
 }
