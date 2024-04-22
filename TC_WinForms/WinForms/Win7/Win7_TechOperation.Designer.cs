@@ -31,14 +31,15 @@
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
+            lblCategoryFilter = new Label();
+            cbxCategoryFilter = new ComboBox();
             lblSearch = new Label();
             txtSearch = new TextBox();
             pnlControlBtns = new Panel();
+            button1 = new Button();
             btnDeleteObj = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
-            lblCategoryFilter = new Label();
-            cbxCategoryFilter = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -52,11 +53,12 @@
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 0);
-            dgvMain.Margin = new Padding(4);
             dgvMain.Name = "dgvMain";
+            dgvMain.ReadOnly = true;
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
-            dgvMain.Size = new Size(1274, 458);
+            dgvMain.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvMain.Size = new Size(1019, 367);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -65,9 +67,8 @@
             pnlControls.Controls.Add(pnlControlBtns);
             pnlControls.Dock = DockStyle.Top;
             pnlControls.Location = new Point(0, 0);
-            pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1274, 104);
+            pnlControls.Size = new Size(1019, 83);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
@@ -78,45 +79,75 @@
             pnlFilters.Controls.Add(txtSearch);
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
-            pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(612, 104);
+            pnlFilters.Size = new Size(490, 83);
             pnlFilters.TabIndex = 25;
+            // 
+            // lblCategoryFilter
+            // 
+            lblCategoryFilter.AutoSize = true;
+            lblCategoryFilter.Location = new Point(224, 19);
+            lblCategoryFilter.Margin = new Padding(2, 0, 2, 0);
+            lblCategoryFilter.Name = "lblCategoryFilter";
+            lblCategoryFilter.Size = new Size(84, 20);
+            lblCategoryFilter.TabIndex = 32;
+            lblCategoryFilter.Text = "Категория:";
+            // 
+            // cbxCategoryFilter
+            // 
+            cbxCategoryFilter.FormattingEnabled = true;
+            cbxCategoryFilter.Location = new Point(224, 42);
+            cbxCategoryFilter.Margin = new Padding(2);
+            cbxCategoryFilter.Name = "cbxCategoryFilter";
+            cbxCategoryFilter.Size = new Size(134, 28);
+            cbxCategoryFilter.TabIndex = 31;
+            cbxCategoryFilter.SelectedIndexChanged += cbxCategoryFilter_SelectedIndexChanged;
             // 
             // lblSearch
             // 
             lblSearch.AutoSize = true;
-            lblSearch.Location = new Point(12, 26);
+            lblSearch.Location = new Point(10, 21);
+            lblSearch.Margin = new Padding(2, 0, 2, 0);
             lblSearch.Name = "lblSearch";
-            lblSearch.Size = new Size(67, 25);
+            lblSearch.Size = new Size(55, 20);
             lblSearch.TabIndex = 28;
             lblSearch.Text = "Поиск:";
             // 
             // txtSearch
             // 
-            txtSearch.Location = new Point(12, 54);
+            txtSearch.Location = new Point(10, 43);
+            txtSearch.Margin = new Padding(2);
             txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(224, 31);
+            txtSearch.Size = new Size(180, 27);
             txtSearch.TabIndex = 27;
             txtSearch.TextChanged += txtSearch_TextChanged;
             // 
             // pnlControlBtns
             // 
+            pnlControlBtns.Controls.Add(button1);
             pnlControlBtns.Controls.Add(btnDeleteObj);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(684, 0);
-            pnlControlBtns.Margin = new Padding(4);
+            pnlControlBtns.Location = new Point(547, 0);
             pnlControlBtns.Name = "pnlControlBtns";
-            pnlControlBtns.Size = new Size(590, 104);
+            pnlControlBtns.Size = new Size(472, 83);
             pnlControlBtns.TabIndex = 24;
+            // 
+            // button1
+            // 
+            button1.Location = new Point(175, 12);
+            button1.Name = "button1";
+            button1.Size = new Size(139, 60);
+            button1.TabIndex = 26;
+            button1.Text = "Редактировать";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // btnDeleteObj
             // 
-            btnDeleteObj.Location = new Point(400, 15);
-            btnDeleteObj.Margin = new Padding(4);
+            btnDeleteObj.Location = new Point(320, 12);
             btnDeleteObj.Name = "btnDeleteObj";
-            btnDeleteObj.Size = new Size(174, 75);
+            btnDeleteObj.Size = new Size(139, 60);
             btnDeleteObj.TabIndex = 25;
             btnDeleteObj.Text = "Удалить";
             btnDeleteObj.UseVisualStyleBackColor = true;
@@ -124,10 +155,9 @@
             // 
             // btnAddNewObj
             // 
-            btnAddNewObj.Location = new Point(218, 15);
-            btnAddNewObj.Margin = new Padding(4);
+            btnAddNewObj.Location = new Point(30, 12);
             btnAddNewObj.Name = "btnAddNewObj";
-            btnAddNewObj.Size = new Size(174, 75);
+            btnAddNewObj.Size = new Size(139, 60);
             btnAddNewObj.TabIndex = 23;
             btnAddNewObj.Text = "Добавить";
             btnAddNewObj.UseVisualStyleBackColor = true;
@@ -137,38 +167,18 @@
             // 
             pnlDataViewer.Controls.Add(dgvMain);
             pnlDataViewer.Dock = DockStyle.Fill;
-            pnlDataViewer.Location = new Point(0, 104);
-            pnlDataViewer.Margin = new Padding(4);
+            pnlDataViewer.Location = new Point(0, 83);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1274, 458);
+            pnlDataViewer.Size = new Size(1019, 367);
             pnlDataViewer.TabIndex = 2;
-            // 
-            // lblCategoryFilter
-            // 
-            lblCategoryFilter.AutoSize = true;
-            lblCategoryFilter.Location = new Point(280, 24);
-            lblCategoryFilter.Name = "lblCategoryFilter";
-            lblCategoryFilter.Size = new Size(99, 25);
-            lblCategoryFilter.TabIndex = 32;
-            lblCategoryFilter.Text = "Категория:";
-            // 
-            // cbxCategoryFilter
-            // 
-            cbxCategoryFilter.FormattingEnabled = true;
-            cbxCategoryFilter.Location = new Point(280, 52);
-            cbxCategoryFilter.Name = "cbxCategoryFilter";
-            cbxCategoryFilter.Size = new Size(167, 33);
-            cbxCategoryFilter.TabIndex = 31;
-            cbxCategoryFilter.SelectedIndexChanged += cbxCategoryFilter_SelectedIndexChanged;
             // 
             // Win7_TechOperation
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1274, 562);
+            ClientSize = new Size(1019, 450);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
-            Margin = new Padding(4);
             Name = "Win7_TechOperation";
             Text = "Win7_TechOperation";
             FormClosing += Win7_TechOperation_FormClosing;
@@ -195,5 +205,6 @@
         private TextBox txtSearch;
         private Label lblCategoryFilter;
         private ComboBox cbxCategoryFilter;
+        private Button button1;
     }
 }

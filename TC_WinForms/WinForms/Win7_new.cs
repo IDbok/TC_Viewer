@@ -298,6 +298,16 @@ namespace TC_WinForms.WinForms
                 await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
         }
 
+        public async void UpdateTO()
+        {
+            _forms.Remove(WinNumber.TechOperation);
+            LoadForm(WinNumber.TechOperation);
+
+            if (_currentWinNumber != null)
+                await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
+        }
+
+
         public async void updateToolStripButton_Click(object sender, EventArgs e)
         {
             bool next = true;

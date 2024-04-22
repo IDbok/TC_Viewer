@@ -11,7 +11,9 @@ namespace TcModels.Models.TcContent
 
         public string? Category { get; set; }
 
-        public List<TechOperationWork> techOperationWorks { get; set; }
+        public List<TechOperationWork> techOperationWorks { get; set; } = new List<TechOperationWork> { };
+
+        public List<TechTransitionTypical> techTransitionTypicals { get; set; } = new List<TechTransitionTypical> { };
 
         public void ApplyUpdates(IUpdatableEntity source)
         {

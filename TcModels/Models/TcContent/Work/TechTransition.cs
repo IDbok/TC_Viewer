@@ -17,6 +17,8 @@ namespace TcModels.Models.TcContent
         
         public List<ExecutionWork> ExecutionWorks { get; set; }
 
+        public List<TechTransitionTypical> techTransitionTypicals { get; set; }
+
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is TechTransition sourceObject)

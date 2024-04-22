@@ -2,6 +2,7 @@
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.Work;
 
 namespace TcDbConnector
 {
@@ -35,6 +36,8 @@ namespace TcDbConnector
         public DbSet<Protection_TC> Protection_TCs { get; set; } = null!;
         public DbSet<Tool_TC> Tool_TCs { get; set; } = null!;
 
+        public DbSet<TechTransitionTypical> TechTransitionTypicals { get; set; } = null!;
+
 
         public MyDbContext()
         {
@@ -46,7 +49,8 @@ namespace TcDbConnector
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(TcDbConnector.StaticClass.ConnectString,//"server=localhost;database=tavrida_db_v10;user=root;password=root",//
+            optionsBuilder.UseMySql(//TcDbConnector.StaticClass.ConnectString,
+                "server=localhost;database=tavrida_db_v12;user=root;password=root",//
                 new MySqlServerVersion(new Version(5, 7, 24)));
 
         }

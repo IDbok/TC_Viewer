@@ -2,6 +2,7 @@
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TcDbConnector;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -101,16 +102,55 @@ namespace TC_WinForms.WinForms
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
-                _bindingList,
-                _newObjects,
-                dgvMain);
+            //DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
+            //    _bindingList,
+            //    _newObjects,
+            //    dgvMain);
+
+            Win7_TechOperation_Window win7_TechOperation_Window = new Win7_TechOperation_Window();
+            win7_TechOperation_Window.ShowDialog();
+
         }
 
         private void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
-                _bindingList, _newObjects, _deletedObjects);
+            //DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+            //    _bindingList, _newObjects, _deletedObjects);
+
+            if (dgvMain.SelectedRows.Count > 0)
+            {
+                var selectedDTCs = dgvMain.SelectedRows.Cast<DataGridViewRow>()
+                    .Select(row => row.DataBoundItem as DisplayedTechOperation)
+                    .Where(dtc => dtc != null)
+                    .ToList();
+
+                string message = "Вы действительно хотите удалить?\n";
+                DialogResult result = MessageBox.Show(message, "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                   var context = new MyDbContext();
+                    foreach (var row in selectedDTCs)
+                    {
+                        context.TechOperations.Remove(context.TechOperations.Single(s => s.Id == row.Id));
+                    }
+                    context.SaveChangesAsync();
+
+                    foreach (var dtc in selectedDTCs)
+                    {
+                        _bindingList.Remove(dtc);
+                        //_deletedObjects.Add(dtc);
+
+                        if (_newObjects.Contains(dtc)) // if new card was deleted, remove it from new cards list
+                        {
+                            _newObjects.Remove(dtc);
+                        }
+                    }
+                }
+
+                dgvMain.Refresh();
+            }
+
         }
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
         public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
@@ -182,6 +222,23 @@ namespace TC_WinForms.WinForms
             };
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.SelectedRows.Count == 1)
+            {
+                var selectedRow = dgvMain.SelectedRows[0];
+                int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
+                if (id != 0)
+                {
+                    Win7_TechOperation_Window win71TCsWindow = new Win7_TechOperation_Window(id);
+                    win71TCsWindow.Show();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Выберите строчку для редактирования.");
+            }
+        }
         ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
 
         void SetDGVColumnsSettings()
@@ -372,7 +429,7 @@ namespace TC_WinForms.WinForms
         private BindingList<DisplayedTechOperation> FilteredBindingList(string searchText, string categoryFilter)
         {
             var filteredList = _bindingList.Where(obj =>
-                        (categoryFilter != "Все" 
+                        (categoryFilter != "Все"
                         ?
                             (
                                 (categoryFilter == "Типовая ТО" ? obj.Category == true : false) ||
@@ -406,5 +463,6 @@ namespace TC_WinForms.WinForms
 
             cbxCategoryFilter.DropDownWidth = cbxCategoryFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxCategoryFilter.Font).Width) + 20;
         }
+
     }
 }
