@@ -10,8 +10,10 @@ namespace TcModels.Models.TcContent.Work
     {
         public int Id { get; set; }
 
-        public TechOperation techOperation { get; set; }
-        public TechTransition techTransition { get; set; }
+        public int TechOperationId { get; set; }
+        public TechOperation TechOperation { get; set; } = null!;
+        public int TechTransitionId { get; set; }
+        public TechTransition TechTransition { get; set; } = null!;
 
         public string Etap { get; set; } = "";
         public string Posled { get; set; } = "";

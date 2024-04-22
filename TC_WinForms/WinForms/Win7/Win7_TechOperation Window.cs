@@ -97,7 +97,7 @@ namespace TC_WinForms.WinForms
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var Idd = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
-                techOperation.techTransitionTypicals.Add(new TechTransitionTypical { techTransition = Idd });
+                techOperation.techTransitionTypicals.Add(new TechTransitionTypical { TechTransition = Idd });
                 UpdateGridLocalTP();
             }
         }
@@ -126,8 +126,8 @@ namespace TC_WinForms.WinForms
                 listItem.Add(techTransitionTypical);
                 listItem.Add("Удалить");
 
-                listItem.Add(techTransitionTypical.techTransition?.Name);
-                listItem.Add(techTransitionTypical.techTransition?.TimeExecution);
+                listItem.Add(techTransitionTypical.TechTransition?.Name);
+                listItem.Add(techTransitionTypical.TechTransition?.TimeExecution);
 
                 listItem.Add(techTransitionTypical.Etap);
                 listItem.Add(techTransitionTypical.Posled);
