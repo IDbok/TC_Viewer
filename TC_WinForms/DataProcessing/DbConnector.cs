@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Eventing.Reader;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -78,6 +79,26 @@ namespace TC_WinForms.DataProcessing
                     .ToListAsync();
 
                 var newObjects = objects.Where(t => !existingObjects.Contains(t.Id)).ToList();
+
+
+                if (typeof(T) == typeof(Staff))
+                {
+                    foreach(var obj in newObjects)
+                    {
+                        var staff = obj as Staff;
+                        if (staff != null)
+                        {
+                            var relatedStaffIds = staff.RelatedStaffs.Select(rs => rs.Id).ToList();
+                            var existingRelatedStaffs = await db.Set<Staff>()
+                                .Where(rs => relatedStaffIds.Contains(rs.Id))
+                                .ToListAsync();
+
+
+                            staff.ReplaceRelatedStaffs(existingRelatedStaffs);
+                            
+                        }
+                    }
+                }
 
                 if (newObjects.Any())
                 {
@@ -176,6 +197,12 @@ namespace TC_WinForms.DataProcessing
                     existingObj = await db.Set<T>()
                     .Include(nameof(IModelStructure.Links))
                     .FirstOrDefaultAsync(t => t.Id == updatedObject.Id);
+                }
+                else if (updatedObject is Staff staff)
+                {
+                    existingObj = await db.Set<T>()
+                        .Include(nameof(Staff.RelatedStaffs))
+                        .FirstOrDefaultAsync(t => t.Id == updatedObject.Id);
                 }
                 else
                 {
@@ -599,7 +626,9 @@ namespace TC_WinForms.DataProcessing
         //        throw;
         //    }
         //}
-        public List<T> GetObjectList<T>(bool includeLinks = false) where T : class, IIdentifiable
+        public List<T> GetObjectList<T>(bool includeLinks = false,
+            bool includeRelatedStaffs = false
+            ) where T : class, IIdentifiable
         {
             try
             {
@@ -618,6 +647,10 @@ namespace TC_WinForms.DataProcessing
                                      .Cast<T>();
                     }
 
+                    if (includeRelatedStaffs && typeof(T) == typeof(Staff) )
+                    {
+                        query = query.Include(nameof(Staff.RelatedStaffs));
+                    }
                     if (includeLinks && typeof(IModelStructure).IsAssignableFrom(typeof(T)))
                     {
                         query = query.Include(nameof(IModelStructure.Links));
@@ -684,6 +717,12 @@ namespace TC_WinForms.DataProcessing
                                     .Include(tc => tc.Machines)
                                     .Include(tc => tc.Protections)
                                     //.Include(tc => tc.WorkSteps)
+                                    .Cast<T>()
+                                    .FirstOrDefault();
+                else if (typeof(T) == typeof(Staff))
+                    obj = context.Set<Staff>()
+                                    .Where(tc => tc.Id == id)
+                                    .Include(tc => tc.RelatedStaffs)
                                     .Cast<T>()
                                     .FirstOrDefault();
                 else obj = context.Set<T>().Where(tc => tc.Id == id).FirstOrDefault();

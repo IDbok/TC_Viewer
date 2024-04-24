@@ -1,8 +1,11 @@
 ﻿using System.Data;
+using System.DirectoryServices.ActiveDirectory;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TcModels.Models.Interfaces;
+using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using static TC_WinForms.WinForms.Win6_Staff;
 
 namespace TC_WinForms.WinForms;
 
@@ -22,6 +25,7 @@ public partial class Win7_StaffEditor : Form
         _editingObj = obj;
         _isNewObject = isNewObject;
 
+
         InitializeComponent();
     }
 
@@ -30,7 +34,6 @@ public partial class Win7_StaffEditor : Form
         _editingObj.Name = txtName.Text;
         _editingObj.Type = txtType.Text;
         _editingObj.Functions = rtxtFunctions.Text;
-        _editingObj.CombineResponsibility = rtxtCombineResponsibility.Text;
         _editingObj.Qualification = rtxtQualification.Text;
         _editingObj.Comment = rtxtComment.Text;
 
@@ -46,14 +49,13 @@ public partial class Win7_StaffEditor : Form
 
         var dbConnector = new DbConnector();
 
-        var obj = _editingObj;
         if (_isNewObject)
         {
-            await dbConnector.AddObjectAsync(obj);
+            await dbConnector.AddObjectAsync(_editingObj);
         }
         else
         {
-            await dbConnector.UpdateObjectsAsync(obj);
+            await dbConnector.UpdateObjectsAsync(_editingObj);
         }
 
         if (AfterSave != null)
@@ -82,10 +84,12 @@ public partial class Win7_StaffEditor : Form
 
     private void Win7_StaffEditor_Load(object sender, EventArgs e)
     {
+        SetDGVDataSources();
+
         if (_isNewObject)
         {
             this.Text = "Создание нового объекта";
-            //PricelessObject();
+
         }
         else
         {
@@ -94,13 +98,36 @@ public partial class Win7_StaffEditor : Form
             txtName.Text = _editingObj.Name;
             txtType.Text = _editingObj.Type;
             rtxtFunctions.Text = _editingObj.Functions;
-            rtxtCombineResponsibility.Text = _editingObj.CombineResponsibility;
             rtxtQualification.Text = _editingObj.Qualification;
             rtxtComment.Text = _editingObj.Comment;
-             
         }
+
+        dgvRelatedStaffs.DataSource = _editingObj.RelatedStaffs;
     }
 
+    private void SetDGVDataSources()
+    {
+
+        var nameColumn = new DataGridViewTextBoxColumn();
+        nameColumn.HeaderText = "Название";
+        nameColumn.Name = nameof(Staff.Name); // Имя столбца
+        nameColumn.DataPropertyName = nameof(Staff.Name); // Связать столбец с данными
+
+        var typeColumn = new DataGridViewTextBoxColumn();
+        typeColumn.HeaderText = "Тип";
+        typeColumn.Name = nameof(Staff.Type); // Имя столбца
+        typeColumn.DataPropertyName = nameof(Staff.Type); // Связать столбец с данными
+
+        dgvRelatedStaffs.Columns.Add(nameColumn);
+        dgvRelatedStaffs.Columns.Add(typeColumn);
+
+        dgvRelatedStaffs.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvRelatedStaffs.RowHeadersWidth = 20;
+        dgvRelatedStaffs.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+
+        dgvRelatedStaffs.AutoGenerateColumns = false; // Отключаем автоматическое создание столбцов
+
+    }
     private bool HasChanges()
     {
         if (_editingObj == null) return false;
@@ -153,5 +180,52 @@ public partial class Win7_StaffEditor : Form
         }
 
         return true;
+    }
+
+    private void btnAddRelatedStaff_Click(object sender, EventArgs e)
+    {
+        var newForm = new Win7_3_Staff(this);
+        newForm.ShowDialog();
+    }
+
+    private void btnDeleteRelatedStaff_Click(object sender, EventArgs e)
+    {
+        if(dgvRelatedStaffs.SelectedRows.Count > 0) 
+        {
+            var staffsToRemove = new List<Staff>();
+            foreach (DataGridViewRow row in dgvRelatedStaffs.SelectedRows)
+            {
+                if (row.DataBoundItem is Staff staff)
+                {
+                    staffsToRemove.Add(staff);
+                }
+            }
+
+            foreach (var staff in staffsToRemove)
+            {
+                _editingObj.RemoveRelatedStaff(staff);
+            }
+
+            dgvRelatedStaffs.DataSource = null;
+            dgvRelatedStaffs.DataSource = _editingObj.RelatedStaffs;
+
+            dgvRelatedStaffs.Refresh();
+        }
+    }
+
+    public void AddNewObjects(List<Staff> newObjs)
+    {
+        foreach (var obj in newObjs)
+        {
+            if (_editingObj.RelatedStaffs.Find(x=> x.Id == obj.Id) != null) continue;
+            if (obj.Id == _editingObj.Id) continue;
+
+            _editingObj.AddRelatedStaff(obj);
+        }
+
+        dgvRelatedStaffs.DataSource = null;
+        dgvRelatedStaffs.DataSource = _editingObj.RelatedStaffs;
+
+        dgvRelatedStaffs.Refresh();
     }
 }

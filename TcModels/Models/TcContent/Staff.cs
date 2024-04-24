@@ -66,6 +66,9 @@ namespace TcModels.Models.TcContent
         public string Qualification { get; set; }
         public string? Comment { get; set; }
 
+        public List<Staff> RelatedStaffs { get; private set; } = new List<Staff>();
+
+
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is Staff sourceCard)
@@ -76,6 +79,31 @@ namespace TcModels.Models.TcContent
                 CombineResponsibility = sourceCard.CombineResponsibility;
                 Qualification = sourceCard.Qualification;
                 Comment = sourceCard.Comment;
+                CompareRelatedStaffs( sourceCard.RelatedStaffs);
+            }
+        }
+        private void CompareRelatedStaffs(List<Staff> sourceRelatedStaffs)
+        {
+            var relatedStaffsToRemove = new List<Staff>();
+            foreach (var relatedStaff in RelatedStaffs)
+            {
+                if (!sourceRelatedStaffs.Contains(relatedStaff))
+                {
+                    relatedStaffsToRemove.Add(relatedStaff);
+                }
+            }
+
+            foreach (var relatedStaff in relatedStaffsToRemove)
+            {
+                RelatedStaffs.Remove(relatedStaff);
+            }
+
+            foreach (var relatedStaff in sourceRelatedStaffs)
+            {
+                if (!RelatedStaffs.Contains(relatedStaff))
+                {
+                    RelatedStaffs.Add(relatedStaff);
+                }
             }
         }
 
@@ -84,5 +112,58 @@ namespace TcModels.Models.TcContent
             return $"{Id} {Name} {Type} {CombineResponsibility} {Qualification}" +
                 $"\n{Comment}";
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Staff other)
+            {
+                return this.Id == other.Id; // Сравнение происходит по Id
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode(); // Хэш-код зависит только от Id
+        }
+
+
+        public void UpdateCombineResponsibility()
+        {
+            if (RelatedStaffs != null)
+            {
+                CombineResponsibility = string.Join(",\n", RelatedStaffs.Select(r => $"{r.Name}: {r.Type}"));
+            }
+        }
+
+        public void AddRelatedStaff(Staff staff)
+        {
+            var relationship = RelatedStaffs.FirstOrDefault(r => r.Id == staff.Id);
+            if (relationship != null)
+            {
+                return;
+            }
+
+            RelatedStaffs.Add(staff);
+            UpdateCombineResponsibility();
+        }
+
+        public void RemoveRelatedStaff(Staff staff)
+        {
+            var relationship = RelatedStaffs.FirstOrDefault(r => r.Id == staff.Id);
+            if (relationship != null)
+            {
+                RelatedStaffs.Remove(relationship);
+                UpdateCombineResponsibility();
+            }
+        }
+
+        public void ReplaceRelatedStaffs(List<Staff> newRelatedStaffs)
+        {
+            RelatedStaffs.Clear();
+            RelatedStaffs.AddRange(newRelatedStaffs);
+            UpdateCombineResponsibility();
+        }
+
     }
 }

@@ -27,12 +27,70 @@ namespace TestConsoleAppTC
         public static TechnologicalCard? CurrentTc { get; set; }
         public static TechnologicalProcess CurrentTp { get; set; }
         // create dictionarys with start and end rows for EModelType from keyValuePairs
-        static DbConnectorTest dbCon = new DbConnectorTest();
 
         static async Task Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
-            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v11;user=root;password=root";
+            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v12;user=root;password=root";
+
+            List<Staff> staffs = new List<Staff>();
+            using (var db = new MyDbContext())
+            {
+                staffs = db.Staffs
+                    .Include(staff => staff.RelatedStaffs)
+                    .ToList();
+
+                var staff = staffs.FirstOrDefault(x => x.Id == 1);
+
+                var relatedStaff = staffs.FirstOrDefault(x => x.Id == 3);
+
+                staff?.AddRelatedStaff(relatedStaff);
+
+                Console.WriteLine($"add {relatedStaff.Name}");
+
+                db.SaveChanges();
+            }
+
+
+            using (var db = new MyDbContext())
+            {
+                var staff = db.Staffs.Include(x=> x.RelatedStaffs).FirstOrDefault(x => x.Id == 1);
+
+                var staff2 = db.Staffs.Include(x => x.RelatedStaffs).FirstOrDefault(x => x.Id == 3);
+                
+                staff.RemoveRelatedStaff(staff2);
+
+                Console.WriteLine(staff.CombineResponsibility);
+
+                db.SaveChanges();
+
+            }
+            //PrintStaffs(staffs);
+
+            //var staff = staffs.FirstOrDefault(x => x.Id == 1);
+
+            //var relatedStaff = staffs.FirstOrDefault(x => x.Id == 2);
+
+            //staff?.AddRelatedStaff(relatedStaff);
+
+            //Console.WriteLine(relatedStaff.Name);
+
+            //Console.WriteLine(staff.CombineResponsibility);
+
+            //PrintStaffs(new List<Staff> { staff });
+
+            void PrintStaffs(List<Staff> staffs)
+            {
+                foreach (var staff in staffs)
+                {
+                    Console.WriteLine(staff.Name);
+                    Console.WriteLine($"  {staff.CombineResponsibility}");
+                    //foreach (var relatedStaff in staff.RelatedStaffs)
+                    //{
+                    //    Console.WriteLine($"  {relatedStaff.Name}");
+                    //}
+                }
+            }
 
             //GetAllUnits();
             //GetAllCategories();
@@ -40,11 +98,11 @@ namespace TestConsoleAppTC
             //GetEmptyStringUnits();
             //var export = new TCExcelExporter();
 
-            //var tc = await GetTechnologicalCardToExportAsync(2);
-            //if (tc != null)
-            //{
-            //    export.ExportTCtoFile(@"C:\Tests\Тест3.xlsx", tc);
-            //}
+                //var tc = await GetTechnologicalCardToExportAsync(2);
+                //if (tc != null)
+                //{
+                //    export.ExportTCtoFile(@"C:\Tests\Тест3.xlsx", tc);
+                //}
 
         }
 

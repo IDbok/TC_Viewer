@@ -38,6 +38,8 @@ namespace TcDbConnector
 
         public DbSet<TechTransitionTypical> TechTransitionTypicals { get; set; } = null!;
 
+        public DbSet<StaffRelationship> StaffRelationship { get; set; } = null!;
+
 
         public MyDbContext()
         {
@@ -188,6 +190,73 @@ namespace TcDbConnector
                         j.HasKey(t => new { t.ParentId, t.ChildId });
                         j.ToTable("Tool_TC");
                     });
+
+            //modelBuilder
+            //    .Entity<Staff>()
+            //    .HasMany(Staff => Staff.RelatedStaffs)
+            //    .WithOne(StaffRelationship => StaffRelationship.Staff)
+            //    .HasForeignKey(StaffRelationship => StaffRelationship.StaffId)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder
+            //    .Entity<Staff>()
+            //    .HasMany(Staff => Staff.RelatedStaffs)
+            //    .WithOne(StaffRelationship => StaffRelationship.RelatedStaff)
+            //    .HasForeignKey(StaffRelationship => StaffRelationship.RelatedStaffId)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<Staff>()
+            //    .HasMany(s => s.RelatedStaffs)
+            //    .WithMany()
+            //    .UsingEntity<Dictionary<string, object>>(
+            //        "StaffRelationship",
+            //        r => r.HasOne<Staff>().WithMany().HasForeignKey("RelatedStaffId"),
+            //        l => l.HasOne<Staff>().WithMany().HasForeignKey("StaffId"),
+            //        j =>
+            //        {
+            //            j.ToTable("StaffRelationship");
+            //            //j.HasKey("Id");
+            //            j.HasKey("StaffId", "RelatedStaffId");
+            //        });
+            modelBuilder
+                .Entity<Staff>()
+                .HasMany(cp => cp.RelatedStaffs)
+                .WithMany()
+                .UsingEntity<StaffRelationship>(
+                    j => j
+                        .HasOne(sr => sr.RelatedStaff)
+                        .WithMany() 
+                        .HasForeignKey(sr => sr.RelatedStaffId)
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j => j
+                        .HasOne(sr => sr.Staff)
+                        .WithMany()
+                        .HasForeignKey(sr => sr.StaffId)
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.HasKey(t => t.Id);
+                        //j.ToTable("Instrument_kit");
+                    });
+
+            //modelBuilder.Entity<Staff>()
+            //    .HasMany(s => s.RelatedStaffs)
+            //    .WithMany(s => s.RelatedStaff)
+            //    .UsingEntity<StaffRelationship>(
+            //        j => j
+            //            .HasOne(sr => sr.RelatedStaff)
+            //            .WithMany()
+            //            .HasForeignKey(sr => sr.RelatedStaffId),
+            //        j => j
+            //            .HasOne(sr => sr.Staff)
+            //            .WithMany()
+            //            .HasForeignKey(sr => sr.StaffId),
+            //        j =>
+            //        {
+            //            j.HasKey(t => new { t.StaffId, t.RelatedStaffId });
+            //            // Дополнительные настройки
+            //        });
+
 
         }
 

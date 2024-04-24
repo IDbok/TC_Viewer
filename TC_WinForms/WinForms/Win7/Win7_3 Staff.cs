@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
@@ -18,9 +19,9 @@ namespace TC_WinForms.WinForms
         private List<DisplayedStaff> _displayedObjects;
         private static BindingList<DisplayedStaff> _bindingList;
 
-        private List<DisplayedStaff> _changedObjects = new List<DisplayedStaff>();
-        private List<DisplayedStaff> _newObjects = new List<DisplayedStaff>();
-        private List<DisplayedStaff> _deletedObjects = new List<DisplayedStaff>();
+        //private List<DisplayedStaff> _changedObjects = new List<DisplayedStaff>();
+        //private List<DisplayedStaff> _newObjects = new List<DisplayedStaff>();
+        //private List<DisplayedStaff> _deletedObjects = new List<DisplayedStaff>();
 
         private DisplayedStaff _newObject;
 
@@ -87,7 +88,7 @@ namespace TC_WinForms.WinForms
         }
         public async Task LoadDataAsync()
         {
-            _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Staff>()
+            _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Staff>(includeRelatedStaffs: true)
                 .Select(obj => new DisplayedStaff(obj)).ToList());
 
             _bindingList = new BindingList<DisplayedStaff>(_displayedObjects);
@@ -294,6 +295,11 @@ namespace TC_WinForms.WinForms
                 tcEditor.AddNewObjects(newItems);
             }
 
+            if (_openedForm is Win7_StaffEditor editor2)
+            {
+                editor2.AddNewObjects(newItems);
+            }
+
             Close();
         }
         void BtnCancel_Click(object sender, EventArgs e)
@@ -360,6 +366,7 @@ namespace TC_WinForms.WinForms
             private string? combineResponsibility;
             private string qualification;
             private string? comment;
+            //private List<DisplayedStaff> relatedStaffs;
             //private string classifierCode;
 
             public DisplayedStaff()
@@ -376,6 +383,7 @@ namespace TC_WinForms.WinForms
                 CombineResponsibility = obj.CombineResponsibility;
                 Qualification = obj.Qualification;
                 Comment = obj.Comment;
+                //relatedStaffs = obj.RelatedStaffs.Select(st => new DisplayedStaff(st)).ToList();
             }
 
             public int Id { get; set; }
@@ -541,26 +549,19 @@ namespace TC_WinForms.WinForms
         public void UpdateObjectInDataGridView(Staff modelObject)
         {
             // Обновляем объект в DataGridView
-            var displayedObject = _bindingList.OfType<DisplayedStaff>().FirstOrDefault(obj => obj.Id == modelObject.Id);
-            if (displayedObject != null)
+            var editedObject = _displayedObjects.FirstOrDefault(obj => obj.Id == modelObject.Id);
+            if (editedObject != null)
             {
-                displayedObject.Name = modelObject.Name;
-                displayedObject.Type = modelObject.Type;
-                displayedObject.Functions = modelObject.Functions;
-                displayedObject.CombineResponsibility = modelObject.CombineResponsibility;
-                displayedObject.Qualification = modelObject.Qualification;
-                displayedObject.Comment = modelObject.Comment;
+                editedObject.Name = modelObject.Name;
+                editedObject.Type = modelObject.Type;
+                editedObject.Functions = modelObject.Functions;
+                editedObject.CombineResponsibility = modelObject.CombineResponsibility;
+                editedObject.Qualification = modelObject.Qualification;
+                editedObject.Comment = modelObject.Comment;
 
-                dgvMain.Refresh();
-
-                // обновляем в список всех объектов изменённый объект
-                if (_isFiltered)
-                {
-                    var editedObject = _displayedObjects.OfType<DisplayedStaff>().FirstOrDefault(obj => obj.Id == modelObject.Id);
-                    editedObject = displayedObject;
-                    FilterTechnologicalCards();
-                }
+                FilterTechnologicalCards();
             }
+
         }
 
         public void AddNewObjectInDataGridView(Staff modelObject)
@@ -576,14 +577,9 @@ namespace TC_WinForms.WinForms
                 displayedObject.Qualification = modelObject.Qualification;
                 displayedObject.Comment = modelObject.Comment;
 
-                _bindingList.Insert(0, displayedObject);
-
-                // добавляем в список всех объектов новый объект
-                if (_isFiltered)
-                {
-                    _displayedObjects.Add(displayedObject);
-                    FilterTechnologicalCards();
-                }
+                _displayedObjects.Insert(0,displayedObject);
+                FilterTechnologicalCards();
+                
             }
         }
 

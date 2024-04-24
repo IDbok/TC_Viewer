@@ -34,7 +34,6 @@
             lblName = new Label();
             rtxtFunctions = new RichTextBox();
             lblFunctions = new Label();
-            rtxtCombineResponsibility = new RichTextBox();
             rtxtComment = new RichTextBox();
             rtxtQualification = new RichTextBox();
             lblCombineResponsibility = new Label();
@@ -42,6 +41,10 @@
             lblQualification = new Label();
             btnClose = new Button();
             btnSave = new Button();
+            dgvRelatedStaffs = new DataGridView();
+            btnAddRelatedStaff = new Button();
+            btnDeleteRelatedStaff = new Button();
+            ((System.ComponentModel.ISupportInitialize)dgvRelatedStaffs).BeginInit();
             SuspendLayout();
             // 
             // txtType
@@ -93,14 +96,6 @@
             lblFunctions.TabIndex = 9;
             lblFunctions.Text = "Функции:";
             // 
-            // rtxtCombineResponsibility
-            // 
-            rtxtCombineResponsibility.Location = new Point(220, 270);
-            rtxtCombineResponsibility.Name = "rtxtCombineResponsibility";
-            rtxtCombineResponsibility.Size = new Size(535, 90);
-            rtxtCombineResponsibility.TabIndex = 10;
-            rtxtCombineResponsibility.Text = "";
-            // 
             // rtxtComment
             // 
             rtxtComment.Location = new Point(220, 560);
@@ -111,7 +106,7 @@
             // 
             // rtxtQualification
             // 
-            rtxtQualification.Location = new Point(220, 390);
+            rtxtQualification.Location = new Point(220, 400);
             rtxtQualification.Name = "rtxtQualification";
             rtxtQualification.Size = new Size(535, 140);
             rtxtQualification.TabIndex = 12;
@@ -138,7 +133,7 @@
             // lblQualification
             // 
             lblQualification.AutoSize = true;
-            lblQualification.Location = new Point(30, 390);
+            lblQualification.Location = new Point(30, 400);
             lblQualification.Name = "lblQualification";
             lblQualification.Size = new Size(134, 25);
             lblQualification.TabIndex = 16;
@@ -164,11 +159,48 @@
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Click;
             // 
+            // dgvRelatedStaffs
+            // 
+            dgvRelatedStaffs.AllowUserToAddRows = false;
+            dgvRelatedStaffs.AllowUserToDeleteRows = false;
+            dgvRelatedStaffs.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvRelatedStaffs.Location = new Point(220, 267);
+            dgvRelatedStaffs.Name = "dgvRelatedStaffs";
+            dgvRelatedStaffs.ReadOnly = true;
+            dgvRelatedStaffs.RowHeadersWidth = 62;
+            dgvRelatedStaffs.RowTemplate.Height = 33;
+            dgvRelatedStaffs.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvRelatedStaffs.Size = new Size(417, 117);
+            dgvRelatedStaffs.TabIndex = 19;
+            // 
+            // btnAddRelatedStaff
+            // 
+            btnAddRelatedStaff.Location = new Point(643, 267);
+            btnAddRelatedStaff.Name = "btnAddRelatedStaff";
+            btnAddRelatedStaff.Size = new Size(112, 34);
+            btnAddRelatedStaff.TabIndex = 20;
+            btnAddRelatedStaff.Text = "Добавить";
+            btnAddRelatedStaff.UseVisualStyleBackColor = true;
+            btnAddRelatedStaff.Click += btnAddRelatedStaff_Click;
+            // 
+            // btnDeleteRelatedStaff
+            // 
+            btnDeleteRelatedStaff.Location = new Point(643, 350);
+            btnDeleteRelatedStaff.Name = "btnDeleteRelatedStaff";
+            btnDeleteRelatedStaff.Size = new Size(112, 34);
+            btnDeleteRelatedStaff.TabIndex = 21;
+            btnDeleteRelatedStaff.Text = "Удалить";
+            btnDeleteRelatedStaff.UseVisualStyleBackColor = true;
+            btnDeleteRelatedStaff.Click += btnDeleteRelatedStaff_Click;
+            // 
             // Win7_StaffEditor
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(778, 844);
+            Controls.Add(btnDeleteRelatedStaff);
+            Controls.Add(btnAddRelatedStaff);
+            Controls.Add(dgvRelatedStaffs);
             Controls.Add(btnClose);
             Controls.Add(btnSave);
             Controls.Add(lblQualification);
@@ -176,7 +208,6 @@
             Controls.Add(lblCombineResponsibility);
             Controls.Add(rtxtQualification);
             Controls.Add(rtxtComment);
-            Controls.Add(rtxtCombineResponsibility);
             Controls.Add(lblFunctions);
             Controls.Add(rtxtFunctions);
             Controls.Add(txtType);
@@ -184,9 +215,12 @@
             Controls.Add(txtName);
             Controls.Add(lblName);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            MaximumSize = new Size(800, 900);
+            MinimumSize = new Size(800, 900);
             Name = "Win7_StaffEditor";
             Text = "Win_7_StaffEditor";
             Load += Win7_StaffEditor_Load;
+            ((System.ComponentModel.ISupportInitialize)dgvRelatedStaffs).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -199,7 +233,6 @@
         private Label lblName;
         private RichTextBox rtxtFunctions;
         private Label lblFunctions;
-        private RichTextBox rtxtCombineResponsibility;
         private RichTextBox rtxtComment;
         private RichTextBox rtxtQualification;
         private Label lblCombineResponsibility;
@@ -207,5 +240,8 @@
         private Label lblQualification;
         private Button btnClose;
         private Button btnSave;
+        private DataGridView dgvRelatedStaffs;
+        private Button btnAddRelatedStaff;
+        private Button btnDeleteRelatedStaff;
     }
 }

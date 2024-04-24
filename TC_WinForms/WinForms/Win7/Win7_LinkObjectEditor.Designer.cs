@@ -299,7 +299,7 @@
             Controls.Add(lblName);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             MaximumSize = new Size(800, 960);
-            MinimumSize = new Size(800, 800);
+            MinimumSize = new Size(800, 960);
             Name = "Win7_LinkObjectEditor";
             Text = "Win7_LinkObjectEditor";
             Load += Win7_LinkObjectEditor_Load;
