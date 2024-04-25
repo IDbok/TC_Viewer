@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System;
 using System.Text;
+using TcModels.Models.TcContent.Work;
 
 namespace TestConsoleAppTC
 {
@@ -33,81 +34,194 @@ namespace TestConsoleAppTC
             Console.WriteLine("Hello, World!");
             TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v12;user=root;password=root";
 
-            List<Staff> staffs = new List<Staff>();
-            using (var db = new MyDbContext())
-            {
-                staffs = db.Staffs
-                    .Include(staff => staff.RelatedStaffs)
-                    .ToList();
 
-                var staff = staffs.FirstOrDefault(x => x.Id == 1);
-
-                var relatedStaff = staffs.FirstOrDefault(x => x.Id == 3);
-
-                staff?.AddRelatedStaff(relatedStaff);
-
-                Console.WriteLine($"add {relatedStaff.Name}");
-
-                db.SaveChanges();
-            }
-
-
-            using (var db = new MyDbContext())
-            {
-                var staff = db.Staffs.Include(x=> x.RelatedStaffs).FirstOrDefault(x => x.Id == 1);
-
-                var staff2 = db.Staffs.Include(x => x.RelatedStaffs).FirstOrDefault(x => x.Id == 3);
-                
-                staff.RemoveRelatedStaff(staff2);
-
-                Console.WriteLine(staff.CombineResponsibility);
-
-                db.SaveChanges();
-
-            }
-            //PrintStaffs(staffs);
-
-            //var staff = staffs.FirstOrDefault(x => x.Id == 1);
-
-            //var relatedStaff = staffs.FirstOrDefault(x => x.Id == 2);
-
-            //staff?.AddRelatedStaff(relatedStaff);
-
-            //Console.WriteLine(relatedStaff.Name);
-
-            //Console.WriteLine(staff.CombineResponsibility);
-
-            //PrintStaffs(new List<Staff> { staff });
-
-            void PrintStaffs(List<Staff> staffs)
-            {
-                foreach (var staff in staffs)
-                {
-                    Console.WriteLine(staff.Name);
-                    Console.WriteLine($"  {staff.CombineResponsibility}");
-                    //foreach (var relatedStaff in staff.RelatedStaffs)
-                    //{
-                    //    Console.WriteLine($"  {relatedStaff.Name}");
-                    //}
-                }
-            }
-
-            //GetAllUnits();
-            //GetAllCategories();
-            //GetAllTypes();
-            //GetEmptyStringUnits();
-            //var export = new TCExcelExporter();
-
-                //var tc = await GetTechnologicalCardToExportAsync(2);
-                //if (tc != null)
-                //{
-                //    export.ExportTCtoFile(@"C:\Tests\Тест3.xlsx", tc);
-                //}
-
+            GetAllTPCategories();
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        static void GetAllTPCategories()
+        {
+            using (var db = new MyDbContext())
+            {
+                var allTP = db.TechTransitions.ToList();
+                var unique = allTP.GroupBy(tp => tp.Category)
+                          .OrderByDescending(group => group.Count())
+                          .Select(group => group.Key)
+                          .ToList();
 
+                ShowCategories(unique, "Components");
+                CombineCategories(unique);
+
+                Console.WriteLine();
+
+
+            }
+            void CombineCategories(List<string> cat)
+            {
+                var combinedUnits = string.Join(",", cat);
+                Console.WriteLine(combinedUnits);
+            }
+            void ShowCategories(List<string> units, string listName)
+            {
+                Console.WriteLine(listName);
+                foreach (var unit in units)
+                {
+                    Console.WriteLine(unit);
+                }
+            }
+        }
+        static void SetTypicalTO()
+        {
+            using (var db = new MyDbContext())
+            {
+                var allTO = db.TechOperations
+                    .Include(to => to.techTransitionTypicals)
+                    .ToList();
+
+                var allTP = db.TechTransitions
+                    .ToList();
+
+                Dictionary<string, List<(string, string, string)>> keyValuePairs = new Dictionary<string, List<(string, string, string)>>
+                {
+                    { "Выгрузка стоек", new List<(string, string, string)>
+                        {
+                            { ("Определить место установки техники", "0","0") },
+                            { ("Дать команду на установку техники", "0", "0") },
+                            { ("Установить автокран","1000", "0") },
+                            { ("Установить грузовик", "1000", "0") },
+                            { ("Закрепить грузоподъёмные стропы", "0", "0") },
+                            { ("Дать команду на перемещение груза", "0", "0") },
+                            { ("Поднять груз", "0", "0") },
+                            { ("Переместить груз", "0", "0") },
+                            { ("Опустить груз", "0", "0") },
+                            { ("Отсоединить грузоподъёмные стропы", "0", "0") },
+                            { ("Убрать грузовик", "0", "0") },
+                        }
+                    },
+                    { "Установка вертикальной стойки", new List<(string, string, string)>
+                        {
+                            { ("Перевести БКМ в режим автокрана", "0", "0") },
+                            { ("Закрепить грузоподъёмный строп", "0", "0") },
+                            { ("Дать команду на перемещение груза", "0", "0") },
+                            { ("Поднять груз", "0", "0") },
+                            { ("Переместить груз на место", "0", "0") },
+                            { ("Произвести засыпку грунтом с послойным трамбованием", "0", "0") },
+                            { ("Проверить правильность установки стойки", "0", "0") },
+                            { ("Устранить отклонение стойки", "0", "0") },
+                            { ("Отсоединить грузоподъёмный строп", "0", "0") },
+
+                        }
+                    },
+                    { "Бурение котлована БКМ", new List<(string, string, string)>
+                        {
+                            { ("Определить место установки техники", "0", "0") },
+                            { ("Дать команду на установку техники", "0", "0") },
+                            { ("Установить БКМ", "1000", "0") },
+                            { ("Перевести БКМ в режим бура", "1000", "0") },
+                            { ("Измерить и нанести метки", "0", "0") },
+                            { ("Установить бур для бурения", "0", "0") },
+                            { ("Проверить правильность установки бура", "0", "0") },
+                            { ("Дать команду на бурение", "0", "0") },
+                            { ("Пробурить отверстие", "0", "0") },
+                            { ("Измерить и нанести метки", "0", "0") },
+
+                        }
+                    },
+                    { "Установка подкоса на новой опоре", new List<(string, string, string)>
+                        {
+                            {("Перевести БКМ в режим автокрана", "0", "0")},
+                            {("Закрепить грузоподъёмный строп", "0", "0")},
+                            {("Дать команду на перемещение груза", "0", "0")},
+                            {("Поднять груз", "0", "0")},
+                            {("Переместить груз на место", "0", "0")},
+                            {("Произвести засыпку грунтом с послойным трамбованием", "0", "0")},
+                            {("Положить в сумку инструменты и материалы", "0", "0")},
+                            {("Надеть лазы монтерские", "0", "0")},
+                            {("Надеть страховочную привязь", "0", "0")},
+                            {("Подняться", "0","0")},
+                            {("Надеть на шпильки",  "0","0")},
+                            {("Наживить и затянуть гайку(и)/болт(ы)", "0", "0")},
+                            {("Загнуть заземляющий проводник", "0", "0")},
+                            {("Зачистить поверхность", "0", "0")},
+                            {("Раскрутить гайку(и)/болт(ы)", "0", "0")},
+                            {("Установить плашку(и)", "0", "0")},
+                            {("Наживить и затянуть гайку(и)/болт(ы)", "0", "0")},
+                            {("Спуститься", "0", "0")},
+                            {("Снять лазы монтерские",  "1000","1")},
+                            {("Снять страховочную привязь",  "1000","1")},
+                            {("Отсоединить грузоподъёмный строп",  "1000","0")},
+                        }
+                    },
+                    { "Демонтаж вертикальной стойки", new List<(string, string, string)>
+                        {
+                            {("Перевести БКМ в режим автокрана", "0", "0")},
+                            {("Закрепить грузоподъёмный строп", "0", "0")},
+                            {("Дать команду на перемещение груза", "0", "0")},
+                            {("Поднять груз", "0", "0")},
+                            {("Переместить груз на место", "0", "0")},
+                            {("Отсоединить грузоподъёмный строп", "0", "0")},
+
+                        }
+                    },
+                    { "Демонтаж подкоса", new List<(string, string, string)>
+                        {
+                            {("Надеть лазы монтерские",  "1000","1")},
+                            {("Надеть страховочную привязь", "1000", "1")},
+                            {("Положить в сумку инструменты и материалы", "1000", "1")},
+                            {("Подняться", "1000", "1")},
+                            {("Перевести БКМ в режим автокрана", "1000", "2")},
+                            {("Закрепить грузоподъёмный строп", "1000", "2")},
+                            {("Дать команду на перемещение груза", "1000", "2")},
+                            {("Поднять груз", "1000", "2")},
+                            {("Демонтировать крепление металлоконструкции", "0", "0")},
+                            {("Демонтировать заземляющий проводник", "0", "0")},
+                            {("Спуститься", "0", "0")},
+                            {("Снять лазы монтерские", "2000", "1")},
+                            {("Снять страховочную привязь", "2000", "1")},
+                            {("Дать команду на перемещение груза", "2000", "2")},
+                            {("Поднять груз", "2000", "2")},
+                            {("Переместить груз на место", "2000", "2")},
+                            {("Отсоединить грузоподъёмный строп", "2000", "2")},
+
+                        }
+                    },
+
+                };
+                foreach (var nameTO in keyValuePairs)
+                {
+                    var TO = allTO.FirstOrDefault(x => x.Name == nameTO.Key);
+
+                    if (TO != null)
+                    {
+                        TO?.techTransitionTypicals.Clear();
+
+                        foreach (var nameTP in nameTO.Value)
+                        {
+                            FindAndAddTPtoTO(TO, allTP, nameTP.Item1, nameTP.Item2, nameTP.Item3);
+                        }
+
+                    }
+                }
+
+                db.SaveChanges();
+                //FindAndAddTPtoTO(TO, allTP, "Определить место установки техники");
+
+            }
+
+            void FindAndAddTPtoTO(TechOperation TO, List<TechTransition> allTP, string nameTP,
+                string? etap = "", string? posled = "")
+            {
+                var TP = allTP.FirstOrDefault(x => x.Name == nameTP);
+
+                TO.techTransitionTypicals.Add(new TechTransitionTypical
+                {
+                    TechTransition = TP,
+                    TechOperation = TO,
+                    Etap = etap,
+                    Posled = posled
+                });
+            }
+        }
         static void GetAllTypes()
         {
             using (var db = new MyDbContext())

@@ -36,6 +36,7 @@
             lblSearch = new Label();
             txtSearch = new TextBox();
             pnlControlBtns = new Panel();
+            btnUpdate = new Button();
             btnDeleteObj = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
@@ -49,11 +50,13 @@
             // dgvMain
             // 
             dgvMain.AllowUserToAddRows = false;
+            dgvMain.AllowUserToDeleteRows = false;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 0);
             dgvMain.Margin = new Padding(4);
             dgvMain.Name = "dgvMain";
+            dgvMain.ReadOnly = true;
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
             dgvMain.Size = new Size(1291, 462);
@@ -120,6 +123,7 @@
             // 
             // pnlControlBtns
             // 
+            pnlControlBtns.Controls.Add(btnUpdate);
             pnlControlBtns.Controls.Add(btnDeleteObj);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
@@ -129,12 +133,23 @@
             pnlControlBtns.Size = new Size(590, 100);
             pnlControlBtns.TabIndex = 24;
             // 
+            // btnUpdate
+            // 
+            btnUpdate.Location = new Point(220, 15);
+            btnUpdate.Margin = new Padding(4);
+            btnUpdate.Name = "btnUpdate";
+            btnUpdate.Size = new Size(170, 75);
+            btnUpdate.TabIndex = 26;
+            btnUpdate.Text = "Редактировать";
+            btnUpdate.UseVisualStyleBackColor = true;
+            btnUpdate.Click += btnUpdate_Click;
+            // 
             // btnDeleteObj
             // 
             btnDeleteObj.Location = new Point(400, 15);
             btnDeleteObj.Margin = new Padding(4);
             btnDeleteObj.Name = "btnDeleteObj";
-            btnDeleteObj.Size = new Size(174, 75);
+            btnDeleteObj.Size = new Size(170, 75);
             btnDeleteObj.TabIndex = 25;
             btnDeleteObj.Text = "Удалить";
             btnDeleteObj.UseVisualStyleBackColor = true;
@@ -142,10 +157,10 @@
             // 
             // btnAddNewObj
             // 
-            btnAddNewObj.Location = new Point(218, 13);
+            btnAddNewObj.Location = new Point(40, 15);
             btnAddNewObj.Margin = new Padding(4);
             btnAddNewObj.Name = "btnAddNewObj";
-            btnAddNewObj.Size = new Size(174, 75);
+            btnAddNewObj.Size = new Size(170, 75);
             btnAddNewObj.TabIndex = 23;
             btnAddNewObj.Text = "Добавить";
             btnAddNewObj.UseVisualStyleBackColor = true;
@@ -195,5 +210,6 @@
         private TextBox txtSearch;
         private Label lblCategoryFilter;
         private ComboBox cbxCategoryFilter;
+        private Button btnUpdate;
     }
 }

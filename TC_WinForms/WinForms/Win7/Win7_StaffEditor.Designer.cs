@@ -143,7 +143,7 @@
             // 
             btnClose.Location = new Point(583, 760);
             btnClose.Name = "btnClose";
-            btnClose.Size = new Size(172, 67);
+            btnClose.Size = new Size(170, 70);
             btnClose.TabIndex = 18;
             btnClose.Text = "Закрыть";
             btnClose.UseVisualStyleBackColor = true;
@@ -153,7 +153,7 @@
             // 
             btnSave.Location = new Point(30, 760);
             btnSave.Name = "btnSave";
-            btnSave.Size = new Size(172, 67);
+            btnSave.Size = new Size(170, 70);
             btnSave.TabIndex = 17;
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;

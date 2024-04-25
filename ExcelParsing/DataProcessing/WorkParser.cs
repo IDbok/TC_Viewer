@@ -170,8 +170,6 @@ namespace ExcelParsing.DataProcessing
             out ToolWork? tool,
             out ComponentWork? component)
         {
-            
-
             tool = null;
             component = null;
 

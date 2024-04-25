@@ -190,7 +190,7 @@ public partial class Win7_StaffEditor : Form
 
     private void btnDeleteRelatedStaff_Click(object sender, EventArgs e)
     {
-        if(dgvRelatedStaffs.SelectedRows.Count > 0) 
+        if (dgvRelatedStaffs.SelectedRows.Count > 0)
         {
             var staffsToRemove = new List<Staff>();
             foreach (DataGridViewRow row in dgvRelatedStaffs.SelectedRows)
@@ -217,7 +217,7 @@ public partial class Win7_StaffEditor : Form
     {
         foreach (var obj in newObjs)
         {
-            if (_editingObj.RelatedStaffs.Find(x=> x.Id == obj.Id) != null) continue;
+            if (_editingObj.RelatedStaffs.Find(x => x.Id == obj.Id) != null) continue;
             if (obj.Id == _editingObj.Id) continue;
 
             _editingObj.AddRelatedStaff(obj);
@@ -228,4 +228,5 @@ public partial class Win7_StaffEditor : Form
 
         dgvRelatedStaffs.Refresh();
     }
+
 }

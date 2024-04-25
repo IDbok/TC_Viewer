@@ -117,6 +117,7 @@
             toolStripButton5.Name = "toolStripButton5";
             toolStripButton5.Size = new Size(102, 29);
             toolStripButton5.Text = "Сохранить";
+            toolStripButton5.Visible = false;
             toolStripButton5.Click += toolStripButton5_Click;
             // 
             // updateToolStripButton
@@ -365,7 +366,7 @@
             Controls.Add(pnlNavigationBlok);
             Controls.Add(pnlToolStrinp);
             Margin = new Padding(4);
-            MinimumSize = new Size(1600, 1100);
+            MinimumSize = new Size(1438, 1100);
             Name = "Win7_new";
             Text = "Form1";
             WindowState = FormWindowState.Maximized;

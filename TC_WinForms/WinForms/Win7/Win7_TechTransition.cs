@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TcModels.Models.Interfaces;
@@ -7,9 +8,12 @@ using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_TechTransition : Form, ISaveEventForm
+    public partial class Win7_TechTransition : Form//, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
+
+
+        private List<DisplayedTechTransition> _displayedObjects;
         private BindingList<DisplayedTechTransition> _bindingList;
 
         private List<DisplayedTechTransition> _changedObjects = new List<DisplayedTechTransition>();
@@ -22,6 +26,9 @@ namespace TC_WinForms.WinForms
         private Button btnAddSelected;
         private Button btnCancel;
         public bool CloseFormsNoSave { get; set; } = false;
+
+        private bool _isFiltered = false;
+
         public void SetAsAddingForm()
         {
             isAddingForm = true;
@@ -66,35 +73,37 @@ namespace TC_WinForms.WinForms
         }
         private async Task LoadObjects()
         {
-            var tcList = await Task.Run(() => dbCon.GetObjectList<TechTransition>()
+            _displayedObjects = await Task.Run(() => dbCon.GetObjectList<TechTransition>()
                 .Select(obj => new DisplayedTechTransition(obj))
                 .OrderBy(obj => obj.Category)
                 .ThenBy(obj => obj.Name)
                 .ToList());
-            _bindingList = new BindingList<DisplayedTechTransition>(tcList);
-            _bindingList.ListChanged += BindingList_ListChanged;
+            _bindingList = new BindingList<DisplayedTechTransition>(_displayedObjects);
+            //_bindingList.ListChanged += BindingList_ListChanged;
+
+            dgvMain.DataSource = null;
             dgvMain.DataSource = _bindingList;
 
             SetDGVColumnsSettings();
         }
         private async void Win7_TechTransition_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (CloseFormsNoSave)
-            {
-                return;
-            }
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-            {
-                e.Cancel = true;
-                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
+            //if (CloseFormsNoSave)
+            //{
+            //    return;
+            //}
+            //if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            //{
+            //    e.Cancel = true;
+            //    var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
 
-                if (result == DialogResult.Yes)
-                {
-                    await SaveChanges();
-                }
-                e.Cancel = false;
-                Close();
-            }
+            //    if (result == DialogResult.Yes)
+            //    {
+            //        await SaveChanges();
+            //    }
+            //    e.Cancel = false;
+            //    Close();
+            //}
         }
         private void AccessInitialization(int accessLevel)
         {
@@ -102,95 +111,101 @@ namespace TC_WinForms.WinForms
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
-                _bindingList,
-                _newObjects,
-                dgvMain);
+            //DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
+            //    _bindingList,
+            //    _newObjects,
+            //    dgvMain);
+
+            var objEditor = new Win7_TechTransitionEditor(new TechTransition(), isNewObject: true);
+
+            objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView(createdObj);
+
+            objEditor.ShowDialog();
         }
 
-        private void btnDeleteObj_Click(object sender, EventArgs e)
+        private async void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
-                _bindingList, _newObjects, _deletedObjects);
+            await DisplayedEntityHelper.DeleteSelectedObject<DisplayedTechTransition, TechTransition>(dgvMain,
+                _bindingList, _isFiltered ? _displayedObjects : null);
         }
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
-        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
-        public async Task SaveChanges()
-        {
-            // stop editing cell
-            dgvMain.EndEdit();
-            if (!HasChanges)
-            {
-                return;
-            }
-            if (_newObjects.Count > 0)
-            {
-                await SaveNewObjects();
-            }
-            if (_changedObjects.Count > 0)
-            {
-                await SaveChangedObjects();
-            }
-            if (_deletedObjects.Count > 0)
-            {
-                await DeleteDeletedObjects();
-            }
-            // todo - change id in all new cards 
-            dgvMain.Refresh();
-        }
-        private async Task SaveNewObjects()
-        {
-            var newObjects = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+        //public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
+        //public async Task SaveChanges()
+        //{
+        //    // stop editing cell
+        //    dgvMain.EndEdit();
+        //    if (!HasChanges)
+        //    {
+        //        return;
+        //    }
+        //    if (_newObjects.Count > 0)
+        //    {
+        //        await SaveNewObjects();
+        //    }
+        //    if (_changedObjects.Count > 0)
+        //    {
+        //        await SaveChangedObjects();
+        //    }
+        //    if (_deletedObjects.Count > 0)
+        //    {
+        //        await DeleteDeletedObjects();
+        //    }
+        //    // todo - change id in all new cards 
+        //    dgvMain.Refresh();
+        //}
+        //private async Task SaveNewObjects()
+        //{
+        //    var newObjects = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-            await dbCon.AddObjectAsync(newObjects);
+        //    await dbCon.AddObjectAsync(newObjects);
 
-            // set new ids to new objects matched them by all params
-            foreach (var newObj in _newObjects)
-            {
-                var newId = newObjects.Where(s =>
-                s.Name == newObj.Name
-                //&& s.Category == newObj.Category
-                ).FirstOrDefault().Id;
-                newObj.Id = newId;
-            }
+        //    // set new ids to new objects matched them by all params
+        //    foreach (var newObj in _newObjects)
+        //    {
+        //        var newId = newObjects.Where(s =>
+        //        s.Name == newObj.Name
+        //        //&& s.Category == newObj.Category
+        //        ).FirstOrDefault().Id;
+        //        newObj.Id = newId;
+        //    }
 
 
-            _newObjects.Clear();
-        }
-        private async Task SaveChangedObjects()
-        {
-            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+        //    _newObjects.Clear();
+        //}
+        //private async Task SaveChangedObjects()
+        //{
+        //    var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
-            await dbCon.UpdateObjectsListAsync(changedTcs);
+        //    await dbCon.UpdateObjectsListAsync(changedTcs);
 
-            _changedObjects.Clear();
-        }
+        //    _changedObjects.Clear();
+        //}
 
-        private async Task DeleteDeletedObjects()
-        {
-            var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
+        //private async Task DeleteDeletedObjects()
+        //{
+        //    var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
 
-            var deletedCheck = await dbCon.DeleteObjectAsync<TechTransition>(deletedTcIds);
-            if (!deletedCheck)
-            {
-                // add deleted object to display list if it was not deleted in DB
-                foreach (var deletedObj in _deletedObjects)
-                {
-                    _bindingList.Insert(0, deletedObj);
-                }
-                dgvMain.Refresh();
-            }
-            _deletedObjects.Clear();
-        }
-        private TechTransition CreateNewObject(DisplayedTechTransition dObj)
-        {
-            return new TechTransition
-            {
-                Id = dObj.Id,
-                Name = dObj.Name,
-                Category = dObj.Category,
-            };
-        }
+        //    var deletedCheck = await dbCon.DeleteObjectAsync<TechTransition>(deletedTcIds);
+        //    if (!deletedCheck)
+        //    {
+        //        // add deleted object to display list if it was not deleted in DB
+        //        foreach (var deletedObj in _deletedObjects)
+        //        {
+        //            _bindingList.Insert(0, deletedObj);
+        //        }
+        //        dgvMain.Refresh();
+        //    }
+        //    _deletedObjects.Clear();
+        //}
+        //private TechTransition CreateNewObject(DisplayedTechTransition dObj)
+        //{
+        //    return new TechTransition
+        //    {
+        //        Id = dObj.Id,
+        //        Name = dObj.Name,
+        //        Category = dObj.Category,
+        //    };
+        //}
 
         ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
 
@@ -276,7 +291,7 @@ namespace TC_WinForms.WinForms
         }
 
 
-        private class DisplayedTechTransition : INotifyPropertyChanged, IDisplayedEntity
+        private class DisplayedTechTransition : INotifyPropertyChanged, IDisplayedEntity, IIdentifiable
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -437,14 +452,15 @@ namespace TC_WinForms.WinForms
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
                 var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
 
-                if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все" )
+                if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все")
                 {
-                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                     _bindingList = new BindingList<DisplayedTechTransition>(_bindingList); // Возвращаем исходный список, если строка поиска пуста
                 }
                 else
                 {
-                    dgvMain.DataSource = FilteredBindingList(searchText, categoryFilter);
+                    _bindingList = FilteredBindingList(searchText, categoryFilter);
                 }
+                dgvMain.DataSource = _bindingList;
             }
             catch (Exception e)
             {
@@ -485,12 +501,76 @@ namespace TC_WinForms.WinForms
             foreach (var category in categories)
             {
                 if (string.IsNullOrWhiteSpace(category)) { continue; }
-                    cbxCategoryFilter.Items.Add(category);
+                cbxCategoryFilter.Items.Add(category);
             }
 
             cbxCategoryFilter.SelectedIndex = 0;
 
             cbxCategoryFilter.DropDownWidth = cbxCategoryFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxCategoryFilter.Font).Width) + 20;
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return;
+            }
+
+            var selectedObj = dgvMain.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
+            var obj = selectedObj?.DataBoundItem as DisplayedTechTransition;
+
+            if (obj != null)
+            {
+                var TP = dbCon.GetObject<TechTransition>(obj.Id);
+
+                if (TP != null)
+                {
+                    var objEditor = new Win7_TechTransitionEditor(TP);
+
+                    objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView(updatedObj);
+
+                    objEditor.ShowDialog();
+                }
+            }
+        }
+        public void UpdateObjectInDataGridView(TechTransition modelObject)
+        {
+            // Обновляем объект в DataGridView
+            var editedObject = _displayedObjects.FirstOrDefault(obj => obj.Id == modelObject.Id);
+            if (editedObject != null)
+            {
+                editedObject.Name = modelObject.Name;
+                editedObject.TimeExecution = modelObject.TimeExecution;
+                editedObject.Category = modelObject.Category;
+                editedObject.TimeExecutionChecked = modelObject.TimeExecutionChecked ?? false;
+                editedObject.CommentName = modelObject.CommentName;
+                editedObject.CommentTimeExecution = modelObject.CommentTimeExecution;
+
+                FilterTechnologicalCards();
+            }
+
+        }
+
+        public void AddNewObjectInDataGridView(TechTransition modelObject)
+        {
+            var newDisplayedObject = Activator.CreateInstance<DisplayedTechTransition>();
+            if (newDisplayedObject is DisplayedTechTransition displayedObject)
+            {
+                displayedObject.Id = modelObject.Id;
+                displayedObject.Name = modelObject.Name;
+                displayedObject.TimeExecution = modelObject.TimeExecution;
+                displayedObject.Category = modelObject.Category;
+                displayedObject.TimeExecutionChecked = modelObject.TimeExecutionChecked ?? false;
+                displayedObject.CommentName = modelObject.CommentName;
+                displayedObject.CommentTimeExecution = modelObject.CommentTimeExecution;
+
+
+
+                _displayedObjects.Insert(0, displayedObject);
+                FilterTechnologicalCards();
+
+            }
         }
     }
 }
