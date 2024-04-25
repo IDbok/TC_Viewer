@@ -66,6 +66,8 @@ namespace TcModels.Models.TcContent
         public string Qualification { get; set; }
         public string? Comment { get; set; }
 
+        public bool IsReleased { get; set; } = false;
+
         public List<Staff> RelatedStaffs { get; private set; } = new List<Staff>();
 
 
