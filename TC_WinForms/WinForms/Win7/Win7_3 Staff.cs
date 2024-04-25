@@ -81,6 +81,11 @@ namespace TC_WinForms.WinForms
                 //isAddingFormSetControls();
                 WinProcessing.SetAddingFormControls(pnlControlBtns, dgvMain,
                     out btnAddSelected, out btnCancel);
+                //////////////////////////////////////////////////////////////////////////////////////
+                btnAddNewObj.Visible = true;
+                btnAddNewObj.Dock = DockStyle.Right;
+                //////////////////////////////////////////////////////////////////////////////////////////
+
                 SetAddingFormEvents();
             }
 

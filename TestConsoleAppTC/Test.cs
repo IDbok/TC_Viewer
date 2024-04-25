@@ -32,10 +32,28 @@ namespace TestConsoleAppTC
         static async Task Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
-            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v12;user=root;password=root";
+            TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v13;user=root;password=root";
 
+            using (var db = new MyDbContext())
+            {
+                var allTO = db.TechOperationWorks
+                    .Include(db => db.ComponentWorks)
+                    .Include(db => db.ToolWorks)
+                    .Include(db => db.executionWorks)
+                    .ThenInclude(db => db.Staffs)
+                    .Include(db => db.executionWorks)
+                    .ThenInclude(db => db.Machines)
+                    .Include(db => db.executionWorks)
+                    .ThenInclude(db => db.Protections)
 
-            GetAllTPCategories();
+                    .ToList();
+                //foreach (var to in allTO)
+                //{
+                //    Console.WriteLine(to.Id);
+                //}
+            }
+
+            //GetAllTPCategories();
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
