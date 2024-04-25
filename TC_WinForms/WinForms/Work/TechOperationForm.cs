@@ -679,7 +679,7 @@ namespace TC_WinForms.WinForms.Work
                 {
                     foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals)
                     {
-                        AddTechTransition(item.techTransition, techOperationWork, item);
+                        AddTechTransition(item.TechTransition, techOperationWork, item);
                     }
                 }
             }
