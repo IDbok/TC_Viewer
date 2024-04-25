@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Data;
 using TC_WinForms.DataProcessing;
 using TcDbConnector;
 using TcModels.Models.IntermediateTables;
@@ -34,6 +35,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewTPAll.CellContentClick += DataGridViewTPAll_CellContentClick;
             dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
             dataGridViewTPAll.SelectionChanged += DataGridViewTPAll_SelectionChanged;
+
             dataGridViewTPLocal.CellClick += DataGridViewTPLocal_CellClick;
             dataGridViewTPLocal.CellEndEdit += DataGridViewTPLocal_CellEndEdit;
 
@@ -91,6 +93,9 @@ namespace TC_WinForms.WinForms.Work
             UpdateTO();
             UpdateLocalTO();
         }
+
+
+
 
 
         #region TO
@@ -186,7 +191,10 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewAllTO.Rows.Clear();
 
             var context = TechOperationForm.context;
-            allTO = context.TechOperations.ToList();
+            allTO = context                
+                .TechOperations
+                .Include(t => t.techTransitionTypicals)
+                .ToList();
             var list = TechOperationForm.TechOperationWorksList;
 
 
@@ -216,6 +224,14 @@ namespace TC_WinForms.WinForms.Work
 
                 listItem.Add(techOperation.Name);
 
+                if(techOperation.Category== "Типовая ТО")
+                {
+                    listItem.Add(true);
+                }else
+                {
+                    listItem.Add(false);
+                }
+
                 dataGridViewAllTO.Rows.Add(listItem.ToArray());
             }
 
@@ -244,6 +260,17 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add(techOperationWork);
                 listItem.Add("Удалить");
                 listItem.Add(techOperationWork.techOperation.Name);
+
+
+                if (techOperationWork.techOperation.Category == "Типовая ТО")
+                {
+                    listItem.Add(true);
+                }
+                else
+                {
+                    listItem.Add(false);
+                }
+
                 dataGridViewTO.Rows.Add(listItem.ToArray());
             }
 
@@ -277,11 +304,21 @@ namespace TC_WinForms.WinForms.Work
 
         #region TP
 
+
         private void DataGridViewTPLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 3)
             {
-                var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                string gg;
+                if(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value is string)
+                {
+                    gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value; 
+                }
+                else
+                {
+                    gg = dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
+                }
+                
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
                 var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 // TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == idd).
@@ -327,6 +364,7 @@ namespace TC_WinForms.WinForms.Work
                 var IddGuid = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
                 //var tech = allTP.Single(s => s.Id == Idd);
                 //TechOperationForm.AddTechTransition(tech, work);
+                                 
 
 
                 TechOperationForm.DeleteTechTransit(IddGuid, work);
@@ -390,6 +428,11 @@ namespace TC_WinForms.WinForms.Work
             listItem1.Add("Добавить");
             listItem1.Add(povtor.Name);
             dataGridViewTPAll.Rows.Add(listItem1.ToArray());
+
+            if(work.techOperation.Category == "Типовая ТО")
+            {
+                return;
+            }    
 
             foreach (TechTransition techTransition in allTP)
             {
@@ -467,7 +510,17 @@ namespace TC_WinForms.WinForms.Work
             {
                 List<object> listItem = new List<object>();
                 listItem.Add(executionWork.IdGuid);
-                listItem.Add("Удалить");
+
+                if(work.techOperation.Category== "Типовая ТО" && executionWork.Repeat==false)
+                {
+                    listItem.Add("");
+                }
+                else
+                {
+                    listItem.Add("Удалить");
+                }
+               
+                
                 if (executionWork.Repeat)
                 {
                     listItem.Add("Повторить");

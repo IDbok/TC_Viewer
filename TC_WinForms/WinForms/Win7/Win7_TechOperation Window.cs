@@ -39,7 +39,7 @@ namespace TC_WinForms.WinForms
 
                 textBox1.Text = techOperation.Name;
 
-                if(techOperation.Category!=null)
+                if(techOperation.Category== "Типовая ТО")
                 {
                     checkBox1.Checked = true;
                 }
@@ -54,6 +54,9 @@ namespace TC_WinForms.WinForms
 
             dataGridViewTPLocal.CellEndEdit += DataGridViewTPLocal_CellEndEdit;
 
+            comboBoxTPCategoriya.SelectedIndexChanged += ComboBoxTPCategoriya_SelectedIndexChanged;
+            textBoxPoiskTP.TextChanged += TextBoxPoiskTP_TextChanged;
+
             if (techOperation == null)
             {
                 techOperation = new TechOperation();
@@ -66,6 +69,17 @@ namespace TC_WinForms.WinForms
 
             //  var bb = context.ChangeTracker.Entries().Count();
 
+        }
+
+        private void ComboBoxTPCategoriya_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            UpdateGridAllTP();
+        }
+
+
+        private void TextBoxPoiskTP_TextChanged(object? sender, EventArgs e)
+        {
+            UpdateGridAllTP();
         }
 
         private void DataGridViewTPLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
@@ -154,12 +168,12 @@ namespace TC_WinForms.WinForms
             var offScroll = dataGridViewTPAll.FirstDisplayedScrollingRowIndex;
             dataGridViewTPAll.Rows.Clear();
 
-            //bool AddCategor = false;
-            //if (comboBoxTPCategoriya.Items.Count == 0)
-            //{
-            //    AddCategor = true;
-            //    comboBoxTPCategoriya.Items.Add("Все");
-            //}
+            bool AddCategor = false;
+            if (comboBoxTPCategoriya.Items.Count == 0)
+            {
+                AddCategor = true;
+                comboBoxTPCategoriya.Items.Add("Все");
+            }
 
 
 
@@ -169,30 +183,30 @@ namespace TC_WinForms.WinForms
 
             foreach (TechTransition techTransition in allTP)
             {
-                //if (textBoxPoiskTP.Text != "" &&
-                //    techTransition.Name.ToLower().IndexOf(textBoxPoiskTP.Text.ToLower()) == -1)
-                //{
-                //    continue;
-                //}
+                if (textBoxPoiskTP.Text != "" &&
+                    techTransition.Name.ToLower().IndexOf(textBoxPoiskTP.Text.ToLower()) == -1)
+                {
+                    continue;
+                }
 
-                //if (AddCategor)
-                //{
-                //    if (!string.IsNullOrEmpty(techTransition.Category))
-                //    {
-                //        if (comboBoxTPCategoriya.Items.Contains(techTransition.Category) == false)
-                //        {
-                //            comboBoxTPCategoriya.Items.Add(techTransition.Category);
-                //        }
-                //    }
-                //}
+                if (AddCategor)
+                {
+                    if (!string.IsNullOrEmpty(techTransition.Category))
+                    {
+                        if (comboBoxTPCategoriya.Items.Contains(techTransition.Category) == false)
+                        {
+                            comboBoxTPCategoriya.Items.Add(techTransition.Category);
+                        }
+                    }
+                }
 
-                //if (comboBoxTPCategoriya.SelectedIndex > 0)
-                //{
-                //    if ((string)comboBoxTPCategoriya.SelectedItem != techTransition.Category)
-                //    {
-                //        continue;
-                //    }
-                //}
+                if (comboBoxTPCategoriya.SelectedIndex > 0)
+                {
+                    if ((string)comboBoxTPCategoriya.SelectedItem != techTransition.Category)
+                    {
+                        continue;
+                    }
+                }
 
 
                 List<object> listItem = new List<object>();
@@ -255,11 +269,11 @@ namespace TC_WinForms.WinForms
         {
             if(checkBox1.Checked)
             {
-                techOperation.Category = "Типовой";
+                techOperation.Category = "Типовая ТО";
             }
             else
             {
-                techOperation.Category = null;
+                techOperation.Category = "ТО";
             }
             
         }

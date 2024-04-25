@@ -6,6 +6,7 @@ using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.Work;
 
 namespace TC_WinForms.WinForms.Work
 {
@@ -672,26 +673,20 @@ namespace TC_WinForms.WinForms.Work
                 techOperationWork.Order = maxOrder + 1;
 
                 TechOperationWorksList.Add(techOperationWork);
+
+
+                if (TechOperat.Category == "Типовая ТО")
+                {
+                    foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals)
+                    {
+                        AddTechTransition(item.techTransition, techOperationWork, item);
+                    }
+                }
             }
-
-            //if (vb == null)
-            //{
-            //    TechOperationWork techOperationWork = new TechOperationWork();
-            //    techOperationWork.techOperation = TechOperat;
-            //    techOperationWork.technologicalCard = TehCarta;
-            //    techOperationWork.NewItem = true;
-            //    techOperationWork.Order = maxOrder + 1;
-
-            //    TechOperationWorksList.Add(techOperationWork);
-            //}
-            //else
-            //{
-            //    vb.Delete = false;
-            //}
         }
 
 
-        public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork)
+        public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical=null)
         {
             TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
             var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
@@ -719,6 +714,13 @@ namespace TC_WinForms.WinForms.Work
                     techOpeWork.Value = tech.TimeExecution;
                     techOpeWork.Order = max + 1;
                     TOWork.executionWorks.Add(techOpeWork);
+
+                    if(techTransitionTypical!=null)
+                    {
+                        techOpeWork.Etap = techTransitionTypical.Etap;
+                        techOpeWork.Posled = techTransitionTypical.Posled;
+                    }
+
                 }
                 else
                 {
@@ -751,6 +753,15 @@ namespace TC_WinForms.WinForms.Work
             var vb = TOWork.executionWorks.SingleOrDefault(s => s.IdGuid == IdGuid);
             if (vb != null)
             {
+
+                if (techOperationWork.techOperation.Category == "Типовая ТО")
+                {
+                    if(vb.Repeat==false)
+                    {
+                        return;
+                    }
+                }
+
                 vb.Delete = true;
             }
         }

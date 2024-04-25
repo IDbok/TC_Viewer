@@ -32,14 +32,7 @@
             groupBox2 = new GroupBox();
             textBoxPoiskTo = new TextBox();
             dataGridViewAllTO = new DataGridView();
-            Id = new DataGridViewTextBoxColumn();
-            Add = new DataGridViewButtonColumn();
-            NameTO = new DataGridViewTextBoxColumn();
             dataGridViewTO = new DataGridView();
-            IdTO = new DataGridViewTextBoxColumn();
-            Column18 = new DataGridViewButtonColumn();
-            Column1 = new DataGridViewTextBoxColumn();
-            Order = new DataGridViewTextBoxColumn();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
             tabPage6 = new TabPage();
@@ -222,6 +215,15 @@
             dataGridViewTextBoxColumn63 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn64 = new DataGridViewTextBoxColumn();
             tabPage10 = new TabPage();
+            Id = new DataGridViewTextBoxColumn();
+            Add = new DataGridViewButtonColumn();
+            NameTO = new DataGridViewTextBoxColumn();
+            Column21 = new DataGridViewCheckBoxColumn();
+            IdTO = new DataGridViewTextBoxColumn();
+            Column18 = new DataGridViewButtonColumn();
+            Column1 = new DataGridViewTextBoxColumn();
+            Order = new DataGridViewTextBoxColumn();
+            Column22 = new DataGridViewCheckBoxColumn();
             tableLayoutPanel1.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).BeginInit();
@@ -324,7 +326,7 @@
             dataGridViewAllTO.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewAllTO.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewAllTO.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewAllTO.Columns.AddRange(new DataGridViewColumn[] { Id, Add, NameTO });
+            dataGridViewAllTO.Columns.AddRange(new DataGridViewColumn[] { Id, Add, NameTO, Column21 });
             dataGridViewAllTO.Location = new Point(3, 397);
             dataGridViewAllTO.Name = "dataGridViewAllTO";
             dataGridViewAllTO.RowHeadersWidth = 51;
@@ -332,41 +334,13 @@
             dataGridViewAllTO.Size = new Size(1250, 254);
             dataGridViewAllTO.TabIndex = 0;
             // 
-            // Id
-            // 
-            Id.HeaderText = "Id";
-            Id.MinimumWidth = 6;
-            Id.Name = "Id";
-            Id.Visible = false;
-            // 
-            // Add
-            // 
-            Add.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            Add.FillWeight = 50F;
-            Add.HeaderText = "";
-            Add.MinimumWidth = 50;
-            Add.Name = "Add";
-            Add.Resizable = DataGridViewTriState.True;
-            Add.Width = 125;
-            // 
-            // NameTO
-            // 
-            NameTO.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            NameTO.FillWeight = 167.914459F;
-            NameTO.HeaderText = "Технологические операции";
-            NameTO.MinimumWidth = 6;
-            NameTO.Name = "NameTO";
-            NameTO.ReadOnly = true;
-            NameTO.Resizable = DataGridViewTriState.True;
-            NameTO.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
             // dataGridViewTO
             // 
             dataGridViewTO.AllowUserToAddRows = false;
             dataGridViewTO.AllowUserToDeleteRows = false;
             dataGridViewTO.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewTO.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewTO.Columns.AddRange(new DataGridViewColumn[] { IdTO, Column18, Column1, Order });
+            dataGridViewTO.Columns.AddRange(new DataGridViewColumn[] { IdTO, Column18, Column1, Order, Column22 });
             dataGridViewTO.Location = new Point(3, 3);
             dataGridViewTO.MultiSelect = false;
             dataGridViewTO.Name = "dataGridViewTO";
@@ -376,45 +350,6 @@
             dataGridViewTO.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridViewTO.Size = new Size(1250, 318);
             dataGridViewTO.TabIndex = 1;
-            // 
-            // IdTO
-            // 
-            IdTO.HeaderText = "Id";
-            IdTO.MinimumWidth = 6;
-            IdTO.Name = "IdTO";
-            IdTO.ReadOnly = true;
-            IdTO.SortMode = DataGridViewColumnSortMode.NotSortable;
-            IdTO.Visible = false;
-            IdTO.Width = 125;
-            // 
-            // Column18
-            // 
-            Column18.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            Column18.HeaderText = "";
-            Column18.MinimumWidth = 6;
-            Column18.Name = "Column18";
-            Column18.ReadOnly = true;
-            Column18.Resizable = DataGridViewTriState.True;
-            Column18.Width = 125;
-            // 
-            // Column1
-            // 
-            Column1.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Column1.HeaderText = "Технологические операции";
-            Column1.MinimumWidth = 6;
-            Column1.Name = "Column1";
-            Column1.ReadOnly = true;
-            Column1.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
-            // Order
-            // 
-            Order.HeaderText = "Order";
-            Order.MinimumWidth = 6;
-            Order.Name = "Order";
-            Order.ReadOnly = true;
-            Order.SortMode = DataGridViewColumnSortMode.NotSortable;
-            Order.Visible = false;
-            Order.Width = 125;
             // 
             // tabControl1
             // 
@@ -1112,7 +1047,7 @@
             flowLayoutPanel1.FlowDirection = FlowDirection.TopDown;
             flowLayoutPanel1.Location = new Point(3, 3);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(278, 228);
+            flowLayoutPanel1.Size = new Size(272, 228);
             flowLayoutPanel1.TabIndex = 1;
             // 
             // label1
@@ -2199,6 +2134,90 @@
             tabPage10.Size = new Size(200, 100);
             tabPage10.TabIndex = 0;
             // 
+            // Id
+            // 
+            Id.HeaderText = "Id";
+            Id.MinimumWidth = 6;
+            Id.Name = "Id";
+            Id.Visible = false;
+            // 
+            // Add
+            // 
+            Add.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Add.FillWeight = 50F;
+            Add.HeaderText = "";
+            Add.MinimumWidth = 50;
+            Add.Name = "Add";
+            Add.Resizable = DataGridViewTriState.True;
+            Add.Width = 125;
+            // 
+            // NameTO
+            // 
+            NameTO.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            NameTO.FillWeight = 167.914459F;
+            NameTO.HeaderText = "Технологические операции";
+            NameTO.MinimumWidth = 6;
+            NameTO.Name = "NameTO";
+            NameTO.ReadOnly = true;
+            NameTO.Resizable = DataGridViewTriState.True;
+            NameTO.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Column21
+            // 
+            Column21.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column21.HeaderText = "Типовая ТО";
+            Column21.MinimumWidth = 6;
+            Column21.Name = "Column21";
+            Column21.Width = 150;
+            // 
+            // IdTO
+            // 
+            IdTO.HeaderText = "Id";
+            IdTO.MinimumWidth = 6;
+            IdTO.Name = "IdTO";
+            IdTO.ReadOnly = true;
+            IdTO.SortMode = DataGridViewColumnSortMode.NotSortable;
+            IdTO.Visible = false;
+            IdTO.Width = 125;
+            // 
+            // Column18
+            // 
+            Column18.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column18.HeaderText = "";
+            Column18.MinimumWidth = 6;
+            Column18.Name = "Column18";
+            Column18.ReadOnly = true;
+            Column18.Resizable = DataGridViewTriState.True;
+            Column18.Width = 125;
+            // 
+            // Column1
+            // 
+            Column1.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Column1.HeaderText = "Технологические операции";
+            Column1.MinimumWidth = 6;
+            Column1.Name = "Column1";
+            Column1.ReadOnly = true;
+            Column1.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Order
+            // 
+            Order.HeaderText = "Order";
+            Order.MinimumWidth = 6;
+            Order.Name = "Order";
+            Order.ReadOnly = true;
+            Order.SortMode = DataGridViewColumnSortMode.NotSortable;
+            Order.Visible = false;
+            Order.Width = 125;
+            // 
+            // Column22
+            // 
+            Column22.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column22.HeaderText = "Типовая ТО";
+            Column22.MinimumWidth = 6;
+            Column22.Name = "Column22";
+            Column22.ReadOnly = true;
+            Column22.Width = 150;
+            // 
             // AddEditTechOperationForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -2406,9 +2425,6 @@
         private DataGridViewTextBoxColumn Column15;
         private DataGridViewTextBoxColumn Column16;
         private DataGridViewTextBoxColumn Column17;
-        private DataGridViewTextBoxColumn Id;
-        private DataGridViewButtonColumn Add;
-        private DataGridViewTextBoxColumn NameTO;
         private TabPage tabPage9;
         private TableLayoutPanel tableLayoutPanel11;
         private DataGridView dataGridViewPovtor;
@@ -2469,9 +2485,14 @@
         private SplitContainer splitContainer1;
         private Label label6;
         private Label labelComTime;
+        private DataGridViewTextBoxColumn Id;
+        private DataGridViewButtonColumn Add;
+        private DataGridViewTextBoxColumn NameTO;
+        private DataGridViewCheckBoxColumn Column21;
         private DataGridViewTextBoxColumn IdTO;
         private DataGridViewButtonColumn Column18;
         private DataGridViewTextBoxColumn Column1;
         private DataGridViewTextBoxColumn Order;
+        private DataGridViewCheckBoxColumn Column22;
     }
 }
