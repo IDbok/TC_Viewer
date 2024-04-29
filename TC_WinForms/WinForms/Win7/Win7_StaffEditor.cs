@@ -20,7 +20,7 @@ public partial class Win7_StaffEditor : Form
     public PostSaveAction? AfterSave { get; set; }
 
     private bool _isNewObject = false;
-    public Win7_StaffEditor(Staff obj, bool isNewObject = false)
+    public Win7_StaffEditor(Staff obj, bool isNewObject = false) // todo: Сделать видимость не выпущенных объектов только для администратора или из карт в которых они были созданы
     {
         _editingObj = obj;
         _isNewObject = isNewObject;
@@ -37,6 +37,8 @@ public partial class Win7_StaffEditor : Form
         _editingObj.Qualification = rtxtQualification.Text;
         _editingObj.Comment = rtxtComment.Text;
 
+        _editingObj.IsReleased = cbxIsReleased.Checked;
+        //_editingObj.ClassifierCode = txtClassifierCode.Text;
 
         // проверка _editingObj на то, что все необходимые заполнены
         if (!AreRequiredPropertiesFilled())
@@ -100,6 +102,9 @@ public partial class Win7_StaffEditor : Form
             rtxtFunctions.Text = _editingObj.Functions;
             rtxtQualification.Text = _editingObj.Qualification;
             rtxtComment.Text = _editingObj.Comment;
+
+            cbxIsReleased.Checked = _editingObj.IsReleased;
+            //txtClassifierCode.Text = _editingObj.ClassifierCode;
         }
 
         dgvRelatedStaffs.DataSource = _editingObj.RelatedStaffs;
@@ -229,4 +234,8 @@ public partial class Win7_StaffEditor : Form
         dgvRelatedStaffs.Refresh();
     }
 
+    private void cbxIsReleased_CheckedChanged(object sender, EventArgs e)
+    {
+
+    }
 }

@@ -14,5 +14,8 @@ namespace TcModels.Models.Interfaces
         List<LinkEntety> Links { get; set; }
         string? Description { get; set; }
 
+        public bool IsReleased { get; set; }
+        public int? CreatedTCId { get; set; }
+
     }
 }

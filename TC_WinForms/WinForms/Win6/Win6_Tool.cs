@@ -75,7 +75,6 @@ namespace TC_WinForms.WinForms
                     await SaveChanges();
                 }
                 e.Cancel = false;
-                Close();
             }
         }
         public void AddNewObjects(List<Tool> newObjs)
@@ -231,8 +230,8 @@ namespace TC_WinForms.WinForms
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
             // load new form Win7 Tool as dictonary
-            var newForm = new Win7_6_Tool();
-            newForm.SetAsAddingForm();
+            var newForm = new Win7_6_Tool(activateNewItemCreate: true, createdTCId: _tcId);
+           
             newForm.ShowDialog();
         }
 

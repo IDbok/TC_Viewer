@@ -317,6 +317,12 @@ namespace TC_WinForms
                     dgv.Columns[columnName].DisplayIndex = i;
                 }
             }
+
+            if (dgv.Columns.Contains("Selected"))
+            {
+                dgv.Columns["Selected"].Visible = true;
+                dgv.Columns["Selected"].DisplayIndex = 0;
+            }
         }
         public static void SetTableHeadersNames(Dictionary<string, string> columnNames, DataGridView dgv)
         {
@@ -325,43 +331,62 @@ namespace TC_WinForms
 
         public static void SetAddingFormControls(Panel pnlControlBtns, DataGridView dgv, out Button btnAddSelected,out Button btnCancel)
         {
-            // make all columns readonly
-            dgv.ReadOnly = false;
-            foreach (DataGridViewColumn c in dgv.Columns)
+            //check if column Selected already exists
+            if (!dgv.Columns.Contains("Selected"))
             {
-                c.ReadOnly = true;
-            }
-
-            // add checkbox in row header
-            var col = new DataGridViewCheckBoxColumn();
-            col.Name = "Selected";
-            col.HeaderText = "Выбор";
-            col.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            col.ReadOnly = false;
-            dgv.Columns.Insert(0, col);
-
-            // hide buttons for adding, updating and deleting
-            foreach (var btn in pnlControlBtns.Controls)
-            {
-                if (btn is Button)
+                // make all columns readonly
+                dgv.ReadOnly = false;
+                foreach (DataGridViewColumn c in dgv.Columns)
                 {
-                    (btn as Button).Visible = false;
+                    c.ReadOnly = true;
+                }
+
+                // add checkbox in row header
+                var col = new DataGridViewCheckBoxColumn();
+                col.Name = "Selected";
+                col.HeaderText = "Выбор";
+                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                col.ReadOnly = false;
+                dgv.Columns.Insert(0, col);
+
+                // hide buttons for adding, updating and deleting
+                foreach (var btn in pnlControlBtns.Controls)
+                {
+                    if (btn is Button)
+                    {
+                        (btn as Button).Visible = false;
+                    }
                 }
             }
 
-            // add button for adding selected rows to TC
-            btnAddSelected = new Button();
-            btnAddSelected.Text = "Добавить выбранные";
-            btnAddSelected.Dock = DockStyle.Right;
-            btnAddSelected.Width = 150;
-            pnlControlBtns.Controls.Add(btnAddSelected);
+            //check if button for adding selected rows already exists
+            if (!pnlControlBtns.Controls.ContainsKey("btnAddSelected"))
+            {
+                // add button for adding selected rows to TC
+                btnAddSelected = new Button();
+                btnAddSelected.Text = "Добавить выбранные";
+                btnAddSelected.Dock = DockStyle.Right;
+                btnAddSelected.Width = 150;
+                pnlControlBtns.Controls.Add(btnAddSelected);
+            }
+            else
+            {
+                btnAddSelected = (Button)pnlControlBtns.Controls["btnAddSelected"];
+            }
 
-            // add button Cancel
-            btnCancel = new Button();
-            btnCancel.Text = "Отмена";
-            btnCancel.Dock = DockStyle.Right;
-            btnCancel.Width = 150;
-            pnlControlBtns.Controls.Add(btnCancel);
+            if (!pnlControlBtns.Controls.ContainsKey("btnCancel"))
+            {
+                // add button Cancel
+                btnCancel = new Button();
+                btnCancel.Text = "Отмена";
+                btnCancel.Dock = DockStyle.Right;
+                btnCancel.Width = 150;
+                pnlControlBtns.Controls.Add(btnCancel);
+            }
+            else
+            {
+                btnCancel = (Button)pnlControlBtns.Controls["btnCancel"];
+            }
         }
 
         

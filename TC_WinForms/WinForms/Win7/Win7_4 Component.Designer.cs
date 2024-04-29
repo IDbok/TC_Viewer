@@ -41,6 +41,7 @@
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
             progressBar = new ProgressBar();
+            cbxShowUnReleased = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -77,6 +78,7 @@
             // 
             // pnlFilters
             // 
+            pnlFilters.Controls.Add(cbxShowUnReleased);
             pnlFilters.Controls.Add(cbxCategoryFilter);
             pnlFilters.Controls.Add(lblCategory);
             pnlFilters.Controls.Add(lblSearch);
@@ -91,7 +93,7 @@
             // cbxCategoryFilter
             // 
             cbxCategoryFilter.FormattingEnabled = true;
-            cbxCategoryFilter.Location = new Point(270, 50);
+            cbxCategoryFilter.Location = new Point(270, 35);
             cbxCategoryFilter.Name = "cbxCategoryFilter";
             cbxCategoryFilter.Size = new Size(182, 33);
             cbxCategoryFilter.TabIndex = 30;
@@ -100,7 +102,7 @@
             // lblCategory
             // 
             lblCategory.AutoSize = true;
-            lblCategory.Location = new Point(270, 20);
+            lblCategory.Location = new Point(270, 5);
             lblCategory.Name = "lblCategory";
             lblCategory.Size = new Size(99, 25);
             lblCategory.TabIndex = 29;
@@ -109,7 +111,7 @@
             // lblSearch
             // 
             lblSearch.AutoSize = true;
-            lblSearch.Location = new Point(12, 20);
+            lblSearch.Location = new Point(12, 5);
             lblSearch.Name = "lblSearch";
             lblSearch.Size = new Size(67, 25);
             lblSearch.TabIndex = 28;
@@ -117,7 +119,7 @@
             // 
             // txtSearch
             // 
-            txtSearch.Location = new Point(12, 50);
+            txtSearch.Location = new Point(12, 35);
             txtSearch.Name = "txtSearch";
             txtSearch.Size = new Size(224, 31);
             txtSearch.TabIndex = 27;
@@ -190,6 +192,17 @@
             progressBar.TabIndex = 2;
             progressBar.Visible = false;
             // 
+            // cbxShowUnReleased
+            // 
+            cbxShowUnReleased.AutoSize = true;
+            cbxShowUnReleased.Location = new Point(12, 71);
+            cbxShowUnReleased.Name = "cbxShowUnReleased";
+            cbxShowUnReleased.Size = new Size(245, 29);
+            cbxShowUnReleased.TabIndex = 31;
+            cbxShowUnReleased.Text = "Показать невыпущенные";
+            cbxShowUnReleased.UseVisualStyleBackColor = true;
+            cbxShowUnReleased.CheckedChanged += cbxShowUnReleased_CheckedChanged;
+            // 
             // Win7_4_Component
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -226,5 +239,6 @@
         private Button btnUpdate;
         private ComboBox cbxCategoryFilter;
         private Label lblCategory;
+        private CheckBox cbxShowUnReleased;
     }
 }

@@ -39,6 +39,7 @@
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
             progressBar = new ProgressBar();
+            cbxShowUnReleased = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -75,6 +76,7 @@
             // 
             // pnlFilters
             // 
+            pnlFilters.Controls.Add(cbxShowUnReleased);
             pnlFilters.Controls.Add(lblSearch);
             pnlFilters.Controls.Add(txtSearch);
             pnlFilters.Dock = DockStyle.Left;
@@ -87,7 +89,7 @@
             // lblSearch
             // 
             lblSearch.AutoSize = true;
-            lblSearch.Location = new Point(12, 26);
+            lblSearch.Location = new Point(12, 5);
             lblSearch.Name = "lblSearch";
             lblSearch.Size = new Size(67, 25);
             lblSearch.TabIndex = 28;
@@ -95,7 +97,7 @@
             // 
             // txtSearch
             // 
-            txtSearch.Location = new Point(12, 54);
+            txtSearch.Location = new Point(12, 33);
             txtSearch.Name = "txtSearch";
             txtSearch.Size = new Size(224, 31);
             txtSearch.TabIndex = 27;
@@ -168,6 +170,17 @@
             progressBar.TabIndex = 4;
             progressBar.Visible = false;
             // 
+            // cbxShowUnReleased
+            // 
+            cbxShowUnReleased.AutoSize = true;
+            cbxShowUnReleased.Location = new Point(12, 71);
+            cbxShowUnReleased.Name = "cbxShowUnReleased";
+            cbxShowUnReleased.Size = new Size(245, 29);
+            cbxShowUnReleased.TabIndex = 29;
+            cbxShowUnReleased.Text = "Показать невыпущенные";
+            cbxShowUnReleased.UseVisualStyleBackColor = true;
+            cbxShowUnReleased.CheckedChanged += cbxShowUnReleased_CheckedChanged;
+            // 
             // Win7_5_Machine
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -202,5 +215,6 @@
         private Label lblSearch;
         private TextBox txtSearch;
         private Button btnUpdate;
+        private CheckBox cbxShowUnReleased;
     }
 }

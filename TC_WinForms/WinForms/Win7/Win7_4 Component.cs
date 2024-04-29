@@ -18,44 +18,29 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     private List<DisplayedComponent> _displayedObjects;
     private BindingList<DisplayedComponent> _bindingList;
 
-    private List<DisplayedComponent> _changedObjects = new List<DisplayedComponent>();
-    private List<DisplayedComponent> _newObjects = new List<DisplayedComponent>();
-    private List<DisplayedComponent> _deletedObjects = new List<DisplayedComponent>();
-
-    private DisplayedComponent _newObject;
-
-    private bool isAddingForm = false;
+    private readonly bool _isAddingForm = false;
     private Button btnAddSelected;
     private Button btnCancel;
+
+    //private Form _openedForm;
+    public readonly bool _newItemCreateActive;
+    private readonly int? _tcId;
 
     public bool _isDataLoaded = false;
 
     private bool _isFiltered = false;
-    //public bool CloseFormsNoSave { get; set; } = false;
-    public void SetAsAddingForm()
-    {
-        isAddingForm = true;
-    }
 
-
-    //public bool GetDontSaveData()
-    //{
-    //    if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-    //    {
-    //        return true;
-    //    }
-    //    else
-    //    {
-    //        return false;
-    //    }
-    //}
     public Win7_4_Component(int accessLevel)
     {
         InitializeComponent();
         AccessInitialization(accessLevel);
     }
-    public Win7_4_Component()
+    public Win7_4_Component(bool activateNewItemCreate = false, int? createdTCId = null)
     {
+        _isAddingForm=true;
+        _tcId = createdTCId;
+        _newItemCreateActive = activateNewItemCreate;
+
         InitializeComponent();
     }
 
@@ -74,11 +59,19 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
         dgvMain.AllowUserToDeleteRows = false;
 
-        if (isAddingForm)
+        if (_isAddingForm)
         {
             //isAddingFormSetControls();
             WinProcessing.SetAddingFormControls(pnlControlBtns, dgvMain,
                 out btnAddSelected, out btnCancel);
+            //////////////////////////////////////////////////////////////////////////////////////
+            if (_newItemCreateActive)
+            {
+                btnAddNewObj.Visible = true;
+                btnAddNewObj.Dock = DockStyle.Right;
+                btnAddNewObj.Text = "Создать новый объект";
+            }
+            //////////////////////////////////////////////////////////////////////////////////////////
             SetAddingFormEvents();
         }
 
@@ -89,35 +82,22 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Component>(includeLinks: true)
             .Select(obj => new DisplayedComponent(obj)).ToList());
 
-        _bindingList = new BindingList<DisplayedComponent>(_displayedObjects);
+        FilteringObjects();
 
-        dgvMain.DataSource = null; // cancel update of dgv while data is loading
-        //_bindingList.ListChanged += BindingList_ListChanged;
+        //_bindingList = new BindingList<DisplayedComponent>(_displayedObjects);
 
-        dgvMain.DataSource = _bindingList;
+        //dgvMain.DataSource = null; // cancel update of dgv while data is loading
+        ////_bindingList.ListChanged += BindingList_ListChanged;
 
-        dgvMain.CellContentClick += dgvMain_CellContentClick;
+        //dgvMain.DataSource = _bindingList;
+
+        //dgvMain.CellContentClick += dgvMain_CellContentClick;
 
         _isDataLoaded = true;
     }
     private async void Win7_4_Component_FormClosing(object sender, FormClosingEventArgs e)
     {
-        //if (CloseFormsNoSave)
-        //{
-        //    return;
-        //}
-        //if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-        //{
-        //    e.Cancel = true;
-        //    var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
 
-        //    if (result == DialogResult.Yes)
-        //    {
-        //        await SaveChanges();
-        //    }
-        //    e.Cancel = false;
-        //    Close();
-        //}
     }
     private void AccessInitialization(int accessLevel)
     {
@@ -128,7 +108,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
     private void btnAddNewObj_Click(object sender, EventArgs e)
     {
-        var objEditor = new Win7_LinkObjectEditor(new Component(), isNewObject: true);
+        var objEditor = new Win7_LinkObjectEditor(new Component() { CreatedTCId = _tcId }, isNewObject: true);
 
         objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Component, DisplayedComponent>(createdObj as Component);
 
@@ -142,71 +122,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     }
 
     /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
-    //public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
-    //public async Task SaveChanges()
-    //{
-    //    // stop editing cell
-    //    dgvMain.EndEdit();
-    //    if (!HasChanges)
-    //    {
-    //        return;
-    //    }
-    //    if (_newObjects.Count > 0)
-    //    {
-    //        await SaveNewObjects();
-    //    }
-    //    if (_changedObjects.Count > 0)
-    //    {
-    //        await SaveChangedObjects();
-    //    }
-    //    if (_deletedObjects.Count > 0)
-    //    {
-    //        await DeleteDeletedObjects();
-    //    }
-    //    // todo - change id in all new cards 
-    //    dgvMain.Refresh();
-    //}
-    //private async Task SaveNewObjects()
-    //{
-    //    var newObjects = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-
-    //    await dbCon.AddObjectAsync(newObjects);
-
-    //    // set new ids to new objects matched them by all params
-    //    foreach (var newObj in _newObjects)
-    //    {
-    //        var newId = newObjects.Where(s =>
-    //        s.Name == newObj.Name
-    //        && s.Type == newObj.Type
-    //        && s.Unit == newObj.Unit
-    //        && s.Price == newObj.Price
-    //        && s.Description == newObj.Description
-    //        && s.Manufacturer == newObj.Manufacturer
-    //        && s.Links == newObj.Links
-    //        && s.Categoty == newObj.Categoty
-    //        && s.ClassifierCode == newObj.ClassifierCode
-    //        ).FirstOrDefault().Id;
-    //        newObj.Id = newId;
-    //    }
-
-    //    _newObjects.Clear();
-    //}
-    //private async Task SaveChangedObjects()
-    //{
-    //    var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-
-    //    await dbCon.UpdateObjectsListAsync(changedTcs);
-
-    //    _changedObjects.Clear();
-    //}
-
-    //private async Task DeleteDeletedObjects()
-    //{
-    //    var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
-
-    //    await dbCon.DeleteObjectAsync<Component>(deletedTcIds);
-    //    _deletedObjects.Clear();
-    //}
+    
     private Component CreateNewObject(DisplayedComponent dObj)
     {
         return new Component
@@ -221,6 +137,9 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
             Links = dObj.Links,
             Categoty = dObj.Categoty,
             ClassifierCode = dObj.ClassifierCode,
+
+            IsReleased = dObj.IsReleased,
+            CreatedTCId = dObj.CreatedTCId,
         };
     }
 
@@ -320,12 +239,6 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     }
 
 
-    //private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
-    //{
-    //    DisplayedEntityHelper.ListChangedEventHandler<DisplayedComponent>
-    //        (e, _bindingList, _newObjects, _changedObjects, ref _newObject);
-    //}
-
 
 
     private class DisplayedComponent : INotifyPropertyChanged, IDisplayedEntity, IModelStructure, ICategoryable
@@ -387,6 +300,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         private string categoty = "StandComp";
         private string classifierCode;
 
+        private bool isReleased;
+        private int? createdTCId;
 
         public DisplayedComponent()
         {
@@ -404,6 +319,9 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
             Links = obj.Links;
             Categoty = obj.Categoty;
             ClassifierCode = obj.ClassifierCode;
+
+            IsReleased = obj.IsReleased;
+            CreatedTCId = obj.CreatedTCId;
         }
 
 
@@ -551,6 +469,30 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
                 }
             }
         }
+        public bool IsReleased
+        {
+            get => isReleased;
+            set
+            {
+                if (isReleased != value)
+                {
+                    isReleased = value;
+                    OnPropertyChanged(nameof(IsReleased));
+                }
+            }
+        }
+        public int? CreatedTCId
+        {
+            get => createdTCId;
+            set
+            {
+                if (createdTCId != value)
+                {
+                    createdTCId = value;
+                    OnPropertyChanged(nameof(CreatedTCId));
+                }
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
@@ -561,42 +503,42 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
     private void txtSearch_TextChanged(object sender, EventArgs e)
     {
-        FilterTechnologicalCards();
+        FilteringObjects();
     }
 
     private void cbxCategoryFilter_SelectedIndexChanged(object sender, EventArgs e)
     {
-        FilterTechnologicalCards();
+        FilteringObjects();
     }
-    private void FilterTechnologicalCards()
+    private void FilteringObjects()
     {
         try
         {
             var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
             var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
 
-            if (string.IsNullOrWhiteSpace(searchText) && (categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter)))
+            if (string.IsNullOrWhiteSpace(searchText) && (categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter)) && !cbxShowUnReleased.Checked)
             {
-                _bindingList = new BindingList<DisplayedComponent>(_displayedObjects); // Возвращаем исходный список, если строка поиска пуста
+                _bindingList = new BindingList<DisplayedComponent>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 _isFiltered = false;
             }
             else
             {
-                var filteredList = _displayedObjects.Where(obj =>
-                    (searchText == ""
-                        ||
-                        (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                        (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                        (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                        //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                        (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                        (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
-                    ) &&
-                    ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter)) 
-                        || obj.Categoty?.ToString() == categoryFilter)
-                    ).ToList();
+                //var filteredList = _displayedObjects.Where(obj =>
+                //    (searchText == ""
+                //        ||
+                //        (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                //        (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                //        (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                //        //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                //        (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                //        (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                //    ) &&
+                //    ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter))
+                //        || obj.Categoty?.ToString() == categoryFilter)
+                //    ).ToList();
 
-                _bindingList = new BindingList<DisplayedComponent>(filteredList);
+                _bindingList = FilteredBindingList(searchText);
                 _isFiltered = true;
 
                 //dgvMain.DataSource = new BindingList<DisplayedComponent>(filteredList);
@@ -609,7 +551,31 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         }
 
     }
+    private BindingList<DisplayedComponent> FilteredBindingList(string searchText)
+    {
+        var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
+        var filteredList = _displayedObjects.Where(obj =>
+                    (searchText == ""
+                        ||
+                        (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                    ) &&
+                        ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter))
+                            || obj.Categoty?.ToString() == categoryFilter) &&
+                    (obj.IsReleased == !cbxShowUnReleased.Checked) &&
 
+                    (!_isAddingForm ||
+                        (cbxShowUnReleased.Checked &&
+                        (obj.CreatedTCId == null || obj.CreatedTCId == _tcId))
+                    )
+                    ).ToList();
+
+        return new BindingList<DisplayedComponent>(filteredList);
+    }
     private void btnUpdate_Click(object sender, EventArgs e)
     {
         if (dgvMain.SelectedRows.Count != 1)
@@ -641,7 +607,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         where TDisplayed : class, IModelStructure
     {
         // Обновляем объект в DataGridView
-        var displayedObject = _bindingList.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
+        var displayedObject = _displayedObjects.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
         if (displayedObject != null)
         {
             displayedObject.Name = modelObject.Name;
@@ -659,13 +625,9 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
             dgvMain.Refresh();
 
-            // обновляем в список всех объектов изменённый объект
-            if (_isFiltered)
-            {
-                var editedObject = _displayedObjects.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
-                editedObject = displayedObject;
-                FilterTechnologicalCards();
-            }
+            displayedObject.IsReleased = modelObject.IsReleased;
+
+            FilteringObjects();
         }
     }
 
@@ -685,19 +647,15 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
             displayedObject.Manufacturer = modelObject.Manufacturer;
             displayedObject.Links = modelObject.Links;
             displayedObject.ClassifierCode = modelObject.ClassifierCode;
+
             if (displayedObject is ICategoryable objectWithCategory && modelObject is ICategoryable modelWithCategory)
             {
                 objectWithCategory.Categoty = modelWithCategory.Categoty;
             }
 
-            _bindingList.Insert(0, displayedObject);
-
             // добавляем в список всех объектов новый объект
-            if (_isFiltered)
-            {
-                _displayedObjects.Add(displayedObject);
-                FilterTechnologicalCards();
-            }
+            _displayedObjects.Insert(0, displayedObject);
+            FilteringObjects();
         }
     }
 
@@ -725,4 +683,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         }
     }
 
+    private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)
+    {
+        FilteringObjects();
+    }
 }

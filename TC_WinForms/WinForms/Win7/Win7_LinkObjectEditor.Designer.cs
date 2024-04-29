@@ -52,6 +52,7 @@
             lblManufacturer = new Label();
             cbxCategory = new ComboBox();
             lblCategory = new Label();
+            cbxIsReleased = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)dgvLinks).BeginInit();
             SuspendLayout();
             // 
@@ -68,7 +69,7 @@
             // 
             txtName.Location = new Point(223, 27);
             txtName.Name = "txtName";
-            txtName.Size = new Size(535, 31);
+            txtName.Size = new Size(390, 31);
             txtName.TabIndex = 1;
             // 
             // txtType
@@ -268,11 +269,23 @@
             lblCategory.TabIndex = 22;
             lblCategory.Text = "Категория:";
             // 
+            // cbxIsReleased
+            // 
+            cbxIsReleased.AutoSize = true;
+            cbxIsReleased.Location = new Point(643, 29);
+            cbxIsReleased.Name = "cbxIsReleased";
+            cbxIsReleased.Size = new Size(115, 29);
+            cbxIsReleased.TabIndex = 24;
+            cbxIsReleased.Text = "Вырущен";
+            cbxIsReleased.UseVisualStyleBackColor = true;
+            cbxIsReleased.CheckedChanged += cbxIsReleased_CheckedChanged;
+            // 
             // Win7_LinkObjectEditor
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(778, 904);
+            Controls.Add(cbxIsReleased);
             Controls.Add(cbxCategory);
             Controls.Add(lblCategory);
             Controls.Add(rtxtManufacturer);
@@ -334,5 +347,6 @@
         private Label lblManufacturer;
         private ComboBox cbxCategory;
         private Label lblCategory;
+        private CheckBox cbxIsReleased;
     }
 }

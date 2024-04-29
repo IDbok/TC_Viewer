@@ -56,6 +56,8 @@ namespace TC_WinForms.WinForms
                 rtxtManufacturer.Text = _editingObj.Manufacturer;
                 txtClassifierCode.Text = _editingObj.ClassifierCode;
 
+                cbxIsReleased.Checked = _editingObj.IsReleased;
+
                 if (_editingObj is ICategoryable categoryable)
                 {
                     cbxCategory.SelectedIndex = cbxCategory.FindStringExact(categoryable.Categoty);
@@ -201,11 +203,11 @@ namespace TC_WinForms.WinForms
                 CategorylessObject();
             }
 
-                cbxCategory.DataSource = categories;
+            cbxCategory.DataSource = categories;
         }
         private void SetFormSettings()
         {
-            if (_editingObj is Tool) 
+            if (_editingObj is Tool)
             {
                 PricelessObject();
             }
@@ -220,11 +222,11 @@ namespace TC_WinForms.WinForms
 
             //int changePixelsY = -60;
 
-            MoveItems(-60, 
+            MoveItems(-60,
                 lblDescription, rtxtDescription,
-                lblManufacturer, rtxtManufacturer, 
-                lblLinks, dgvLinks, 
-                btnAddLink, btnEditLink, btnDeleteLink, 
+                lblManufacturer, rtxtManufacturer,
+                lblLinks, dgvLinks,
+                btnAddLink, btnEditLink, btnDeleteLink,
                 btnSave, btnClose);
 
         }
@@ -301,10 +303,10 @@ namespace TC_WinForms.WinForms
         {
             var priceCheck = float.TryParse(txtPrice.Text, out float price);
 
-            if (txtPrice.Text!="" && !priceCheck)
+            if (txtPrice.Text != "" && !priceCheck)
             {
                 // Ошибка при добавлении стоимости
-                MessageBox.Show("Ошибка при добавлении стоимости.\nПроверьте формат введённых данных.", 
+                MessageBox.Show("Ошибка при добавлении стоимости.\nПроверьте формат введённых данных.",
                     "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -312,13 +314,15 @@ namespace TC_WinForms.WinForms
             _editingObj.Name = txtName.Text;
             _editingObj.Type = txtType.Text;
             _editingObj.Unit = cbxUnit.Text;
-            _editingObj.Price = priceCheck? price : null;
+            _editingObj.Price = priceCheck ? price : null;
             _editingObj.Description = rtxtDescription.Text;
             _editingObj.ClassifierCode = txtClassifierCode.Text;
             _editingObj.Manufacturer = rtxtManufacturer.Text;
             _editingObj.Links = _links.ToList();
 
-            if(_editingObj is ICategoryable categoryable)
+            _editingObj.IsReleased = cbxIsReleased.Checked;
+
+            if (_editingObj is ICategoryable categoryable)
             {
                 categoryable.Categoty = cbxCategory.Text;
             }
@@ -333,10 +337,10 @@ namespace TC_WinForms.WinForms
             }
 
             var dbConnector = new DbConnector();
-            if (_editingObj is Machine machine) 
+            if (_editingObj is Machine machine)
             {
                 var obj = machine;
-                if(_isNewObject)
+                if (_isNewObject)
                 {
                     await dbConnector.AddObjectAsync(obj);
                 }
@@ -345,7 +349,7 @@ namespace TC_WinForms.WinForms
                     await dbConnector.UpdateObjectsAsync(obj);
                 }
             }
-            else if(_editingObj is Protection protection)
+            else if (_editingObj is Protection protection)
             {
                 var obj = protection;
                 if (_isNewObject)
@@ -369,7 +373,7 @@ namespace TC_WinForms.WinForms
                     await dbConnector.UpdateObjectsAsync(obj);
                 }
             }
-            else if(_editingObj is TcModels.Models.TcContent.Component component)
+            else if (_editingObj is TcModels.Models.TcContent.Component component)
             {
                 var obj = component;
                 if (_isNewObject)
@@ -463,11 +467,12 @@ namespace TC_WinForms.WinForms
                     link.Link = txtLink.Text;
 
                     if (editLink)
-                    {                        
+                    {
                         var selectedRows = dgvLinks.SelectedRows[0];
                         _links[selectedRows.Index] = link;
-                        
-                    }else
+
+                    }
+                    else
                     {
                         _links.Add(link);
                     }
@@ -563,10 +568,12 @@ namespace TC_WinForms.WinForms
             List<string> requiredProperties;// = modelType.GetMethod("GetPropertiesRequired")
                                             //.Invoke(null, null) as List<string>;
 
-            if (_editingObj is IRequiredProperties rp) { requiredProperties = rp.GetPropertiesRequired;
+            if (_editingObj is IRequiredProperties rp)
+            {
+                requiredProperties = rp.GetPropertiesRequired;
                 requiredPropertiesNames = rp.GetPropertiesNames.Where(x => requiredProperties.Contains(x.Key))
                     .Select(x => x.Value).ToList();
-                    }
+            }
             else return false;
 
             foreach (string propertyName in requiredProperties)
@@ -587,5 +594,9 @@ namespace TC_WinForms.WinForms
             return true;
         }
 
+        private void cbxIsReleased_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -60,6 +60,9 @@ namespace TcModels.Models.TcContent
         public string? Manufacturer { get; set; }
         public List<LinkEntety> Links { get; set; } = new();
         public string ClassifierCode { get; set; }
+        public bool IsReleased { get; set; } = false;
+        public int? CreatedTCId { get; set; } = null;
+
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is Component sourceObject)
@@ -72,6 +75,9 @@ namespace TcModels.Models.TcContent
                 Manufacturer = sourceObject.Manufacturer;
                 CompareLinks(sourceObject.Links);
                 ClassifierCode = sourceObject.ClassifierCode;
+
+                IsReleased = sourceObject.IsReleased;
+                CreatedTCId = sourceObject.CreatedTCId;
             }
         }
 

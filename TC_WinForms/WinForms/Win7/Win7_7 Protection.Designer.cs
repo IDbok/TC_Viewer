@@ -31,6 +31,7 @@
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
+            cbxShowUnReleased = new CheckBox();
             lblSearch = new Label();
             txtSearch = new TextBox();
             pnlControlBtns = new Panel();
@@ -75,6 +76,7 @@
             // 
             // pnlFilters
             // 
+            pnlFilters.Controls.Add(cbxShowUnReleased);
             pnlFilters.Controls.Add(lblSearch);
             pnlFilters.Controls.Add(txtSearch);
             pnlFilters.Dock = DockStyle.Left;
@@ -84,10 +86,21 @@
             pnlFilters.Size = new Size(402, 100);
             pnlFilters.TabIndex = 25;
             // 
+            // cbxShowUnReleased
+            // 
+            cbxShowUnReleased.AutoSize = true;
+            cbxShowUnReleased.Location = new Point(12, 71);
+            cbxShowUnReleased.Name = "cbxShowUnReleased";
+            cbxShowUnReleased.Size = new Size(245, 29);
+            cbxShowUnReleased.TabIndex = 30;
+            cbxShowUnReleased.Text = "Показать невыпущенные";
+            cbxShowUnReleased.UseVisualStyleBackColor = true;
+            cbxShowUnReleased.CheckedChanged += cbxShowUnReleased_CheckedChanged;
+            // 
             // lblSearch
             // 
             lblSearch.AutoSize = true;
-            lblSearch.Location = new Point(12, 26);
+            lblSearch.Location = new Point(12, 4);
             lblSearch.Name = "lblSearch";
             lblSearch.Size = new Size(67, 25);
             lblSearch.TabIndex = 28;
@@ -95,7 +108,7 @@
             // 
             // txtSearch
             // 
-            txtSearch.Location = new Point(12, 54);
+            txtSearch.Location = new Point(12, 32);
             txtSearch.Name = "txtSearch";
             txtSearch.Size = new Size(224, 31);
             txtSearch.TabIndex = 27;
@@ -202,5 +215,6 @@
         private Label lblSearch;
         private TextBox txtSearch;
         private Button btnUpdate;
+        private CheckBox cbxShowUnReleased;
     }
 }

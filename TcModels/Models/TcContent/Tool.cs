@@ -47,11 +47,6 @@ namespace TcModels.Models.TcContent
             };
         
 
-        //public List<Tool> Parents = new();
-        //public List<Tool> Childrens = new();
-
-        //public List<Instrument_kit<Tool>> Kit = new();
-
         public List<TechnologicalCard> TechnologicalCards { get; set; } = new();
         public List<Tool_TC> Tool_TCs { get; set; } = new();
         
@@ -65,6 +60,10 @@ namespace TcModels.Models.TcContent
         public List<LinkEntety> Links { get; set; } = new ();
         public string Categoty { get; set; } = "Tool";  // todo: исправить название на Category
         public string ClassifierCode { get; set; }
+
+        public bool IsReleased { get; set; } = false;
+        public int? CreatedTCId { get; set; } = null;
+
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is Tool sourceObject)
@@ -78,6 +77,9 @@ namespace TcModels.Models.TcContent
                 Categoty = sourceObject.Categoty;
                 CompareLinks(sourceObject.Links);
                 ClassifierCode = sourceObject.ClassifierCode;
+
+                IsReleased = sourceObject.IsReleased;
+                CreatedTCId = sourceObject.CreatedTCId;
             }
         }
 

@@ -44,6 +44,7 @@
             dgvRelatedStaffs = new DataGridView();
             btnAddRelatedStaff = new Button();
             btnDeleteRelatedStaff = new Button();
+            cbxIsReleased = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)dgvRelatedStaffs).BeginInit();
             SuspendLayout();
             // 
@@ -59,15 +60,15 @@
             lblType.AutoSize = true;
             lblType.Location = new Point(30, 90);
             lblType.Name = "lblType";
-            lblType.Size = new Size(45, 25);
+            lblType.Size = new Size(156, 25);
             lblType.TabIndex = 6;
-            lblType.Text = "Тип:";
+            lblType.Text = "Тип (исполнение):";
             // 
             // txtName
             // 
             txtName.Location = new Point(220, 30);
             txtName.Name = "txtName";
-            txtName.Size = new Size(535, 31);
+            txtName.Size = new Size(390, 31);
             txtName.TabIndex = 5;
             // 
             // lblName
@@ -75,9 +76,9 @@
             lblName.AutoSize = true;
             lblName.Location = new Point(30, 30);
             lblName.Name = "lblName";
-            lblName.Size = new Size(94, 25);
+            lblName.Size = new Size(139, 25);
             lblName.TabIndex = 4;
-            lblName.Text = "Название:";
+            lblName.Text = "Наименование:";
             // 
             // rtxtFunctions
             // 
@@ -141,7 +142,7 @@
             // 
             // btnClose
             // 
-            btnClose.Location = new Point(583, 760);
+            btnClose.Location = new Point(583, 759);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(170, 70);
             btnClose.TabIndex = 18;
@@ -151,7 +152,7 @@
             // 
             // btnSave
             // 
-            btnSave.Location = new Point(30, 760);
+            btnSave.Location = new Point(30, 759);
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(170, 70);
             btnSave.TabIndex = 17;
@@ -193,11 +194,23 @@
             btnDeleteRelatedStaff.UseVisualStyleBackColor = true;
             btnDeleteRelatedStaff.Click += btnDeleteRelatedStaff_Click;
             // 
+            // cbxIsReleased
+            // 
+            cbxIsReleased.AutoSize = true;
+            cbxIsReleased.Location = new Point(643, 32);
+            cbxIsReleased.Name = "cbxIsReleased";
+            cbxIsReleased.Size = new Size(115, 29);
+            cbxIsReleased.TabIndex = 22;
+            cbxIsReleased.Text = "Вырущен";
+            cbxIsReleased.UseVisualStyleBackColor = true;
+            cbxIsReleased.CheckedChanged += cbxIsReleased_CheckedChanged;
+            // 
             // Win7_StaffEditor
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(778, 844);
+            Controls.Add(cbxIsReleased);
             Controls.Add(btnDeleteRelatedStaff);
             Controls.Add(btnAddRelatedStaff);
             Controls.Add(dgvRelatedStaffs);
@@ -243,5 +256,6 @@
         private DataGridView dgvRelatedStaffs;
         private Button btnAddRelatedStaff;
         private Button btnDeleteRelatedStaff;
+        private CheckBox cbxIsReleased;
     }
 }

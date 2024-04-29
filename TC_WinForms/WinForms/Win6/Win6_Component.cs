@@ -238,8 +238,8 @@ namespace TC_WinForms.WinForms
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
             // load new form Win7_3_Component as dictonary
-            var newForm = new Win7_4_Component();
-            newForm.SetAsAddingForm();
+            var newForm = new Win7_4_Component(activateNewItemCreate: true, createdTCId: _tcId);
+            // newForm.SetAsAddingForm();
             newForm.ShowDialog();
         }
 

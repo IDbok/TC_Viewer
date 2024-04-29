@@ -233,8 +233,7 @@ namespace TC_WinForms.WinForms
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            var newForm = new Win7_7_Protection();
-            newForm.SetAsAddingForm();
+            var newForm = new Win7_7_Protection(activateNewItemCreate: true, createdTCId: _tcId);
             newForm.ShowDialog();
         }
         private void btnDeleteObj_Click(object sender, EventArgs e)

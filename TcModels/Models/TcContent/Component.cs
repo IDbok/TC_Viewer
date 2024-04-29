@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
-using System.Xml.Linq;
-using TcModels.Models.Interfaces;
+﻿using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent.Work;
 
@@ -68,6 +65,8 @@ namespace TcModels.Models.TcContent
         public List<LinkEntety> Links { get; set; } = new();
         public string Categoty { get; set; } = "StandComp";
         public string ClassifierCode { get; set; }
+        public bool IsReleased { get; set ; } = false;
+        public int? CreatedTCId {  get; set; } = null;
 
         public void ApplyUpdates(IUpdatableEntity source)
         {
@@ -82,6 +81,9 @@ namespace TcModels.Models.TcContent
                 Categoty = sourceObject.Categoty;
                 CompareLinks(sourceObject.Links);
                 ClassifierCode = sourceObject.ClassifierCode;
+
+                IsReleased = sourceObject.IsReleased;
+                CreatedTCId = sourceObject.CreatedTCId;
             }
         }
 

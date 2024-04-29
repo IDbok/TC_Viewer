@@ -28,9 +28,6 @@ namespace TC_WinForms.WinForms
 
             // new DGVEvents().AddGragDropEvents(dgvMain);
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
-
-
-            //this.Resize += (s, e) => AdjustColumnWidths();
         }
 
 
@@ -78,7 +75,6 @@ namespace TC_WinForms.WinForms
                     await SaveChanges();
                 }
                 e.Cancel = false;
-                Close();
             }
         }
         public void AddNewObjects(List<Staff> newObjs)
@@ -244,7 +240,7 @@ namespace TC_WinForms.WinForms
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
             // load new form Win7_3_Staff as dictonary
-            var newForm = new Win7_3_Staff(this);
+            var newForm = new Win7_3_Staff(this, activateNewItemCreate: true, createdTCId: _tcId);
             //newForm.SetAsAddingForm();
             newForm.ShowDialog();
         }

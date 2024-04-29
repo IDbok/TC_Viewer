@@ -15,96 +15,72 @@ namespace TC_WinForms.WinForms
         private List<DisplayedProtection> _displayedObjects;
         private BindingList<DisplayedProtection> _bindingList;
 
-        private List<DisplayedProtection> _changedObjects = new List<DisplayedProtection>();
-        private List<DisplayedProtection> _newObjects = new List<DisplayedProtection>();
-        private List<DisplayedProtection> _deletedObjects = new List<DisplayedProtection>();
-
-        private DisplayedProtection _newObject;
-
-        private bool isAddingForm = false;
+        private readonly bool _isAddingForm = false;
         private Button btnAddSelected;
         private Button btnCancel;
-        //public bool CloseFormsNoSave { get; set; } = false;
+
+        public readonly bool _newItemCreateActive;
+        private readonly int? _tcId;
 
         private bool _isFiltered = false;
-        public void SetAsAddingForm()
-        {
-            isAddingForm = true;
-        }
+
         public Win7_7_Protection(int accessLevel)
         {
             InitializeComponent();
             AccessInitialization(accessLevel);
         }
-        public Win7_7_Protection()
+        public Win7_7_Protection(bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
         {
+            _isAddingForm = true;
+            _newItemCreateActive = activateNewItemCreate;
+            _tcId = createdTCId;
             InitializeComponent();
         }
 
-
-
-        //public bool GetDontSaveData()
-        //{
-        //    if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-        //    {
-        //        return true;
-        //    }
-        //    else
-        //    {
-        //        return false;
-        //    }
-        //}
         private async void Win7_7_Protection_Load(object sender, EventArgs e)
         {
-            progressBar.Visible = true;
+            //progressBar.Visible = true;
 
             await LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedProtection>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false;
 
-            if (isAddingForm)
+            if (_isAddingForm)
             {
                 //isAddingFormSetControls();
                 WinProcessing.SetAddingFormControls(pnlControlBtns, dgvMain,
                     out btnAddSelected, out btnCancel);
+                //////////////////////////////////////////////////////////////////////////////////////
+                if (_newItemCreateActive)
+                {
+                    btnAddNewObj.Visible = true;
+                    btnAddNewObj.Dock = DockStyle.Right;
+                    btnAddNewObj.Text = "Создать новый объект";
+                }
+                //////////////////////////////////////////////////////////////////////////////////////////
                 SetAddingFormEvents();
             }
 
-            progressBar.Visible = false;
+            //progressBar.Visible = false;
         }
         private async Task LoadObjects()
         {
             _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Protection>(includeLinks: true)
                 .Select(obj => new DisplayedProtection(obj)).ToList());
 
-            _bindingList = new BindingList<DisplayedProtection>(_displayedObjects);
-            //_bindingList.ListChanged += BindingList_ListChanged;
-            dgvMain.DataSource = _bindingList;
+            FilteringObjects();
+            //_bindingList = new BindingList<DisplayedProtection>(_displayedObjects);
+            ////_bindingList.ListChanged += BindingList_ListChanged;
+            //dgvMain.DataSource = _bindingList;
 
-            dgvMain.CellContentClick += dgvMain_CellContentClick;
+            //dgvMain.CellContentClick += dgvMain_CellContentClick;
 
             SetDGVColumnsSettings();
         }
         private async void Win7_7_Protection_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //if (CloseFormsNoSave)
-            //{
-            //    return;
-            //}
 
-            //if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-            //{
-            //    e.Cancel = true;
-            //    var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
-
-            //    if (result == DialogResult.Yes)
-            //    {
-            //        await SaveChanges();
-            //    }
-            //    e.Cancel = false;
-            //    Close();
-            //}
         }
         private void AccessInitialization(int accessLevel)
         {
@@ -112,11 +88,7 @@ namespace TC_WinForms.WinForms
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            //DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
-            //    _bindingList,
-            //    _newObjects,
-            //    dgvMain);
-            var objEditor = new Win7_LinkObjectEditor(new Protection(), isNewObject: true);
+            var objEditor = new Win7_LinkObjectEditor(new Protection() { CreatedTCId = _tcId }, isNewObject: true);
 
             objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Protection, DisplayedProtection>(createdObj as Protection);
 
@@ -131,71 +103,7 @@ namespace TC_WinForms.WinForms
                 _bindingList, _isFiltered ? _displayedObjects : null);
         }
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
-        //public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
-        //public async Task SaveChanges()
-        //{
-        //    // stop editing cell
-        //    dgvMain.EndEdit();
-        //    if (!HasChanges)
-        //    {
-        //        return;
-        //    }
-        //    if (_newObjects.Count > 0)
-        //    {
-        //        await SaveNewObjects();
-        //    }
-        //    if (_changedObjects.Count > 0)
-        //    {
-        //        await SaveChangedObjects();
-        //    }
-        //    if (_deletedObjects.Count > 0)
-        //    {
-        //        await DeleteDeletedObjects();
-        //    }
-        //    // todo - change id in all new cards 
-        //    dgvMain.Refresh();
-        //}
-        //private async Task SaveNewObjects()
-        //{
-        //    var newObjects = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-
-        //    await dbCon.AddObjectAsync(newObjects);
-
-        //    // set new ids to new objects matched them by all params
-        //    foreach (var newObj in _newObjects)
-        //    {
-        //        var newId = newObjects.Where(s =>
-        //        s.Name == newObj.Name
-        //        && s.Type == newObj.Type
-        //        && s.Unit == newObj.Unit
-        //        && s.Price == newObj.Price
-        //        && s.Description == newObj.Description
-        //        && s.Manufacturer == newObj.Manufacturer
-        //        && s.Links == newObj.Links
-        //        && s.ClassifierCode == newObj.ClassifierCode
-        //        ).FirstOrDefault().Id;
-        //        newObj.Id = newId;
-        //    }
-
-
-        //    _newObjects.Clear();
-        //}
-        //private async Task SaveChangedObjects()
-        //{
-        //    var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-
-        //    await dbCon.UpdateObjectsListAsync(changedTcs);
-
-        //    _changedObjects.Clear();
-        //}
-
-        //private async Task DeleteDeletedObjects()
-        //{
-        //    var deletedTcIds = _deletedObjects.Select(dtc => dtc.Id).ToList();
-
-        //    await dbCon.DeleteObjectAsync<Protection>(deletedTcIds);
-        //    _deletedObjects.Clear();
-        //}
+        
         private Protection CreateNewObject(DisplayedProtection dObj)
         {
             return new Protection
@@ -209,6 +117,9 @@ namespace TC_WinForms.WinForms
                 Manufacturer = dObj.Manufacturer,
                 Links = dObj.Links,
                 ClassifierCode = dObj.ClassifierCode,
+
+                IsReleased = dObj.IsReleased,
+                CreatedTCId = dObj.CreatedTCId,
             };
         }
 
@@ -350,6 +261,9 @@ namespace TC_WinForms.WinForms
             private List<LinkEntety> links = new();
             private string classifierCode;
 
+            private bool isReleased;
+            private int? createdTCId;
+
             public DisplayedProtection()
             {
 
@@ -365,6 +279,8 @@ namespace TC_WinForms.WinForms
                 Manufacturer = obj.Manufacturer;
                 Links = obj.Links;
                 ClassifierCode = obj.ClassifierCode;
+                IsReleased = obj.IsReleased;
+                CreatedTCId = obj.CreatedTCId;
             }
 
 
@@ -486,7 +402,30 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
-
+            public bool IsReleased
+            {
+                get => isReleased;
+                set
+                {
+                    if (isReleased != value)
+                    {
+                        isReleased = value;
+                        OnPropertyChanged(nameof(IsReleased));
+                    }
+                }
+            }
+            public int? CreatedTCId
+            {
+                get => createdTCId;
+                set
+                {
+                    if (createdTCId != value)
+                    {
+                        createdTCId = value;
+                        OnPropertyChanged(nameof(CreatedTCId));
+                    }
+                }
+            }
             public event PropertyChangedEventHandler PropertyChanged;
             protected virtual void OnPropertyChanged(string propertyName)
             {
@@ -496,18 +435,18 @@ namespace TC_WinForms.WinForms
 
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
-            FilterTechnologicalCards();
+            FilteringObjects();
         }
-        private void FilterTechnologicalCards()
+        private void FilteringObjects()
         {
             try
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
 
-                if (string.IsNullOrWhiteSpace(searchText))
+                if (string.IsNullOrWhiteSpace(searchText) && !cbxShowUnReleased.Checked)
                 {
                     // Возвращаем исходный список, если строка поиска пуста
-                    _bindingList = new BindingList<DisplayedProtection>(_displayedObjects);
+                    _bindingList = new BindingList<DisplayedProtection>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                     _isFiltered = false;
                 }
                 else
@@ -525,12 +464,22 @@ namespace TC_WinForms.WinForms
         }
         private BindingList<DisplayedProtection> FilteredBindingList(string searchText)
         {
-            var filteredList = _bindingList.Where(obj =>
-                        (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                        (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                        (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                        //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                        (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+            var filteredList = _displayedObjects.Where(obj =>
+                        (searchText == ""
+                            ||
+                            (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            //(obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                        ) &&
+                        (obj.IsReleased == !cbxShowUnReleased.Checked) &&
+
+                        (!_isAddingForm ||
+                            (cbxShowUnReleased.Checked &&
+                            (obj.CreatedTCId == null || obj.CreatedTCId == _tcId))
+                        )
                         ).ToList();
 
             return new BindingList<DisplayedProtection>(filteredList);
@@ -566,7 +515,7 @@ namespace TC_WinForms.WinForms
             where TDisplayed : class, IModelStructure
         {
             // Обновляем объект в DataGridView
-            var displayedObject = _bindingList.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
+            var displayedObject = _displayedObjects.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
             if (displayedObject != null)
             {
                 displayedObject.Name = modelObject.Name;
@@ -584,13 +533,9 @@ namespace TC_WinForms.WinForms
 
                 dgvMain.Refresh();
 
-                // обновляем в список всех объектов изменённый объект
-                if (_isFiltered)
-                {
-                    var editedObject = _displayedObjects.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
-                    editedObject = displayedObject;
-                    FilterTechnologicalCards();
-                }
+                displayedObject.IsReleased = modelObject.IsReleased;
+
+                FilteringObjects();
             }
         }
 
@@ -614,15 +559,9 @@ namespace TC_WinForms.WinForms
                 {
                     objectWithCategory.Categoty = modelWithCategory.Categoty;
                 }
-
-                _bindingList.Insert(0, displayedObject);
-
-                // добавляем в список всех объектов созданный объект
-                if (_isFiltered)
-                {
-                    _displayedObjects.Add(displayedObject);
-                    FilterTechnologicalCards();
-                }
+                // добавляем в список всех объектов новый объект
+                _displayedObjects.Insert(0, displayedObject);
+                FilteringObjects();
             }
         }
 
@@ -648,6 +587,11 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
+        }
+
+        private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)
+        {
+            FilteringObjects();
         }
     }
 }

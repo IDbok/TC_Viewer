@@ -67,9 +67,11 @@ namespace TcModels.Models.TcContent
         public string? Comment { get; set; }
 
         public bool IsReleased { get; set; } = false;
+        public int? CreatedTCId { get; set; } = null;
 
         public List<Staff> RelatedStaffs { get; private set; } = new List<Staff>();
-
+        public string? ClassifierCode { get; set; }
+        
 
         public void ApplyUpdates(IUpdatableEntity source)
         {
@@ -82,6 +84,11 @@ namespace TcModels.Models.TcContent
                 Qualification = sourceCard.Qualification;
                 Comment = sourceCard.Comment;
                 CompareRelatedStaffs( sourceCard.RelatedStaffs);
+
+                IsReleased = sourceCard.IsReleased;
+                CreatedTCId = sourceCard.CreatedTCId;
+
+                ClassifierCode = sourceCard.ClassifierCode;
             }
         }
         private void CompareRelatedStaffs(List<Staff> sourceRelatedStaffs)

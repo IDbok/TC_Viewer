@@ -236,8 +236,7 @@ namespace TC_WinForms.WinForms
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            var newForm = new Win7_5_Machine();
-            newForm.SetAsAddingForm();
+            var newForm = new Win7_5_Machine(activateNewItemCreate: true, createdTCId: _tcId);
             newForm.ShowDialog();
         }
 
