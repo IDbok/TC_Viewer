@@ -87,8 +87,6 @@ public partial class Win7_TechTransitionEditor : Form
             return;
         }
 
-
-
         _editingObj.Name = txtName.Text;
         _editingObj.Category = cbxCategory.Text;
         _editingObj.TimeExecution = time;

@@ -78,11 +78,13 @@ namespace TC_WinForms.WinForms
                 .OrderBy(obj => obj.Category)
                 .ThenBy(obj => obj.Name)
                 .ToList());
-            _bindingList = new BindingList<DisplayedTechTransition>(_displayedObjects);
-            //_bindingList.ListChanged += BindingList_ListChanged;
 
-            dgvMain.DataSource = null;
-            dgvMain.DataSource = _bindingList;
+            FilteringObjects();
+            //_bindingList = new BindingList<DisplayedTechTransition>(_displayedObjects);
+            ////_bindingList.ListChanged += BindingList_ListChanged;
+
+            //dgvMain.DataSource = null;
+            //dgvMain.DataSource = _bindingList;
 
             SetDGVColumnsSettings();
         }
@@ -337,6 +339,9 @@ namespace TC_WinForms.WinForms
             private string? commentName;
             private string? commentTimeExecution;
 
+            private bool isReleased;
+
+            private int? createdTCId;
 
             public DisplayedTechTransition()
             {
@@ -351,6 +356,10 @@ namespace TC_WinForms.WinForms
                 TimeExecutionChecked = obj.TimeExecutionChecked ?? false;
                 CommentName = obj.CommentName;
                 CommentTimeExecution = obj.CommentTimeExecution;
+
+                IsReleased = obj.IsReleased;
+                CreatedTCId = obj.CreatedTCId;
+
             }
 
 
@@ -434,6 +443,31 @@ namespace TC_WinForms.WinForms
                 }
             }
 
+            public bool IsReleased
+            {
+                get => isReleased;
+                set
+                {
+                    if (isReleased != value)
+                    {
+                        isReleased = value;
+                        OnPropertyChanged(nameof(IsReleased));
+                    }
+                }
+            }
+            public int? CreatedTCId
+            {
+                get => createdTCId;
+                set
+                {
+                    if (createdTCId != value)
+                    {
+                        createdTCId = value;
+                        OnPropertyChanged(nameof(CreatedTCId));
+                    }
+                }
+            }
+
             public event PropertyChangedEventHandler PropertyChanged;
             protected virtual void OnPropertyChanged(string propertyName)
             {
@@ -443,18 +477,18 @@ namespace TC_WinForms.WinForms
 
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
-            FilterTechnologicalCards();
+            FilteringObjects();
         }
-        private void FilterTechnologicalCards()
+        private void FilteringObjects()
         {
             try
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
                 var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
 
-                if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все")
+                if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все" && !cbxShowUnReleased.Checked)
                 {
-                     _bindingList = new BindingList<DisplayedTechTransition>(_bindingList); // Возвращаем исходный список, если строка поиска пуста
+                    _bindingList = new BindingList<DisplayedTechTransition>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList()); // Возвращаем исходный список, если строка поиска пуста
                 }
                 else
                 {
@@ -470,15 +504,16 @@ namespace TC_WinForms.WinForms
         }
         private BindingList<DisplayedTechTransition> FilteredBindingList(string searchText, string categoryFilter)
         {
-            var filteredList = _bindingList.Where(obj =>
+            var filteredList = _displayedObjects.Where(obj =>
                         (searchText == ""
                         ||
-
-                                (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
-                            || (obj.Category?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                            (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (obj.Category?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) 
                         )
                         &&
-                        (categoryFilter == "Все" || obj.Category?.ToString() == categoryFilter)
+                        (categoryFilter == "Все" || obj.Category?.ToString() == categoryFilter) &&
+
+                            (obj.IsReleased == !cbxShowUnReleased.Checked)
                         ).ToList();
 
             return new BindingList<DisplayedTechTransition>(filteredList);
@@ -486,7 +521,7 @@ namespace TC_WinForms.WinForms
 
         private void cbxCategoryFilter_SelectedIndexChanged(object sender, EventArgs e)
         {
-            FilterTechnologicalCards();
+            FilteringObjects();
             // set combobox width to item length
             var width = TextRenderer.MeasureText(cbxCategoryFilter.SelectedItem.ToString(), cbxCategoryFilter.Font).Width + 20;
             cbxCategoryFilter.Width = width < 160 ? 160 : width;
@@ -534,7 +569,7 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
-        public void UpdateObjectInDataGridView(TechTransition modelObject)
+        private void UpdateObjectInDataGridView(TechTransition modelObject)
         {
             // Обновляем объект в DataGridView
             var editedObject = _displayedObjects.FirstOrDefault(obj => obj.Id == modelObject.Id);
@@ -547,12 +582,15 @@ namespace TC_WinForms.WinForms
                 editedObject.CommentName = modelObject.CommentName;
                 editedObject.CommentTimeExecution = modelObject.CommentTimeExecution;
 
-                FilterTechnologicalCards();
+                editedObject.IsReleased = modelObject.IsReleased;
+                editedObject.CreatedTCId = modelObject.CreatedTCId;
+
+                FilteringObjects();
             }
 
         }
 
-        public void AddNewObjectInDataGridView(TechTransition modelObject)
+        private void AddNewObjectInDataGridView(TechTransition modelObject)
         {
             var newDisplayedObject = Activator.CreateInstance<DisplayedTechTransition>();
             if (newDisplayedObject is DisplayedTechTransition displayedObject)
@@ -565,12 +603,18 @@ namespace TC_WinForms.WinForms
                 displayedObject.CommentName = modelObject.CommentName;
                 displayedObject.CommentTimeExecution = modelObject.CommentTimeExecution;
 
-
+                displayedObject.IsReleased = modelObject.IsReleased;
+                displayedObject.CreatedTCId = modelObject.CreatedTCId;
 
                 _displayedObjects.Insert(0, displayedObject);
-                FilterTechnologicalCards();
+                FilteringObjects();
 
             }
+        }
+
+        private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)
+        {
+            FilteringObjects();
         }
     }
 }

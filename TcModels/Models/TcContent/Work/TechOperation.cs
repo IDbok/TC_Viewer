@@ -15,12 +15,18 @@ namespace TcModels.Models.TcContent
 
         public List<TechTransitionTypical> techTransitionTypicals { get; set; } = new List<TechTransitionTypical> { };
 
+        public bool IsReleased { get; set; } = false;
+        public int? CreatedTCId { get; set; } = null;
+
         public void ApplyUpdates(IUpdatableEntity source)
         {
-            if (source is TechOperation sourceCard)
+            if (source is TechOperation sourceObject)
             {
-                Name = sourceCard.Name;
-                Category = sourceCard.Category;
+                Name = sourceObject.Name;
+                Category = sourceObject.Category;
+
+                IsReleased = sourceObject.IsReleased;
+                CreatedTCId = sourceObject.CreatedTCId;
             }
         }
     }

@@ -4,7 +4,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Staff : INameable, IDGViewable, IUpdatableEntity, IRequiredProperties //1. Требования к составу бригады и квалификации
+    public class Staff : INameable, IDGViewable, IUpdatableEntity, IRequiredProperties, IVersionable //1. Требования к составу бригады и квалификации
     {
         public static List<string> GetChangeablePropertiesNames { get; } = new List<string>
             {
@@ -69,6 +69,10 @@ namespace TcModels.Models.TcContent
         public bool IsReleased { get; set; } = false;
         public int? CreatedTCId { get; set; } = null;
 
+        public int OriginalId { get; set; }
+        public int Version { get; set; }
+        public DateTime UpdateDate { get; set; }
+
         public List<Staff> RelatedStaffs { get; private set; } = new List<Staff>();
         public string? ClassifierCode { get; set; }
         
@@ -89,6 +93,8 @@ namespace TcModels.Models.TcContent
                 CreatedTCId = sourceCard.CreatedTCId;
 
                 ClassifierCode = sourceCard.ClassifierCode;
+
+                OriginalId = sourceCard.OriginalId;
             }
         }
         private void CompareRelatedStaffs(List<Staff> sourceRelatedStaffs)

@@ -69,7 +69,7 @@
             // 
             txtName.Location = new Point(223, 27);
             txtName.Name = "txtName";
-            txtName.Size = new Size(390, 31);
+            txtName.Size = new Size(375, 31);
             txtName.TabIndex = 1;
             // 
             // txtType
@@ -272,11 +272,11 @@
             // cbxIsReleased
             // 
             cbxIsReleased.AutoSize = true;
-            cbxIsReleased.Location = new Point(643, 29);
+            cbxIsReleased.Location = new Point(609, 29);
             cbxIsReleased.Name = "cbxIsReleased";
-            cbxIsReleased.Size = new Size(115, 29);
+            cbxIsReleased.Size = new Size(149, 29);
             cbxIsReleased.TabIndex = 24;
-            cbxIsReleased.Text = "Вырущен";
+            cbxIsReleased.Text = "Опубликован";
             cbxIsReleased.UseVisualStyleBackColor = true;
             cbxIsReleased.CheckedChanged += cbxIsReleased_CheckedChanged;
             // 

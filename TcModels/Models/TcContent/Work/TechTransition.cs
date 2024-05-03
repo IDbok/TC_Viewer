@@ -16,8 +16,10 @@ namespace TcModels.Models.TcContent
         public string? CommentTimeExecution { get; set; }
         
         public List<ExecutionWork> ExecutionWorks { get; set; }
-
         public List<TechTransitionTypical> techTransitionTypicals { get; set; }
+
+        public bool IsReleased { get; set; } = false;
+        public int? CreatedTCId { get; set; } = null;
 
         public void ApplyUpdates(IUpdatableEntity source)
         {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.CodeDom;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TcDbConnector;
@@ -17,6 +18,8 @@ namespace TC_WinForms.WinForms.Work
         //private List<Staff_TC> AllStaff;
         private List<ExecutionWork> listExecutionWork;
 
+        private TechOperationWork SelectedTO => (TechOperationWork)comboBoxTO.SelectedItem;
+
         public AddEditTechOperationForm()
         {
             InitializeComponent();
@@ -32,7 +35,7 @@ namespace TC_WinForms.WinForms.Work
 
             dataGridViewTO.CellClick += DataGridViewTO_CellClick;
 
-            dataGridViewTPAll.CellContentClick += DataGridViewTPAll_CellContentClick;
+            //dataGridViewTPAll.CellContentClick += DataGridViewTPAll_CellContentClick;
             dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
             dataGridViewTPAll.SelectionChanged += DataGridViewTPAll_SelectionChanged;
 
@@ -42,6 +45,8 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
             dataGridViewStaff.CellClick += DataGridViewStaff_CellClick;
             dataGridViewStaff.CellEndEdit += DataGridViewStaff_CellEndEdit;
+            dataGridViewStaff.CellBeginEdit += DataGridViewStaff_CellBeginEdit;
+
 
             dataGridViewStaffAll.CellClick += DataGridViewStaffAll_CellClick;
 
@@ -175,7 +180,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTO_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1 && e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var IddGuid = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
 
@@ -191,7 +196,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewAllTO.Rows.Clear();
 
             var context = TechOperationForm.context;
-            allTO = context                
+            allTO = context
                 .TechOperations
                 .Include(t => t.techTransitionTypicals)
                 .ToList();
@@ -224,10 +229,11 @@ namespace TC_WinForms.WinForms.Work
 
                 listItem.Add(techOperation.Name);
 
-                if(techOperation.Category== "Типовая ТО")
+                if (techOperation.Category == "Типовая ТО")
                 {
                     listItem.Add(true);
-                }else
+                }
+                else
                 {
                     listItem.Add(false);
                 }
@@ -310,15 +316,15 @@ namespace TC_WinForms.WinForms.Work
             if (e.ColumnIndex == 3)
             {
                 string gg;
-                if(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value is string)
+                if (dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value is string)
                 {
-                    gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value; 
+                    gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 }
                 else
                 {
                     gg = dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
                 }
-                
+
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
                 var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 // TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == idd).
@@ -358,13 +364,13 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 var IddGuid = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
                 //var tech = allTP.Single(s => s.Id == Idd);
                 //TechOperationForm.AddTechTransition(tech, work);
-                                 
+
 
 
                 TechOperationForm.DeleteTechTransit(IddGuid, work);
@@ -375,7 +381,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
@@ -385,16 +391,22 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
+        private void AddNewTP(TechTransition TP, TechOperationWork TOW)
+        {
+            TechOperationForm.AddTechTransition(TP, TOW);
+            UpdateGridLocalTP();
+            TechOperationForm.UpdateGrid();
+        }
 
         private void DataGridViewTPAll_SelectionChanged(object? sender, EventArgs e)
         {
-           if(dataGridViewTPAll.SelectedRows.Count>0)
+            if (dataGridViewTPAll.SelectedRows.Count > 0)
             {
                 var dc = (TechTransition)dataGridViewTPAll.SelectedRows[0].Cells[0].Value;
 
                 labelComName.Text = dc.CommentName;
                 labelComTime.Text = dc.CommentTimeExecution;
-            }            
+            }
         }
 
         private void TextBoxPoiskTP_TextChanged(object? sender, EventArgs e)
@@ -407,7 +419,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewTPAll.Rows.Clear();
 
             bool AddCategor = false;
-            if(comboBoxTPCategoriya.Items.Count == 0 )
+            if (comboBoxTPCategoriya.Items.Count == 0)
             {
                 AddCategor = true;
                 comboBoxTPCategoriya.Items.Add("Все");
@@ -417,9 +429,8 @@ namespace TC_WinForms.WinForms.Work
 
             var context = TechOperationForm.context;
 
-            allTP = context.TechTransitions.ToList();
+            allTP = context.TechTransitions.ToList(); // todo: добавить фильтрацию по выпуску и номеру карты
             var list = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.ToList();
-
 
             TechTransition povtor = new TechTransition();
             povtor.Name = "Повторить";
@@ -429,10 +440,10 @@ namespace TC_WinForms.WinForms.Work
             listItem1.Add(povtor.Name);
             dataGridViewTPAll.Rows.Add(listItem1.ToArray());
 
-            if(work.techOperation.Category == "Типовая ТО")
+            if (work.techOperation.Category == "Типовая ТО")
             {
                 return;
-            }    
+            }
 
             foreach (TechTransition techTransition in allTP)
             {
@@ -442,7 +453,7 @@ namespace TC_WinForms.WinForms.Work
                     continue;
                 }
 
-                if(AddCategor)
+                if (AddCategor)
                 {
                     if (!string.IsNullOrEmpty(techTransition.Category))
                     {
@@ -453,9 +464,9 @@ namespace TC_WinForms.WinForms.Work
                     }
                 }
 
-                if(comboBoxTPCategoriya.SelectedIndex>0)
+                if (comboBoxTPCategoriya.SelectedIndex > 0)
                 {
-                    if((string)comboBoxTPCategoriya.SelectedItem!= techTransition.Category)
+                    if ((string)comboBoxTPCategoriya.SelectedItem != techTransition.Category)
                     {
                         continue;
                     }
@@ -488,6 +499,7 @@ namespace TC_WinForms.WinForms.Work
             }
             catch (Exception e)
             {
+
             }
 
         }
@@ -511,7 +523,7 @@ namespace TC_WinForms.WinForms.Work
                 List<object> listItem = new List<object>();
                 listItem.Add(executionWork.IdGuid);
 
-                if(work.techOperation.Category== "Типовая ТО" && executionWork.Repeat==false)
+                if (work.techOperation.Category == "Типовая ТО" && executionWork.Repeat == false)
                 {
                     listItem.Add("");
                 }
@@ -519,8 +531,7 @@ namespace TC_WinForms.WinForms.Work
                 {
                     listItem.Add("Удалить");
                 }
-               
-                
+
                 if (executionWork.Repeat)
                 {
                     listItem.Add("Повторить");
@@ -629,6 +640,27 @@ namespace TC_WinForms.WinForms.Work
             }
 
         }
+        private void DataGridViewStaff_CellBeginEdit(object? sender, DataGridViewCellCancelEventArgs e)
+        {
+            if (e.ColumnIndex == 2 && e.RowIndex >= 0)  // Проверка, что это столбец с чекбоксами
+            {
+                var staff_TC = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
+                var symbol = staff_TC.Symbol;
+                var EW = (ExecutionWork)comboBoxSZ.SelectedItem;
+                if (EW != null)
+                {
+                    var staffs = EW.Staffs.Where(w => w.Symbol == symbol).ToList();
+
+                    // Проверяем, есть ли уже такой символ среди выбранных
+                    if (staffs.Count >= 1 && (bool)dataGridViewStaff.Rows[e.RowIndex].Cells[2].Value == false)
+                    {
+                        MessageBox.Show("Роль с таким обозначением уже существует");
+                        e.Cancel = true;
+                    }
+                }
+            }
+        }
+
 
         private void DataGridViewStaff_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
@@ -660,7 +692,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewStaffAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var idd = (Staff)dataGridViewStaffAll.Rows[e.RowIndex].Cells[0].Value;
                 var vv = TechOperationForm.TehCarta.Staff_TCs;
@@ -684,24 +716,22 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewStaff_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var idd = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
 
                 if (idd != null)
                 {
-                    if(MessageBox.Show("Вы дейстивтельно хотите удалить?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk)==DialogResult.Yes)
+                    if (MessageBox.Show("Вы дейстивтельно хотите удалить?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
                     {
                         var vv = TechOperationForm.TehCarta.Staff_TCs;
                         vv.Remove(idd);
 
                         UpdateGridStaff();
-                    }                   
+                    }
                 }
-
             }
         }
-
 
 
         private void comboBoxStaff_SelectedIndexChanged(object sender, EventArgs e)
@@ -725,7 +755,7 @@ namespace TC_WinForms.WinForms.Work
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
-            var AllStaff = TechOperationForm.TehCarta.Staff_TCs;
+            var AllStaff = TechOperationForm.TehCarta.Staff_TCs.OrderBy(x => x.Symbol);
 
 
             foreach (Staff_TC staffTc in AllStaff)
@@ -941,7 +971,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewAllSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (ExecutionWork)comboBoxSZ.SelectedItem;
                 var Idd = (Protection)dataGridViewAllSZ.Rows[e.RowIndex].Cells[0].Value;
@@ -985,7 +1015,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewLocalSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (ExecutionWork)comboBoxSZ.SelectedItem;
                 var Idd = (Protection_TC)dataGridViewLocalSZ.Rows[e.RowIndex].Cells[0].Value;
@@ -1190,7 +1220,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewComponentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (TechOperationWork)comboBoxTO2.SelectedItem;
                 var Idd = (Component)dataGridViewComponentAll.Rows[e.RowIndex].Cells[0].Value;
@@ -1208,7 +1238,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewComponentLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (TechOperationWork)comboBoxTO2.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -1326,7 +1356,7 @@ namespace TC_WinForms.WinForms.Work
                     continue;
                 }
 
-                if (comboBoxFiltrCategor.SelectedIndex > 0 )
+                if (comboBoxFiltrCategor.SelectedIndex > 0)
                 {
                     var selCateg = (string)comboBoxFiltrCategor.SelectedItem;
 
@@ -1360,7 +1390,7 @@ namespace TC_WinForms.WinForms.Work
                     }
                 }
 
-                if(AllMyInstr.Any(a=>a.Child== component))
+                if (AllMyInstr.Any(a => a.Child == component))
                 {
                     continue;
                 }
@@ -1430,7 +1460,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewInstumentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (TechOperationWork)comboBoxTO3.SelectedItem;
                 var Idd = (Tool)dataGridViewInstumentAll.Rows[e.RowIndex].Cells[0].Value;
@@ -1449,7 +1479,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewInstrumentLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (TechOperationWork)comboBoxTO3.SelectedItem;
                 var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -1720,7 +1750,7 @@ namespace TC_WinForms.WinForms.Work
         private void DataGridViewMeha_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
 
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 dataGridViewMeha.CommitEdit(DataGridViewDataErrorContexts.Commit);
                 var id = (Machine)dataGridViewMeha.Rows[e.RowIndex].Cells[0].Value;
@@ -1768,7 +1798,7 @@ namespace TC_WinForms.WinForms.Work
         {
             dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
-            if (e.ColumnIndex == 1&& e.RowIndex>=0)
+            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var id = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
                 var che = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
@@ -2006,14 +2036,37 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
-        private void tableLayoutPanel4_Paint(object sender, PaintEventArgs e)
+        private void btnCreateNewTP_Click(object sender, EventArgs e)
         {
+            // 1. Открытие формы по добавлению нового ТП с передачей номера ТК
+            var AddingForm = new Win7_TechTransitionEditor(new TechTransition() { CreatedTCId = TechOperationForm.tcId }, isNewObject: true);
+            AddingForm.AfterSave = async (createdObj) => AddNewTP(createdObj, SelectedTO);//AddNewObjectInDataGridView(createdObj);
+            AddingForm.ShowDialog();
+
+            // 2. Созданный ТП сохраняется в базе (IsReleased = false)
+            // 3. Автоматически добавляется В ТО в которой создаётся (создание TechOperationWork)
+            // 4. Должен быть доступен для добавления в другие ТО для ТК, в которой был создан.
 
         }
 
-        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        //private void AddNewObjectInDataGridView(TechTransition modelObject)
+        //{
+        //    // Добавить созданный ТП к текущей ТО
+        //    AddNewTP(modelObject, SelectedTO);
+        //}
+
+        private void btnAddNewTO_Click(object sender, EventArgs e)
+        {
+            var AddingForm = new Win7_TechOperation_Window(isTcEditingForm: true);
+            AddingForm.AfterSave = async (createdObj) => AddNewTO(createdObj);
+            AddingForm.ShowDialog();
+        }
+
+        private void AddNewTO(TechOperation modelObject)
         {
 
+            // Добавить созданный ТО к текущей ТК
+            //AddNewTO(modelObject);
         }
     }
 }

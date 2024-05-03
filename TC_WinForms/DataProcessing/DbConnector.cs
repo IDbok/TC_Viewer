@@ -656,6 +656,12 @@ namespace TC_WinForms.DataProcessing
                         query = query.Include(nameof(IModelStructure.Links));
                     }
 
+                    if (typeof(IVersionable).IsAssignableFrom(typeof(T)))
+                    {
+                        
+                        //query = query.Include(nameof(IVersionable.Version));
+                    }
+
                     return query.ToList();
                 }
             }

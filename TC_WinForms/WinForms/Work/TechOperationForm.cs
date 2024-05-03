@@ -13,7 +13,7 @@ namespace TC_WinForms.WinForms.Work
     public partial class TechOperationForm : Form, ISaveEventForm
     {
         public MyDbContext context;
-        public int tcId;
+        public readonly int tcId;
         private BindingSource binding;
 
         public List<TechOperationDataGridItem> list = null;
@@ -46,10 +46,6 @@ namespace TC_WinForms.WinForms.Work
             // dgvMain.DataSource = list;
 
             context = new MyDbContext();
-
-
-
-
 
             DateTime t1 = DateTime.Now;
 
@@ -686,16 +682,10 @@ namespace TC_WinForms.WinForms.Work
         }
 
 
-        public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical=null)
+        public void AddTechTransition(TechTransition TP, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical=null)
         {
             TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
-            var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
-
-            int max = 0;
-            if (TOWork.executionWorks.Count > 0)
-            {
-                max = TOWork.executionWorks.Max(w => w.Order);
-            }
+            var exec = TOWork.executionWorks.Where(w => w.techTransition == TP && w.Delete == true).ToList();
 
             if (exec.Count > 0)
             {
@@ -704,14 +694,20 @@ namespace TC_WinForms.WinForms.Work
             }
             else
             {
-                if (tech.Name != "Повторить")
+                int max = 0;
+                if (TOWork.executionWorks.Count > 0)
+                {
+                    max = TOWork.executionWorks.Max(w => w.Order);
+                }
+
+                if (TP.Name != "Повторить")
                 {
                     ExecutionWork techOpeWork = new ExecutionWork();
                     techOpeWork.IdGuid = Guid.NewGuid();
                     techOpeWork.techOperationWork = TOWork;
                     techOpeWork.NewItem = true;
-                    techOpeWork.techTransition = tech;
-                    techOpeWork.Value = tech.TimeExecution;
+                    techOpeWork.techTransition = TP;
+                    techOpeWork.Value = TP.TimeExecution;
                     techOpeWork.Order = max + 1;
                     TOWork.executionWorks.Add(techOpeWork);
 
@@ -789,102 +785,102 @@ namespace TC_WinForms.WinForms.Work
 
             return;
 
-            using (var context = new MyDbContext())
-            {
-                var TC = context.TechnologicalCards.Single(s => s.Id == 1);
+            //using (var context = new MyDbContext())
+            //{
+            //    var TC = context.TechnologicalCards.Single(s => s.Id == 1);
 
-                TechOperation techOperation = new TechOperation();
-                techOperation.Name = "Установка автовышки";
-                context.TechOperations.Add(techOperation);
+            //    TechOperation techOperation = new TechOperation();
+            //    techOperation.Name = "Установка автовышки";
+            //    context.TechOperations.Add(techOperation);
 
-                TechOperationWork techOperationWork = new TechOperationWork();
-                techOperationWork.techOperation = techOperation;
-                techOperationWork.technologicalCard = TC;
+            //    TechOperationWork techOperationWork = new TechOperationWork();
+            //    techOperationWork.techOperation = techOperation;
+            //    techOperationWork.technologicalCard = TC;
 
-                var techOperation2 = new TechOperation();
-                techOperation2.Name = "Подготовка к работе с люльки";
-                context.TechOperations.Add(techOperation2);
+            //    var techOperation2 = new TechOperation();
+            //    techOperation2.Name = "Подготовка к работе с люльки";
+            //    context.TechOperations.Add(techOperation2);
 
-                TechOperationWork techOperationWork2 = new TechOperationWork();
-                techOperationWork2.techOperation = techOperation2;
-                techOperationWork2.technologicalCard = TC;
-
-
+            //    TechOperationWork techOperationWork2 = new TechOperationWork();
+            //    techOperationWork2.techOperation = techOperation2;
+            //    techOperationWork2.technologicalCard = TC;
 
 
-                TechTransition techTransition = new TechTransition();
-                techTransition.Name = "Определить место установки техники";
-                techTransition.TimeExecution = 3;
-                context.TechTransitions.Add(techTransition);
-
-                ExecutionWork executionWork = new ExecutionWork();
-                executionWork.techTransition = techTransition;
-                executionWork.techOperationWork = techOperationWork;
-                context.ExecutionWorks.Add(executionWork);
-
-                techTransition = new TechTransition();
-                techTransition.Name = "Установить автовышку";
-                techTransition.TimeExecution = 5.5;
-                context.TechTransitions.Add(techTransition);
-
-                executionWork = new ExecutionWork();
-                executionWork.techTransition = techTransition;
-                executionWork.techOperationWork = techOperationWork;
-                context.ExecutionWorks.Add(executionWork);
-
-                techTransition = new TechTransition();
-                techTransition.Name = "Установить ограждение рабочей зоны";
-                techTransition.TimeExecution = 5;
-                context.TechTransitions.Add(techTransition);
-
-                executionWork = new ExecutionWork();
-                executionWork.techTransition = techTransition;
-                executionWork.techOperationWork = techOperationWork;
-                context.ExecutionWorks.Add(executionWork);
-
-                techTransition = new TechTransition();
-                techTransition.Name = "Подготовить инструменты и материалы";
-                techTransition.TimeExecution = 4;
-                context.TechTransitions.Add(techTransition);
-
-                executionWork = new ExecutionWork();
-                executionWork.techTransition = techTransition;
-                executionWork.techOperationWork = techOperationWork;
-                context.ExecutionWorks.Add(executionWork);
-
-                techTransition = new TechTransition();
-                techTransition.Name = "Загрузить в люльку инструменты и материалы";
-                techTransition.TimeExecution = 3;
-                context.TechTransitions.Add(techTransition);
-
-                executionWork = new ExecutionWork();
-                executionWork.techTransition = techTransition;
-                executionWork.techOperationWork = techOperationWork2;
-                context.ExecutionWorks.Add(executionWork);
-
-                techTransition = new TechTransition();
-                techTransition.Name = "Надеть страховочную привязь";
-                techTransition.TimeExecution = 1.5;
-                context.TechTransitions.Add(techTransition);
-
-                executionWork = new ExecutionWork();
-                executionWork.techTransition = techTransition;
-                executionWork.techOperationWork = techOperationWork2;
-                context.ExecutionWorks.Add(executionWork);
-
-                techTransition = new TechTransition();
-                techTransition.Name = "Войти в люльку, закрепиться удерживающим стропом, закрыть дверь на запорное устройство";
-                techTransition.TimeExecution = 1;
-                context.TechTransitions.Add(techTransition);
-
-                executionWork = new ExecutionWork();
-                executionWork.techTransition = techTransition;
-                executionWork.techOperationWork = techOperationWork2;
-                context.ExecutionWorks.Add(executionWork);
 
 
-                context.SaveChanges();
-            }
+            //    TechTransition techTransition = new TechTransition();
+            //    techTransition.Name = "Определить место установки техники";
+            //    techTransition.TimeExecution = 3;
+            //    context.TechTransitions.Add(techTransition);
+
+            //    ExecutionWork executionWork = new ExecutionWork();
+            //    executionWork.techTransition = techTransition;
+            //    executionWork.techOperationWork = techOperationWork;
+            //    context.ExecutionWorks.Add(executionWork);
+
+            //    techTransition = new TechTransition();
+            //    techTransition.Name = "Установить автовышку";
+            //    techTransition.TimeExecution = 5.5;
+            //    context.TechTransitions.Add(techTransition);
+
+            //    executionWork = new ExecutionWork();
+            //    executionWork.techTransition = techTransition;
+            //    executionWork.techOperationWork = techOperationWork;
+            //    context.ExecutionWorks.Add(executionWork);
+
+            //    techTransition = new TechTransition();
+            //    techTransition.Name = "Установить ограждение рабочей зоны";
+            //    techTransition.TimeExecution = 5;
+            //    context.TechTransitions.Add(techTransition);
+
+            //    executionWork = new ExecutionWork();
+            //    executionWork.techTransition = techTransition;
+            //    executionWork.techOperationWork = techOperationWork;
+            //    context.ExecutionWorks.Add(executionWork);
+
+            //    techTransition = new TechTransition();
+            //    techTransition.Name = "Подготовить инструменты и материалы";
+            //    techTransition.TimeExecution = 4;
+            //    context.TechTransitions.Add(techTransition);
+
+            //    executionWork = new ExecutionWork();
+            //    executionWork.techTransition = techTransition;
+            //    executionWork.techOperationWork = techOperationWork;
+            //    context.ExecutionWorks.Add(executionWork);
+
+            //    techTransition = new TechTransition();
+            //    techTransition.Name = "Загрузить в люльку инструменты и материалы";
+            //    techTransition.TimeExecution = 3;
+            //    context.TechTransitions.Add(techTransition);
+
+            //    executionWork = new ExecutionWork();
+            //    executionWork.techTransition = techTransition;
+            //    executionWork.techOperationWork = techOperationWork2;
+            //    context.ExecutionWorks.Add(executionWork);
+
+            //    techTransition = new TechTransition();
+            //    techTransition.Name = "Надеть страховочную привязь";
+            //    techTransition.TimeExecution = 1.5;
+            //    context.TechTransitions.Add(techTransition);
+
+            //    executionWork = new ExecutionWork();
+            //    executionWork.techTransition = techTransition;
+            //    executionWork.techOperationWork = techOperationWork2;
+            //    context.ExecutionWorks.Add(executionWork);
+
+            //    techTransition = new TechTransition();
+            //    techTransition.Name = "Войти в люльку, закрепиться удерживающим стропом, закрыть дверь на запорное устройство";
+            //    techTransition.TimeExecution = 1;
+            //    context.TechTransitions.Add(techTransition);
+
+            //    executionWork = new ExecutionWork();
+            //    executionWork.techTransition = techTransition;
+            //    executionWork.techOperationWork = techOperationWork2;
+            //    context.ExecutionWorks.Add(executionWork);
+
+
+            //    context.SaveChanges();
+            //}
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -897,7 +893,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-            //context
+            //context = new MyDbContext();
 
             // TehCarta.Staff_TCs = Staff_TC;
 

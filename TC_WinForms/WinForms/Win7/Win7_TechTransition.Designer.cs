@@ -31,6 +31,7 @@
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
+            cbxShowUnReleased = new CheckBox();
             lblCategoryFilter = new Label();
             cbxCategoryFilter = new ComboBox();
             lblSearch = new Label();
@@ -59,6 +60,7 @@
             dgvMain.ReadOnly = true;
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
+            dgvMain.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvMain.Size = new Size(1291, 462);
             dgvMain.TabIndex = 0;
             // 
@@ -75,6 +77,7 @@
             // 
             // pnlFilters
             // 
+            pnlFilters.Controls.Add(cbxShowUnReleased);
             pnlFilters.Controls.Add(lblCategoryFilter);
             pnlFilters.Controls.Add(cbxCategoryFilter);
             pnlFilters.Controls.Add(lblSearch);
@@ -86,10 +89,21 @@
             pnlFilters.Size = new Size(652, 100);
             pnlFilters.TabIndex = 25;
             // 
+            // cbxShowUnReleased
+            // 
+            cbxShowUnReleased.AutoSize = true;
+            cbxShowUnReleased.Location = new Point(12, 68);
+            cbxShowUnReleased.Name = "cbxShowUnReleased";
+            cbxShowUnReleased.Size = new Size(277, 29);
+            cbxShowUnReleased.TabIndex = 31;
+            cbxShowUnReleased.Text = "Показать неопубликованные";
+            cbxShowUnReleased.UseVisualStyleBackColor = true;
+            cbxShowUnReleased.CheckedChanged += cbxShowUnReleased_CheckedChanged;
+            // 
             // lblCategoryFilter
             // 
             lblCategoryFilter.AutoSize = true;
-            lblCategoryFilter.Location = new Point(280, 24);
+            lblCategoryFilter.Location = new Point(280, 3);
             lblCategoryFilter.Name = "lblCategoryFilter";
             lblCategoryFilter.Size = new Size(99, 25);
             lblCategoryFilter.TabIndex = 30;
@@ -98,7 +112,7 @@
             // cbxCategoryFilter
             // 
             cbxCategoryFilter.FormattingEnabled = true;
-            cbxCategoryFilter.Location = new Point(280, 52);
+            cbxCategoryFilter.Location = new Point(280, 31);
             cbxCategoryFilter.Name = "cbxCategoryFilter";
             cbxCategoryFilter.Size = new Size(167, 33);
             cbxCategoryFilter.TabIndex = 29;
@@ -107,7 +121,7 @@
             // lblSearch
             // 
             lblSearch.AutoSize = true;
-            lblSearch.Location = new Point(12, 26);
+            lblSearch.Location = new Point(12, 5);
             lblSearch.Name = "lblSearch";
             lblSearch.Size = new Size(67, 25);
             lblSearch.TabIndex = 28;
@@ -115,7 +129,7 @@
             // 
             // txtSearch
             // 
-            txtSearch.Location = new Point(12, 54);
+            txtSearch.Location = new Point(12, 33);
             txtSearch.Name = "txtSearch";
             txtSearch.Size = new Size(224, 31);
             txtSearch.TabIndex = 27;
@@ -211,5 +225,6 @@
         private Label lblCategoryFilter;
         private ComboBox cbxCategoryFilter;
         private Button btnUpdate;
+        private CheckBox cbxShowUnReleased;
     }
 }

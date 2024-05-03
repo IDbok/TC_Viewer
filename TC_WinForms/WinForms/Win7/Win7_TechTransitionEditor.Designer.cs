@@ -42,13 +42,14 @@
             lblTimeUnit = new Label();
             btnClose = new Button();
             btnSave = new Button();
+            cbxIsReleased = new CheckBox();
             SuspendLayout();
             // 
             // txtName
             // 
             txtName.Location = new Point(220, 30);
             txtName.Name = "txtName";
-            txtName.Size = new Size(523, 31);
+            txtName.Size = new Size(375, 31);
             txtName.TabIndex = 7;
             // 
             // lblName
@@ -66,7 +67,7 @@
             cbxCategory.FormattingEnabled = true;
             cbxCategory.Location = new Point(220, 90);
             cbxCategory.Name = "cbxCategory";
-            cbxCategory.Size = new Size(348, 33);
+            cbxCategory.Size = new Size(375, 33);
             cbxCategory.TabIndex = 8;
             // 
             // lblCategory
@@ -118,7 +119,7 @@
             // 
             rtxtNameComment.Location = new Point(220, 210);
             rtxtNameComment.Name = "rtxtNameComment";
-            rtxtNameComment.Size = new Size(523, 110);
+            rtxtNameComment.Size = new Size(530, 110);
             rtxtNameComment.TabIndex = 15;
             rtxtNameComment.Text = "";
             // 
@@ -126,7 +127,7 @@
             // 
             rtxtTimeComment.Location = new Point(220, 340);
             rtxtTimeComment.Name = "rtxtTimeComment";
-            rtxtTimeComment.Size = new Size(523, 110);
+            rtxtTimeComment.Size = new Size(530, 110);
             rtxtTimeComment.TabIndex = 16;
             rtxtTimeComment.Text = "";
             // 
@@ -151,7 +152,7 @@
             // 
             // btnClose
             // 
-            btnClose.Location = new Point(573, 461);
+            btnClose.Location = new Point(580, 461);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(170, 70);
             btnClose.TabIndex = 19;
@@ -169,11 +170,22 @@
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Click;
             // 
+            // cbxIsReleased
+            // 
+            cbxIsReleased.AutoSize = true;
+            cbxIsReleased.Location = new Point(601, 32);
+            cbxIsReleased.Name = "cbxIsReleased";
+            cbxIsReleased.Size = new Size(149, 29);
+            cbxIsReleased.TabIndex = 25;
+            cbxIsReleased.Text = "Опубликован";
+            cbxIsReleased.UseVisualStyleBackColor = true;
+            // 
             // Win7_TechTransitionEditor
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(778, 544);
+            Controls.Add(cbxIsReleased);
             Controls.Add(btnSave);
             Controls.Add(btnClose);
             Controls.Add(lblTimeUnit);
@@ -214,5 +226,6 @@
         private Label lblTimeUnit;
         private Button btnClose;
         private Button btnSave;
+        private CheckBox cbxIsReleased;
     }
 }
