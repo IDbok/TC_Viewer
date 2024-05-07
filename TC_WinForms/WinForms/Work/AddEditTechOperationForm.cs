@@ -492,24 +492,46 @@ namespace TC_WinForms.WinForms.Work
         {
             UpdateGridAllTP();
         }
+        private IEnumerable<TechTransition> FilterTechTransitions(string searchText)
+        {
+            return allTP.Where(to => 
+            (string.IsNullOrEmpty(searchText) || to.Name.ToLower().Contains(searchText.ToLower()))
+
+                && ((comboBoxTPCategoriya.SelectedIndex == 0 || string.IsNullOrEmpty((string)comboBoxTPCategoriya.SelectedItem))
+                    || 
+                    to.Category == (string)comboBoxTPCategoriya.SelectedItem)
+                && (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId)
+                )
+            ;
+        }
         public void UpdateGridAllTP()
         {
             var offScroll = dataGridViewTPAll.FirstDisplayedScrollingRowIndex;
             dataGridViewTPAll.Rows.Clear();
-
-            bool AddCategor = false;
-            if (comboBoxTPCategoriya.Items.Count == 0)
-            {
-                AddCategor = true;
-                comboBoxTPCategoriya.Items.Add("Все");
-            }
 
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
             var context = TechOperationForm.context;
 
             allTP = context.TechTransitions.ToList(); // todo: добавить фильтрацию по выпуску и номеру карты
-            var list = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.ToList();
+            //var list = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.ToList();
+
+            bool AddCategor = false;
+            if (comboBoxTPCategoriya.Items.Count == 0)
+            {
+                AddCategor = true;
+                comboBoxTPCategoriya.Items.Add("Все");
+
+                var allCategories = allTP.Select(tp => tp.Category).Distinct();
+                foreach (var category in allCategories)
+                {
+                    if (string.IsNullOrEmpty(category))
+                    {
+                        continue;
+                    }
+                    comboBoxTPCategoriya.Items.Add(category);
+                }
+            }
 
             TechTransition povtor = new TechTransition();
             povtor.Name = "Повторить";
@@ -524,32 +546,33 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
-            foreach (TechTransition techTransition in allTP)
+            var filteredTransitions = FilterTechTransitions(textBoxPoiskTP.Text);
+            foreach (TechTransition techTransition in filteredTransitions)// allTP)
             {
-                if (textBoxPoiskTP.Text != "" &&
-                    techTransition.Name.ToLower().IndexOf(textBoxPoiskTP.Text.ToLower()) == -1)
-                {
-                    continue;
-                }
+                //if (textBoxPoiskTP.Text != "" &&
+                //    techTransition.Name.ToLower().IndexOf(textBoxPoiskTP.Text.ToLower()) == -1)
+                //{
+                //    continue;
+                //}
 
-                if (AddCategor)
-                {
-                    if (!string.IsNullOrEmpty(techTransition.Category))
-                    {
-                        if (comboBoxTPCategoriya.Items.Contains(techTransition.Category) == false)
-                        {
-                            comboBoxTPCategoriya.Items.Add(techTransition.Category);
-                        }
-                    }
-                }
+                //if (AddCategor)
+                //{
+                //    if (!string.IsNullOrEmpty(techTransition.Category))
+                //    {
+                //        if (comboBoxTPCategoriya.Items.Contains(techTransition.Category) == false)
+                //        {
+                //            comboBoxTPCategoriya.Items.Add(techTransition.Category);
+                //        }
+                //    }
+                //}
 
-                if (comboBoxTPCategoriya.SelectedIndex > 0)
-                {
-                    if ((string)comboBoxTPCategoriya.SelectedItem != techTransition.Category)
-                    {
-                        continue;
-                    }
-                }
+                //if (comboBoxTPCategoriya.SelectedIndex > 0)
+                //{
+                //    if ((string)comboBoxTPCategoriya.SelectedItem != techTransition.Category)
+                //    {
+                //        continue;
+                //    }
+                //}
 
 
                 List<object> listItem = new List<object>();
