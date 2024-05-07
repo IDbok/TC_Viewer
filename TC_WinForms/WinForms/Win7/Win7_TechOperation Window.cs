@@ -34,6 +34,7 @@ public partial class Win7_TechOperation_Window : Form
                 .Single(s => s.Id == _techOperationId);
 
             textBox1.Text = techOperation.Name;
+            cbxIsReleased.Checked = techOperation.IsReleased;
 
             if (techOperation.Category == "Типовая ТО")
             {
@@ -85,7 +86,7 @@ public partial class Win7_TechOperation_Window : Form
 
     private void DataGridViewTPLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
-        if(e.RowIndex<0) return;
+        if (e.RowIndex < 0) return;
 
         if (e.ColumnIndex == 4)
         {
@@ -235,7 +236,7 @@ public partial class Win7_TechOperation_Window : Form
         {
             context.SaveChanges();
 
-            if(_isTcEditingForm)
+            if (_isTcEditingForm)
             {
                 AfterSave?.Invoke(techOperation);
                 Close();
@@ -244,7 +245,7 @@ public partial class Win7_TechOperation_Window : Form
             {
                 StaticWinForms.Win7_new.UpdateTO();
                 MessageBox.Show("Данные сохранены");
-                
+
             }
 
         }
@@ -257,7 +258,7 @@ public partial class Win7_TechOperation_Window : Form
 
     private void Win7_TechOperation_Window_FormClosing(object sender, FormClosingEventArgs e)
     {
-        var Track = context.ChangeTracker.Entries().Where(w => w.State != Microsoft.EntityFrameworkCore.EntityState.Unchanged).Count(); 
+        var Track = context.ChangeTracker.Entries().Where(w => w.State != Microsoft.EntityFrameworkCore.EntityState.Unchanged).Count();
 
         if (Track > 0)
         {
@@ -276,7 +277,7 @@ public partial class Win7_TechOperation_Window : Form
 
     private void checkBox1_CheckedChanged(object sender, EventArgs e)
     {
-        if(checkBox1.Checked)
+        if (checkBox1.Checked)
         {
             techOperation.Category = "Типовая ТО";
         }
@@ -284,6 +285,11 @@ public partial class Win7_TechOperation_Window : Form
         {
             techOperation.Category = "ТО";
         }
-        
+
+    }
+
+    private void cbxIsReleased_CheckedChanged(object sender, EventArgs e)
+    {
+        techOperation.IsReleased = cbxIsReleased.Checked;
     }
 }

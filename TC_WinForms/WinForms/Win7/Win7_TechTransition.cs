@@ -340,7 +340,6 @@ namespace TC_WinForms.WinForms
             private string? commentTimeExecution;
 
             private bool isReleased;
-
             private int? createdTCId;
 
             public DisplayedTechTransition()

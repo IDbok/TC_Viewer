@@ -12,6 +12,8 @@ namespace TC_WinForms.WinForms
     public partial class Win7_TechOperation : Form, ISaveEventForm
     {
         private DbConnector dbCon = new DbConnector();
+
+        private List<DisplayedTechOperation> _displayedObjects;
         private BindingList<DisplayedTechOperation> _bindingList;
 
         private List<DisplayedTechOperation> _changedObjects = new List<DisplayedTechOperation>();
@@ -69,11 +71,21 @@ namespace TC_WinForms.WinForms
         }
         private async Task LoadObjects()
         {
-            var tcList = await Task.Run(() => dbCon.GetObjectList<TechOperation>()
-                .Select(obj => new DisplayedTechOperation(obj)).ToList());
-            _bindingList = new BindingList<DisplayedTechOperation>(tcList);
-            _bindingList.ListChanged += BindingList_ListChanged;
-            dgvMain.DataSource = _bindingList;
+            _displayedObjects = await Task.Run(() => dbCon.GetObjectList<TechOperation>()
+                .Select(obj => new DisplayedTechOperation(obj))
+                //.OrderBy(obj => obj.Category)
+                .OrderBy(obj => obj.Name)
+                .ToList());
+
+            FilteringObjects();
+
+            //var tcList = await Task.Run(() => dbCon.GetObjectList<TechOperation>()
+            //    .Select(obj => new DisplayedTechOperation(obj)).ToList());
+
+            //_bindingList = new BindingList<DisplayedTechOperation>(tcList);
+            //_bindingList.ListChanged += BindingList_ListChanged;
+            //dgvMain.DataSource = _bindingList;
+
 
             SetDGVColumnsSettings();
         }
@@ -129,7 +141,7 @@ namespace TC_WinForms.WinForms
 
                 if (result == DialogResult.Yes)
                 {
-                   var context = new MyDbContext();
+                    var context = new MyDbContext();
                     foreach (var row in selectedDTCs)
                     {
                         context.TechOperations.Remove(context.TechOperations.Single(s => s.Id == row.Id));
@@ -321,7 +333,7 @@ namespace TC_WinForms.WinForms
 
 
 
-        private class DisplayedTechOperation : INotifyPropertyChanged, IDisplayedEntity
+        private class DisplayedTechOperation : INotifyPropertyChanged, IDisplayedEntity, IIdentifiable
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -353,6 +365,9 @@ namespace TC_WinForms.WinForms
             private string name;
             private bool category;
 
+            private bool isReleased;
+            private int? createdTCId;
+
             public DisplayedTechOperation()
             {
 
@@ -362,6 +377,9 @@ namespace TC_WinForms.WinForms
                 Id = obj.Id;
                 Name = obj.Name;
                 Category = obj.Category == "Типовая ТО" ? true : false;
+
+                IsReleased = obj.IsReleased;
+                CreatedTCId = obj.CreatedTCId;
             }
 
 
@@ -393,6 +411,32 @@ namespace TC_WinForms.WinForms
                 }
             }
 
+            public bool IsReleased
+            {
+                get => isReleased;
+                set
+                {
+                    if (isReleased != value)
+                    {
+                        isReleased = value;
+                        OnPropertyChanged(nameof(IsReleased));
+                    }
+                }
+            }
+
+            public int? CreatedTCId
+            {
+                get => createdTCId;
+                set
+                {
+                    if (createdTCId != value)
+                    {
+                        createdTCId = value;
+                        OnPropertyChanged(nameof(CreatedTCId));
+                    }
+                }
+            }
+
             public event PropertyChangedEventHandler PropertyChanged;
             protected virtual void OnPropertyChanged(string propertyName)
             {
@@ -402,23 +446,24 @@ namespace TC_WinForms.WinForms
 
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
-            FilterTechnologicalCards();
+            FilteringObjects();
         }
-        private void FilterTechnologicalCards()
+        private void FilteringObjects()
         {
             try
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
                 var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
 
-                if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все")
+                if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все" && !cbxShowUnReleased.Checked)
                 {
-                    dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
+                    _bindingList = new BindingList<DisplayedTechOperation>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList()); ; // Возвращаем исходный список, если строка поиска пуста
                 }
                 else
                 {
-                    dgvMain.DataSource = FilteredBindingList(searchText, categoryFilter);//new BindingList<DisplayedProtection>(filteredList);
+                    _bindingList = FilteredBindingList(searchText, categoryFilter);//new BindingList<DisplayedProtection>(filteredList);
                 }
+                dgvMain.DataSource = _bindingList;
             }
             catch (Exception e)
             {
@@ -428,23 +473,29 @@ namespace TC_WinForms.WinForms
         }
         private BindingList<DisplayedTechOperation> FilteredBindingList(string searchText, string categoryFilter)
         {
-            var filteredList = _bindingList.Where(obj =>
-                        (categoryFilter != "Все"
-                        ?
-                            (
-                                (categoryFilter == "Типовая ТО" ? obj.Category == true : false) ||
-                                (categoryFilter == "ТО" ? obj.Category == false : false)
-                            )
-                        : (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
-                        )
+            var filteredList = _displayedObjects.Where(obj =>
+                    (searchText == ""
+                        || (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) )
+                    && (categoryFilter == "Все" || obj.Category == (categoryFilter == "Типовая ТО") ) 
+                    && (obj.IsReleased == !cbxShowUnReleased.Checked)
+                    ).ToList();
+            //(categoryFilter != "Все"
+            //            ?
+            //                (
+            //                    (categoryFilter == "Типовая ТО" ? obj.Category == true : false) ||
+            //                    (categoryFilter == "ТО" ? obj.Category == false : false)
+            //                )
+            //            : (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+            //            )
 
-                        ).ToList();
+            //            ).ToList();
 
             return new BindingList<DisplayedTechOperation>(filteredList);
         }
+
         private void cbxCategoryFilter_SelectedIndexChanged(object sender, EventArgs e)
         {
-            FilterTechnologicalCards();
+            FilteringObjects();
             // set combobox width to item length
             var width = TextRenderer.MeasureText(cbxCategoryFilter.SelectedItem.ToString(), cbxCategoryFilter.Font).Width + 20;
             cbxCategoryFilter.Width = width < 160 ? 160 : width;
@@ -464,5 +515,9 @@ namespace TC_WinForms.WinForms
             cbxCategoryFilter.DropDownWidth = cbxCategoryFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxCategoryFilter.Font).Width) + 20;
         }
 
+        private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)
+        {
+            FilteringObjects();
+        }
     }
 }

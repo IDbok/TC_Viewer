@@ -43,6 +43,7 @@
             Column2 = new DataGridViewTextBoxColumn();
             Order1 = new DataGridViewTextBoxColumn();
             panel1 = new Panel();
+            cbxIsReleased = new CheckBox();
             button1 = new Button();
             checkBox1 = new CheckBox();
             label2 = new Label();
@@ -53,7 +54,6 @@
             dataGridViewCheckBoxColumn2 = new DataGridViewButtonColumn();
             dataGridViewTextBoxColumn6 = new DataGridViewTextBoxColumn();
             TimeExecution = new DataGridViewTextBoxColumn();
-            cbxIsReleased = new CheckBox();
             tableLayoutPanel1.SuspendLayout();
             panel2.SuspendLayout();
             groupBox10.SuspendLayout();
@@ -72,15 +72,14 @@
             tableLayoutPanel1.Controls.Add(dataGridViewTPLocal, 0, 1);
             tableLayoutPanel1.Controls.Add(panel1, 0, 0);
             tableLayoutPanel1.Controls.Add(dataGridViewTPAll, 0, 3);
-            tableLayoutPanel1.Location = new Point(-1, 4);
-            tableLayoutPanel1.Margin = new Padding(4, 4, 4, 4);
+            tableLayoutPanel1.Location = new Point(-1, 3);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 4;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 150F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 120F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 100F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 80F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.Size = new Size(1091, 985);
+            tableLayoutPanel1.Size = new Size(873, 788);
             tableLayoutPanel1.TabIndex = 0;
             // 
             // panel2
@@ -88,20 +87,17 @@
             panel2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panel2.Controls.Add(groupBox10);
             panel2.Controls.Add(groupBox5);
-            panel2.Location = new Point(4, 521);
-            panel2.Margin = new Padding(4, 4, 4, 4);
+            panel2.Location = new Point(3, 417);
             panel2.Name = "panel2";
-            panel2.Size = new Size(1083, 92);
+            panel2.Size = new Size(867, 74);
             panel2.TabIndex = 8;
             // 
             // groupBox10
             // 
             groupBox10.Controls.Add(comboBoxTPCategoriya);
-            groupBox10.Location = new Point(398, 0);
-            groupBox10.Margin = new Padding(4, 4, 4, 4);
+            groupBox10.Location = new Point(318, 0);
             groupBox10.Name = "groupBox10";
-            groupBox10.Padding = new Padding(4, 4, 4, 4);
-            groupBox10.Size = new Size(386, 80);
+            groupBox10.Size = new Size(309, 64);
             groupBox10.TabIndex = 7;
             groupBox10.TabStop = false;
             groupBox10.Text = "Категория";
@@ -109,30 +105,26 @@
             // comboBoxTPCategoriya
             // 
             comboBoxTPCategoriya.FormattingEnabled = true;
-            comboBoxTPCategoriya.Location = new Point(8, 31);
-            comboBoxTPCategoriya.Margin = new Padding(4, 4, 4, 4);
+            comboBoxTPCategoriya.Location = new Point(6, 25);
             comboBoxTPCategoriya.Name = "comboBoxTPCategoriya";
-            comboBoxTPCategoriya.Size = new Size(370, 33);
+            comboBoxTPCategoriya.Size = new Size(297, 28);
             comboBoxTPCategoriya.TabIndex = 0;
             // 
             // groupBox5
             // 
             groupBox5.Controls.Add(textBoxPoiskTP);
-            groupBox5.Location = new Point(4, 0);
-            groupBox5.Margin = new Padding(4, 4, 4, 4);
+            groupBox5.Location = new Point(3, 0);
             groupBox5.Name = "groupBox5";
-            groupBox5.Padding = new Padding(4, 4, 4, 4);
-            groupBox5.Size = new Size(386, 80);
+            groupBox5.Size = new Size(309, 64);
             groupBox5.TabIndex = 6;
             groupBox5.TabStop = false;
             groupBox5.Text = "Поиск";
             // 
             // textBoxPoiskTP
             // 
-            textBoxPoiskTP.Location = new Point(20, 32);
-            textBoxPoiskTP.Margin = new Padding(4, 4, 4, 4);
+            textBoxPoiskTP.Location = new Point(16, 26);
             textBoxPoiskTP.Name = "textBoxPoiskTP";
-            textBoxPoiskTP.Size = new Size(320, 31);
+            textBoxPoiskTP.Size = new Size(257, 27);
             textBoxPoiskTP.TabIndex = 0;
             // 
             // dataGridViewTPLocal
@@ -143,13 +135,12 @@
             dataGridViewTPLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewTPLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Time, Column1, Column2, Order1 });
-            dataGridViewTPLocal.Location = new Point(4, 154);
-            dataGridViewTPLocal.Margin = new Padding(4, 4, 4, 4);
+            dataGridViewTPLocal.Location = new Point(3, 123);
             dataGridViewTPLocal.Name = "dataGridViewTPLocal";
             dataGridViewTPLocal.RowHeadersWidth = 51;
             dataGridViewTPLocal.RowTemplate.Height = 29;
             dataGridViewTPLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewTPLocal.Size = new Size(1083, 359);
+            dataGridViewTPLocal.Size = new Size(867, 288);
             dataGridViewTPLocal.TabIndex = 2;
             // 
             // dataGridViewTextBoxColumn7
@@ -217,18 +208,28 @@
             panel1.Controls.Add(label2);
             panel1.Controls.Add(textBox1);
             panel1.Controls.Add(label1);
-            panel1.Location = new Point(4, 4);
-            panel1.Margin = new Padding(4, 4, 4, 4);
+            panel1.Location = new Point(3, 3);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1083, 142);
+            panel1.Size = new Size(866, 114);
             panel1.TabIndex = 0;
+            // 
+            // cbxIsReleased
+            // 
+            cbxIsReleased.AutoSize = true;
+            cbxIsReleased.Location = new Point(587, 14);
+            cbxIsReleased.Margin = new Padding(2, 2, 2, 2);
+            cbxIsReleased.Name = "cbxIsReleased";
+            cbxIsReleased.Size = new Size(125, 24);
+            cbxIsReleased.TabIndex = 25;
+            cbxIsReleased.Text = "Опубликован";
+            cbxIsReleased.UseVisualStyleBackColor = true;
+            cbxIsReleased.CheckedChanged += cbxIsReleased_CheckedChanged;
             // 
             // button1
             // 
-            button1.Location = new Point(850, 98);
-            button1.Margin = new Padding(4, 4, 4, 4);
+            button1.Location = new Point(680, 78);
             button1.Name = "button1";
-            button1.Size = new Size(225, 40);
+            button1.Size = new Size(180, 32);
             button1.TabIndex = 4;
             button1.Text = "Сохранить";
             button1.UseVisualStyleBackColor = true;
@@ -237,10 +238,9 @@
             // checkBox1
             // 
             checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(142, 85);
-            checkBox1.Margin = new Padding(4, 4, 4, 4);
+            checkBox1.Location = new Point(114, 68);
             checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(22, 21);
+            checkBox1.Size = new Size(18, 17);
             checkBox1.TabIndex = 3;
             checkBox1.UseVisualStyleBackColor = true;
             checkBox1.CheckedChanged += checkBox1_CheckedChanged;
@@ -248,29 +248,26 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(12, 85);
-            label2.Margin = new Padding(4, 0, 4, 0);
+            label2.Location = new Point(10, 68);
             label2.Name = "label2";
-            label2.Size = new Size(108, 25);
+            label2.Size = new Size(91, 20);
             label2.TabIndex = 2;
             label2.Text = "Типовая ТО";
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(142, 15);
-            textBox1.Margin = new Padding(4, 4, 4, 4);
+            textBox1.Location = new Point(114, 12);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(559, 31);
+            textBox1.Size = new Size(448, 27);
             textBox1.TabIndex = 1;
             textBox1.TextChanged += textBox1_TextChanged;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(12, 19);
-            label1.Margin = new Padding(4, 0, 4, 0);
+            label1.Location = new Point(10, 15);
             label1.Name = "label1";
-            label1.Size = new Size(90, 25);
+            label1.Size = new Size(77, 20);
             label1.TabIndex = 0;
             label1.Text = "Название";
             // 
@@ -282,13 +279,12 @@
             dataGridViewTPAll.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewTPAll.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewTPAll.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn5, dataGridViewCheckBoxColumn2, dataGridViewTextBoxColumn6, TimeExecution });
-            dataGridViewTPAll.Location = new Point(4, 621);
-            dataGridViewTPAll.Margin = new Padding(4, 4, 4, 4);
+            dataGridViewTPAll.Location = new Point(3, 497);
             dataGridViewTPAll.Name = "dataGridViewTPAll";
             dataGridViewTPAll.RowHeadersWidth = 51;
             dataGridViewTPAll.RowTemplate.Height = 29;
             dataGridViewTPAll.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewTPAll.Size = new Size(1083, 360);
+            dataGridViewTPAll.Size = new Size(867, 288);
             dataGridViewTPAll.TabIndex = 1;
             // 
             // dataGridViewTextBoxColumn5
@@ -325,23 +321,12 @@
             TimeExecution.MinimumWidth = 6;
             TimeExecution.Name = "TimeExecution";
             // 
-            // cbxIsReleased
-            // 
-            cbxIsReleased.AutoSize = true;
-            cbxIsReleased.Location = new Point(734, 17);
-            cbxIsReleased.Name = "cbxIsReleased";
-            cbxIsReleased.Size = new Size(149, 29);
-            cbxIsReleased.TabIndex = 25;
-            cbxIsReleased.Text = "Опубликован";
-            cbxIsReleased.UseVisualStyleBackColor = true;
-            // 
             // Win7_TechOperation_Window
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1091, 992);
+            ClientSize = new Size(873, 794);
             Controls.Add(tableLayoutPanel1);
-            Margin = new Padding(4, 4, 4, 4);
             Name = "Win7_TechOperation_Window";
             Text = "Win7_TechOperation_Window";
             FormClosing += Win7_TechOperation_Window_FormClosing;
