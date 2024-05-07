@@ -178,8 +178,14 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
-        private void AddTOWToGridLocalTO(TechOperation techOperationWork)
+        private void AddTOWToGridLocalTO(TechOperation techOperationWork, bool Update=false)
         {
+            if(Update)
+            {
+                var temp = TechOperationForm.context.TechOperations.Single(s => s.Id == techOperationWork.Id);
+                techOperationWork = temp;
+            }
+
             TechOperationForm.AddTechOperation(techOperationWork);
             UpdateLocalTO();
             TechOperationForm.UpdateGrid();
@@ -2177,7 +2183,7 @@ namespace TC_WinForms.WinForms.Work
         private void btnAddNewTO_Click(object sender, EventArgs e)
         {
             var AddingForm = new Win7_TechOperation_Window(isTcEditingForm: true, createdTcId: TechOperationForm.tcId);
-            AddingForm.AfterSave = async (createdObj) => AddTOWToGridLocalTO(createdObj);
+            AddingForm.AfterSave = async (createdObj) => AddTOWToGridLocalTO(createdObj,true);
             AddingForm.ShowDialog();
 
             UpdateTO();
