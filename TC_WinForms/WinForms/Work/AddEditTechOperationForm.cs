@@ -171,12 +171,19 @@ namespace TC_WinForms.WinForms.Work
             {
                 var IddGuid = (TechOperation)dataGridViewAllTO.Rows[e.RowIndex].Cells[0].Value;
 
-                TechOperationForm.AddTechOperation(IddGuid);
-                UpdateLocalTO();
-                TechOperationForm.UpdateGrid();
+                AddTOWToGridLocalTO(IddGuid);
+                //TechOperationForm.AddTechOperation(IddGuid);
+                //UpdateLocalTO();
+                //TechOperationForm.UpdateGrid();
             }
         }
 
+        private void AddTOWToGridLocalTO(TechOperation techOperationWork)
+        {
+            TechOperationForm.AddTechOperation(techOperationWork);
+            UpdateLocalTO();
+            TechOperationForm.UpdateGrid();
+        }
 
         private void DataGridViewTO_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
@@ -190,6 +197,68 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
+        //public void UpdateTO()
+        //{
+        //    var offScroll = dataGridViewAllTO.FirstDisplayedScrollingRowIndex;
+        //    dataGridViewAllTO.Rows.Clear();
+
+        //    var context = TechOperationForm.context;
+        //    allTO = context
+        //        .TechOperations
+        //        .Include(t => t.techTransitionTypicals)
+        //        .ToList();
+        //    //var list = TechOperationForm.TechOperationWorksList;
+
+
+        //    foreach (TechOperation techOperation in allTO)
+        //    {
+        //        if (textBoxPoiskTo.Text != "" &&
+        //            techOperation.Name.ToLower().IndexOf(textBoxPoiskTo.Text.ToLower()) == -1)
+        //        {
+        //            continue;
+        //        }
+
+
+        //        List<object> listItem = new List<object>();
+
+        //        listItem.Add(techOperation);
+
+        //        listItem.Add("Добавить");
+
+        //        //if (list.SingleOrDefault(s => s.Id == techOperation.Id) != null)
+        //        //{
+        //        //    listItem.Add(true);
+        //        //}
+        //        //else
+        //        //{
+        //        //    listItem.Add(false);
+        //        //}
+
+        //        listItem.Add(techOperation.Name);
+
+        //        if (techOperation.Category == "Типовая ТО")
+        //        {
+        //            listItem.Add(true);
+        //        }
+        //        else
+        //        {
+        //            listItem.Add(false);
+        //        }
+
+        //        dataGridViewAllTO.Rows.Add(listItem.ToArray());
+        //    }
+
+        //    try
+        //    {
+        //        dataGridViewAllTO.FirstDisplayedScrollingRowIndex = offScroll;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //    }
+
+
+        //}
+
         public void UpdateTO()
         {
             var offScroll = dataGridViewAllTO.FirstDisplayedScrollingRowIndex;
@@ -200,45 +269,11 @@ namespace TC_WinForms.WinForms.Work
                 .TechOperations
                 .Include(t => t.techTransitionTypicals)
                 .ToList();
-            var list = TechOperationForm.TechOperationWorksList;
 
-
-            foreach (TechOperation techOperation in allTO)
+            var filteredOperations = FilterTechOperations(textBoxPoiskTo.Text);
+            foreach (var operation in filteredOperations)
             {
-                if (textBoxPoiskTo.Text != "" &&
-                    techOperation.Name.ToLower().IndexOf(textBoxPoiskTo.Text.ToLower()) == -1)
-                {
-                    continue;
-                }
-
-
-                List<object> listItem = new List<object>();
-
-                listItem.Add(techOperation);
-
-                listItem.Add("Добавить");
-
-                //if (list.SingleOrDefault(s => s.Id == techOperation.Id) != null)
-                //{
-                //    listItem.Add(true);
-                //}
-                //else
-                //{
-                //    listItem.Add(false);
-                //}
-
-                listItem.Add(techOperation.Name);
-
-                if (techOperation.Category == "Типовая ТО")
-                {
-                    listItem.Add(true);
-                }
-                else
-                {
-                    listItem.Add(false);
-                }
-
-                dataGridViewAllTO.Rows.Add(listItem.ToArray());
+                AddTechOperationToGridAllTO(operation);
             }
 
             try
@@ -248,10 +283,25 @@ namespace TC_WinForms.WinForms.Work
             catch (Exception e)
             {
             }
-
-
         }
-
+        private IEnumerable<TechOperation> FilterTechOperations(string searchText)
+        {
+            return allTO.Where(to => (string.IsNullOrEmpty(searchText) || to.Name.ToLower().Contains(searchText.ToLower()))
+                && (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId)
+                )
+            ;
+        }
+        private void AddTechOperationToGridAllTO(TechOperation techOperation)
+        {
+            var row = new List<object>
+            {
+                techOperation,
+                "Добавить",
+                techOperation.Name,
+                techOperation.Category == "Типовая ТО"
+            };
+            dataGridViewAllTO.Rows.Add(row.ToArray());
+        }
 
         public void UpdateLocalTO()
         {
@@ -260,24 +310,27 @@ namespace TC_WinForms.WinForms.Work
 
             List<TechOperationWork> list = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false)
                 .ToList();
+
             foreach (TechOperationWork techOperationWork in list)
             {
-                List<object> listItem = new List<object>();
-                listItem.Add(techOperationWork);
-                listItem.Add("Удалить");
-                listItem.Add(techOperationWork.techOperation.Name);
+                AddTechOperationToGridLocalTO(techOperationWork);
+
+                //List<object> listItem = new List<object>();
+                //listItem.Add(techOperationWork);
+                //listItem.Add("Удалить");
+                //listItem.Add(techOperationWork.techOperation.Name);
 
 
-                if (techOperationWork.techOperation.Category == "Типовая ТО")
-                {
-                    listItem.Add(true);
-                }
-                else
-                {
-                    listItem.Add(false);
-                }
+                //if (techOperationWork.techOperation.Category == "Типовая ТО")
+                //{
+                //    listItem.Add(true);
+                //}
+                //else
+                //{
+                //    listItem.Add(false);
+                //}
 
-                dataGridViewTO.Rows.Add(listItem.ToArray());
+                //dataGridViewTO.Rows.Add(listItem.ToArray());
             }
 
             List<TechOperationWork> list2 = new List<TechOperationWork>(list);
@@ -294,7 +347,17 @@ namespace TC_WinForms.WinForms.Work
             }
 
         }
-
+        private void AddTechOperationToGridLocalTO(TechOperationWork techOperationWork)
+        {
+            var row = new List<object>
+            {
+                techOperationWork,
+                "Удалить",
+                techOperationWork.techOperation.Name,
+                techOperationWork.techOperation.Category == "Типовая ТО"
+            };
+            dataGridViewTO.Rows.Add(row.ToArray());
+        }
 
         private void comboBoxTO_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -2057,16 +2120,18 @@ namespace TC_WinForms.WinForms.Work
 
         private void btnAddNewTO_Click(object sender, EventArgs e)
         {
-            var AddingForm = new Win7_TechOperation_Window(isTcEditingForm: true);
-            AddingForm.AfterSave = async (createdObj) => AddNewTO(createdObj);
+            var AddingForm = new Win7_TechOperation_Window(isTcEditingForm: true, createdTcId: TechOperationForm.tcId);
+            AddingForm.AfterSave = async (createdObj) => AddTOWToGridLocalTO(createdObj);
             AddingForm.ShowDialog();
+
+            UpdateTO();
         }
 
-        private void AddNewTO(TechOperation modelObject)
-        {
-
-            // Добавить созданный ТО к текущей ТК
-            //AddNewTO(modelObject);
-        }
+        //private void AddNewTO(TechOperation modelObject)
+        //{
+        //    AddTOWToGridLocalTO(modelObject);
+        //    // Добавить созданный ТО к текущей ТК
+        //    //AddNewTO(modelObject);
+        //}
     }
 }

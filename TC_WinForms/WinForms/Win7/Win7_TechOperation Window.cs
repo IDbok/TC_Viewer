@@ -20,18 +20,18 @@ public partial class Win7_TechOperation_Window : Form
     private readonly bool _isTcEditingForm;
 
 
-    public Win7_TechOperation_Window(int? _techOperationint = null, bool isTcEditingForm = false)
+    public Win7_TechOperation_Window(int? _techOperationId = null, bool isTcEditingForm = false, int? createdTcId = null)
     {
         _isTcEditingForm = isTcEditingForm;
         InitializeComponent();
 
         context = new MyDbContext();
 
-        if (_techOperationint != null)
+        if (_techOperationId != null)
         {
             techOperation = context.TechOperations
                 .Include(t => t.techTransitionTypicals)
-                .Single(s => s.Id == _techOperationint);
+                .Single(s => s.Id == _techOperationId);
 
             textBox1.Text = techOperation.Name;
 
@@ -56,6 +56,7 @@ public partial class Win7_TechOperation_Window : Form
         if (techOperation == null)
         {
             techOperation = new TechOperation();
+            techOperation.CreatedTCId = createdTcId;
             context.TechOperations.Add(techOperation);
         }
 
@@ -237,11 +238,13 @@ public partial class Win7_TechOperation_Window : Form
             if(_isTcEditingForm)
             {
                 AfterSave?.Invoke(techOperation);
+                Close();
             }
             else
             {
                 StaticWinForms.Win7_new.UpdateTO();
                 MessageBox.Show("Данные сохранены");
+                
             }
 
         }
