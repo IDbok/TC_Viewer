@@ -898,6 +898,7 @@ namespace TC_WinForms.WinForms.Work
         private void button1_Click_1(object sender, EventArgs e)
         {
             //context = new MyDbContext();
+            //context.ChangeTracker.Clear();
 
             // TehCarta.Staff_TCs = Staff_TC;
 
@@ -922,9 +923,6 @@ namespace TC_WinForms.WinForms.Work
                 var to = context.TechOperationWorks.SingleOrDefault(s => techOperationWork.Id != 0 && s.Id == techOperationWork.Id);
                 if (to == null)
                 {
-                    //// untrack techoperation entity
-                    //context.Entry(techOperationWork.techOperation).State = EntityState.Detached;
-                    //techOperationWork.techOperationId = techOperationWork.techOperation.Id;
                     context.TechOperationWorks.Add(techOperationWork);
                 }
                 else
