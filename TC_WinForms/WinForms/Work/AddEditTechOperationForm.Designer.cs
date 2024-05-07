@@ -41,6 +41,7 @@
             Order = new DataGridViewTextBoxColumn();
             Column22 = new DataGridViewCheckBoxColumn();
             panel2 = new Panel();
+            btnAddNewTO = new Button();
             groupBox2 = new GroupBox();
             textBoxPoiskTo = new TextBox();
             tabControl1 = new TabControl();
@@ -84,7 +85,6 @@
             dataGridViewTextBoxColumn14 = new DataGridViewTextBoxColumn();
             Column4 = new DataGridViewTextBoxColumn();
             Column5 = new DataGridViewTextBoxColumn();
-            Column23 = new DataGridViewTextBoxColumn();
             comboBoxTO2 = new ComboBox();
             tableLayoutPanel13 = new TableLayoutPanel();
             groupBox8 = new GroupBox();
@@ -97,8 +97,6 @@
             dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
             DateGridLocalTPDetete = new DataGridViewButtonColumn();
             dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
-            Column25 = new DataGridViewTextBoxColumn();
-            Column24 = new DataGridViewTextBoxColumn();
             Time = new DataGridViewTextBoxColumn();
             Column19 = new DataGridViewTextBoxColumn();
             Order1 = new DataGridViewTextBoxColumn();
@@ -187,6 +185,9 @@
             dataGridViewCheckBoxColumn4 = new DataGridViewCheckBoxColumn();
             dataGridViewTextBoxColumn73 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn79 = new DataGridViewTextBoxColumn();
+            Column23 = new DataGridViewTextBoxColumn();
+            Column25 = new DataGridViewTextBoxColumn();
+            Column24 = new DataGridViewTextBoxColumn();
             tabPage3 = new TabPage();
             tableLayoutPanel2 = new TableLayoutPanel();
             dataGridView1 = new DataGridView();
@@ -230,11 +231,6 @@
             dataGridViewTextBoxColumn63 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn64 = new DataGridViewTextBoxColumn();
             tabPage10 = new TabPage();
-            IdTO = new DataGridViewTextBoxColumn();
-            Column18 = new DataGridViewButtonColumn();
-            Column1 = new DataGridViewTextBoxColumn();
-            //Column22 = new DataGridViewCheckBoxColumn();
-            Order = new DataGridViewTextBoxColumn();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTO).BeginInit();
@@ -306,14 +302,13 @@
             tableLayoutPanel1.Controls.Add(dataGridViewAllTO, 0, 2);
             tableLayoutPanel1.Controls.Add(dataGridViewTO, 0, 0);
             tableLayoutPanel1.Controls.Add(panel2, 0, 1);
-            tableLayoutPanel1.Location = new Point(4, 4);
-            tableLayoutPanel1.Margin = new Padding(4);
+            tableLayoutPanel1.Location = new Point(3, 3);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 3;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 44.4444427F));
-            tableLayoutPanel1.Size = new Size(1570, 818);
+            tableLayoutPanel1.Size = new Size(1256, 654);
             tableLayoutPanel1.TabIndex = 0;
             // 
             // dataGridViewAllTO
@@ -324,13 +319,48 @@
             dataGridViewAllTO.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewAllTO.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewAllTO.Columns.AddRange(new DataGridViewColumn[] { Id, Add, NameTO, Column21 });
-            dataGridViewAllTO.Location = new Point(4, 497);
-            dataGridViewAllTO.Margin = new Padding(4);
+            dataGridViewAllTO.Location = new Point(3, 397);
             dataGridViewAllTO.Name = "dataGridViewAllTO";
             dataGridViewAllTO.RowHeadersWidth = 51;
             dataGridViewAllTO.RowTemplate.Height = 29;
-            dataGridViewAllTO.Size = new Size(1562, 317);
+            dataGridViewAllTO.Size = new Size(1250, 254);
             dataGridViewAllTO.TabIndex = 0;
+            // 
+            // Id
+            // 
+            Id.HeaderText = "Id";
+            Id.MinimumWidth = 6;
+            Id.Name = "Id";
+            Id.Visible = false;
+            // 
+            // Add
+            // 
+            Add.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Add.FillWeight = 50F;
+            Add.HeaderText = "";
+            Add.MinimumWidth = 50;
+            Add.Name = "Add";
+            Add.Resizable = DataGridViewTriState.True;
+            Add.Width = 125;
+            // 
+            // NameTO
+            // 
+            NameTO.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            NameTO.FillWeight = 167.914459F;
+            NameTO.HeaderText = "Технологические операции";
+            NameTO.MinimumWidth = 6;
+            NameTO.Name = "NameTO";
+            NameTO.ReadOnly = true;
+            NameTO.Resizable = DataGridViewTriState.True;
+            NameTO.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Column21
+            // 
+            Column21.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column21.HeaderText = "Типовая ТО";
+            Column21.MinimumWidth = 6;
+            Column21.Name = "Column21";
+            Column21.Width = 150;
             // 
             // dataGridViewTO
             // 
@@ -339,14 +369,15 @@
             dataGridViewTO.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewTO.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewTO.Columns.AddRange(new DataGridViewColumn[] { IdTO, Column18, Column1, Order, Column22 });
-            dataGridViewTO.Location = new Point(3, 3);
+            dataGridViewTO.Location = new Point(2, 2);
+            dataGridViewTO.Margin = new Padding(2);
             dataGridViewTO.MultiSelect = false;
             dataGridViewTO.Name = "dataGridViewTO";
             dataGridViewTO.ReadOnly = true;
             dataGridViewTO.RowHeadersWidth = 51;
             dataGridViewTO.RowTemplate.Height = 29;
             dataGridViewTO.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewTO.Size = new Size(1562, 397);
+            dataGridViewTO.Size = new Size(1252, 320);
             dataGridViewTO.TabIndex = 1;
             // 
             // IdTO
@@ -399,32 +430,40 @@
             // 
             // panel2
             // 
-            panel2.Controls.Add(btnCreateNewTP);
+            panel2.Controls.Add(btnAddNewTO);
             panel2.Controls.Add(groupBox2);
             panel2.Dock = DockStyle.Fill;
-            panel2.Location = new Point(3, 408);
+            panel2.Location = new Point(2, 326);
+            panel2.Margin = new Padding(2);
             panel2.Name = "panel2";
-            panel2.Size = new Size(1564, 82);
+            panel2.Size = new Size(1252, 66);
             panel2.TabIndex = 5;
+            // 
+            // btnAddNewTO
+            // 
+            btnAddNewTO.Location = new Point(325, 28);
+            btnAddNewTO.Margin = new Padding(2);
+            btnAddNewTO.Name = "btnAddNewTO";
+            btnAddNewTO.Size = new Size(224, 28);
+            btnAddNewTO.TabIndex = 0;
+            btnAddNewTO.Text = "Добавить новую операцию";
+            btnAddNewTO.Click += btnAddNewTO_Click;
             // 
             // groupBox2
             // 
             groupBox2.Controls.Add(textBoxPoiskTo);
-            groupBox2.Location = new Point(4, 4);
-            groupBox2.Margin = new Padding(4);
+            groupBox2.Location = new Point(3, 3);
             groupBox2.Name = "groupBox2";
-            groupBox2.Padding = new Padding(4);
-            groupBox2.Size = new Size(365, 74);
+            groupBox2.Size = new Size(292, 59);
             groupBox2.TabIndex = 4;
             groupBox2.TabStop = false;
             groupBox2.Text = "Поиск";
             // 
             // textBoxPoiskTo
             // 
-            textBoxPoiskTo.Location = new Point(20, 32);
-            textBoxPoiskTo.Margin = new Padding(4);
+            textBoxPoiskTo.Location = new Point(16, 26);
             textBoxPoiskTo.Name = "textBoxPoiskTo";
-            textBoxPoiskTo.Size = new Size(320, 31);
+            textBoxPoiskTo.Size = new Size(257, 27);
             textBoxPoiskTo.TabIndex = 0;
             // 
             // tabControl1
@@ -439,21 +478,19 @@
             tabControl1.Controls.Add(tabPage8);
             tabControl1.Controls.Add(tabPage9);
             tabControl1.Location = new Point(0, 0);
-            tabControl1.Margin = new Padding(4);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1588, 866);
+            tabControl1.Size = new Size(1270, 693);
             tabControl1.TabIndex = 1;
             tabControl1.SelectedIndexChanged += tabControl1_SelectedIndexChanged;
             // 
             // tabPage1
             // 
             tabPage1.Controls.Add(tableLayoutPanel1);
-            tabPage1.Location = new Point(4, 34);
-            tabPage1.Margin = new Padding(4);
+            tabPage1.Location = new Point(4, 29);
             tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(4);
-            tabPage1.Size = new Size(1580, 828);
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new Size(1262, 660);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Технологические операции";
             tabPage1.UseVisualStyleBackColor = true;
@@ -461,10 +498,9 @@
             // tabPage6
             // 
             tabPage6.Controls.Add(tableLayoutPanel6);
-            tabPage6.Location = new Point(4, 34);
-            tabPage6.Margin = new Padding(4);
+            tabPage6.Location = new Point(4, 29);
             tabPage6.Name = "tabPage6";
-            tabPage6.Size = new Size(1580, 828);
+            tabPage6.Size = new Size(1262, 660);
             tabPage6.TabIndex = 4;
             tabPage6.Text = "Инструменты";
             tabPage6.UseVisualStyleBackColor = true;
@@ -478,16 +514,15 @@
             tableLayoutPanel6.Controls.Add(comboBoxTO3, 0, 0);
             tableLayoutPanel6.Controls.Add(dataGridViewInstumentAll, 0, 3);
             tableLayoutPanel6.Controls.Add(tableLayoutPanel12, 0, 2);
-            tableLayoutPanel6.Location = new Point(4, 4);
-            tableLayoutPanel6.Margin = new Padding(4);
+            tableLayoutPanel6.Location = new Point(3, 3);
             tableLayoutPanel6.Name = "tableLayoutPanel6";
             tableLayoutPanel6.RowCount = 4;
-            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
-            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
-            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
-            tableLayoutPanel6.Size = new Size(1574, 821);
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel6.Size = new Size(1259, 657);
             tableLayoutPanel6.TabIndex = 3;
             // 
             // dataGridViewInstrumentLocal
@@ -498,13 +533,12 @@
             dataGridViewInstrumentLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewInstrumentLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewInstrumentLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn20, dataGridViewButtonColumn4, dataGridViewTextBoxColumn21, dataGridViewTextBoxColumn22, dataGridViewTextBoxColumn23, dataGridViewTextBoxColumn24, Column20 });
-            dataGridViewInstrumentLocal.Location = new Point(4, 54);
-            dataGridViewInstrumentLocal.Margin = new Padding(4);
+            dataGridViewInstrumentLocal.Location = new Point(3, 43);
             dataGridViewInstrumentLocal.Name = "dataGridViewInstrumentLocal";
             dataGridViewInstrumentLocal.RowHeadersWidth = 51;
             dataGridViewInstrumentLocal.RowTemplate.Height = 29;
             dataGridViewInstrumentLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewInstrumentLocal.Size = new Size(1566, 371);
+            dataGridViewInstrumentLocal.Size = new Size(1253, 297);
             dataGridViewInstrumentLocal.TabIndex = 1;
             // 
             // dataGridViewTextBoxColumn20
@@ -568,10 +602,9 @@
             // comboBoxTO3
             // 
             comboBoxTO3.FormattingEnabled = true;
-            comboBoxTO3.Location = new Point(4, 4);
-            comboBoxTO3.Margin = new Padding(4);
+            comboBoxTO3.Location = new Point(3, 3);
             comboBoxTO3.Name = "comboBoxTO3";
-            comboBoxTO3.Size = new Size(503, 33);
+            comboBoxTO3.Size = new Size(403, 28);
             comboBoxTO3.TabIndex = 2;
             comboBoxTO3.SelectedIndexChanged += comboBoxTO3_SelectedIndexChanged;
             // 
@@ -583,12 +616,11 @@
             dataGridViewInstumentAll.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewInstumentAll.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewInstumentAll.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn15, dataGridViewButtonColumn3, dataGridViewTextBoxColumn16, dataGridViewTextBoxColumn17, dataGridViewTextBoxColumn18, dataGridViewTextBoxColumn19 });
-            dataGridViewInstumentAll.Location = new Point(4, 521);
-            dataGridViewInstumentAll.Margin = new Padding(4);
+            dataGridViewInstumentAll.Location = new Point(3, 416);
             dataGridViewInstumentAll.Name = "dataGridViewInstumentAll";
             dataGridViewInstumentAll.RowHeadersWidth = 51;
             dataGridViewInstumentAll.RowTemplate.Height = 29;
-            dataGridViewInstumentAll.Size = new Size(1566, 296);
+            dataGridViewInstumentAll.Size = new Size(1253, 238);
             dataGridViewInstumentAll.TabIndex = 0;
             // 
             // dataGridViewTextBoxColumn15
@@ -640,47 +672,41 @@
             // 
             tableLayoutPanel12.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel12.ColumnCount = 2;
-            tableLayoutPanel12.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 400F));
+            tableLayoutPanel12.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 320F));
             tableLayoutPanel12.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel12.Controls.Add(groupBox1, 0, 0);
             tableLayoutPanel12.Controls.Add(groupBox3, 1, 0);
-            tableLayoutPanel12.Location = new Point(4, 433);
-            tableLayoutPanel12.Margin = new Padding(4);
+            tableLayoutPanel12.Location = new Point(3, 346);
             tableLayoutPanel12.Name = "tableLayoutPanel12";
             tableLayoutPanel12.RowCount = 1;
             tableLayoutPanel12.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel12.Size = new Size(1566, 80);
+            tableLayoutPanel12.Size = new Size(1253, 64);
             tableLayoutPanel12.TabIndex = 4;
             // 
             // groupBox1
             // 
             groupBox1.Controls.Add(textBoxPoiskInstrument);
-            groupBox1.Location = new Point(4, 4);
-            groupBox1.Margin = new Padding(4);
+            groupBox1.Location = new Point(3, 3);
             groupBox1.Name = "groupBox1";
-            groupBox1.Padding = new Padding(4);
-            groupBox1.Size = new Size(365, 72);
+            groupBox1.Size = new Size(292, 58);
             groupBox1.TabIndex = 3;
             groupBox1.TabStop = false;
             groupBox1.Text = "Поиск";
             // 
             // textBoxPoiskInstrument
             // 
-            textBoxPoiskInstrument.Location = new Point(20, 32);
-            textBoxPoiskInstrument.Margin = new Padding(4);
+            textBoxPoiskInstrument.Location = new Point(16, 26);
             textBoxPoiskInstrument.Name = "textBoxPoiskInstrument";
-            textBoxPoiskInstrument.Size = new Size(320, 31);
+            textBoxPoiskInstrument.Size = new Size(257, 27);
             textBoxPoiskInstrument.TabIndex = 0;
             textBoxPoiskInstrument.TextChanged += textBoxPoiskInstrument_TextChanged;
             // 
             // groupBox3
             // 
             groupBox3.Controls.Add(comboBoxFiltrCategor);
-            groupBox3.Location = new Point(404, 4);
-            groupBox3.Margin = new Padding(4);
+            groupBox3.Location = new Point(323, 3);
             groupBox3.Name = "groupBox3";
-            groupBox3.Padding = new Padding(4);
-            groupBox3.Size = new Size(394, 72);
+            groupBox3.Size = new Size(315, 58);
             groupBox3.TabIndex = 4;
             groupBox3.TabStop = false;
             groupBox3.Text = "Фильтр категория";
@@ -688,20 +714,18 @@
             // comboBoxFiltrCategor
             // 
             comboBoxFiltrCategor.FormattingEnabled = true;
-            comboBoxFiltrCategor.Location = new Point(8, 32);
-            comboBoxFiltrCategor.Margin = new Padding(4);
+            comboBoxFiltrCategor.Location = new Point(6, 26);
             comboBoxFiltrCategor.Name = "comboBoxFiltrCategor";
-            comboBoxFiltrCategor.Size = new Size(378, 33);
+            comboBoxFiltrCategor.Size = new Size(303, 28);
             comboBoxFiltrCategor.TabIndex = 0;
             // 
             // tabPage5
             // 
             tabPage5.Controls.Add(tableLayoutPanel5);
-            tabPage5.Location = new Point(4, 34);
-            tabPage5.Margin = new Padding(4);
+            tabPage5.Location = new Point(4, 29);
             tabPage5.Name = "tabPage5";
-            tabPage5.Padding = new Padding(4);
-            tabPage5.Size = new Size(1580, 828);
+            tabPage5.Padding = new Padding(3);
+            tabPage5.Size = new Size(1262, 660);
             tabPage5.TabIndex = 3;
             tabPage5.Text = "Компоненты";
             tabPage5.UseVisualStyleBackColor = true;
@@ -715,15 +739,14 @@
             tableLayoutPanel5.Controls.Add(dataGridViewComponentLocal, 0, 1);
             tableLayoutPanel5.Controls.Add(comboBoxTO2, 0, 0);
             tableLayoutPanel5.Controls.Add(tableLayoutPanel13, 0, 2);
-            tableLayoutPanel5.Location = new Point(4, 4);
-            tableLayoutPanel5.Margin = new Padding(4);
+            tableLayoutPanel5.Location = new Point(3, 3);
             tableLayoutPanel5.Name = "tableLayoutPanel5";
             tableLayoutPanel5.RowCount = 4;
-            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
-            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
-            tableLayoutPanel5.Size = new Size(1565, 818);
+            tableLayoutPanel5.Size = new Size(1252, 654);
             tableLayoutPanel5.TabIndex = 2;
             // 
             // dataGridViewComponentAll
@@ -734,12 +757,11 @@
             dataGridViewComponentAll.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewComponentAll.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewComponentAll.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn9, dataGridViewButtonColumn1, dataGridViewTextBoxColumn10, dataGridViewTextBoxColumn11, Column2, Column3 });
-            dataGridViewComponentAll.Location = new Point(4, 519);
-            dataGridViewComponentAll.Margin = new Padding(4);
+            dataGridViewComponentAll.Location = new Point(3, 415);
             dataGridViewComponentAll.Name = "dataGridViewComponentAll";
             dataGridViewComponentAll.RowHeadersWidth = 51;
             dataGridViewComponentAll.RowTemplate.Height = 29;
-            dataGridViewComponentAll.Size = new Size(1557, 295);
+            dataGridViewComponentAll.Size = new Size(1246, 236);
             dataGridViewComponentAll.TabIndex = 0;
             // 
             // dataGridViewTextBoxColumn9
@@ -795,12 +817,13 @@
             dataGridViewComponentLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewComponentLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewComponentLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn12, dataGridViewButtonColumn2, dataGridViewTextBoxColumn13, dataGridViewTextBoxColumn14, Column4, Column5 });
-            dataGridViewComponentLocal.Location = new Point(3, 43);
+            dataGridViewComponentLocal.Location = new Point(2, 42);
+            dataGridViewComponentLocal.Margin = new Padding(2);
             dataGridViewComponentLocal.Name = "dataGridViewComponentLocal";
             dataGridViewComponentLocal.RowHeadersWidth = 51;
             dataGridViewComponentLocal.RowTemplate.Height = 29;
             dataGridViewComponentLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewComponentLocal.Size = new Size(1557, 369);
+            dataGridViewComponentLocal.Size = new Size(1248, 298);
             dataGridViewComponentLocal.TabIndex = 1;
             // 
             // dataGridViewTextBoxColumn12
@@ -858,19 +881,12 @@
             Column5.Name = "Column5";
             Column5.Width = 125;
             // 
-            // Column23
-            // 
-            Column23.HeaderText = "Комментарии";
-            Column23.MinimumWidth = 6;
-            Column23.Name = "Column23";
-            // 
             // comboBoxTO2
             // 
             comboBoxTO2.FormattingEnabled = true;
-            comboBoxTO2.Location = new Point(4, 4);
-            comboBoxTO2.Margin = new Padding(4);
+            comboBoxTO2.Location = new Point(3, 3);
             comboBoxTO2.Name = "comboBoxTO2";
-            comboBoxTO2.Size = new Size(503, 33);
+            comboBoxTO2.Size = new Size(403, 28);
             comboBoxTO2.TabIndex = 2;
             comboBoxTO2.SelectedIndexChanged += comboBoxTO2_SelectedIndexChanged;
             // 
@@ -878,46 +894,40 @@
             // 
             tableLayoutPanel13.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel13.ColumnCount = 2;
-            tableLayoutPanel13.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 400F));
+            tableLayoutPanel13.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 320F));
             tableLayoutPanel13.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel13.Controls.Add(groupBox8, 0, 0);
             tableLayoutPanel13.Controls.Add(groupBox9, 1, 0);
-            tableLayoutPanel13.Location = new Point(4, 431);
-            tableLayoutPanel13.Margin = new Padding(4);
+            tableLayoutPanel13.Location = new Point(3, 345);
             tableLayoutPanel13.Name = "tableLayoutPanel13";
             tableLayoutPanel13.RowCount = 1;
             tableLayoutPanel13.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel13.Size = new Size(1557, 80);
+            tableLayoutPanel13.Size = new Size(1246, 64);
             tableLayoutPanel13.TabIndex = 6;
             // 
             // groupBox8
             // 
             groupBox8.Controls.Add(textBoxPoiskComponent);
-            groupBox8.Location = new Point(4, 4);
-            groupBox8.Margin = new Padding(4);
+            groupBox8.Location = new Point(3, 3);
             groupBox8.Name = "groupBox8";
-            groupBox8.Padding = new Padding(4);
-            groupBox8.Size = new Size(365, 72);
+            groupBox8.Size = new Size(292, 58);
             groupBox8.TabIndex = 3;
             groupBox8.TabStop = false;
             groupBox8.Text = "Поиск";
             // 
             // textBoxPoiskComponent
             // 
-            textBoxPoiskComponent.Location = new Point(8, 31);
-            textBoxPoiskComponent.Margin = new Padding(4);
+            textBoxPoiskComponent.Location = new Point(6, 25);
             textBoxPoiskComponent.Name = "textBoxPoiskComponent";
-            textBoxPoiskComponent.Size = new Size(320, 31);
+            textBoxPoiskComponent.Size = new Size(257, 27);
             textBoxPoiskComponent.TabIndex = 0;
             // 
             // groupBox9
             // 
             groupBox9.Controls.Add(comboBoxFilterComponent);
-            groupBox9.Location = new Point(404, 4);
-            groupBox9.Margin = new Padding(4);
+            groupBox9.Location = new Point(323, 3);
             groupBox9.Name = "groupBox9";
-            groupBox9.Padding = new Padding(4);
-            groupBox9.Size = new Size(394, 72);
+            groupBox9.Size = new Size(315, 58);
             groupBox9.TabIndex = 4;
             groupBox9.TabStop = false;
             groupBox9.Text = "Фильтр категория";
@@ -925,20 +935,18 @@
             // comboBoxFilterComponent
             // 
             comboBoxFilterComponent.FormattingEnabled = true;
-            comboBoxFilterComponent.Location = new Point(8, 32);
-            comboBoxFilterComponent.Margin = new Padding(4);
+            comboBoxFilterComponent.Location = new Point(6, 26);
             comboBoxFilterComponent.Name = "comboBoxFilterComponent";
-            comboBoxFilterComponent.Size = new Size(378, 33);
+            comboBoxFilterComponent.Size = new Size(303, 28);
             comboBoxFilterComponent.TabIndex = 0;
             // 
             // tabPage2
             // 
             tabPage2.Controls.Add(tableLayoutPanel3);
-            tabPage2.Location = new Point(4, 34);
-            tabPage2.Margin = new Padding(4);
+            tabPage2.Location = new Point(4, 29);
             tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(4);
-            tabPage2.Size = new Size(1580, 828);
+            tabPage2.Padding = new Padding(3);
+            tabPage2.Size = new Size(1262, 660);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Технологические переходы";
             tabPage2.UseVisualStyleBackColor = true;
@@ -952,16 +960,15 @@
             tableLayoutPanel3.Controls.Add(comboBoxTO, 0, 0);
             tableLayoutPanel3.Controls.Add(panel1, 0, 2);
             tableLayoutPanel3.Controls.Add(splitContainer1, 0, 3);
-            tableLayoutPanel3.Location = new Point(4, 4);
-            tableLayoutPanel3.Margin = new Padding(4);
+            tableLayoutPanel3.Location = new Point(3, 3);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.RowCount = 4;
-            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
-            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
-            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
-            tableLayoutPanel3.Size = new Size(1570, 814);
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel3.Size = new Size(1256, 651);
             tableLayoutPanel3.TabIndex = 1;
             // 
             // dataGridViewTPLocal
@@ -972,12 +979,13 @@
             dataGridViewTPLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewTPLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Time, Column19, Order1 });
-            dataGridViewTPLocal.Location = new Point(3, 43);
+            dataGridViewTPLocal.Location = new Point(2, 42);
+            dataGridViewTPLocal.Margin = new Padding(2);
             dataGridViewTPLocal.Name = "dataGridViewTPLocal";
             dataGridViewTPLocal.RowHeadersWidth = 51;
             dataGridViewTPLocal.RowTemplate.Height = 29;
             dataGridViewTPLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewTPLocal.Size = new Size(1562, 367);
+            dataGridViewTPLocal.Size = new Size(1252, 296);
             dataGridViewTPLocal.TabIndex = 1;
             // 
             // dataGridViewTextBoxColumn7
@@ -1007,20 +1015,6 @@
             dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
             dataGridViewTextBoxColumn8.ReadOnly = true;
             // 
-            // Column25
-            // 
-            Column25.HeaderText = "Базовое время действ.";
-            Column25.MinimumWidth = 6;
-            Column25.Name = "Column25";
-            Column25.ReadOnly = true;
-            // 
-            // Column24
-            // 
-            Column24.HeaderText = "Коэффициент";
-            Column24.MinimumWidth = 6;
-            Column24.Name = "Column24";
-            Column24.ReadOnly = true;
-            // 
             // Time
             // 
             Time.FillWeight = 69.7860947F;
@@ -1045,10 +1039,9 @@
             // comboBoxTO
             // 
             comboBoxTO.FormattingEnabled = true;
-            comboBoxTO.Location = new Point(4, 4);
-            comboBoxTO.Margin = new Padding(4);
+            comboBoxTO.Location = new Point(3, 3);
             comboBoxTO.Name = "comboBoxTO";
-            comboBoxTO.Size = new Size(508, 33);
+            comboBoxTO.Size = new Size(407, 28);
             comboBoxTO.TabIndex = 2;
             comboBoxTO.SelectedIndexChanged += comboBoxTO_SelectedIndexChanged;
             // 
@@ -1058,17 +1051,17 @@
             panel1.Controls.Add(btnCreateNewTP);
             panel1.Controls.Add(groupBox10);
             panel1.Controls.Add(groupBox5);
-            panel1.Location = new Point(4, 429);
-            panel1.Margin = new Padding(4);
+            panel1.Location = new Point(3, 343);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1562, 80);
+            panel1.Size = new Size(1250, 64);
             panel1.TabIndex = 7;
             // 
             // btnCreateNewTP
             // 
-            btnCreateNewTP.Location = new Point(800, 28);
+            btnCreateNewTP.Location = new Point(640, 22);
+            btnCreateNewTP.Margin = new Padding(2);
             btnCreateNewTP.Name = "btnCreateNewTP";
-            btnCreateNewTP.Size = new Size(280, 35);
+            btnCreateNewTP.Size = new Size(224, 28);
             btnCreateNewTP.TabIndex = 8;
             btnCreateNewTP.Text = "Добавить новый переход";
             btnCreateNewTP.UseVisualStyleBackColor = true;
@@ -1077,11 +1070,9 @@
             // groupBox10
             // 
             groupBox10.Controls.Add(comboBoxTPCategoriya);
-            groupBox10.Location = new Point(398, 0);
-            groupBox10.Margin = new Padding(4);
+            groupBox10.Location = new Point(318, 0);
             groupBox10.Name = "groupBox10";
-            groupBox10.Padding = new Padding(4);
-            groupBox10.Size = new Size(386, 80);
+            groupBox10.Size = new Size(309, 64);
             groupBox10.TabIndex = 7;
             groupBox10.TabStop = false;
             groupBox10.Text = "Категория";
@@ -1089,30 +1080,26 @@
             // comboBoxTPCategoriya
             // 
             comboBoxTPCategoriya.FormattingEnabled = true;
-            comboBoxTPCategoriya.Location = new Point(8, 31);
-            comboBoxTPCategoriya.Margin = new Padding(4);
+            comboBoxTPCategoriya.Location = new Point(6, 25);
             comboBoxTPCategoriya.Name = "comboBoxTPCategoriya";
-            comboBoxTPCategoriya.Size = new Size(370, 33);
+            comboBoxTPCategoriya.Size = new Size(297, 28);
             comboBoxTPCategoriya.TabIndex = 0;
             // 
             // groupBox5
             // 
             groupBox5.Controls.Add(textBoxPoiskTP);
-            groupBox5.Location = new Point(4, 0);
-            groupBox5.Margin = new Padding(4);
+            groupBox5.Location = new Point(3, 0);
             groupBox5.Name = "groupBox5";
-            groupBox5.Padding = new Padding(4);
-            groupBox5.Size = new Size(386, 80);
+            groupBox5.Size = new Size(309, 64);
             groupBox5.TabIndex = 6;
             groupBox5.TabStop = false;
             groupBox5.Text = "Поиск";
             // 
             // textBoxPoiskTP
             // 
-            textBoxPoiskTP.Location = new Point(20, 32);
-            textBoxPoiskTP.Margin = new Padding(4);
+            textBoxPoiskTP.Location = new Point(16, 26);
             textBoxPoiskTP.Name = "textBoxPoiskTP";
-            textBoxPoiskTP.Size = new Size(320, 31);
+            textBoxPoiskTP.Size = new Size(257, 27);
             textBoxPoiskTP.TabIndex = 0;
             // 
             // splitContainer1
@@ -1120,8 +1107,7 @@
             splitContainer1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             splitContainer1.BackColor = Color.Silver;
             splitContainer1.BorderStyle = BorderStyle.Fixed3D;
-            splitContainer1.Location = new Point(4, 517);
-            splitContainer1.Margin = new Padding(4);
+            splitContainer1.Location = new Point(3, 413);
             splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -1133,9 +1119,9 @@
             // 
             splitContainer1.Panel2.BackColor = Color.White;
             splitContainer1.Panel2.Controls.Add(flowLayoutPanel1);
-            splitContainer1.Size = new Size(1562, 293);
-            splitContainer1.SplitterDistance = 1127;
-            splitContainer1.SplitterWidth = 12;
+            splitContainer1.Size = new Size(1250, 235);
+            splitContainer1.SplitterDistance = 901;
+            splitContainer1.SplitterWidth = 10;
             splitContainer1.TabIndex = 2;
             // 
             // dataGridViewTPAll
@@ -1147,13 +1133,12 @@
             dataGridViewTPAll.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn5, dataGridViewCheckBoxColumn2, dataGridViewTextBoxColumn6, TimeExecution });
             dataGridViewTPAll.Dock = DockStyle.Fill;
             dataGridViewTPAll.Location = new Point(0, 0);
-            dataGridViewTPAll.Margin = new Padding(4);
             dataGridViewTPAll.Name = "dataGridViewTPAll";
             dataGridViewTPAll.ReadOnly = true;
             dataGridViewTPAll.RowHeadersWidth = 51;
             dataGridViewTPAll.RowTemplate.Height = 29;
             dataGridViewTPAll.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewTPAll.Size = new Size(1123, 289);
+            dataGridViewTPAll.Size = new Size(897, 231);
             dataGridViewTPAll.TabIndex = 0;
             // 
             // dataGridViewTextBoxColumn5
@@ -1203,70 +1188,65 @@
             flowLayoutPanel1.Controls.Add(labelComTime);
             flowLayoutPanel1.Controls.Add(smoothScrollDataGridView1);
             flowLayoutPanel1.FlowDirection = FlowDirection.TopDown;
-            flowLayoutPanel1.Location = new Point(-8, 4);
-            flowLayoutPanel1.Margin = new Padding(4);
+            flowLayoutPanel1.Location = new Point(-6, 3);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(272, 228);
+            flowLayoutPanel1.Size = new Size(205, 182);
             flowLayoutPanel1.TabIndex = 1;
             // 
             // label1
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
-            label1.Location = new Point(4, 0);
-            label1.Margin = new Padding(4, 0, 4, 0);
+            label1.Location = new Point(3, 0);
             label1.Name = "label1";
-            label1.Size = new Size(155, 28);
+            label1.Size = new Size(131, 23);
             label1.TabIndex = 0;
             label1.Text = "Комментарии:";
             // 
             // labelComName
             // 
             labelComName.AutoSize = true;
-            labelComName.Location = new Point(4, 28);
-            labelComName.Margin = new Padding(4, 0, 4, 0);
+            labelComName.Location = new Point(3, 23);
             labelComName.Name = "labelComName";
-            labelComName.Size = new Size(0, 25);
+            labelComName.Size = new Size(0, 20);
             labelComName.TabIndex = 1;
             // 
             // label6
             // 
             label6.AutoSize = true;
             label6.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
-            label6.Location = new Point(4, 53);
-            label6.Margin = new Padding(4, 0, 4, 0);
+            label6.Location = new Point(3, 43);
             label6.Name = "label6";
-            label6.Size = new Size(248, 28);
+            label6.Size = new Size(131, 46);
             label6.TabIndex = 2;
             label6.Text = "Комментарии времени:";
             // 
             // labelComTime
             // 
             labelComTime.AutoSize = true;
-            labelComTime.Location = new Point(4, 81);
-            labelComTime.Margin = new Padding(4, 0, 4, 0);
+            labelComTime.Location = new Point(3, 89);
             labelComTime.Name = "labelComTime";
-            labelComTime.Size = new Size(0, 25);
+            labelComTime.Size = new Size(0, 20);
             labelComTime.TabIndex = 3;
             // 
             // smoothScrollDataGridView1
             // 
             smoothScrollDataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            smoothScrollDataGridView1.Location = new Point(3, 89);
+            smoothScrollDataGridView1.Location = new Point(2, 111);
+            smoothScrollDataGridView1.Margin = new Padding(2);
             smoothScrollDataGridView1.Name = "smoothScrollDataGridView1";
             smoothScrollDataGridView1.RowHeadersWidth = 51;
             smoothScrollDataGridView1.RowTemplate.Height = 29;
-            smoothScrollDataGridView1.Size = new Size(8, 8);
+            smoothScrollDataGridView1.Size = new Size(6, 6);
             smoothScrollDataGridView1.TabIndex = 4;
             // 
             // tabPage4
             // 
             tabPage4.Controls.Add(tableLayoutPanel4);
-            tabPage4.Location = new Point(4, 34);
-            tabPage4.Margin = new Padding(4);
+            tabPage4.Location = new Point(4, 29);
             tabPage4.Name = "tabPage4";
-            tabPage4.Padding = new Padding(4);
-            tabPage4.Size = new Size(1580, 828);
+            tabPage4.Padding = new Padding(3);
+            tabPage4.Size = new Size(1262, 660);
             tabPage4.TabIndex = 2;
             tabPage4.Text = "Персонал";
             tabPage4.UseVisualStyleBackColor = true;
@@ -1281,34 +1261,30 @@
             tableLayoutPanel4.Controls.Add(dataGridViewStaff, 0, 1);
             tableLayoutPanel4.Controls.Add(comboBoxStaff, 0, 0);
             tableLayoutPanel4.Location = new Point(0, 1);
-            tableLayoutPanel4.Margin = new Padding(4);
             tableLayoutPanel4.Name = "tableLayoutPanel4";
             tableLayoutPanel4.RowCount = 4;
-            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 62F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 60F));
-            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 40F));
-            tableLayoutPanel4.Size = new Size(1574, 820);
+            tableLayoutPanel4.Size = new Size(1259, 656);
             tableLayoutPanel4.TabIndex = 0;
             // 
             // groupBox4
             // 
             groupBox4.Controls.Add(PoiskPersonal);
-            groupBox4.Location = new Point(4, 468);
-            groupBox4.Margin = new Padding(4);
+            groupBox4.Location = new Point(3, 374);
             groupBox4.Name = "groupBox4";
-            groupBox4.Padding = new Padding(4);
-            groupBox4.Size = new Size(365, 80);
+            groupBox4.Size = new Size(292, 64);
             groupBox4.TabIndex = 7;
             groupBox4.TabStop = false;
             groupBox4.Text = "Поиск";
             // 
             // PoiskPersonal
             // 
-            PoiskPersonal.Location = new Point(20, 32);
-            PoiskPersonal.Margin = new Padding(4);
+            PoiskPersonal.Location = new Point(16, 26);
             PoiskPersonal.Name = "PoiskPersonal";
-            PoiskPersonal.Size = new Size(320, 31);
+            PoiskPersonal.Size = new Size(257, 27);
             PoiskPersonal.TabIndex = 0;
             // 
             // dataGridViewStaffAll
@@ -1319,12 +1295,11 @@
             dataGridViewStaffAll.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewStaffAll.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewStaffAll.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn45, dataGridViewButtonColumn10, dataGridViewTextBoxColumn46, dataGridViewTextBoxColumn47, dataGridViewTextBoxColumn48, dataGridViewTextBoxColumn49, Column10, Column11 });
-            dataGridViewStaffAll.Location = new Point(4, 556);
-            dataGridViewStaffAll.Margin = new Padding(4);
+            dataGridViewStaffAll.Location = new Point(3, 444);
             dataGridViewStaffAll.Name = "dataGridViewStaffAll";
             dataGridViewStaffAll.RowHeadersWidth = 51;
             dataGridViewStaffAll.RowTemplate.Height = 29;
-            dataGridViewStaffAll.Size = new Size(1566, 260);
+            dataGridViewStaffAll.Size = new Size(1253, 209);
             dataGridViewStaffAll.TabIndex = 4;
             // 
             // dataGridViewTextBoxColumn45
@@ -1395,13 +1370,12 @@
             dataGridViewStaff.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewStaff.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewStaff.Columns.AddRange(new DataGridViewColumn[] { StaffIdGrid, Column12, StaffGridChechBox, StaffSimvolGrid, StaffNAmeGrid, Column13, Column14, Column15, Column16, Column17 });
-            dataGridViewStaff.Location = new Point(4, 66);
-            dataGridViewStaff.Margin = new Padding(4);
+            dataGridViewStaff.Location = new Point(3, 53);
             dataGridViewStaff.MultiSelect = false;
             dataGridViewStaff.Name = "dataGridViewStaff";
             dataGridViewStaff.RowHeadersWidth = 51;
             dataGridViewStaff.RowTemplate.Height = 29;
-            dataGridViewStaff.Size = new Size(1566, 394);
+            dataGridViewStaff.Size = new Size(1253, 315);
             dataGridViewStaff.TabIndex = 0;
             // 
             // StaffIdGrid
@@ -1487,21 +1461,20 @@
             // comboBoxStaff
             // 
             comboBoxStaff.FormattingEnabled = true;
-            comboBoxStaff.Location = new Point(38, 12);
-            comboBoxStaff.Margin = new Padding(38, 12, 4, 4);
+            comboBoxStaff.Location = new Point(30, 10);
+            comboBoxStaff.Margin = new Padding(30, 10, 3, 3);
             comboBoxStaff.Name = "comboBoxStaff";
-            comboBoxStaff.Size = new Size(558, 33);
+            comboBoxStaff.Size = new Size(447, 28);
             comboBoxStaff.TabIndex = 3;
             comboBoxStaff.SelectedIndexChanged += comboBoxStaff_SelectedIndexChanged;
             // 
             // tabPage7
             // 
             tabPage7.Controls.Add(tableLayoutPanel8);
-            tabPage7.Location = new Point(4, 34);
-            tabPage7.Margin = new Padding(4);
+            tabPage7.Location = new Point(4, 29);
             tabPage7.Name = "tabPage7";
-            tabPage7.Padding = new Padding(4);
-            tabPage7.Size = new Size(1580, 828);
+            tabPage7.Padding = new Padding(3);
+            tabPage7.Size = new Size(1262, 660);
             tabPage7.TabIndex = 5;
             tabPage7.Text = "Средства защиты";
             tabPage7.UseVisualStyleBackColor = true;
@@ -1515,35 +1488,31 @@
             tableLayoutPanel8.Controls.Add(dataGridViewAllSZ, 0, 3);
             tableLayoutPanel8.Controls.Add(dataGridViewLocalSZ, 0, 1);
             tableLayoutPanel8.Controls.Add(comboBoxSZ, 0, 0);
-            tableLayoutPanel8.Location = new Point(4, 4);
-            tableLayoutPanel8.Margin = new Padding(4);
+            tableLayoutPanel8.Location = new Point(3, 3);
             tableLayoutPanel8.Name = "tableLayoutPanel8";
             tableLayoutPanel8.RowCount = 4;
-            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 57.4468079F));
-            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
+            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 42.55319F));
-            tableLayoutPanel8.Size = new Size(1566, 814);
+            tableLayoutPanel8.Size = new Size(1253, 651);
             tableLayoutPanel8.TabIndex = 2;
             // 
             // groupBox6
             // 
             groupBox6.Controls.Add(textBoxPoiskSZ);
-            groupBox6.Location = new Point(4, 442);
-            groupBox6.Margin = new Padding(4);
+            groupBox6.Location = new Point(3, 353);
             groupBox6.Name = "groupBox6";
-            groupBox6.Padding = new Padding(4);
-            groupBox6.Size = new Size(365, 80);
+            groupBox6.Size = new Size(292, 64);
             groupBox6.TabIndex = 7;
             groupBox6.TabStop = false;
             groupBox6.Text = "Поиск";
             // 
             // textBoxPoiskSZ
             // 
-            textBoxPoiskSZ.Location = new Point(20, 32);
-            textBoxPoiskSZ.Margin = new Padding(4);
+            textBoxPoiskSZ.Location = new Point(16, 26);
             textBoxPoiskSZ.Name = "textBoxPoiskSZ";
-            textBoxPoiskSZ.Size = new Size(320, 31);
+            textBoxPoiskSZ.Size = new Size(257, 27);
             textBoxPoiskSZ.TabIndex = 0;
             // 
             // dataGridViewAllSZ
@@ -1554,12 +1523,11 @@
             dataGridViewAllSZ.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewAllSZ.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewAllSZ.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn31, dataGridViewButtonColumn7, dataGridViewTextBoxColumn32, dataGridViewTextBoxColumn33, Column6, Column7 });
-            dataGridViewAllSZ.Location = new Point(4, 530);
-            dataGridViewAllSZ.Margin = new Padding(4);
+            dataGridViewAllSZ.Location = new Point(3, 423);
             dataGridViewAllSZ.Name = "dataGridViewAllSZ";
             dataGridViewAllSZ.RowHeadersWidth = 51;
             dataGridViewAllSZ.RowTemplate.Height = 29;
-            dataGridViewAllSZ.Size = new Size(1558, 280);
+            dataGridViewAllSZ.Size = new Size(1247, 225);
             dataGridViewAllSZ.TabIndex = 0;
             // 
             // dataGridViewTextBoxColumn31
@@ -1619,13 +1587,12 @@
             dataGridViewLocalSZ.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewLocalSZ.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewLocalSZ.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn34, dataGridViewButtonColumn8, dataGridViewTextBoxColumn35, dataGridViewTextBoxColumn36 });
-            dataGridViewLocalSZ.Location = new Point(4, 54);
-            dataGridViewLocalSZ.Margin = new Padding(4);
+            dataGridViewLocalSZ.Location = new Point(3, 43);
             dataGridViewLocalSZ.Name = "dataGridViewLocalSZ";
             dataGridViewLocalSZ.RowHeadersWidth = 51;
             dataGridViewLocalSZ.RowTemplate.Height = 29;
             dataGridViewLocalSZ.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewLocalSZ.Size = new Size(1558, 380);
+            dataGridViewLocalSZ.Size = new Size(1247, 304);
             dataGridViewLocalSZ.TabIndex = 1;
             // 
             // dataGridViewTextBoxColumn34
@@ -1665,20 +1632,18 @@
             // comboBoxSZ
             // 
             comboBoxSZ.FormattingEnabled = true;
-            comboBoxSZ.Location = new Point(4, 4);
-            comboBoxSZ.Margin = new Padding(4);
+            comboBoxSZ.Location = new Point(3, 3);
             comboBoxSZ.Name = "comboBoxSZ";
-            comboBoxSZ.Size = new Size(508, 33);
+            comboBoxSZ.Size = new Size(407, 28);
             comboBoxSZ.TabIndex = 2;
             comboBoxSZ.SelectedIndexChanged += comboBoxSZ_SelectedIndexChanged;
             // 
             // tabPage8
             // 
             tabPage8.Controls.Add(tableLayoutPanel9);
-            tabPage8.Location = new Point(4, 34);
-            tabPage8.Margin = new Padding(4);
+            tabPage8.Location = new Point(4, 29);
             tabPage8.Name = "tabPage8";
-            tabPage8.Size = new Size(1580, 828);
+            tabPage8.Size = new Size(1262, 660);
             tabPage8.TabIndex = 6;
             tabPage8.Text = "Этапы и механизмы";
             tabPage8.UseVisualStyleBackColor = true;
@@ -1692,36 +1657,32 @@
             tableLayoutPanel9.Controls.Add(groupBox7, 0, 2);
             tableLayoutPanel9.Controls.Add(dataGridViewMeha, 0, 3);
             tableLayoutPanel9.Controls.Add(dataGridViewEtap, 0, 1);
-            tableLayoutPanel9.Location = new Point(4, 4);
-            tableLayoutPanel9.Margin = new Padding(4);
+            tableLayoutPanel9.Location = new Point(3, 3);
             tableLayoutPanel9.Name = "tableLayoutPanel9";
             tableLayoutPanel9.RowCount = 4;
             tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Absolute, 1F));
             tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
-            tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
+            tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
-            tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
-            tableLayoutPanel9.Size = new Size(1570, 821);
+            tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel9.Size = new Size(1256, 657);
             tableLayoutPanel9.TabIndex = 3;
             // 
             // groupBox7
             // 
             groupBox7.Controls.Add(textBoxPoiskMach);
-            groupBox7.Location = new Point(4, 411);
-            groupBox7.Margin = new Padding(4);
+            groupBox7.Location = new Point(3, 329);
             groupBox7.Name = "groupBox7";
-            groupBox7.Padding = new Padding(4);
-            groupBox7.Size = new Size(365, 80);
+            groupBox7.Size = new Size(292, 64);
             groupBox7.TabIndex = 8;
             groupBox7.TabStop = false;
             groupBox7.Text = "Поиск";
             // 
             // textBoxPoiskMach
             // 
-            textBoxPoiskMach.Location = new Point(20, 32);
-            textBoxPoiskMach.Margin = new Padding(4);
+            textBoxPoiskMach.Location = new Point(16, 26);
             textBoxPoiskMach.Name = "textBoxPoiskMach";
-            textBoxPoiskMach.Size = new Size(320, 31);
+            textBoxPoiskMach.Size = new Size(257, 27);
             textBoxPoiskMach.TabIndex = 0;
             // 
             // dataGridViewMeha
@@ -1732,12 +1693,11 @@
             dataGridViewMeha.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewMeha.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewMeha.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn40, dataGridViewButtonColumn9, dataGridViewTextBoxColumn41, dataGridViewTextBoxColumn42, dataGridViewTextBoxColumn43, dataGridViewTextBoxColumn44 });
-            dataGridViewMeha.Location = new Point(4, 499);
-            dataGridViewMeha.Margin = new Padding(4);
+            dataGridViewMeha.Location = new Point(3, 399);
             dataGridViewMeha.Name = "dataGridViewMeha";
             dataGridViewMeha.RowHeadersWidth = 51;
             dataGridViewMeha.RowTemplate.Height = 29;
-            dataGridViewMeha.Size = new Size(1562, 318);
+            dataGridViewMeha.Size = new Size(1250, 255);
             dataGridViewMeha.TabIndex = 0;
             // 
             // dataGridViewTextBoxColumn40
@@ -1796,13 +1756,12 @@
             dataGridViewEtap.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewEtap.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewEtap.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn37, dataGridViewTextBoxColumn38, dataGridViewTextBoxColumn39, Column8, Column9 });
-            dataGridViewEtap.Location = new Point(4, 5);
-            dataGridViewEtap.Margin = new Padding(4);
+            dataGridViewEtap.Location = new Point(3, 4);
             dataGridViewEtap.Name = "dataGridViewEtap";
             dataGridViewEtap.RowHeadersWidth = 51;
             dataGridViewEtap.RowTemplate.Height = 29;
             dataGridViewEtap.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewEtap.Size = new Size(1562, 398);
+            dataGridViewEtap.Size = new Size(1250, 319);
             dataGridViewEtap.TabIndex = 2;
             // 
             // dataGridViewTextBoxColumn37
@@ -1855,11 +1814,10 @@
             // tabPage9
             // 
             tabPage9.Controls.Add(tableLayoutPanel11);
-            tabPage9.Location = new Point(4, 34);
-            tabPage9.Margin = new Padding(4);
+            tabPage9.Location = new Point(4, 29);
             tabPage9.Name = "tabPage9";
-            tabPage9.Padding = new Padding(4);
-            tabPage9.Size = new Size(1580, 828);
+            tabPage9.Padding = new Padding(3);
+            tabPage9.Size = new Size(1262, 660);
             tabPage9.TabIndex = 7;
             tabPage9.Text = "Повторить";
             tabPage9.UseVisualStyleBackColor = true;
@@ -1870,15 +1828,14 @@
             tableLayoutPanel11.ColumnCount = 1;
             tableLayoutPanel11.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel11.Controls.Add(dataGridViewPovtor, 0, 1);
-            tableLayoutPanel11.Location = new Point(4, 5);
-            tableLayoutPanel11.Margin = new Padding(4);
+            tableLayoutPanel11.Location = new Point(3, 4);
             tableLayoutPanel11.Name = "tableLayoutPanel11";
             tableLayoutPanel11.RowCount = 2;
-            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
+            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
-            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
-            tableLayoutPanel11.Size = new Size(1565, 812);
+            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel11.Size = new Size(1252, 650);
             tableLayoutPanel11.TabIndex = 1;
             // 
             // dataGridViewPovtor
@@ -1888,13 +1845,12 @@
             dataGridViewPovtor.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewPovtor.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewPovtor.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn72, dataGridViewCheckBoxColumn4, dataGridViewTextBoxColumn73, dataGridViewTextBoxColumn79 });
-            dataGridViewPovtor.Location = new Point(4, 92);
-            dataGridViewPovtor.Margin = new Padding(4);
+            dataGridViewPovtor.Location = new Point(3, 73);
             dataGridViewPovtor.MultiSelect = false;
             dataGridViewPovtor.Name = "dataGridViewPovtor";
             dataGridViewPovtor.RowHeadersWidth = 51;
             dataGridViewPovtor.RowTemplate.Height = 29;
-            dataGridViewPovtor.Size = new Size(1557, 716);
+            dataGridViewPovtor.Size = new Size(1246, 574);
             dataGridViewPovtor.TabIndex = 0;
             // 
             // dataGridViewTextBoxColumn72
@@ -1927,6 +1883,29 @@
             dataGridViewTextBoxColumn79.MinimumWidth = 6;
             dataGridViewTextBoxColumn79.Name = "dataGridViewTextBoxColumn79";
             dataGridViewTextBoxColumn79.ReadOnly = true;
+            // 
+            // Column23
+            // 
+            Column23.HeaderText = "Комментарии";
+            Column23.MinimumWidth = 6;
+            Column23.Name = "Column23";
+            Column23.Width = 125;
+            // 
+            // Column25
+            // 
+            Column25.HeaderText = "Базовое время действ.";
+            Column25.MinimumWidth = 6;
+            Column25.Name = "Column25";
+            Column25.ReadOnly = true;
+            Column25.Width = 125;
+            // 
+            // Column24
+            // 
+            Column24.HeaderText = "Коэффициент";
+            Column24.MinimumWidth = 6;
+            Column24.Name = "Column24";
+            Column24.ReadOnly = true;
+            Column24.Width = 125;
             // 
             // tabPage3
             // 
@@ -2332,97 +2311,12 @@
             tabPage10.Size = new Size(200, 100);
             tabPage10.TabIndex = 0;
             // 
-            // Id
-            // 
-            Id.HeaderText = "Id";
-            Id.MinimumWidth = 6;
-            Id.Name = "Id";
-            Id.Visible = false;
-            // 
-            // Add
-            // 
-            Add.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            Add.FillWeight = 50F;
-            Add.HeaderText = "";
-            Add.MinimumWidth = 50;
-            Add.Name = "Add";
-            Add.Resizable = DataGridViewTriState.True;
-            Add.Width = 125;
-            // 
-            // NameTO
-            // 
-            NameTO.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            NameTO.FillWeight = 167.914459F;
-            NameTO.HeaderText = "Технологические операции";
-            NameTO.MinimumWidth = 6;
-            NameTO.Name = "NameTO";
-            NameTO.ReadOnly = true;
-            NameTO.Resizable = DataGridViewTriState.True;
-            NameTO.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
-            // Column21
-            // 
-            Column21.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            Column21.HeaderText = "Типовая ТО";
-            Column21.MinimumWidth = 6;
-            Column21.Name = "Column21";
-            Column21.Width = 150;
-            // 
-            // IdTO
-            // 
-            IdTO.HeaderText = "Id";
-            IdTO.MinimumWidth = 6;
-            IdTO.Name = "IdTO";
-            IdTO.ReadOnly = true;
-            IdTO.SortMode = DataGridViewColumnSortMode.NotSortable;
-            IdTO.Visible = false;
-            IdTO.Width = 125;
-            // 
-            // Column18
-            // 
-            Column18.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            Column18.HeaderText = "";
-            Column18.MinimumWidth = 6;
-            Column18.Name = "Column18";
-            Column18.ReadOnly = true;
-            Column18.Resizable = DataGridViewTriState.True;
-            Column18.Width = 125;
-            // 
-            // Column1
-            // 
-            Column1.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Column1.HeaderText = "Технологические операции";
-            Column1.MinimumWidth = 6;
-            Column1.Name = "Column1";
-            Column1.ReadOnly = true;
-            Column1.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
-            // Order
-            // 
-            Order.HeaderText = "Order";
-            Order.MinimumWidth = 6;
-            Order.Name = "Order";
-            Order.ReadOnly = true;
-            Order.SortMode = DataGridViewColumnSortMode.NotSortable;
-            Order.Visible = false;
-            Order.Width = 125;
-            // 
-            // Column22
-            // 
-            Column22.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            Column22.HeaderText = "Типовая ТО";
-            Column22.MinimumWidth = 6;
-            Column22.Name = "Column22";
-            Column22.ReadOnly = true;
-            Column22.Width = 150;
-            // 
             // AddEditTechOperationForm
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1589, 870);
+            ClientSize = new Size(1271, 696);
             Controls.Add(tabControl1);
-            Margin = new Padding(4);
             Name = "AddEditTechOperationForm";
             Text = "AddEditTechOperationForm";
             tableLayoutPanel1.ResumeLayout(false);
@@ -2701,6 +2595,7 @@
         private DataGridViewTextBoxColumn Order;
         private Panel panel2;
         private Button btnCreateNewTP;
+        private Button btnAddNewTO;
         //private DataGridViewCheckBoxColumn Column22;
     }
 }
