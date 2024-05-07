@@ -84,6 +84,7 @@
             dataGridViewTextBoxColumn14 = new DataGridViewTextBoxColumn();
             Column4 = new DataGridViewTextBoxColumn();
             Column5 = new DataGridViewTextBoxColumn();
+            Column23 = new DataGridViewTextBoxColumn();
             comboBoxTO2 = new ComboBox();
             tableLayoutPanel13 = new TableLayoutPanel();
             groupBox8 = new GroupBox();
@@ -96,6 +97,8 @@
             dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
             DateGridLocalTPDetete = new DataGridViewButtonColumn();
             dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
+            Column25 = new DataGridViewTextBoxColumn();
+            Column24 = new DataGridViewTextBoxColumn();
             Time = new DataGridViewTextBoxColumn();
             Column19 = new DataGridViewTextBoxColumn();
             Order1 = new DataGridViewTextBoxColumn();
@@ -117,6 +120,7 @@
             labelComName = new Label();
             label6 = new Label();
             labelComTime = new Label();
+            smoothScrollDataGridView1 = new DataProcessing.SmoothScrollDataGridView();
             tabPage4 = new TabPage();
             tableLayoutPanel4 = new TableLayoutPanel();
             groupBox4 = new GroupBox();
@@ -226,7 +230,11 @@
             dataGridViewTextBoxColumn63 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn64 = new DataGridViewTextBoxColumn();
             tabPage10 = new TabPage();
-            btnAddNewTO = new Button();
+            IdTO = new DataGridViewTextBoxColumn();
+            Column18 = new DataGridViewButtonColumn();
+            Column1 = new DataGridViewTextBoxColumn();
+            Column22 = new DataGridViewCheckBoxColumn();
+            Order = new DataGridViewTextBoxColumn();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTO).BeginInit();
@@ -260,6 +268,7 @@
             splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPAll).BeginInit();
             flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)smoothScrollDataGridView1).BeginInit();
             tabPage4.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
             groupBox4.SuspendLayout();
@@ -323,42 +332,6 @@
             dataGridViewAllTO.Size = new Size(1562, 317);
             dataGridViewAllTO.TabIndex = 0;
             // 
-            // Id
-            // 
-            Id.HeaderText = "Id";
-            Id.MinimumWidth = 6;
-            Id.Name = "Id";
-            Id.Visible = false;
-            // 
-            // Add
-            // 
-            Add.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            Add.FillWeight = 50F;
-            Add.HeaderText = "";
-            Add.MinimumWidth = 50;
-            Add.Name = "Add";
-            Add.Resizable = DataGridViewTriState.True;
-            Add.Width = 125;
-            // 
-            // NameTO
-            // 
-            NameTO.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            NameTO.FillWeight = 167.914459F;
-            NameTO.HeaderText = "Технологические операции";
-            NameTO.MinimumWidth = 6;
-            NameTO.Name = "NameTO";
-            NameTO.ReadOnly = true;
-            NameTO.Resizable = DataGridViewTriState.True;
-            NameTO.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
-            // Column21
-            // 
-            Column21.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            Column21.HeaderText = "Типовая ТО";
-            Column21.MinimumWidth = 6;
-            Column21.Name = "Column21";
-            Column21.Width = 150;
-            // 
             // dataGridViewTO
             // 
             dataGridViewTO.AllowUserToAddRows = false;
@@ -366,8 +339,7 @@
             dataGridViewTO.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewTO.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewTO.Columns.AddRange(new DataGridViewColumn[] { IdTO, Column18, Column1, Order, Column22 });
-            dataGridViewTO.Location = new Point(4, 4);
-            dataGridViewTO.Margin = new Padding(4);
+            dataGridViewTO.Location = new Point(3, 3);
             dataGridViewTO.MultiSelect = false;
             dataGridViewTO.Name = "dataGridViewTO";
             dataGridViewTO.ReadOnly = true;
@@ -823,8 +795,7 @@
             dataGridViewComponentLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewComponentLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewComponentLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn12, dataGridViewButtonColumn2, dataGridViewTextBoxColumn13, dataGridViewTextBoxColumn14, Column4, Column5 });
-            dataGridViewComponentLocal.Location = new Point(4, 54);
-            dataGridViewComponentLocal.Margin = new Padding(4);
+            dataGridViewComponentLocal.Location = new Point(3, 43);
             dataGridViewComponentLocal.Name = "dataGridViewComponentLocal";
             dataGridViewComponentLocal.RowHeadersWidth = 51;
             dataGridViewComponentLocal.RowTemplate.Height = 29;
@@ -852,32 +823,46 @@
             // 
             // dataGridViewTextBoxColumn13
             // 
+            dataGridViewTextBoxColumn13.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             dataGridViewTextBoxColumn13.FillWeight = 69.7860947F;
             dataGridViewTextBoxColumn13.HeaderText = "Наименование";
             dataGridViewTextBoxColumn13.MinimumWidth = 6;
             dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
             dataGridViewTextBoxColumn13.ReadOnly = true;
+            dataGridViewTextBoxColumn13.Width = 200;
             // 
             // dataGridViewTextBoxColumn14
             // 
+            dataGridViewTextBoxColumn14.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             dataGridViewTextBoxColumn14.FillWeight = 69.7860947F;
             dataGridViewTextBoxColumn14.HeaderText = "Тип (исполнение)";
             dataGridViewTextBoxColumn14.MinimumWidth = 6;
             dataGridViewTextBoxColumn14.Name = "dataGridViewTextBoxColumn14";
             dataGridViewTextBoxColumn14.ReadOnly = true;
+            dataGridViewTextBoxColumn14.Width = 200;
             // 
             // Column4
             // 
+            Column4.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             Column4.HeaderText = "Ед. Изм.";
             Column4.MinimumWidth = 6;
             Column4.Name = "Column4";
             Column4.ReadOnly = true;
+            Column4.Width = 125;
             // 
             // Column5
             // 
+            Column5.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             Column5.HeaderText = "Кол-во";
             Column5.MinimumWidth = 6;
             Column5.Name = "Column5";
+            Column5.Width = 125;
+            // 
+            // Column23
+            // 
+            Column23.HeaderText = "Комментарии";
+            Column23.MinimumWidth = 6;
+            Column23.Name = "Column23";
             // 
             // comboBoxTO2
             // 
@@ -987,8 +972,7 @@
             dataGridViewTPLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewTPLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Time, Column19, Order1 });
-            dataGridViewTPLocal.Location = new Point(4, 54);
-            dataGridViewTPLocal.Margin = new Padding(4);
+            dataGridViewTPLocal.Location = new Point(3, 43);
             dataGridViewTPLocal.Name = "dataGridViewTPLocal";
             dataGridViewTPLocal.RowHeadersWidth = 51;
             dataGridViewTPLocal.RowTemplate.Height = 29;
@@ -1023,12 +1007,27 @@
             dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
             dataGridViewTextBoxColumn8.ReadOnly = true;
             // 
+            // Column25
+            // 
+            Column25.HeaderText = "Базовое время действ.";
+            Column25.MinimumWidth = 6;
+            Column25.Name = "Column25";
+            Column25.ReadOnly = true;
+            // 
+            // Column24
+            // 
+            Column24.HeaderText = "Коэффициент";
+            Column24.MinimumWidth = 6;
+            Column24.Name = "Column24";
+            Column24.ReadOnly = true;
+            // 
             // Time
             // 
             Time.FillWeight = 69.7860947F;
             Time.HeaderText = "Время действ., мин.";
             Time.MinimumWidth = 6;
             Time.Name = "Time";
+            Time.ReadOnly = true;
             // 
             // Column19
             // 
@@ -1202,11 +1201,12 @@
             flowLayoutPanel1.Controls.Add(labelComName);
             flowLayoutPanel1.Controls.Add(label6);
             flowLayoutPanel1.Controls.Add(labelComTime);
+            flowLayoutPanel1.Controls.Add(smoothScrollDataGridView1);
             flowLayoutPanel1.FlowDirection = FlowDirection.TopDown;
             flowLayoutPanel1.Location = new Point(-8, 4);
             flowLayoutPanel1.Margin = new Padding(4);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(376, 285);
+            flowLayoutPanel1.Size = new Size(272, 228);
             flowLayoutPanel1.TabIndex = 1;
             // 
             // label1
@@ -1248,6 +1248,16 @@
             labelComTime.Name = "labelComTime";
             labelComTime.Size = new Size(0, 25);
             labelComTime.TabIndex = 3;
+            // 
+            // smoothScrollDataGridView1
+            // 
+            smoothScrollDataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            smoothScrollDataGridView1.Location = new Point(3, 89);
+            smoothScrollDataGridView1.Name = "smoothScrollDataGridView1";
+            smoothScrollDataGridView1.RowHeadersWidth = 51;
+            smoothScrollDataGridView1.RowTemplate.Height = 29;
+            smoothScrollDataGridView1.Size = new Size(8, 8);
+            smoothScrollDataGridView1.TabIndex = 4;
             // 
             // tabPage4
             // 
@@ -2322,15 +2332,89 @@
             tabPage10.Size = new Size(200, 100);
             tabPage10.TabIndex = 0;
             // 
-            // btnAddNewTO
+            // Id
             // 
-            btnAddNewTO.Location = new Point(407, 32);
-            btnAddNewTO.Name = "btnAddNewTO";
-            btnAddNewTO.Size = new Size(280, 35);
-            btnAddNewTO.TabIndex = 5;
-            btnAddNewTO.Text = "Добавить новую операцию";
-            btnAddNewTO.UseVisualStyleBackColor = true;
-            btnAddNewTO.Click += btnAddNewTO_Click;
+            Id.HeaderText = "Id";
+            Id.MinimumWidth = 6;
+            Id.Name = "Id";
+            Id.Visible = false;
+            // 
+            // Add
+            // 
+            Add.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Add.FillWeight = 50F;
+            Add.HeaderText = "";
+            Add.MinimumWidth = 50;
+            Add.Name = "Add";
+            Add.Resizable = DataGridViewTriState.True;
+            Add.Width = 125;
+            // 
+            // NameTO
+            // 
+            NameTO.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            NameTO.FillWeight = 167.914459F;
+            NameTO.HeaderText = "Технологические операции";
+            NameTO.MinimumWidth = 6;
+            NameTO.Name = "NameTO";
+            NameTO.ReadOnly = true;
+            NameTO.Resizable = DataGridViewTriState.True;
+            NameTO.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Column21
+            // 
+            Column21.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column21.HeaderText = "Типовая ТО";
+            Column21.MinimumWidth = 6;
+            Column21.Name = "Column21";
+            Column21.Width = 150;
+            // 
+            // IdTO
+            // 
+            IdTO.HeaderText = "Id";
+            IdTO.MinimumWidth = 6;
+            IdTO.Name = "IdTO";
+            IdTO.ReadOnly = true;
+            IdTO.SortMode = DataGridViewColumnSortMode.NotSortable;
+            IdTO.Visible = false;
+            IdTO.Width = 125;
+            // 
+            // Column18
+            // 
+            Column18.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column18.HeaderText = "";
+            Column18.MinimumWidth = 6;
+            Column18.Name = "Column18";
+            Column18.ReadOnly = true;
+            Column18.Resizable = DataGridViewTriState.True;
+            Column18.Width = 125;
+            // 
+            // Column1
+            // 
+            Column1.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Column1.HeaderText = "Технологические операции";
+            Column1.MinimumWidth = 6;
+            Column1.Name = "Column1";
+            Column1.ReadOnly = true;
+            Column1.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Order
+            // 
+            Order.HeaderText = "Order";
+            Order.MinimumWidth = 6;
+            Order.Name = "Order";
+            Order.ReadOnly = true;
+            Order.SortMode = DataGridViewColumnSortMode.NotSortable;
+            Order.Visible = false;
+            Order.Width = 125;
+            // 
+            // Column22
+            // 
+            Column22.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column22.HeaderText = "Типовая ТО";
+            Column22.MinimumWidth = 6;
+            Column22.Name = "Column22";
+            Column22.ReadOnly = true;
+            Column22.Width = 150;
             // 
             // AddEditTechOperationForm
             // 
@@ -2379,6 +2463,7 @@
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPAll).EndInit();
             flowLayoutPanel1.ResumeLayout(false);
             flowLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)smoothScrollDataGridView1).EndInit();
             tabPage4.ResumeLayout(false);
             tableLayoutPanel4.ResumeLayout(false);
             groupBox4.ResumeLayout(false);
@@ -2453,12 +2538,6 @@
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
         private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Column3;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
-        private DataGridViewButtonColumn dataGridViewButtonColumn2;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn14;
-        private DataGridViewTextBoxColumn Column4;
-        private DataGridViewTextBoxColumn Column5;
         private TabPage tabPage6;
         private TableLayoutPanel tableLayoutPanel6;
         private DataGridView dataGridViewInstumentAll;
@@ -2577,12 +2656,6 @@
         private GroupBox groupBox8;
         private GroupBox groupBox9;
         private ComboBox comboBoxFilterComponent;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
-        private DataGridViewButtonColumn DateGridLocalTPDetete;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
-        private DataGridViewTextBoxColumn Time;
-        private DataGridViewTextBoxColumn Column19;
-        private DataGridViewTextBoxColumn Order1;
         private GroupBox groupBox4;
         private TextBox PoiskPersonal;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn20;
@@ -2601,17 +2674,31 @@
         private SplitContainer splitContainer1;
         private Label label6;
         private Label labelComTime;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
+        private DataGridViewButtonColumn dataGridViewButtonColumn2;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn14;
+        private DataGridViewTextBoxColumn Column4;
+        private DataGridViewTextBoxColumn Column5;
+        private DataGridViewTextBoxColumn Column23;
         private DataGridViewTextBoxColumn Id;
         private DataGridViewButtonColumn Add;
         private DataGridViewTextBoxColumn NameTO;
         private DataGridViewCheckBoxColumn Column21;
+        private DataProcessing.SmoothScrollDataGridView smoothScrollDataGridView1;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
+        private DataGridViewButtonColumn DateGridLocalTPDetete;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
+        private DataGridViewTextBoxColumn Column25;
+        private DataGridViewTextBoxColumn Column24;
+        private DataGridViewTextBoxColumn Time;
+        private DataGridViewTextBoxColumn Column19;
+        private DataGridViewTextBoxColumn Order1;
         private DataGridViewTextBoxColumn IdTO;
         private DataGridViewButtonColumn Column18;
         private DataGridViewTextBoxColumn Column1;
+        private DataGridViewCheckBoxColumn Column22;
         private DataGridViewTextBoxColumn Order;
         private DataGridViewCheckBoxColumn Column22;
-        private Button btnCreateNewTP;
-        private Panel panel2;
-        private Button btnAddNewTO;
     }
 }

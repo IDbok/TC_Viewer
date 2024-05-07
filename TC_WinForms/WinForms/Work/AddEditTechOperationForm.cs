@@ -376,34 +376,34 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 3)
-            {
-                string gg;
-                if (dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value is string)
-                {
-                    gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-                }
-                else
-                {
-                    gg = dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
-                }
+            //if (e.ColumnIndex == 3)
+            //{
+            //    string gg;
+            //    if(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value is string)
+            //    {
+            //        gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value; 
+            //    }
+            //    else
+            //    {
+            //        gg = dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
+            //    }
+                
+            //    var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
+            //    var work = (TechOperationWork)comboBoxTO.SelectedItem;
+            //    // TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == idd).
+            //    var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
+            //    if (wor != null)
+            //    {
+            //        var result = new double();
+            //        if (double.TryParse(gg, out result))
+            //        {
+            //            wor.Value = result;
+            //            TechOperationForm.UpdateGrid();
+            //        }
+            //    }
+            //}
 
-                var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
-                // TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == idd).
-                var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
-                if (wor != null)
-                {
-                    var result = new double();
-                    if (double.TryParse(gg, out result))
-                    {
-                        wor.Value = result;
-                        TechOperationForm.UpdateGrid();
-                    }
-                }
-            }
-
-            if (e.ColumnIndex == 4)
+            if (e.ColumnIndex == 6)
             {
                 var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -448,9 +448,25 @@ namespace TC_WinForms.WinForms.Work
             {
                 var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
-                TechOperationForm.AddTechTransition(Idd, work);
-                UpdateGridLocalTP();
-                TechOperationForm.UpdateGrid();
+
+
+                if (Idd.Name != "Повторить")
+                {
+                    Coefficient coefficient = new Coefficient(Idd);
+
+                    if (coefficient.ShowDialog() == DialogResult.OK)
+                    {
+                        TechOperationForm.AddTechTransition(Idd, work, null, coefficient);
+                        UpdateGridLocalTP();
+                        TechOperationForm.UpdateGrid();
+                    }
+                }
+                else
+                {
+                    TechOperationForm.AddTechTransition(Idd, work, null, null);
+                    UpdateGridLocalTP();
+                    TechOperationForm.UpdateGrid();
+                }
             }
         }
 
@@ -599,11 +615,16 @@ namespace TC_WinForms.WinForms.Work
                 {
                     listItem.Add("Повторить");
                     listItem.Add("");
+                    listItem.Add("");
+                    listItem.Add("");
                 }
                 else
                 {
                     listItem.Add(executionWork.techTransition?.Name);
                     listItem.Add(executionWork.techTransition?.TimeExecution);
+
+                    listItem.Add(executionWork.Coefficient);
+                    listItem.Add(executionWork.Value);
                 }
 
                 listItem.Add(executionWork.Comments);
@@ -1260,6 +1281,7 @@ namespace TC_WinForms.WinForms.Work
                 listItem.Add(componentWork.component.Type);
                 listItem.Add(componentWork.component.Unit);
                 listItem.Add(componentWork.Quantity.ToString());
+                listItem.Add(componentWork.Comments);
                 dataGridViewComponentLocal.Rows.Add(listItem.ToArray());
             }
 
@@ -1335,6 +1357,17 @@ namespace TC_WinForms.WinForms.Work
                 //UpdateComponentLocal();
                 TechOperationForm.UpdateGrid();
             }
+
+            if (e.ColumnIndex == 6)
+            {
+                var work = (TechOperationWork)comboBoxTO2.SelectedItem;
+                var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
+                var value = (string)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[6].Value;
+
+                Idd.Comments = value??"";
+                TechOperationForm.UpdateGrid();
+            }
+
         }
 
         #endregion

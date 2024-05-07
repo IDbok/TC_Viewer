@@ -682,7 +682,7 @@ namespace TC_WinForms.WinForms.Work
         }
 
 
-        public void AddTechTransition(TechTransition TP, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical=null)
+        public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical=null, Coefficient coefficient = null)
         {
             TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
             var exec = TOWork.executionWorks.Where(w => w.techTransition == TP && w.Delete == true).ToList();
@@ -706,8 +706,12 @@ namespace TC_WinForms.WinForms.Work
                     techOpeWork.IdGuid = Guid.NewGuid();
                     techOpeWork.techOperationWork = TOWork;
                     techOpeWork.NewItem = true;
-                    techOpeWork.techTransition = TP;
-                    techOpeWork.Value = TP.TimeExecution;
+                    techOpeWork.techTransition = tech;
+                    if(coefficient!=null)
+                    {
+                        techOpeWork.Coefficient = coefficient.GetCoefficent;
+                        techOpeWork.Value = coefficient.GetValue;
+                    }
                     techOpeWork.Order = max + 1;
                     TOWork.executionWorks.Add(techOpeWork);
 
