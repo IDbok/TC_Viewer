@@ -685,7 +685,7 @@ namespace TC_WinForms.WinForms.Work
         public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical=null, Coefficient coefficient = null)
         {
             TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
-            var exec = TOWork.executionWorks.Where(w => w.techTransition == TP && w.Delete == true).ToList();
+            var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
 
             if (exec.Count > 0)
             {
@@ -700,7 +700,7 @@ namespace TC_WinForms.WinForms.Work
                     max = TOWork.executionWorks.Max(w => w.Order);
                 }
 
-                if (TP.Name != "Повторить")
+                if (tech.Name != "Повторить")
                 {
                     ExecutionWork techOpeWork = new ExecutionWork();
                     techOpeWork.IdGuid = Guid.NewGuid();

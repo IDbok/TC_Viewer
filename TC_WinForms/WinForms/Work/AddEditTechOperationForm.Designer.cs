@@ -233,7 +233,7 @@
             IdTO = new DataGridViewTextBoxColumn();
             Column18 = new DataGridViewButtonColumn();
             Column1 = new DataGridViewTextBoxColumn();
-            Column22 = new DataGridViewCheckBoxColumn();
+            //Column22 = new DataGridViewCheckBoxColumn();
             Order = new DataGridViewTextBoxColumn();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).BeginInit();
@@ -399,7 +399,7 @@
             // 
             // panel2
             // 
-            panel2.Controls.Add(btnAddNewTO);
+            panel2.Controls.Add(btnCreateNewTP);
             panel2.Controls.Add(groupBox2);
             panel2.Dock = DockStyle.Fill;
             panel2.Location = new Point(3, 408);
@@ -2699,6 +2699,8 @@
         private DataGridViewTextBoxColumn Column1;
         private DataGridViewCheckBoxColumn Column22;
         private DataGridViewTextBoxColumn Order;
-        private DataGridViewCheckBoxColumn Column22;
+        private Panel panel2;
+        private Button btnCreateNewTP;
+        //private DataGridViewCheckBoxColumn Column22;
     }
 }
