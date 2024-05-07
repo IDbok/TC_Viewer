@@ -29,6 +29,7 @@ namespace TcModels.Models.TcContent
         public Guid? sumEw { get; set; } // не актуально
         public Guid? maxEw { get; set; } // не акутально
 
+        public string Coefficient { get; set; } = "";
         public double Value { get; set; }
         public string Comments { get; set; } = "";
 
