@@ -14,5 +14,6 @@ namespace TcModels.Models.TcContent
         public Component component { get; set; }
         public int componentId { get; set; }
         public double Quantity { get; set; }
+        public string Comments { get; set; } = "";
     }
 }
