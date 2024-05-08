@@ -247,7 +247,7 @@ namespace TC_WinForms.WinForms.Work
                         }
                     }
 
-                    list.Add(new TechOperationDataGridItem
+                    var itm = new TechOperationDataGridItem
                     {
                         Nomer = nomer,
                         Staff = StaffStr,
@@ -259,8 +259,16 @@ namespace TC_WinForms.WinForms.Work
                         Posled = executionWork.Posled,
                         Work = true,
                         techWork = executionWork,
-                        listMach = mach
-                    });
+                        listMach = mach,
+                        Comments = executionWork.Comments
+                    };
+
+                    if(itm.TechTransitionValue=="-1")
+                    {
+                        itm.TechTransitionValue = "Ошибка";
+                    }
+
+                    list.Add(itm);
 
 
                     nomer++;
@@ -297,7 +305,8 @@ namespace TC_WinForms.WinForms.Work
                         TechOperation = techOperationWork.techOperation.Name,
                         TechTransition = strComp,
                         TechTransitionValue = componentWork.Quantity.ToString(),
-                        ItsComponent = true
+                        ItsComponent = true,
+                        Comments = componentWork.Comments ?? ""
                     });
                     nomer++;
                 }
@@ -358,13 +367,13 @@ namespace TC_WinForms.WinForms.Work
                     {
                         if (executionWork.Posled != "" && executionWork.Posled != "0")
                         {
-                            var allSum = podchet.Where(w => w.Posled == executionWork.Posled)
+                            var allSum = podchet.Where(w => w.Posled == executionWork.Posled && w.Value!=-1)
                                 .Sum(s => s.Value);
                             executionWork.TempTimeExecution = allSum;
                         }
                         else
                         {
-                            executionWork.TempTimeExecution = executionWork.Value;
+                            executionWork.TempTimeExecution = executionWork.Value==-1?0: executionWork.Value;
                         }
                     }
 
