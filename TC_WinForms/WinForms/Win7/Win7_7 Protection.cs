@@ -29,8 +29,6 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
             AccessInitialization(accessLevel);
 
-            this.Enabled = false;
-            dgvMain.Visible = false;
         }
         public Win7_7_Protection(bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
         {
@@ -39,8 +37,6 @@ namespace TC_WinForms.WinForms
             _tcId = createdTCId;
             InitializeComponent();
 
-            this.Enabled = false;
-            dgvMain.Visible = false;
         }
 
         private async void Win7_7_Protection_Load(object sender, EventArgs e)

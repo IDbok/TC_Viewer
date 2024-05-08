@@ -53,8 +53,8 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         InitializeComponent();
         AccessInitialization(accessLevel);
 
-        this.Enabled = false;
-        dgvMain.Visible = false;
+        //this.Enabled = false;
+        //dgvMain.Visible = false;
     }
 
     public Win7_3_Staff(Form openedForm, bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
@@ -65,8 +65,6 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         _tcId = createdTCId;
         InitializeComponent();
 
-        this.Enabled = false;
-        dgvMain.Visible = false;
     }
 
     private async void Win7_3_Staff_Load(object sender, EventArgs e)

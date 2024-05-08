@@ -46,8 +46,6 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
             AccessInitialization(accessLevel);
 
-            this.Enabled = false;
-            dgvMain.Visible = false;
         }
 
 

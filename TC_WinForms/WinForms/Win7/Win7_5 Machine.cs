@@ -33,8 +33,6 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
         InitializeComponent();
         AccessInitialization(accessLevel);
 
-        this.Enabled = false;
-        dgvMain.Visible = false;
     }
     public Win7_5_Machine(bool activateNewItemCreate = false, int? createdTCId = null)
     {
@@ -44,8 +42,6 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
 
         InitializeComponent();
 
-        this.Enabled = false;
-        dgvMain.Visible = false;
     }
 
     private async void Win7_5_Machine_Load(object sender, EventArgs e)

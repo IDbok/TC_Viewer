@@ -36,7 +36,6 @@ namespace TC_WinForms.WinForms
                 LocalCard = context.TechnologicalCards.Single(s => s.Id == tcId);
                 load(LocalCard);
             }
-
         }
 
 

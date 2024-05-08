@@ -652,6 +652,7 @@ namespace TC_WinForms.WinForms.Work
         public void UpdateGridLocalTP()
         {
             var offScroll = dataGridViewTPLocal.FirstDisplayedScrollingRowIndex;
+
             dataGridViewTPLocal.Rows.Clear();
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
