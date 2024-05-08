@@ -547,6 +547,11 @@ namespace TC_WinForms.WinForms.Work
 
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
+            if(work==null)
+            {
+                return;
+            }
+
             var context = TechOperationForm.context;
 
             allTP = context.TechTransitions.ToList(); // todo: добавить фильтрацию по выпуску и номеру карты
