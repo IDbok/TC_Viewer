@@ -654,6 +654,12 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewTPLocal.FirstDisplayedScrollingRowIndex;
             dataGridViewTPLocal.Rows.Clear();
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
+
+            if(work==null)
+            {
+                return;
+            }
+
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Where(w => w.Delete == false).ToList();
 
             foreach (ExecutionWork executionWork in LocalTP)
