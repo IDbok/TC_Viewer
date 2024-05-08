@@ -38,7 +38,7 @@ public partial class Win7_StaffEditor : Form
         _editingObj.Comment = rtxtComment.Text;
 
         _editingObj.IsReleased = cbxIsReleased.Checked;
-        //_editingObj.ClassifierCode = txtClassifierCode.Text;
+        _editingObj.ClassifierCode = txtClassifierCode.Text;
 
         // проверка _editingObj на то, что все необходимые заполнены
         if (!AreRequiredPropertiesFilled())
@@ -104,7 +104,7 @@ public partial class Win7_StaffEditor : Form
             rtxtComment.Text = _editingObj.Comment;
 
             cbxIsReleased.Checked = _editingObj.IsReleased;
-            //txtClassifierCode.Text = _editingObj.ClassifierCode;
+            txtClassifierCode.Text = _editingObj.ClassifierCode;
         }
 
         dgvRelatedStaffs.DataSource = _editingObj.RelatedStaffs;

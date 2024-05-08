@@ -231,7 +231,7 @@ namespace TC_WinForms.WinForms
         {
             // load new form Win7 Tool as dictonary
             var newForm = new Win7_6_Tool(activateNewItemCreate: true, createdTCId: _tcId);
-           
+            newForm.WindowState = FormWindowState.Maximized;
             newForm.ShowDialog();
         }
 

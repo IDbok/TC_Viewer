@@ -52,6 +52,9 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
     {
         InitializeComponent();
         AccessInitialization(accessLevel);
+
+        this.Enabled = false;
+        dgvMain.Visible = false;
     }
 
     public Win7_3_Staff(Form openedForm, bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
@@ -61,11 +64,16 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         _newItemCreateActive = activateNewItemCreate;
         _tcId = createdTCId;
         InitializeComponent();
+
+        this.Enabled = false;
+        dgvMain.Visible = false;
     }
 
     private async void Win7_3_Staff_Load(object sender, EventArgs e)
     {
         //progressBar.Visible = true;
+        this.Enabled = false;
+        dgvMain.Visible = false;
 
         if (!isDataLoaded)
             await LoadDataAsync();
@@ -94,6 +102,8 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
             SetAddingFormEvents();
         }
 
+        dgvMain.Visible = true;
+        this.Enabled = true;
         //progressBar.Visible = false;
     }
     public async Task LoadDataAsync()
@@ -184,6 +194,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         }
 
         dgvMain.Columns[nameof(DisplayedStaff.Name)].Width = 200;
+        dgvMain.Columns[nameof(DisplayedStaff.ClassifierCode)].Width = 150;
         dgvMain.Columns[nameof(DisplayedStaff.Type)].Width = 200;
         //dgvMain.Columns[nameof(DisplayedStaff.Functions)].Width = 290;
         dgvMain.Columns[nameof(DisplayedStaff.CombineResponsibility)].Width = 290;
@@ -268,7 +279,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
                 nameof(Id),
                 nameof(Name),
                 nameof(Type),
-                //nameof(ClassifierCode),
+                nameof(ClassifierCode),
                 nameof(Functions),
                 nameof(CombineResponsibility),
                 nameof(Qualification),
@@ -283,7 +294,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
                 nameof(Type) ,
                 nameof(Functions) ,
                 nameof(Qualification),
-                //nameof(ClassifierCode),
+                nameof(ClassifierCode),
             };
         }
 

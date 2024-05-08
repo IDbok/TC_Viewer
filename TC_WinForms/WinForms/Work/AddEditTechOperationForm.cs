@@ -767,7 +767,7 @@ namespace TC_WinForms.WinForms.Work
                     // Проверяем, есть ли уже такой символ среди выбранных
                     if (staffs.Count >= 1 && (bool)dataGridViewStaff.Rows[e.RowIndex].Cells[2].Value == false)
                     {
-                        MessageBox.Show("Роль с таким обозначением уже существует");
+                        MessageBox.Show("Роль с таким обозначением уже добавлена в переход");
                         e.Cancel = true;
                     }
                 }
@@ -835,7 +835,7 @@ namespace TC_WinForms.WinForms.Work
 
                 if (idd != null)
                 {
-                    if (MessageBox.Show("Вы дейстивтельно хотите удалить?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
+                    if (MessageBox.Show("Вы действительно хотите полностью удалить данную роль из техкарты?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
                     {
                         var vv = TechOperationForm.TehCarta.Staff_TCs;
                         vv.Remove(idd);

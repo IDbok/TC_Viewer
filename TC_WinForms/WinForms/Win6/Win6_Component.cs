@@ -239,7 +239,7 @@ namespace TC_WinForms.WinForms
         {
             // load new form Win7_3_Component as dictonary
             var newForm = new Win7_4_Component(activateNewItemCreate: true, createdTCId: _tcId);
-            // newForm.SetAsAddingForm();
+            newForm.WindowState = FormWindowState.Maximized;
             newForm.ShowDialog();
         }
 

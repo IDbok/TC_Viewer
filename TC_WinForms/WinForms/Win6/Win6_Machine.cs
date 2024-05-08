@@ -237,6 +237,7 @@ namespace TC_WinForms.WinForms
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
             var newForm = new Win7_5_Machine(activateNewItemCreate: true, createdTCId: _tcId);
+            newForm.WindowState = FormWindowState.Maximized;
             newForm.ShowDialog();
         }
 

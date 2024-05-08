@@ -240,6 +240,7 @@ public partial class Win6_Staff : Form, ISaveEventForm
     {
         // load new form Win7_3_Staff as dictonary
         var newForm = new Win7_3_Staff(this, activateNewItemCreate: true, createdTCId: _tcId);
+        newForm.WindowState = FormWindowState.Maximized;
         //newForm.SetAsAddingForm();
         newForm.ShowDialog();
     }

@@ -34,6 +34,9 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     {
         InitializeComponent();
         AccessInitialization(accessLevel);
+
+        this.Enabled = false;
+        dgvMain.Visible = false;
     }
     public Win7_4_Component(bool activateNewItemCreate = false, int? createdTCId = null)
     {
@@ -42,11 +45,16 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         _newItemCreateActive = activateNewItemCreate;
 
         InitializeComponent();
+
+        this.Enabled = false;
+        dgvMain.Visible = false;
     }
 
     private async void Win7_4_Component_Load(object sender, EventArgs e)
     {
         //progressBar.Visible = true;
+        this.Enabled = false;
+        dgvMain.Visible = false;
 
         if (!_isDataLoaded)
         {
@@ -75,6 +83,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
             SetAddingFormEvents();
         }
 
+        dgvMain.Visible = true;
+        this.Enabled = true;
         //progressBar.Visible = false;
     }
     public async Task LoadDataAsync()

@@ -42,8 +42,12 @@ namespace TC_WinForms.WinForms
 
         public Win7_1_TCs(int accessLevel)
         {
+
             InitializeComponent();
             AccessInitialization(accessLevel);
+
+            this.Enabled = false;
+            dgvMain.Visible = false;
         }
 
 
@@ -60,8 +64,11 @@ namespace TC_WinForms.WinForms
         //}
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
-            progressBar.Visible = true;
+            this.Enabled = false;
             dgvMain.Visible = false;
+
+            progressBar.Visible = true;
+
             if (!_isDataLoaded)
             {
                 await LoadDataAsync();
@@ -74,8 +81,11 @@ namespace TC_WinForms.WinForms
             SetupTypeComboBox();
 
             progressBar.Visible = false;
-            dgvMain.Visible = true;
             _isDataLoaded = true;
+
+
+            dgvMain.Visible = true;
+            this.Enabled = true;
         }
         public async Task LoadDataAsync()
         {

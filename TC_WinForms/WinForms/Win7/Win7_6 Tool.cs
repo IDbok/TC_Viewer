@@ -30,19 +30,30 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
     public Win7_6_Tool(int accessLevel)
     {
+        this.Enabled = false;
+
         InitializeComponent();
         AccessInitialization(accessLevel);
+
+        dgvMain.Visible = false;
     }
     public Win7_6_Tool(bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
     {
+
+        this.Enabled = false;
+
         _isAddingForm = true;
         _newItemCreateActive = activateNewItemCreate;
         _tcId = createdTCId;
         InitializeComponent();
+
+        dgvMain.Visible = false;
     }
     private async void Win7_6_Tool_Load(object sender, EventArgs e)
     {
         //progressBar.Visible = true;
+        this.Enabled = false;
+        dgvMain.Visible = false;
 
         if (!_isDataLoaded)
             await LoadDataAsync();
@@ -70,6 +81,8 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
             SetAddingFormEvents();
         }
 
+        dgvMain.Visible = true;
+        this.Enabled = true;
         //progressBar.Visible = false;
     }
 

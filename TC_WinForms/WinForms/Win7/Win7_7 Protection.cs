@@ -28,6 +28,9 @@ namespace TC_WinForms.WinForms
         {
             InitializeComponent();
             AccessInitialization(accessLevel);
+
+            this.Enabled = false;
+            dgvMain.Visible = false;
         }
         public Win7_7_Protection(bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
         {
@@ -35,11 +38,16 @@ namespace TC_WinForms.WinForms
             _newItemCreateActive = activateNewItemCreate;
             _tcId = createdTCId;
             InitializeComponent();
+
+            this.Enabled = false;
+            dgvMain.Visible = false;
         }
 
         private async void Win7_7_Protection_Load(object sender, EventArgs e)
         {
             //progressBar.Visible = true;
+            this.Enabled = false;
+            dgvMain.Visible = false;
 
             await LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedProtection>(dgvMain);
@@ -62,6 +70,8 @@ namespace TC_WinForms.WinForms
                 SetAddingFormEvents();
             }
 
+            dgvMain.Visible = true;
+            this.Enabled = true;
             //progressBar.Visible = false;
         }
         private async Task LoadObjects()

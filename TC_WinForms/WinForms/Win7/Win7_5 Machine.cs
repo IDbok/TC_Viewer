@@ -32,6 +32,9 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
     {
         InitializeComponent();
         AccessInitialization(accessLevel);
+
+        this.Enabled = false;
+        dgvMain.Visible = false;
     }
     public Win7_5_Machine(bool activateNewItemCreate = false, int? createdTCId = null)
     {
@@ -40,11 +43,16 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
         _newItemCreateActive = activateNewItemCreate;
 
         InitializeComponent();
+
+        this.Enabled = false;
+        dgvMain.Visible = false;
     }
 
     private async void Win7_5_Machine_Load(object sender, EventArgs e)
     {
         //progressBar.Visible = true;
+        this.Enabled = false;
+        dgvMain.Visible = false;
 
         if (!_isDataLoaded)
             await LoadDataAsync();
@@ -71,10 +79,13 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
             SetAddingFormEvents();
         }
 
+        dgvMain.Visible = true;
+        this.Enabled = true;
         //progressBar.Visible = false;
     }
     public async Task LoadDataAsync()
     {
+
         _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
             .Select(obj => new DisplayedMachine(obj)).ToList());
 
