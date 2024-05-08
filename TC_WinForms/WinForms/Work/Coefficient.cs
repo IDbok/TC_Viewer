@@ -42,7 +42,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            Expression ee = new Expression(Idd.TimeExecution.ToString() + textBox1.Text);
+            Expression ee = new Expression(Idd.TimeExecution.ToString().Replace(',','.')+ " " + textBox1.Text.Replace(',', '.'));
 
             try
             {

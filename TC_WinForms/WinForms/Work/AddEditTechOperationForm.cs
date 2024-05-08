@@ -435,7 +435,7 @@ namespace TC_WinForms.WinForms.Work
                 {
                     wor.Coefficient = gg;
 
-                    Expression ee = new Expression(wor.techTransition?.TimeExecution + wor.Coefficient);
+                    Expression ee = new Expression(wor.techTransition?.TimeExecution.ToString().Replace(',', '.')+" " + wor.Coefficient.Replace(',', '.'));
 
                     try
                     {
@@ -577,7 +577,7 @@ namespace TC_WinForms.WinForms.Work
             listItem1.Add(povtor.Name);
             dataGridViewTPAll.Rows.Add(listItem1.ToArray());
 
-            if (work.techOperation.Category == "Типовая ТО")
+            if (work?.techOperation.Category == "Типовая ТО")
             {
                 return;
             }
@@ -1203,6 +1203,11 @@ namespace TC_WinForms.WinForms.Work
 
             var work = (TechOperationWork)comboBoxTO2.SelectedItem;
 
+            if(work==null)
+            {
+                return;
+            }
+
             var context = TechOperationForm.context;
 
             var AllMyComponent = TechOperationForm.TehCarta.Component_TCs.Where(w => w.ParentId == TechOperationForm.tcId).ToList();
@@ -1334,6 +1339,12 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewComponentLocal.FirstDisplayedScrollingRowIndex;
             dataGridViewComponentLocal.Rows.Clear();
             var work = (TechOperationWork)comboBoxTO2.SelectedItem;
+            if(work==null)
+            {
+                return;
+            }
+
+
             var LocalComponent = work.ComponentWorks.ToList();
 
             foreach (ComponentWork componentWork in LocalComponent)
@@ -1446,6 +1457,12 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewInstrumentLocal.FirstDisplayedScrollingRowIndex;
             dataGridViewInstrumentLocal.Rows.Clear();
             var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+
+            if(work==null)
+            {
+                return;
+            }
+
             var LocalInstrument = work.ToolWorks.ToList();
 
             foreach (var InstrumentWork in LocalInstrument)
@@ -1487,6 +1504,11 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewInstumentAll.Rows.Clear();
 
             var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+
+            if(work==null)
+            {
+                return;
+            }
 
             var context = TechOperationForm.context;
 
@@ -1625,6 +1647,12 @@ namespace TC_WinForms.WinForms.Work
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+
+                if(work==null)
+                {
+                    return;
+                }
+
                 var Idd = (Tool)dataGridViewInstumentAll.Rows[e.RowIndex].Cells[0].Value;
 
                 ToolWork toolWork = new ToolWork();
@@ -1644,6 +1672,10 @@ namespace TC_WinForms.WinForms.Work
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+                if (work == null)
+                {
+                    return;
+                }
                 var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
 
                 work.ToolWorks.Remove(Idd);
@@ -1659,6 +1691,10 @@ namespace TC_WinForms.WinForms.Work
             if (e.ColumnIndex == 5)
             {
                 var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+                if (work == null)
+                {
+                    return;
+                }
                 var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
                 var value = (object)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[5].Value;
 
@@ -1679,6 +1715,10 @@ namespace TC_WinForms.WinForms.Work
             if (e.ColumnIndex == 6)
             {
                 var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+                if (work == null)
+                {
+                    return;
+                }
                 var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
                 var value = (string)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[6].Value;
 
