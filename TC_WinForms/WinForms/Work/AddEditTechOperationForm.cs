@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NCalc;
 using System.CodeDom;
 using System.Data;
 using TC_WinForms.DataProcessing;
@@ -393,7 +394,7 @@ namespace TC_WinForms.WinForms.Work
             //    {
             //        gg = dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
             //    }
-                
+
             //    var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
             //    var work = (TechOperationWork)comboBoxTO.SelectedItem;
             //    // TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == idd).
@@ -422,10 +423,39 @@ namespace TC_WinForms.WinForms.Work
                     TechOperationForm.UpdateGrid();
                 }
             }
+
+            if (e.ColumnIndex == 4)
+            {
+                var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+
+                var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
+                if (wor != null)
+                {
+                    wor.Coefficient = gg;
+
+                    Expression ee = new Expression(wor.techTransition?.TimeExecution + wor.Coefficient);
+
+                    try
+                    {
+                        var bn = ee.Evaluate();
+                        wor.Value = Math.Round(double.Parse(bn.ToString()), 2);
+                    }
+                    catch (Exception)
+                    {
+                        wor.Value = -1;
+                    }
+
+                    TechOperationForm.UpdateGrid();
+                    UpdateGridLocalTP();
+                }
+            }
+
         }
 
 
-        private void DataGridViewTPAll_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+            private void DataGridViewTPAll_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
             //dataGridViewTPAll.CommitEdit(DataGridViewDataErrorContexts.Commit);
             //ClickBoxTPAll();
@@ -653,7 +683,14 @@ namespace TC_WinForms.WinForms.Work
                     listItem.Add(executionWork.techTransition?.TimeExecution);
 
                     listItem.Add(executionWork.Coefficient);
-                    listItem.Add(executionWork.Value);
+                    if(executionWork.Value==-1)
+                    {
+                        listItem.Add("Ошибка");
+                    }
+                    else
+                    {
+                        listItem.Add(executionWork.Value);
+                    }
                 }
 
                 listItem.Add(executionWork.Comments);
