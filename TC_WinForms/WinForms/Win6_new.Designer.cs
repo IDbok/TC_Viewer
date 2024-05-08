@@ -33,7 +33,7 @@
             toolStripButton1 = new ToolStripButton();
             toolStripButton2 = new ToolStripButton();
             toolStripButton3 = new ToolStripButton();
-            toolStripButton4 = new ToolStripButton();
+            toolStripButtonSaveChanges = new ToolStripButton();
             btnShowStaffs = new Button();
             btnShowComponents = new Button();
             btnShowMachines = new Button();
@@ -49,7 +49,7 @@
             // toolStrip1
             // 
             toolStrip1.ImageScalingSize = new Size(20, 20);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2, toolStripButton3, toolStripButton4 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2, toolStripButton3, toolStripButtonSaveChanges });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(1363, 27);
@@ -80,15 +80,15 @@
             toolStripButton3.Size = new Size(71, 24);
             toolStripButton3.Text = "Справка";
             // 
-            // toolStripButton4
+            // toolStripButtonSaveChanges
             // 
-            toolStripButton4.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            toolStripButton4.Image = (Image)resources.GetObject("toolStripButton4.Image");
-            toolStripButton4.ImageTransparentColor = Color.Magenta;
-            toolStripButton4.Name = "toolStripButton4";
-            toolStripButton4.Size = new Size(87, 24);
-            toolStripButton4.Text = "Сохранить";
-            toolStripButton4.Click += toolStripButton4_Click;
+            toolStripButtonSaveChanges.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            toolStripButtonSaveChanges.Image = (Image)resources.GetObject("toolStripButtonSaveChanges.Image");
+            toolStripButtonSaveChanges.ImageTransparentColor = Color.Magenta;
+            toolStripButtonSaveChanges.Name = "toolStripButtonSaveChanges";
+            toolStripButtonSaveChanges.Size = new Size(87, 24);
+            toolStripButtonSaveChanges.Text = "Сохранить";
+            toolStripButtonSaveChanges.Click += toolStripButton4_Click;
             // 
             // btnShowStaffs
             // 
@@ -213,6 +213,6 @@
         private Button btnShowWorkSteps;
         private Panel pnlControls;
         private Panel pnlDataViewer;
-        private ToolStripButton toolStripButton4;
+        private ToolStripButton toolStripButtonSaveChanges;
     }
 }

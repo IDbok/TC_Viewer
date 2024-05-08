@@ -46,15 +46,43 @@ namespace TC_WinForms.WinForms
             WinProcessing.BackFormBtn(this);
         }
 
-        private void Win6_new_FormClosing(object sender, FormClosingEventArgs e)
+        private async void Win6_new_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // проверка на наличие изменений во всех формах
+            CheckForChanges();
+            //bool hasUnsavedChanges = false;
+
+            //foreach (var fm in _formsCache.Values)
+            //{
+            //    if (fm is ISaveEventForm saveForm && saveForm.HasChanges)
+            //    {
+            //        hasUnsavedChanges = true;
+            //        break;
+            //    }
+            //}
+
+            //if (hasUnsavedChanges)
+            //{
+            //    var result = MessageBox.Show("Вы хотите сохранить изменения?", "Сохранение изменений", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            //    if (result == DialogResult.Yes)
+            //    {
+            //        foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
+            //        {
+            //            await fm.SaveChanges();
+            //        }
+            //    }
+            //    else if (result == DialogResult.Cancel)
+            //    {
+            //        return;
+            //    }
+            //}
+
             //close all inner forms
             foreach (Form frm in pnlDataViewer.Controls) // todo - move to WinProcessing and run it asynch
             {
                 frm.Close();
             }
             this.Dispose();
-            // todo - if there are some changes - ask user if he wants to save them
 
         }
 
@@ -68,34 +96,37 @@ namespace TC_WinForms.WinForms
             if (_activeModelType == modelType) return;
 
             bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep;
-            bool hasUnsavedChanges = false;
+            
 
             if (isSwitchingFromOrToWorkStep)
             {
-                foreach (var fm in _formsCache.Values)
-                {
-                    if (fm is ISaveEventForm saveForm && saveForm.HasChanges)
-                    {
-                        hasUnsavedChanges = true;
-                        break;
-                    }
-                }
+                CheckForChanges();
 
-                if (hasUnsavedChanges)
-                {
-                    var result = MessageBox.Show("Вы хотите сохранить изменения перед переходом?", "Сохранение изменений", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                    if (result == DialogResult.Yes)
-                    {
-                        foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
-                        {
-                            await fm.SaveChanges();
-                        }
-                    }
-                    else if (result == DialogResult.Cancel)
-                    {
-                        return; 
-                    }
-                }
+                //bool hasUnsavedChanges = false;
+                //foreach (var fm in _formsCache.Values)
+                //{
+                //    if (fm is ISaveEventForm saveForm && saveForm.HasChanges)
+                //    {
+                //        hasUnsavedChanges = true;
+                //        break;
+                //    }
+                //}
+
+                //if (hasUnsavedChanges)
+                //{
+                //    var result = MessageBox.Show("Вы хотите сохранить изменения перед переходом?", "Сохранение изменений", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                //    if (result == DialogResult.Yes)
+                //    {
+                //        foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
+                //        {
+                //            await fm.SaveChanges();
+                //        }
+                //    }
+                //    else if (result == DialogResult.Cancel)
+                //    {
+                //        return; 
+                //    }
+                //}
 
                 // Удаляем формы из кеша для их обновления при следующем доступе
                 foreach (var formKey in _formsCache.Keys.ToList())
@@ -119,6 +150,37 @@ namespace TC_WinForms.WinForms
             _activeModelType = modelType;
 
             UpdateButtonsState(modelType);
+        }
+
+        private void CheckForChanges()
+        {
+            // проверка на наличие изменений во всех формах
+            bool hasUnsavedChanges = false;
+
+            foreach (var fm in _formsCache.Values)
+            {
+                if (fm is ISaveEventForm saveForm && saveForm.HasChanges)
+                {
+                    hasUnsavedChanges = true;
+                    break;
+                }
+            }
+
+            if (hasUnsavedChanges)
+            {
+                var result = MessageBox.Show("Вы хотите сохранить изменения?", "Сохранение изменений", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
+                {
+                    foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
+                    {
+                        fm.SaveChanges();
+                    }
+                }
+                else if (result == DialogResult.Cancel)
+                {
+                    return;
+                }
+            }
         }
 
         private Form CreateForm(EModelType modelType)

@@ -184,7 +184,7 @@ namespace TC_WinForms.WinForms.Work
             {
                 List<ExecutionWork> bb = techOperationWork.executionWorks.Where(w => w.Delete == false).OrderBy(o => o.Order).ToList();
 
-                if(bb.Count == 0)
+                if (bb.Count == 0)
                 {
                     list.Add(new TechOperationDataGridItem
                     {
@@ -263,7 +263,7 @@ namespace TC_WinForms.WinForms.Work
                         Comments = executionWork.Comments
                     };
 
-                    if(itm.TechTransitionValue=="-1")
+                    if (itm.TechTransitionValue == "-1")
                     {
                         itm.TechTransitionValue = "Ошибка";
                     }
@@ -286,7 +286,7 @@ namespace TC_WinForms.WinForms.Work
                         TechOperation = techOperationWork.techOperation.Name,
                         TechTransition = strComp,
                         TechTransitionValue = toolWork.Quantity.ToString(),
-                        ItsTool = true,   
+                        ItsTool = true,
                         Comments = toolWork.Comments ?? ""
 
                     });
@@ -367,13 +367,13 @@ namespace TC_WinForms.WinForms.Work
                     {
                         if (executionWork.Posled != "" && executionWork.Posled != "0")
                         {
-                            var allSum = podchet.Where(w => w.Posled == executionWork.Posled && w.Value!=-1)
+                            var allSum = podchet.Where(w => w.Posled == executionWork.Posled && w.Value != -1)
                                 .Sum(s => s.Value);
                             executionWork.TempTimeExecution = allSum;
                         }
                         else
                         {
-                            executionWork.TempTimeExecution = executionWork.Value==-1?0: executionWork.Value;
+                            executionWork.TempTimeExecution = executionWork.Value == -1 ? 0 : executionWork.Value;
                         }
                     }
 
@@ -533,9 +533,9 @@ namespace TC_WinForms.WinForms.Work
                     }
                     else
                     {
-                        str.Add("");                        
-                    }                    
-                }               
+                        str.Add("");
+                    }
+                }
 
                 str.Add(techOperationDataGridItem.Protections);
 
@@ -568,7 +568,7 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
-        
+
 
         private void DgvMain_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
@@ -691,7 +691,7 @@ namespace TC_WinForms.WinForms.Work
         }
 
 
-        public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical=null, Coefficient coefficient = null)
+        public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null, Coefficient coefficient = null)
         {
             TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
             var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
@@ -716,7 +716,7 @@ namespace TC_WinForms.WinForms.Work
                     techOpeWork.techOperationWork = TOWork;
                     techOpeWork.NewItem = true;
                     techOpeWork.techTransition = tech;
-                    if(coefficient!=null)
+                    if (coefficient != null)
                     {
                         techOpeWork.Coefficient = coefficient.GetCoefficent;
                         techOpeWork.Value = coefficient.GetValue;
@@ -724,7 +724,7 @@ namespace TC_WinForms.WinForms.Work
                     techOpeWork.Order = max + 1;
                     TOWork.executionWorks.Add(techOpeWork);
 
-                    if(techTransitionTypical!=null)
+                    if (techTransitionTypical != null)
                     {
                         techOpeWork.Etap = techTransitionTypical.Etap;
                         techOpeWork.Posled = techTransitionTypical.Posled;
@@ -765,7 +765,7 @@ namespace TC_WinForms.WinForms.Work
 
                 if (techOperationWork.techOperation.Category == "Типовая ТО")
                 {
-                    if(vb.Repeat==false)
+                    if (vb.Repeat == false)
                     {
                         return;
                     }
@@ -1023,9 +1023,24 @@ namespace TC_WinForms.WinForms.Work
                 stringBuilder.Append($"{start}-{end}");
 
             return stringBuilder.ToString().TrimEnd(',', ' ');
-            
-            
+
+
         }
 
+        private void TechOperationForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //if (HasChanges)
+            //{
+            //    var result = MessageBox.Show("Вы хотите сохранить изменения перед закрытием?", "Сохранение изменений", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            //    if (result == DialogResult.Yes)
+            //    {
+            //        button1_Click_1(null, null);
+            //    }
+            //    else if (result == DialogResult.Cancel)
+            //    {
+            //        e.Cancel = true;
+            //    }
+            //}
+        }
     }
 }
