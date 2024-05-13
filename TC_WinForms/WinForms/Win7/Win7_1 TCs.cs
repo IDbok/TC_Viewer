@@ -1,15 +1,20 @@
-﻿using System.ComponentModel;
+﻿
+using System.ComponentModel;
 using System.Reflection.Metadata;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
+using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
     public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
     {
+        private readonly User.Role _accessLevel;
+
         private DbConnector dbCon = new DbConnector();
         private List<DisplayedTechnologicalCard> _displayedTechnologicalCards;
         private BindingList<DisplayedTechnologicalCard> _bindingList;
@@ -40,26 +45,35 @@ namespace TC_WinForms.WinForms
             PageInfoChanged?.Invoke(this, e);
         }
 
-        public Win7_1_TCs(int accessLevel)
+        public Win7_1_TCs(User.Role accessLevel)
         {
+            _accessLevel = accessLevel;
 
             InitializeComponent();
-            AccessInitialization(accessLevel);
+            AccessInitialization();
 
         }
+        private void AccessInitialization()
+        {
+            var controlAccess = new Dictionary<User.Role, Action>
+            {
+                //[User.Role.Lead] = () => {},
 
+                //[User.Role.Implementer] = () => {},
 
-        //public bool GetDontSaveData()
-        //{
-        //    if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-        //    {
-        //        return true;
-        //    }
-        //    else
-        //    {
-        //        return false;
-        //    }
-        //}
+                //[User.Role.ProjectManager] = () => {
+                //    HideAllButtonsExcept(new List<Button> { btnProject, btnTechCard });
+                //},
+
+                //[User.Role.User] = () => {
+                //    HideAllButtonsExcept(new List<Button> { btnTechCard });
+                //}
+            };
+
+            controlAccess.TryGetValue(_accessLevel, out var action);
+            action?.Invoke();
+
+        }
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
             this.Enabled = false;
@@ -99,9 +113,6 @@ namespace TC_WinForms.WinForms
             totalPageCount = (int)Math.Ceiling(_displayedTechnologicalCards.Count / (double)_pageSize);
             UpdateDisplayedData();
             //dgvMain.DataSource = _bindingList;
-        }
-        private void AccessInitialization(int accessLevel)
-        {
         }
         private void UpdateDisplayedData()
         {
@@ -160,9 +171,11 @@ namespace TC_WinForms.WinForms
             }
         }
 
-        private void btnDeleteTC_Click(object sender, EventArgs e)
+        private async void btnDeleteTC_Click(object sender, EventArgs e)
         {
-            DeleteSelected();
+            //DeleteSelected();
+            await DisplayedEntityHelper.DeleteSelectedObject<DisplayedTechnologicalCard, TechnologicalCard>(dgvMain,
+                _bindingList, isFiltered ? _displayedTechnologicalCards : null);
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -387,7 +400,7 @@ namespace TC_WinForms.WinForms
         }
 
 
-        private class DisplayedTechnologicalCard : INotifyPropertyChanged, IDisplayedEntity
+        private class DisplayedTechnologicalCard : INotifyPropertyChanged, IDisplayedEntity, IIdentifiable
         {
             public Dictionary<string, string> GetPropertiesNames()
             {

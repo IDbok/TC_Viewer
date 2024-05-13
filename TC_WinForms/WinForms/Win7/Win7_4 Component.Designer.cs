@@ -31,6 +31,7 @@
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
+            cbxShowUnReleased = new CheckBox();
             cbxCategoryFilter = new ComboBox();
             lblCategory = new Label();
             lblSearch = new Label();
@@ -41,7 +42,6 @@
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
             progressBar = new ProgressBar();
-            cbxShowUnReleased = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -56,13 +56,12 @@
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 0);
-            dgvMain.Margin = new Padding(4);
             dgvMain.Name = "dgvMain";
             dgvMain.ReadOnly = true;
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
             dgvMain.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvMain.Size = new Size(1252, 462);
+            dgvMain.Size = new Size(1002, 370);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -71,9 +70,8 @@
             pnlControls.Controls.Add(pnlControlBtns);
             pnlControls.Dock = DockStyle.Top;
             pnlControls.Location = new Point(0, 0);
-            pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1252, 100);
+            pnlControls.Size = new Size(1002, 80);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
@@ -83,45 +81,60 @@
             pnlFilters.Controls.Add(lblCategory);
             pnlFilters.Controls.Add(lblSearch);
             pnlFilters.Controls.Add(txtSearch);
-            pnlFilters.Dock = DockStyle.Left;
+            pnlFilters.Dock = DockStyle.Fill;
             pnlFilters.Location = new Point(0, 0);
-            pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(656, 100);
+            pnlFilters.Size = new Size(530, 80);
             pnlFilters.TabIndex = 25;
+            // 
+            // cbxShowUnReleased
+            // 
+            cbxShowUnReleased.AutoSize = true;
+            cbxShowUnReleased.Location = new Point(10, 57);
+            cbxShowUnReleased.Margin = new Padding(2, 2, 2, 2);
+            cbxShowUnReleased.Name = "cbxShowUnReleased";
+            cbxShowUnReleased.Size = new Size(208, 24);
+            cbxShowUnReleased.TabIndex = 31;
+            cbxShowUnReleased.Text = "Показать невыпущенные";
+            cbxShowUnReleased.UseVisualStyleBackColor = true;
+            cbxShowUnReleased.CheckedChanged += cbxShowUnReleased_CheckedChanged;
             // 
             // cbxCategoryFilter
             // 
             cbxCategoryFilter.FormattingEnabled = true;
-            cbxCategoryFilter.Location = new Point(270, 35);
+            cbxCategoryFilter.Location = new Point(216, 28);
+            cbxCategoryFilter.Margin = new Padding(2, 2, 2, 2);
             cbxCategoryFilter.Name = "cbxCategoryFilter";
-            cbxCategoryFilter.Size = new Size(182, 33);
+            cbxCategoryFilter.Size = new Size(146, 28);
             cbxCategoryFilter.TabIndex = 30;
             cbxCategoryFilter.SelectedIndexChanged += cbxCategoryFilter_SelectedIndexChanged;
             // 
             // lblCategory
             // 
             lblCategory.AutoSize = true;
-            lblCategory.Location = new Point(270, 5);
+            lblCategory.Location = new Point(216, 4);
+            lblCategory.Margin = new Padding(2, 0, 2, 0);
             lblCategory.Name = "lblCategory";
-            lblCategory.Size = new Size(99, 25);
+            lblCategory.Size = new Size(84, 20);
             lblCategory.TabIndex = 29;
             lblCategory.Text = "Категория:";
             // 
             // lblSearch
             // 
             lblSearch.AutoSize = true;
-            lblSearch.Location = new Point(12, 5);
+            lblSearch.Location = new Point(10, 4);
+            lblSearch.Margin = new Padding(2, 0, 2, 0);
             lblSearch.Name = "lblSearch";
-            lblSearch.Size = new Size(67, 25);
+            lblSearch.Size = new Size(55, 20);
             lblSearch.TabIndex = 28;
             lblSearch.Text = "Поиск:";
             // 
             // txtSearch
             // 
-            txtSearch.Location = new Point(12, 35);
+            txtSearch.Location = new Point(10, 28);
+            txtSearch.Margin = new Padding(2, 2, 2, 2);
             txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(224, 31);
+            txtSearch.Size = new Size(180, 27);
             txtSearch.TabIndex = 27;
             txtSearch.TextChanged += txtSearch_TextChanged;
             // 
@@ -131,18 +144,16 @@
             pnlControlBtns.Controls.Add(btnDeleteObj);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(662, 0);
-            pnlControlBtns.Margin = new Padding(4);
+            pnlControlBtns.Location = new Point(530, 0);
             pnlControlBtns.Name = "pnlControlBtns";
-            pnlControlBtns.Size = new Size(590, 100);
+            pnlControlBtns.Size = new Size(472, 80);
             pnlControlBtns.TabIndex = 24;
             // 
             // btnUpdate
             // 
-            btnUpdate.Location = new Point(220, 15);
-            btnUpdate.Margin = new Padding(4);
+            btnUpdate.Location = new Point(176, 12);
             btnUpdate.Name = "btnUpdate";
-            btnUpdate.Size = new Size(170, 75);
+            btnUpdate.Size = new Size(136, 60);
             btnUpdate.TabIndex = 26;
             btnUpdate.Text = "Редактировать";
             btnUpdate.UseVisualStyleBackColor = true;
@@ -150,10 +161,9 @@
             // 
             // btnDeleteObj
             // 
-            btnDeleteObj.Location = new Point(400, 15);
-            btnDeleteObj.Margin = new Padding(4);
+            btnDeleteObj.Location = new Point(320, 12);
             btnDeleteObj.Name = "btnDeleteObj";
-            btnDeleteObj.Size = new Size(170, 75);
+            btnDeleteObj.Size = new Size(136, 60);
             btnDeleteObj.TabIndex = 25;
             btnDeleteObj.Text = "Удалить";
             btnDeleteObj.UseVisualStyleBackColor = true;
@@ -161,10 +171,9 @@
             // 
             // btnAddNewObj
             // 
-            btnAddNewObj.Location = new Point(40, 15);
-            btnAddNewObj.Margin = new Padding(4);
+            btnAddNewObj.Location = new Point(32, 12);
             btnAddNewObj.Name = "btnAddNewObj";
-            btnAddNewObj.Size = new Size(170, 75);
+            btnAddNewObj.Size = new Size(136, 60);
             btnAddNewObj.TabIndex = 23;
             btnAddNewObj.Text = "Добавить";
             btnAddNewObj.UseVisualStyleBackColor = true;
@@ -175,42 +184,30 @@
             pnlDataViewer.Controls.Add(progressBar);
             pnlDataViewer.Controls.Add(dgvMain);
             pnlDataViewer.Dock = DockStyle.Fill;
-            pnlDataViewer.Location = new Point(0, 100);
-            pnlDataViewer.Margin = new Padding(4);
+            pnlDataViewer.Location = new Point(0, 80);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1252, 462);
+            pnlDataViewer.Size = new Size(1002, 370);
             pnlDataViewer.TabIndex = 2;
             // 
             // progressBar
             // 
             progressBar.Anchor = AnchorStyles.None;
-            progressBar.Location = new Point(352, 100);
+            progressBar.Location = new Point(282, 80);
+            progressBar.Margin = new Padding(2, 2, 2, 2);
             progressBar.MarqueeAnimationSpeed = 30;
             progressBar.Name = "progressBar";
-            progressBar.Size = new Size(564, 34);
+            progressBar.Size = new Size(451, 27);
             progressBar.Style = ProgressBarStyle.Marquee;
             progressBar.TabIndex = 2;
             progressBar.Visible = false;
             // 
-            // cbxShowUnReleased
-            // 
-            cbxShowUnReleased.AutoSize = true;
-            cbxShowUnReleased.Location = new Point(12, 71);
-            cbxShowUnReleased.Name = "cbxShowUnReleased";
-            cbxShowUnReleased.Size = new Size(245, 29);
-            cbxShowUnReleased.TabIndex = 31;
-            cbxShowUnReleased.Text = "Показать невыпущенные";
-            cbxShowUnReleased.UseVisualStyleBackColor = true;
-            cbxShowUnReleased.CheckedChanged += cbxShowUnReleased_CheckedChanged;
-            // 
             // Win7_4_Component
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1252, 562);
+            ClientSize = new Size(1002, 450);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
-            Margin = new Padding(4);
             Name = "Win7_4_Component";
             Text = "Win7_4_Component";
             FormClosing += Win7_4_Component_FormClosing;

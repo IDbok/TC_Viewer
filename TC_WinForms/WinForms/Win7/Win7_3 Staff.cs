@@ -8,11 +8,13 @@ using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms;
 
 public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
 {
+    private readonly User.Role _accessLevel;
 
     private DbConnector dbCon = new DbConnector();
 
@@ -48,10 +50,12 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
     //        return false;
     //    }
     //}
-    public Win7_3_Staff(int accessLevel)
+    public Win7_3_Staff(User.Role accessLevel)
     {
+        _accessLevel = accessLevel;
+
         InitializeComponent();
-        AccessInitialization(accessLevel);
+        AccessInitialization();
 
         //this.Enabled = false;
         //dgvMain.Visible = false;
@@ -113,7 +117,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
 
         isDataLoaded = true;
     }
-    private void AccessInitialization(int accessLevel)
+    private void AccessInitialization()
     {
         //var controlAccess = new Dictionary<int, Action>
         //{

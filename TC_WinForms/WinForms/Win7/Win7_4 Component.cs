@@ -8,12 +8,15 @@ using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 using Component = TcModels.Models.TcContent.Component; 
 
 namespace TC_WinForms.WinForms;
 
 public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventForm
 {
+    private readonly User.Role _accessLevel;
+
     private DbConnector dbCon = new DbConnector();
     private List<DisplayedComponent> _displayedObjects;
     private BindingList<DisplayedComponent> _bindingList;
@@ -30,10 +33,12 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
     private bool _isFiltered = false;
 
-    public Win7_4_Component(int accessLevel)
+    public Win7_4_Component(User.Role accessLevel)
     {
+        _accessLevel = accessLevel;
+
         InitializeComponent();
-        AccessInitialization(accessLevel);
+        AccessInitialization();
 
     }
     public Win7_4_Component(bool activateNewItemCreate = false, int? createdTCId = null)
@@ -105,7 +110,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     {
 
     }
-    private void AccessInitialization(int accessLevel)
+    private void AccessInitialization()
     {
 
     }

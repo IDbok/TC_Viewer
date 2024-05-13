@@ -7,11 +7,14 @@ using TC_WinForms.Interfaces;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms;
 
 public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 {
+    private readonly User.Role _accessLevel;
+
     private DbConnector dbCon = new DbConnector();
 
     private List<DisplayedTool> _displayedObjects;
@@ -28,10 +31,12 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
     private bool _isFiltered = false;
 
-    public Win7_6_Tool(int accessLevel)
+    public Win7_6_Tool(User.Role accessLevel)
     {
+        _accessLevel = accessLevel;
+
         InitializeComponent();
-        AccessInitialization(accessLevel);
+        AccessInitialization();
 
     }
     public Win7_6_Tool(bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
@@ -96,7 +101,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
         
     }
 
-    private void AccessInitialization(int accessLevel)
+    private void AccessInitialization()
     {
     }
 

@@ -2,15 +2,18 @@
 using System.ComponentModel;
 using TC_WinForms.DataProcessing;
 using TcModels.Models;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
 
     public partial class Win7 : Form
     {
+        private readonly User.Role _accessLevel;
+
         private DbConnector dbCon = new DbConnector();
 
-        private Win7_1_TCs winTCs = new Win7_1_TCs(3);
+        //private Win7_1_TCs winTCs = new Win7_1_TCs(3);
 
 
 
@@ -23,20 +26,43 @@ namespace TC_WinForms.WinForms
         private TechnologicalCard newCard;
 
 
-        public Win7(int accessLevel)
+        public Win7(User.Role accessLevel)
         {
-
+            _accessLevel = accessLevel;
             InitializeComponent();
-            AccessInitialization(accessLevel);
+
+            AccessInitialization();
 
             // btnTechCard_Click event
             btnTechCard_Click(null, null);
 
         }
-        private void AccessInitialization(int accessLevel)
+        private void AccessInitialization()
         {
             // todo - reverse accessibility
-            if (accessLevel == 0) // viewer
+            if (_accessLevel == User.Role.Lead)
+            {
+                activeWin = WinNumber.TC;
+            }
+            else if (_accessLevel == User.Role.Implementer) // TC editor
+            {
+                // false visibility of all buttons in pnlControlBtns except btnAddNewTC
+                foreach (Control btn2 in pnlNavigationBtns.Controls)
+                { btn2.Visible = false; }
+                btnTechCard.Visible = true;
+
+                activeWin = WinNumber.TC;
+
+            }
+            else if (_accessLevel == User.Role.ProjectManager) // Progect editor
+            {
+                foreach (Control btn2 in pnlNavigationBtns.Controls)
+                { btn2.Visible = false; }
+                btnProject.Visible = true;
+
+                activeWin = WinNumber.Project;
+            }
+            else if (_accessLevel == User.Role.User) // viewer
             {
                 // hide all buttons
                 pnlControlBtns.Visible = false;
@@ -45,21 +71,10 @@ namespace TC_WinForms.WinForms
                 btnUpdateTC.Enabled = false;
                 btnDeleteTC.Enabled = false;
 
+                activeWin = WinNumber.TC;
             }
-            else if (accessLevel == 1) // TC editor
-            {
-                // false visibility of all buttons in pnlControlBtns except btnAddNewTC
-                foreach (Control btn2 in pnlNavigationBtns.Controls)
-                { btn2.Visible = false; }
-                btnTechCard.Visible = true;
 
-            }
-            else if (accessLevel == 2) // Progect editor
-            {
-                foreach (Control btn2 in pnlNavigationBtns.Controls)
-                { btn2.Visible = false; }
-                btnProject.Visible = true;
-            }
+            MessageBox.Show($"Добро пожаловать, {_accessLevel}!");
         }
 
         private void UpdateChangedTcList()
@@ -193,7 +208,9 @@ namespace TC_WinForms.WinForms
 
         private void btnTechCard_Click(object sender, EventArgs e)
         {
-            LoadFormInPanel(winTCs);
+            //LoadFormInPanel(winTCs);
+
+
             //dgvMain.Columns.Clear();
 
             //tcList = dbCon.GetObjectList<TechnologicalCard>();

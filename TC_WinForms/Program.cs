@@ -86,7 +86,7 @@ namespace TC_WinForms
 
             };
 
-            MainForm = new Win7_new(3);//new MainBlockSchemeForm();//new Win7_LinkObjectEditor(new Machine(), true);// new Win6_new(1);//new Win8();//new Win1();//new Win6(new Button { Name = "btnUpdateTC" /*"btnAddNewTC"*/ });// new Win3();//
+            MainForm = new Win8();//new Win7_new(3);//new MainBlockSchemeForm();//new Win7_LinkObjectEditor(new Machine(), true);// new Win6_new(1);//new Win1();//new Win6(new Button { Name = "btnUpdateTC" /*"btnAddNewTC"*/ });// new Win3();//
 
             Application.Run(MainForm);
         }

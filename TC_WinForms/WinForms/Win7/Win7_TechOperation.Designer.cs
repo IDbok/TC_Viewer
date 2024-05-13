@@ -31,6 +31,7 @@
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
+            cbxShowUnReleased = new CheckBox();
             lblCategoryFilter = new Label();
             cbxCategoryFilter = new ComboBox();
             lblSearch = new Label();
@@ -40,7 +41,6 @@
             btnDeleteObj = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
-            cbxShowUnReleased = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -79,11 +79,23 @@
             pnlFilters.Controls.Add(cbxCategoryFilter);
             pnlFilters.Controls.Add(lblSearch);
             pnlFilters.Controls.Add(txtSearch);
-            pnlFilters.Dock = DockStyle.Left;
+            pnlFilters.Dock = DockStyle.Fill;
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(490, 83);
+            pnlFilters.Size = new Size(547, 83);
             pnlFilters.TabIndex = 25;
+            // 
+            // cbxShowUnReleased
+            // 
+            cbxShowUnReleased.AutoSize = true;
+            cbxShowUnReleased.Location = new Point(11, 57);
+            cbxShowUnReleased.Margin = new Padding(2);
+            cbxShowUnReleased.Name = "cbxShowUnReleased";
+            cbxShowUnReleased.Size = new Size(208, 24);
+            cbxShowUnReleased.TabIndex = 33;
+            cbxShowUnReleased.Text = "Показать невыпущенные";
+            cbxShowUnReleased.UseVisualStyleBackColor = true;
+            cbxShowUnReleased.CheckedChanged += cbxShowUnReleased_CheckedChanged;
             // 
             // lblCategoryFilter
             // 
@@ -173,18 +185,6 @@
             pnlDataViewer.Name = "pnlDataViewer";
             pnlDataViewer.Size = new Size(1019, 367);
             pnlDataViewer.TabIndex = 2;
-            // 
-            // cbxShowUnReleased
-            // 
-            cbxShowUnReleased.AutoSize = true;
-            cbxShowUnReleased.Location = new Point(11, 57);
-            cbxShowUnReleased.Margin = new Padding(2);
-            cbxShowUnReleased.Name = "cbxShowUnReleased";
-            cbxShowUnReleased.Size = new Size(208, 24);
-            cbxShowUnReleased.TabIndex = 33;
-            cbxShowUnReleased.Text = "Показать невыпущенные";
-            cbxShowUnReleased.UseVisualStyleBackColor = true;
-            cbxShowUnReleased.CheckedChanged += cbxShowUnReleased_CheckedChanged;
             // 
             // Win7_TechOperation
             // 

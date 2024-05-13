@@ -1,4 +1,5 @@
-﻿using static TC_WinForms.DataProcessing.Authorizator;
+﻿using TC_WinForms.DataProcessing;
+using static TC_WinForms.DataProcessing.Authorizator;
 
 namespace TC_WinForms.WinForms
 {
@@ -19,13 +20,24 @@ namespace TC_WinForms.WinForms
                 {
                     // throw an exception if password less than 4 symbols
                     if (txtPassword.Text.Length < 4) throw new Exception("Пароль должен состоять минимум из 4 символов.");
-                    if (IsUserExust(txtLogin.Text, txtPassword.Text))
+
+                    AuthorizationService.AuthorizeUser(txtLogin.Text, txtPassword.Text);
+
+                    if (AuthorizationService.CurrentUser != null)
                     {
-                        Program.MainForm = new Win7(AuthUserAccessLevel());
+                        Program.MainForm = new Win7_new(AuthorizationService.CurrentUser.UserRole());
                         Program.MainForm.Show();
                         this.Hide();
                     }
                     else MessageBox.Show("Пользователь не найден!");
+
+                    //if (IsUserExist(txtLogin.Text, txtPassword.Text))
+                    //{
+                    //    Program.MainForm = new Win7(AuthUserAccessLevel());
+                    //    Program.MainForm.Show();
+                    //    this.Hide();
+                    //}
+                    //else MessageBox.Show("Пользователь не найден!");
                 }
                 else MessageBox.Show("Заполните все поля!");
             }

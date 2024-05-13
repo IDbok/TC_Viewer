@@ -7,7 +7,7 @@ namespace TC_WinForms
     {
         private void TestMode()
         {
-            IsUserExust("bokarev.fic@gmail.com", "pass");
+            IsUserExist("bokarev.fic@gmail.com", "pass");
             AfterAuthorization();
         }
 
@@ -79,7 +79,7 @@ namespace TC_WinForms
                 {
                     // throw an exception if password less than 4 symbols
                     if (txtPassword.Text.Length < 4) throw new Exception("Пароль должен состоять минимум из 4 символов.");
-                    if (IsUserExust(txtLogin.Text, txtPassword.Text))
+                    if (IsUserExist(txtLogin.Text, txtPassword.Text))
                     {
                         AfterAuthorization();
                     }

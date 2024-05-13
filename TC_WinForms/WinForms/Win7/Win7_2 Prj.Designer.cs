@@ -70,10 +70,10 @@
             // 
             pnlFilters.Controls.Add(cmbProjectName);
             pnlFilters.Controls.Add(lblProjectName);
-            pnlFilters.Dock = DockStyle.Left;
+            pnlFilters.Dock = DockStyle.Fill;
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(322, 110);
+            pnlFilters.Size = new Size(328, 110);
             pnlFilters.TabIndex = 25;
             // 
             // cmbProjectName

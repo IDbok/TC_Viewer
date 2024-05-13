@@ -80,13 +80,15 @@
             // 
             // btnQuit
             // 
+            btnQuit.BackColor = Color.Brown;
             btnQuit.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
-            btnQuit.Location = new Point(26, 202);
+            btnQuit.ForeColor = SystemColors.ButtonHighlight;
+            btnQuit.Location = new Point(375, 0);
             btnQuit.Name = "btnQuit";
-            btnQuit.Size = new Size(112, 45);
+            btnQuit.Size = new Size(40, 34);
             btnQuit.TabIndex = 5;
-            btnQuit.Text = "Выход";
-            btnQuit.UseVisualStyleBackColor = true;
+            btnQuit.Text = "X";
+            btnQuit.UseVisualStyleBackColor = false;
             btnQuit.Click += btnQuit_Click;
             // 
             // lblAuthSurname
@@ -129,11 +131,11 @@
             // btnAuthorization
             // 
             btnAuthorization.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
-            btnAuthorization.Location = new Point(225, 202);
+            btnAuthorization.Location = new Point(225, 157);
             btnAuthorization.Name = "btnAuthorization";
             btnAuthorization.Size = new Size(160, 45);
             btnAuthorization.TabIndex = 0;
-            btnAuthorization.Text = "Авторизация";
+            btnAuthorization.Text = "Вход";
             btnAuthorization.UseVisualStyleBackColor = true;
             btnAuthorization.Click += btnAuthorization_Click;
             // 

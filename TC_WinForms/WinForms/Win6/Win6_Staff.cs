@@ -10,6 +10,7 @@ namespace TC_WinForms.WinForms;
 
 public partial class Win6_Staff : Form, ISaveEventForm
 {
+    private bool _isViewerMode;
 
     private DbConnector dbCon = new DbConnector();
     private BindingList<DisplayedStaff_TC> _bindingList;
@@ -20,15 +21,32 @@ public partial class Win6_Staff : Form, ISaveEventForm
 
     private int _tcId;
     public bool CloseFormsNoSave { get; set; } = false;
-    public Win6_Staff(int tcId)
+    public Win6_Staff(int tcId, bool viewerMode = false)
     {
+        _isViewerMode = viewerMode;
+
         InitializeComponent();
         this._tcId = tcId;
 
-        // new DGVEvents().AddGragDropEvents(dgvMain);
-        new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
+        AccessInitialization();
     }
 
+    private void AccessInitialization()
+    {
+        if (_isViewerMode)
+        {
+            pnlControls.Visible = false;
+
+            btnAddNewObj.Enabled = false;
+            btnDeleteObj.Enabled = false;
+            btnMoveUp.Enabled = false;
+            btnMoveDown.Enabled = false;
+        }
+        else
+        {
+            new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
+        }
+    }
 
 
     public bool GetDontSaveData()
@@ -221,12 +239,15 @@ public partial class Win6_Staff : Form, ISaveEventForm
         {
             column.ReadOnly = true;
         }
-        // make columns editable
-        dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = false;
-        dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = false;
+        if (!_isViewerMode)
+        {
+            // make columns editable
+            dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = false;
+            dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = false;
 
-        dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = Color.LightGray;
-        dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = Color.LightGray;
+        }
 
         DisplayedEntityHelper.SetupDataGridView<DisplayedStaff_TC>(dgvMain);
 

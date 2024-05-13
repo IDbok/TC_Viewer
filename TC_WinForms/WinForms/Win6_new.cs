@@ -7,6 +7,8 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form
     {
+        private bool _isViewMode = true;
+
         private Dictionary<EModelType, Form> _formsCache = new Dictionary<EModelType, Form>();
         private EModelType? _activeModelType = null;
         private Form _activeForm = null;
@@ -33,7 +35,14 @@ namespace TC_WinForms.WinForms
 
             SetTagsToButtons();
 
-
+            AccessInitialization();
+        }
+        private void AccessInitialization()
+        {
+            if (_isViewMode)
+            {
+                toolStripButtonSaveChanges.Visible = false;
+            }
         }
 
         private async void Win6_new_Load(object sender, EventArgs e)
@@ -188,7 +197,7 @@ namespace TC_WinForms.WinForms
             switch (modelType)
             {
                 case EModelType.Staff:
-                    return new Win6_Staff(_tcId);
+                    return new Win6_Staff(_tcId, _isViewMode);
                 case EModelType.Component:
                     return new Win6_Component(_tcId);
                 case EModelType.Machine:

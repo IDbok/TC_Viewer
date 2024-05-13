@@ -5,11 +5,15 @@ using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
     public partial class Win7_TechTransition : Form//, ISaveEventForm
     {
+
+        private readonly User.Role _accessLevel;
+
         private DbConnector dbCon = new DbConnector();
 
 
@@ -33,10 +37,12 @@ namespace TC_WinForms.WinForms
         {
             isAddingForm = true;
         }
-        public Win7_TechTransition(int accessLevel)
+        public Win7_TechTransition(User.Role accessLevel)
         {
+            _accessLevel = accessLevel;
+
             InitializeComponent();
-            AccessInitialization(accessLevel);
+            AccessInitialization();
         }
         public Win7_TechTransition()
         {
@@ -107,7 +113,7 @@ namespace TC_WinForms.WinForms
             //    Close();
             //}
         }
-        private void AccessInitialization(int accessLevel)
+        private void AccessInitialization()
         {
         }
 

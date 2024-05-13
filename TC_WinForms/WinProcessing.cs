@@ -253,7 +253,7 @@ namespace TC_WinForms
         }
         public static Author GetAuthUser()
         {
-            return Authorizator.author;
+            return Authorizator.CurrentUser;
         }
         public static void NextFormBtn(Form newForm, Form thisForm)
         {

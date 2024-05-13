@@ -5,13 +5,15 @@ using TC_WinForms.Interfaces;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
 
     public partial class Win7_new : Form
     {
-        private readonly int _accessLevel;
+        //private readonly int _accessLevel;
+        private readonly User.Role _accessLevel;
 
         private readonly Dictionary<WinNumber, Form> _forms = new Dictionary<WinNumber, Form>();
 
@@ -24,14 +26,14 @@ namespace TC_WinForms.WinForms
             lblPageInfo.Text = $"Показаны результаты с {startRecord} по {endRecord} из {totalRecords}";
         }
 
-        public Win7_new(int accessLevel)
+        public Win7_new(User.Role accessLevel)
         {
             StaticWinForms.Win7_new = this;
 
             _accessLevel = accessLevel;
             InitializeComponent();
-            AccessInitialization(accessLevel);
 
+            AccessInitialization();
 
             //this.Shown += async (sender, e) => await LoadAllForms();
 
@@ -44,35 +46,44 @@ namespace TC_WinForms.WinForms
 
         private async void Win7_new_Load(object sender, EventArgs e)
         {
-            //SetLoadingState(true);
-            //await LoadAllForms();
+            if (_currentWinNumber != null)
+                await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
 
-            //this.BeginInvoke((MethodInvoker)(() =>
-            //{
-            //    AddFormToPanel(WinNumber.TC);
-            //}));
-
-            //SetLoadingState(false);
-
-            btnTechCard_Click(sender, e);
         }
-        private void AccessInitialization(int accessLevel)
+        private void AccessInitialization()
         {
-            var controlAccess = new Dictionary<int, Action>
+            var controlAccess = new Dictionary<User.Role, Action>
             {
-                [0] = () => { pnlNavigationBtns.Visible = false; },
-                [1] = () => { HideAllButtonsExcept(btnTechCard); },
-                [2] = () => { HideAllButtonsExcept(btnProject); },
+                [User.Role.Lead] = () => { _currentWinNumber = WinNumber.TC; },
+
+                [User.Role.Implementer] = () => { _currentWinNumber = WinNumber.TC; },
+
+                [User.Role.ProjectManager] = () =>
+                {
+                    _currentWinNumber = WinNumber.Project;
+                    HideAllButtonsExcept(new List<Button> { btnProject, btnTechCard });
+                },
+
+                [User.Role.User] = () =>
+                {
+                    _currentWinNumber = WinNumber.TC;
+                    HideAllButtonsExcept(new List<Button> { btnTechCard });
+                }
             };
-            controlAccess.TryGetValue(accessLevel, out var action);
+
+            controlAccess.TryGetValue(_accessLevel, out var action);
             action?.Invoke();
         }
-        private void HideAllButtonsExcept(Button visibleButton)
+        private void HideAllButtonsExcept(List<Button> visibleButtons)
         {
-            foreach (Control btn in pnlNavigationBtns.Controls)
+            foreach (var button in pnlNavigationBtns.Controls.OfType<Button>())
             {
-                btn.Visible = btn == visibleButton;
+                button.Visible = visibleButtons.Contains(button);
             }
+            //foreach (Control btn in pnlNavigationBtns.Controls)
+            //{
+            //    btn.Visible = btn == visibleButton;
+            //}
         }
         private void Win7_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -98,6 +109,9 @@ namespace TC_WinForms.WinForms
         {
             SetLoadingState(true);
 
+            // выделение нажатой кнопки
+            UpdateButtonsState(winNumber);
+
             var form = await LoadForm(winNumber);
 
             pnlDataViewer.Controls.Clear();
@@ -107,7 +121,6 @@ namespace TC_WinForms.WinForms
 
             _currentWinNumber = winNumber;
             form.BringToFront();
-            UpdateButtonsState(winNumber);
 
             SetLoadingState(false);
         }
@@ -133,7 +146,7 @@ namespace TC_WinForms.WinForms
                 SubscribeToPageInfoChanged(paginationForm);
                 pnlPageControls.Visible = true;
             }
-            else { pnlPageControls.Visible = false;}
+            else { pnlPageControls.Visible = false; }
 
             return form;
         }
@@ -175,8 +188,8 @@ namespace TC_WinForms.WinForms
             {
                 case WinNumber.TC:
                     return new Win7_1_TCs(_accessLevel);
-                case WinNumber.Project:
-                    return new Win7_2_Prj(_accessLevel);
+                //case WinNumber.Project:
+                //    return new Win7_2_Prj(_accessLevel);
                 case WinNumber.Staff:
                     return new Win7_3_Staff(_accessLevel);
                 case WinNumber.Component:
@@ -191,7 +204,7 @@ namespace TC_WinForms.WinForms
                     return new Win7_TechOperation(_accessLevel);
                 case WinNumber.TechTransition:
                     return new Win7_TechTransition(_accessLevel);
-                case WinNumber.Process:
+                case WinNumber.Project:
                     return new Win7_Process(_accessLevel);
                 default:
                     return null;
@@ -216,7 +229,7 @@ namespace TC_WinForms.WinForms
         private async void btnTechOperation_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechOperation).ConfigureAwait(false);
         private async void btnWorkStep_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechTransition).ConfigureAwait(false);
 
-        private async void btnProcess_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Process).ConfigureAwait(false);
+        private async void btnProject_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Project).ConfigureAwait(false);
 
 
         private void UpdateButtonsState(WinNumber activeModelType)
@@ -247,7 +260,8 @@ namespace TC_WinForms.WinForms
             btnTool.Tag = WinNumber.Tool;
             btnTechOperation.Tag = WinNumber.TechOperation;
             btnWorkStep.Tag = WinNumber.TechTransition;
-            btnProcess.Tag = WinNumber.Process;
+
+            //btnProcess.Tag = WinNumber.Process;
         }
 
 
@@ -394,6 +408,7 @@ namespace TC_WinForms.WinForms
             });
         }
 
+
         enum WinNumber
         {
             TC = 1,
@@ -406,7 +421,8 @@ namespace TC_WinForms.WinForms
 
             TechOperation = 8,
             TechTransition = 9,
-            Process = 10
+
+            //Process = 10
         }
 
     }

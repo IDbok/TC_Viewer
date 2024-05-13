@@ -147,7 +147,7 @@ namespace TC_WinForms.DataProcessing.Utilities
                     }
                     else
                     {
-                        MessageBox.Show("Ошибка удаления объектов");
+                        MessageBox.Show("Возникла ошибка при удалении объектов");
                     }
                     
                 }

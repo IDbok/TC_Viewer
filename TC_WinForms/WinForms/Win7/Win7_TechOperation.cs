@@ -6,11 +6,14 @@ using TcDbConnector;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
     public partial class Win7_TechOperation : Form, ISaveEventForm
     {
+        private readonly User.Role _accessLevel;
+
         private DbConnector dbCon = new DbConnector();
 
         private List<DisplayedTechOperation> _displayedObjects;
@@ -30,10 +33,12 @@ namespace TC_WinForms.WinForms
         {
             isAddingForm = true;
         }
-        public Win7_TechOperation(int accessLevel)
+        public Win7_TechOperation(User.Role accessLevel)
         {
+            _accessLevel = accessLevel;
+
             InitializeComponent();
-            AccessInitialization(accessLevel);
+            AccessInitialization();
         }
         public Win7_TechOperation()
         {
@@ -108,7 +113,7 @@ namespace TC_WinForms.WinForms
                 Close();
             }
         }
-        private void AccessInitialization(int accessLevel)
+        private void AccessInitialization()
         {
         }
 
