@@ -8,6 +8,8 @@ namespace TC_WinForms.WinForms
         public Win8()
         {
             InitializeComponent();
+
+
         }
 
         private void btnAuthorization_Click(object sender, EventArgs e)
@@ -27,7 +29,7 @@ namespace TC_WinForms.WinForms
                     {
                         Program.MainForm = new Win7_new(AuthorizationService.CurrentUser.UserRole());
                         Program.MainForm.Show();
-                        this.Hide();
+                        this.Dispose();
                     }
                     else MessageBox.Show("Пользователь не найден!");
 
@@ -51,6 +53,18 @@ namespace TC_WinForms.WinForms
         private void btnQuit_Click(object sender, EventArgs e)
         {
             Application.ExitThread();
+        }
+
+        private async void Win8_Load(object sender, EventArgs e)
+        {
+
+            /////////////////////////////////
+            txtLogin.Text = "lead";
+            txtPassword.Text = "pass";
+
+            await Task.Delay(1000);
+            btnAuthorization_Click(null, null);
+            /////////////////////////////////
         }
     }
 }
