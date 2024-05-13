@@ -433,7 +433,7 @@ namespace TC_WinForms.WinForms.Work
                 var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
                 if (wor != null)
                 {
-                    wor.Coefficient = gg;
+                    wor.Coefficient = gg??"";
 
                     Expression ee = new Expression(wor.techTransition?.TimeExecution.ToString().Replace(',', '.')+" " + wor.Coefficient.Replace(',', '.'));
 
@@ -448,7 +448,11 @@ namespace TC_WinForms.WinForms.Work
                     }
 
                     TechOperationForm.UpdateGrid();
-                    UpdateGridLocalTP();
+
+                    BeginInvoke(new Action(() =>
+                    {
+                        UpdateGridLocalTP();
+                    }));                    
                 }
             }
 

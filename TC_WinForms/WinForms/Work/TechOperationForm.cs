@@ -97,6 +97,26 @@ namespace TC_WinForms.WinForms.Work
             UpdateGrid();
 
             DateTime t4 = DateTime.Now;
+
+           // UpdataBD();
+
+        }
+
+
+        public void UpdataBD()
+        {
+            var vb = context.ExecutionWorks.
+                Include(t => t.techTransition)
+                .ToList();
+
+            foreach (var v in vb)
+            {
+                if (v.techTransition != null)
+                {
+                    v.Value = v.techTransition.TimeExecution;
+                }
+            }
+            context.SaveChanges();
         }
 
 
