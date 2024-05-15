@@ -724,7 +724,12 @@ namespace TC_WinForms.WinForms.Work
                 {
                     foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals)
                     {
-                        AddTechTransition(item.TechTransition, techOperationWork, item);
+                        var temp = item.TechTransition;
+                        if (temp == null)
+                        {
+                            temp = context.TechTransitions.Single(s => s.Id == item.TechTransitionId);
+                        }
+                        AddTechTransition(temp, techOperationWork, item);
                     }
                 }
             }
@@ -756,6 +761,7 @@ namespace TC_WinForms.WinForms.Work
                     techOpeWork.techOperationWork = TOWork;
                     techOpeWork.NewItem = true;
                     techOpeWork.techTransition = tech;
+                    techOpeWork.Value = tech.TimeExecution;
                     if (coefficient != null)
                     {
                         techOpeWork.Coefficient = coefficient.GetCoefficent;

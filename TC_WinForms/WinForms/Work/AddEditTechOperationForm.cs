@@ -433,26 +433,33 @@ namespace TC_WinForms.WinForms.Work
                 var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
                 if (wor != null)
                 {
-                    wor.Coefficient = gg??"";
-
-                    Expression ee = new Expression(wor.techTransition?.TimeExecution.ToString().Replace(',', '.')+" " + wor.Coefficient.Replace(',', '.'));
-
                     try
                     {
-                        var bn = ee.Evaluate();
-                        wor.Value = Math.Round(double.Parse(bn.ToString()), 2);
+                        wor.Coefficient = gg ?? "";
+
+                        Expression ee = new Expression(wor.techTransition?.TimeExecution.ToString().Replace(',', '.') + " " + wor.Coefficient.Replace(',', '.'));
+
+                        try
+                        {
+                            var bn = ee.Evaluate();
+                            wor.Value = Math.Round(double.Parse(bn.ToString()), 2);
+                        }
+                        catch (Exception)
+                        {
+                            wor.Value = -1;
+                        }
+
+                        TechOperationForm.UpdateGrid();
+
+                        BeginInvoke(new Action(() =>
+                        {
+                            UpdateGridLocalTP();
+                        }));
                     }
                     catch (Exception)
                     {
-                        wor.Value = -1;
-                    }
 
-                    TechOperationForm.UpdateGrid();
-
-                    BeginInvoke(new Action(() =>
-                    {
-                        UpdateGridLocalTP();
-                    }));                    
+                    }                                      
                 }
             }
 
