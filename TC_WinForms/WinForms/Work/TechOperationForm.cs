@@ -1,17 +1,21 @@
 ﻿using System.Data;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using TC_WinForms.Interfaces;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.Work;
+using static TC_WinForms.WinForms.Win6_Staff;
 
 namespace TC_WinForms.WinForms.Work
 {
-    public partial class TechOperationForm : Form, ISaveEventForm
+    public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     {
+        private bool _isViewMode;
+
         public MyDbContext context;
         public readonly int tcId;
         private BindingSource binding;
@@ -27,10 +31,13 @@ namespace TC_WinForms.WinForms.Work
         public TechOperationForm()
         {
             InitializeComponent();
+
         }
 
-        public TechOperationForm(int tcId)
+        public TechOperationForm(int tcId, bool viewerMode = false)
         {
+            _isViewMode = viewerMode;
+
             InitializeComponent();
 
             dgvMain.CellPainting += DgvMain_CellPainting;
@@ -98,11 +105,24 @@ namespace TC_WinForms.WinForms.Work
 
             DateTime t4 = DateTime.Now;
 
-           // UpdataBD();
+            // UpdataBD();
 
         }
 
+        public void SetViewMode(bool? isViewMode = null)
+        {
+            if (isViewMode != null)
+            {
+                _isViewMode = (bool)isViewMode;
+            }
 
+            pnlControls.Visible = !_isViewMode;
+        }
+
+        private void TechOperationForm_Load(object sender, EventArgs e)
+        {
+            SetViewMode();
+        }
         public void UpdataBD()
         {
             var vb = context.ExecutionWorks.
@@ -1062,5 +1082,6 @@ namespace TC_WinForms.WinForms.Work
             //    }
             //}
         }
+
     }
 }

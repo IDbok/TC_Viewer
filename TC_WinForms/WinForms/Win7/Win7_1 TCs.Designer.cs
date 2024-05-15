@@ -43,6 +43,7 @@
             btnCreateTC = new Button();
             pnlDataViewer = new Panel();
             progressBar = new ProgressBar();
+            btnViewMode = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -86,7 +87,7 @@
             pnlFilters.Dock = DockStyle.Fill;
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(672, 80);
+            pnlFilters.Size = new Size(487, 80);
             pnlFilters.TabIndex = 25;
             // 
             // lblType
@@ -150,18 +151,20 @@
             // 
             // pnlControlBtns
             // 
+            pnlControlBtns.Controls.Add(btnViewMode);
             pnlControlBtns.Controls.Add(btnDeleteTC);
             pnlControlBtns.Controls.Add(btnUpdateTC);
             pnlControlBtns.Controls.Add(btnCreateTC);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(672, 0);
+            pnlControlBtns.Location = new Point(487, 0);
             pnlControlBtns.Name = "pnlControlBtns";
-            pnlControlBtns.Size = new Size(472, 80);
+            pnlControlBtns.Size = new Size(657, 80);
             pnlControlBtns.TabIndex = 24;
             // 
             // btnDeleteTC
             // 
-            btnDeleteTC.Location = new Point(320, 12);
+            btnDeleteTC.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnDeleteTC.Location = new Point(505, 12);
             btnDeleteTC.Name = "btnDeleteTC";
             btnDeleteTC.Size = new Size(139, 60);
             btnDeleteTC.TabIndex = 25;
@@ -171,7 +174,8 @@
             // 
             // btnUpdateTC
             // 
-            btnUpdateTC.Location = new Point(165, 12);
+            btnUpdateTC.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnUpdateTC.Location = new Point(350, 12);
             btnUpdateTC.Name = "btnUpdateTC";
             btnUpdateTC.Size = new Size(139, 60);
             btnUpdateTC.TabIndex = 24;
@@ -181,7 +185,8 @@
             // 
             // btnCreateTC
             // 
-            btnCreateTC.Location = new Point(8, 12);
+            btnCreateTC.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnCreateTC.Location = new Point(195, 12);
             btnCreateTC.Name = "btnCreateTC";
             btnCreateTC.Size = new Size(139, 60);
             btnCreateTC.TabIndex = 23;
@@ -210,6 +215,17 @@
             progressBar.Style = ProgressBarStyle.Marquee;
             progressBar.TabIndex = 1;
             progressBar.Visible = false;
+            // 
+            // btnViewMode
+            // 
+            btnViewMode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnViewMode.Location = new Point(40, 12);
+            btnViewMode.Name = "btnViewMode";
+            btnViewMode.Size = new Size(139, 60);
+            btnViewMode.TabIndex = 26;
+            btnViewMode.Text = "Просмотр";
+            btnViewMode.UseVisualStyleBackColor = true;
+            btnViewMode.Click += btnViewMode_Click;
             // 
             // Win7_1_TCs
             // 
@@ -248,5 +264,6 @@
         private Label lblVoltageFilter;
         private Label lblType;
         private ComboBox cbxTypeFilter;
+        private Button btnViewMode;
     }
 }

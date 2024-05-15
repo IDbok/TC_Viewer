@@ -17,7 +17,7 @@ namespace TC_WinForms.WinForms
 
         private TechnologicalCard LocalCard = null;
 
-        public Win7_1_TCs_Window(int? tcId = null)
+        public Win7_1_TCs_Window(int? tcId = null, bool win6Format = false)
         {
             InitializeComponent();
 
@@ -35,6 +35,13 @@ namespace TC_WinForms.WinForms
             {
                 LocalCard = context.TechnologicalCards.Single(s => s.Id == tcId);
                 load(LocalCard);
+            }
+
+            if (win6Format)
+            {
+                btnSaveAndOpen.Visible = false;
+                btnExportExcel.Visible = false;
+                btnSave.Visible = false;
             }
         }
 

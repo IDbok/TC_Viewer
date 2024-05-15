@@ -7,6 +7,7 @@
         Machine,
         Protection,
         Tool,
-        WorkStep 
+        WorkStep,
+        // TechnologicalCard
     }
 }

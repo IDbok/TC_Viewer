@@ -29,7 +29,7 @@ namespace TC_WinForms.WinForms
         public Win7_new(User.Role accessLevel)
         {
             StaticWinForms.Win7_new = this;
-
+            
             _accessLevel = accessLevel;
             InitializeComponent();
 
@@ -61,6 +61,7 @@ namespace TC_WinForms.WinForms
                 [User.Role.ProjectManager] = () =>
                 {
                     _currentWinNumber = WinNumber.Project;
+
                     HideAllButtonsExcept(new List<Button> { btnProject, btnTechCard });
                 },
 

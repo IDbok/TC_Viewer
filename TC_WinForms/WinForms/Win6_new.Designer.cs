@@ -30,10 +30,11 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Win6_new));
             toolStrip1 = new ToolStrip();
-            toolStripButton1 = new ToolStripButton();
             toolStripButton2 = new ToolStripButton();
-            toolStripButton3 = new ToolStripButton();
             toolStripButtonSaveChanges = new ToolStripButton();
+            toolStripFile = new ToolStripSplitButton();
+            printToolStripMenuItem = new ToolStripMenuItem();
+            updateToolStripMenuItem = new ToolStripMenuItem();
             btnShowStaffs = new Button();
             btnShowComponents = new Button();
             btnShowMachines = new Button();
@@ -49,20 +50,12 @@
             // toolStrip1
             // 
             toolStrip1.ImageScalingSize = new Size(20, 20);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2, toolStripButton3, toolStripButtonSaveChanges });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton2, toolStripButtonSaveChanges, toolStripFile });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(1363, 27);
             toolStrip1.TabIndex = 19;
             toolStrip1.Text = "toolStrip1";
-            // 
-            // toolStripButton1
-            // 
-            toolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            toolStripButton1.ImageTransparentColor = Color.Magenta;
-            toolStripButton1.Name = "toolStripButton1";
-            toolStripButton1.Size = new Size(49, 24);
-            toolStripButton1.Text = "Файл";
             // 
             // toolStripButton2
             // 
@@ -71,14 +64,6 @@
             toolStripButton2.Name = "toolStripButton2";
             toolStripButton2.Size = new Size(69, 24);
             toolStripButton2.Text = "Главная";
-            // 
-            // toolStripButton3
-            // 
-            toolStripButton3.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            toolStripButton3.ImageTransparentColor = Color.Magenta;
-            toolStripButton3.Name = "toolStripButton3";
-            toolStripButton3.Size = new Size(71, 24);
-            toolStripButton3.Text = "Справка";
             // 
             // toolStripButtonSaveChanges
             // 
@@ -90,10 +75,33 @@
             toolStripButtonSaveChanges.Text = "Сохранить";
             toolStripButtonSaveChanges.Click += toolStripButton4_Click;
             // 
+            // toolStripFile
+            // 
+            toolStripFile.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            toolStripFile.DropDownItems.AddRange(new ToolStripItem[] { printToolStripMenuItem, updateToolStripMenuItem });
+            toolStripFile.Image = (Image)resources.GetObject("toolStripFile.Image");
+            toolStripFile.ImageTransparentColor = Color.Magenta;
+            toolStripFile.Name = "toolStripFile";
+            toolStripFile.Size = new Size(64, 24);
+            toolStripFile.Text = "Файл";
+            // 
+            // printToolStripMenuItem
+            // 
+            printToolStripMenuItem.Name = "printToolStripMenuItem";
+            printToolStripMenuItem.Size = new Size(194, 26);
+            printToolStripMenuItem.Text = "Печать";
+            // 
+            // updateToolStripMenuItem
+            // 
+            updateToolStripMenuItem.Name = "updateToolStripMenuItem";
+            updateToolStripMenuItem.Size = new Size(194, 26);
+            updateToolStripMenuItem.Text = "Редактировать";
+            updateToolStripMenuItem.Click += updateToolStripMenuItem_Click;
+            // 
             // btnShowStaffs
             // 
             btnShowStaffs.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowStaffs.Location = new Point(5, 4);
+            btnShowStaffs.Location = new Point(4, 0);
             btnShowStaffs.Name = "btnShowStaffs";
             btnShowStaffs.Size = new Size(224, 56);
             btnShowStaffs.TabIndex = 27;
@@ -104,7 +112,7 @@
             // btnShowComponents
             // 
             btnShowComponents.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowComponents.Location = new Point(5, 60);
+            btnShowComponents.Location = new Point(4, 56);
             btnShowComponents.Name = "btnShowComponents";
             btnShowComponents.Size = new Size(224, 56);
             btnShowComponents.TabIndex = 28;
@@ -115,7 +123,7 @@
             // btnShowMachines
             // 
             btnShowMachines.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowMachines.Location = new Point(5, 116);
+            btnShowMachines.Location = new Point(4, 112);
             btnShowMachines.Name = "btnShowMachines";
             btnShowMachines.Size = new Size(224, 56);
             btnShowMachines.TabIndex = 29;
@@ -126,7 +134,7 @@
             // btnShowProtections
             // 
             btnShowProtections.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowProtections.Location = new Point(5, 172);
+            btnShowProtections.Location = new Point(4, 168);
             btnShowProtections.Name = "btnShowProtections";
             btnShowProtections.Size = new Size(224, 56);
             btnShowProtections.TabIndex = 30;
@@ -137,7 +145,7 @@
             // btnShowTools
             // 
             btnShowTools.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowTools.Location = new Point(5, 228);
+            btnShowTools.Location = new Point(4, 224);
             btnShowTools.Name = "btnShowTools";
             btnShowTools.Size = new Size(224, 56);
             btnShowTools.TabIndex = 31;
@@ -148,7 +156,7 @@
             // btnShowWorkSteps
             // 
             btnShowWorkSteps.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            btnShowWorkSteps.Location = new Point(5, 284);
+            btnShowWorkSteps.Location = new Point(4, 280);
             btnShowWorkSteps.Name = "btnShowWorkSteps";
             btnShowWorkSteps.Size = new Size(224, 56);
             btnShowWorkSteps.TabIndex = 32;
@@ -202,9 +210,7 @@
 
         #endregion
         private ToolStrip toolStrip1;
-        private ToolStripButton toolStripButton1;
         private ToolStripButton toolStripButton2;
-        private ToolStripButton toolStripButton3;
         private Button btnShowStaffs;
         private Button btnShowComponents;
         private Button btnShowMachines;
@@ -214,5 +220,8 @@
         private Panel pnlControls;
         private Panel pnlDataViewer;
         private ToolStripButton toolStripButtonSaveChanges;
+        private ToolStripSplitButton toolStripFile;
+        private ToolStripMenuItem printToolStripMenuItem;
+        private ToolStripMenuItem updateToolStripMenuItem;
     }
 }

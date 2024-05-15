@@ -30,25 +30,27 @@
         {
             dgvMain = new DataGridView();
             button2 = new Button();
+            pnlControls = new Panel();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
+            pnlControls.SuspendLayout();
             SuspendLayout();
             // 
             // dgvMain
             // 
             dgvMain.AllowUserToAddRows = false;
             dgvMain.AllowUserToDeleteRows = false;
-            dgvMain.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvMain.ColumnHeadersHeight = 29;
-            dgvMain.Location = new Point(0, 52);
+            dgvMain.Dock = DockStyle.Fill;
+            dgvMain.Location = new Point(0, 60);
             dgvMain.Name = "dgvMain";
             dgvMain.ReadOnly = true;
             dgvMain.RowHeadersWidth = 51;
-            dgvMain.Size = new Size(1075, 577);
+            dgvMain.Size = new Size(1077, 570);
             dgvMain.TabIndex = 1;
             // 
             // button2
             // 
-            button2.Location = new Point(38, 10);
+            button2.Location = new Point(35, 12);
             button2.Name = "button2";
             button2.Size = new Size(194, 29);
             button2.TabIndex = 0;
@@ -56,18 +58,29 @@
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
+            // pnlControls
+            // 
+            pnlControls.Controls.Add(button2);
+            pnlControls.Dock = DockStyle.Top;
+            pnlControls.Location = new Point(0, 0);
+            pnlControls.Name = "pnlControls";
+            pnlControls.Size = new Size(1077, 60);
+            pnlControls.TabIndex = 2;
+            // 
             // TechOperationForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1077, 630);
-            Controls.Add(button2);
             Controls.Add(dgvMain);
+            Controls.Add(pnlControls);
             Name = "TechOperationForm";
             Text = "TechOperationForm";
             FormClosing += TechOperationForm_FormClosing;
             FormClosed += TechOperationForm_FormClosed;
+            Load += TechOperationForm_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
+            pnlControls.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -75,5 +88,6 @@
 
         private DataGridView dgvMain;
         private Button button2;
+        private Panel pnlControls;
     }
 }

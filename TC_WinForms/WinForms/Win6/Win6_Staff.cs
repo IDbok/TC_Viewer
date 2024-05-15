@@ -1,16 +1,18 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms;
 
-public partial class Win6_Staff : Form, ISaveEventForm
+public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 {
-    private bool _isViewerMode;
+    private bool _isViewMode;
 
     private DbConnector dbCon = new DbConnector();
     private BindingList<DisplayedStaff_TC> _bindingList;
@@ -23,31 +25,49 @@ public partial class Win6_Staff : Form, ISaveEventForm
     public bool CloseFormsNoSave { get; set; } = false;
     public Win6_Staff(int tcId, bool viewerMode = false)
     {
-        _isViewerMode = viewerMode;
+        _isViewMode = viewerMode;
 
         InitializeComponent();
         this._tcId = tcId;
 
         AccessInitialization();
+
+
+        new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
     }
 
     private void AccessInitialization()
     {
-        if (_isViewerMode)
-        {
-            pnlControls.Visible = false;
-
-            btnAddNewObj.Enabled = false;
-            btnDeleteObj.Enabled = false;
-            btnMoveUp.Enabled = false;
-            btnMoveDown.Enabled = false;
-        }
-        else
-        {
-            new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
-        }
     }
 
+    public void SetViewMode(bool? isViewMode = null)
+    {
+        if (isViewMode != null)
+        {
+            _isViewMode = (bool)isViewMode;
+        }
+
+        pnlControls.Visible = !_isViewMode;
+
+        //btnAddNewObj.Enabled = !_isViewMode;
+        //btnDeleteObj.Enabled = !_isViewMode;
+        //btnMoveUp.Enabled = !_isViewMode;
+        //btnMoveDown.Enabled = !_isViewMode;
+
+        //dgvMain.ReadOnly = _isViewMode;
+
+        // make columns editable
+        dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = _isViewMode;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = _isViewMode;
+
+
+        dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
+
+        // update form
+        dgvMain.Refresh();
+
+    }
 
     public bool GetDontSaveData()
     {
@@ -65,6 +85,8 @@ public partial class Win6_Staff : Form, ISaveEventForm
         await LoadObjects();
 
         dgvMain.AllowUserToDeleteRows = false;
+
+        SetViewMode();
     }
     private async Task LoadObjects()
     {
@@ -199,20 +221,6 @@ public partial class Win6_Staff : Form, ISaveEventForm
         //// автоперенос в ячейках
         dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
-        // ширина столбцов по содержанию
-        //var autosizeColumn = new List<string>
-        //{
-        //    //nameof(DisplayedStaff_TC.Order),
-        //    //nameof(DisplayedStaff_TC.Name),
-        //    //nameof(DisplayedStaff_TC.Type),
-        //    //nameof(DisplayedStaff_TC.CombineResponsibility),
-        //    //nameof(DisplayedStaff_TC.Symbol),
-        //    //nameof(DisplayedStaff_TC.ChildId),
-        //};
-        //foreach (var column in autosizeColumn)
-        //{
-        //    dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-        //}
         int pixels = 35;
 
         // Минимальные ширины столбцов
@@ -239,15 +247,16 @@ public partial class Win6_Staff : Form, ISaveEventForm
         {
             column.ReadOnly = true;
         }
-        if (!_isViewerMode)
-        {
-            // make columns editable
-            dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = false;
-            dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = false;
 
-            dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = Color.LightGray;
-            dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = Color.LightGray;
-        }
+        //if (!_isViewMode)
+        //{
+        //    // make columns editable
+        //    dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = false;
+        //    dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = false;
+
+        //    dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = Color.LightGray;
+        //    dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = Color.LightGray;
+        //}
 
         DisplayedEntityHelper.SetupDataGridView<DisplayedStaff_TC>(dgvMain);
 
@@ -586,5 +595,4 @@ public partial class Win6_Staff : Form, ISaveEventForm
         }
     }
 
-    
 }

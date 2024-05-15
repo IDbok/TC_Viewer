@@ -72,7 +72,6 @@ namespace TC_WinForms.WinForms
 
             controlAccess.TryGetValue(_accessLevel, out var action);
             action?.Invoke();
-
         }
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
@@ -142,10 +141,31 @@ namespace TC_WinForms.WinForms
             RaisePageInfoChanged(pageInfoEventArgs);
         }
 
-        
+
 
         /////////////////////////////// btnNavigation events /////////////////////////////////////////////////////////////////
 
+        private void btnViewMode_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.SelectedRows.Count == 1)
+            {
+                var selectedRow = dgvMain.SelectedRows[0];
+                int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
+                if (id != 0)
+                {
+                    var win6 = new Win6_new(id,role: _accessLevel, viewMode:true);
+                    win6.Show();
+                }
+                else
+                {
+                    MessageBox.Show("Карта ещё не добавлена в БД.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Выберите одну карту.");
+            }
+        }
 
         private void btnCreateTC_Click(object sender, EventArgs e)
         {
@@ -319,6 +339,7 @@ namespace TC_WinForms.WinForms
                 MessageBox.Show("Выберите одну карту для редактирования.");
             }
         }
+
         //private void OpenTechnologicalCardEditor(int tcId)
         //{
         //    var editorForm = new Win6_new(tcId);
@@ -711,10 +732,10 @@ namespace TC_WinForms.WinForms
                 var typeFilter = cbxTypeFilter.SelectedItem?.ToString();
 
                 if (string.IsNullOrWhiteSpace(searchText) && (
-                    (networkVoltageFilter == "Все" && typeFilter == "Все") || 
+                    (networkVoltageFilter == "Все" && typeFilter == "Все") ||
                     (string.IsNullOrWhiteSpace(networkVoltageFilter) && string.IsNullOrWhiteSpace(typeFilter))))
                 {
-                    isFiltered= false;
+                    isFiltered = false;
                     filteredPageIndex = 0;
 
                     UpdateDisplayedData();
@@ -756,7 +777,7 @@ namespace TC_WinForms.WinForms
             {
                 //MessageBox.Show(e.Message);
             }
-            
+
         }
 
         private void cbxNetworkVoltageFilter_SelectedIndexChanged(object sender, EventArgs e)
@@ -766,7 +787,7 @@ namespace TC_WinForms.WinForms
         private void SetupNetworkVoltageComboBox()
         {
             var voltagies = _displayedTechnologicalCards.Select(obj => obj.NetworkVoltage).Distinct().ToList();
-            
+
             voltagies.Sort((a, b) => b.CompareTo(a));
 
             cbxNetworkVoltageFilter.Items.Add("Все");
@@ -790,7 +811,7 @@ namespace TC_WinForms.WinForms
             foreach (var type in types)
             {
                 if (string.IsNullOrWhiteSpace(type)) { continue; }
-                    cbxTypeFilter.Items.Add(type);
+                cbxTypeFilter.Items.Add(type);
             }
             //cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
             cbxTypeFilter.SelectedIndex = 0; // Выбираем "Все" по умолчанию
@@ -808,7 +829,7 @@ namespace TC_WinForms.WinForms
                 : width;
         }
 
-        
+
 
         public void GoToNextPage()
         {
@@ -832,7 +853,7 @@ namespace TC_WinForms.WinForms
 
         public void GoToPreviousPage()
         {
-            if(isFiltered)
+            if (isFiltered)
             {
                 if (filteredPageIndex > 0)
                 {
@@ -849,5 +870,6 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
+
     }
 }

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -12,8 +13,10 @@ using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Protection : Form, ISaveEventForm
+    public partial class Win6_Protection : Form, ISaveEventForm, IViewModeable
     {
+        private bool _isViewMode;
+
         private DbConnector dbCon = new DbConnector();
         private int _tcId;
 
@@ -23,16 +26,38 @@ namespace TC_WinForms.WinForms
         private List<DisplayedProtection_TC> _deletedObjects = new List<DisplayedProtection_TC>();
 
         public bool CloseFormsNoSave { get; set; } = false;
-        public Win6_Protection(int tcId)
+        public Win6_Protection(int tcId, bool viewerMode = false)
         {
+            _isViewMode = viewerMode;
+            _tcId = tcId;
+
             InitializeComponent();
-            this._tcId = tcId;
 
             // new DGVEvents().AddGragDropEvents(dgvMain);
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
 
+        public void SetViewMode(bool? isViewMode = null)
+        {
+            if (isViewMode != null)
+            {
+                _isViewMode = (bool)isViewMode;
+            }
 
+            pnlControls.Visible = !_isViewMode;
+
+            // make columns editable
+            dgvMain.Columns[nameof(DisplayedProtection_TC.Order)].ReadOnly = _isViewMode;
+            dgvMain.Columns[nameof(DisplayedProtection_TC.Quantity)].ReadOnly = _isViewMode;
+
+
+            dgvMain.Columns[nameof(DisplayedProtection_TC.Order)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedProtection_TC.Quantity)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
+
+            // update form
+            dgvMain.Refresh();
+
+        }
         public bool GetDontSaveData()
         {
             if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
@@ -50,6 +75,8 @@ namespace TC_WinForms.WinForms
             DisplayedEntityHelper.SetupDataGridView<DisplayedProtection_TC>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false;
+
+            SetViewMode();
         }
         private async Task LoadObjects()
         {

@@ -2,6 +2,7 @@
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using static TC_WinForms.DataProcessing.DGVProcessing;
@@ -10,8 +11,10 @@ using Component = TcModels.Models.TcContent.Component;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Component : Form, ISaveEventForm
+    public partial class Win6_Component : Form, ISaveEventForm, IViewModeable
     {
+        private bool _isViewMode;
+
         private DbConnector dbCon = new DbConnector();
 
         private int _tcId;
@@ -35,21 +38,47 @@ namespace TC_WinForms.WinForms
                 return false;
             }
         }
-        public Win6_Component(int tcId)
+        public Win6_Component(int tcId, bool viewerMode = false)
         {
+            _isViewMode = viewerMode;
+
             InitializeComponent();
             _tcId = tcId;
 
             // new DGVEvents().AddGragDropEvents(dgvMain);
             new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
         }
+        public void SetViewMode(bool? isViewMode = null)
+        {
+            if (isViewMode != null)
+            {
+                _isViewMode = (bool)isViewMode;
+            }
 
+            pnlControls.Visible = !_isViewMode;
+
+            // make columns editable
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Order)].ReadOnly = _isViewMode;
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].ReadOnly = _isViewMode;
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Note)].ReadOnly = _isViewMode;
+
+
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Order)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Note)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
+
+            // update form
+            dgvMain.Refresh();
+
+        }
         private async void Win6_Component_Load(object sender, EventArgs e)
         {
             await LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedComponent_TC>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false;
+
+            SetViewMode();
         }
         private async Task LoadObjects()
         {

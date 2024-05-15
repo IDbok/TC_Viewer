@@ -32,14 +32,6 @@ namespace TC_WinForms.WinForms
                         this.Dispose();
                     }
                     else MessageBox.Show("Пользователь не найден!");
-
-                    //if (IsUserExist(txtLogin.Text, txtPassword.Text))
-                    //{
-                    //    Program.MainForm = new Win7(AuthUserAccessLevel());
-                    //    Program.MainForm.Show();
-                    //    this.Hide();
-                    //}
-                    //else MessageBox.Show("Пользователь не найден!");
                 }
                 else MessageBox.Show("Заполните все поля!");
             }
@@ -59,7 +51,7 @@ namespace TC_WinForms.WinForms
         {
 
             /////////////////////////////////
-            txtLogin.Text = "lead";
+            txtLogin.Text = "lead";// "manager"; // "user"; // "implementer"; //
             txtPassword.Text = "pass";
 
             await Task.Delay(1000);
