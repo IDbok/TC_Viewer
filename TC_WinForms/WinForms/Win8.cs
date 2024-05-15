@@ -51,7 +51,7 @@ namespace TC_WinForms.WinForms
         {
 
             /////////////////////////////////
-            txtLogin.Text = "lead";// "manager"; // "user"; // "implementer"; //
+            txtLogin.Text = "lead"; //"lead";// "manager"; // "user"; // "implementer"; //
             txtPassword.Text = "pass";
 
             await Task.Delay(1000);

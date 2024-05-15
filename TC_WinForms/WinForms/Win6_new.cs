@@ -296,6 +296,14 @@ namespace TC_WinForms.WinForms
             SetViewMode(!_isViewMode);
         }
 
+        private async void printToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            var tcExporter = new ExExportTC();
+
+            await tcExporter.SaveTCtoExcelFile(_tc.Article, _tc.Id);
+        }
+
         enum WinNumber
         {
             Staff = 1,

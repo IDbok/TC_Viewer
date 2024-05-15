@@ -41,6 +41,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
     }
     public Win7_6_Tool(bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
     {
+        _accessLevel = AuthorizationService.CurrentUser.UserRole();
 
         _isAddingForm = true;
         _newItemCreateActive = activateNewItemCreate;
@@ -107,7 +108,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
     private void btnAddNewObj_Click(object sender, EventArgs e)
     {
-        var objEditor = new Win7_LinkObjectEditor(new Tool() { CreatedTCId = _tcId}, isNewObject: true);
+        var objEditor = new Win7_LinkObjectEditor(new Tool() { CreatedTCId = _tcId}, isNewObject: true, accessLevel: _accessLevel);
 
         objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Tool, DisplayedTool>(createdObj as Tool);
 
@@ -581,7 +582,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
             if (machine != null)
             {
-                var objEditor = new Win7_LinkObjectEditor(machine);
+                var objEditor = new Win7_LinkObjectEditor(machine, accessLevel: _accessLevel);
 
                 objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView<Tool, DisplayedTool>(updatedObj as Tool);
 

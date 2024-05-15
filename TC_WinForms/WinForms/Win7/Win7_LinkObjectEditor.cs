@@ -5,11 +5,14 @@ using TC_WinForms.DataProcessing;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
     public partial class Win7_LinkObjectEditor : Form
     {
+        private readonly User.Role _accessLevel;
+
         IModelStructure _editingObj;
         List<LinkEntety> _newLinks = new List<LinkEntety>();
         BindingList<LinkEntety> _links = new BindingList<LinkEntety>();
@@ -21,8 +24,10 @@ namespace TC_WinForms.WinForms
         public PostSaveAction<IModelStructure> AfterSave { get; set; }
 
         private bool _isNewObject = false;
-        public Win7_LinkObjectEditor(object obj, bool isNewObject = false)
+        public Win7_LinkObjectEditor(object obj, bool isNewObject = false, User.Role accessLevel = User.Role.Lead)
         {
+            _accessLevel = accessLevel;
+
             if (!(obj is IModelStructure))
             {
                 throw new ArgumentException("Объект не реализует интерфейс IModelStructure");
@@ -31,7 +36,7 @@ namespace TC_WinForms.WinForms
             _isNewObject = isNewObject;
             InitializeComponent();
         }
-
+       
         private void Win7_LinkObjectEditor_Load(object sender, EventArgs e)
         {
             SetCbxUnits();
@@ -70,6 +75,29 @@ namespace TC_WinForms.WinForms
             dgvLinks.Columns["Id"].Visible = false;
 
             SubscribeToChanges();
+
+            AccessInitialization();
+        }
+        private void AccessInitialization()
+        {
+            var controlAccess = new Dictionary<User.Role, Action>
+            {
+                [User.Role.Lead] = () => { },
+
+                [User.Role.Implementer] = () => { cbxIsReleased.Enabled = false; },
+
+                //[User.Role.ProjectManager] = () =>
+                //{
+
+                //},
+
+                //[User.Role.User] = () =>
+                //{
+                //}
+            };
+
+            controlAccess.TryGetValue(_accessLevel, out var action);
+            action?.Invoke();
         }
         private void SetLinksDGVDataSources()
         {

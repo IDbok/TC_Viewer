@@ -81,10 +81,6 @@ namespace TC_WinForms.WinForms
             {
                 button.Visible = visibleButtons.Contains(button);
             }
-            //foreach (Control btn in pnlNavigationBtns.Controls)
-            //{
-            //    btn.Visible = btn == visibleButton;
-            //}
         }
         private void Win7_FormClosing(object sender, FormClosingEventArgs e)
         {

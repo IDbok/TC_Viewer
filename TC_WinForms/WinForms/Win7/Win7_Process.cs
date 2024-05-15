@@ -48,6 +48,35 @@ namespace TC_WinForms.WinForms
         }
 
 
+        private void AccessInitialization()
+        {
+            var controlAccess = new Dictionary<User.Role, Action>
+            {
+                //[User.Role.Lead] = () => { },
+
+                [User.Role.Implementer] = () => 
+                { 
+                    btnAddNew.Visible = false;
+                    btnDeleteObj.Visible = false;
+
+                    btnUpdate.Text = "Просмотр"; 
+                    btnUpdate.Location = btnDeleteObj.Location;
+                },
+
+                //[User.Role.ProjectManager] = () =>
+                //{
+                //    updateToolStripMenuItem.Visible = false;
+                //},
+
+                //[User.Role.User] = () =>
+                //{
+                //    updateToolStripMenuItem.Visible = false;
+                //}
+            };
+
+            controlAccess.TryGetValue(_accessLevel, out var action);
+            action?.Invoke();
+        }
 
         public bool GetDontSaveData()
         {
@@ -125,9 +154,6 @@ namespace TC_WinForms.WinForms
                 e.Cancel = false;
                 Close();
             }
-        }
-        private void AccessInitialization()
-        {
         }
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
@@ -436,7 +462,7 @@ namespace TC_WinForms.WinForms
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
                 if (id != 0)
                 {
-                    Win7_ProcessEdit win71TCsWindow = new Win7_ProcessEdit(id);
+                    Win7_ProcessEdit win71TCsWindow = new Win7_ProcessEdit(id, _accessLevel);
                     win71TCsWindow.Show();
                 }
             }

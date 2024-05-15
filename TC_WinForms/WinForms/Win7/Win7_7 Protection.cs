@@ -32,14 +32,17 @@ namespace TC_WinForms.WinForms
             _accessLevel = accessLevel;
 
             InitializeComponent();
-            AccessInitialization();
+            //AccessInitialization();
 
         }
         public Win7_7_Protection(bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
         {
+            _accessLevel = AuthorizationService.CurrentUser.UserRole();
+
             _isAddingForm = true;
             _newItemCreateActive = activateNewItemCreate;
             _tcId = createdTCId;
+
             InitializeComponent();
 
         }
@@ -74,6 +77,8 @@ namespace TC_WinForms.WinForms
             dgvMain.Visible = true;
             this.Enabled = true;
             //progressBar.Visible = false;
+
+            AccessInitialization();
         }
         private async Task LoadObjects()
         {
@@ -99,7 +104,7 @@ namespace TC_WinForms.WinForms
 
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            var objEditor = new Win7_LinkObjectEditor(new Protection() { CreatedTCId = _tcId }, isNewObject: true);
+            var objEditor = new Win7_LinkObjectEditor(new Protection() { CreatedTCId = _tcId }, isNewObject: true, accessLevel: _accessLevel);
 
             objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Protection, DisplayedProtection>(createdObj as Protection);
 
@@ -512,7 +517,7 @@ namespace TC_WinForms.WinForms
 
                 if (machine != null)
                 {
-                    var objEditor = new Win7_LinkObjectEditor(machine);
+                    var objEditor = new Win7_LinkObjectEditor(machine, accessLevel: _accessLevel);
 
                     objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView<Protection, DisplayedProtection>(updatedObj as Protection);
 

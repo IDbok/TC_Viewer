@@ -41,6 +41,8 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
     }
     public Win7_5_Machine(bool activateNewItemCreate = false, int? createdTCId = null)
     {
+        _accessLevel = AuthorizationService.CurrentUser.UserRole();
+
         _isAddingForm = true;
         _tcId = createdTCId;
         _newItemCreateActive = activateNewItemCreate;
@@ -120,7 +122,7 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
         //                _bindingList,
         //                _newObjects,
         //                dgvMain);
-        var objEditor = new Win7_LinkObjectEditor(new Machine( ) { CreatedTCId = _tcId }, isNewObject: true);
+        var objEditor = new Win7_LinkObjectEditor(new Machine() { CreatedTCId = _tcId }, isNewObject: true, accessLevel: _accessLevel);
 
         objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Machine, DisplayedMachine>(createdObj as Machine);
 
@@ -143,7 +145,7 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
 
             if (machine != null)
             {
-                var objEditor = new Win7_LinkObjectEditor(machine);
+                var objEditor = new Win7_LinkObjectEditor(machine, accessLevel: _accessLevel);
 
                 objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView<Machine, DisplayedMachine>(updatedObj as Machine);
 

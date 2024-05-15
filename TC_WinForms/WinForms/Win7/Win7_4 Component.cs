@@ -43,7 +43,9 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     }
     public Win7_4_Component(bool activateNewItemCreate = false, int? createdTCId = null)
     {
-        _isAddingForm=true;
+        _accessLevel = AuthorizationService.CurrentUser.UserRole();
+
+        _isAddingForm = true;
         _tcId = createdTCId;
         _newItemCreateActive = activateNewItemCreate;
 
@@ -119,7 +121,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
     private void btnAddNewObj_Click(object sender, EventArgs e)
     {
-        var objEditor = new Win7_LinkObjectEditor(new Component() { CreatedTCId = _tcId }, isNewObject: true);
+        var objEditor = new Win7_LinkObjectEditor(new Component() { CreatedTCId = _tcId }, isNewObject: true, accessLevel: _accessLevel);
 
         objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Component, DisplayedComponent>(createdObj as Component);
 
@@ -604,7 +606,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
             if (machine != null)
             {
-                var objEditor = new Win7_LinkObjectEditor(machine);
+                var objEditor = new Win7_LinkObjectEditor(machine, accessLevel: _accessLevel);
 
                 objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView<Component, DisplayedComponent>(updatedObj as Component);
 

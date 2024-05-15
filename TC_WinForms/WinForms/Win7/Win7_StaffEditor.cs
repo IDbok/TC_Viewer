@@ -5,12 +5,15 @@ using TC_WinForms.DataProcessing;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TC_WinForms.WinForms.Win6_Staff;
 
 namespace TC_WinForms.WinForms;
 
 public partial class Win7_StaffEditor : Form
 {
+    private readonly User.Role _accessLevel;
+
     Staff _editingObj;
 
     List<string> requiredPropertiesNames = new List<string>();
@@ -20,15 +23,64 @@ public partial class Win7_StaffEditor : Form
     public PostSaveAction? AfterSave { get; set; }
 
     private bool _isNewObject = false;
-    public Win7_StaffEditor(Staff obj, bool isNewObject = false) // todo: Сделать видимость не выпущенных объектов только для администратора или из карт в которых они были созданы
+    public Win7_StaffEditor(Staff obj, bool isNewObject = false, User.Role accessLevel = User.Role.Lead) // todo: Сделать видимость не выпущенных объектов только для администратора или из карт в которых они были созданы
     {
+        _accessLevel = accessLevel;
+
         _editingObj = obj;
         _isNewObject = isNewObject;
 
 
         InitializeComponent();
     }
+    private void Win7_StaffEditor_Load(object sender, EventArgs e)
+    {
+        SetDGVDataSources();
 
+        if (_isNewObject)
+        {
+            this.Text = "Создание нового объекта";
+
+        }
+        else
+        {
+            this.Text = $"Редактирование объекта: {_editingObj.Name} ({_editingObj.Type})";
+
+            txtName.Text = _editingObj.Name;
+            txtType.Text = _editingObj.Type;
+            rtxtFunctions.Text = _editingObj.Functions;
+            rtxtQualification.Text = _editingObj.Qualification;
+            rtxtComment.Text = _editingObj.Comment;
+
+            cbxIsReleased.Checked = _editingObj.IsReleased;
+            txtClassifierCode.Text = _editingObj.ClassifierCode;
+        }
+
+        dgvRelatedStaffs.DataSource = _editingObj.RelatedStaffs;
+
+        AccessInitialization();
+    }
+    private void AccessInitialization()
+    {
+        var controlAccess = new Dictionary<User.Role, Action>
+        {
+            [User.Role.Lead] = () => { },
+
+            [User.Role.Implementer] = () => { cbxIsReleased.Enabled = false; },
+
+            //[User.Role.ProjectManager] = () =>
+            //{
+
+            //},
+
+            //[User.Role.User] = () =>
+            //{
+            //}
+        };
+
+        controlAccess.TryGetValue(_accessLevel, out var action);
+        action?.Invoke();
+    }
     private async void btnSave_Click(object sender, EventArgs e)
     {
         _editingObj.Name = txtName.Text;
@@ -84,31 +136,7 @@ public partial class Win7_StaffEditor : Form
         }
     }
 
-    private void Win7_StaffEditor_Load(object sender, EventArgs e)
-    {
-        SetDGVDataSources();
-
-        if (_isNewObject)
-        {
-            this.Text = "Создание нового объекта";
-
-        }
-        else
-        {
-            this.Text = $"Редактирование объекта: {_editingObj.Name} ({_editingObj.Type})";
-
-            txtName.Text = _editingObj.Name;
-            txtType.Text = _editingObj.Type;
-            rtxtFunctions.Text = _editingObj.Functions;
-            rtxtQualification.Text = _editingObj.Qualification;
-            rtxtComment.Text = _editingObj.Comment;
-
-            cbxIsReleased.Checked = _editingObj.IsReleased;
-            txtClassifierCode.Text = _editingObj.ClassifierCode;
-        }
-
-        dgvRelatedStaffs.DataSource = _editingObj.RelatedStaffs;
-    }
+    
 
     private void SetDGVDataSources()
     {

@@ -32,25 +32,25 @@
             groupBox2 = new GroupBox();
             textBoxPoisk = new TextBox();
             dataGridViewTPLocal = new DataGridView();
+            dataGridViewTextBoxColumn12 = new DataGridViewTextBoxColumn();
+            dataGridViewButtonColumn2 = new DataGridViewButtonColumn();
+            Column3 = new DataGridViewButtonColumn();
+            dataGridViewTextBoxColumn13 = new DataGridViewTextBoxColumn();
+            Column2 = new DataGridViewTextBoxColumn();
             panel1 = new Panel();
-            button2 = new Button();
-            button1 = new Button();
-            textBox3 = new TextBox();
+            btnCancel = new Button();
+            btnSave = new Button();
+            txtDescription = new TextBox();
             label3 = new Label();
-            textBox2 = new TextBox();
+            txtType = new TextBox();
             label2 = new Label();
-            textBox1 = new TextBox();
+            txtName = new TextBox();
             label1 = new Label();
             dataGridViewAllTP = new DataGridView();
             Id = new DataGridViewTextBoxColumn();
             Add = new DataGridViewButtonColumn();
             NameTO = new DataGridViewTextBoxColumn();
             Column1 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn12 = new DataGridViewTextBoxColumn();
-            dataGridViewButtonColumn2 = new DataGridViewButtonColumn();
-            Column3 = new DataGridViewButtonColumn();
-            dataGridViewTextBoxColumn13 = new DataGridViewTextBoxColumn();
-            Column2 = new DataGridViewTextBoxColumn();
             tableLayoutPanel1.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPLocal).BeginInit();
@@ -112,48 +112,93 @@
             dataGridViewTPLocal.Size = new Size(1523, 280);
             dataGridViewTPLocal.TabIndex = 2;
             // 
+            // dataGridViewTextBoxColumn12
+            // 
+            dataGridViewTextBoxColumn12.HeaderText = "Id";
+            dataGridViewTextBoxColumn12.MinimumWidth = 6;
+            dataGridViewTextBoxColumn12.Name = "dataGridViewTextBoxColumn12";
+            dataGridViewTextBoxColumn12.SortMode = DataGridViewColumnSortMode.NotSortable;
+            dataGridViewTextBoxColumn12.Visible = false;
+            // 
+            // dataGridViewButtonColumn2
+            // 
+            dataGridViewButtonColumn2.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewButtonColumn2.HeaderText = "";
+            dataGridViewButtonColumn2.MinimumWidth = 6;
+            dataGridViewButtonColumn2.Name = "dataGridViewButtonColumn2";
+            dataGridViewButtonColumn2.Resizable = DataGridViewTriState.True;
+            dataGridViewButtonColumn2.Text = "Удалить";
+            dataGridViewButtonColumn2.Width = 125;
+            // 
+            // Column3
+            // 
+            Column3.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Column3.HeaderText = "";
+            Column3.MinimumWidth = 6;
+            Column3.Name = "Column3";
+            Column3.Width = 125;
+            // 
+            // dataGridViewTextBoxColumn13
+            // 
+            dataGridViewTextBoxColumn13.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn13.FillWeight = 69.7860947F;
+            dataGridViewTextBoxColumn13.HeaderText = "Артикл";
+            dataGridViewTextBoxColumn13.MinimumWidth = 6;
+            dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
+            dataGridViewTextBoxColumn13.ReadOnly = true;
+            dataGridViewTextBoxColumn13.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Column2
+            // 
+            Column2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Column2.HeaderText = "Название";
+            Column2.MinimumWidth = 6;
+            Column2.Name = "Column2";
+            Column2.ReadOnly = true;
+            Column2.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
             // panel1
             // 
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            panel1.Controls.Add(button2);
-            panel1.Controls.Add(button1);
-            panel1.Controls.Add(textBox3);
+            panel1.Controls.Add(btnCancel);
+            panel1.Controls.Add(btnSave);
+            panel1.Controls.Add(txtDescription);
             panel1.Controls.Add(label3);
-            panel1.Controls.Add(textBox2);
+            panel1.Controls.Add(txtType);
             panel1.Controls.Add(label2);
-            panel1.Controls.Add(textBox1);
+            panel1.Controls.Add(txtName);
             panel1.Controls.Add(label1);
             panel1.Location = new Point(3, 3);
             panel1.Name = "panel1";
             panel1.Size = new Size(1523, 124);
             panel1.TabIndex = 0;
             // 
-            // button2
+            // btnCancel
             // 
-            button2.Location = new Point(1326, 22);
-            button2.Name = "button2";
-            button2.Size = new Size(154, 61);
-            button2.TabIndex = 7;
-            button2.Text = "Отменить";
-            button2.UseVisualStyleBackColor = true;
-            button2.Click += button2_Click;
+            btnCancel.Location = new Point(1326, 22);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new Size(154, 61);
+            btnCancel.TabIndex = 7;
+            btnCancel.Text = "Отменить";
+            btnCancel.UseVisualStyleBackColor = true;
+            btnCancel.Click += button2_Click;
             // 
-            // button1
+            // btnSave
             // 
-            button1.Location = new Point(1126, 22);
-            button1.Name = "button1";
-            button1.Size = new Size(154, 61);
-            button1.TabIndex = 6;
-            button1.Text = "Сохранить";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            btnSave.Location = new Point(1126, 22);
+            btnSave.Name = "btnSave";
+            btnSave.Size = new Size(154, 61);
+            btnSave.TabIndex = 6;
+            btnSave.Text = "Сохранить";
+            btnSave.UseVisualStyleBackColor = true;
+            btnSave.Click += button1_Click;
             // 
-            // textBox3
+            // txtDescription
             // 
-            textBox3.Location = new Point(92, 78);
-            textBox3.Name = "textBox3";
-            textBox3.Size = new Size(579, 27);
-            textBox3.TabIndex = 5;
+            txtDescription.Location = new Point(92, 78);
+            txtDescription.Name = "txtDescription";
+            txtDescription.Size = new Size(579, 27);
+            txtDescription.TabIndex = 5;
             // 
             // label3
             // 
@@ -164,12 +209,12 @@
             label3.TabIndex = 4;
             label3.Text = "Описание";
             // 
-            // textBox2
+            // txtType
             // 
-            textBox2.Location = new Point(92, 45);
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(579, 27);
-            textBox2.TabIndex = 3;
+            txtType.Location = new Point(92, 45);
+            txtType.Name = "txtType";
+            txtType.Size = new Size(579, 27);
+            txtType.TabIndex = 3;
             // 
             // label2
             // 
@@ -180,12 +225,12 @@
             label2.TabIndex = 2;
             label2.Text = "Тип";
             // 
-            // textBox1
+            // txtName
             // 
-            textBox1.Location = new Point(92, 12);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(579, 27);
-            textBox1.TabIndex = 1;
+            txtName.Location = new Point(92, 12);
+            txtName.Name = "txtName";
+            txtName.Size = new Size(579, 27);
+            txtName.TabIndex = 1;
             // 
             // label1
             // 
@@ -247,51 +292,6 @@
             Column1.Name = "Column1";
             Column1.ReadOnly = true;
             // 
-            // dataGridViewTextBoxColumn12
-            // 
-            dataGridViewTextBoxColumn12.HeaderText = "Id";
-            dataGridViewTextBoxColumn12.MinimumWidth = 6;
-            dataGridViewTextBoxColumn12.Name = "dataGridViewTextBoxColumn12";
-            dataGridViewTextBoxColumn12.SortMode = DataGridViewColumnSortMode.NotSortable;
-            dataGridViewTextBoxColumn12.Visible = false;
-            // 
-            // dataGridViewButtonColumn2
-            // 
-            dataGridViewButtonColumn2.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            dataGridViewButtonColumn2.HeaderText = "";
-            dataGridViewButtonColumn2.MinimumWidth = 6;
-            dataGridViewButtonColumn2.Name = "dataGridViewButtonColumn2";
-            dataGridViewButtonColumn2.Resizable = DataGridViewTriState.True;
-            dataGridViewButtonColumn2.Text = "Удалить";
-            dataGridViewButtonColumn2.Width = 125;
-            // 
-            // Column3
-            // 
-            Column3.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            Column3.HeaderText = "";
-            Column3.MinimumWidth = 6;
-            Column3.Name = "Column3";
-            Column3.Width = 125;
-            // 
-            // dataGridViewTextBoxColumn13
-            // 
-            dataGridViewTextBoxColumn13.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn13.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn13.HeaderText = "Артикл";
-            dataGridViewTextBoxColumn13.MinimumWidth = 6;
-            dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
-            dataGridViewTextBoxColumn13.ReadOnly = true;
-            dataGridViewTextBoxColumn13.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
-            // Column2
-            // 
-            Column2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Column2.HeaderText = "Название";
-            Column2.MinimumWidth = 6;
-            Column2.Name = "Column2";
-            Column2.ReadOnly = true;
-            Column2.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
             // Win7_ProcessEdit
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -313,16 +313,16 @@
         #endregion
         private TableLayoutPanel tableLayoutPanel1;
         private Panel panel1;
-        private TextBox textBox1;
+        private TextBox txtName;
         private Label label1;
         private DataGridView dataGridViewAllTP;
-        private TextBox textBox2;
+        private TextBox txtType;
         private Label label2;
-        private TextBox textBox3;
+        private TextBox txtDescription;
         private Label label3;
         private DataGridView dataGridViewTPLocal;
-        private Button button2;
-        private Button button1;
+        private Button btnCancel;
+        private Button btnSave;
         private DataGridViewTextBoxColumn Id;
         private DataGridViewButtonColumn Add;
         private DataGridViewTextBoxColumn NameTO;

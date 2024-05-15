@@ -34,9 +34,9 @@
             lblSearch = new Label();
             txtSearch = new TextBox();
             pnlControlBtns = new Panel();
-            button1 = new Button();
+            btnUpdate = new Button();
             btnDeleteObj = new Button();
-            btnAddNewObj = new Button();
+            btnAddNew = new Button();
             pnlDataViewer = new Panel();
             progressBar = new ProgressBar();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
@@ -102,24 +102,24 @@
             // 
             // pnlControlBtns
             // 
-            pnlControlBtns.Controls.Add(button1);
+            pnlControlBtns.Controls.Add(btnUpdate);
             pnlControlBtns.Controls.Add(btnDeleteObj);
-            pnlControlBtns.Controls.Add(btnAddNewObj);
+            pnlControlBtns.Controls.Add(btnAddNew);
             pnlControlBtns.Dock = DockStyle.Right;
             pnlControlBtns.Location = new Point(328, 0);
             pnlControlBtns.Name = "pnlControlBtns";
             pnlControlBtns.Size = new Size(472, 80);
             pnlControlBtns.TabIndex = 24;
             // 
-            // button1
+            // btnUpdate
             // 
-            button1.Location = new Point(174, 14);
-            button1.Name = "button1";
-            button1.Size = new Size(140, 58);
-            button1.TabIndex = 26;
-            button1.Text = "Редактирование";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            btnUpdate.Location = new Point(174, 14);
+            btnUpdate.Name = "btnUpdate";
+            btnUpdate.Size = new Size(140, 58);
+            btnUpdate.TabIndex = 26;
+            btnUpdate.Text = "Редактирование";
+            btnUpdate.UseVisualStyleBackColor = true;
+            btnUpdate.Click += button1_Click;
             // 
             // btnDeleteObj
             // 
@@ -131,15 +131,15 @@
             btnDeleteObj.UseVisualStyleBackColor = true;
             btnDeleteObj.Click += btnDeleteObj_Click;
             // 
-            // btnAddNewObj
+            // btnAddNew
             // 
-            btnAddNewObj.Location = new Point(29, 14);
-            btnAddNewObj.Name = "btnAddNewObj";
-            btnAddNewObj.Size = new Size(139, 60);
-            btnAddNewObj.TabIndex = 23;
-            btnAddNewObj.Text = "Добавить";
-            btnAddNewObj.UseVisualStyleBackColor = true;
-            btnAddNewObj.Click += btnAddNewObj_Click;
+            btnAddNew.Location = new Point(29, 14);
+            btnAddNew.Name = "btnAddNew";
+            btnAddNew.Size = new Size(139, 60);
+            btnAddNew.TabIndex = 23;
+            btnAddNew.Text = "Добавить";
+            btnAddNew.UseVisualStyleBackColor = true;
+            btnAddNew.Click += btnAddNewObj_Click;
             // 
             // pnlDataViewer
             // 
@@ -189,12 +189,12 @@
         private Panel pnlControls;
         private Panel pnlControlBtns;
         private Button btnDeleteObj;
-        private Button btnAddNewObj;
+        private Button btnAddNew;
         private Panel pnlFilters;
         private Panel pnlDataViewer;
         private ProgressBar progressBar;
         private Label lblSearch;
         private TextBox txtSearch;
-        private Button button1;
+        private Button btnUpdate;
     }
 }

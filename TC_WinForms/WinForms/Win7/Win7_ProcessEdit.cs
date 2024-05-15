@@ -14,16 +14,23 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using TC_WinForms.DataProcessing;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
     public partial class Win7_ProcessEdit : Form
     {
+        private readonly User.Role _accessLevel;
+
         public MyDbContext context;
         public TechnologicalProcess process;
 
-        public Win7_ProcessEdit(int id = -1)
+        public Win7_ProcessEdit(int id = -1, User.Role accessLevel = User.Role.Lead)
         {
+            _accessLevel = accessLevel;
+
             InitializeComponent();
 
             dataGridViewAllTP.CellClick += DataGridViewAllTP_CellClick;
@@ -44,16 +51,56 @@ namespace TC_WinForms.WinForms
 
                 this.Text = process.Name;
 
-                textBox1.Text = process.Name;
-                textBox2.Text = process.Type;
-                textBox3.Text = process.Description;
+                txtName.Text = process.Name;
+                txtType.Text = process.Type;
+                txtDescription.Text = process.Description;
 
             }
 
-            dataGridViewAll();
-            dataGridViewLocalAll();
-        }
+            if (_accessLevel != User.Role.Implementer)
+            {
+                dataGridViewAll();
+            }
 
+            dataGridViewLocalAll();
+
+            AccessInitialization();
+        }
+        private void AccessInitialization()
+        {
+            var controlAccess = new Dictionary<User.Role, Action>
+            {
+                //[User.Role.Lead] = () => { },
+
+                [User.Role.Implementer] = () => 
+                {
+                    // скрыть 1 и 2 столбец dgv
+                    dataGridViewTPLocal.Columns[1].Visible = false;
+
+                    txtDescription.ReadOnly = true;
+                    txtName.ReadOnly = true;
+                    txtType.ReadOnly = true;
+
+                    btnSave.Visible = false;
+
+                    btnCancel.Text = "Закрыть";
+
+                },
+
+                //[User.Role.ProjectManager] = () =>
+                //{
+                //    updateToolStripMenuItem.Visible = false;
+                //},
+
+                //[User.Role.User] = () =>
+                //{
+                //    updateToolStripMenuItem.Visible = false;
+                //}
+            };
+
+            controlAccess.TryGetValue(_accessLevel, out var action);
+            action?.Invoke();
+        }
         private void DataGridViewTPLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
             try
@@ -72,7 +119,7 @@ namespace TC_WinForms.WinForms
                 {
                     var Idd = (TechnologicalCard)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                    var editorForm = new Win6_new(Idd.Id);
+                    var editorForm = new Win6_new(Idd.Id, AuthorizationService.CurrentUser.UserRole(),viewMode: true);
                     editorForm.Show();
 
                 }
@@ -154,9 +201,9 @@ namespace TC_WinForms.WinForms
 
         private void button1_Click(object sender, EventArgs e)
         {
-            process.Name = textBox1.Text;
-            process.Type = textBox2.Text;
-            process.Description = textBox3.Text;
+            process.Name = txtName.Text;
+            process.Type = txtType.Text;
+            process.Description = txtDescription.Text;
 
             try
             {

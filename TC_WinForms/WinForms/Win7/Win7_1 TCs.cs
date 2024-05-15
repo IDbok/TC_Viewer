@@ -57,21 +57,32 @@ namespace TC_WinForms.WinForms
         {
             var controlAccess = new Dictionary<User.Role, Action>
             {
-                //[User.Role.Lead] = () => {},
+                [User.Role.Lead] = () => { },
 
-                //[User.Role.Implementer] = () => {},
+                [User.Role.Implementer] = () => { },
 
-                //[User.Role.ProjectManager] = () => {
-                //    HideAllButtonsExcept(new List<Button> { btnProject, btnTechCard });
-                //},
+                [User.Role.ProjectManager] = () =>
+                {
+                    HideAllButtonsExcept(new List<Button> { btnViewMode });
+                    btnViewMode.Location = btnDeleteTC.Location;
+                },
 
-                //[User.Role.User] = () => {
-                //    HideAllButtonsExcept(new List<Button> { btnTechCard });
-                //}
+                [User.Role.User] = () =>
+                {
+                    HideAllButtonsExcept(new List<Button> { btnViewMode });
+                    btnViewMode.Location = btnDeleteTC.Location;
+                }
             };
 
             controlAccess.TryGetValue(_accessLevel, out var action);
             action?.Invoke();
+        }
+        private void HideAllButtonsExcept(List<Button> visibleButtons)
+        {
+            foreach (var button in pnlControlBtns.Controls.OfType<Button>())
+            {
+                button.Visible = visibleButtons.Contains(button);
+            }
         }
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {

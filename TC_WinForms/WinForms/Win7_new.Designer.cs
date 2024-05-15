@@ -241,7 +241,6 @@
             btnProject.TabIndex = 1;
             btnProject.Text = "Проекты";
             btnProject.UseVisualStyleBackColor = true;
-            btnProject.Visible = false;
             btnProject.Click += btnProject_Click;
             // 
             // btnTechCard

@@ -63,6 +63,8 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
 
     public Win7_3_Staff(Form openedForm, bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
     {
+        _accessLevel = AuthorizationService.CurrentUser.UserRole();
+
         _openedForm = openedForm;
         isAddingForm = true;
         _newItemCreateActive = activateNewItemCreate;
@@ -135,7 +137,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
 
     private void btnAddNewObj_Click(object sender, EventArgs e)
     {
-        var objEditor = new Win7_StaffEditor(new Staff() { CreatedTCId = _tcId }, isNewObject: true);
+        var objEditor = new Win7_StaffEditor(new Staff() { CreatedTCId = _tcId }, isNewObject: true, accessLevel: _accessLevel);
 
         objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView(createdObj);
 
@@ -522,7 +524,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
 
             if (staff != null)
             {
-                var objEditor = new Win7_StaffEditor(staff);
+                var objEditor = new Win7_StaffEditor(staff, accessLevel: _accessLevel);
 
                 objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView(updatedObj as Staff);
 

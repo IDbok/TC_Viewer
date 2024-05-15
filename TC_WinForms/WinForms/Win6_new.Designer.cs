@@ -88,13 +88,14 @@
             // printToolStripMenuItem
             // 
             printToolStripMenuItem.Name = "printToolStripMenuItem";
-            printToolStripMenuItem.Size = new Size(194, 26);
+            printToolStripMenuItem.Size = new Size(224, 26);
             printToolStripMenuItem.Text = "Печать";
+            printToolStripMenuItem.Click += printToolStripMenuItem_Click;
             // 
             // updateToolStripMenuItem
             // 
             updateToolStripMenuItem.Name = "updateToolStripMenuItem";
-            updateToolStripMenuItem.Size = new Size(194, 26);
+            updateToolStripMenuItem.Size = new Size(224, 26);
             updateToolStripMenuItem.Text = "Редактировать";
             updateToolStripMenuItem.Click += updateToolStripMenuItem_Click;
             // 

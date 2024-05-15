@@ -169,49 +169,54 @@ namespace TC_WinForms.WinForms
         private async void btnExportExcel_Click(object sender, EventArgs e)
         {
             // спрашиваем у пользователя о пути сохранения файла
-            await SaveTCtoExcelFile();
+            //await SaveTCtoExcelFile();
+
+            var tcExporter = new ExExportTC();
+
+            await tcExporter.SaveTCtoExcelFile(LocalCard.Article, LocalCard.Id);
+
         }
-        public async Task SaveTCtoExcelFile()
-        {
-            try
-            {
-                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-                {
-                    // Настройка диалога сохранения файла
-                    saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
-                    saveFileDialog.FilterIndex = 1;
-                    saveFileDialog.RestoreDirectory = true;
+        //public async Task SaveTCtoExcelFile()
+        //{
+        //    try
+        //    {
+        //        using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+        //        {
+        //            // Настройка диалога сохранения файла
+        //            saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+        //            saveFileDialog.FilterIndex = 1;
+        //            saveFileDialog.RestoreDirectory = true;
 
-                    saveFileDialog.FileName = LocalCard.Article;
+        //            saveFileDialog.FileName = LocalCard.Article;
 
-                    // Показ диалога пользователю и проверка, что он нажал кнопку "Сохранить"
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        try
-                        {
-                            var tc = await dbCon.GetTechnologicalCardToExportAsync(LocalCard.Id);
-                            if (tc == null)
-                            {
-                                MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return;
-                            }
-                            var excelExporter = new TCExcelExporter();
-                            excelExporter.ExportTCtoFile(saveFileDialog.FileName, tc);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Произошла ошибка при загрузке данных: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
+        //            // Показ диалога пользователю и проверка, что он нажал кнопку "Сохранить"
+        //            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+        //            {
+        //                try
+        //                {
+        //                    var tc = await dbCon.GetTechnologicalCardToExportAsync(LocalCard.Id);
+        //                    if (tc == null)
+        //                    {
+        //                        MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                        return;
+        //                    }
+        //                    var excelExporter = new TCExcelExporter();
+        //                    excelExporter.ExportTCtoFile(saveFileDialog.FileName, tc);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    MessageBox.Show("Произошла ошибка при загрузке данных: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                }
 
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Произошла ошибка при сохранении файла: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show("Произошла ошибка при сохранении файла: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
             
-        }
+        //}
         private bool HasChanges()
         {
             if (LocalCard == null) return false;
