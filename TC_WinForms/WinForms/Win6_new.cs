@@ -4,6 +4,7 @@ using TC_WinForms.WinForms.Work;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using static TC_WinForms.DataProcessing.AuthorizationService;
+using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.WinForms
 {
@@ -103,8 +104,13 @@ namespace TC_WinForms.WinForms
         private async void Win6_new_Load(object sender, EventArgs e)
         {
             this.Text = $"{_tc.Name} ({_tc.Article})";
+            if (_tc.Status != TechnologicalCardStatus.Approved)
+            {
+                this.Text += $" - {_tc.Status.GetDescription()}";
+            }
             await ShowForm(EModelType.WorkStep);
         }
+
         private void btnBack_Click(object sender, EventArgs e)
         {
             WinProcessing.BackFormBtn(this);
@@ -302,6 +308,27 @@ namespace TC_WinForms.WinForms
             var tcExporter = new ExExportTC();
 
             await tcExporter.SaveTCtoExcelFile(_tc.Article, _tc.Id);
+        }
+
+        private void SaveChangesToolStripMenuItem_Click(object sender, EventArgs e) => SaveAllChanges();
+
+        private async void setDraftStatusToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Draft);
+        }
+
+        private async void setApprovedStatusToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Approved);
+        }
+
+        private async void setRemarksModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
+            {
+                await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
+            }
+
         }
 
         enum WinNumber

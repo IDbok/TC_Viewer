@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -8,7 +9,25 @@ namespace TcModels.Models
 {
     public class TechnologicalCard: INameable, IUpdatableEntity
     {
-        
+        public enum TechnologicalCardStatus
+        {
+            [Description("Не заполнена")] // ТК создана, но не заполнена
+            Created,
+
+            [Description("Проект")] //ТК заполнена и готова к проверке руководителя
+            Draft,
+
+            [Description("Работа над замечаниями")] // ТК просмотрена руководителем, но требует доработки
+            Remarked,
+
+            [Description("Выпущена")] //ТК проверена и утверждена руководителем
+            Approved,
+
+            [Description("Недействительная")] //ТК помечена как недействительная
+            Rejected
+        }
+
+
         public static Dictionary<string, string> GetPropertiesNames()
         {
             return new Dictionary<string, string>
@@ -77,6 +96,8 @@ namespace TcModels.Models
         public string?  RepairType { get; set; } // Тип ремонта
         public bool IsCompleted { get; set; } // Наличие ТК
 
+        public TechnologicalCardStatus Status { get; set; } = TechnologicalCardStatus.Created;
+
         public List<Author> Authors { get; set; } = new();
         public List<TechnologicalProcess> TechnologicalProcess { get; set; } = new();
         
@@ -85,7 +106,7 @@ namespace TcModels.Models
         
         public List<Staff> Staffs { get; set; } = new ();
         public List<Staff_TC> Staff_TCs { get; set; } = new();
-        public List<Component> Components { get; set; } = new();
+        public List<TcContent.Component> Components { get; set; } = new();
         public List<Component_TC> Component_TCs { get; set; } = new();
         public List<Machine> Machines { get; set; } = new();
         public List<Machine_TC> Machine_TCs { get; set; } = new();
@@ -124,7 +145,7 @@ namespace TcModels.Models
             if (typeof(T) == typeof(Component_TC))
             {
                 Component_TCs.Add(obj_tc as Component_TC);
-                Components.Add(obj as Component);
+                Components.Add(obj as TcContent.Component);
             }
             else if (typeof(T) == typeof(Tool_TC))
             {

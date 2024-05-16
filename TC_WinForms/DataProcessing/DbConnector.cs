@@ -6,6 +6,7 @@ using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.Work;
+using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -916,6 +917,22 @@ namespace TC_WinForms.DataProcessing
             }
 
             return staffIds;
+        }
+
+        public async Task UpdateStatusTc(TechnologicalCard tc, TechnologicalCardStatus newStatus)
+        {
+            using (var db = new MyDbContext())
+            {
+                var tcToUpdate = await db.TechnologicalCards
+                    .Where(t => t.Id == tc.Id)
+                    .FirstOrDefaultAsync();
+
+                if (tcToUpdate != null)
+                {
+                    tcToUpdate.Status = newStatus;
+                    await db.SaveChangesAsync();
+                }
+            }
         }
     }
 }

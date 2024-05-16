@@ -36,9 +36,14 @@ namespace TC_WinForms.WinForms
                 LocalCard = context.TechnologicalCards.Single(s => s.Id == tcId);
                 load(LocalCard);
             }
+            else
+            {
+                btnSaveAndOpen.Text = "Сохранить и открыть";
+            }
 
             if (win6Format)
             {
+
                 btnSaveAndOpen.Visible = false;
                 btnExportExcel.Visible = false;
                 btnSave.Visible = false;
@@ -48,6 +53,7 @@ namespace TC_WinForms.WinForms
 
         public void load(TechnologicalCard LocalCard)
         {
+            txtName.Text = LocalCard.Name;
             txtArticle.Text = LocalCard.Article;
             cbxType.Text = LocalCard.Type;
             cbxNetworkVoltage.Text = LocalCard.NetworkVoltage.ToString();
@@ -104,6 +110,7 @@ namespace TC_WinForms.WinForms
                 context.TechnologicalCards.Add(LocalCard);
             }
 
+            LocalCard.Name = txtName.Text;
             LocalCard.Article = txtArticle.Text;
             LocalCard.Type = cbxType.Text;
             LocalCard.NetworkVoltage = float.Parse(cbxNetworkVoltage.Text);
@@ -145,7 +152,7 @@ namespace TC_WinForms.WinForms
             if (NoEmptiness())
             {
                 if (HasChanges()) 
-                    if (Save()) return;
+                    if (!Save()) return;
 
                 var nn = LocalCard.Id;
                 var editorForm = new Win6_new(nn);
@@ -217,12 +224,35 @@ namespace TC_WinForms.WinForms
         //    }
             
         //}
+
+        private bool FieldsIsNotEmpty()
+        {
+            if (txtName.Text != "" ||
+                    txtArticle.Text != "" ||
+                    cbxType.Text != "" ||
+                    cbxNetworkVoltage.Text != "" ||
+                    txtTechProcessType.Text != "" ||
+                    txtTechProcess.Text != "" ||
+                    txtParametr.Text != "" ||
+                    txtFinalProduct.Text != "" ||
+                    txtApplicability.Text != "" ||
+                    txtNote.Text != "" ||
+                    chbxIsCompleted.Checked)
+                return true;
+            else
+                return false;
+        } 
         private bool HasChanges()
         {
-            if (LocalCard == null) return false;
+            if (LocalCard == null)
+            {
+                return FieldsIsNotEmpty();
+
+            }
 
             bool hasChanges = false;
 
+            hasChanges |= LocalCard.Name != txtName.Text;
             hasChanges |= LocalCard.Article != txtArticle.Text;
             hasChanges |= LocalCard.Type != cbxType.Text;
             hasChanges |= LocalCard.NetworkVoltage.ToString() != cbxNetworkVoltage.Text;
@@ -238,6 +268,7 @@ namespace TC_WinForms.WinForms
         }
         private void SubscribeToChanges()
         {
+            txtName.TextChanged += ComponentChanged;
             txtArticle.TextChanged += ComponentChanged;
             txtTechProcessType.TextChanged += ComponentChanged;
             txtTechProcess.TextChanged += ComponentChanged;

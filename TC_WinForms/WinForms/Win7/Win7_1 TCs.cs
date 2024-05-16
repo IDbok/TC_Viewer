@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel;
 using System.Reflection.Metadata;
 using TC_WinForms.DataProcessing;
@@ -7,7 +8,9 @@ using TC_WinForms.Interfaces;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static TC_WinForms.DataProcessing.AuthorizationService;
+using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.WinForms
 {
@@ -52,6 +55,7 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
             AccessInitialization();
 
+
         }
         private void AccessInitialization()
         {
@@ -63,13 +67,13 @@ namespace TC_WinForms.WinForms
 
                 [User.Role.ProjectManager] = () =>
                 {
-                    HideAllButtonsExcept(new List<Button> { btnViewMode });
+                    HideAllButtonsExcept(new List<System.Windows.Forms.Button> { btnViewMode });
                     btnViewMode.Location = btnDeleteTC.Location;
                 },
 
                 [User.Role.User] = () =>
                 {
-                    HideAllButtonsExcept(new List<Button> { btnViewMode });
+                    HideAllButtonsExcept(new List<System.Windows.Forms.Button> { btnViewMode });
                     btnViewMode.Location = btnDeleteTC.Location;
                 }
             };
@@ -77,9 +81,9 @@ namespace TC_WinForms.WinForms
             controlAccess.TryGetValue(_accessLevel, out var action);
             action?.Invoke();
         }
-        private void HideAllButtonsExcept(List<Button> visibleButtons)
+        private void HideAllButtonsExcept(List<System.Windows.Forms.Button> visibleButtons)
         {
-            foreach (var button in pnlControlBtns.Controls.OfType<Button>())
+            foreach (var button in pnlControlBtns.Controls.OfType<System.Windows.Forms.Button>())
             {
                 button.Visible = visibleButtons.Contains(button);
             }
@@ -105,6 +109,9 @@ namespace TC_WinForms.WinForms
             progressBar.Visible = false;
             _isDataLoaded = true;
 
+            //dgvMain.CellFormatting += dgvMain_CellFormatting;
+            //dgvMain.RowPrePaint += dgvMain_RowPrePaint;
+            dgvMain.RowPostPaint += dgvMain_RowPostPaint;
 
             dgvMain.Visible = true;
             this.Enabled = true;
@@ -207,6 +214,76 @@ namespace TC_WinForms.WinForms
             //DeleteSelected();
             await DisplayedEntityHelper.DeleteSelectedObject<DisplayedTechnologicalCard, TechnologicalCard>(dgvMain,
                 _bindingList, isFiltered ? _displayedTechnologicalCards : null);
+        }
+
+        private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedTechnologicalCard.Status))
+            {
+                if (e.Value != null && Enum.TryParse(typeof(TechnologicalCardStatus), e.Value.ToString(), out var status))
+                {
+                    switch ((TechnologicalCardStatus)status)
+                    {
+                        case TechnologicalCardStatus.Created:
+                            e.CellStyle.BackColor = Color.LightGray;
+                            break;
+                        case TechnologicalCardStatus.Draft:
+                            e.CellStyle.BackColor = Color.Yellow; //Color.LightBlue;
+                            break;
+                        case TechnologicalCardStatus.Remarked:
+                            e.CellStyle.BackColor = Color.Orange;
+                            break;
+                        case TechnologicalCardStatus.Approved:
+                            e.CellStyle.BackColor = Color.LightGreen;
+                            break;
+                        case TechnologicalCardStatus.Rejected:
+                            e.CellStyle.BackColor = Color.LightCoral;
+                            break;
+                    }
+                    e.Value = ""; // Устанавливаем текст ячейки в пустую строку
+                }
+            }
+        }
+        private void dgvMain_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            var row = dgvMain.Rows[e.RowIndex];
+            var displayedCard = row.DataBoundItem as DisplayedTechnologicalCard;
+
+            if (displayedCard != null)
+            {
+                var headerCell = row.HeaderCell;
+
+                switch (displayedCard.Status)
+                {
+                    case TechnologicalCardStatus.Created:
+                        headerCell.Style.BackColor = Color.LightGray;
+                        break;
+                    case TechnologicalCardStatus.Draft:
+                        headerCell.Style.BackColor = Color.Yellow;
+                        break;
+                    case TechnologicalCardStatus.Remarked:
+                        headerCell.Style.BackColor = Color.Orange;
+                        break;
+                    case TechnologicalCardStatus.Approved:
+                        headerCell.Style.BackColor = Color.LightGreen;
+                        break;
+                    case TechnologicalCardStatus.Rejected:
+                        headerCell.Style.BackColor = Color.LightCoral;
+                        break;
+                }
+
+                // Рисуем заново заголовок строки, чтобы применить стиль
+                var rect = e.RowBounds;
+                var gridBrush = new SolidBrush(dgvMain.GridColor);
+                var backColorBrush = new SolidBrush(headerCell.Style.BackColor);
+                var foreColorBrush = new SolidBrush(headerCell.Style.ForeColor);
+
+                e.Graphics.FillRectangle(backColorBrush, rect.Left, rect.Top, dgvMain.RowHeadersWidth, rect.Height);
+                e.Graphics.DrawString((e.RowIndex + 1).ToString(), e.InheritedRowStyle.Font, foreColorBrush, rect.Left + 5, rect.Top + ((rect.Height - e.InheritedRowStyle.Font.Height) / 2));
+                gridBrush.Dispose();
+                backColorBrush.Dispose();
+                foreColorBrush.Dispose();
+            }
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,7 +398,8 @@ namespace TC_WinForms.WinForms
                 dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             }
 
-
+            dgvMain.Columns[nameof(DisplayedTechnologicalCard.Status)].Width = 35;
+            dgvMain.Columns[nameof(DisplayedTechnologicalCard.Status)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 
 
         }
@@ -450,7 +528,8 @@ namespace TC_WinForms.WinForms
                 { nameof(FinalProduct), "Конечный продукт" },
                 { nameof(Applicability), "Применимость тех. карты" },
                 { nameof(Note), "Примечания" },
-                { nameof(IsCompleted), "Наличие" }
+                { nameof(IsCompleted), "Наличие" },
+                { nameof(Status), "Ст." }
             };
             }
             public List<string> GetPropertiesOrder()
@@ -466,6 +545,7 @@ namespace TC_WinForms.WinForms
                     nameof(FinalProduct),
                     nameof(Applicability),
                     nameof(Note),
+                    //nameof(Status)
                     // nameof(IsCompleted),
                     // nameof(Id),
                     // nameof(Version),
@@ -500,6 +580,8 @@ namespace TC_WinForms.WinForms
             private string? repairType;
             private bool isCompleted;
 
+            private TechnologicalCardStatus status;
+
             public DisplayedTechnologicalCard()
             {
 
@@ -523,6 +605,8 @@ namespace TC_WinForms.WinForms
                 DamageType = tc.DamageType;
                 RepairType = tc.RepairType;
                 IsCompleted = tc.IsCompleted;
+
+                Status = tc.Status;
             }
 
             public int Id { get; set; }
@@ -716,6 +800,19 @@ namespace TC_WinForms.WinForms
                     {
                         isCompleted = value;
                         OnPropertyChanged(nameof(IsCompleted));
+                    }
+                }
+            }
+
+            public TechnologicalCardStatus Status
+            {
+                get => status;
+                set
+                {
+                    if (status != value)
+                    {
+                        status = value;
+                        OnPropertyChanged(nameof(Status));
                     }
                 }
             }

@@ -51,13 +51,15 @@
             btnSaveAndOpen = new Button();
             btnSave = new Button();
             btnExportExcel = new Button();
+            txtName = new TextBox();
+            lblName = new Label();
             SuspendLayout();
             // 
             // label1
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            label1.Location = new Point(30, 27);
+            label1.Location = new Point(30, 57);
             label1.Name = "label1";
             label1.Size = new Size(69, 20);
             label1.TabIndex = 0;
@@ -65,17 +67,17 @@
             // 
             // txtArticle
             // 
-            txtArticle.Location = new Point(221, 24);
+            txtArticle.Location = new Point(221, 54);
             txtArticle.Name = "txtArticle";
             txtArticle.Size = new Size(503, 27);
-            txtArticle.TabIndex = 1;
+            txtArticle.TabIndex = 2;
             txtArticle.TextChanged += textBox1_TextChanged;
             // 
             // label2
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            label2.Location = new Point(30, 70);
+            label2.Location = new Point(30, 100);
             label2.Name = "label2";
             label2.Size = new Size(83, 20);
             label2.TabIndex = 2;
@@ -85,7 +87,7 @@
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            label3.Location = new Point(30, 114);
+            label3.Location = new Point(30, 144);
             label3.Name = "label3";
             label3.Size = new Size(67, 20);
             label3.TabIndex = 4;
@@ -93,16 +95,16 @@
             // 
             // txtTechProcessType
             // 
-            txtTechProcessType.Location = new Point(221, 154);
+            txtTechProcessType.Location = new Point(221, 184);
             txtTechProcessType.Name = "txtTechProcessType";
             txtTechProcessType.Size = new Size(503, 27);
-            txtTechProcessType.TabIndex = 7;
+            txtTechProcessType.TabIndex = 5;
             txtTechProcessType.TextChanged += textBox1_TextChanged;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(30, 157);
+            label4.Location = new Point(30, 187);
             label4.Name = "label4";
             label4.Size = new Size(133, 20);
             label4.TabIndex = 6;
@@ -110,16 +112,16 @@
             // 
             // txtTechProcess
             // 
-            txtTechProcess.Location = new Point(221, 199);
+            txtTechProcess.Location = new Point(221, 229);
             txtTechProcess.Name = "txtTechProcess";
             txtTechProcess.Size = new Size(503, 27);
-            txtTechProcess.TabIndex = 9;
+            txtTechProcess.TabIndex = 6;
             txtTechProcess.TextChanged += textBox1_TextChanged;
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(30, 202);
+            label5.Location = new Point(30, 232);
             label5.Name = "label5";
             label5.Size = new Size(97, 20);
             label5.TabIndex = 8;
@@ -127,16 +129,16 @@
             // 
             // txtParametr
             // 
-            txtParametr.Location = new Point(221, 244);
+            txtParametr.Location = new Point(221, 274);
             txtParametr.Name = "txtParametr";
             txtParametr.Size = new Size(503, 27);
-            txtParametr.TabIndex = 11;
+            txtParametr.TabIndex = 7;
             txtParametr.TextChanged += textBox1_TextChanged;
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(30, 247);
+            label6.Location = new Point(30, 277);
             label6.Name = "label6";
             label6.Size = new Size(79, 20);
             label6.TabIndex = 10;
@@ -144,16 +146,16 @@
             // 
             // txtFinalProduct
             // 
-            txtFinalProduct.Location = new Point(221, 290);
+            txtFinalProduct.Location = new Point(221, 320);
             txtFinalProduct.Name = "txtFinalProduct";
             txtFinalProduct.Size = new Size(503, 27);
-            txtFinalProduct.TabIndex = 13;
+            txtFinalProduct.TabIndex = 8;
             txtFinalProduct.TextChanged += textBox1_TextChanged;
             // 
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(30, 293);
+            label7.Location = new Point(30, 323);
             label7.Name = "label7";
             label7.Size = new Size(140, 20);
             label7.TabIndex = 12;
@@ -161,16 +163,16 @@
             // 
             // txtApplicability
             // 
-            txtApplicability.Location = new Point(221, 333);
+            txtApplicability.Location = new Point(221, 363);
             txtApplicability.Name = "txtApplicability";
             txtApplicability.Size = new Size(503, 27);
-            txtApplicability.TabIndex = 15;
+            txtApplicability.TabIndex = 9;
             txtApplicability.TextChanged += textBox1_TextChanged;
             // 
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(30, 336);
+            label8.Location = new Point(30, 366);
             label8.Name = "label8";
             label8.Size = new Size(189, 20);
             label8.TabIndex = 14;
@@ -178,16 +180,16 @@
             // 
             // txtNote
             // 
-            txtNote.Location = new Point(221, 379);
+            txtNote.Location = new Point(221, 409);
             txtNote.Name = "txtNote";
             txtNote.Size = new Size(503, 27);
-            txtNote.TabIndex = 17;
+            txtNote.TabIndex = 10;
             txtNote.TextChanged += textBox1_TextChanged;
             // 
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(30, 382);
+            label9.Location = new Point(30, 412);
             label9.Name = "label9";
             label9.Size = new Size(99, 20);
             label9.TabIndex = 16;
@@ -196,37 +198,39 @@
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(30, 428);
+            label10.Location = new Point(30, 458);
             label10.Name = "label10";
             label10.Size = new Size(70, 20);
             label10.TabIndex = 18;
             label10.Text = "Наличие";
+            label10.Visible = false;
             // 
             // chbxIsCompleted
             // 
             chbxIsCompleted.AutoSize = true;
-            chbxIsCompleted.Location = new Point(221, 427);
+            chbxIsCompleted.Location = new Point(221, 457);
             chbxIsCompleted.Name = "chbxIsCompleted";
             chbxIsCompleted.Size = new Size(18, 17);
             chbxIsCompleted.TabIndex = 19;
             chbxIsCompleted.UseVisualStyleBackColor = true;
+            chbxIsCompleted.Visible = false;
             // 
             // cbxType
             // 
             cbxType.FormattingEnabled = true;
-            cbxType.Location = new Point(221, 67);
+            cbxType.Location = new Point(221, 97);
             cbxType.Name = "cbxType";
             cbxType.Size = new Size(256, 28);
-            cbxType.TabIndex = 20;
+            cbxType.TabIndex = 3;
             cbxType.SelectedIndexChanged += comboBoxType_SelectedIndexChanged;
             // 
             // cbxNetworkVoltage
             // 
             cbxNetworkVoltage.FormattingEnabled = true;
-            cbxNetworkVoltage.Location = new Point(221, 111);
+            cbxNetworkVoltage.Location = new Point(221, 141);
             cbxNetworkVoltage.Name = "cbxNetworkVoltage";
             cbxNetworkVoltage.Size = new Size(256, 28);
-            cbxNetworkVoltage.TabIndex = 21;
+            cbxNetworkVoltage.TabIndex = 4;
             cbxNetworkVoltage.SelectedIndexChanged += comboBoxType_SelectedIndexChanged;
             // 
             // btnSaveAndOpen
@@ -259,11 +263,30 @@
             btnExportExcel.UseVisualStyleBackColor = true;
             btnExportExcel.Click += btnExportExcel_Click;
             // 
+            // txtName
+            // 
+            txtName.Location = new Point(221, 15);
+            txtName.Name = "txtName";
+            txtName.Size = new Size(503, 27);
+            txtName.TabIndex = 1;
+            // 
+            // lblName
+            // 
+            lblName.AutoSize = true;
+            lblName.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            lblName.Location = new Point(30, 18);
+            lblName.Name = "lblName";
+            lblName.Size = new Size(116, 20);
+            lblName.TabIndex = 25;
+            lblName.Text = "Наименование";
+            // 
             // Win7_1_TCs_Window
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(762, 626);
+            Controls.Add(txtName);
+            Controls.Add(lblName);
             Controls.Add(btnExportExcel);
             Controls.Add(btnSave);
             Controls.Add(btnSaveAndOpen);
@@ -322,5 +345,7 @@
         private Button button2;
         private Button btnExportExcel;
         private Button btnSave;
+        private TextBox txtName;
+        private Label lblName;
     }
 }
