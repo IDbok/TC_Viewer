@@ -44,6 +44,8 @@ namespace TC_WinForms.WinForms.Work
             dgvMain.CellPainting += DgvMain_CellPainting;
             dgvMain.CellFormatting += DgvMain_CellFormatting;
 
+            dgvMain.CellEndEdit += DgvMain_CellEndEdit;
+
             this.tcId = tcId;
 
 
@@ -110,6 +112,38 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
+        private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+        {
+           if(e.ColumnIndex> dgvMain.ColumnCount-3)
+            {
+                if(e.ColumnIndex== dgvMain.ColumnCount-1)
+                {
+                    var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
+                    var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+                    if (idd!=null)
+                    {
+                        idd.Otvet = gg;
+                        HasChanges = true;
+                    }
+
+                }
+
+                if (e.ColumnIndex == dgvMain.ColumnCount - 2)
+                {
+                    var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
+                    var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+                    if (idd != null)
+                    {
+                        idd.Vopros = gg;
+                        HasChanges = true;
+                    }
+
+                }
+            }
+        }
+
         public void SetViewMode(bool? isViewMode = null)
         {
             if (isViewMode != null)
@@ -167,6 +201,7 @@ namespace TC_WinForms.WinForms.Work
             dgvMain.Columns.Add("", "");
             dgvMain.Columns.Add("", "");
             dgvMain.Columns.Add("", "");
+            dgvMain.Columns.Add("", "");
 
 
             foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
@@ -177,22 +212,31 @@ namespace TC_WinForms.WinForms.Work
             dgvMain.Columns.Add("", "№ СЗ");
             dgvMain.Columns.Add("", "Комментарии");
 
-            dgvMain.Columns.Add("", "Вопрос");
+            dgvMain.Columns.Add("", "Замечание");
             dgvMain.Columns.Add("", "Ответ");
 
+            int ii = 0;
 
-            dgvMain.Columns[0].HeaderText = "№";
-            dgvMain.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            dgvMain.Columns[0].Width = 30;
+            dgvMain.Columns[ii].Visible = false;
+            ii++;
 
-            dgvMain.Columns[1].HeaderText = "Технологические операции";
-            dgvMain.Columns[2].HeaderText = "Исполнитель";
-            dgvMain.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            dgvMain.Columns[2].Width = 120;
-            dgvMain.Columns[3].HeaderText = "Технологические переходы";
-            dgvMain.Columns[4].HeaderText = "Время действ., мин.";
+            dgvMain.Columns[ii].HeaderText = "№";
+            dgvMain.Columns[ii].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dgvMain.Columns[ii].Width = 30;
+            ii++;
+            dgvMain.Columns[ii].HeaderText = "Технологические операции";
+            ii++;
+            dgvMain.Columns[ii].HeaderText = "Исполнитель";
+            dgvMain.Columns[ii].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dgvMain.Columns[ii].Width = 120;
+            ii++;
+            dgvMain.Columns[ii].HeaderText = "Технологические переходы";
+            ii++;
+            dgvMain.Columns[ii].HeaderText = "Время действ., мин.";
+            ii++;
 
-            dgvMain.Columns[5].HeaderText = "Время этапа, мин.";
+            dgvMain.Columns[ii].HeaderText = "Время этапа, мин.";
+            ii++;
 
 
             foreach (DataGridViewColumn column in dgvMain.Columns)
@@ -217,9 +261,13 @@ namespace TC_WinForms.WinForms.Work
                 column.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             }
 
+            
             dgvMain.Columns[dgvMain.Columns.Count - 1].ReadOnly = false;
-            dgvMain.Columns[dgvMain.Columns.Count - 2].ReadOnly = false;
 
+            if (TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() != DataProcessing.AuthorizationService.User.Role.User)
+            {
+                dgvMain.Columns[dgvMain.Columns.Count - 2].ReadOnly = false;
+            }
 
             var TechOperationWorksListLocal = TechOperationWorksList.Where(w => w.Delete == false).OrderBy(o => o.Order).ToList();
 
@@ -308,7 +356,8 @@ namespace TC_WinForms.WinForms.Work
                         listMach = mach,
                         Comments = executionWork.Comments,
                         Vopros = executionWork.Vopros,
-                        Otvet = executionWork.Otvet
+                        Otvet = executionWork.Otvet,
+                        executionWorkItem = executionWork
                     };
 
                     if (itm.TechTransitionValue == "-1")
@@ -461,7 +510,7 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (TechOperationDataGridItem techOperationDataGridItem in list)
             {
-                List<string> str = new List<string>();
+                List<object> str = new List<object>();
 
                 if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat == true)
                 {
@@ -485,6 +534,8 @@ namespace TC_WinForms.WinForms.Work
                         }
                     }
                     strP = ConvertListToRangeString(repeatNumList);
+
+                    str.Add(techOperationDataGridItem.executionWorkItem);
 
                     str.Add(techOperationDataGridItem.Nomer.ToString());
                     str.Add(techOperationDataGridItem.TechOperation);
@@ -540,6 +591,7 @@ namespace TC_WinForms.WinForms.Work
                     continue;
                 }
 
+                str.Add(techOperationDataGridItem.executionWorkItem);
 
                 if (techOperationDataGridItem.Nomer != -1)
                 {

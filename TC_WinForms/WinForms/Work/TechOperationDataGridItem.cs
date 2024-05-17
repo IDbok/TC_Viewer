@@ -42,5 +42,7 @@ namespace TC_WinForms.WinForms.Work
         public string Vopros = "";
         public string Otvet = "";
 
+        public ExecutionWork executionWorkItem=null;
+
     }
 }
