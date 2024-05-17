@@ -51,6 +51,8 @@ namespace TC_WinForms.WinForms
             AccessInitialization();
 
             SetViewMode();
+
+            SetTCStatusAccess();
         }
         private void AccessInitialization()
         {
@@ -58,21 +60,74 @@ namespace TC_WinForms.WinForms
             {
                 //[User.Role.Lead] = () => { },
 
-                //[User.Role.Implementer] = () => { _currentWinNumber = WinNumber.TC; },
+                [User.Role.Implementer] = () => 
+                {
+                    setApprovedStatusToolStripMenuItem.Visible = false;
+                    //setApprovedStatusToolStripMenuItem.Enabled = false;
+                    if (_tc.Status != TechnologicalCardStatus.Remarked)
+                    {
+                        setRemarksModeToolStripMenuItem.Enabled = false;
+                    }
+                },
 
                 [User.Role.ProjectManager] = () =>
                 {
-                    updateToolStripMenuItem.Visible = false;
+                    SetOnlyViewModeRoleAccess();
                 },
 
                 [User.Role.User] = () =>
                 {
-                    updateToolStripMenuItem.Visible = false;
+                    SetOnlyViewModeRoleAccess();
                 }
             };
 
             controlAccess.TryGetValue(_accessLevel, out var action);
             action?.Invoke();
+        }
+        private void SetOnlyViewModeRoleAccess()
+        {
+            updateToolStripMenuItem.Visible = false;
+            if (!_isViewMode)
+            {
+                MessageBox.Show("Доступен только режим просмотра!");
+                SetViewMode(true);
+            }
+            SaveChangesToolStripMenuItem.Visible = false;
+            updateToolStripMenuItem.Visible = false;
+            actionToolStripMenuItem.Visible = false;
+            setRemarksModeToolStripMenuItem.Visible = false;
+        }
+        private void SetTCStatusAccess()
+        {
+            var controlAccess = new Dictionary<TechnologicalCardStatus, Action>
+            {
+
+                [TechnologicalCardStatus.Approved] = () =>
+                {
+                    actionToolStripMenuItem.Visible = false;
+                    setRemarksModeToolStripMenuItem.Visible = false;
+                    // SaveChangesToolStripMenuItem.Enabled = false;
+                },
+
+                [TechnologicalCardStatus.Remarked] = () =>
+                {
+                    setDraftStatusToolStripMenuItem.Enabled = false;
+                },
+
+                [TechnologicalCardStatus.Draft] = () =>
+                {
+                    setDraftStatusToolStripMenuItem.Enabled = false;
+                },
+
+                [TechnologicalCardStatus.Created] = () =>
+                {
+                    //setApprovedStatusToolStripMenuItem.Enabled = false;
+                }
+            };
+
+            controlAccess.TryGetValue(_tc.Status, out var action);
+            action?.Invoke();
+
         }
 
         public void SetViewMode(bool? isViewMode = null)
@@ -82,7 +137,7 @@ namespace TC_WinForms.WinForms
                 _isViewMode = (bool)isViewMode;
             }
 
-            toolStripButtonSaveChanges.Visible = !_isViewMode;
+            SaveChangesToolStripMenuItem.Visible = !_isViewMode;
 
             updateToolStripMenuItem.Text = _isViewMode ? "Редактировать" : "Просмотр";
 

@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TcDbConnector;
 using TcModels.Models;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 using ComboBox = System.Windows.Forms.ComboBox;
 using TextBox = System.Windows.Forms.TextBox;
 
@@ -10,6 +11,7 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win7_1_TCs_Window : Form
     {
+        private readonly User.Role _accessLevel;
         public MyDbContext context;
         private DbConnector dbCon = new DbConnector();
 
@@ -17,8 +19,10 @@ namespace TC_WinForms.WinForms
 
         private TechnologicalCard LocalCard = null;
 
-        public Win7_1_TCs_Window(int? tcId = null, bool win6Format = false)
+        public Win7_1_TCs_Window(int? tcId = null, bool win6Format = false, User.Role role = User.Role.Lead)
         {
+            _accessLevel = role;
+
             InitializeComponent();
 
             context = new MyDbContext();
@@ -155,7 +159,7 @@ namespace TC_WinForms.WinForms
                     if (!Save()) return;
 
                 var nn = LocalCard.Id;
-                var editorForm = new Win6_new(nn);
+                var editorForm = new Win6_new(nn, role: _accessLevel);
                 this.Close();
                 editorForm.Show();
 

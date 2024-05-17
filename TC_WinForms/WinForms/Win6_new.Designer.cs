@@ -35,7 +35,7 @@
             SaveChangesToolStripMenuItem = new ToolStripMenuItem();
             printToolStripMenuItem = new ToolStripMenuItem();
             updateToolStripMenuItem = new ToolStripMenuItem();
-            действияToolStripMenuItem = new ToolStripMenuItem();
+            actionToolStripMenuItem = new ToolStripMenuItem();
             setDraftStatusToolStripMenuItem = new ToolStripMenuItem();
             setApprovedStatusToolStripMenuItem = new ToolStripMenuItem();
             setRemarksModeToolStripMenuItem = new ToolStripMenuItem();
@@ -75,7 +75,7 @@
             // toolStripFile
             // 
             toolStripFile.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            toolStripFile.DropDownItems.AddRange(new ToolStripItem[] { SaveChangesToolStripMenuItem, printToolStripMenuItem, updateToolStripMenuItem, действияToolStripMenuItem, setRemarksModeToolStripMenuItem });
+            toolStripFile.DropDownItems.AddRange(new ToolStripItem[] { SaveChangesToolStripMenuItem, printToolStripMenuItem, updateToolStripMenuItem, actionToolStripMenuItem, setRemarksModeToolStripMenuItem });
             toolStripFile.Image = (Image)resources.GetObject("toolStripFile.Image");
             toolStripFile.ImageTransparentColor = Color.Magenta;
             toolStripFile.Name = "toolStripFile";
@@ -103,12 +103,12 @@
             updateToolStripMenuItem.Text = "Редактировать";
             updateToolStripMenuItem.Click += updateToolStripMenuItem_Click;
             // 
-            // действияToolStripMenuItem
+            // actionToolStripMenuItem
             // 
-            действияToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { setDraftStatusToolStripMenuItem, setApprovedStatusToolStripMenuItem });
-            действияToolStripMenuItem.Name = "действияToolStripMenuItem";
-            действияToolStripMenuItem.Size = new Size(256, 26);
-            действияToolStripMenuItem.Text = "Действия";
+            actionToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { setDraftStatusToolStripMenuItem, setApprovedStatusToolStripMenuItem });
+            actionToolStripMenuItem.Name = "actionToolStripMenuItem";
+            actionToolStripMenuItem.Size = new Size(256, 26);
+            actionToolStripMenuItem.Text = "Действия";
             // 
             // setDraftStatusToolStripMenuItem
             // 
@@ -256,7 +256,7 @@
         private ToolStripMenuItem printToolStripMenuItem;
         private ToolStripMenuItem updateToolStripMenuItem;
         private ToolStripMenuItem SaveChangesToolStripMenuItem;
-        private ToolStripMenuItem действияToolStripMenuItem;
+        private ToolStripMenuItem actionToolStripMenuItem;
         private ToolStripMenuItem выпуститьПроектToolStripMenuItem;
         private ToolStripMenuItem setApprovedStatusToolStripMenuItem;
         private ToolStripMenuItem setRemarksModeToolStripMenuItem;

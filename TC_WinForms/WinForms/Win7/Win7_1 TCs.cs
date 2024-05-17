@@ -7,8 +7,6 @@ using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
-using TcModels.Models.TcContent;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
 
@@ -193,7 +191,7 @@ namespace TC_WinForms.WinForms
             //    dgvMain);
             //AddNewTechnologicalCard();
 
-            Win7_1_TCs_Window win71TCsWindow = new Win7_1_TCs_Window();
+            Win7_1_TCs_Window win71TCsWindow = new Win7_1_TCs_Window(role: _accessLevel);
             win71TCsWindow.Show();
         }
 
@@ -414,7 +412,7 @@ namespace TC_WinForms.WinForms
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
                 if (id != 0)
                 {
-                    Win7_1_TCs_Window win71TCsWindow = new Win7_1_TCs_Window(id);
+                    Win7_1_TCs_Window win71TCsWindow = new Win7_1_TCs_Window(id, role: _accessLevel);
                     win71TCsWindow.Show();
                     //OpenTechnologicalCardEditor(id);
                 }
