@@ -553,13 +553,16 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
                         (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                         (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
                     ) &&
+
                     ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter))
                         || obj.Categoty?.ToString() == categoryFilter) &&
+
                     (obj.IsReleased == !cbxShowUnReleased.Checked) &&
 
                     (!_isAddingForm ||
+                        (!cbxShowUnReleased.Checked ||
                         (cbxShowUnReleased.Checked &&
-                        (obj.CreatedTCId == null || obj.CreatedTCId == _tcId))
+                        (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
                     )
                     ).ToList();
 

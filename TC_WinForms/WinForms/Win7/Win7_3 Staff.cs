@@ -21,7 +21,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
     private List<DisplayedStaff> _displayedObjects;
     private static BindingList<DisplayedStaff> _bindingList;
 
-    private bool isAddingForm = false;
+    private bool _isAddingForm = false;
     private Button btnAddSelected;
     private Button btnCancel;
     private Form _openedForm;
@@ -34,7 +34,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
 
     public void SetAsAddingForm()
     {
-        isAddingForm = true;
+        _isAddingForm = true;
     }
 
     //public bool CloseFormsNoSave { get; set; } = false;
@@ -66,7 +66,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         _accessLevel = AuthorizationService.CurrentUser.UserRole();
 
         _openedForm = openedForm;
-        isAddingForm = true;
+        _isAddingForm = true;
         _newItemCreateActive = activateNewItemCreate;
         _tcId = createdTCId;
         InitializeComponent();
@@ -88,7 +88,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
 
         //dgvMain.AllowUserToDeleteRows = false; // TODO: change it when add deleting by "del" Key press
 
-        if (isAddingForm)
+        if (_isAddingForm)
         {
 
             //isAddingFormSetControls();
@@ -485,11 +485,12 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
                         (obj.Comment?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)) &&
                         (obj.IsReleased == !cbxShowUnReleased.Checked) &&
 
-                        (!isAddingForm || 
-                            (cbxShowUnReleased.Checked && 
-                            (obj.CreatedTCId == null || obj.CreatedTCId == _tcId))
+                        (!_isAddingForm ||
+                            (!cbxShowUnReleased.Checked ||
+                            (cbxShowUnReleased.Checked &&
+                            (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
                         )
-                    ).ToList();
+                        ).ToList();
 
                 _bindingList = new BindingList<DisplayedStaff>(filteredList);
                 // dgvMain.DataSource = new BindingList<DisplayedStaff>(filteredList);

@@ -47,12 +47,18 @@
             cbxIsReleased = new CheckBox();
             txtClassifierCode = new TextBox();
             lblClassifierCode = new Label();
+            flowLayoutPanel1 = new FlowLayoutPanel();
+            panel1 = new Panel();
+            panel2 = new Panel();
             ((System.ComponentModel.ISupportInitialize)dgvRelatedStaffs).BeginInit();
+            flowLayoutPanel1.SuspendLayout();
+            panel1.SuspendLayout();
+            panel2.SuspendLayout();
             SuspendLayout();
             // 
             // txtType
             // 
-            txtType.Location = new Point(170, 65);
+            txtType.Location = new Point(164, 73);
             txtType.Margin = new Padding(2);
             txtType.Name = "txtType";
             txtType.Size = new Size(440, 27);
@@ -62,7 +68,7 @@
             // 
             lblType.AutoSize = true;
             lblType.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            lblType.Location = new Point(20, 65);
+            lblType.Location = new Point(14, 73);
             lblType.Margin = new Padding(2, 0, 2, 0);
             lblType.Name = "lblType";
             lblType.Size = new Size(141, 20);
@@ -71,7 +77,7 @@
             // 
             // txtName
             // 
-            txtName.Location = new Point(170, 20);
+            txtName.Location = new Point(164, 28);
             txtName.Margin = new Padding(2);
             txtName.Name = "txtName";
             txtName.Size = new Size(301, 27);
@@ -81,7 +87,7 @@
             // 
             lblName.AutoSize = true;
             lblName.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            lblName.Location = new Point(20, 20);
+            lblName.Location = new Point(14, 28);
             lblName.Margin = new Padding(2, 0, 2, 0);
             lblName.Name = "lblName";
             lblName.Size = new Size(122, 20);
@@ -90,7 +96,7 @@
             // 
             // rtxtFunctions
             // 
-            rtxtFunctions.Location = new Point(170, 110);
+            rtxtFunctions.Location = new Point(164, 118);
             rtxtFunctions.Margin = new Padding(2);
             rtxtFunctions.Name = "rtxtFunctions";
             rtxtFunctions.Size = new Size(440, 65);
@@ -101,7 +107,7 @@
             // 
             lblFunctions.AutoSize = true;
             lblFunctions.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            lblFunctions.Location = new Point(20, 110);
+            lblFunctions.Location = new Point(14, 118);
             lblFunctions.Margin = new Padding(2, 0, 2, 0);
             lblFunctions.Name = "lblFunctions";
             lblFunctions.Size = new Size(79, 20);
@@ -110,7 +116,7 @@
             // 
             // rtxtComment
             // 
-            rtxtComment.Location = new Point(170, 445);
+            rtxtComment.Location = new Point(164, 453);
             rtxtComment.Margin = new Padding(2);
             rtxtComment.Name = "rtxtComment";
             rtxtComment.Size = new Size(440, 145);
@@ -119,7 +125,7 @@
             // 
             // rtxtQualification
             // 
-            rtxtQualification.Location = new Point(170, 190);
+            rtxtQualification.Location = new Point(164, 198);
             rtxtQualification.Margin = new Padding(2);
             rtxtQualification.Name = "rtxtQualification";
             rtxtQualification.Size = new Size(440, 90);
@@ -129,7 +135,7 @@
             // lblCombineResponsibility
             // 
             lblCombineResponsibility.AutoSize = true;
-            lblCombineResponsibility.Location = new Point(20, 335);
+            lblCombineResponsibility.Location = new Point(14, 343);
             lblCombineResponsibility.Margin = new Padding(2, 0, 2, 0);
             lblCombineResponsibility.Name = "lblCombineResponsibility";
             lblCombineResponsibility.Size = new Size(110, 60);
@@ -139,7 +145,7 @@
             // lblComment
             // 
             lblComment.AutoSize = true;
-            lblComment.Location = new Point(20, 445);
+            lblComment.Location = new Point(14, 453);
             lblComment.Margin = new Padding(2, 0, 2, 0);
             lblComment.Name = "lblComment";
             lblComment.Size = new Size(110, 20);
@@ -150,7 +156,7 @@
             // 
             lblQualification.AutoSize = true;
             lblQualification.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            lblQualification.Location = new Point(20, 190);
+            lblQualification.Location = new Point(14, 198);
             lblQualification.Margin = new Padding(2, 0, 2, 0);
             lblQualification.Name = "lblQualification";
             lblQualification.Size = new Size(123, 20);
@@ -159,7 +165,7 @@
             // 
             // btnClose
             // 
-            btnClose.Location = new Point(465, 607);
+            btnClose.Location = new Point(468, 0);
             btnClose.Margin = new Padding(2);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(136, 56);
@@ -170,7 +176,7 @@
             // 
             // btnSave
             // 
-            btnSave.Location = new Point(25, 607);
+            btnSave.Location = new Point(19, 0);
             btnSave.Margin = new Padding(2);
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(136, 56);
@@ -184,7 +190,7 @@
             dgvRelatedStaffs.AllowUserToAddRows = false;
             dgvRelatedStaffs.AllowUserToDeleteRows = false;
             dgvRelatedStaffs.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvRelatedStaffs.Location = new Point(170, 335);
+            dgvRelatedStaffs.Location = new Point(164, 343);
             dgvRelatedStaffs.Margin = new Padding(2);
             dgvRelatedStaffs.Name = "dgvRelatedStaffs";
             dgvRelatedStaffs.ReadOnly = true;
@@ -196,7 +202,7 @@
             // 
             // btnAddRelatedStaff
             // 
-            btnAddRelatedStaff.Location = new Point(508, 335);
+            btnAddRelatedStaff.Location = new Point(502, 343);
             btnAddRelatedStaff.Margin = new Padding(2);
             btnAddRelatedStaff.Name = "btnAddRelatedStaff";
             btnAddRelatedStaff.Size = new Size(102, 27);
@@ -207,7 +213,7 @@
             // 
             // btnDeleteRelatedStaff
             // 
-            btnDeleteRelatedStaff.Location = new Point(508, 401);
+            btnDeleteRelatedStaff.Location = new Point(502, 409);
             btnDeleteRelatedStaff.Margin = new Padding(2);
             btnDeleteRelatedStaff.Name = "btnDeleteRelatedStaff";
             btnDeleteRelatedStaff.Size = new Size(102, 27);
@@ -219,7 +225,7 @@
             // cbxIsReleased
             // 
             cbxIsReleased.AutoSize = true;
-            cbxIsReleased.Location = new Point(485, 20);
+            cbxIsReleased.Location = new Point(479, 28);
             cbxIsReleased.Margin = new Padding(2);
             cbxIsReleased.Name = "cbxIsReleased";
             cbxIsReleased.Size = new Size(125, 24);
@@ -230,7 +236,7 @@
             // 
             // txtClassifierCode
             // 
-            txtClassifierCode.Location = new Point(170, 290);
+            txtClassifierCode.Location = new Point(164, 298);
             txtClassifierCode.Margin = new Padding(2);
             txtClassifierCode.Name = "txtClassifierCode";
             txtClassifierCode.Size = new Size(440, 27);
@@ -240,47 +246,75 @@
             // 
             lblClassifierCode.AutoSize = true;
             lblClassifierCode.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            lblClassifierCode.Location = new Point(20, 290);
+            lblClassifierCode.Location = new Point(14, 298);
             lblClassifierCode.Margin = new Padding(2, 0, 2, 0);
             lblClassifierCode.Name = "lblClassifierCode";
             lblClassifierCode.Size = new Size(111, 20);
             lblClassifierCode.TabIndex = 23;
             lblClassifierCode.Text = "Код в classifier:";
             // 
+            // flowLayoutPanel1
+            // 
+            flowLayoutPanel1.Controls.Add(panel1);
+            flowLayoutPanel1.Controls.Add(panel2);
+            flowLayoutPanel1.Dock = DockStyle.Fill;
+            flowLayoutPanel1.Location = new Point(0, 0);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            flowLayoutPanel1.Size = new Size(627, 683);
+            flowLayoutPanel1.TabIndex = 25;
+            // 
+            // panel1
+            // 
+            panel1.Controls.Add(txtName);
+            panel1.Controls.Add(txtClassifierCode);
+            panel1.Controls.Add(lblName);
+            panel1.Controls.Add(lblClassifierCode);
+            panel1.Controls.Add(lblType);
+            panel1.Controls.Add(cbxIsReleased);
+            panel1.Controls.Add(txtType);
+            panel1.Controls.Add(btnDeleteRelatedStaff);
+            panel1.Controls.Add(rtxtFunctions);
+            panel1.Controls.Add(btnAddRelatedStaff);
+            panel1.Controls.Add(lblFunctions);
+            panel1.Controls.Add(dgvRelatedStaffs);
+            panel1.Controls.Add(rtxtComment);
+            panel1.Controls.Add(lblQualification);
+            panel1.Controls.Add(rtxtQualification);
+            panel1.Controls.Add(lblComment);
+            panel1.Controls.Add(lblCombineResponsibility);
+            panel1.Location = new Point(3, 3);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(623, 610);
+            panel1.TabIndex = 19;
+            // 
+            // panel2
+            // 
+            panel2.Controls.Add(btnSave);
+            panel2.Controls.Add(btnClose);
+            panel2.Location = new Point(3, 619);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(623, 62);
+            panel2.TabIndex = 20;
+            // 
             // Win7_StaffEditor
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(626, 682);
-            Controls.Add(txtClassifierCode);
-            Controls.Add(lblClassifierCode);
-            Controls.Add(cbxIsReleased);
-            Controls.Add(btnDeleteRelatedStaff);
-            Controls.Add(btnAddRelatedStaff);
-            Controls.Add(dgvRelatedStaffs);
-            Controls.Add(btnClose);
-            Controls.Add(btnSave);
-            Controls.Add(lblQualification);
-            Controls.Add(lblComment);
-            Controls.Add(lblCombineResponsibility);
-            Controls.Add(rtxtQualification);
-            Controls.Add(rtxtComment);
-            Controls.Add(lblFunctions);
-            Controls.Add(rtxtFunctions);
-            Controls.Add(txtType);
-            Controls.Add(lblType);
-            Controls.Add(txtName);
-            Controls.Add(lblName);
+            ClientSize = new Size(627, 683);
+            Controls.Add(flowLayoutPanel1);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Margin = new Padding(2);
-            MaximumSize = new Size(644, 729);
-            MinimumSize = new Size(644, 729);
+            MaximumSize = new Size(645, 730);
+            MinimumSize = new Size(645, 730);
             Name = "Win7_StaffEditor";
             Text = "Win_7_StaffEditor";
             Load += Win7_StaffEditor_Load;
             ((System.ComponentModel.ISupportInitialize)dgvRelatedStaffs).EndInit();
+            flowLayoutPanel1.ResumeLayout(false);
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
+            panel2.ResumeLayout(false);
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -304,5 +338,8 @@
         private CheckBox cbxIsReleased;
         private TextBox txtClassifierCode;
         private Label lblClassifierCode;
+        private FlowLayoutPanel flowLayoutPanel1;
+        private Panel panel1;
+        private Panel panel2;
     }
 }

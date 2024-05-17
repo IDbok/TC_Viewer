@@ -530,8 +530,9 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
                     (obj.IsReleased == !cbxShowUnReleased.Checked) &&
 
                     (!_isAddingForm ||
+                        (!cbxShowUnReleased.Checked ||
                         (cbxShowUnReleased.Checked &&
-                        (obj.CreatedTCId == null || obj.CreatedTCId == _tcId))
+                        (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
                     )
                     ).ToList();
 
