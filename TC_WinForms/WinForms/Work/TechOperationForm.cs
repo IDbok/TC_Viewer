@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.DirectoryServices.ActiveDirectory;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using TC_WinForms.Interfaces;
@@ -176,6 +177,10 @@ namespace TC_WinForms.WinForms.Work
             dgvMain.Columns.Add("", "№ СЗ");
             dgvMain.Columns.Add("", "Комментарии");
 
+            dgvMain.Columns.Add("", "Вопрос");
+            dgvMain.Columns.Add("", "Ответ");
+
+
             dgvMain.Columns[0].HeaderText = "№";
             dgvMain.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             dgvMain.Columns[0].Width = 30;
@@ -212,7 +217,8 @@ namespace TC_WinForms.WinForms.Work
                 column.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             }
 
-
+            dgvMain.Columns[dgvMain.Columns.Count - 1].ReadOnly = false;
+            dgvMain.Columns[dgvMain.Columns.Count - 2].ReadOnly = false;
 
 
             var TechOperationWorksListLocal = TechOperationWorksList.Where(w => w.Delete == false).OrderBy(o => o.Order).ToList();
@@ -300,7 +306,9 @@ namespace TC_WinForms.WinForms.Work
                         Work = true,
                         techWork = executionWork,
                         listMach = mach,
-                        Comments = executionWork.Comments
+                        Comments = executionWork.Comments,
+                        Vopros = executionWork.Vopros,
+                        Otvet = executionWork.Otvet
                     };
 
                     if (itm.TechTransitionValue == "-1")
@@ -520,6 +528,9 @@ namespace TC_WinForms.WinForms.Work
                         str.Add("");
                     }
 
+                    str.Add(techOperationDataGridItem.Vopros);
+                    str.Add(techOperationDataGridItem.Otvet);
+
 
                     dgvMain.Rows.Add(str.ToArray());
 
@@ -587,6 +598,9 @@ namespace TC_WinForms.WinForms.Work
                 {
                     str.Add(techOperationDataGridItem.Comments);
                 }
+
+                str.Add(techOperationDataGridItem.Vopros);
+                str.Add(techOperationDataGridItem.Otvet);
 
                 dgvMain.Rows.Add(str.ToArray());
 

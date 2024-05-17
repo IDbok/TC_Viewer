@@ -43,7 +43,6 @@
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 60);
             dgvMain.Name = "dgvMain";
-            dgvMain.ReadOnly = true;
             dgvMain.RowHeadersWidth = 51;
             dgvMain.Size = new Size(1077, 570);
             dgvMain.TabIndex = 1;

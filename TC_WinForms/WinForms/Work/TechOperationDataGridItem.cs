@@ -39,6 +39,8 @@ namespace TC_WinForms.WinForms.Work
 
         public string Comments = "";
 
+        public string Vopros = "";
+        public string Otvet = "";
 
     }
 }

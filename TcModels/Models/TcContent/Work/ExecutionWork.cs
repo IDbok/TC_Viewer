@@ -42,7 +42,11 @@ namespace TcModels.Models.TcContent
        public string Posled { get; set; } = "";
        [NotMapped] public double TempTimeExecution { get; set; }
 
-       public override string ToString()
+
+        public string Vopros { get; set; } = "";
+        public string Otvet { get; set; } = "";
+
+        public override string ToString()
        {
            if (techTransition != null)
            {

@@ -20,7 +20,7 @@ namespace TcModels.Models.TcContent
 
         public bool IsReleased { get; set; } = false;
         public int? CreatedTCId { get; set; } = null;
-
+                
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is TechTransition sourceObject)
