@@ -688,13 +688,13 @@ namespace TC_WinForms.WinForms.Work
                 return;
 
 
-            if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 1)
+            if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 2)
             {
                 e.Value = string.Empty;
                 e.FormattingApplied = true;
             }
 
-            if (e.ColumnIndex >= 5)
+            if (e.ColumnIndex >= 6)
             {
                 var bb = (string)e.Value;
                 if (bb == "-1")
@@ -716,7 +716,7 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
-            if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 1)
+            if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 2)
             {
                 e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None;
             }
@@ -725,7 +725,7 @@ namespace TC_WinForms.WinForms.Work
                 e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
             }
 
-            if (e.ColumnIndex >= 5)
+            if (e.ColumnIndex >= 6)
             {
                 var bb = (string)e.Value;
                 if (bb == "-1")
