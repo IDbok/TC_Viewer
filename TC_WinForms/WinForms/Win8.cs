@@ -51,11 +51,11 @@ namespace TC_WinForms.WinForms
         {
 
             /////////////////////////////////
-            txtLogin.Text = "implementer"; //"lead";// "manager"; // "user"; // "implementer"; //
-            txtPassword.Text = "pass";
+            //txtLogin.Text = "implementer"; //"lead";// "manager"; // "user"; // "implementer"; //
+            //txtPassword.Text = "pass";
 
-            await Task.Delay(1000);
-            btnAuthorization_Click(null, null);
+            //await Task.Delay(1000);
+            //btnAuthorization_Click(null, null);
             /////////////////////////////////
         }
     }

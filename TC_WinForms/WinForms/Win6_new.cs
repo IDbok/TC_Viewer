@@ -1,4 +1,5 @@
-﻿using TC_WinForms.DataProcessing;
+﻿using System.Globalization;
+using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Work;
 using TcModels.Models;
@@ -11,6 +12,7 @@ namespace TC_WinForms.WinForms
     public partial class Win6_new : Form, IViewModeable
     {
         private bool _isViewMode = true;
+        private bool _isCommentViewMode = false;
 
         private User.Role _accessLevel;
 
@@ -382,8 +384,31 @@ namespace TC_WinForms.WinForms
             if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
             {
                 await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
+
+
             }
 
+            if(_isCommentViewMode)
+            {
+                setRemarksModeToolStripMenuItem.Text = "Показать комментарии";
+                
+               //SetViewMode();
+            }
+            else
+            {
+                setRemarksModeToolStripMenuItem.Text = "Скрыть комментарии";
+                
+                //SetViewMode();
+            }
+            _isCommentViewMode = !_isCommentViewMode;
+            SetCommentViewMode();
+        }
+
+        private void SetCommentViewMode()
+        {
+            var ToForm = _formsCache[EModelType.WorkStep] as TechOperationForm;
+
+            ToForm.SetCommentViewMode(_isCommentViewMode);
         }
 
         enum WinNumber

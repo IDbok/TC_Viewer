@@ -46,7 +46,7 @@ namespace TC_WinForms
                 catch (Exception e)
                 {
                     Config config = new Config();
-                    config.ConnectionString = "server=localhost;database=tavrida_db_v14;user=root;password=root";
+                    config.ConnectionString = "server=localhost;database=tavrida_db_v141;user=root;password=root";
 
                     JavaScriptSerializer javaScriptSerializer1 = new JavaScriptSerializer();
                     string? bbn = javaScriptSerializer1.Serialize(config);
@@ -86,7 +86,7 @@ namespace TC_WinForms
 
             };
 
-            //MainForm = //new Win7_new(3);//new MainBlockSchemeForm();//new Win7_LinkObjectEditor(new Machine(), true);// new Win6_new(1);//new Win1();//new Win6(new Button { Name = "btnUpdateTC" /*"btnAddNewTC"*/ });// new Win3();//
+            // MainForm = new MainBlockSchemeForm();//new Win7_new(3);//new Win7_LinkObjectEditor(new Machine(), true);// new Win6_new(1);//new Win1();//new Win6(new Button { Name = "btnUpdateTC" /*"btnAddNewTC"*/ });// new Win3();//
 
             var authForm = new Win8();
             authForm.ShowDialog();

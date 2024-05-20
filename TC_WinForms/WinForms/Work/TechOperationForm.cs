@@ -109,7 +109,14 @@ namespace TC_WinForms.WinForms.Work
             DateTime t4 = DateTime.Now;
 
             // UpdataBD();
+            SetCommentViewMode(false);
 
+        }
+
+        public void SetCommentViewMode(bool isCommentViewMode)
+        {
+            dgvMain.Columns[dgvMain.ColumnCount - 1].Visible = isCommentViewMode;
+            dgvMain.Columns[dgvMain.ColumnCount - 2].Visible = isCommentViewMode;
         }
 
         private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
@@ -210,7 +217,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
             dgvMain.Columns.Add("", "№ СЗ");
-            dgvMain.Columns.Add("", "Комментарии");
+            dgvMain.Columns.Add("", "Примечания");
 
             dgvMain.Columns.Add("", "Замечание");
             dgvMain.Columns.Add("", "Ответ");
@@ -474,7 +481,6 @@ namespace TC_WinForms.WinForms.Work
                         }
                     }
 
-
                     var col = podchet2[0].listMach.Count;
                     if (podchet2.Count > 1)
                     {
@@ -506,7 +512,6 @@ namespace TC_WinForms.WinForms.Work
                     techOperationDataGridItem.TimeEtap = Paral.ToString();
                 }
             }
-
 
             foreach (TechOperationDataGridItem techOperationDataGridItem in list)
             {
