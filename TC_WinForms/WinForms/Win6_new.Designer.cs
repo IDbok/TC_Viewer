@@ -113,15 +113,15 @@
             // setDraftStatusToolStripMenuItem
             // 
             setDraftStatusToolStripMenuItem.Name = "setDraftStatusToolStripMenuItem";
-            setDraftStatusToolStripMenuItem.Size = new Size(243, 26);
-            setDraftStatusToolStripMenuItem.Text = "Выпустить проект";
+            setDraftStatusToolStripMenuItem.Size = new Size(224, 26);
+            setDraftStatusToolStripMenuItem.Text = "Выпустить ТК";
             setDraftStatusToolStripMenuItem.Click += setDraftStatusToolStripMenuItem_Click;
             // 
             // setApprovedStatusToolStripMenuItem
             // 
             setApprovedStatusToolStripMenuItem.Name = "setApprovedStatusToolStripMenuItem";
-            setApprovedStatusToolStripMenuItem.Size = new Size(243, 26);
-            setApprovedStatusToolStripMenuItem.Text = "Опубликовать проект";
+            setApprovedStatusToolStripMenuItem.Size = new Size(224, 26);
+            setApprovedStatusToolStripMenuItem.Text = "Опубликовать ТК";
             setApprovedStatusToolStripMenuItem.Click += setApprovedStatusToolStripMenuItem_Click;
             // 
             // setRemarksModeToolStripMenuItem

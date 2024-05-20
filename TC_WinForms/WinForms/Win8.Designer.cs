@@ -54,7 +54,7 @@
             gbxAuthorizationForm.ImeMode = ImeMode.NoControl;
             gbxAuthorizationForm.Location = new Point(0, 0);
             gbxAuthorizationForm.Name = "gbxAuthorizationForm";
-            gbxAuthorizationForm.Size = new Size(415, 312);
+            gbxAuthorizationForm.Size = new Size(420, 230);
             gbxAuthorizationForm.TabIndex = 2;
             gbxAuthorizationForm.TabStop = false;
             gbxAuthorizationForm.Text = "Форма авторизации";
@@ -68,6 +68,7 @@
             lblServerAdress.Size = new Size(144, 25);
             lblServerAdress.TabIndex = 7;
             lblServerAdress.Text = "Адрес сервера:";
+            lblServerAdress.Visible = false;
             // 
             // textBox1
             // 
@@ -77,6 +78,7 @@
             textBox1.PasswordChar = '*';
             textBox1.Size = new Size(200, 26);
             textBox1.TabIndex = 6;
+            textBox1.Visible = false;
             // 
             // btnQuit
             // 
@@ -86,7 +88,7 @@
             btnQuit.Location = new Point(375, 0);
             btnQuit.Name = "btnQuit";
             btnQuit.Size = new Size(40, 34);
-            btnQuit.TabIndex = 5;
+            btnQuit.TabIndex = 0;
             btnQuit.Text = "X";
             btnQuit.UseVisualStyleBackColor = false;
             btnQuit.Click += btnQuit_Click;
@@ -108,14 +110,14 @@
             txtPassword.Name = "txtPassword";
             txtPassword.PasswordChar = '*';
             txtPassword.Size = new Size(200, 26);
-            txtPassword.TabIndex = 3;
+            txtPassword.TabIndex = 2;
             // 
             // lblAuthLogin
             // 
             lblAuthLogin.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblAuthLogin.AutoSize = true;
             lblAuthLogin.Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point);
-            lblAuthLogin.Location = new Point(26, 59);
+            lblAuthLogin.Location = new Point(31, 59);
             lblAuthLogin.Name = "lblAuthLogin";
             lblAuthLogin.Size = new Size(141, 25);
             lblAuthLogin.TabIndex = 2;
@@ -134,7 +136,7 @@
             btnAuthorization.Location = new Point(225, 157);
             btnAuthorization.Name = "btnAuthorization";
             btnAuthorization.Size = new Size(160, 45);
-            btnAuthorization.TabIndex = 0;
+            btnAuthorization.TabIndex = 3;
             btnAuthorization.Text = "Вход";
             btnAuthorization.UseVisualStyleBackColor = true;
             btnAuthorization.Click += btnAuthorization_Click;
@@ -145,7 +147,7 @@
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoValidate = AutoValidate.EnablePreventFocusChange;
-            ClientSize = new Size(415, 312);
+            ClientSize = new Size(420, 230);
             ControlBox = false;
             Controls.Add(gbxAuthorizationForm);
             FormBorderStyle = FormBorderStyle.None;

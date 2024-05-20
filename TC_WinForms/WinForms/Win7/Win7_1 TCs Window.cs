@@ -4,6 +4,7 @@ using TC_WinForms.DataProcessing;
 using TcDbConnector;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService;
+using static TcModels.Models.TechnologicalCard;
 using ComboBox = System.Windows.Forms.ComboBox;
 using TextBox = System.Windows.Forms.TextBox;
 
@@ -28,6 +29,7 @@ namespace TC_WinForms.WinForms
             context = new MyDbContext();
 
             ConfigureComboBox();
+            ConfigureStatusComboBox();
 
             AllEllement.Add(txtArticle);
             AllEllement.Add(cbxType);
@@ -52,6 +54,13 @@ namespace TC_WinForms.WinForms
                 btnExportExcel.Visible = false;
                 btnSave.Visible = false;
             }
+
+            
+            if (_accessLevel == User.Role.Lead)
+            {
+                cbxStatus.Visible = true;
+                lblStatus.Visible = true;
+            }
         }
 
 
@@ -68,6 +77,8 @@ namespace TC_WinForms.WinForms
             txtApplicability.Text = LocalCard.Applicability;
             txtNote.Text = LocalCard.Note;
             chbxIsCompleted.Checked = LocalCard.IsCompleted;
+
+            cbxStatus.SelectedItem = LocalCard.Status.GetDescription();
         }
 
         private void ConfigureComboBox() // todo: обновить список в соответствии с разрешенными значениями (нужно их ещё ввести)
@@ -75,7 +86,21 @@ namespace TC_WinForms.WinForms
             cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
             cbxNetworkVoltage.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f, 0f });
         }
+        private void ConfigureStatusComboBox()
+        {
+            FillComboBoxWithEnumDescriptions(cbxStatus, typeof(TechnologicalCardStatus));
+        }
+        private void FillComboBoxWithEnumDescriptions(ComboBox comboBox, Type enumType)
+        {
+            var enumValues = Enum.GetValues(enumType).Cast<Enum>().ToList();
+            var descriptions = enumValues.Select(e => e.GetDescription()).ToList();
 
+            comboBox.DataSource = descriptions;
+
+            // Сохраняем значения енама для последующего использования
+            comboBox.Tag = enumValues;
+        }
+            
         bool NoEmptiness()
         {
             bool ValueRet = true;
@@ -125,6 +150,18 @@ namespace TC_WinForms.WinForms
             LocalCard.Applicability = txtApplicability.Text;
             LocalCard.Note = txtNote.Text;
             LocalCard.IsCompleted = chbxIsCompleted.Checked;
+
+            if (_accessLevel == User.Role.Lead)
+            {
+                var selectedDescription = cbxStatus.SelectedItem.ToString();
+                var enumValues = cbxStatus.Tag as List<Enum>;
+
+                if (enumValues != null)
+                {
+                    var selectedEnumValue = enumValues.FirstOrDefault(e => e.GetDescription() == selectedDescription);
+                    LocalCard.Status = (TechnologicalCardStatus)selectedEnumValue;
+                }
+            }
 
             try
             {

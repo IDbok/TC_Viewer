@@ -53,6 +53,8 @@
             btnExportExcel = new Button();
             txtName = new TextBox();
             lblName = new Label();
+            cbxStatus = new ComboBox();
+            lblStatus = new Label();
             SuspendLayout();
             // 
             // label1
@@ -198,7 +200,7 @@
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(30, 458);
+            label10.Location = new Point(617, 462);
             label10.Name = "label10";
             label10.Size = new Size(70, 20);
             label10.TabIndex = 18;
@@ -208,7 +210,7 @@
             // chbxIsCompleted
             // 
             chbxIsCompleted.AutoSize = true;
-            chbxIsCompleted.Location = new Point(221, 457);
+            chbxIsCompleted.Location = new Point(703, 462);
             chbxIsCompleted.Name = "chbxIsCompleted";
             chbxIsCompleted.Size = new Size(18, 17);
             chbxIsCompleted.TabIndex = 19;
@@ -280,11 +282,33 @@
             lblName.TabIndex = 25;
             lblName.Text = "Наименование";
             // 
+            // cbxStatus
+            // 
+            cbxStatus.FormattingEnabled = true;
+            cbxStatus.Location = new Point(221, 454);
+            cbxStatus.Name = "cbxStatus";
+            cbxStatus.Size = new Size(256, 28);
+            cbxStatus.TabIndex = 26;
+            cbxStatus.Visible = false;
+            // 
+            // lblStatus
+            // 
+            lblStatus.AutoSize = true;
+            lblStatus.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            lblStatus.Location = new Point(30, 457);
+            lblStatus.Name = "lblStatus";
+            lblStatus.Size = new Size(52, 20);
+            lblStatus.TabIndex = 27;
+            lblStatus.Text = "Статус";
+            lblStatus.Visible = false;
+            // 
             // Win7_1_TCs_Window
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(762, 626);
+            Controls.Add(cbxStatus);
+            Controls.Add(lblStatus);
             Controls.Add(txtName);
             Controls.Add(lblName);
             Controls.Add(btnExportExcel);
@@ -347,5 +371,7 @@
         private Button btnSave;
         private TextBox txtName;
         private Label lblName;
+        private ComboBox cbxStatus;
+        private Label lblStatus;
     }
 }

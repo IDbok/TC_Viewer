@@ -59,82 +59,92 @@
             // lblName
             // 
             lblName.AutoSize = true;
-            lblName.Location = new Point(30, 30);
+            lblName.Location = new Point(24, 24);
+            lblName.Margin = new Padding(2, 0, 2, 0);
             lblName.Name = "lblName";
-            lblName.Size = new Size(139, 25);
+            lblName.Size = new Size(119, 20);
             lblName.TabIndex = 0;
             lblName.Text = "Наименование:";
             // 
             // txtName
             // 
-            txtName.Location = new Point(223, 27);
+            txtName.Location = new Point(178, 22);
+            txtName.Margin = new Padding(2);
             txtName.Name = "txtName";
-            txtName.Size = new Size(375, 31);
+            txtName.Size = new Size(301, 27);
             txtName.TabIndex = 1;
             // 
             // txtType
             // 
-            txtType.Location = new Point(223, 90);
+            txtType.Location = new Point(178, 72);
+            txtType.Margin = new Padding(2);
             txtType.Name = "txtType";
-            txtType.Size = new Size(535, 31);
+            txtType.Size = new Size(429, 27);
             txtType.TabIndex = 3;
             // 
             // lblType
             // 
             lblType.AutoSize = true;
-            lblType.Location = new Point(30, 90);
+            lblType.Location = new Point(24, 72);
+            lblType.Margin = new Padding(2, 0, 2, 0);
             lblType.Name = "lblType";
-            lblType.Size = new Size(156, 25);
+            lblType.Size = new Size(137, 20);
             lblType.TabIndex = 2;
             lblType.Text = "Тип (исполнение):";
             // 
             // lblUnit
             // 
             lblUnit.AutoSize = true;
-            lblUnit.Location = new Point(30, 150);
+            lblUnit.Location = new Point(24, 120);
+            lblUnit.Margin = new Padding(2, 0, 2, 0);
             lblUnit.Name = "lblUnit";
-            lblUnit.Size = new Size(75, 25);
+            lblUnit.Size = new Size(62, 20);
             lblUnit.TabIndex = 4;
             lblUnit.Text = "Ед. изм.";
             // 
             // txtClassifierCode
             // 
-            txtClassifierCode.Location = new Point(223, 270);
+            txtClassifierCode.Location = new Point(178, 216);
+            txtClassifierCode.Margin = new Padding(2);
             txtClassifierCode.Name = "txtClassifierCode";
-            txtClassifierCode.Size = new Size(535, 31);
+            txtClassifierCode.Size = new Size(429, 27);
             txtClassifierCode.TabIndex = 6;
             // 
             // lblClassifierCode
             // 
             lblClassifierCode.AutoSize = true;
-            lblClassifierCode.Location = new Point(30, 270);
+            lblClassifierCode.Location = new Point(24, 216);
+            lblClassifierCode.Margin = new Padding(2, 0, 2, 0);
             lblClassifierCode.Name = "lblClassifierCode";
-            lblClassifierCode.Size = new Size(133, 25);
+            lblClassifierCode.Size = new Size(111, 20);
             lblClassifierCode.TabIndex = 5;
             lblClassifierCode.Text = "Код в classifier:";
             // 
             // lblDescription
             // 
             lblDescription.AutoSize = true;
-            lblDescription.Location = new Point(30, 380);
+            lblDescription.Location = new Point(24, 304);
+            lblDescription.Margin = new Padding(2, 0, 2, 0);
             lblDescription.Name = "lblDescription";
-            lblDescription.Size = new Size(96, 25);
+            lblDescription.Size = new Size(82, 20);
             lblDescription.TabIndex = 7;
             lblDescription.Text = "Описание:";
             // 
             // cbxUnit
             // 
             cbxUnit.FormattingEnabled = true;
-            cbxUnit.Location = new Point(223, 150);
+            cbxUnit.Location = new Point(178, 120);
+            cbxUnit.Margin = new Padding(2);
             cbxUnit.Name = "cbxUnit";
-            cbxUnit.Size = new Size(219, 33);
+            cbxUnit.Size = new Size(176, 28);
             cbxUnit.TabIndex = 8;
             // 
             // rtxtDescription
             // 
-            rtxtDescription.Location = new Point(223, 380);
+            rtxtDescription.Location = new Point(178, 304);
+            rtxtDescription.Margin = new Padding(2);
             rtxtDescription.Name = "rtxtDescription";
-            rtxtDescription.Size = new Size(535, 90);
+            rtxtDescription.Size = new Size(429, 73);
             rtxtDescription.TabIndex = 9;
             rtxtDescription.Text = "";
             // 
@@ -144,27 +154,30 @@
             dgvLinks.AllowUserToDeleteRows = false;
             dgvLinks.AllowUserToOrderColumns = true;
             dgvLinks.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvLinks.Location = new Point(223, 620);
+            dgvLinks.Location = new Point(178, 496);
+            dgvLinks.Margin = new Padding(2);
             dgvLinks.Name = "dgvLinks";
             dgvLinks.RowHeadersWidth = 62;
             dgvLinks.RowTemplate.Height = 33;
-            dgvLinks.Size = new Size(535, 190);
+            dgvLinks.Size = new Size(428, 152);
             dgvLinks.TabIndex = 10;
             // 
             // lblLinks
             // 
             lblLinks.AutoSize = true;
-            lblLinks.Location = new Point(30, 620);
+            lblLinks.Location = new Point(24, 496);
+            lblLinks.Margin = new Padding(2, 0, 2, 0);
             lblLinks.Name = "lblLinks";
-            lblLinks.Size = new Size(141, 50);
+            lblLinks.Size = new Size(119, 40);
             lblLinks.TabIndex = 11;
             lblLinks.Text = "Ссылки на \r\nпроизводителя:";
             // 
             // btnSave
             // 
-            btnSave.Location = new Point(30, 828);
+            btnSave.Location = new Point(24, 662);
+            btnSave.Margin = new Padding(2);
             btnSave.Name = "btnSave";
-            btnSave.Size = new Size(172, 67);
+            btnSave.Size = new Size(138, 54);
             btnSave.TabIndex = 12;
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;
@@ -172,9 +185,10 @@
             // 
             // btnClose
             // 
-            btnClose.Location = new Point(586, 828);
+            btnClose.Location = new Point(469, 662);
+            btnClose.Margin = new Padding(2);
             btnClose.Name = "btnClose";
-            btnClose.Size = new Size(172, 67);
+            btnClose.Size = new Size(138, 54);
             btnClose.TabIndex = 13;
             btnClose.Text = "Закрыть";
             btnClose.UseVisualStyleBackColor = true;
@@ -182,34 +196,38 @@
             // 
             // txtPrice
             // 
-            txtPrice.Location = new Point(223, 320);
+            txtPrice.Location = new Point(178, 256);
+            txtPrice.Margin = new Padding(2);
             txtPrice.Name = "txtPrice";
-            txtPrice.Size = new Size(273, 31);
+            txtPrice.Size = new Size(219, 27);
             txtPrice.TabIndex = 15;
             // 
             // lblPrice
             // 
             lblPrice.AutoSize = true;
-            lblPrice.Location = new Point(30, 320);
+            lblPrice.Location = new Point(24, 256);
+            lblPrice.Margin = new Padding(2, 0, 2, 0);
             lblPrice.Name = "lblPrice";
-            lblPrice.Size = new Size(103, 25);
+            lblPrice.Size = new Size(86, 20);
             lblPrice.TabIndex = 14;
             lblPrice.Text = "Стоимость:";
             // 
             // lblPrice2
             // 
             lblPrice2.AutoSize = true;
-            lblPrice2.Location = new Point(502, 320);
+            lblPrice2.Location = new Point(402, 256);
+            lblPrice2.Margin = new Padding(2, 0, 2, 0);
             lblPrice2.Name = "lblPrice2";
-            lblPrice2.Size = new Size(114, 25);
+            lblPrice2.Size = new Size(95, 20);
             lblPrice2.TabIndex = 16;
             lblPrice2.Text = "руб.без НДС";
             // 
             // btnAddLink
             // 
-            btnAddLink.Location = new Point(30, 678);
+            btnAddLink.Location = new Point(24, 542);
+            btnAddLink.Margin = new Padding(2);
             btnAddLink.Name = "btnAddLink";
-            btnAddLink.Size = new Size(170, 40);
+            btnAddLink.Size = new Size(136, 32);
             btnAddLink.TabIndex = 17;
             btnAddLink.Text = "Добавить";
             btnAddLink.UseVisualStyleBackColor = true;
@@ -217,9 +235,10 @@
             // 
             // btnDeleteLink
             // 
-            btnDeleteLink.Location = new Point(30, 770);
+            btnDeleteLink.Location = new Point(24, 616);
+            btnDeleteLink.Margin = new Padding(2);
             btnDeleteLink.Name = "btnDeleteLink";
-            btnDeleteLink.Size = new Size(170, 40);
+            btnDeleteLink.Size = new Size(136, 32);
             btnDeleteLink.TabIndex = 18;
             btnDeleteLink.Text = "Удалить";
             btnDeleteLink.UseVisualStyleBackColor = true;
@@ -227,9 +246,10 @@
             // 
             // btnEditLink
             // 
-            btnEditLink.Location = new Point(30, 724);
+            btnEditLink.Location = new Point(24, 579);
+            btnEditLink.Margin = new Padding(2);
             btnEditLink.Name = "btnEditLink";
-            btnEditLink.Size = new Size(170, 40);
+            btnEditLink.Size = new Size(136, 32);
             btnEditLink.TabIndex = 19;
             btnEditLink.Text = "Изменить";
             btnEditLink.UseVisualStyleBackColor = true;
@@ -237,44 +257,49 @@
             // 
             // rtxtManufacturer
             // 
-            rtxtManufacturer.Location = new Point(223, 500);
+            rtxtManufacturer.Location = new Point(178, 400);
+            rtxtManufacturer.Margin = new Padding(2);
             rtxtManufacturer.Name = "rtxtManufacturer";
-            rtxtManufacturer.Size = new Size(535, 90);
+            rtxtManufacturer.Size = new Size(429, 73);
             rtxtManufacturer.TabIndex = 21;
             rtxtManufacturer.Text = "";
             // 
             // lblManufacturer
             // 
             lblManufacturer.AutoSize = true;
-            lblManufacturer.Location = new Point(30, 500);
+            lblManufacturer.Location = new Point(24, 400);
+            lblManufacturer.Margin = new Padding(2, 0, 2, 0);
             lblManufacturer.Name = "lblManufacturer";
-            lblManufacturer.Size = new Size(145, 50);
+            lblManufacturer.Size = new Size(122, 40);
             lblManufacturer.TabIndex = 20;
             lblManufacturer.Text = "Производители:\r\n(поставщики)";
             // 
             // cbxCategory
             // 
             cbxCategory.FormattingEnabled = true;
-            cbxCategory.Location = new Point(223, 210);
+            cbxCategory.Location = new Point(178, 168);
+            cbxCategory.Margin = new Padding(2);
             cbxCategory.Name = "cbxCategory";
-            cbxCategory.Size = new Size(316, 33);
+            cbxCategory.Size = new Size(254, 28);
             cbxCategory.TabIndex = 23;
             // 
             // lblCategory
             // 
             lblCategory.AutoSize = true;
-            lblCategory.Location = new Point(30, 210);
+            lblCategory.Location = new Point(24, 168);
+            lblCategory.Margin = new Padding(2, 0, 2, 0);
             lblCategory.Name = "lblCategory";
-            lblCategory.Size = new Size(99, 25);
+            lblCategory.Size = new Size(84, 20);
             lblCategory.TabIndex = 22;
             lblCategory.Text = "Категория:";
             // 
             // cbxIsReleased
             // 
             cbxIsReleased.AutoSize = true;
-            cbxIsReleased.Location = new Point(609, 29);
+            cbxIsReleased.Location = new Point(487, 23);
+            cbxIsReleased.Margin = new Padding(2);
             cbxIsReleased.Name = "cbxIsReleased";
-            cbxIsReleased.Size = new Size(149, 29);
+            cbxIsReleased.Size = new Size(125, 24);
             cbxIsReleased.TabIndex = 24;
             cbxIsReleased.Text = "Опубликован";
             cbxIsReleased.UseVisualStyleBackColor = true;
@@ -282,9 +307,9 @@
             // 
             // Win7_LinkObjectEditor
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(778, 904);
+            ClientSize = new Size(626, 730);
             Controls.Add(cbxIsReleased);
             Controls.Add(cbxCategory);
             Controls.Add(lblCategory);
@@ -310,9 +335,9 @@
             Controls.Add(lblType);
             Controls.Add(txtName);
             Controls.Add(lblName);
-            FormBorderStyle = FormBorderStyle.FixedToolWindow;
-            MaximumSize = new Size(800, 960);
-            MinimumSize = new Size(800, 960);
+            Margin = new Padding(2);
+            MaximumSize = new Size(650, 1000);
+            MinimumSize = new Size(644, 777);
             Name = "Win7_LinkObjectEditor";
             Text = "Win7_LinkObjectEditor";
             Load += Win7_LinkObjectEditor_Load;

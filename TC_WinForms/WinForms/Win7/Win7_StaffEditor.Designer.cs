@@ -302,9 +302,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(627, 683);
             Controls.Add(flowLayoutPanel1);
-            FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Margin = new Padding(2);
-            MaximumSize = new Size(645, 730);
+            MaximumSize = new Size(645, 1000);
             MinimumSize = new Size(645, 730);
             Name = "Win7_StaffEditor";
             Text = "Win_7_StaffEditor";
