@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="TC_WinForms.WinForms.Diagram.WpfParalelno"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TC_WinForms.WinForms.Diagram"
+             mc:Ignorable="d" >
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
+        <StackPanel Orientation="Horizontal" Name="ListWpfPosledovatelnost">
+            <local:WpfPosledovatelnost  />
+        </StackPanel>
+        <Button VerticalAlignment="Center" Click="Button_Click">
+            <TextBlock Text="Добавить параллельность" TextWrapping="Wrap" Width="90" TextAlignment="Center" />
+        </Button>
+    </StackPanel>
+</UserControl>

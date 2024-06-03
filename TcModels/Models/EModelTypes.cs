@@ -8,6 +8,7 @@
         Protection,
         Tool,
         WorkStep,
+        Diagram,
         // TechnologicalCard
     }
 }

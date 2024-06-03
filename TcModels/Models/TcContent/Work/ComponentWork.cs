@@ -15,5 +15,10 @@ namespace TcModels.Models.TcContent
         public int componentId { get; set; }
         public double Quantity { get; set; }
         public string? Comments { get; set; } = "";
+        public override string ToString()
+        {
+            return component?.Name;
+        }
+
     }
 }

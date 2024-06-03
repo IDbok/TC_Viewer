@@ -17,5 +17,11 @@ namespace TcModels.Models.TcContent
         public double Quantity { get; set; }
 
         public string Comments { get; set; } = "";
+
+        public override string ToString()
+        {
+            return tool?.Name;
+        }
+
     }
 }

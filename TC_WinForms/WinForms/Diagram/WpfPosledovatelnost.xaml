@@ -1,0 +1,14 @@
+﻿<UserControl x:Class="TC_WinForms.WinForms.Diagram.WpfPosledovatelnost"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TC_WinForms.WinForms.Diagram"
+             mc:Ignorable="d" >
+    <StackPanel>
+        <StackPanel x:Name="ListWpfShag">
+            <local:WpfShag></local:WpfShag>
+        </StackPanel>
+        <Button Content="Добавить последовательность" HorizontalAlignment="Center" Click="Button_Click"  />
+    </StackPanel>
+</UserControl>

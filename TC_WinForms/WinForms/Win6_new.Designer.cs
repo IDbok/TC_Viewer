@@ -47,6 +47,7 @@
             btnShowWorkSteps = new Button();
             pnlControls = new Panel();
             pnlDataViewer = new Panel();
+            buttonDiagram = new Button();
             toolStrip1.SuspendLayout();
             pnlControls.SuspendLayout();
             SuspendLayout();
@@ -113,14 +114,14 @@
             // setDraftStatusToolStripMenuItem
             // 
             setDraftStatusToolStripMenuItem.Name = "setDraftStatusToolStripMenuItem";
-            setDraftStatusToolStripMenuItem.Size = new Size(224, 26);
+            setDraftStatusToolStripMenuItem.Size = new Size(212, 26);
             setDraftStatusToolStripMenuItem.Text = "Выпустить ТК";
             setDraftStatusToolStripMenuItem.Click += setDraftStatusToolStripMenuItem_Click;
             // 
             // setApprovedStatusToolStripMenuItem
             // 
             setApprovedStatusToolStripMenuItem.Name = "setApprovedStatusToolStripMenuItem";
-            setApprovedStatusToolStripMenuItem.Size = new Size(224, 26);
+            setApprovedStatusToolStripMenuItem.Size = new Size(212, 26);
             setApprovedStatusToolStripMenuItem.Text = "Опубликовать ТК";
             setApprovedStatusToolStripMenuItem.Click += setApprovedStatusToolStripMenuItem_Click;
             // 
@@ -199,6 +200,7 @@
             // 
             // pnlControls
             // 
+            pnlControls.Controls.Add(buttonDiagram);
             pnlControls.Controls.Add(btnShowWorkSteps);
             pnlControls.Controls.Add(btnShowTools);
             pnlControls.Controls.Add(btnShowProtections);
@@ -218,6 +220,17 @@
             pnlDataViewer.Name = "pnlDataViewer";
             pnlDataViewer.Size = new Size(1128, 426);
             pnlDataViewer.TabIndex = 35;
+            // 
+            // buttonDiagram
+            // 
+            buttonDiagram.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            buttonDiagram.Location = new Point(5, 342);
+            buttonDiagram.Name = "buttonDiagram";
+            buttonDiagram.Size = new Size(224, 56);
+            buttonDiagram.TabIndex = 33;
+            buttonDiagram.Text = "Блок схема";
+            buttonDiagram.UseVisualStyleBackColor = true;
+            buttonDiagram.Click += buttonDiagram_Click;
             // 
             // Win6_new
             // 
@@ -261,5 +274,6 @@
         private ToolStripMenuItem setApprovedStatusToolStripMenuItem;
         private ToolStripMenuItem setRemarksModeToolStripMenuItem;
         private ToolStripMenuItem setDraftStatusToolStripMenuItem;
+        private Button buttonDiagram;
     }
 }

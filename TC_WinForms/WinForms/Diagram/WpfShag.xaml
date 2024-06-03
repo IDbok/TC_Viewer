@@ -1,0 +1,62 @@
+﻿<UserControl x:Class="TC_WinForms.WinForms.Diagram.WpfShag"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TC_WinForms.WinForms.Diagram"
+             mc:Ignorable="d" >
+    <Grid>       
+        <Border BorderThickness="2" BorderBrush="Black" Margin="10" CornerRadius="5" >
+        <StackPanel>
+            <TextBlock x:Name="TextShag" Text="№ шага" HorizontalAlignment="Center" FontSize="18"   />
+
+            <TextBox x:Name="TextDeystShag" MinHeight="150" TextWrapping="Wrap" TextAlignment="Center"  Text="Действия шага:" AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" />
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Добавить тех. переход" Margin="0,0,30,0"></TextBlock>
+                <ComboBox Name="ComboBoxTeh" Width="200" SelectionChanged="ComboBoxTeh_SelectionChanged" />
+            </StackPanel>
+
+            <Border BorderThickness="2" BorderBrush="Black" Margin="10" CornerRadius="5" MinHeight="100">
+                <StackPanel>
+                    <TextBlock x:Name="TextTable" Text="№ таблицы" HorizontalAlignment="Right" Margin="0,0,30,0" FontSize="14"  />
+
+                    <GroupBox Header="Материалы и инструменты" BorderBrush="Black">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Материалы" Margin="0,0,10,0" />
+                                <ComboBox Name="ComboBoxComp" Width="200" Margin="0,0,40,0" SelectionChanged="ComboBoxComp_SelectionChanged"/>
+
+                                <TextBlock Text="Инструменты" Margin="0,0,10,0" />
+                                <ComboBox  Name="ComboBoxTool" Width="200" SelectionChanged="ComboBoxTool_SelectionChanged" />
+
+                            </StackPanel>
+                            <ListBox HorizontalContentAlignment="Center" x:Name="ListBoxAll">
+                                <ListBoxItem>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Материалы"></TextBlock>
+                                        <Button Content="X" Margin="10,0,0,0" />
+                                    </StackPanel>
+                                </ListBoxItem>
+                            </ListBox>
+
+                        </StackPanel>
+                    </GroupBox>
+
+                    <Image x:Name="imageDiagram"  Source="/WinForms/Diagram/Select.jpg" Width="300" Height="300" MouseLeftButtonDown="Image_MouseLeftButtonDown"  />
+                    <Grid MinHeight="25">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="TextImage" Text="№ Рисунка" TextAlignment="Center"  />
+                        <TextBox Grid.Column="1" TextWrapping="Wrap" AcceptsReturn="True" UseLayoutRounding="False"  Width="295"   />
+
+
+                    </Grid>
+                </StackPanel>
+            </Border>            
+        </StackPanel>
+    </Border>
+        <Button Content="Удалить" HorizontalAlignment="Right"  Click="Button_Click" VerticalAlignment="Top" Margin="14" />
+    </Grid>
+</UserControl>

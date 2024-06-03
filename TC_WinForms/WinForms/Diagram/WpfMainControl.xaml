@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="TC_WinForms.WinForms.Diagram.WpfMainControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TC_WinForms.WinForms.Diagram"
+             mc:Ignorable="d" >
+    <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+        <StackPanel Name="ListWpfControlTO">
+        </StackPanel>
+        <Button Content="Добавить следующее ТО" HorizontalAlignment="Center" Margin="0,30,0,0" Click="Button_Click" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

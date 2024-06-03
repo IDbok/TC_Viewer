@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
+using TC_WinForms.WinForms.Diagram;
 using TC_WinForms.WinForms.Work;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -62,7 +63,7 @@ namespace TC_WinForms.WinForms
             {
                 //[User.Role.Lead] = () => { },
 
-                [User.Role.Implementer] = () => 
+                [User.Role.Implementer] = () =>
                 {
                     setApprovedStatusToolStripMenuItem.Visible = false;
                     //setApprovedStatusToolStripMenuItem.Enabled = false;
@@ -276,6 +277,8 @@ namespace TC_WinForms.WinForms
                     return new Win6_Tool(_tcId, _isViewMode);
                 case EModelType.WorkStep:
                     return new TechOperationForm(_tcId, _isViewMode);
+                case EModelType.Diagram:
+                    return new DiagramForm(_tcId, _isViewMode);
                 //case EModelType.TechnologicalCard:
                 //    return new Win7_1_TCs_Window(_tcId, win6Format: true);
                 default:
@@ -304,6 +307,8 @@ namespace TC_WinForms.WinForms
         private async void btnShowWorkSteps_Click(object sender, EventArgs e) => await ShowForm(EModelType.WorkStep);
         //private async void btnInformation_Click(object sender, EventArgs e) => await ShowForm(EModelType.TechnologicalCard);
 
+        private async void buttonDiagram_Click(object sender, EventArgs e) => await ShowForm(EModelType.Diagram);
+      
         private void UpdateButtonsState(EModelType activeModelType)
         {
             foreach (Control control in pnlControls.Controls)
@@ -320,6 +325,8 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
+                        
+
         }
 
         private void SetTagsToButtons()
@@ -388,16 +395,16 @@ namespace TC_WinForms.WinForms
 
             }
 
-            if(_isCommentViewMode)
+            if (_isCommentViewMode)
             {
                 setRemarksModeToolStripMenuItem.Text = "Показать комментарии";
-                
-               //SetViewMode();
+
+                //SetViewMode();
             }
             else
             {
                 setRemarksModeToolStripMenuItem.Text = "Скрыть комментарии";
-                
+
                 //SetViewMode();
             }
             _isCommentViewMode = !_isCommentViewMode;
@@ -410,6 +417,8 @@ namespace TC_WinForms.WinForms
 
             ToForm.SetCommentViewMode(_isCommentViewMode);
         }
+
+      
 
         enum WinNumber
         {
