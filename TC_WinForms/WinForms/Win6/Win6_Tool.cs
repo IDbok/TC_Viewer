@@ -312,7 +312,7 @@ namespace TC_WinForms.WinForms
                     nameof(Name),
                     nameof(Type),
                     nameof(Unit),
-                    //nameof(Price),
+                    //nameof(TotalPrice),
                     //nameof(Description),
                     //nameof(Manufacturer),
                     //nameof(Categoty),
@@ -363,6 +363,7 @@ namespace TC_WinForms.WinForms
                 Type = obj.Child.Type;
 
                 Unit = obj.Child.Unit;
+                Quantity = obj.Quantity;
                 Price = obj.Child.Price;
                 Description = obj.Child.Description;
                 Manufacturer = obj.Child.Manufacturer;

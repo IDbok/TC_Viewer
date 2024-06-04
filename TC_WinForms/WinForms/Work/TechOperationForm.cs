@@ -1103,10 +1103,6 @@ namespace TC_WinForms.WinForms.Work
             {
                 MessageBox.Show(exception.Message + "\n" + exception.InnerException);
             }
-
-
-
-
         }
 
         public bool HasChanges { get; set; }

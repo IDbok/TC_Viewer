@@ -304,8 +304,9 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
         private int id;
         private string name;
-        private string? type;
+        private string type;
         private string unit;
+        
         private float? price;
         private string? description;
         private string? manufacturer;

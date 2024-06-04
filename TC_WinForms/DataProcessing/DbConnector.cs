@@ -228,7 +228,7 @@ namespace TC_WinForms.DataProcessing
             {
                 foreach (var updatedObj_TC in obj_TCs)
                 {
-                    var existingStaffTC = await db.Set<Staff_TC>()
+                    var existingStaffTC = await db.Set<T>()
                         .FirstOrDefaultAsync(st => st.ParentId == updatedObj_TC.ParentId && st.ChildId == updatedObj_TC.ChildId);
 
                     if (existingStaffTC != null)

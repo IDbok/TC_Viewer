@@ -161,7 +161,7 @@ namespace TC_WinForms.WinForms
                 { nameof(DisplayedComponent_TC.Order), 1*pixels },
                 { nameof(DisplayedComponent_TC.Type), 4*pixels },
                 { nameof(DisplayedComponent_TC.Unit), 2*pixels },
-                { nameof(DisplayedComponent_TC.Price), 3*pixels },
+                { nameof(DisplayedComponent_TC.TotalPrice), 3*pixels },
                 { nameof(DisplayedComponent_TC.Quantity), 3*pixels },
                 { nameof(DisplayedComponent_TC.ChildId), 2*pixels },
 
@@ -251,14 +251,14 @@ namespace TC_WinForms.WinForms
                 Note = dObj.Note,
             };
         }
-        private Component_TC CreateNewObject(Component obj, int oreder)
+        private Component_TC CreateNewObject(Component obj, int order)
         {
             return new Component_TC
             {
                 ParentId = _tcId,
                 ChildId = obj.Id,
                 Child = obj,
-                Order = oreder,
+                Order = order,
                 Quantity = 0,
                 Note = "",
             };
@@ -304,7 +304,8 @@ namespace TC_WinForms.WinForms
                 { nameof(Name), "Наименование" },
                 { nameof(Type), "Тип (исполнение)" },
                 { nameof(Unit), "Ед.изм." },
-                { nameof(Price), "Стоимость, руб. без НДС" },
+                { nameof(Price), "Стоимость за ед., руб. без НДС" },
+                { nameof(TotalPrice), "Стоимость, руб. без НДС" },
                 { nameof(Description), "Описание" },
                 { nameof(Manufacturer), "Производители (поставщики)" },
                 { nameof(Categoty), "Категория" },
@@ -321,7 +322,7 @@ namespace TC_WinForms.WinForms
                     nameof(Type),
                     nameof(Unit),
                     nameof(Quantity),
-                    nameof(Price),
+                    nameof(TotalPrice),
                     nameof(Note),
                     nameof(ChildId),
 
@@ -365,6 +366,7 @@ namespace TC_WinForms.WinForms
                 Type = obj.Child.Type;
 
                 Unit = obj.Child.Unit;
+                Quantity = obj.Quantity;
                 Price = obj.Child.Price;
                 Description = obj.Child.Description;
                 Manufacturer = obj.Child.Manufacturer;
@@ -415,6 +417,8 @@ namespace TC_WinForms.WinForms
             public string? Type { get; set; }
             public string Unit { get; set; }
             public float? Price { get; set; }
+
+            public double? TotalPrice => (int)(Price * Quantity);
             public string? Description { get; set; }
             public string? Manufacturer { get; set; }
             //public List<LinkEntety> Links { get; set; } = new();
