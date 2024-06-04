@@ -134,6 +134,10 @@ namespace TC_WinForms.WinForms.Work
 
                     if (idd!=null)
                     {
+                        if (gg == null)
+                        {
+                            gg = "";
+                        }
                         idd.Otvet = gg;
                         HasChanges = true;
                     }
@@ -147,6 +151,10 @@ namespace TC_WinForms.WinForms.Work
 
                     if (idd != null)
                     {
+                        if (gg == null)
+                        {
+                            gg = "";
+                        }
                         idd.Vopros = gg;
                         HasChanges = true;
                     }
