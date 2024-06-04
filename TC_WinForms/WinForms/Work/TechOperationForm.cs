@@ -16,6 +16,7 @@ namespace TC_WinForms.WinForms.Work
     public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     {
         private bool _isViewMode;
+        private bool _isCommentViewMode;
 
         public MyDbContext context;
         public readonly int tcId;
@@ -113,17 +114,20 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
-        public void SetCommentViewMode(bool isCommentViewMode)
+        public void SetCommentViewMode(bool? isCommentViewMode = null)
         {
-            dgvMain.Columns[dgvMain.ColumnCount - 1].Visible = isCommentViewMode;
-            dgvMain.Columns[dgvMain.ColumnCount - 2].Visible = isCommentViewMode;
+            if (isCommentViewMode != null)
+                _isCommentViewMode = (bool)isCommentViewMode;
+
+            dgvMain.Columns[dgvMain.ColumnCount - 1].Visible = _isCommentViewMode;
+            dgvMain.Columns[dgvMain.ColumnCount - 2].Visible = _isCommentViewMode;
         }
 
         private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
-           if(e.ColumnIndex> dgvMain.ColumnCount-3)
+           if(e.ColumnIndex> dgvMain.ColumnCount-3) // todo: ненадёжный способ определения столбцов с комментариями
             {
-                if(e.ColumnIndex== dgvMain.ColumnCount-1)
+                if(e.ColumnIndex == dgvMain.ColumnCount-1)
                 {
                     var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
                     var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
@@ -676,6 +680,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
 
+            SetCommentViewMode();
 
         }
 
@@ -733,6 +738,7 @@ namespace TC_WinForms.WinForms.Work
                     e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None;
                 }
             }
+
 
         }
 
@@ -1083,7 +1089,7 @@ namespace TC_WinForms.WinForms.Work
             try
             {
                 context.SaveChanges();
-                MessageBox.Show("Успешно сохранено");
+                // MessageBox.Show("Успешно сохранено");
             }
             catch (Exception exception)
             {
