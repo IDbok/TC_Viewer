@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
+using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -24,6 +26,7 @@ namespace TC_WinForms.WinForms
         public PostSaveAction<IModelStructure> AfterSave { get; set; }
 
         private bool _isNewObject = false;
+        private bool _imageChanged = false;
         public Win7_LinkObjectEditor(object obj, bool isNewObject = false, User.Role accessLevel = User.Role.Lead)
         {
             _accessLevel = accessLevel;
@@ -42,6 +45,8 @@ namespace TC_WinForms.WinForms
             SetCbxUnits();
             SetCbxCategory();
             SetFormSettings();
+
+            SetImageLoading();
 
             SetLinksDGVDataSources();
 
@@ -138,7 +143,64 @@ namespace TC_WinForms.WinForms
             dgvLinks.CellContentClick += dataGridView1_CellContentClick;
 
         }
+        private void SetImageLoading()
+        {
+            if (_editingObj is TcModels.Models.TcContent.Component component)
+            {
+                //var width = this.Size.Width;
+                //var height = this.Size.Height;
 
+                //this.MaximumSize = new System.Drawing.Size(width + 300,height);
+                //this.Size = new System.Drawing.Size(width + 300, height);
+                pnlPictureBox.Visible = true;
+                btnLoadImage.Click += (s, e) => BtnUploadImage_Click();
+
+                if (component.Image != null)
+                {
+                    // вставить картинку
+                    pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
+
+                    DisplayImage(component.Image);
+
+                }
+
+                //btnLoadImage.Clich += BtnLoadImage_Click;
+                void DisplayImage(byte[] imageBytes)
+                {
+                    using (var ms = new MemoryStream(imageBytes))
+                    {
+                        pictureBoxImage.Image = Image.FromStream(ms);
+                    }
+                }
+
+            }
+            
+        }
+        
+        void BtnUploadImage_Click()
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
+                openFileDialog.Title = "Выберите изображение";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    if (_editingObj is TcModels.Models.TcContent.Component component)
+                    {
+                        component.Image = File.ReadAllBytes(openFileDialog.FileName);
+
+                        // Отображение изображения в PictureBox
+                        using (var ms = new MemoryStream(component.Image))
+                        {
+                            pictureBoxImage.Image = Image.FromStream(ms);
+                            
+                        }
+                        _imageChanged = true;
+                    }
+                }
+            }
+        }
         private void SetCbxUnits()
         {
             List<string> units;
@@ -412,6 +474,12 @@ namespace TC_WinForms.WinForms
                 {
                     await dbConnector.UpdateObjectsAsync(obj);
                 }
+
+                if(_imageChanged)
+                {
+                    await dbConnector.UpdateObjectImageAsync(obj);
+                }
+                
             }
             else
             {

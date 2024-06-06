@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.DirectoryServices.ActiveDirectory;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
@@ -50,6 +51,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         _newItemCreateActive = activateNewItemCreate;
 
         InitializeComponent();
+
+        //dgvMain.RowPrePaint += new DataGridViewRowPrePaintEventHandler(dgvMain_RowPrePaint);
 
     }
 
@@ -160,11 +163,15 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
     void SetDGVColumnsSettings()
     {
+
         // автоподбор ширины столбцов под ширину таблицы
         dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
         dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvMain.RowHeadersWidth = 25;
+
+
+        dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders; //None;
+        dgvMain.RowTemplate.Height = 200;
 
         //// автоперенос в ячейках
         dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -192,7 +199,49 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
         dgvMain.Columns[nameof(DisplayedComponent.LinkNames)].Width = 100;
         dgvMain.Columns[nameof(DisplayedComponent.LinkNames)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+
+        //// Добавление столбца изображений
+        //var imageColumn = new DataGridViewImageColumn
+        //{
+        //    Name = nameof(DisplayedComponent.Image),
+        //    HeaderText = "Image",
+        //    DataPropertyName = nameof(DisplayedComponent.Image),
+        //    ImageLayout = DataGridViewImageCellLayout.Zoom,
+        //};
+        //imageColumn.Width = 50;
+        //// imageColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+
+        //dgvMain.Columns.Add(imageColumn);
+        //dgvMain.Columns[nameof(DisplayedComponent.Image)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+        //dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.
+
+        //foreach (DataGridViewRow row in dgvMain.Rows)
+        //{
+        //    row.Height = 100;
+        //}
     }
+    private void dgvMain_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
+    {
+        var imageCol = dgvMain.Columns[nameof(DisplayedComponent.Image)] as DataGridViewImageColumn;
+        if (imageCol != null)
+        {
+            imageCol.ImageLayout = DataGridViewImageCellLayout.Zoom;
+            //var cell = dgvMain.Rows[e.RowIndex].Cells[nameof(DisplayedComponent.Image)];
+            //if (cell.Value != null)
+            //{
+            //    var image = (byte[])cell.Value;
+            //    if (image != null)
+            //    {
+            //        using (var ms = new MemoryStream(image))
+            //        {
+            //            cell.Value = Image.FromStream(ms);
+            //        }
+            //    }
+            //}
+        }
+        
+    }
+
 
     private void SetupCategoryComboBox()
     {
@@ -271,6 +320,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
             //{ nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
             { nameof(LinkNames), "Ссылка" },
             { nameof(Categoty), "Категория" },
+            { nameof(Image), "Изображение" },
         };
         }
         public List<string> GetPropertiesOrder()
@@ -288,6 +338,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
                 nameof(LinkNames),
                 //nameof(Links),
                 nameof(Categoty),
+                //nameof(Image),
             };
         }
         public List<string> GetRequiredFields()
@@ -336,6 +387,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
             IsReleased = obj.IsReleased;
             CreatedTCId = obj.CreatedTCId;
+
+            Image = obj.Image;
         }
 
 
@@ -504,6 +557,21 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
                 {
                     createdTCId = value;
                     OnPropertyChanged(nameof(CreatedTCId));
+                }
+            }
+        }
+
+        private byte[]? image;
+
+        public byte[]? Image
+        {
+            get => image;
+            set
+            {
+                if (image != value)
+                {
+                    image = value;
+                    OnPropertyChanged(nameof(Image));
                 }
             }
         }

@@ -68,6 +68,8 @@ namespace TcModels.Models.TcContent
         public bool IsReleased { get; set ; } = false;
         public int? CreatedTCId {  get; set; } = null;
 
+        public byte[]? Image { get; set; }
+
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is Component sourceObject)

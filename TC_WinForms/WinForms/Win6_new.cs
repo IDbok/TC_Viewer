@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Diagram;
@@ -28,9 +29,6 @@ namespace TC_WinForms.WinForms
         private int _tcId;
         private DbConnector db = new DbConnector();
 
-
-
-
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
             _tcId = tcId;
@@ -40,12 +38,13 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
 
             // download TC from db
-            _tc = db.GetObject<TechnologicalCard>(tcId);
-            if (_tc == null)
+            TechnologicalCard? tc = db.GetObject<TechnologicalCard>(tcId);
+            if (tc == null)
             {
                 MessageBox.Show("Технологическая карта не найдена");
                 this.Close();
             }
+            _tc = tc!;
 
             this.KeyDown += ControlSaveEvent;
 
@@ -180,10 +179,18 @@ namespace TC_WinForms.WinForms
             CheckForChanges();
 
             //close all inner forms
-            foreach (Form frm in pnlDataViewer.Controls) // todo - move to WinProcessing and run it asynch
+            foreach (var form in _formsCache.Values)
             {
-                frm.Close();
+                // is form is ISaveEventForm
+                if (!form.IsDisposed)
+                {
+                    form.Close();
+                }
             }
+            //foreach (Form frm in pnlDataViewer.Controls) // todo - move to WinProcessing and run it asynch
+            //{
+            //    frm.Close();
+            //}
             this.Dispose();
 
         }
@@ -279,6 +286,8 @@ namespace TC_WinForms.WinForms
                     return new TechOperationForm(_tcId, _isViewMode);
                 case EModelType.Diagram:
                     return new DiagramForm(_tcId, _isViewMode);
+                case EModelType.ExecutionScheme:
+                    return new Win6_ExecutionScheme(_tc, _isViewMode);
                 //case EModelType.TechnologicalCard:
                 //    return new Win7_1_TCs_Window(_tcId, win6Format: true);
                 default:
@@ -308,7 +317,7 @@ namespace TC_WinForms.WinForms
         //private async void btnInformation_Click(object sender, EventArgs e) => await ShowForm(EModelType.TechnologicalCard);
 
         private async void buttonDiagram_Click(object sender, EventArgs e) => await ShowForm(EModelType.Diagram);
-      
+
         private void UpdateButtonsState(EModelType activeModelType)
         {
             foreach (Control control in pnlControls.Controls)
@@ -325,7 +334,7 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
-                        
+
 
         }
 
@@ -418,7 +427,18 @@ namespace TC_WinForms.WinForms
             ToForm.SetCommentViewMode(_isCommentViewMode);
         }
 
-      
+        private void toolStripExecutionScheme_Click(object sender, EventArgs e)
+        {
+            if (!_formsCache.TryGetValue(EModelType.ExecutionScheme, out var win6_ExecutionScheme) || win6_ExecutionScheme.IsDisposed)
+            {
+                win6_ExecutionScheme = CreateForm(EModelType.ExecutionScheme);
+                _formsCache[EModelType.ExecutionScheme] = win6_ExecutionScheme;
+            }
+            win6_ExecutionScheme.Show();
+
+            // вывести на передний план
+            win6_ExecutionScheme.BringToFront();
+        }
 
         enum WinNumber
         {

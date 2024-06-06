@@ -222,6 +222,29 @@ namespace TC_WinForms.DataProcessing
                 }
             }
         }
+        public async Task UpdateObjectImageAsync(Component updatedObject)//<T>(T updatedObject) where T : class, IIdentifiable //, IModelStructure
+        {
+            using (var db = new MyDbContext())
+            {
+                Component? existingObj = null;
+
+                if (updatedObject is Component obj)
+                {
+                    existingObj = await db.Set<Component>()
+                        .FirstOrDefaultAsync(t => t.Id == updatedObject.Id);
+                }
+
+                if (existingObj != null)
+                {
+                    existingObj.Image = updatedObject.Image;
+                }
+
+                if (db.ChangeTracker.HasChanges())
+                {
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
         public async Task UpdateIntermediateObjectAsync<T>(List<T> obj_TCs) where T : class, IIntermediateTableIds, IUpdatableEntity
         {
             using (var db = new MyDbContext())
@@ -930,6 +953,22 @@ namespace TC_WinForms.DataProcessing
                 if (tcToUpdate != null)
                 {
                     tcToUpdate.Status = newStatus;
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+
+        public async Task UpdateTcExecutionScheme(int tcId, byte[] newES)
+        {
+            using (var db = new MyDbContext())
+            {
+                var tcToUpdate = await db.TechnologicalCards
+                    .Where(t => t.Id == tcId)
+                    .FirstOrDefaultAsync();
+
+                if (tcToUpdate != null)
+                {
+                    tcToUpdate.ExecutionScheme = newES;
                     await db.SaveChangesAsync();
                 }
             }

@@ -53,7 +53,12 @@
             cbxCategory = new ComboBox();
             lblCategory = new Label();
             cbxIsReleased = new CheckBox();
+            pictureBoxImage = new PictureBox();
+            pnlPictureBox = new Panel();
+            btnLoadImage = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvLinks).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxImage).BeginInit();
+            pnlPictureBox.SuspendLayout();
             SuspendLayout();
             // 
             // lblName
@@ -71,7 +76,7 @@
             txtName.Location = new Point(178, 22);
             txtName.Margin = new Padding(2);
             txtName.Name = "txtName";
-            txtName.Size = new Size(301, 27);
+            txtName.Size = new Size(254, 27);
             txtName.TabIndex = 1;
             // 
             // txtType
@@ -79,7 +84,7 @@
             txtType.Location = new Point(178, 72);
             txtType.Margin = new Padding(2);
             txtType.Name = "txtType";
-            txtType.Size = new Size(429, 27);
+            txtType.Size = new Size(254, 27);
             txtType.TabIndex = 3;
             // 
             // lblType
@@ -107,7 +112,7 @@
             txtClassifierCode.Location = new Point(178, 216);
             txtClassifierCode.Margin = new Padding(2);
             txtClassifierCode.Name = "txtClassifierCode";
-            txtClassifierCode.Size = new Size(429, 27);
+            txtClassifierCode.Size = new Size(254, 27);
             txtClassifierCode.TabIndex = 6;
             // 
             // lblClassifierCode
@@ -199,7 +204,7 @@
             txtPrice.Location = new Point(178, 256);
             txtPrice.Margin = new Padding(2);
             txtPrice.Name = "txtPrice";
-            txtPrice.Size = new Size(219, 27);
+            txtPrice.Size = new Size(159, 27);
             txtPrice.TabIndex = 15;
             // 
             // lblPrice
@@ -215,7 +220,7 @@
             // lblPrice2
             // 
             lblPrice2.AutoSize = true;
-            lblPrice2.Location = new Point(402, 256);
+            lblPrice2.Location = new Point(341, 263);
             lblPrice2.Margin = new Padding(2, 0, 2, 0);
             lblPrice2.Name = "lblPrice2";
             lblPrice2.Size = new Size(95, 20);
@@ -296,7 +301,7 @@
             // cbxIsReleased
             // 
             cbxIsReleased.AutoSize = true;
-            cbxIsReleased.Location = new Point(487, 23);
+            cbxIsReleased.Location = new Point(460, 23);
             cbxIsReleased.Margin = new Padding(2);
             cbxIsReleased.Name = "cbxIsReleased";
             cbxIsReleased.Size = new Size(125, 24);
@@ -305,11 +310,42 @@
             cbxIsReleased.UseVisualStyleBackColor = true;
             cbxIsReleased.CheckedChanged += cbxIsReleased_CheckedChanged;
             // 
+            // pictureBoxImage
+            // 
+            pictureBoxImage.BorderStyle = BorderStyle.FixedSingle;
+            pictureBoxImage.Dock = DockStyle.Top;
+            pictureBoxImage.Location = new Point(0, 0);
+            pictureBoxImage.Name = "pictureBoxImage";
+            pictureBoxImage.Size = new Size(166, 200);
+            pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxImage.TabIndex = 25;
+            pictureBoxImage.TabStop = false;
+            // 
+            // pnlPictureBox
+            // 
+            pnlPictureBox.Controls.Add(btnLoadImage);
+            pnlPictureBox.Controls.Add(pictureBoxImage);
+            pnlPictureBox.Location = new Point(441, 63);
+            pnlPictureBox.Name = "pnlPictureBox";
+            pnlPictureBox.Size = new Size(166, 236);
+            pnlPictureBox.TabIndex = 26;
+            pnlPictureBox.Visible = false;
+            // 
+            // btnLoadImage
+            // 
+            btnLoadImage.Location = new Point(0, 200);
+            btnLoadImage.Name = "btnLoadImage";
+            btnLoadImage.Size = new Size(166, 29);
+            btnLoadImage.TabIndex = 26;
+            btnLoadImage.Text = "загрузить рисунок";
+            btnLoadImage.UseVisualStyleBackColor = true;
+            // 
             // Win7_LinkObjectEditor
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(626, 730);
+            Controls.Add(pnlPictureBox);
             Controls.Add(cbxIsReleased);
             Controls.Add(cbxCategory);
             Controls.Add(lblCategory);
@@ -342,6 +378,8 @@
             Text = "Win7_LinkObjectEditor";
             Load += Win7_LinkObjectEditor_Load;
             ((System.ComponentModel.ISupportInitialize)dgvLinks).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxImage).EndInit();
+            pnlPictureBox.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -373,5 +411,8 @@
         private ComboBox cbxCategory;
         private Label lblCategory;
         private CheckBox cbxIsReleased;
+        private PictureBox pictureBoxImage;
+        private Panel pnlPictureBox;
+        private Button btnLoadImage;
     }
 }

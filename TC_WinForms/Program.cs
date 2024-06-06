@@ -1,4 +1,6 @@
 using Nancy.Json;
+using System.Drawing;
+using System.IO;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.WinForms;
 using TC_WinForms.WinForms.BlockScheme;
@@ -86,13 +88,35 @@ namespace TC_WinForms
 
             };
 
-            // MainForm = new MainBlockSchemeForm();//new Win7_new(3);//new Win7_LinkObjectEditor(new Machine(), true);// new Win6_new(1);//new Win1();//new Win6(new Button { Name = "btnUpdateTC" /*"btnAddNewTC"*/ });// new Win3();//
-
             var authForm = new Win8();
             authForm.ShowDialog();
 
             Application.Run(MainForm); //MainForm);
-        }
 
+            //Test();
+        }
+        static void Test()
+        {
+            DbConnector dbCon = new DbConnector();
+
+            TechnologicalCard _tc = dbCon.GetObject<TechnologicalCard>(488);
+
+            var form = new Win6_ExecutionScheme(_tc);
+            form.ShowDialog();
+
+            //var obj = dbCon.GetObjectWithLinks<Component>(1);
+
+            //if (obj != null)
+            //{
+            //    //obj.Image = File.ReadAllBytes(@"C:\Users\bokar\OneDrive\Рабочий стол\Рисунок5.png");// Image.FromFile();
+            //    var objEditor = new Win7_LinkObjectEditor(obj);
+
+                
+
+            //    objEditor.ShowDialog();
+            //}
+        }
     }
+
+    
 }
