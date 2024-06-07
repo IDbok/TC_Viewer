@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -28,6 +30,8 @@ namespace TC_WinForms.WinForms.Diagram
 
         int Nomer = 0;
 
+        ObservableCollection<ItemDataGridShagAdd> AllItemGrid;
+
         public WpfShag()
         {
             InitializeComponent();
@@ -48,12 +52,43 @@ namespace TC_WinForms.WinForms.Diagram
             wpfPosledovatelnost = _wpfPosledovatelnost;
 
             ComboBoxTeh.ItemsSource = selectedItem.executionWorks;
+                        
 
-            ComboBoxComp.ItemsSource = selectedItem.ComponentWorks;
-            ComboBoxTool.ItemsSource = selectedItem.ToolWorks;
+            AllItemGrid = new ObservableCollection<ItemDataGridShagAdd>();
 
-            ListBoxAll.Items.Clear();
+            foreach (var item in selectedItem.ToolWorks)
+            {
+                ItemDataGridShagAdd itemDataGrid = new ItemDataGridShagAdd();
+                itemDataGrid.Name = item.tool.Name;
+                itemDataGrid.Type = item.tool.Type??"";
+                itemDataGrid.Unit = item.tool.Unit;
+                itemDataGrid.Count = item.Quantity.ToString();
+                itemDataGrid.Comments = item.Comments.ToString();
+                itemDataGrid.AddText = "";
 
+                System.Windows.Media.Brush brush = new SolidColorBrush(Colors.SkyBlue);
+                itemDataGrid.BrushBackground = brush;
+
+                AllItemGrid.Add(itemDataGrid);
+            }
+
+            foreach (var item in selectedItem.ComponentWorks)
+            {
+                ItemDataGridShagAdd itemDataGrid = new ItemDataGridShagAdd();
+                itemDataGrid.Name = item.component.Name;
+                itemDataGrid.Type = item.component.Type ?? "";
+                itemDataGrid.Unit = item.component.Unit;
+                itemDataGrid.Count = item.Quantity.ToString();
+                itemDataGrid.Comments = item.Comments??"";
+                itemDataGrid.AddText = "";
+
+                System.Windows.Media.Brush brush = new SolidColorBrush(Colors.LightPink);
+                itemDataGrid.BrushBackground = brush;
+
+                AllItemGrid.Add(itemDataGrid);
+            }
+
+            DataGridToolAndComponentsAdd.ItemsSource = AllItemGrid;
         }
 
 
@@ -68,57 +103,8 @@ namespace TC_WinForms.WinForms.Diagram
 
                 ComboBoxTeh.SelectedItem = null;
             }
-        }
+        }             
 
-        private void ComboBoxComp_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ComboBoxComp.SelectedItem != null)
-            {
-                var itm = (ComponentWork)ComboBoxComp.SelectedItem;
-                ListBoxAll.Items.Add(CraeteItem(itm.component.Name));
-                ComboBoxComp.SelectedItem = null;
-            }
-        }
-
-        private void ComboBoxTool_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ComboBoxTool.SelectedItem != null)
-            {
-                var itm = (ToolWork)ComboBoxTool.SelectedItem;
-                ListBoxAll.Items.Add(CraeteItem(itm.tool.Name));
-                ComboBoxTool.SelectedItem = null;
-            }
-        }
-
-        public object CraeteItem(string name)
-        {
-            StackPanel sp = new StackPanel();
-            sp.Orientation = System.Windows.Controls.Orientation.Horizontal;
-
-            sp.Children.Add(new TextBlock { Text = name });
-
-            var but = new System.Windows.Controls.Button();
-            but.Content = "X";
-            but.Margin = new Thickness(10,0,0,0);
-            but.Tag = sp;
-            but.Click += But_Click;
-
-            sp.Children.Add(but);
-
-            return sp;
-        }
-
-        private void But_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                ListBoxAll.Items.Remove(((System.Windows.Controls.Button)sender).Tag);
-            }
-            catch (Exception)
-            {
-
-            }
-        }
 
         private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -173,6 +159,23 @@ namespace TC_WinForms.WinForms.Diagram
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.DeleteItem(this);
+        }
+
+        private void TG_Click(object sender, RoutedEventArgs e)
+        {
+            if(TG.IsChecked==true)
+            {
+                DataGridToolAndComponentsAdd.Visibility= Visibility.Visible;
+                DataGridToolAndComponentsShow.Visibility= Visibility.Collapsed;
+            }
+            else
+            {
+                DataGridToolAndComponentsAdd.Visibility = Visibility.Collapsed;
+                DataGridToolAndComponentsShow.Visibility = Visibility.Visible;
+
+                var vb = AllItemGrid.Where(w=>w.Add).ToList();
+                DataGridToolAndComponentsShow.ItemsSource = vb;
+            }
         }
     }
 }

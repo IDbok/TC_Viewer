@@ -22,24 +22,146 @@
 
                     <GroupBox Header="Материалы и инструменты" BorderBrush="Black">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Материалы" Margin="0,0,10,0" />
-                                <ComboBox Name="ComboBoxComp" Width="200" Margin="0,0,40,0" SelectionChanged="ComboBoxComp_SelectionChanged"/>
 
-                                <TextBlock Text="Инструменты" Margin="0,0,10,0" />
-                                <ComboBox  Name="ComboBoxTool" Width="200" SelectionChanged="ComboBoxTool_SelectionChanged" />
+                                <ToggleButton x:Name="TG" Content="Редактирование" HorizontalAlignment="Center" Width="150" Margin="10" Click="TG_Click"  />
+
+                                <DataGrid x:Name="DataGridToolAndComponentsAdd" Visibility="Collapsed" CanUserAddRows="False" CanUserDeleteRows="False"
+                                          AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False">
+                                    <DataGrid.CellStyle>
+                                        <Style TargetType="{x:Type DataGridCell}">
+                                        <Setter Property="Foreground" Value="Black" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{x:Null}" />
+                                                <Setter Property="BorderBrush" Value="{x:Null}" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                    </DataGrid.CellStyle>
+
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Header="" Width="40">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Add,UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Наименование" Width="100">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=Name}" TextWrapping="Wrap" Background="{Binding Path=BrushBackground}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Тип" Width="110">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=Type}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Ед. изм." Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=Unit}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Кол-во" Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=Count}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Комментарии" Width="120">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=Comments}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+
+                                        <DataGridTemplateColumn Header="Кол-во добавить" Width="110">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+
+                                <DataGrid x:Name="DataGridToolAndComponentsShow" CanUserAddRows="False" CanUserDeleteRows="False"
+          AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False">
+                                    <DataGrid.CellStyle>
+                                        <Style TargetType="{x:Type DataGridCell}">
+                                            <Setter Property="Foreground" Value="Black" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="{x:Null}" />
+                                                    <Setter Property="BorderBrush" Value="{x:Null}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.CellStyle>
+
+                                    <DataGrid.Columns>
+
+                                        <DataGridTemplateColumn Header="Наименование" Width="150">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=Name}" TextWrapping="Wrap" Background="{Binding Path=BrushBackground}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Тип" Width="170">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=Type}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Ед. изм." Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=Unit}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Кол-во" Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=AddText}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Комментарии" Width="150">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=Comments}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
 
                             </StackPanel>
-                            <ListBox HorizontalContentAlignment="Center" x:Name="ListBoxAll">
-                                <ListBoxItem>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Материалы"></TextBlock>
-                                        <Button Content="X" Margin="10,0,0,0" />
-                                    </StackPanel>
-                                </ListBoxItem>
-                            </ListBox>
-
-                        </StackPanel>
                     </GroupBox>
 
                     <Image x:Name="imageDiagram"  Source="/WinForms/Diagram/Select.jpg" Width="300" Height="300" MouseLeftButtonDown="Image_MouseLeftButtonDown"  />
