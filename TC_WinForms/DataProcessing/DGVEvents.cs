@@ -4,7 +4,10 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Work;
+using static TC_WinForms.WinForms.Win6_Staff;
+using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -16,11 +19,20 @@ namespace TC_WinForms.DataProcessing
         private int columnIndexFromMouseDown;
         private bool dragging;
 
-        private DataGridView dgv;
+        private DataGridView _dgv;
 
 
         public object EventsObj;
         public int Table = 0;
+
+        public DGVEvents(DataGridView dgv)
+        {
+            _dgv = dgv;
+        }
+        public DGVEvents()
+        {
+            
+        }
 
         public void AddGragDropEvents(DataGridView dgv)
         {
@@ -40,7 +52,7 @@ namespace TC_WinForms.DataProcessing
 
         public void SetRowsUpAndDownEvents(Button btnMoveUp, Button btnMoveDown, DataGridView dgv)
         {
-            this.dgv = dgv;
+            this._dgv = dgv;
             btnMoveUp.Click += btnMoveUp_Click;
             btnMoveDown.Click += btnMoveDown_Click;
         }
@@ -125,17 +137,60 @@ namespace TC_WinForms.DataProcessing
 
         private void btnMoveUp_Click(object? sender, EventArgs e)
         {
-            var selectedRows = DGVProcessing.GetSelectedRows(dgv);
-            DGVProcessing.MoveRowsUp(selectedRows, dgv);
-            DGVProcessing.SetOrderColumnsValuesAsRowIndex(dgv);
-            DGVProcessing.SelectRows(selectedRows, dgv);
+            var selectedRows = DGVProcessing.GetSelectedRows(_dgv);
+            DGVProcessing.MoveRowsUp(selectedRows, _dgv);
+            DGVProcessing.SetOrderColumnsValuesAsRowIndex(_dgv);
+            DGVProcessing.SelectRows(selectedRows, _dgv);
         }
         private void btnMoveDown_Click(object? sender, EventArgs e)
         {
-            var selectedRows = DGVProcessing.GetSelectedRows(dgv);
-            DGVProcessing.MoveRowsDown(selectedRows, dgv);
-            DGVProcessing.SetOrderColumnsValuesAsRowIndex(dgv);
-            DGVProcessing.SelectRows(selectedRows, dgv);
+            var selectedRows = DGVProcessing.GetSelectedRows(_dgv);
+            DGVProcessing.MoveRowsDown(selectedRows, _dgv);
+            DGVProcessing.SetOrderColumnsValuesAsRowIndex(_dgv);
+            DGVProcessing.SelectRows(selectedRows, _dgv);
+        }
+
+        public void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Проверяем, что это не заголовок столбца и не новая строка
+            if (e.RowIndex >= 0 && e.RowIndex < _dgv.Rows.Count)
+            {
+                var row = _dgv.Rows[e.RowIndex];
+                var displayedStaff = row.DataBoundItem as IReleasable;
+                if (displayedStaff != null)
+                {
+                    // Меняем цвет строки в зависимости от значения свойства IsReleased
+                    if (!displayedStaff.IsReleased)
+                    {
+                        row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
+                    }
+                }
+            }
+        }
+        public void dgvMain_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            // Проверяем, редактируется ли столбец "Order"
+            if (_dgv.Columns[e.ColumnIndex].Name == nameof(DisplayedStaff_TC.Order))
+            {
+                // Проверяем, что значение не пустое и является допустимым целым числом
+                if (string.IsNullOrWhiteSpace(e.FormattedValue.ToString()) || !int.TryParse(e.FormattedValue.ToString(), out _))
+                {
+                    e.Cancel = true; // Отменяем редактирование
+
+                    // Получаем объект, связанный с редактируемой строкой
+                    var row = _dgv.Rows[e.RowIndex];
+                    var displayedStaff = row.DataBoundItem as IPreviousOrderable;
+
+                    if (displayedStaff != null)
+                    {
+                        // Восстанавливаем предыдущее значение
+                        _dgv.CancelEdit(); // Отменяем текущее редактирование
+                        row.Cells[e.ColumnIndex].Value = displayedStaff.PreviousOrder; // Восстанавливаем предыдущее значение
+                    }
+
+                    MessageBox.Show("Значение в столбце 'Order' должно быть целым числом и не может быть пустым.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }

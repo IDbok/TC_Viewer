@@ -304,7 +304,20 @@ namespace TC_WinForms.WinForms
             form.FormBorderStyle = FormBorderStyle.None;
             form.Dock = DockStyle.Fill;
             pnlDataViewer.Controls.Add(form);
+
+            //form.Show();
+            //_activeForm = form;
+
+            DataGridView dataGridView = form.Controls.OfType<DataGridView>().FirstOrDefault();
+            if (dataGridView != null)
+            {
+                dataGridView.SuspendLayout();
+            }
             form.Show();
+            if (dataGridView != null)
+            {
+                dataGridView.ResumeLayout();
+            }
             _activeForm = form;
         }
 

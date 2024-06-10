@@ -34,10 +34,13 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
 
 
-            // new DGVEvents().AddGragDropEvents(dgvMain);
-            new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
-        }
+            var dgvEventService = new DGVEvents(dgvMain);
+            dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
 
+            dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
+            dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
+        }
+        
         public void SetViewMode(bool? isViewMode = null)
         {
             if (isViewMode != null)
@@ -188,7 +191,23 @@ namespace TC_WinForms.WinForms
                 dgvMain.Columns[column].DefaultCellStyle.BackColor = Color.LightGray;
             }
         }
-
+        private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Проверяем, что это не заголовок столбца и не новая строка
+            if (e.RowIndex >= 0 && e.RowIndex < dgvMain.Rows.Count)
+            {
+                var row = dgvMain.Rows[e.RowIndex];
+                var displayedStaff = row.DataBoundItem as DisplayedMachine_TC;
+                if (displayedStaff != null)
+                {
+                    // Меняем цвет строки в зависимости от значения свойства IsReleased
+                    if (!displayedStaff.IsReleased)
+                    {
+                        row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
+                    }
+                }
+            }
+        }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
         public async Task SaveChanges()
@@ -244,7 +263,7 @@ namespace TC_WinForms.WinForms
                 ParentId = dObj.ParentId,
                 ChildId = dObj.ChildId,
                 Order = dObj.Order,
-                Quantity = dObj.Quantity,
+                Quantity = dObj.Quantity ?? 0,
                 Note = dObj.Note,
             };
         }
@@ -285,7 +304,7 @@ namespace TC_WinForms.WinForms
                 (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
         }
 
-        private class DisplayedMachine_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable
+        private class DisplayedMachine_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -371,10 +390,15 @@ namespace TC_WinForms.WinForms
                 Description = obj.Child.Description;
                 Manufacturer = obj.Child.Manufacturer;
                 ClassifierCode = obj.Child.ClassifierCode;
+
+                IsReleased = obj.Child.IsReleased;
+
+                previousOrder = Order;
             }
 
             public int ChildId { get; set; }
             public int ParentId { get; set; }
+            private int previousOrder;
             public int Order
             {
                 get => order;
@@ -382,19 +406,22 @@ namespace TC_WinForms.WinForms
                 {
                     if (order != value)
                     {
+                        previousOrder = order;
                         order = value;
                         OnPropertyChanged(nameof(Order));
                     }
                 }
             }
-            public double Quantity
+
+            public int PreviousOrder => previousOrder;
+            public double? Quantity
             {
                 get => quantity;
                 set
                 {
                     if (quantity != value)
                     {
-                        quantity = value;
+                        quantity = value ?? 0;
                         OnPropertyChanged(nameof(Quantity));
                     }
                 }
@@ -421,6 +448,7 @@ namespace TC_WinForms.WinForms
             //public List<LinkEntety> Links { get; set; } = new();
             public string ClassifierCode { get; set; }
 
+            public bool IsReleased { get; set; } = false;
 
 
             public event PropertyChangedEventHandler PropertyChanged;

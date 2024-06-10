@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
@@ -42,6 +43,7 @@
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
             progressBar = new ProgressBar();
+            toolTip = new ToolTip(components);
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -91,7 +93,7 @@
             // 
             cbxShowUnReleased.AutoSize = true;
             cbxShowUnReleased.Location = new Point(10, 57);
-            cbxShowUnReleased.Margin = new Padding(2, 2, 2, 2);
+            cbxShowUnReleased.Margin = new Padding(2);
             cbxShowUnReleased.Name = "cbxShowUnReleased";
             cbxShowUnReleased.Size = new Size(208, 24);
             cbxShowUnReleased.TabIndex = 31;
@@ -103,7 +105,7 @@
             // 
             cbxCategoryFilter.FormattingEnabled = true;
             cbxCategoryFilter.Location = new Point(216, 28);
-            cbxCategoryFilter.Margin = new Padding(2, 2, 2, 2);
+            cbxCategoryFilter.Margin = new Padding(2);
             cbxCategoryFilter.Name = "cbxCategoryFilter";
             cbxCategoryFilter.Size = new Size(146, 28);
             cbxCategoryFilter.TabIndex = 30;
@@ -132,7 +134,7 @@
             // txtSearch
             // 
             txtSearch.Location = new Point(10, 28);
-            txtSearch.Margin = new Padding(2, 2, 2, 2);
+            txtSearch.Margin = new Padding(2);
             txtSearch.Name = "txtSearch";
             txtSearch.Size = new Size(180, 27);
             txtSearch.TabIndex = 27;
@@ -193,7 +195,7 @@
             // 
             progressBar.Anchor = AnchorStyles.None;
             progressBar.Location = new Point(282, 80);
-            progressBar.Margin = new Padding(2, 2, 2, 2);
+            progressBar.Margin = new Padding(2);
             progressBar.MarqueeAnimationSpeed = 30;
             progressBar.Name = "progressBar";
             progressBar.Size = new Size(451, 27);
@@ -237,5 +239,6 @@
         private ComboBox cbxCategoryFilter;
         private Label lblCategory;
         private CheckBox cbxShowUnReleased;
+        private ToolTip toolTip;
     }
 }

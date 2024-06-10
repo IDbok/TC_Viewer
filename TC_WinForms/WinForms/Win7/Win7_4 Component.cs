@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.DirectoryServices.ActiveDirectory;
+using System.IO;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
@@ -33,6 +34,9 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     public bool _isDataLoaded = false;
 
     private bool _isFiltered = false;
+    private DataGridViewCellEventArgs lastCellEvent;
+    private DataGridViewCellEventArgs currentCellEvent;
+    //private ToolTip toolTip;
 
     public Win7_4_Component(User.Role accessLevel)
     {
@@ -41,7 +45,10 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         InitializeComponent();
         AccessInitialization();
 
+        InitializeTip();
     }
+
+
     public Win7_4_Component(bool activateNewItemCreate = false, int? createdTCId = null)
     {
         _accessLevel = AuthorizationService.CurrentUser.UserRole();
@@ -53,9 +60,22 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         InitializeComponent();
 
         //dgvMain.RowPrePaint += new DataGridViewRowPrePaintEventHandler(dgvMain_RowPrePaint);
-
+        //InitializeTip();
     }
 
+    private  void InitializeTip()
+    {
+        dgvMain.ShowCellToolTips = false;
+
+        toolTip = new ToolTip();
+        toolTip.OwnerDraw = true;
+        toolTip.ShowAlways = true;
+        toolTip.Popup += ToolTip_Popup;
+        toolTip.Draw += ToolTip_Draw;
+
+        dgvMain.CellMouseEnter += new DataGridViewCellEventHandler(dgvMain_CellMouseEnter);
+        dgvMain.CellMouseLeave += new DataGridViewCellEventHandler(dgvMain_CellMouseLeave);
+    }
     private async void Win7_4_Component_Load(object sender, EventArgs e)
     {
         //progressBar.Visible = true;
@@ -138,7 +158,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     }
 
     /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
-    
+
     private Component CreateNewObject(DisplayedComponent dObj)
     {
         return new Component
@@ -239,7 +259,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
             //    }
             //}
         }
-        
+
     }
 
 
@@ -357,7 +377,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         private string name;
         private string type;
         private string unit;
-        
+
         private float? price;
         private string? description;
         private string? manufacturer;
@@ -772,4 +792,94 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     {
         FilteringObjects();
     }
+
+
+    //private void dgvMain_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+    //{
+    //    if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+    //    {
+    //        var cell = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex];
+    //        var displayedComponent = dgvMain.Rows[e.RowIndex].DataBoundItem as DisplayedComponent;
+
+    //        if (displayedComponent != null && displayedComponent.Image != null && displayedComponent.Image.Length > 0)
+    //        {
+    //            var image = Image.FromStream(new MemoryStream(displayedComponent.Image));
+    //            toolTip.Tag = image;
+    //            toolTip.Show(string.Empty, dgvMain, dgvMain.PointToClient(Cursor.Position), 2000);
+    //        }
+    //    }
+    //}
+    //private void dgvMain_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+    //{
+    //    if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+    //    {
+    //        var cell = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex];
+    //        var displayedComponent = dgvMain.Rows[e.RowIndex].DataBoundItem as DisplayedComponent;
+
+    //        if (displayedComponent != null && displayedComponent.Image != null && displayedComponent.Image.Length > 0)
+    //        {
+    //            var image = Image.FromStream(new MemoryStream(displayedComponent.Image));
+    //            toolTip.Tag = image;
+    //            toolTip.Show(" ", dgvMain, dgvMain.PointToClient(Cursor.Position));
+                
+               
+    //        }
+    //    }
+    //}
+    private void dgvMain_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+    {
+        currentCellEvent = e;
+        if (currentCellEvent.RowIndex != lastCellEvent?.RowIndex || currentCellEvent.ColumnIndex != lastCellEvent?.ColumnIndex)
+        {
+            lastCellEvent = currentCellEvent;
+            dgvMain.MouseHover += dgvMain_MouseHover;
+        }
+    }
+
+    private void dgvMain_MouseHover(object sender, EventArgs e)
+    {
+        if (lastCellEvent != null && lastCellEvent.RowIndex >= 0 && lastCellEvent.ColumnIndex >= 0)
+        {
+            var cell = dgvMain.Rows[lastCellEvent.RowIndex].Cells[lastCellEvent.ColumnIndex];
+            var displayedComponent = dgvMain.Rows[lastCellEvent.RowIndex].DataBoundItem as DisplayedComponent;
+
+            if (displayedComponent != null && displayedComponent.Image != null && displayedComponent.Image.Length > 0)
+            {
+                var image = Image.FromStream(new MemoryStream(displayedComponent.Image));
+                toolTip.Tag = image;
+                toolTip.Show(" ", dgvMain, dgvMain.PointToClient(Cursor.Position)); // Используем пробел вместо пустой строки
+            }
+        }
+    }
+
+    private void dgvMain_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+    {
+        toolTip.Hide(dgvMain);
+        dgvMain.MouseHover -= dgvMain_MouseHover;
+        lastCellEvent = null;
+    }
+
+
+    //private void dgvMain_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+    //{
+    //    toolTip.Hide(dgvMain);
+    //}
+
+    private void ToolTip_Draw(object sender, DrawToolTipEventArgs e)
+    {
+        Debug.WriteLine("ToolTip_Draw called");
+        if (toolTip.Tag is Image image)
+        {
+            e.Graphics.DrawImage(image, new Rectangle(Point.Empty, new Size(200, 200))); // Размер изображения в подсказке
+        }
+    }
+    private void ToolTip_Popup(object sender, PopupEventArgs e)
+    {
+        Debug.WriteLine("ToolTip_Popup called");
+        if (toolTip.Tag is Image image)
+        {
+            e.ToolTipSize = new Size(200, 200); // Размер всплывающего окна
+        }
+    }
+
 }

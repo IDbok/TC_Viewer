@@ -33,7 +33,11 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
         AccessInitialization();
 
 
-        new DGVEvents().SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
+        var dgvEventService = new DGVEvents(dgvMain);
+        dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
+
+        dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
+        dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
     }
 
     private void AccessInitialization()
@@ -188,7 +192,7 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
             ParentId = dObj.ParentId,
             ChildId = dObj.ChildId,
             Order = dObj.Order,
-            Symbol = dObj.Symbol
+            Symbol = dObj.Symbol ?? "-"
 
         };
     }
@@ -261,6 +265,49 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
         DisplayedEntityHelper.SetupDataGridView<DisplayedStaff_TC>(dgvMain);
 
     }
+    //private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+    //{
+    //    // Проверяем, что это не заголовок столбца и не новая строка
+    //    if (e.RowIndex >= 0 && e.RowIndex < dgvMain.Rows.Count)
+    //    {
+    //        var row = dgvMain.Rows[e.RowIndex];
+    //        var displayedStaff = row.DataBoundItem as IReleasable;
+    //        if (displayedStaff != null)
+    //        {
+    //            // Меняем цвет строки в зависимости от значения свойства IsReleased
+    //            if (!displayedStaff.IsReleased)
+    //            {
+    //                row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
+    //            }
+    //        }
+    //    }
+    //}
+    //private void dgvMain_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+    //{
+    //    // Проверяем, редактируется ли столбец "Order"
+    //    if (dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedStaff_TC.Order))
+    //    {
+    //        // Проверяем, что значение не пустое и является допустимым целым числом
+    //        if (string.IsNullOrWhiteSpace(e.FormattedValue.ToString()) || !int.TryParse(e.FormattedValue.ToString(), out _))
+    //        {
+    //            e.Cancel = true; // Отменяем редактирование
+
+    //            // Получаем объект, связанный с редактируемой строкой
+    //            var row = dgvMain.Rows[e.RowIndex];
+    //            var displayedStaff = row.DataBoundItem as IPreviousOrderable;
+
+    //            if (displayedStaff != null)
+    //            {
+    //                // Восстанавливаем предыдущее значение
+    //                dgvMain.CancelEdit(); // Отменяем текущее редактирование
+    //                row.Cells[e.ColumnIndex].Value = displayedStaff.PreviousOrder; // Восстанавливаем предыдущее значение
+    //            }
+
+    //            MessageBox.Show("Значение в столбце 'Order' должно быть целым числом и не может быть пустым.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+    //        }
+    //    }
+    //}
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -348,25 +395,24 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
     }
 
 
-
-    public class DisplayedStaff_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable
+    public class DisplayedStaff_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable
     {
         public Dictionary<string, string> GetPropertiesNames()
         {
             return new Dictionary<string, string>
-        {
-            { nameof(ChildId), "ID" },
-            { nameof(ParentId), "ID тех. карты" },
-            { nameof(Order), "№" },
-            { nameof(Symbol), "Обозначение" },
+            {
+                { nameof(ChildId), "ID" },
+                { nameof(ParentId), "ID тех. карты" },
+                { nameof(Order), "№" },
+                { nameof(Symbol), "Обозначение" },
 
-            { nameof(Name), "Наименование" },
-            { nameof(Type), "Тип (исполнение)" },
-            { nameof(Functions), "Функции" },
-            { nameof(CombineResponsibility), "Возможность совмещения обязанностей" },
-            { nameof(Qualification), "Квалификация" },
-            { nameof(Comment), "Комментарии" },
-        };
+                { nameof(Name), "Наименование" },
+                { nameof(Type), "Тип (исполнение)" },
+                { nameof(Functions), "Функции" },
+                { nameof(CombineResponsibility), "Возможность совмещения обязанностей" },
+                { nameof(Qualification), "Квалификация" },
+                { nameof(Comment), "Комментарии" },
+            };
         }
         public List<string> GetPropertiesOrder()
         {
@@ -406,6 +452,8 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
         private int childId;
         private int parentId;
         private int order;
+
+
         private string symbol;
 
         private string name;
@@ -435,11 +483,17 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
             CombineResponsibility = obj.Child.CombineResponsibility;
             Qualification = obj.Child.Qualification;
             Comment = obj.Child.Comment;
+            IsReleased = obj.Child.IsReleased;
+
+            previousOrder = Order;
         }
 
         public int IdAuto { get; set; }
         public int ChildId { get; set; }
         public int ParentId { get; set; }
+
+
+        private int previousOrder;
         public int Order
         {
             get => order;
@@ -447,12 +501,15 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
             {
                 if (order != value)
                 {
+                    previousOrder = order;
                     order = value;
                     OnPropertyChanged(nameof(Order));
                 }
             }
         }
-        public string Symbol
+
+        public int PreviousOrder => previousOrder;
+        public string? Symbol
         {
             get => symbol;
             set
@@ -462,7 +519,7 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
                     oldValueDict[nameof(Symbol)] = symbol;
 
-                    symbol = value;
+                    symbol = value ?? "-";
                     OnPropertyChanged(nameof(Symbol));
                 }
             }
@@ -475,6 +532,7 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
         public string? CombineResponsibility { get; set; }
         public string Qualification { get; set; }
         public string? Comment { get; set; }
+        public bool IsReleased { get; set; } = false;
 
 
 
