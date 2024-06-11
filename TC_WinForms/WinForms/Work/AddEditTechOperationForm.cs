@@ -196,11 +196,16 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var IddGuid = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
+                var result = MessageBox.Show("Вы уверены, что хотите удалить ТО?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-                TechOperationForm.DeleteTechOperation(IddGuid);
-                UpdateLocalTO();
-                TechOperationForm.UpdateGrid();
+                if (result == DialogResult.Yes)
+                {
+                    var IddGuid = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
+
+                    TechOperationForm.DeleteTechOperation(IddGuid);
+                    UpdateLocalTO();
+                    TechOperationForm.UpdateGrid();
+                }
             }
         }
 

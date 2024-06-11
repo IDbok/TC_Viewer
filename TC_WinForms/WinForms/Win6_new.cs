@@ -176,7 +176,11 @@ namespace TC_WinForms.WinForms
         private async void Win6_new_FormClosing(object sender, FormClosingEventArgs e)
         {
             // проверка на наличие изменений во всех формах
-            CheckForChanges();
+            if (!CheckForChanges()) // если false, то отменяем переключение
+            {
+                e.Cancel = true;
+                return;
+            }
 
             //close all inner forms
             foreach (var form in _formsCache.Values)
@@ -209,7 +213,10 @@ namespace TC_WinForms.WinForms
 
             if (isSwitchingFromOrToWorkStep)
             {
-                CheckForChanges();
+                if(!CheckForChanges()) // если false, то отменяем переключение
+                {
+                    return;
+                }
 
                 // Удаляем формы из кеша для их обновления при следующем доступе
                 foreach (var formKey in _formsCache.Keys.ToList())
@@ -237,7 +244,7 @@ namespace TC_WinForms.WinForms
             UpdateButtonsState(modelType);
         }
 
-        private void CheckForChanges()
+        private bool CheckForChanges()
         {
             // проверка на наличие изменений во всех формах
             bool hasUnsavedChanges = false;
@@ -259,13 +266,17 @@ namespace TC_WinForms.WinForms
                     foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
                     {
                         fm.SaveChanges();
+
                     }
+                    return true;
                 }
                 else if (result == DialogResult.Cancel)
                 {
-                    return;
+                    return false;
                 }
             }
+
+            return true;
         }
 
         private Form CreateForm(EModelType modelType)

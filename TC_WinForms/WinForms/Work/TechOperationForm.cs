@@ -47,6 +47,8 @@ namespace TC_WinForms.WinForms.Work
 
             dgvMain.CellEndEdit += DgvMain_CellEndEdit;
 
+            dgvMain.CellMouseEnter += DgvMain_CellMouseEnter;
+
             this.tcId = tcId;
 
 
@@ -202,6 +204,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void TechOperationForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            // Закрытие дочерней формы, если она была открыта
             _editForm?.Close();
         }
         public void UpdateGrid()
@@ -692,6 +695,26 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
+
+        private void DgvMain_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                // Получение имени столбца по индексу
+                string columnName = dgvMain.Columns[e.ColumnIndex].HeaderText;
+
+                // Проверка имени столбца
+                if (columnName == "Время действ., мин.")
+                {
+                    var executionWork = dgvMain.Rows[e.RowIndex].Cells[0].Value as ExecutionWork;
+                    if (executionWork != null)
+                    {
+                        if (!string.IsNullOrEmpty(executionWork.Coefficient) && executionWork.techTransition != null)
+                            dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = executionWork.techTransition.TimeExecution + executionWork.Coefficient;
+                    }
+                }
+            }
+        }
 
 
         private void DgvMain_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)

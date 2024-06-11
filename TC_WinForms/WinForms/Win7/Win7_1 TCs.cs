@@ -117,9 +117,9 @@ namespace TC_WinForms.WinForms
         public async Task LoadDataAsync()
         {
             _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
-                .OrderBy(tc => tc.NetworkVoltage)
-                    .ThenBy(tc => tc.Type)
-                    .ThenBy(tc => tc.Article)
+                //.OrderBy(tc => tc.Article)
+                    //.ThenBy(tc => tc.NetworkVoltage)
+                    //.ThenBy(tc => tc.Type)
                 .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
 
             //_bindingList = new BindingList<DisplayedTechnologicalCard>(_displayedtechnologicalCards);
@@ -141,9 +141,9 @@ namespace TC_WinForms.WinForms
             int skipedItems = isFiltered ? filteredPageIndex * _pageSize : currentPageIndex * _pageSize;
 
             // Обновляем данные
-            var pageData = displayedData.Skip(skipedItems).Take(_pageSize).ToList();
+            var pageData = displayedData.OrderBy(tc => tc.Article).Skip(skipedItems).Take(_pageSize).ToList();
             _bindingList = new BindingList<DisplayedTechnologicalCard>(pageData);
-            dgvMain.DataSource = _bindingList;
+            dgvMain.DataSource = _bindingList;//.OrderBy(tc => tc.Article);
 
             // Подготовка данных для события
             PageInfoEventArgs pageInfoEventArgs = new PageInfoEventArgs
