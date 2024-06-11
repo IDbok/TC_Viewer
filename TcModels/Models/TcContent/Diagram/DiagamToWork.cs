@@ -14,6 +14,6 @@ namespace TcModels.Models.TcContent
         public TechnologicalCard technologicalCard { get; set; }
 
 
-        public List<DiagramListShag> diagramListShags { get; set; }
+        public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new List<DiagramParalelno>();
     }
 }

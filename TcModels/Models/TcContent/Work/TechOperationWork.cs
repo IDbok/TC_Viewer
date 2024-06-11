@@ -18,7 +18,9 @@ namespace TcModels.Models.TcContent
 
         public ICollection<ExecutionWork> executionWorks { get; set; } = new List<ExecutionWork>();
 
-       [NotMapped] public bool Delete { get; set; } = false;
+        public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new List<DiagramParalelno>();
+
+        [NotMapped] public bool Delete { get; set; } = false;
        [NotMapped] public bool NewItem { get; set; } = false;
         
        public int Order { get; set; }

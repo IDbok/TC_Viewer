@@ -10,7 +10,7 @@
         <StackPanel>
             <TextBlock x:Name="TextShag" Text="№ шага" HorizontalAlignment="Center" FontSize="18"   />
 
-            <TextBox x:Name="TextDeystShag" MinHeight="150" TextWrapping="Wrap" TextAlignment="Center"  Text="Действия шага:" AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" />
+            <TextBox x:Name="TextDeystShag" MinHeight="150" TextWrapping="Wrap" TextAlignment="Center"  Text="Действия шага:" AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" TextChanged="TextDeystShag_TextChanged" />
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Добавить тех. переход" Margin="0,0,30,0"></TextBlock>
                 <ComboBox Name="ComboBoxTeh" Width="200" SelectionChanged="ComboBoxTeh_SelectionChanged" />
@@ -163,15 +163,16 @@
 
                             </StackPanel>
                     </GroupBox>
-
-                    <Image x:Name="imageDiagram"  Source="/WinForms/Diagram/Select.jpg" Width="300" Height="300" MouseLeftButtonDown="Image_MouseLeftButtonDown"  />
-                    <Grid MinHeight="25">
+                        <Border Background="#00000000"  MouseLeftButtonDown="Image_MouseLeftButtonDown" >
+                            <Image x:Name="imageDiagram" Source="/WinForms/Diagram/Select.jpg" Width="300" Height="300" OpacityMask="Red"  />
+                        </Border>
+                        <Grid MinHeight="25">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock x:Name="TextImage" Text="№ Рисунка" TextAlignment="Center"  />
-                        <TextBox Grid.Column="1" TextWrapping="Wrap" AcceptsReturn="True" UseLayoutRounding="False"  Width="295"   />
+                        <TextBox x:Name="TBNameImage" Grid.Column="1" TextWrapping="Wrap" AcceptsReturn="True" UseLayoutRounding="False"  Width="295" TextChanged="TextBox_TextChanged"   />
 
 
                     </Grid>

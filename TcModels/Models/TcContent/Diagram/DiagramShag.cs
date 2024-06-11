@@ -10,15 +10,18 @@ namespace TcModels.Models.TcContent
     {
         public int Id { get; set; }
 
-        public string Deystavie { get; set; }
+        public string Deystavie { get; set; } = "";
 
-        public string ImageBase64 { get; set; }
+        public string ImageBase64 { get; set; } = "";
 
-        public string NameImage { get; set; }
+        public string NameImage { get; set; } = "";
 
         public int Nomer { get; set; }
 
-        public List<DiagramShagToolsComponent> ListDiagramShagToolsComponent { get; set; }
+        public List<DiagramShagToolsComponent> ListDiagramShagToolsComponent { get; set; } = new List<DiagramShagToolsComponent>();
+
+        public DiagramPosledov DiagramPosledov { get; set; }
+        
 
     }
 }

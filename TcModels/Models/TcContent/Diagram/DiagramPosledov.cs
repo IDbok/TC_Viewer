@@ -10,6 +10,8 @@ namespace TcModels.Models.TcContent
     {
         public int Id { get; set; }
 
+        public List<DiagramShag> ListDiagramShag { get; set; } = new List<DiagramShag>();
+
         public DiagramParalelno DiagramParalelno { get; set; }
     }
 }

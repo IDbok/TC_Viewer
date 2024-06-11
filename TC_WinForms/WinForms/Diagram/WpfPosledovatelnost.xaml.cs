@@ -22,37 +22,71 @@ namespace TC_WinForms.WinForms.Diagram
     public partial class WpfPosledovatelnost : System.Windows.Controls.UserControl
     {
         private TechOperationWork selectedItem;
-        WpfParalelno wpfParalelno;
+       public WpfParalelno wpfParalelno;
+
+       public DiagramPosledov diagramPosledov;
 
         public WpfPosledovatelnost()
         {
             InitializeComponent();
         }
 
-        public WpfPosledovatelnost(TechOperationWork selectedItem, WpfParalelno _wpfParalelno)
+        public WpfPosledovatelnost(TechOperationWork selectedItem, WpfParalelno _wpfParalelno, DiagramPosledov _diagramPosledov=null)
         {
             InitializeComponent();
+
+            if (_diagramPosledov == null)
+            {
+                diagramPosledov = new DiagramPosledov();
+                _wpfParalelno.diagramParalelno.ListDiagramPosledov.Add(diagramPosledov);
+            }
+            else
+            {
+                diagramPosledov = _diagramPosledov;
+
+            }
+
             this.selectedItem = selectedItem;
             wpfParalelno = _wpfParalelno;
 
             ListWpfShag.Children.Clear();
-            ListWpfShag.Children.Add(new WpfShag(selectedItem, this));
+
+            if (diagramPosledov.ListDiagramShag.Count == 0)
+            {
+                if (selectedItem != null)
+                {
+                    ListWpfShag.Children.Add(new WpfShag(selectedItem, this));
+                }
+            }
+            else
+            {
+                foreach (DiagramShag diagramShag in diagramPosledov.ListDiagramShag)
+                {
+                    ListWpfShag.Children.Add(new WpfShag(selectedItem, this, diagramShag));
+                }
+            }
+
+
             wpfParalelno.Nomeraciya();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             ListWpfShag.Children.Add(new WpfShag(selectedItem, this));
+            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
 
             wpfParalelno.Nomeraciya();
         }
 
         public void DeleteItem(WpfShag Item)
         {
-            ListWpfShag.Children.Remove(Item);
+            ListWpfShag.Children.Remove(Item);            
 
-            if(ListWpfShag.Children.Count==0)
+            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+
+            if (ListWpfShag.Children.Count==0)
             {
+                wpfParalelno.diagramParalelno.ListDiagramPosledov.Remove(diagramPosledov);
                 wpfParalelno.DeletePosledovatelnost(this);
             }
 

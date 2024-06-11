@@ -10,9 +10,11 @@ namespace TcModels.Models.TcContent
     {
         public int Id { get; set; }
 
-        public DiagramListShag DiagramListShag { get; set; }
+        public TechOperationWork techOperationWork { get; set; }
 
-        public List<DiagramPosledov> ListDiagramPosledov { get; set; }
+        public DiagamToWork DiagamToWork { get; set; }
+
+        public List<DiagramPosledov> ListDiagramPosledov { get; set; } = new List<DiagramPosledov>();
 
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram
 {
@@ -21,6 +22,12 @@ namespace TC_WinForms.WinForms.Diagram
                 OnPropertyChanged("Add");
             }
         }
+
+        public ToolWork? toolWork { get; set; } = null;
+
+        public ComponentWork? componentWork { get; set; } = null;
+
+
         public string Name { get; set; }
         public string Type { get; set; }
         public string Unit { get; set; }
