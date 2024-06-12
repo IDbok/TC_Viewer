@@ -23,13 +23,26 @@ internal class Program
     static async Task Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
-        TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v13;user=root;password=root";
-        
-        GetStaffs();
+        TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v15;user=root;password=root";
+
+        //GetStaffs();
+        ParseNewDictionaty();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
+    static void ParseNewDictionaty()
+    {
+        string structFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
+        string tcFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Список ТК.xlsx";
+        string intermediateDictionaryFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточных сущностей.xlsx";
+        string workStepsFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
+
+        DbCreatorParser.ParseAll(structFilePath, tcFilePath, intermediateDictionaryFilePath, workStepsFilePath);
+
+        //DbCreator.DeserializeWorkStepsToDb();
+    }
+
     static void GetStaffs()
     {
         //using (var context = new MyDbContext())
@@ -647,17 +660,7 @@ internal class Program
 
         return matrix[n, m];
     }
-    static void ParseNewDictionaty()
-    {
-        string structFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
-        string tcFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Список ТК.xlsx";
-        string intermediateDictionaryFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточных сущностей.xlsx";
-        string workStepsFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
-
-        DbCreatorParser.ParseAll(structFilePath, tcFilePath, intermediateDictionaryFilePath, workStepsFilePath);
-
-        //DbCreator.DeserializeWorkStepsToDb();
-    }
+    
 
     static void DeleteAllTO()
     {

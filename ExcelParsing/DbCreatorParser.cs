@@ -27,7 +27,7 @@ namespace ExcelParsing
             ParseWorkDictionaries(workStepsFilePath, folderToSaveJson);
 
             // create new DB to parsed data
-            // CreateDb();
+            CreateDb();
 
             DbCreator.AddDeserializedDataToDb();
 
