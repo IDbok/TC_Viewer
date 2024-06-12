@@ -96,6 +96,8 @@ namespace TcModels.Models
         public string?  RepairType { get; set; } // Тип ремонта
         public bool IsCompleted { get; set; } // Наличие ТК
 
+        public byte[]? ExecutionScheme { get; set; }
+
         public TechnologicalCardStatus Status { get; set; } = TechnologicalCardStatus.Created;
 
         public List<Author> Authors { get; set; } = new();
