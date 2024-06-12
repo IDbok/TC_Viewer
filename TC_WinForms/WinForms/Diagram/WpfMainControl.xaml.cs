@@ -28,23 +28,25 @@ namespace TC_WinForms.WinForms.Diagram
         public MyDbContext context;
 
         private int tcId;
-
+        public TechnologicalCard technologicalCard;
 
         public TechnologicalCard TehCarta;
         public List<TechOperationWork> TechOperationWorksList;
+        public DiagramForm diagramForm;
 
         public WpfMainControl()
         {
             InitializeComponent();
         }
 
-        public WpfMainControl(int tcId)
+        public WpfMainControl(int tcId, DiagramForm _diagramForm)
         {
             InitializeComponent();
             this.tcId = tcId;
-
+            diagramForm = _diagramForm;
             context = new MyDbContext();
 
+            technologicalCard = context.TechnologicalCards.Single(x => x.Id == tcId);
 
             TehCarta = context.TechnologicalCards
                .Include(t => t.Machines).Include(t => t.Machine_TCs)
@@ -73,20 +75,53 @@ namespace TC_WinForms.WinForms.Diagram
                     .Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2)
                    .Include(r => r.ToolWorks).ThenInclude(r => r.tool).ToList();
 
+
+           var ListShag = context.DiagamToWork.Where(w=>w.technologicalCard == technologicalCard)
+
+                 .Include(i => i.ListDiagramParalelno)
+                .ThenInclude(ie => ie.techOperationWork)
+
+                .Include(i=>i.ListDiagramParalelno)
+                .ThenInclude(i=>i.ListDiagramPosledov)
+                .ThenInclude(i => i.ListDiagramShag)
+                .ThenInclude(i=>i.ListDiagramShagToolsComponent)
+                             
+                .ToList();
+
+            foreach (DiagamToWork item in ListShag)
+            {
+                ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList, this, item));
+                Nomeraciya();
+            }
+
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList,this));
+            diagramForm.HasChanges = true;
             Nomeraciya();
         }
 
         public void DeleteControlTO(WpfControlTO controlTO)
         {
             ListWpfControlTO.Children.Remove(controlTO);
-
-            if(ListWpfControlTO.Children.Count==0)
+            try
             {
+                
+            }
+            catch (Exception)
+            {
+
+            }
+            
+            diagramForm.HasChanges = true;
+
+            if (ListWpfControlTO.Children.Count==0)
+            {
+                if (context.DiagamToWork.SingleOrDefault(s => s == controlTO.diagamToWork) != null)
+                    context.DiagamToWork.Remove(controlTO.diagamToWork);
+
                 ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList, this));
                 Nomeraciya();
             }                                
@@ -110,6 +145,58 @@ namespace TC_WinForms.WinForms.Diagram
                     }
                 }
             }
+        }
+
+        public void Save()
+        {
+            try
+            {
+                foreach (WpfControlTO item in ListWpfControlTO.Children)
+                {
+                    foreach (WpfParalelno item2 in item.ListWpfParalelno.Children)
+                    {
+                        foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
+                        {
+                            foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                            {
+                                item4.SaveCollection();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+            }       
+
+
+
+
+            try
+            {
+                //foreach (WpfControlTO item in ListWpfControlTO.Children)
+                //{
+                //    if(item.New && item.diagamToWork.techOperationWork!=null)
+                //    {
+                //        context.DiagamToWork.Add(item.diagamToWork);
+                //    }
+                //}
+
+                var bbn = context.DiagamToWork.Where(w => w.techOperationWork == null).ToList();
+                foreach (DiagamToWork item in bbn)
+                {
+                    context.DiagamToWork.Remove(item);
+                }
+
+
+                    context.SaveChanges();
+            }
+            catch (Exception ee)
+            {
+                System.Windows.Forms.MessageBox.Show(ee.Message);
+            }
+           
         }
     }
 }

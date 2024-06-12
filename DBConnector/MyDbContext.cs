@@ -41,6 +41,13 @@ namespace TcDbConnector
         public DbSet<StaffRelationship> StaffRelationship { get; set; } = null!;
 
 
+        public DbSet<DiagamToWork> DiagamToWork { get; set; } = null!;
+        public DbSet<DiagramParalelno> DiagramParalelno { get; set; } = null!;
+        public DbSet<DiagramPosledov> DiagramPosledov { get; set; } = null!;
+        public DbSet<DiagramShag> DiagramShag { get; set; } = null!;
+        public DbSet<DiagramShagToolsComponent> DiagramShagToolsComponent { get; set; } = null!;
+
+
         public MyDbContext()
         {
             //Database.EnsureDeleted();

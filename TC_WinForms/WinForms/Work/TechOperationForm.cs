@@ -901,7 +901,6 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
-
         public void DeleteTechOperation(TechOperationWork TechOperat)
         {
             var vb = TechOperationWorksList.SingleOrDefault(s => s == TechOperat);
@@ -910,6 +909,7 @@ namespace TC_WinForms.WinForms.Work
                 vb.Delete = true;
             }
         }
+
         public void DeleteTechTransit(Guid IdGuid, TechOperationWork techOperationWork)
         {
             TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);

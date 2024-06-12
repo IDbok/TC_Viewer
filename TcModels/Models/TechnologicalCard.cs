@@ -121,6 +121,9 @@ namespace TcModels.Models
 
         public List<TechOperationWork> TechOperationWorks { get; set; } = new();
 
+        public List<DiagamToWork> DiagamToWork { get; set; } = new();
+        
+
         //public int? WorkStepsId { get; set; }
         //public List<WorkStep> WorkSteps { get; set; } = new();
 
