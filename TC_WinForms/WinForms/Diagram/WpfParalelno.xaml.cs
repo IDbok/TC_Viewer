@@ -90,9 +90,52 @@ namespace TC_WinForms.WinForms.Diagram
             }
         }
 
+
+        internal void Order(int v, WpfPosledovatelnost wpfPosledovatelnost)
+        {
+           if(v==1)
+            {
+                int ib = ListWpfPosledovatelnost.Children.IndexOf(wpfPosledovatelnost);
+                if (ib < ListWpfPosledovatelnost.Children.Count - 1)
+                {
+                    var cv = ListWpfPosledovatelnost.Children[ib + 1];
+                    ListWpfPosledovatelnost.Children.Remove(cv);
+                    ListWpfPosledovatelnost.Children.Insert(ib, cv);
+
+                    wpfControlTO.Nomeraciya();
+                }
+            }
+
+           if(v==2)
+            {
+                int ib = ListWpfPosledovatelnost.Children.IndexOf(wpfPosledovatelnost);
+                if (ib != 0)
+                {
+                    var cv = ListWpfPosledovatelnost.Children[ib];
+                    ListWpfPosledovatelnost.Children.Remove(cv);
+                    ListWpfPosledovatelnost.Children.Insert(ib - 1, cv);
+                    wpfControlTO.Nomeraciya();
+                }
+            }
+
+        }
+
         internal void Nomeraciya()
         {
             wpfControlTO.Nomeraciya();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            wpfControlTO.Order(1, this);
+
+            wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            wpfControlTO.Order(2, this);
+            wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
     }
 }

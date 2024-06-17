@@ -22,6 +22,7 @@ namespace TcModels.Models.TcContent
 
         public DiagramPosledov DiagramPosledov { get; set; }
         
+        public int Order { get; set; }
 
     }
 }

@@ -131,14 +131,33 @@ namespace TC_WinForms.WinForms.Diagram
         {
             int nomer = 1;
 
+            int Order1 = 1;
+            int Order2 = 1;
+            int Order3 = 1;
+            int Order4 = 1;
+
             foreach (WpfControlTO item in ListWpfControlTO.Children)
             {
+               if(item.diagamToWork!=null) item.diagamToWork.Order = Order1;
+                Order1++;
+                Order2 = 1;
+                Order3 = 1;
+                Order4 = 1;
+
                 foreach (WpfParalelno item2 in item.ListWpfParalelno.Children)
                 {
+                    if (item2.diagramParalelno != null) item2.diagramParalelno.Order = Order2;
+                    Order3 = 1;
+                    Order4 = 1;
+
                     foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
                     {
+                        if (item3.diagramPosledov != null) item3.diagramPosledov.Order = Order3;
+                        Order4 = 1;
+
                         foreach (WpfShag item4 in item3.ListWpfShag.Children)
                         {
+                            if (item4.diagramShag != null) item4.diagramShag.Order = Order4;
                             item4.SetNomer(nomer);
                             nomer++;
                         }
@@ -197,6 +216,34 @@ namespace TC_WinForms.WinForms.Diagram
                 System.Windows.Forms.MessageBox.Show(ee.Message);
             }
            
+        }
+
+        internal void Order(int v, WpfControlTO wpfControlTO)
+        {
+            if (v == 1)
+            {
+                int ib = ListWpfControlTO.Children.IndexOf(wpfControlTO);
+                if (ib < ListWpfControlTO.Children.Count - 1)
+                {
+                    var cv = ListWpfControlTO.Children[ib + 1];
+                    ListWpfControlTO.Children.Remove(cv);
+                    ListWpfControlTO.Children.Insert(ib, cv);
+
+                    Nomeraciya();
+                }
+            }
+
+            if (v == 2)
+            {
+                int ib = ListWpfControlTO.Children.IndexOf(wpfControlTO);
+                if (ib != 0)
+                {
+                    var cv = ListWpfControlTO.Children[ib];
+                    ListWpfControlTO.Children.Remove(cv);
+                    ListWpfControlTO.Children.Insert(ib - 1, cv);
+                    Nomeraciya();
+                }
+            }
         }
     }
 }

@@ -320,7 +320,7 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewTO.FirstDisplayedScrollingRowIndex;
             dataGridViewTO.Rows.Clear();
 
-            List<TechOperationWork> list = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false)
+            List<TechOperationWork> list = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false).OrderBy(o=>o.Order)
                 .ToList();
 
             foreach (TechOperationWork techOperationWork in list)

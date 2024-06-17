@@ -312,6 +312,20 @@ namespace TC_WinForms.WinForms.Diagram
             wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            wpfPosledovatelnost.Vniz(this);
+            wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+        }
+
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            wpfPosledovatelnost.Verh(this);
+            wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+        }
+
+
         private void TG_Click(object sender, RoutedEventArgs e)
         {
             if(TG.IsChecked==true)
@@ -355,5 +369,6 @@ namespace TC_WinForms.WinForms.Diagram
                 }
             }
         }
+
     }
 }

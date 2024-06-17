@@ -92,5 +92,43 @@ namespace TC_WinForms.WinForms.Diagram
 
             wpfParalelno.Nomeraciya();
         }
+
+        public void Vniz(WpfShag wpfShag)
+        {
+            int ib = ListWpfShag.Children.IndexOf(wpfShag);
+            if(ib < ListWpfShag.Children.Count-1 )
+            {
+                var cv = ListWpfShag.Children[ib + 1];
+                ListWpfShag.Children.Remove(cv);
+                ListWpfShag.Children.Insert(ib, cv);
+
+                wpfParalelno.Nomeraciya();
+            }
+        }
+
+        public void Verh(WpfShag wpfShag)
+        {
+            int ib = ListWpfShag.Children.IndexOf(wpfShag);
+            if (ib != 0)
+            {
+                var cv = ListWpfShag.Children[ib];
+                ListWpfShag.Children.Remove(cv);
+                ListWpfShag.Children.Insert(ib-1, cv);
+                wpfParalelno.Nomeraciya();
+            }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+
+            wpfParalelno.Order(1, this);
+            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            wpfParalelno.Order(2, this);
+            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+        }
     }
 }

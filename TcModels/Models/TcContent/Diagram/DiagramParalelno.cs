@@ -16,5 +16,7 @@ namespace TcModels.Models.TcContent
 
         public List<DiagramPosledov> ListDiagramPosledov { get; set; } = new List<DiagramPosledov>();
 
+        public int Order { get; set; }
+
     }
 }

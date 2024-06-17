@@ -142,5 +142,53 @@ namespace TC_WinForms.WinForms.Diagram
                 wpfMainControl.Nomeraciya();
             }
         }
+
+        internal void Order(int v, WpfParalelno wpfParalelno)
+        {
+            if (v == 1)
+            {
+                int ib = ListWpfParalelno.Children.IndexOf(wpfParalelno);
+                if (ib < ListWpfParalelno.Children.Count - 1)
+                {
+                    var cv = ListWpfParalelno.Children[ib + 1];
+                    ListWpfParalelno.Children.Remove(cv);
+                    ListWpfParalelno.Children.Insert(ib, cv);
+
+                    wpfMainControl.Nomeraciya();
+                }
+            }
+
+            if (v == 2)
+            {
+                int ib = ListWpfParalelno.Children.IndexOf(wpfParalelno);
+                if (ib != 0)
+                {
+                    var cv = ListWpfParalelno.Children[ib];
+                    ListWpfParalelno.Children.Remove(cv);
+                    ListWpfParalelno.Children.Insert(ib - 1, cv);
+                    wpfMainControl.Nomeraciya();
+                }
+            }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            wpfMainControl.Order(1, this);
+            _wpfMainControl.diagramForm.HasChanges = true;
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            wpfMainControl.Order(2, this);
+            _wpfMainControl.diagramForm.HasChanges = true;
+        }
+
+        private void Button_Click_Del(object sender, RoutedEventArgs e)
+        {
+            _wpfMainControl.diagramForm.HasChanges = true;
+            diagamToWork.techOperationWork = null;
+            _wpfMainControl.technologicalCard.DiagamToWork.Remove(diagamToWork);
+            wpfMainControl.DeleteControlTO(this);
+        }
     }
 }
