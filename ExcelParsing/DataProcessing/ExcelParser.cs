@@ -17,6 +17,8 @@ namespace ExcelParsing.DataProcessing
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
         }
+
+        
         public List<Staff_TC> ParseExcelToObjectsStaff_TC(string filePath, out List<string> metaList)
         {
 
@@ -195,6 +197,8 @@ namespace ExcelParsing.DataProcessing
 
                         IsCompleted = isCompleted == "Есть" ? true : false,
 
+                        Status = TechnologicalCard.TechnologicalCardStatus.Approved,
+
                     };
 
 
@@ -207,6 +211,7 @@ namespace ExcelParsing.DataProcessing
         {
             var staffList = new List<Staff>();
 
+            // Первый проход для создания списка staffList и обработки связей
             using (var package = new ExcelPackage(new FileInfo(filePath)))
             {
                 var worksheet = package.Workbook.Worksheets["Staff"];
@@ -222,15 +227,39 @@ namespace ExcelParsing.DataProcessing
                         Functions = Convert.ToString(worksheet.Cells[row, 5].Value),
                         CombineResponsibility = Convert.ToString(worksheet.Cells[row, 6].Value),
                         Qualification = Convert.ToString(worksheet.Cells[row, 7].Value),
-                        Comment = Convert.ToString(worksheet.Cells[row, 8].Value)
+                        Comment = Convert.ToString(worksheet.Cells[row, 8].Value),
+
+                        IsReleased = true,
                     };
 
                     staffList.Add(staff);
                 }
+
+                
             }
+
+            //// Установка связей между объектами
+            //foreach (var staff in staffList)
+            //{
+            //    if (!string.IsNullOrWhiteSpace(staff.CombineResponsibility) && staff.CombineResponsibility.Count() > 2)
+            //    {
+            //        var relatedStaffNames = staff.CombineResponsibility.Split(new[] { '\n', ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            //        foreach (var relatedStaffName in relatedStaffNames)
+            //        {
+            //            var trimmedName = relatedStaffName.Trim();
+            //            var relatedStaff = staffList.FirstOrDefault(s => $"{s.Name}: {s.Type}".Equals(trimmedName, StringComparison.OrdinalIgnoreCase));
+            //            if (relatedStaff != null)
+            //            {
+            //                staff.AddRelatedStaff(relatedStaff);
+            //            }
+            //        }
+            //    }
+            //}
 
             return staffList;
         }
+
         public List<Protection> ParseExcelToObjectsProtection(string filePath)
         {
             var objList = new List<Protection>();
@@ -258,6 +287,9 @@ namespace ExcelParsing.DataProcessing
                         Links = ParseLinks2(linkValie, manufacturer),
 
                         ClassifierCode = Convert.ToString(worksheet.Cells[row, 6].Value),
+
+
+                        IsReleased = true,
                     };
 
                     objList.Add(obj);
@@ -293,6 +325,9 @@ namespace ExcelParsing.DataProcessing
                         Links = ParseLinks2(linkValie, manufacturer),
 
                         ClassifierCode = Convert.ToString(worksheet.Cells[row, 5].Value),
+
+
+                        IsReleased = true,
                     };
 
                     objList.Add(obj);
@@ -330,6 +365,9 @@ namespace ExcelParsing.DataProcessing
                         Categoty = Convert.ToString(worksheet.Cells[row, 10].Value),
 
                         ClassifierCode = Convert.ToString(worksheet.Cells[row, 5].Value),
+
+
+                        IsReleased = true,
                     };
 
                     objList.Add(obj);
@@ -368,6 +406,9 @@ namespace ExcelParsing.DataProcessing
                         Categoty = Convert.ToString(worksheet.Cells[row, 10].Value),
 
                         ClassifierCode = Convert.ToString(worksheet.Cells[row, 6].Value),
+
+
+                        IsReleased = true,
                     };
 
                     objList.Add(obj);

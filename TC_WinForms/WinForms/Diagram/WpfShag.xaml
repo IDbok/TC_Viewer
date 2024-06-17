@@ -164,7 +164,7 @@
                             </StackPanel>
                     </GroupBox>
                         <Border Background="#00000000"  MouseLeftButtonDown="Image_MouseLeftButtonDown" >
-                            <Image x:Name="imageDiagram" Source="/WinForms/Diagram/Select.jpg" Width="300" Height="300" OpacityMask="Red"  />
+                            <Image x:Name="imageDiagram" Source="/WinForms/Diagram/Select.jpg" Height="300" OpacityMask="Red"  />
                         </Border>
                         <Grid MinHeight="25">
                         <Grid.ColumnDefinitions>

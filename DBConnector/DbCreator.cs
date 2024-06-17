@@ -100,7 +100,7 @@ namespace TcDbConnector
             DeserializeProtectionTcToDb();
             DeserializeToolTcToDb();
 
-            // DeserializeWorkStepsToDb();
+            //DeserializeWorkStepsToDb();
 
         }
 

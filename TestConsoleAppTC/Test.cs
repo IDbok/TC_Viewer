@@ -26,10 +26,17 @@ internal class Program
         TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v15;user=root;password=root";
 
         //GetStaffs();
-        ParseNewDictionaty();
+        //ParseNewDictionaty();
+
+        ParseWorkSteps();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    static void ParseWorkSteps()
+    {
+        DbCreatorParser.ParseTCWorkSteps(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\ТКР_v3.9.xlsx", "ТКР10_8.10.1"); //ТКР10_8.10.1
+    }
 
     static void ParseNewDictionaty()
     {

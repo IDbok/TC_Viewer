@@ -83,8 +83,8 @@ namespace TC_WinForms.WinForms
 
         private void ConfigureComboBox() // todo: обновить список в соответствии с разрешенными значениями (нужно их ещё ввести)
         {
-            cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка Трансформации", "Нет данных" });
-            cbxNetworkVoltage.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f, 0f });
+            cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка трансформации", "Нет данных" });
+            cbxNetworkVoltage.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f });
         }
         private void ConfigureStatusComboBox()
         {

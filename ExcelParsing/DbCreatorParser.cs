@@ -27,11 +27,18 @@ namespace ExcelParsing
             ParseWorkDictionaries(workStepsFilePath, folderToSaveJson);
 
             // create new DB to parsed data
-            CreateDb();
+            //CreateDb();
 
             DbCreator.AddDeserializedDataToDb();
 
-            //ParseWorkSteps(workStepsFilePath, folderToSaveJson);
+            ParseWorkSteps(workStepsFilePath, folderToSaveJson);
+        }
+
+        public static void ParseTCWorkSteps(string tcFilePath, string tcName)
+        {
+            var parser = new WorkParser();
+
+            parser.ParseTcWorkSteps(tcFilePath, tcName);
         }
 
         private static void CreateDb()
