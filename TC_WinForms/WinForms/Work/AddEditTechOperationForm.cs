@@ -107,59 +107,6 @@ namespace TC_WinForms.WinForms.Work
         #region TO
 
 
-
-        public void ClickBoxAll()
-        {
-            //bool updateTO = false;
-            //foreach (DataGridViewRow? row in dataGridViewAllTO.Rows)
-            //{
-            //    var idd = (int)row.Cells[0].Value;
-            //    var chech = (bool)row.Cells[1].Value;
-
-            //    TechOperationWork TechOperat =
-            //        TechOperationForm.TechOperationWorksList.SingleOrDefault(s => s.techOperation.Id == idd);
-            //    if (chech)
-            //    {
-            //        if (TechOperat == null)
-            //        {
-            //            TechOperation sil = allTO.Single(s => s.Id == idd);
-            //            TechOperationForm.AddTechOperation(sil);
-            //            updateTO = true;
-            //        }
-            //        else
-            //        {
-            //            if (TechOperat.Delete == true)
-            //            {
-            //                TechOperat.Delete = false;
-            //                updateTO = true;
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        if (TechOperat != null && TechOperat.Delete == false)
-            //        {
-            //            TechOperationForm.DeleteTechOperation(TechOperat);
-            //            updateTO = true;
-            //        }
-            //    }
-            //}
-
-            //if (updateTO)
-            //{
-            //    UpdateLocalTO();
-            //    TechOperationForm.UpdateGrid();
-            //}
-
-        }
-
-
-        private void DataGridViewAllTO_CellContentClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            dataGridViewAllTO.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            ClickBoxAll();
-        }
-
         private void TextBoxPoiskTo_TextChanged(object? sender, EventArgs e)
         {
             UpdateTO();
@@ -173,9 +120,6 @@ namespace TC_WinForms.WinForms.Work
                 var IddGuid = (TechOperation)dataGridViewAllTO.Rows[e.RowIndex].Cells[0].Value;
 
                 AddTOWToGridLocalTO(IddGuid);
-                //TechOperationForm.AddTechOperation(IddGuid);
-                //UpdateLocalTO();
-                //TechOperationForm.UpdateGrid();
             }
         }
 
@@ -209,68 +153,6 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
-        //public void UpdateTO()
-        //{
-        //    var offScroll = dataGridViewAllTO.FirstDisplayedScrollingRowIndex;
-        //    dataGridViewAllTO.Rows.Clear();
-
-        //    var context = TechOperationForm.context;
-        //    allTO = context
-        //        .TechOperations
-        //        .Include(t => t.techTransitionTypicals)
-        //        .ToList();
-        //    //var list = TechOperationForm.TechOperationWorksList;
-
-
-        //    foreach (TechOperation techOperation in allTO)
-        //    {
-        //        if (textBoxPoiskTo.Text != "" &&
-        //            techOperation.Name.ToLower().IndexOf(textBoxPoiskTo.Text.ToLower()) == -1)
-        //        {
-        //            continue;
-        //        }
-
-
-        //        List<object> listItem = new List<object>();
-
-        //        listItem.Add(techOperation);
-
-        //        listItem.Add("Добавить");
-
-        //        //if (list.SingleOrDefault(s => s.Id == techOperation.Id) != null)
-        //        //{
-        //        //    listItem.Add(true);
-        //        //}
-        //        //else
-        //        //{
-        //        //    listItem.Add(false);
-        //        //}
-
-        //        listItem.Add(techOperation.Name);
-
-        //        if (techOperation.Category == "Типовая ТО")
-        //        {
-        //            listItem.Add(true);
-        //        }
-        //        else
-        //        {
-        //            listItem.Add(false);
-        //        }
-
-        //        dataGridViewAllTO.Rows.Add(listItem.ToArray());
-        //    }
-
-        //    try
-        //    {
-        //        dataGridViewAllTO.FirstDisplayedScrollingRowIndex = offScroll;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //    }
-
-
-        //}
-
         public void UpdateTO()
         {
             var offScroll = dataGridViewAllTO.FirstDisplayedScrollingRowIndex;
@@ -299,9 +181,7 @@ namespace TC_WinForms.WinForms.Work
         private IEnumerable<TechOperation> FilterTechOperations(string searchText)
         {
             return allTO.Where(to => (string.IsNullOrEmpty(searchText) || to.Name.ToLower().Contains(searchText.ToLower()))
-                && (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId)
-                )
-            ;
+                && (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId));
         }
         private void AddTechOperationToGridAllTO(TechOperation techOperation)
         {
@@ -326,23 +206,6 @@ namespace TC_WinForms.WinForms.Work
             foreach (TechOperationWork techOperationWork in list)
             {
                 AddTechOperationToGridLocalTO(techOperationWork);
-
-                //List<object> listItem = new List<object>();
-                //listItem.Add(techOperationWork);
-                //listItem.Add("Удалить");
-                //listItem.Add(techOperationWork.techOperation.Name);
-
-
-                //if (techOperationWork.techOperation.Category == "Типовая ТО")
-                //{
-                //    listItem.Add(true);
-                //}
-                //else
-                //{
-                //    listItem.Add(false);
-                //}
-
-                //dataGridViewTO.Rows.Add(listItem.ToArray());
             }
 
             List<TechOperationWork> list2 = new List<TechOperationWork>(list);
@@ -373,9 +236,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void comboBoxTO_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var work = (TechOperationWork)comboBoxTO.SelectedItem;
-
-
+            //var work = (TechOperationWork)comboBoxTO.SelectedItem;
             UpdateGridAllTP();
             UpdateGridLocalTP();
         }
@@ -468,13 +329,6 @@ namespace TC_WinForms.WinForms.Work
                 }
             }
 
-        }
-
-
-            private void DataGridViewTPAll_CellContentClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            //dataGridViewTPAll.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            //ClickBoxTPAll();
         }
 
         private void DataGridViewTPLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -702,8 +556,9 @@ namespace TC_WinForms.WinForms.Work
                 {
                     listItem.Add("Повторить");
                     listItem.Add("");
+
                     listItem.Add("");
-                    listItem.Add("");
+                    //listItem.Add("");
                 }
                 else
                 {
@@ -711,16 +566,28 @@ namespace TC_WinForms.WinForms.Work
                     listItem.Add(executionWork.techTransition?.TimeExecution);
 
                     listItem.Add(executionWork.Coefficient);
-                    if(executionWork.Value==-1)
-                    {
-                        listItem.Add("Ошибка");
-                    }
-                    else
-                    {
-                        listItem.Add(executionWork.Value);
-                    }
+
+                    //if(executionWork.Value==-1)
+                    //{
+                    //    listItem.Add("Ошибка");
+                    //}
+                    //else
+                    //{
+                    //    listItem.Add(executionWork.Value);
+                    //}
                 }
 
+                //////////////////////////////////////////////26.06.2024
+                if (executionWork.Value == -1)
+                {
+                    listItem.Add("Ошибка");
+                }
+                else
+                {
+                    listItem.Add(executionWork.Value);
+                }
+                //////////////////////////////////////////////
+                
                 listItem.Add(executionWork.Comments);
 
                 dataGridViewTPLocal.Rows.Add(listItem.ToArray());
@@ -747,25 +614,7 @@ namespace TC_WinForms.WinForms.Work
             {
             }
 
-
-            //dataGridViewTO.Rows.Clear();
-
-            //List<TechOperationWork> list = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false).ToList();
-            //foreach (TechOperationWork techOperationWork in list)
-            //{
-            //    List<object> listItem = new List<object>();
-            //    listItem.Add(techOperationWork.Id);
-            //    listItem.Add(techOperationWork.techOperation.Name);
-            //    dataGridViewTO.Rows.Add(listItem.ToArray());
-            //}
-
-            //List<TechOperationWork> list2 = new List<TechOperationWork>(list);
-            //comboBoxTO.DataSource = list2;
         }
-
-
-
-
         #endregion
 
         #region Staff
@@ -774,7 +623,6 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewStaff.CommitEdit(DataGridViewDataErrorContexts.Commit);
             ClickDataGridViewStaff();
         }
-
 
         public void ClickDataGridViewStaff()
         {
@@ -849,17 +697,6 @@ namespace TC_WinForms.WinForms.Work
                 var value = (string)dataGridViewStaff.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
 
                 Idd.Symbol = value;
-
-                //Staff_TC staffTc = new Staff_TC();
-                //staffTc.Child = Idd.Child;
-                //staffTc.Symbol = value;
-
-                //foreach (ExecutionWork ex in Idd.ExecutionWorks)
-                //{
-                //    staffTc.ExecutionWorks.Add(ex);
-                //}
-                //vv.Remove(Idd);
-                //vv.Add(staffTc);
 
                 Task.Run(() =>
                 {
@@ -1478,8 +1315,6 @@ namespace TC_WinForms.WinForms.Work
         #endregion
 
         #region Instument
-
-
         public void UpdateInstrumentLocal()
         {
             var offScroll = dataGridViewInstrumentLocal.FirstDisplayedScrollingRowIndex;
@@ -1766,9 +1601,6 @@ namespace TC_WinForms.WinForms.Work
         #endregion
 
         #region этапы
-
-
-
         private void TextBoxPoiskMach_TextChanged(object? sender, EventArgs e)
         {
             dataGridViewMehaUpdate();
@@ -2022,8 +1854,6 @@ namespace TC_WinForms.WinForms.Work
         #endregion
 
         #region Повторить
-
-
         private void DataGridViewPovtor_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
             dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
@@ -2120,9 +1950,6 @@ namespace TC_WinForms.WinForms.Work
             }
 
         }
-
-
-
 
         #endregion
 
@@ -2273,17 +2100,7 @@ namespace TC_WinForms.WinForms.Work
             AddingForm.AfterSave = async (createdObj) => AddNewTP(createdObj, SelectedTO);//AddNewObjectInDataGridView(createdObj);
             AddingForm.ShowDialog();
 
-            // 2. Созданный ТП сохраняется в базе (IsReleased = false)
-            // 3. Автоматически добавляется В ТО в которой создаётся (создание TechOperationWork)
-            // 4. Должен быть доступен для добавления в другие ТО для ТК, в которой был создан.
-
         }
-
-        //private void AddNewObjectInDataGridView(TechTransition modelObject)
-        //{
-        //    // Добавить созданный ТП к текущей ТО
-        //    AddNewTP(modelObject, SelectedTO);
-        //}
 
         private void btnAddNewTO_Click(object sender, EventArgs e)
         {
@@ -2293,12 +2110,5 @@ namespace TC_WinForms.WinForms.Work
 
             UpdateTO();
         }
-
-        //private void AddNewTO(TechOperation modelObject)
-        //{
-        //    AddTOWToGridLocalTO(modelObject);
-        //    // Добавить созданный ТО к текущей ТК
-        //    //AddNewTO(modelObject);
-        //}
     }
 }

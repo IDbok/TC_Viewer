@@ -18,16 +18,18 @@ namespace TcDbConnector
         public DbSet<Protection> Protections { get; set; } = null!; //Таблица 4 Средства защиты
         //public DbSet<WorkStep> WorkSteps { get; set; } = null!;
 
-        public DbSet<ExecutionWork> ExecutionWorks { get; set; } = null!;
         public DbSet<TechOperation> TechOperations { get; set; } = null!;
+        public DbSet<TechTransition> TechTransitions { get; set; } = null!;
+
+        public DbSet<TechOperationWork> TechOperationWorks { get; set; } = null!;
+        public DbSet<ExecutionWork> ExecutionWorks { get; set; } = null!;
+        
 
         public DbSet<ComponentWork> ComponentWorks { get; set; } = null!;
        // public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
 
         //public DbSet<MaxEW> MaxEWs { get; set; } = null!;
         //public DbSet<SumEW> SumEWs { get; set; } = null!;
-        public DbSet<TechOperationWork> TechOperationWorks { get; set; } = null!;
-        public DbSet<TechTransition> TechTransitions { get; set; } = null!;
         public DbSet<ToolWork> ToolWorks { get; set; } = null!;
 
         public DbSet<Staff_TC> Staff_TCs { get; set; } = null!;
@@ -197,34 +199,6 @@ namespace TcDbConnector
                         j.HasKey(t => new { t.ParentId, t.ChildId });
                         j.ToTable("Tool_TC");
                     });
-
-            //modelBuilder
-            //    .Entity<Staff>()
-            //    .HasMany(Staff => Staff.RelatedStaffs)
-            //    .WithOne(StaffRelationship => StaffRelationship.Staff)
-            //    .HasForeignKey(StaffRelationship => StaffRelationship.StaffId)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            //modelBuilder
-            //    .Entity<Staff>()
-            //    .HasMany(Staff => Staff.RelatedStaffs)
-            //    .WithOne(StaffRelationship => StaffRelationship.RelatedStaff)
-            //    .HasForeignKey(StaffRelationship => StaffRelationship.RelatedStaffId)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            //modelBuilder.Entity<Staff>()
-            //    .HasMany(s => s.RelatedStaffs)
-            //    .WithMany()
-            //    .UsingEntity<Dictionary<string, object>>(
-            //        "StaffRelationship",
-            //        r => r.HasOne<Staff>().WithMany().HasForeignKey("RelatedStaffId"),
-            //        l => l.HasOne<Staff>().WithMany().HasForeignKey("StaffId"),
-            //        j =>
-            //        {
-            //            j.ToTable("StaffRelationship");
-            //            //j.HasKey("Id");
-            //            j.HasKey("StaffId", "RelatedStaffId");
-            //        });
             modelBuilder
                 .Entity<Staff>()
                 .HasMany(cp => cp.RelatedStaffs)
@@ -245,24 +219,6 @@ namespace TcDbConnector
                         j.HasKey(t => t.Id);
                         //j.ToTable("Instrument_kit");
                     });
-
-            //modelBuilder.Entity<Staff>()
-            //    .HasMany(s => s.RelatedStaffs)
-            //    .WithMany(s => s.RelatedStaff)
-            //    .UsingEntity<StaffRelationship>(
-            //        j => j
-            //            .HasOne(sr => sr.RelatedStaff)
-            //            .WithMany()
-            //            .HasForeignKey(sr => sr.RelatedStaffId),
-            //        j => j
-            //            .HasOne(sr => sr.Staff)
-            //            .WithMany()
-            //            .HasForeignKey(sr => sr.StaffId),
-            //        j =>
-            //        {
-            //            j.HasKey(t => new { t.StaffId, t.RelatedStaffId });
-            //            // Дополнительные настройки
-            //        });
 
 
         }

@@ -22,16 +22,17 @@ namespace ExcelParsing
 
             ParseDictionaries(structFilePath, folderToSaveJson);
             ParseTechnologicalCard(tcFilePath, folderToSaveJson);
-            ParseIntermediateObjects(intermediateDictionaryFilePath, folderToSaveJson);
-
             ParseWorkDictionaries(workStepsFilePath, folderToSaveJson);
+
+            // ParseIntermediateObjects(intermediateDictionaryFilePath, folderToSaveJson);
+
 
             // create new DB to parsed data
             //CreateDb();
 
             DbCreator.AddDeserializedDataToDb();
 
-            ParseWorkSteps(workStepsFilePath, folderToSaveJson);
+            // ParseWorkSteps(workStepsFilePath, folderToSaveJson);
         }
 
         public static void ParseTCWorkSteps(string tcFilePath, string tcName)

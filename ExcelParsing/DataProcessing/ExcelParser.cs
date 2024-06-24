@@ -1,4 +1,5 @@
 ﻿using OfficeOpenXml;
+using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -18,7 +19,191 @@ namespace ExcelParsing.DataProcessing
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
         }
 
-        
+        //public void ParseAllTCs(string folderPath, List<string> fileNames, string historyFilePath)
+        //{
+        //    foreach (var fileName in fileNames)
+        //    {
+        //        Console.WriteLine($"Парсинг ТК {fileName}");
+
+        //        var tcFilePath = Path.Combine(folderPath, fileName);
+        //        var fileInfo = new FileInfo(tcFilePath);
+
+        //        if (!fileInfo.Exists)
+        //        {
+        //            throw new FileNotFoundException($"Файл {tcFilePath} не найден.");
+        //        }
+
+        //        using (var package = new ExcelPackage(fileInfo))
+        //        {
+
+        //            var sheetNames = package.Workbook.Worksheets.Select(x => x.Name).ToList();
+
+        //            // Выделить листы с именем начинающимся на "ТК"
+        //            var tcSheetNames = sheetNames.Where(x => x.StartsWith("ТК")).ToList();
+
+        //            if (tcSheetNames.Count == 0)
+        //            {
+        //                throw new Exception($"В файле {tcFilePath} не найдены листы с названием начинающимся на 'ТК'");
+        //            }
+
+        //            foreach(var tcSheetName in tcSheetNames)
+        //            {
+        //                try
+        //                {
+        //                    var article = tcSheetName;
+
+        //                    var tcRepo = new TechnologicalCardRepository(new TcDbConnector.MyDbContext());
+        //                    tcRepo.DeleteInnerEntitiesAsync(article);
+
+        //                    var interParser = new IntermediateTablesParser();
+        //                    var wsParser = new WorkParser();
+
+        //                    interParser.ParseIntermediateObjects(tcFilePath, article);
+
+        //                    wsParser.ParseTcWorkSteps(tcFilePath, article);
+
+        //                    wsParser.ParseExecutionPictures(tcFilePath, article);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    Console.WriteLine($"Ошибка при парсинге ТК {fileName}: {ex.Message}");
+        //                    File.AppendAllText(historyFilePath, $"Ошибка при парсинге ТК {fileName}: {ex.Message}\n");
+        //                }
+                        
+        //            }
+        //        }
+        //    }
+            
+        //}
+        public void ParseAllTCs(string folderPath, List<string> fileNames, string historyFilePath)
+        {
+            //string logFilePath = "Log.xlsx";
+            FileInfo logFile = new FileInfo(historyFilePath);
+
+            using (ExcelPackage logPackage = new ExcelPackage(logFile))
+            {
+                var logSheet = logPackage.Workbook.Worksheets.FirstOrDefault() ?? logPackage.Workbook.Worksheets.Add("Log");
+
+                // Setup the header if the file is new
+                if (logSheet.Dimension == null)
+                {
+                    logSheet.Cells[1, 1].Value = "Файл";
+                    logSheet.Cells[1, 2].Value = "Артикул ТК";
+                    logSheet.Cells[1, 3].Value = "Парсинг таблиц 1-5";
+                    logSheet.Cells[1, 4].Value = "Парсинг таблицы 6";
+                    logSheet.Cells[1, 5].Value = "Примечания";
+                }
+
+                var interParser = new IntermediateTablesParser();
+                var wsParser = new WorkParser();
+
+                interParser.CacheDbData(out List<Staff> staffs,
+                    out List<Machine> machines,
+                    out List<Component> components,
+                    out List<Tool> tools,
+                    out List<Protection> protections);
+
+                wsParser.CacheDbData(out List<TechOperation> techOperations,
+                                       out List<TechTransition> techTransitions);
+
+
+                var cacheDb = new CachedData(staffs, components, tools, machines, protections, techOperations, techTransitions);
+
+                foreach (var fileName in fileNames)
+                {
+                    Console.WriteLine($"Парсинг ТК {fileName}");
+
+                    var tcFilePath = Path.Combine(folderPath, fileName);
+                    var fileInfo = new FileInfo(tcFilePath);
+
+                    if (!fileInfo.Exists)
+                    {
+                        LogError(logSheet, fileName, "", "Файл не найден");
+                        continue;
+                    }
+
+                    using (var package = new ExcelPackage(fileInfo))
+                    {
+                        var sheetNames = package.Workbook.Worksheets.Select(x => x.Name).ToList();
+                        var tcSheetNames = sheetNames.Where(x => x.StartsWith("ТК")).ToList();
+
+                        if (tcSheetNames.Count == 0)
+                        {
+                            LogError(logSheet, fileName, "", "Листы с названием начинающимся на 'ТК' не найдены");
+                            continue;
+                        }
+
+                        foreach (var tcSheetName in tcSheetNames)
+                        {
+                            string article = tcSheetName;
+                            string parsingResult1to5 = "";
+                            string parsingResult6 = "";
+                            string notes = "";
+
+                            try
+                            {
+                                var tcRepo = new TechnologicalCardRepository(new TcDbConnector.MyDbContext());
+                                tcRepo.DeleteInnerEntitiesAsync(article);
+                                try
+                                {
+                                    interParser.ParseIntermediateObjects(tcFilePath, article);
+                                    parsingResult1to5 = "+";
+
+                                    try
+                                    {
+                                        wsParser.ParseTcWorkSteps(tcFilePath, article, cacheDb);
+                                        //wsParser.ParseExecutionPictures(tcFilePath, article);
+                                        parsingResult6 = "+";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        parsingResult6 = ex.Message;
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    parsingResult1to5 = ex.Message;
+                                    parsingResult6 = "-";
+
+                                }
+
+                                tcRepo.UpdateStatus(article, TechnologicalCard.TechnologicalCardStatus.Draft);
+                            }
+                            catch (Exception ex)
+                            {
+                                notes = $"Ошибка при парсинге ТК {fileName}: {ex.Message}";
+                                Console.WriteLine(notes);
+                                LogError(logSheet, fileName, article, notes);
+                                //File.AppendAllText(historyFilePath, notes + "\n");
+                            }
+
+                            LogResult(logSheet, fileName, article, parsingResult1to5, parsingResult6, notes);
+                        }
+                    }
+                }
+
+                logPackage.Save();
+            }
+        }
+
+        private void LogResult(ExcelWorksheet sheet, string fileName, string article, string result1to5, string result6, string notes)
+        {
+            int newRow = sheet.Dimension.End.Row + 1;
+            sheet.Cells[newRow, 1].Value = fileName;
+            sheet.Cells[newRow, 2].Value = article;
+            sheet.Cells[newRow, 3].Value = result1to5;
+            sheet.Cells[newRow, 4].Value = result6;
+            sheet.Cells[newRow, 5].Value = notes;
+        }
+
+        private void LogError(ExcelWorksheet sheet, string fileName, string article, string error)
+        {
+            int newRow = sheet.Dimension.End.Row + 1;
+            sheet.Cells[newRow, 1].Value = fileName;
+            sheet.Cells[newRow, 2].Value = article;
+            sheet.Cells[newRow, 5].Value = error;
+        }
+
         public List<Staff_TC> ParseExcelToObjectsStaff_TC(string filePath, out List<string> metaList)
         {
 
@@ -78,9 +263,9 @@ namespace ExcelParsing.DataProcessing
                 {
                     int.TryParse(Convert.ToString(worksheet.Cells[row, 1].Value),out var isIndex) ;
                     int.TryParse(Convert.ToString(worksheet.Cells[row, 2].Value), out var isParentId);
-                    int.TryParse(Convert.ToString(worksheet.Cells[row, 9].Value), out var isChildId);
+                    int.TryParse(Convert.ToString(worksheet.Cells[row, 8].Value), out var isChildId);
                     int.TryParse(Convert.ToString(worksheet.Cells[row, 4].Value), out var isOrder);
-                    float.TryParse(Convert.ToString(worksheet.Cells[row, 8].Value), out var isQuantity);
+                    float.TryParse(Convert.ToString(worksheet.Cells[row, 10].Value), out var isQuantity);
                     var isNote = Convert.ToString(worksheet.Cells[row, 11].Value);
 
                     if (isParentId != 0 && isChildId != 0 && isOrder != 0 && isQuantity != 0)
@@ -276,7 +461,7 @@ namespace ExcelParsing.DataProcessing
 
                     var obj = new Protection
                     {
-                        Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
+                        Id = Convert.ToInt32(worksheet.Cells[row, 11].Value),
                         Name = Convert.ToString(worksheet.Cells[row, 2].Value),
                         Type = Convert.ToString(worksheet.Cells[row, 3].Value),
                         Unit = Convert.ToString(worksheet.Cells[row, 4].Value),
@@ -540,6 +725,20 @@ namespace ExcelParsing.DataProcessing
                 { numColumn = i; break; }
             }
             return numColumn;
+        }
+        public static Dictionary<string, int> GetColumnsNumbers(int columnRow, ExcelWorksheet worksheet)
+        {
+            var columnsNumbers = new Dictionary<string, int>();
+            for (int i = 1; i <= worksheet.Dimension.Columns; i++)
+            {
+                string value = worksheet.Cells[columnRow, i].Text;
+                if (value.Length >= 1)
+                {
+                    columnsNumbers[value] = i;
+                }
+
+            }
+            return columnsNumbers;
         }
         private string GetCellValue(int row, int column, ExcelWorksheet worksheet)
         {

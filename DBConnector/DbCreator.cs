@@ -94,11 +94,11 @@ namespace TcDbConnector
 
             DeserializeTcToDb();
 
-            DeserializeStaffTcToDb();
-            DeserializeComponentTcToDb();
-            DeserializeMachineTcToDb();
-            DeserializeProtectionTcToDb();
-            DeserializeToolTcToDb();
+            //DeserializeStaffTcToDb();
+            //DeserializeComponentTcToDb();
+            //DeserializeMachineTcToDb();
+            //DeserializeProtectionTcToDb();
+            //DeserializeToolTcToDb();
 
             //DeserializeWorkStepsToDb();
 

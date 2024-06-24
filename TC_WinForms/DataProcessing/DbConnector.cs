@@ -759,6 +759,7 @@ namespace TC_WinForms.DataProcessing
             }
             return obj;
         }
+
         public T? GetObjectWithLinks<T>(int id) where T : class, IModelStructure
         {
             T? obj = null;

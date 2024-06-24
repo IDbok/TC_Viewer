@@ -1,11 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using OfficeOpenXml.Drawing;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Reflection.Emit;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using TcDbConnector;
+using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -16,7 +23,7 @@ namespace ExcelParsing.DataProcessing
 {
     public class WorkParser
     {
-        List<TechTransition> _newTransitions;
+       // List<TechTransition> _newTransitions;
 
         private const int StartRow = 2;
         private readonly string[] _stepColumns = {
@@ -30,267 +37,815 @@ namespace ExcelParsing.DataProcessing
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.Commercial;
         }
 
-        public void CacheDbData(out List<TechOperation> techOperations, out List<TechTransition> techTransitions, out List<TechnologicalCard> tcs)
+        public void CacheDbData(out List<TechOperation> techOperations, out List<TechTransition> techTransitions/*, out List<TechnologicalCard> tcs*/)
         {
             using (var context = new MyDbContext())
             {
                 techOperations = context.TechOperations.ToList();
                 techTransitions = context.TechTransitions.ToList();
-                tcs = context.TechnologicalCards.ToList();
+                //tcs = context.TechnologicalCards
+                //    //.Include(tc => tc.Tool_TCs)
+                //    //.Include(tc => tc.Component_TCs)
+                //    .ToList();
             }
         }
-        public void ParseTcWorkSteps(string tcFilePath, string tcArticle)
+        public void ParseTcWorkSteps(string tcFilePath, string tcArticle, CachedData? cachedData = null)
         {
-
-            Console.WriteLine($"Парсинг ТК {tcArticle}");
-
-
-            var objList = new List<TechOperationWork>();
+            Console.WriteLine($"Парсинг ход работ ТК {tcArticle}");
 
             var fileInfo = new FileInfo(tcFilePath);
+
             if (!fileInfo.Exists)
             {
                 throw new FileNotFoundException($"Файл {tcFilePath} не найден.");
             }
 
+            var objList = new List<TechOperationWork>();
+
             using (var package = new ExcelPackage(fileInfo))
             {
+
                 var stepSheet = package.Workbook.Worksheets[tcArticle];
                 if (stepSheet == null)
                 {
                     throw new Exception($"Лист {tcArticle} не найден в файле.");
                 }
 
-                // получение необходимых данных из ДБ и их кэширование
-                CacheDbData(out var techOperations, out var techTransitions, out var tcs);
-
-                TechnologicalCard? currentTc = tcs.FirstOrDefault(tc => tc.Article == tcArticle);
-                if (currentTc == null)
+                // Кэшируем данные из БД
+                var techOperationsCache = new List<TechOperation>();
+                var techTransitionsCache = new List<TechTransition>();
+                if (cachedData == null)
+                    CacheDbData(out techOperationsCache, out techTransitionsCache/*, out var tcs*/);
+                else
                 {
-                    throw new Exception($"Технологическая карта {tcArticle} не найдена в кэше.");
+                    techOperationsCache = cachedData.TechOperations;
+                    techTransitionsCache = cachedData.TechTransitions;
                 }
 
-                int stepRowCount = stepSheet.Dimension.Rows;
+                var currentTc = GetCurrentTechnologicalCard(tcArticle);
+                var startRow = FindStartRow(stepSheet, "Выполнение работ");
+                var stepColumnsNumbers = ExcelParser.GetColumnsNumbers(startRow, stepSheet);
+                var (newStepColumnsNumbers, machinaryColumnsNumbers) = MapStepColumns(stepColumnsNumbers);
 
-                Console.WriteLine($"Всего строк: {stepRowCount}");
+                // Находим конец таблицы хода работ
+                var endRow = FindEndRow(stepSheet, startRow, newStepColumnsNumbers);
 
-                // определить начало таблицы "6.Выполнение работ"
-                int startRow = 0;
-                for (int row = 1; row <= stepRowCount; row++)
+                ParseRows(stepSheet, startRow, endRow, newStepColumnsNumbers, machinaryColumnsNumbers, techOperationsCache, techTransitionsCache, currentTc, objList);
+
+                // Сохраняем данные в БД
+                using (var context = new MyDbContext())
                 {
-                    if (stepSheet.Cells[row, 1].Text.Contains("Выполнение работ"))
+                    //List<TechOperationWork> objToAdd = objList.Take(1).ToList();
+                    foreach (var techOperationWork in objList)
                     {
-                        startRow = row + 1;
-                        break;
-                    }
-                }
-
-                Console.WriteLine("Таблица 6 начинается на строке: " + startRow);
-
-                // Получить все не пустые заголовки и их номера столбцов
-                var stepColumnsNumbers = GetColumnsNumbers(startRow, stepSheet);
-
-                // Выделение номера столбцов, название которых соотноситься с названиями в stepColumns
-                // отдельно выделить те, которые не соотносятся (время работы механизмов)
-                string[] stepColumns = {
-                                            "№",
-                                            "Технологические операции", "Исполнитель", "Технологические переходы",
-                                            "Время выполнения действия, мин.", "Время действ., мин.",
-                                            "Время выполнения этапа, мин.", "Время этапа, мин.",
-                                            "№ СЗ", "Примечание"
-                                        };
-                var newStepColumnsNumbers = new Dictionary<string, int>();
-                var machinaryColumnsNumbers = new Dictionary<string, int>();
-
-                foreach (var column in stepColumns)
-                {
-                    foreach (var key in stepColumnsNumbers.Keys)
-                    {
-                        if (CompareStrings(key, column, maxDistance: 1))
+                        foreach (var executionWork in techOperationWork.executionWorks)
                         {
-                            newStepColumnsNumbers[column] = stepColumnsNumbers[key];
-                        }
-                    }
-                }
-
-                foreach (var key in stepColumnsNumbers.Keys)
-                {
-                    if (!newStepColumnsNumbers.ContainsValue(stepColumnsNumbers[key]))
-                    {
-                        if (key.Contains("Время"))
-                            machinaryColumnsNumbers[key] = stepColumnsNumbers[key];
-                    }
-                }
-
-                foreach (var key in newStepColumnsNumbers.Keys)
-                {
-                    Console.WriteLine($"{key} - {newStepColumnsNumbers[key]}");
-                }
-                foreach(var key in machinaryColumnsNumbers.Keys)
-                {
-                    Console.WriteLine($"{key} - {machinaryColumnsNumbers[key]}");
-                }
-
-                // Парсинг строк
-                var currentToId = 0;
-                var previousToId = 0;
-
-                var lastToOrderInTc = 1;
-                var lastEwOrderInTc = 1;
-
-                for (int row = startRow + 1; row <= stepRowCount; row++)
-                {
-                    //ExecutionWork executionWork = new ExecutionWork();
-
-                    TechOperation? techOperation = null;
-                    TechTransition? techTransition = null;
-
-
-                    // названия тех операции
-                    string techOperationName = stepSheet.Cells[row, newStepColumnsNumbers["Технологические операции"]].Text;
-                    // поиск тех операции в кэше
-                    if (!string.IsNullOrEmpty(techOperationName))
-                    {
-                        techOperation = techOperations.FirstOrDefault(to => to.Name == techOperationName);
-                        if (techOperation == null)
-                        {
-                            throw new Exception($"Технологическая операция {techOperationName} (строка {row}) не найдена в кэше.");
-                        }
-                        currentToId = techOperation.Id;
-                        Console.WriteLine($"------------------ ТО: {techOperation.Name}");
-                    }
-
-                    //симовлы персонала
-                    string listStaff = stepSheet.Cells[row, newStepColumnsNumbers["Исполнитель"]].Text;
-                    
-                    if(!string.IsNullOrEmpty(listStaff))
-                    {
-                        // название тех перехода
-                        string techTransitionName = stepSheet.Cells[row, newStepColumnsNumbers["Технологические переходы"]].Text.Trim();
-                        // поиск тех перехода в кэше
-                        if (!string.IsNullOrEmpty(techTransitionName))
-                        {
-                            techTransition = techTransitions.FirstOrDefault(tt => tt.Name == techTransitionName);
-                            if (techTransition == null)
+                            var staff_tcs = new List<Staff_TC>();
+                            foreach (var staff in executionWork.Staffs)
                             {
-                                throw new Exception($"Технологический переход {techTransitionName} (строка {row}) не найден в кэше.");
+                                var staff_tc = context.Staff_TCs.FirstOrDefault(st => st.ChildId == staff.ChildId && st.ParentId == staff.ParentId);
+                                if(staff_tc == null)
+                                {
+                                    throw new Exception($"Сотрудник {staff.ChildId} не найден в БД.");
+                                }
+
+                                staff_tcs.Add(staff_tc);
                             }
-                            Console.WriteLine($"    ТП: {lastEwOrderInTc}. {techTransition.Name}");
-                        }
+                            executionWork.Staffs = staff_tcs;
 
-                        // получаю формулу из ячейки
-                        //определение названия столбца с временем выполнения действия
-                        string timeExecutionStepColumn = "Время выполнения действия, мин.";
-                        string timeExecutionEtapColumn = "Время выполнения этапа, мин.";
-                        if (!newStepColumnsNumbers.ContainsKey(timeExecutionStepColumn))
-                        {
-                            timeExecutionStepColumn = "Время действ., мин.";
-                        }
-                        if (!newStepColumnsNumbers.ContainsKey(timeExecutionEtapColumn))
-                        {
-                            timeExecutionEtapColumn = "Время этапа, мин.";
-                        }
-
-                        // формула шага
-                        string formulaStep = stepSheet.Cells[row, newStepColumnsNumbers[timeExecutionStepColumn]].Formula;
-                        // формула этапа
-                        string formulaEtap = stepSheet.Cells[row, newStepColumnsNumbers[timeExecutionEtapColumn]].Formula;
-                        //формула механизмов
-                        Dictionary<string, bool> machineIsParticipates = new Dictionary<string, bool>();
-                        foreach (var key in machinaryColumnsNumbers.Keys)
-                        {
-                            machineIsParticipates[key] = stepSheet.Cells[row, machinaryColumnsNumbers[key]].Text.Length >= 1;
-                        }
-
-                        Console.WriteLine($"        Исполнитель: {listStaff}");
-
-
-                        // намера СЗ
-                        string protectionRange = stepSheet.Cells[row, newStepColumnsNumbers["№ СЗ"]].Text;
-                        Console.WriteLine($"        СЗ: {protectionRange}");
-
-                        // коэффициент времени тех перехода
-                        string coefficient = GetStringBeforeAtSymbol(formulaStep);
-                        string coeffText = string.IsNullOrEmpty(coefficient) ? "" : $"Коэффициент: {coefficient}";
-
-                        
-
-                        string timeExecutionStep = string.IsNullOrEmpty(coefficient) ? techTransition!.TimeExecution.ToString() : EvaluateExpression(techTransition!.TimeExecution.ToString() + " *" + coefficient).ToString(); //techTransition.TimeExecution* coefficient;
-                        Console.WriteLine($"        Время ТП: {timeExecutionStep}; {coeffText}");
-
-                        // Если номер ТО изменился или это первая строка, то создаем новый объект TechOperationWork
-                        if (row == startRow + 1 || currentToId != previousToId)
-                        {
-                            previousToId = currentToId;
-
-                            var techOperationWork = new TechOperationWork
+                            var protection_tcs = new List<Protection_TC>();
+                            foreach (var protection in executionWork.Protections)
                             {
-                                techOperationId = currentToId,
-                                TechnologicalCardId = currentTc.Id,
-                                Order = lastToOrderInTc++,
-                            };
+                                var protection_tc = context.Protection_TCs.FirstOrDefault(pr => pr.ChildId == protection.ChildId && pr.ParentId == protection.ParentId);
+                                if (protection_tc == null)
+                                {
+                                    throw new Exception($"СЗ {protection.ChildId} не найден в БД.");
+                                }
+                                protection_tcs.Add(protection_tc);
+                            }
+                            executionWork.Protections = protection_tcs;
 
-                            objList.Add(techOperationWork);
+                            var machine_tcs = new List<Machine_TC>();
+                            foreach (var machine in executionWork.Machines)
+                            {
+                                var machine_tc = context.Machine_TCs.FirstOrDefault(m => m.ChildId == machine.ChildId && m.ParentId == machine.ParentId);
+                                if (machine_tc == null)
+                                {
+                                    throw new Exception($"Механизм {machine.ChildId} не найден в БД.");
+                                }
+                                machine_tcs.Add(machine_tc);
+                            }
+                            executionWork.Machines = machine_tcs;
+
                         }
 
-                        var exWork = new ExecutionWork
-                        {
-                            //techOperationWorkId = currentToId,
-                            techTransitionId = techTransition?.Id,
-                            Order = lastEwOrderInTc++,
-                            //Value = ,
-                            Comments = "",
-                            Staffs = new List<Staff_TC>(),
-                            Protections = new List<Protection_TC>(),
-                            Machines = new List<Machine_TC>(),
-                            Repeat = false,
-                            Etap = "",
-                            Posled = "",
+                        context.TechOperationWorks.Add(techOperationWork);
 
-                            Coefficient = string.IsNullOrEmpty(coefficient) ? "" : coefficient,
-                        };
-
-                        if (exWork != null)
-                        {
-                            objList[objList.Count - 1].executionWorks.Add(exWork);
-                            exWork.techOperationWork = objList[objList.Count - 1];
-                        }
                     }
-                    
-
-
-                    //else if (component != null)
-                    //{
-                    //    objList[objList.Count - 1].ComponentWorks.Add(component);
-                    //}
-                    //else if (tool != null)
-                    //{
-                    //    objList[objList.Count - 1].ToolWorks.Add(tool);
-                    //}
-
-
+                    context.SaveChanges();
                 }
 
-                Console.WriteLine();
-
-
-
-                //var stepColumnsNumbers = GetColumnsNumbers(_stepColumns, 1, stepSheet);
-
-                //int lastToOrderInTc = 0;
-                //int previousToId = 0;
-                //int previousTcId = 0;
-
-                //var executionWorks = new List<ExecutionWork>();
-
-                //for (int row = StartRow; row <= stepRowCount; row++)
-                //{
-                //    ProcessRow(stepSheet, row, stepColumnsNumbers,
-                //        ref executionWorks,
-                //        ref lastToOrderInTc, ref previousToId, ref previousTcId, objList);
-                //}
             }
         }
+
+        public void ParseExecutionPictures(string tcFilePath, string tcArticle, TechnologicalCardRepository? tcRepository = null)
+        {
+            Console.WriteLine($"Парсинг схемы исполнения ТК {tcArticle}");
+
+            var fileInfo = new FileInfo(tcFilePath);
+
+            if (!fileInfo.Exists)
+            {
+                throw new FileNotFoundException($"Файл {tcFilePath} не найден.");
+            }
+
+            var card = new TechnologicalCard();
+            
+
+            using (var package = new ExcelPackage(fileInfo))
+            {
+
+                var stepSheet = package.Workbook.Worksheets[tcArticle];
+                if (stepSheet == null)
+                {
+                    throw new Exception($"Лист {tcArticle} не найден в файле.");
+                }
+                Dictionary<string, int> startRows = new Dictionary<string, int>
+                {
+                    { "Требования к составу бригады и квалификации", 0 },
+                    { "Требования к материалам и комплектующим", 0 },
+                    { "Требования к механизмам", 0 },
+                    { "Требования к средствам защиты", 0 },
+                    { "Требования к инструментам и приспособлениям", 0 },
+                    { "Выполнение работ", 0 }
+                };
+
+                foreach (var tableName in startRows)
+                {
+                    startRows[tableName.Key] = FindStartRow(stepSheet, tableName.Key);
+                }
+                var startRow = startRows["Требования к механизмам"]; // заголовок 3. Требования к механизмам
+                var endRow = startRows["Выполнение работ"]; // заголовок 6. Выполнение работ
+
+                var startColumn = 1; // столбец Стоим., руб. без НДС таблицы 2. Требования к материалам и комплектующим
+                var endColumn = stepSheet.Dimension.Columns;// конец диапазона
+
+                
+                var imageBytes = GetPictureFromExcelByRange(stepSheet, startRow, startColumn, endRow, endColumn);
+
+                if(tcRepository == null)
+                {
+                    tcRepository = new TechnologicalCardRepository(new MyDbContext());
+                }
+
+                tcRepository.UpdateExecutionScheme(tcArticle, imageBytes);
+
+                //using (var context = new MyDbContext())
+                //{
+                //    card = context.TechnologicalCards.Where(tc => tc.Article == tcArticle)
+                //        .FirstOrDefault();
+
+                //    if (card == null)
+                //    {
+                //        throw new Exception($"Технологическая карта {tcArticle} не найдена в БД.");
+                //    }
+
+                //    if (imageBytes != null)
+                //    {
+                //        card.ExecutionScheme = imageBytes;
+                //    }
+
+                //    context.SaveChanges();
+                //}
+
+                
+            }
+        }
+        public void ParseExecutionPictures(string filePath, List<string> tcArticles, TechnologicalCardRepository? tcRepository = null)
+        {
+            var fileInfo = new FileInfo(filePath);
+
+            if (!fileInfo.Exists)
+            {
+                throw new FileNotFoundException($"Файл {filePath} не найден.");
+            }
+
+            using (var package = new ExcelPackage(fileInfo))
+            {
+                ParseExecutionPictures (package, tcArticles, tcRepository);
+            }
+        }
+        private void ParseExecutionPictures(ExcelPackage package, List<string> tcArticles, TechnologicalCardRepository? tcRepository = null)
+        {
+            Dictionary<string, int> startRows = new Dictionary<string, int>
+            {
+                { "Требования к составу бригады и квалификации", 0 },
+                { "Требования к материалам и комплектующим", 0 },
+                { "Требования к механизмам", 0 },
+                { "Требования к средствам защиты", 0 },
+                { "Требования к инструментам и приспособлениям", 0 },
+                { "Выполнение работ", 0 }
+            };
+
+            foreach (var tcArticle in tcArticles)
+            {
+                Console.WriteLine($"Парсинг схемы исполнения ТК {tcArticle}");
+                
+                var stepSheet = package.Workbook.Worksheets[tcArticle];
+                if (stepSheet == null)
+                {
+                    throw new Exception($"Лист {tcArticle} не найден в файле.");
+                }
+                foreach (var tableName in startRows)
+                {
+                    startRows[tableName.Key] = FindStartRow(stepSheet, tableName.Key);
+                }
+                var startRow = startRows["Требования к механизмам"]; // заголовок 3. Требования к механизмам
+                var endRow = startRows["Выполнение работ"]; // заголовок 6. Выполнение работ
+
+                var startColumn = 1; // столбец Стоим., руб. без НДС таблицы 2. Требования к материалам и комплектующим
+                var endColumn = stepSheet.Dimension.Columns;// конец диапазона
+
+
+                var imageBytes = GetPictureFromExcelByRange(stepSheet, startRow, startColumn, endRow, endColumn);
+
+                if (tcRepository == null)
+                {
+                    tcRepository = new TechnologicalCardRepository(new MyDbContext());
+                }
+
+                tcRepository.UpdateExecutionScheme(tcArticle, imageBytes);
+            }
+        }
+
+        public byte[] GetPictureFromExcelByRange(ExcelWorksheet worksheet, int startRow, int startColumn, int endRow, int endColumn)
+        {
+            var pictures = new List<ExcelPicture>();
+            string outputDirectory = @"C:\Tests\pictures";
+            // Перебор всех рисунков на листе
+            foreach (var drawing in worksheet.Drawings)
+            {
+                if (drawing is ExcelPicture picture)
+                {
+                    // Проверка, находится ли картинка в заданном диапазоне
+                    if (picture.From.Row >= startRow && picture.From.Row <= endRow &&
+                        picture.From.Column >= startColumn && picture.From.Column <= endColumn)
+                    {
+                        pictures.Add(picture);
+                    }
+                }
+
+            }
+            if (pictures.Count > 0)
+            {
+                // Определение размеров объединенного изображения
+                int width = 0;
+                int height = 0;
+
+                var images = new List<Image>();
+
+                foreach (var pic in pictures)
+                {
+                    var image = Image.FromStream(new MemoryStream(pic.Image.ImageBytes));
+                    images.Add(image);
+                    width = Math.Max(width, image.Width);
+                    height += image.Height;
+                }
+
+                using (var finalImage = new Bitmap(width, height))
+                using (var g = Graphics.FromImage(finalImage))
+                {
+                    g.Clear(Color.White); // Фон белого цвета, можно изменить при необходимости
+
+                    int currentHeight = 0;
+                    foreach (var img in images)
+                    {
+                        g.DrawImage(img, 0, currentHeight, img.Width, img.Height);
+                        currentHeight += img.Height;
+                        img.Dispose(); // Освобождение ресурсов изображения
+                    }
+
+                    // Сохранение изображения в байтовый массив
+                    using (var ms = new MemoryStream())
+                    {
+                        finalImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        return ms.ToArray();
+                    }
+                }
+            }
+            return null;
+        }
+
+        private TechnologicalCard? GetCurrentTechnologicalCard(string tcArticle)
+        {
+            using(var context = new MyDbContext())
+            {
+                var fullTc = context.TechnologicalCards.Where(tc => tc.Article == tcArticle)
+                    .Include(tc => tc.Staff_TCs).ThenInclude(st => st.Child)
+                    .Include(tc => tc.Protection_TCs).ThenInclude(pr => pr.Child)
+                    .Include(tc => tc.Machine_TCs).ThenInclude(m => m.Child)
+                    .Include(tc => tc.Tool_TCs).ThenInclude(t => t.Child)
+                    .Include(tc => tc.Component_TCs).ThenInclude(c => c.Child)
+                    .FirstOrDefault();
+
+                if (fullTc == null)
+                {
+                    throw new Exception($"Технологическая карта {tcArticle} не найдена в БД.");
+                }
+                return fullTc;
+
+            }
+        }
+
+        private int FindStartRow(ExcelWorksheet sheet, string tableName)
+        {
+            int stepRowCount = sheet.Dimension.Rows;
+            for (int row = 1; row <= stepRowCount; row++)
+            {
+                if (sheet.Cells[row, 1].Text.Contains(tableName))
+                {
+                    //Console.WriteLine("Таблица 6 начинается на строке: " + (row + 1));
+                    return row + 1;
+                }
+            }
+            throw new Exception($"Таблица {tableName} не найдена в листе.");
+        }
+
+        private int FindEndRow(ExcelWorksheet sheet, int startRow, Dictionary<string, int> columnsNumbers)
+        {
+            int stepRowCount = sheet.Dimension.Rows;
+            for (int row = startRow + 1; row <= stepRowCount; row++)
+            {
+                if (sheet.Cells[row, columnsNumbers["№"]].Text == "")
+                {
+                    if (sheet.Cells[row, columnsNumbers["Технологические операции"]].Text == "Наименование")
+                    {
+                        Console.WriteLine("Таблица 6 заканчивается на строке: " + (row - 1));
+                        return row - 1;
+                    }
+                    else
+                    {
+                        throw new Exception($"Есть пробелы в нумерации тех переходов");
+                    }
+                    
+                }
+            }
+            throw new Exception($"Конец таблицы не найден в листе.");
+        }
+
+        private (Dictionary<string, int> newStepColumnsNumbers, Dictionary<string, int> machinaryColumnsNumbers) MapStepColumns(Dictionary<string, int> stepColumnsNumbers)
+        {
+            string[] stepColumns = {
+                "№", "Технологические операции", "Исполнитель", "Технологические переходы",
+                "Время выполнения действия, мин.", "Время действ., мин.",
+                "Время выполнения этапа, мин.", "Время этапа, мин.",
+                "№ СЗ", "Примечание"
+            };
+
+            var newStepColumnsNumbers = new Dictionary<string, int>();
+            var machinaryColumnsNumbers = new Dictionary<string, int>();
+
+            foreach (var column in stepColumns)
+            {
+                foreach (var key in stepColumnsNumbers.Keys)
+                {
+                    if (CompareStrings(key, column, maxDistance: 1))
+                    {
+                        newStepColumnsNumbers[column] = stepColumnsNumbers[key];
+                    }
+                }
+            }
+
+            foreach (var key in stepColumnsNumbers.Keys)
+            {
+                if (!newStepColumnsNumbers.ContainsValue(stepColumnsNumbers[key]))
+                {
+                    if (key.Contains("Время"))
+                        machinaryColumnsNumbers[key] = stepColumnsNumbers[key];
+                }
+            }
+
+            return (newStepColumnsNumbers, machinaryColumnsNumbers);
+        }
+
+        private void ParseRows(ExcelWorksheet stepSheet,
+            int startRow, int endRow,
+            Dictionary<string, int> newStepColumnsNumbers,
+            Dictionary<string, int> machinaryColumnsNumbers,
+            List<TechOperation> techOperationsCache,
+            List<TechTransition> techTransitionsCache,
+            TechnologicalCard currentTc,
+            List<TechOperationWork> TOList)
+        {
+            //int stepRowCount = stepSheet.Dimension.Rows;
+            int currentToId = 0, previousToId = 0;
+            int lastToOrderInTc = 1, lastEwOrderInTc = 1, rowNumber;
+            string lastEtapFormula = "";
+            //List<int> lastEtapRows = new List<int>();
+            
+            var exWorks = new List<ExecutionWork>();
+
+            var machineNames = GetMachinesNames2(machinaryColumnsNumbers);
+            // (string,int,bool) - name, column number, is active in current stage
+            Dictionary<Machine_TC, (string, int, bool)> machines = GetStageMachines2(currentTc.Machine_TCs, machineNames);
+
+            for (int row = startRow + 1; row <= endRow; row++)
+            {
+                if (!int.TryParse(stepSheet.Cells[row, newStepColumnsNumbers["№"]].Text.Trim(), out rowNumber)) 
+                {
+                    throw new Exception($"Номер строки хода работ не является числом. Строка {row}");
+                }
+
+                string name = stepSheet.Cells[row, newStepColumnsNumbers["Технологические переходы"]].Text.Trim();
+
+                string listStaff = stepSheet.Cells[row, newStepColumnsNumbers["Исполнитель"]].Text;
+                string[] staffSymbols = listStaff.Split("\n");
+
+                if (!string.IsNullOrEmpty(listStaff))
+                {
+
+                    var (techOperation, techTransition) = GetTechOperationAndTransition(row, stepSheet, newStepColumnsNumbers, techOperationsCache, techTransitionsCache, ref currentToId);
+
+                    bool isTOChanges = currentToId != previousToId;
+
+                    var (etap, posled, formulaStep, valueStep) = GetFormulasAndStages(row, stepSheet, newStepColumnsNumbers, ref lastEtapFormula , out _);
+                    
+                    // Проверка участия механизмов в этапе, если механизм участвует, то третий элемент картежа - true
+                    if (isTOChanges)
+                        GetMachineParticipation(row, stepSheet, machines);
+
+                    if(machines.Count > 0)
+                    {
+                        Console.Write($"        Механизм: ");
+                        foreach (var key in machines.Keys)
+                        {
+                            if (machines[key].Item3)
+                            {
+                                Console.Write($" {machines[key].Item1} |");
+                            }
+                        }
+                        Console.WriteLine();
+                    }
+                    
+                    
+                    Console.WriteLine($"        Исполнитель: {string.Join(", ", staffSymbols)}");
+                    string protectionRange = stepSheet.Cells[row, newStepColumnsNumbers["№ СЗ"]].Text;
+                    Console.WriteLine($"        СЗ: {protectionRange}");
+
+                    string coefficient;
+
+                    if (techTransition!.Name == "Выполнить в соответствии с ТК" 
+                        || techTransition!.Name == "Повторить п.")
+                    {
+                        coefficient = valueStep;
+                    }
+                    else
+                    {
+                        coefficient = GetStringBeforeAtSymbol(formulaStep);
+                    }
+                    string coeffText = string.IsNullOrEmpty(coefficient) ? "" : $"Коэффициент: {coefficient}";
+                    string timeExecutionStep = string.IsNullOrEmpty(coefficient)
+                        ? techTransition!.TimeExecution.ToString()
+                        : EvaluateExpression(techTransition!.TimeExecution.ToString() + "*" + coefficient).ToString();
+
+                    Console.WriteLine($"        Время ТП: {timeExecutionStep}; {coeffText}");
+
+                    AddOrUpdateTechOperationWork(row, startRow, ref currentToId, ref previousToId, currentTc, ref lastToOrderInTc, TOList);
+
+                    string comments = stepSheet.Cells[row, newStepColumnsNumbers["Примечание"]].Text;
+
+                    ExecutionWork exWork = CreateExecutionWork(techTransition, rowNumber, etap, posled, coefficient, comments);
+
+                    if (techTransition!.Name == "Повторить п.")
+                    {
+                        var repeatObjs = GetExecutionWorksToRepeat(name, row, stepSheet, newStepColumnsNumbers, exWorks);
+                        exWork.ListexecutionWorkRepeat2 = repeatObjs;
+                    }
+
+                    // добавление персонала в ExecutionWork
+                    exWork.Staffs = FindStaff_TCsBySymbol(staffSymbols, currentTc.Id, currentTc.Staff_TCs);
+
+                    // добавление механизмов в ExecutionWork
+                    foreach (var key in machines.Keys)
+                    {
+                        if (machines[key].Item3)
+                        {
+                            exWork.Machines.Add(key);
+                        }
+                    }
+
+                    // добавление СЗ в ExecutionWork
+                    exWork.Protections = FindProtection_TCByOrder(protectionRange, currentTc.Id, currentTc.Protection_TCs);
+
+                    exWorks.Add(exWork);
+
+                    TOList[TOList.Count - 1].executionWorks.Add(exWork);
+                    exWork.techOperationWork = TOList[TOList.Count - 1];
+
+                }
+                else if (name.Contains("Повторить п."))
+                {
+                    var repeatObjs = GetExecutionWorksToRepeat(name, row, stepSheet, newStepColumnsNumbers, exWorks);
+
+                    var exWork = CreateExecutionWork(null, rowNumber /*lastEwOrderInTc++*/, "", "", "");
+                    exWork.ListexecutionWorkRepeat2 = repeatObjs;
+
+                    exWorks.Add(exWork);
+
+                    TOList[TOList.Count - 1].executionWorks.Add(exWork);
+                    exWork.techOperationWork = TOList[TOList.Count - 1];
+
+                }
+                else // если нет исполнителя, то это инструмент или компонент
+                {
+                    (var tool, var component) = GetToolOrComponent(row, stepSheet, currentTc, newStepColumnsNumbers, out bool? isTool);
+                    if (isTool != null)
+                    {
+                        if(isTool.Value && tool != null)
+                        {
+                            //AddOrUpdateTechOperationWork(row, startRow, ref currentToId, ref previousToId, currentTc, ref lastToOrderInTc, objList);
+                            TOList[TOList.Count - 1].ToolWorks.Add(tool);
+                        }
+                        else if(component != null)
+                        {
+                            TOList[TOList.Count - 1].ComponentWorks.Add(component);
+                        }
+                    }
+                }
+            }
+        }
+        private List<ExecutionWork> GetExecutionWorksToRepeat(string name, int row, ExcelWorksheet sheet, Dictionary<string, int> columnsNumbers, List<ExecutionWork> executionWorksCache)
+        {
+            List<ExecutionWork> exWorksToRepeat = new List<ExecutionWork>();
+            if (name.Contains("Повторить п."))
+            {
+                var repeatObjsNumbers = GetExecutinWorksNumbers(name);
+                foreach (var n in repeatObjsNumbers)
+                {
+                    var repeatingObj = executionWorksCache.Find(e => e.Order == n);
+                    if (repeatingObj != null)
+                    {
+                        exWorksToRepeat.Add(repeatingObj);
+                    }
+                    else 
+                    {                         
+                        throw new Exception($"Техпереход с номером {n} не найден в кэше. {name} cтрока {row}");
+                    }
+                }
+            }
+
+            return exWorksToRepeat;
+        }
+
+        private (ToolWork?, ComponentWork?) GetToolOrComponent(int row, ExcelWorksheet sheet,TechnologicalCard tc, Dictionary<string, int> columnsNumbers, out bool? isTool)
+        {
+            ToolWork? tool = null;
+            ComponentWork? component = null;
+
+            isTool = null;
+
+            var colNumber = columnsNumbers["Технологические переходы"];
+
+            var name = sheet.Cells[row, colNumber].Text.Trim();
+            var type = sheet.Cells[row, colNumber + 1 ].Text.Trim();
+            var unit = sheet.Cells[row, colNumber + 2].Text.Trim();
+            var quantity = Convert.ToDouble(sheet.Cells[row, colNumber + 3].Value);
+
+            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(type) && IntermediateTablesParser.toolExceptions.ContainsKey((name, type)))
+            {
+                (name, type) = IntermediateTablesParser.toolExceptions[(name, type)];
+            }
+
+            var toolTc = tc.Tool_TCs.FirstOrDefault(t => t.Child.Name == name && t.Child.Type == type);
+            var componentTc = tc.Component_TCs.FirstOrDefault(c => c.Child.Name == name && c.Child.Type == type);
+
+
+            if (toolTc != null)
+            {
+                tool = new ToolWork
+                {
+                    toolId = toolTc.ChildId,
+                    Quantity = quantity,
+                };
+
+                isTool= true;
+            }
+            else if(componentTc != null)
+            {
+                component = new ComponentWork
+                {
+                    componentId = componentTc.ChildId,
+                    Quantity = quantity,
+                };
+                isTool= false;
+            }
+            else
+            {
+                throw new Exception($"Инструмент или компонент {name} (строка {row}) не найден в кэше.");
+            }
+
+            return ( tool, component);
+                   
+        }
+
+        private (TechOperation? techOperation, TechTransition? techTransition) GetTechOperationAndTransition(
+            int row, ExcelWorksheet sheet,
+            Dictionary<string, int> columnsNumbers,
+            List<TechOperation> techOperations,
+            List<TechTransition> techTransitions,
+            ref int currentToId)
+        {
+            TechOperation? techOperation = null;
+            TechTransition? techTransition = null;
+
+            string techOperationName = sheet.Cells[row, columnsNumbers["Технологические операции"]].Text;
+            if (!string.IsNullOrEmpty(techOperationName))
+            {
+                techOperation = techOperations.FirstOrDefault(to => to.Name == techOperationName);
+                if (techOperation == null)
+                {
+                    throw new Exception($"Технологическая операция {techOperationName} (строка {row}) не найдена в кэше.");
+                }
+                currentToId = techOperation.Id;
+                Console.WriteLine($"------------------ ТО: {techOperation.Name}");
+            }
+
+            string techTransitionName = sheet.Cells[row, columnsNumbers["Технологические переходы"]].Text.Trim();
+            if (!string.IsNullOrEmpty(techTransitionName))
+            {
+                techTransition = techTransitions.FirstOrDefault(tt => tt.Name == techTransitionName);
+                if (techTransition == null)
+                {
+                    if (techTransitionName.Contains("Выполнить в соответствии с ТК"))
+                    {
+                        techTransition = techTransition = techTransitions.FirstOrDefault(tt => tt.Name == "Выполнить в соответствии с ТК");
+                        if (techTransition == null)
+                        {
+                            throw new Exception($"Технологический переход {techTransitionName} (строка {row}) не найден в кэше.");
+                        }
+
+                        techTransition.CommentName = techTransitionName;
+                    }
+                    else if (techTransitionName.Contains("Повторить п."))
+                    {
+                        techTransition = techTransition = techTransitions.FirstOrDefault(tt => tt.Name == "Повторить п.");
+                        if (techTransition == null)
+                        {
+                            throw new Exception($"Технологический переход {techTransitionName} (строка {row}) не найден в кэше.");
+                        }
+
+                        techTransition.CommentName = techTransitionName;
+                    }
+                    else
+                    {
+                        throw new Exception($"Технологический переход {techTransitionName} (строка {row}) не найден в кэше.");
+                    }
+
+                }
+                Console.WriteLine($"    ТП: {techTransition.Name} строка {row}");
+            }
+
+            return (techOperation, techTransition);
+        }
+
+        public void Test()
+        {
+
+            var article = "ТКР10_1.1.6";
+            var filePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\Исходные\ТКР_v4.0.xlsx";
+
+            Console.WriteLine($"Парсинг ход работ ТК {article}");
+
+            var fileInfo = new FileInfo(filePath);
+
+            if (!fileInfo.Exists)
+            {
+                throw new FileNotFoundException($"Файл {filePath} не найден.");
+            }
+
+            var objList = new List<TechOperationWork>();
+
+            using (var package = new ExcelPackage(fileInfo))
+            {
+
+                var stepSheet = package.Workbook.Worksheets[article];
+                if (stepSheet == null)
+                {
+                    throw new Exception($"Лист {article} не найден в файле.");
+                }
+
+                Dictionary<string, int> newStepColumnsNumbers = new Dictionary<string, int>()
+                {
+                    {"Время выполнения этапа, мин.", 8},
+                    {"Время выполнения действия, мин.", 7},
+                };
+
+                var row = 93;
+                //var (etap, posled, formulaStep, formulaEtap) = GetFormulasAndStages(row, stepSheet, newStepColumnsNumbers, "lastEtapFormula", out _);
+
+                //var formulaEtap = "=MAX(SUM(G93:G95);SUM(G97:G98);G99;SUM(G100:G101))";
+                //var (etap, posled) = ParseStageFormula2(formulaEtap, row, out _);
+
+            }
+        }
+
+        private (string etap, string posled, string formulaStep, string valueStep) GetFormulasAndStages(
+            int row, ExcelWorksheet sheet,
+            Dictionary<string, int> columnsNumbers,
+            ref string lastEtapFormula,
+            out List<int> allRowNumbersInEtap)
+        {
+            string timeExecutionStepColumn = "Время выполнения действия, мин.";
+            string timeExecutionEtapColumn = "Время выполнения этапа, мин.";
+
+            if (!columnsNumbers.ContainsKey(timeExecutionStepColumn))
+            {
+                timeExecutionStepColumn = "Время действ., мин.";
+            }
+            if (!columnsNumbers.ContainsKey(timeExecutionEtapColumn))
+            {
+                timeExecutionEtapColumn = "Время этапа, мин.";
+            }
+
+            string formulaStep = sheet.Cells[row, columnsNumbers[timeExecutionStepColumn]].Formula;
+            string formulaEtap = sheet.Cells[row, columnsNumbers[timeExecutionEtapColumn]].Formula;
+
+            string valueStep = sheet.Cells[row, columnsNumbers[timeExecutionStepColumn]].Value.ToString() ?? "";
+
+            if (string.IsNullOrEmpty(formulaStep))
+            {
+                formulaStep = valueStep;
+            }
+
+            if (!string.IsNullOrEmpty(formulaEtap))
+            {
+                lastEtapFormula = formulaEtap;
+            }
+            else if (string.IsNullOrEmpty(lastEtapFormula))
+            {
+                throw new Exception($"Формула этапа не найдена в строке {row}");
+            }
+
+            var (etap, posled) = ParseStageFormula(lastEtapFormula!, row, out allRowNumbersInEtap);
+
+            return (etap, posled, formulaStep, valueStep);
+        }
+
+        private void GetMachineParticipation(
+            int row, ExcelWorksheet sheet,
+            Dictionary<Machine_TC, (string, int, bool)> machinesDict)
+        {
+            foreach (var key in machinesDict.Keys)
+            {
+                machinesDict[key] = (machinesDict[key].Item1, machinesDict[key].Item2, sheet.Cells[row, machinesDict[key].Item2].Text.Length >= 1);
+            }
+        }
+
+        private void AddOrUpdateTechOperationWork(
+            int row, int startRow,
+            ref int currentToId, ref int previousToId,
+            TechnologicalCard currentTc,
+            ref int lastToOrderInTc,
+            List<TechOperationWork> objList)
+        {
+            if (row == startRow + 1 || currentToId != previousToId)
+            {
+                previousToId = currentToId;
+
+                var techOperationWork = new TechOperationWork
+                {
+                    techOperationId = currentToId,
+                    TechnologicalCardId = currentTc.Id,
+                    Order = lastToOrderInTc++,
+                };
+
+                objList.Add(techOperationWork);
+            }
+        }
+
+        private ExecutionWork CreateExecutionWork(
+            TechTransition techTransition, int order,
+            string etap, string posled,
+            string coefficient, string comment = "")
+        {
+            return new ExecutionWork
+            {
+                techTransitionId = techTransition.Id,
+                Order = order,
+                Staffs = new List<Staff_TC>(),
+                Protections = new List<Protection_TC>(),
+                Machines = new List<Machine_TC>(),
+                Repeat = techTransition.Name == "Повторить п.",
+                Etap = etap,
+                Posled = posled,
+                Coefficient = string.IsNullOrEmpty(coefficient) ? "" : "*" + coefficient,
+
+                Value = string.IsNullOrEmpty(coefficient) ? techTransition.TimeExecution : EvaluateExpression(techTransition.TimeExecution + "*" + coefficient),
+
+                Comments = comment,
+            };
+        }
+
         public List<TechOperation> ParseExcelToObjectsTechOperation(string filePath, string sheetName = "Перечень ТО")
         {
             var objList = new List<TechOperation>();
@@ -509,7 +1064,7 @@ namespace ExcelParsing.DataProcessing
             string formula = stepSheet.Cells[row, stepColumnsNumbers["Этап, формула"]].Text;
             int rowNum = Convert.ToInt32(stepSheet.Cells[row, stepColumnsNumbers["Строка"]].Value);
 
-            (string stage, string parallelIndex) = ParseStageFormula2(formula, rowNum);
+            (string stage, string parallelIndex) = ParseStageFormula(formula, rowNum, out _);
 
             var obj = new ExecutionWork
             {
@@ -614,29 +1169,89 @@ namespace ExcelParsing.DataProcessing
                     {
                         staff_TCs.Add(staff_tc);
                     }
+                    else
+                    {
+                        throw new Exception($"Сотрудник {symbol} не найден в БД.");
+                    }
                 }
             }
 
             return staff_TCs;
         }
-        public List<Protection_TC> FindProtection_TCByOrder(string protectionRange, int tcId)
+        public List<Staff_TC> FindStaff_TCsBySymbol(string[] staff_TcsSymbols, int tcId, List<Staff_TC>? staff_TCsCache = null)
+        {
+            List<Staff_TC> staff_TCs = new List<Staff_TC>();
+
+            if (staff_TCsCache == null || staff_TCsCache.Count == 0)
+            {
+                using (var context = new TcDbConnector.MyDbContext())
+                {
+                    foreach (var symbol in staff_TcsSymbols)
+                    {
+                        var staff_tc = context.Staff_TCs.Where(st => st.Symbol == symbol && st.ParentId == tcId).FirstOrDefault();
+                        if (staff_tc != null)
+                        {
+                            staff_TCs.Add(staff_tc);
+                        }
+                        else
+                        {
+                            throw new Exception($"Сотрудник {symbol} не найден в БД.");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (var symbol in staff_TcsSymbols)
+                {
+                    var staff_tc = staff_TCsCache.Find(st => st.Symbol == symbol && st.ParentId == tcId);
+                    if (staff_tc != null)
+                    {
+                        staff_TCs.Add(staff_tc);
+                    }
+                    else
+                    {
+                        throw new Exception($"Сотрудник {symbol} не найден в кэше.");
+                    }
+                }
+            }
+            
+
+            return staff_TCs;
+        }
+        public List<Protection_TC> FindProtection_TCByOrder(string protectionRange, int tcId, List<Protection_TC>? protection_TCsCache = null)
         {
             List<Protection_TC> protections = new List<Protection_TC>();
 
             var  protectionIdsList = new List<int>();
             ExtractRange(protectionRange, protectionIdsList);
 
-            using (var context = new TcDbConnector.MyDbContext())
+            if (protection_TCsCache == null || protection_TCsCache.Count == 0)
+            {
+                using (var context = new TcDbConnector.MyDbContext())
+                {
+                    foreach (var order in protectionIdsList)
+                    {
+                        var protection = context.Protection_TCs.Where(pr => pr.Order == order && pr.ParentId == tcId).FirstOrDefault();
+                        if (protection != null)
+                        {
+                            protections.Add(protection);
+                        }
+                    }
+                }
+            }
+            else
             {
                 foreach (var order in protectionIdsList)
                 {
-                    var protection = context.Protection_TCs.Where(pr => pr.Order == order && pr.ParentId == tcId).FirstOrDefault();
+                    var protection = protection_TCsCache.Find(pr => pr.Order == order && pr.ParentId == tcId);
                     if (protection != null)
                     {
                         protections.Add(protection);
                     }
                 }
             }
+            
 
             return protections;
         }
@@ -665,7 +1280,30 @@ namespace ExcelParsing.DataProcessing
             }
             return machines;
         }
+        public static Dictionary<string, int> GetMachinesNames2(Dictionary<string, int> machineNames)
+        {
+            Dictionary < string, int> machinesDict = new Dictionary<string, int>();
+            string[] textToDelete = new string[] { "Время работы", "Время", "мин.", "," };
+           
+            foreach (var kvp in machineNames)
+            {
+                string cleanKey = kvp.Key;
+                foreach (var text in textToDelete)
+                {
+                    cleanKey = cleanKey.Replace(text, "").Trim();
+                }
 
+                if (!machinesDict.ContainsKey(cleanKey))
+                {
+                    machinesDict[cleanKey] = kvp.Value;
+                }
+                else
+                {
+                    throw new Exception($"Механизм {cleanKey} дублируется в карте.");
+                }
+            }
+            return machinesDict;
+        }
         public List<Machine_TC> GetMachinesFromDB(int tcId)
         {
             List<Machine_TC> machines = new List<Machine_TC>();
@@ -692,6 +1330,21 @@ namespace ExcelParsing.DataProcessing
             }
             return stageMachines;
         }
+        public static Dictionary<Machine_TC, (string, int, bool)> GetStageMachines2(List<Machine_TC> existMacines, Dictionary<string, int> machinesNames)
+        {
+            var stageMachines = new Dictionary<Machine_TC, (string, int, bool)>();
+            int maxDistance = 2;
+            foreach (var machineName in machinesNames)
+            {
+                var machine = existMacines.FirstOrDefault(m => CompareStrings(m.Child.Name, machineName.Key, maxDistance));
+                if (machine == null)
+                {
+                    throw new Exception($"Станок {machineName.Key} не найден в БД.");
+                }
+                stageMachines.Add(machine, (machineName.Key, machineName.Value, false));
+            }
+            return stageMachines;
+        }
         static bool CompareStrings(string source, string target, int maxDistance)
         {
             source = source.ToLowerInvariant().Replace(" ", "");
@@ -700,7 +1353,6 @@ namespace ExcelParsing.DataProcessing
             int distance = ComputeLevenshteinDistance(source, target);
             return distance <= maxDistance;
         }
-
         static int ComputeLevenshteinDistance(string source, string target)
         {
             var n = source.Length;
@@ -730,7 +1382,6 @@ namespace ExcelParsing.DataProcessing
 
             return matrix[n, m];
         }
-
         public Dictionary<string, int> GetColumnsNumbers(string[] columns, int columnRow, ExcelWorksheet worksheet)
         {
             var columnsNumbers = new Dictionary<string, int>();
@@ -759,63 +1410,22 @@ namespace ExcelParsing.DataProcessing
             }
             return columnsNumbers;
         }
-        public (string stage, string parallelIndex) ParseStageFormula(string formula, int rowNum)
-        {
-            if (!formula.ToLower().Contains("sum") || !formula.ToLower().Contains("max"))
-            {
-                return ("0", "0");
-            }
-
-            int b = formula.IndexOf('G');
-            var perv = formula.Substring(b, formula.IndexOf(')', b)-b);
-
-            var solit = perv.Split(':');
-            if (solit.Length > 0)
-            {
-                perv = solit[0];
-            }
-
-
-            int v = formula.LastIndexOf('G');
-            var Last = formula.Substring(v).Replace(")", "");
-
-
-            var bn = formula.Replace("MAX", "").Replace("SUM", "").Replace("(", "").Replace(")", "");
-            var df = bn.Split(',');
-
-
-            string finalPosled = "0";
-            foreach (string s in df)
-            {
-                var cc = s.Replace("G", "").Split(':');
-                if (cc.Length > 1)
-                {
-                    if (rowNum >= int.Parse(cc[0])   && rowNum <= int.Parse(cc[1]) )
-                    {
-                        finalPosled = s;
-                        break;
-                    }
-                }
-                else
-                {
-                    var nm = cc[0];
-                    if (rowNum == int.Parse(nm))
-                    {
-                        finalPosled = s;
-                        break;
-                    }
-                }
-            }
-            return (perv+ Last, finalPosled);
-        }
-        public (string stage, string parallelIndex) ParseStageFormula2(string formula, int rowNum)
+        public (string stage, string parallelIndex) ParseStageFormula(string formula, int rowNum, out List<int> allNumbers)
         {
             // Инициализируем переменные для хранения результатов
             string stage = "0";
             string parallelIndex = "0";
 
+            // Инициализируем список для хранения всех номеров
+            allNumbers = new List<int>();
+
             // Ищем максимальноt и минимально число в формуле и присваиваем их в stage
-            (int minValue, int maxValue) = GetMinAndMaxValue(formula);
+            (int minValue, int maxValue) = WorkParser.GetMinAndMaxValue(formula);
+            // Если минимальное и максимальное значение равны, то возвращаем нули
+            if (minValue == maxValue)
+            {
+                return (stage, parallelIndex);
+            }
             stage = $"{minValue}{maxValue}";
 
             // Убираем из строки все, кроме цифр и диапазонов
@@ -842,6 +1452,12 @@ namespace ExcelParsing.DataProcessing
                             int start = int.Parse(range2.Split(':')[0]);
                             int end = int.Parse(range2.Split(':')[1]);
 
+                            // Добавляем все номера из диапазона в список
+                            for (int i = start; i <= end; i++)
+                            {
+                                allNumbers.Add(i);
+                            }
+
                             // Проверяем, попадает ли rowNum в диапазон
                             if (rowNum >= start && rowNum <= end)
                             {
@@ -853,6 +1469,9 @@ namespace ExcelParsing.DataProcessing
                         {
                             // Обработка случая, когда указан один номер строки
                             int line = int.Parse(range2);
+
+                            // Добавляем номер в список
+                            allNumbers.Add(line);
 
                             if (rowNum == line)
                             {
@@ -871,6 +1490,12 @@ namespace ExcelParsing.DataProcessing
                         int start = int.Parse(range.Split(':')[0]);
                         int end = int.Parse(range.Split(':')[1]);
 
+                        // Добавляем все номера из диапазона в список
+                        for (int i = start; i <= end; i++)
+                        {
+                            allNumbers.Add(i);
+                        }
+
                         // Проверяем, попадает ли rowNum в диапазон
                         if (rowNum >= start && rowNum <= end)
                         {
@@ -882,6 +1507,9 @@ namespace ExcelParsing.DataProcessing
                     {
                         // Обработка случая, когда указан один номер строки
                         int line = int.Parse(range);
+
+                        // Добавляем номер в список
+                        allNumbers.Add(line);
 
                         if (rowNum == line)
                         {
@@ -899,6 +1527,12 @@ namespace ExcelParsing.DataProcessing
                         int start = int.Parse(range.Split(':')[0]);
                         int end = int.Parse(range.Split(':')[1]);
 
+                        // Добавляем все номера из диапазона в список
+                        for (int i = start; i <= end; i++)
+                        {
+                            allNumbers.Add(i);
+                        }
+
                         // Проверяем, попадает ли rowNum в диапазон
                         if (rowNum >= start && rowNum <= end)
                         {
@@ -910,6 +1544,9 @@ namespace ExcelParsing.DataProcessing
                     {
                         // Обработка случая, когда указан один номер строки
                         int line = int.Parse(range);
+
+                        // Добавляем номер в список
+                        allNumbers.Add(line);
 
                         if (rowNum == line)
                         {
@@ -924,7 +1561,7 @@ namespace ExcelParsing.DataProcessing
             // Возвращаем индекс параллельности и последовательности
             return (stage, parallelIndex);
         }
-        public (int min, int max) GetMinAndMaxValue(string formula)
+        public static (int min, int max) GetMinAndMaxValue(string formula)
         {
             string text = formula;
 
@@ -940,7 +1577,6 @@ namespace ExcelParsing.DataProcessing
 
             return (min, max);
         }
-
         static string GetStringBeforeAtSymbol(string input, string symbol = "*INDEX")
         {
             string result = string.Empty;
@@ -960,7 +1596,15 @@ namespace ExcelParsing.DataProcessing
         static double EvaluateExpression(string expression)
         {
             var table = new DataTable();
-            var value = table.Compute(expression.Replace(",","."), string.Empty);
+
+            expression = expression.Trim();
+            // если первый символ "*" удалить его
+            if (expression[0] == '*')
+            {
+                expression = expression.Substring(1);
+            }
+
+            var value = table.Compute(expression.Replace(",",".").Replace("**","*"), string.Empty);
             return Convert.ToDouble(value);
         }
     }

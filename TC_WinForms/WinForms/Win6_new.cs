@@ -4,6 +4,7 @@ using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Diagram;
 using TC_WinForms.WinForms.Work;
+using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -37,14 +38,7 @@ namespace TC_WinForms.WinForms
 
             InitializeComponent();
 
-            // download TC from db
-            TechnologicalCard? tc = db.GetObject<TechnologicalCard>(tcId);
-            if (tc == null)
-            {
-                MessageBox.Show("Технологическая карта не найдена");
-                this.Close();
-            }
-            _tc = tc!;
+            
 
             this.KeyDown += ControlSaveEvent;
 
@@ -54,7 +48,7 @@ namespace TC_WinForms.WinForms
 
             SetViewMode();
 
-            SetTCStatusAccess();
+            //SetTCStatusAccess();
         }
         private void AccessInitialization()
         {
@@ -160,6 +154,21 @@ namespace TC_WinForms.WinForms
 
         private async void Win6_new_Load(object sender, EventArgs e)
         {
+            // download TC from db
+            var tcRepository = new TechnologicalCardRepository();
+            try
+            {
+                _tc = tcRepository.GetTechnologicalCard(_tcId);
+
+                SetTCStatusAccess();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                this.Close();
+            }
+
+
             this.Text = $"{_tc.Name} ({_tc.Article})";
             if (_tc.Status != TechnologicalCardStatus.Approved)
             {

@@ -30,7 +30,7 @@ namespace TcModels.Models.TcContent
         public Guid? maxEw { get; set; } // не акутально
 
         public string? Coefficient { get; set; } = "";
-        public double Value { get; set; }
+        public double Value { get; set; } // время выполнения
         public string Comments { get; set; } = "";
 
         [NotMapped] public bool NewItem { get; set; }

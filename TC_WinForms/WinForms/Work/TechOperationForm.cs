@@ -44,58 +44,34 @@ namespace TC_WinForms.WinForms.Work
 
             dgvMain.CellPainting += DgvMain_CellPainting;
             dgvMain.CellFormatting += DgvMain_CellFormatting;
-
             dgvMain.CellEndEdit += DgvMain_CellEndEdit;
-
             dgvMain.CellMouseEnter += DgvMain_CellMouseEnter;
 
             this.tcId = tcId;
 
-
             list = new List<TechOperationDataGridItem>();
-
-            // binding = new BindingSource();
-            // binding.DataSource = list;
-            // dgvMain.DataSource = list;
 
             context = new MyDbContext();
 
             DateTime t1 = DateTime.Now;
 
-            var Staff_TC = context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child).ToList();
-
+            //var Staff_TC = context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child).ToList();
 
             DateTime t11 = DateTime.Now;
 
             TehCarta = context.TechnologicalCards
                 .Include(t => t.Machines).Include(t => t.Machine_TCs)
                 .Include(t => t.Protection_TCs)
-            //.Include(t => t.Protections)
-            .Include(t => t.Tool_TCs)
-            .Include(t => t.Component_TCs)
+                .Include(t => t.Tool_TCs)
+                .Include(t => t.Component_TCs)
                 .Include(t => t.Staff_TCs)
-
-            // .Include(t => t.Components)
-            .Single(s => s.Id == tcId);
-
-
-            //foreach (Staff_TC sta in TehCarta.Staff_TCs)
-            //{
-            //    var bb = Staff_TC.Single(s => s.ChildId == sta.ChildId);
-            //    bb.Child = bb.Child;
-            //}
+                .Single(s => s.Id == tcId);
 
             DateTime t2 = DateTime.Now;
 
             TechOperationWorksList =
                context.TechOperationWorks.Where(w => w.TechnologicalCardId == tcId)
-                   //.Include(i=>i.technologicalCard).ThenInclude(t=>t.Machine_TCs)
-                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Machines)
                    .Include(i => i.techOperation)
-                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Protection_TCs)
-                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Protections)
-                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Tool_TCs)
-                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Component_TCs)
                    .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
 
                    .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
@@ -123,6 +99,16 @@ namespace TC_WinForms.WinForms.Work
 
             dgvMain.Columns[dgvMain.ColumnCount - 1].Visible = _isCommentViewMode;
             dgvMain.Columns[dgvMain.ColumnCount - 2].Visible = _isCommentViewMode;
+        }
+
+        public void SetViewMode(bool? isViewMode = null)
+        {
+            if (isViewMode != null)
+            {
+                _isViewMode = (bool)isViewMode;
+            }
+
+            pnlControls.Visible = !_isViewMode;
         }
 
         private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
@@ -165,15 +151,7 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
-        public void SetViewMode(bool? isViewMode = null)
-        {
-            if (isViewMode != null)
-            {
-                _isViewMode = (bool)isViewMode;
-            }
-
-            pnlControls.Visible = !_isViewMode;
-        }
+        
 
         private void TechOperationForm_Load(object sender, EventArgs e)
         {

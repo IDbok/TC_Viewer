@@ -9,6 +9,8 @@ using TcModels.Models.Interfaces;
 using System.Dynamic;
 using ExcelParsing;
 using TcModels.Models.TcContent.Work;
+using System.Xml.Linq;
+using TcDbConnector.Repositories;
 
 namespace TestConsoleAppTC;
 
@@ -26,19 +28,195 @@ internal class Program
         TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v15;user=root;password=root";
 
         //GetStaffs();
-        //ParseNewDictionaty();
+        //ParseNewDictionary();
 
-        ParseWorkSteps();
+        //ParseAllTC();
+
+        //TCExecitionsPicture();
+
+        DeleteExecutionPictures();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    static void ParseWorkSteps()
+    static void DeleteExecutionPictures()
     {
-        DbCreatorParser.ParseTCWorkSteps(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\ТКР_v3.9.xlsx", "ТКР10_8.10.1"); //ТКР10_8.10.1
+        using (var db = new MyDbContext())
+        {
+            var allTC = db.TechnologicalCards.ToList();
+            foreach (var tc in allTC)
+            {
+                tc.ExecutionScheme = null;
+            }
+            db.SaveChanges();
+        }
     }
 
-    static void ParseNewDictionaty()
+    static void TCExecitionsPicture()
+    {
+        var dictionary = new Dictionary<string, List<string>>()
+        {
+            { "ТКР_v4.0_ред.xlsx", new List<string>
+                {
+                    "ТКР10_1.1.8",
+                    "ТКР10_1.1.10",
+                    "ТКР10_1.2.1",
+                    "ТКР10_1.2.1.2",
+                    "ТКР10_1.4.8",
+                    "ТКР10_1.4.8_3",
+                    "ТКР10_1.4.8_5",
+                    "ТКР10_1.4.8_6",
+                    "ТКР10_1.4.9",
+                    "ТКР10_1.4.14",
+                    "ТКР10_1.4.14.2",
+                    "ТКР10_1.4.14.3",
+                    "ТКР10_1.4.20",
+                    "ТКР10_1.4.21",
+                    "ТКР10_1.5.2.3",
+                    "ТКР10_1.6.1",
+                    "ТКР10_2.2.1",
+                    "ТКР10_2.2.1(1.1)",
+                    "ТКР10_2.2.2",
+                    "ТКР10_2.2.2 (1.1)",
+                    "ТКР10_2.2.2 (2)",
+                    "ТКР10_2.2.2 (2.1)",
+                    "ТКР10_2.2.3",
+                    "ТКР10_2.2.3 (1.1)",
+                    "ТКР10_2.2.3 (2)",
+                    "ТКР10_2.2.3 (2.1)",
+                    "ТКР10_4.2.1",
+                    "ТКР10_4.3.1",
+                    "ТКР10_6.2.1",
+                    "ТКР10_8.5.1",
+                    "ТКР10_8.7.1",
+                    "ТКР10_8.9.1"
+                }
+            },
+            { "ТКМ_v16.2.xlsx", new List<string>
+                {
+                    "ТКМ04_1.1.1",
+                    "ТКМ04_1.1.2",
+                    "ТКМ04_1.1.3",
+                    "ТКМ04_1.1.4",
+                    "ТКМ04_1.2.1",
+                    "ТКМ04_1.2.2",
+                    "ТКМ04_1.2.3",
+                    "ТКМ04_1.2.4",
+                    "ТКМ04_1.4.14",
+                    "ТКМ04_1.4.17",
+                    "ТКМ04_1.6.1",
+                    "ТКМ04_1.18.1",
+                    "ТКМ35_6",
+                    "ТКМ10_1.1.1",
+                    "ТКМ10_1.3.8",
+                    "ТКМ10_1.8.6",
+                    "ТКМ10_1.13.2"
+                }
+            },
+            { "ТК_ТТ_v4.3.xlsx", new List<string>
+                {
+                    "ТК_1.17.1",
+                    "ТК_1.17.2"
+                }
+            }
+        };
+
+        var listDraftTC = dictionary.Values.SelectMany(list => list).ToList();  
+
+        var tcRepo = new TechnologicalCardRepository(new MyDbContext());
+
+        var allTC = tcRepo.GetAll();
+
+        var draftT = allTC.Where(tc => listDraftTC.Contains(tc.Article)).ToList();
+        var wsParser = new WorkParser();
+        foreach (var fileName in dictionary.Keys) 
+        {
+            wsParser.ParseExecutionPictures($@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\{fileName}", dictionary[fileName], tcRepo);
+        }
+    }
+
+    static void ParseAllTC()
+    {
+        var exParser = new ExcelParser();
+        var folder = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК";
+        var fileNames = new List<string>
+        {
+            "ТКР_v4.0_ред.xlsx",
+            "ТКМ_v16.2.xlsx",
+            "ТК_ТТ_v4.3.xlsx"
+        };
+        var parsingResults = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\Отчёт парсинга.xlsx";
+        exParser.ParseAllTCs(folder, fileNames, parsingResults);
+    }
+
+    static void ParseTC(bool parseIntermediateTables = true, bool parseWorkSteps = true)
+    {
+        var article = "ТКР10_1.1.1";
+        var filePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\ТКР_v4.0_ред.xlsx";
+
+        if (parseIntermediateTables && parseWorkSteps)
+        {
+            DeleteAllFromTC(article);
+        }
+
+        if (parseIntermediateTables)
+        {
+            var parser = new IntermediateTablesParser();
+            parser.ParseIntermediateObjects(filePath, article);
+        }
+
+        var parser2 = new WorkParser();
+        if (parseWorkSteps)
+        {
+            parser2.ParseTcWorkSteps(filePath, article);
+        }
+
+        parser2.ParseExecutionPictures(filePath, article);
+    }
+
+    static void DeleteAllFromTC(string article)
+    {
+        using(var db = new MyDbContext())
+        {
+            var tc = db.TechnologicalCards.Where(tc => tc.Article == article)
+                .Include(tc => tc.Staff_TCs )
+                .Include(tc => tc.Component_TCs)
+                .Include(tc => tc.Tool_TCs)
+                .Include(tc => tc.Machine_TCs)
+                .Include(tc => tc.Protection_TCs)
+                .Include(tc => tc.TechOperationWorks)
+                .FirstOrDefault();
+
+            if (tc != null)
+            {
+                tc.Staff_TCs.Clear();
+                tc.Component_TCs.Clear();
+                tc.Tool_TCs.Clear();
+                tc.Machine_TCs.Clear();
+                tc.Protection_TCs.Clear();
+
+                tc.TechOperationWorks.Clear();
+
+                tc.ExecutionScheme = null;
+
+                tc.Status = TechnologicalCard.TechnologicalCardStatus.Created;
+
+                db.SaveChanges();
+            }
+            else
+            {
+                throw new Exception($"ТК {article} не найдена");
+            }
+        }
+    }
+
+    static void ParseTEST()
+    {
+        var parser2 = new WorkParser();
+        parser2.Test();
+    }
+
+    static void ParseNewDictionary()
     {
         string structFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
         string tcFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Список ТК.xlsx";
