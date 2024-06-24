@@ -11,16 +11,16 @@ namespace TC_WinForms.WinForms.Work
     public class TechOperationDataGridItem
     {
         public int Nomer { get; set; }
-        public string TechOperation { get; set; }
+        public string TechOperation { get; set; } = null!; // todo - изменить на более понятное имя (например, TechOperationName)
 
-        public string Staff { get; set; }
+        public string Staff { get; set; } = "";
 
-        public string TechTransition { get; set; }
+        public string TechTransition { get; set; } = ""; // todo - изменить на более понятное имя
 
-        public string TechTransitionValue { get; set; }
+        public string TechTransitionValue { get; set; } = "";
 
 
-        public string Protections { get; set; }
+        public string Protections { get; set; } = "";
 
         public bool ItsTool = false;
 
