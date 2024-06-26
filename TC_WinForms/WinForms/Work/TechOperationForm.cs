@@ -55,13 +55,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
     private async Task LoadDataAsync(int tcId)
     {
+        // Загрузка в контекст данных о вложенных сущностях Staff
+        //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
+
         TehCarta =  await context.TechnologicalCards
             .Include(t => t.Machines)
             .Include(t => t.Machine_TCs)
             .Include(t => t.Protection_TCs)
             .Include(t => t.Tool_TCs)
             .Include(t => t.Component_TCs)
-            .Include(t => t.Staff_TCs)
+            .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
             .SingleAsync(s => s.Id == tcId);
 
         TechOperationWorksList = await context.TechOperationWorks

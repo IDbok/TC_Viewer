@@ -536,13 +536,14 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
-            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Where(w => w.Delete == false).ToList();
+            var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Where(w => w.Delete == false).ToList();
 
-            foreach (ExecutionWork executionWork in LocalTP)
+            foreach (ExecutionWork executionWork in LocalTPs)
             {
                 List<object> listItem = new List<object>();
                 listItem.Add(executionWork.IdGuid);
-
+                
+                // добавляем кнопку "Удалить" только для не типовых ТО
                 if (work.techOperation.Category == "Типовая ТО" && executionWork.Repeat == false)
                 {
                     listItem.Add("");
@@ -578,6 +579,11 @@ namespace TC_WinForms.WinForms.Work
                 }
 
                 //////////////////////////////////////////////26.06.2024
+                //listItem.Add(executionWork.techTransition?.TimeExecution);
+
+                //listItem.Add(executionWork.Coefficient);
+
+                
                 if (executionWork.Value == -1)
                 {
                     listItem.Add("Ошибка");
@@ -593,7 +599,7 @@ namespace TC_WinForms.WinForms.Work
                 dataGridViewTPLocal.Rows.Add(listItem.ToArray());
             }
 
-            listExecutionWork = new List<ExecutionWork>(LocalTP);
+            listExecutionWork = new List<ExecutionWork>(LocalTPs);
 
             if (listExecutionWork.Count == 0)
             {
@@ -1854,45 +1860,45 @@ namespace TC_WinForms.WinForms.Work
         #endregion
 
         #region Повторить
+
+        private ExecutionWork? executionWorkPovtor;
         private void DataGridViewPovtor_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
             dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var id = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-                var che = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
+                var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
 
                 if (executionWorkPovtor != null)
                 {
-                    if (che)
+                    if (isSelected)
                     {
-                        if (!executionWorkPovtor.ListexecutionWorkRepeat2.Contains(id))
+                        if (!executionWorkPovtor.ListexecutionWorkRepeat2.Contains(currentEW))
                         {
-                            executionWorkPovtor.ListexecutionWorkRepeat2.Add(id);
+                            executionWorkPovtor.ListexecutionWorkRepeat2.Add(currentEW);
                             TechOperationForm.UpdateGrid();
                         }
                     }
                     else
                     {
-                        if (executionWorkPovtor.ListexecutionWorkRepeat2.Contains(id))
+                        if (executionWorkPovtor.ListexecutionWorkRepeat2.Contains(currentEW))
                         {
-                            executionWorkPovtor.ListexecutionWorkRepeat2.Remove(id);
+                            executionWorkPovtor.ListexecutionWorkRepeat2.Remove(currentEW);
                             TechOperationForm.UpdateGrid();
                         }
                     }
                 }
-
             }
-
         }
 
-        private ExecutionWork executionWorkPovtor;
 
         public void UpdatePovtor()
         {
             dataGridViewPovtor.Rows.Clear();
             executionWorkPovtor = null;
+
             var select = dataGridViewTPLocal.SelectedRows;
             if (select.Count > 0)
             {
@@ -1900,8 +1906,8 @@ namespace TC_WinForms.WinForms.Work
 
                 var al = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false).OrderBy(o => o.Order);
 
-                ExecutionWork exeWork = null;
-
+                ExecutionWork? exeWork = null;
+                // Поиск ТП с заданным Guid
                 foreach (TechOperationWork techOperationWork in al)
                 {
                     if (exeWork != null)
@@ -1921,18 +1927,18 @@ namespace TC_WinForms.WinForms.Work
                 if (exeWork != null && exeWork.Repeat)
                 {
                     executionWorkPovtor = exeWork;
-                    var allRep = exeWork.ListexecutionWorkRepeat2.ToList();
+                    var selectedEW = exeWork.ListexecutionWorkRepeat2.ToList();
 
                     foreach (TechOperationWork techOperationWork in al)
                     {
-                        var lli = techOperationWork.executionWorks.Where(w => w.Delete == false && w.Repeat == false).OrderBy(o => o.Order);
-
+                        var lli = techOperationWork.executionWorks.Where(w => w.Delete == false /*&& w.Repeat == false*/).OrderBy(o => o.Order); ////// 26/06/2024 - добавил повторы в выборку. Т.к. в картах такие объекты тоже входят в повторы
+                                                                                                                                                    // todo - ограничить возможность выбора самого себя в повторах
 
                         foreach (ExecutionWork executionWork in lli)
                         {
                             List<object> listItem = new List<object>();
                             listItem.Add(executionWork);
-                            if (allRep.SingleOrDefault(s => s == executionWork) != null)
+                            if (selectedEW.SingleOrDefault(s => s == executionWork) != null)
                             {
                                 listItem.Add(true);
                             }
