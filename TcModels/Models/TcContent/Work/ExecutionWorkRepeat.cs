@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace TcModels.Models.TcContent;
 
-namespace TcModels.Models.TcContent
+public class ExecutionWorkRepeat
 {
-    public class ExecutionWorkRepeat
-    {
-        public int Id { get; set; }
-        public ExecutionWork OneexecutionWork { get; set; }
+    public int Id { get; set; }
 
-        public List<ExecutionWork> executionWork { get; set; }
-    }
+    public int ParentExecutionWorkId { get; set; }
+    public ExecutionWork ParentExecutionWork { get; set; }
+
+    public int ChildExecutionWorkId { get; set; }
+    public ExecutionWork ChildExecutionWork { get; set; }
+
+    public string NewCoefficient { get; set; } = string.Empty;
+    public string NewEtap { get; set; } = string.Empty;
+    public string NewPosled { get; set; } = string.Empty;
 }
+

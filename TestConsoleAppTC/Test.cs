@@ -27,17 +27,93 @@ internal class Program
         Console.WriteLine("Hello, World!");
         TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v15;user=root;password=root";
 
+        //CoefficientTests();
+
         //GetStaffs();
         //ParseNewDictionary();
 
-        //ParseAllTC();
+        ParseAllTC();
 
         //TCExecitionsPicture();
 
-        DeleteExecutionPictures();
+        //DeleteExecutionPictures();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    static void CoefficientTests()
+    {
+        using (var context = new MyDbContext())
+        {
+            var techTransition = context.TechTransitions.FirstOrDefault();
+            var techOperation = context.TechOperations.FirstOrDefault();
+            var tc = context.TechnologicalCards.FirstOrDefault();
+
+            var TechOperationWork = new TechOperationWork
+            {
+                Order = 0,
+                techOperation = techOperation,
+                technologicalCard = tc
+            };
+            // Создаем новый объект ExecutionWork
+            var parentExecutionWork = WorkParser.CreateExecutionWork(techTransition, 1,"0","0","");
+            //var parentExecutionWork = new ExecutionWork
+            //{
+            //    techOperationWorkId = 1,
+            //    techTransitionId = 1,
+            //    Comments = "test comment",
+            //    // Заполните нужные поля
+            //};
+
+            var childExecutionWork = WorkParser.CreateExecutionWork(techTransition, 21, "0", "0", "");
+            //var childExecutionWork = new ExecutionWork
+            //{
+            //    techOperationWorkId = 1,
+            //    techTransitionId = 1,
+            //    // Заполните нужные поля
+            //    Comments = "test comment",
+            //};
+
+            TechOperationWork.executionWorks.Add(parentExecutionWork);
+            TechOperationWork.executionWorks.Add(childExecutionWork);
+            //context.ExecutionWorks.Add(parentExecutionWork);
+            //context.ExecutionWorks.Add(childExecutionWork);
+
+            var executionWorkLink = new ExecutionWorkRepeat
+            {
+                ParentExecutionWork = parentExecutionWork,
+                ChildExecutionWork = childExecutionWork,
+                NewCoefficient = "*1",
+                NewEtap = "Etap1",
+                NewPosled = "Posled1"
+            };
+
+
+
+            context.TechOperationWorks.Add(TechOperationWork);
+
+            // Сохраняем изменения, чтобы получить Id для новых объектов
+            //context.SaveChanges();
+
+            // Создаем связь
+            
+
+            context.ExecutionWorkRepeats.Add(executionWorkLink);
+
+            // Сохраняем изменения
+            context.SaveChanges();
+        }
+
+        //using (var db = new MyDbContext())
+        //{
+        //    db.Database.EnsureDeleted();
+        //    db.Database.EnsureCreated();
+
+        //    var allTC = db.ExecutionWorks
+        //        .ToList();
+        //}
+
+    }
 
     static void DeleteExecutionPictures()
     {
@@ -141,8 +217,8 @@ internal class Program
         var folder = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК";
         var fileNames = new List<string>
         {
-            "ТКР_v4.0_ред.xlsx",
-            "ТКМ_v16.2.xlsx",
+            //"ТКР_v4.0_ред.xlsx",
+            //"ТКМ_v16.2.xlsx",
             "ТК_ТТ_v4.3.xlsx"
         };
         var parsingResults = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\Отчёт парсинга.xlsx";

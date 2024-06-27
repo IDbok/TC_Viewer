@@ -1,4 +1,5 @@
-﻿using NCalc;
+﻿using ExcelParsing.DataProcessing;
+//using NCalc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -42,11 +43,13 @@ namespace TC_WinForms.WinForms.Work
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            Expression ee = new Expression(Idd.TimeExecution.ToString().Replace(',','.')+ " " + textBox1.Text.Replace(',', '.'));
+            //Expression ee = new Expression(Idd.TimeExecution.ToString().Replace(',','.')+ " " + textBox1.Text.Replace(',', '.'));
+
+            //WorkParser.EvaluateExpression(Idd.TimeExecution.ToString().Replace(',', '.') + " " + textBox1.Text.Replace(',', '.'));
 
             try
             {
-                var bn = ee.Evaluate();
+                var bn = WorkParser.EvaluateExpression(Idd.TimeExecution.ToString().Replace(',', '.') + " " + textBox1.Text.Replace(',', '.')); // ee.Evaluate();
                 label4.Text = bn.ToString();
                 button1.Enabled = true;
             }

@@ -18,13 +18,15 @@ namespace TcModels.Models.TcContent
 
         public List<Machine_TC> Machines { get; set; } = new List<Machine_TC>(); // если присутствует machine_tc значит участвует в этапе
 
-        public List<ExecutionWork> WorkRepeat { get; set; } = new List<ExecutionWork>();
+        //public List<ExecutionWork> WorkRepeat { get; set; } = new List<ExecutionWork>();
         public bool Repeat { get; set; } = false;
 
         // public ExecutionWorkRepeat? executionWorkRepeat { get; set; }
 
-        public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();  
-        public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>(); // adding repeat items
+        [NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();
+        [NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>(); // adding repeat items
+        public List<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = new List<ExecutionWorkRepeat>();
+
 
         public Guid? sumEw { get; set; } // не актуально
         public Guid? maxEw { get; set; } // не акутально

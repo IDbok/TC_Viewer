@@ -76,7 +76,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
             .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
             .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-            .Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2)
+            //.Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2)
+            .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
             .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
             .ToListAsync();
     }
@@ -934,8 +935,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat)
             {
-                var repeatNumList = techOperationDataGridItem.techWork.ListexecutionWorkRepeat2
-                    .Select(executionWork => list.SingleOrDefault(s => s.techWork == executionWork))
+                //var repeatNumList = techOperationDataGridItem.techWork.ListexecutionWorkRepeat2
+                //    .Select(executionWork => list.SingleOrDefault(s => s.techWork == executionWork))
+                //    .Where(bn => bn != null)
+                //    .Select(bn => bn.Nomer)
+                //    .ToList();
+
+                var repeatNumList = techOperationDataGridItem.techWork.ExecutionWorkRepeats
+                    .Select(executionWorkRepeat => list.SingleOrDefault(s => s.techWork == executionWorkRepeat.ChildExecutionWork))
                     .Where(bn => bn != null)
                     .Select(bn => bn.Nomer)
                     .ToList();

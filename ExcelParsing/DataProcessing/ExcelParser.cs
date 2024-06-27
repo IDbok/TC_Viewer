@@ -111,7 +111,7 @@ namespace ExcelParsing.DataProcessing
 
                 foreach (var fileName in fileNames)
                 {
-                    Console.WriteLine($"Парсинг ТК {fileName}");
+                    Console.WriteLine($"Парсинг файла {fileName}");
 
                     var tcFilePath = Path.Combine(folderPath, fileName);
                     var fileInfo = new FileInfo(tcFilePath);
@@ -126,6 +126,8 @@ namespace ExcelParsing.DataProcessing
                     {
                         var sheetNames = package.Workbook.Worksheets.Select(x => x.Name).ToList();
                         var tcSheetNames = sheetNames.Where(x => x.StartsWith("ТК")).ToList();
+                        //оставить только первый лист
+                        tcSheetNames = tcSheetNames.Take(1).ToList();
 
                         if (tcSheetNames.Count == 0)
                         {
@@ -183,7 +185,9 @@ namespace ExcelParsing.DataProcessing
                 }
 
                 logPackage.Save();
+                
             }
+
         }
 
         private void LogResult(ExcelWorksheet sheet, string fileName, string article, string result1to5, string result6, string notes)
@@ -382,7 +386,7 @@ namespace ExcelParsing.DataProcessing
 
                         IsCompleted = isCompleted == "Есть" ? true : false,
 
-                        Status = TechnologicalCard.TechnologicalCardStatus.Approved,
+                        //Status = TechnologicalCard.TechnologicalCardStatus.Approved,
 
                     };
 

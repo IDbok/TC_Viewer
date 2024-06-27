@@ -23,7 +23,7 @@ namespace TcDbConnector
 
         public DbSet<TechOperationWork> TechOperationWorks { get; set; } = null!;
         public DbSet<ExecutionWork> ExecutionWorks { get; set; } = null!;
-        
+        public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
 
         public DbSet<ComponentWork> ComponentWorks { get; set; } = null!;
        // public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
@@ -68,11 +68,25 @@ namespace TcDbConnector
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //modelBuilder
+            //    .Entity<ExecutionWork>()
+            //    .HasMany(c => c.ListexecutionWorkRepeat)
+            //    .WithMany(s => s.ListexecutionWorkRepeat2)
+            //    .UsingEntity(j => j.ToTable("ExecutionWorkRepeat"));
+
             modelBuilder
                 .Entity<ExecutionWork>()
-                .HasMany(c => c.ListexecutionWorkRepeat)
-                .WithMany(s => s.ListexecutionWorkRepeat2)
-                .UsingEntity(j => j.ToTable("ExecutionWorkRepeat"));
+                .HasMany(e => e.ExecutionWorkRepeats)
+                .WithOne(link => link.ParentExecutionWork)
+                .HasForeignKey(link => link.ParentExecutionWorkId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder
+                .Entity<ExecutionWorkRepeat>()
+                .HasOne(link => link.ChildExecutionWork)
+                .WithMany()
+                .HasForeignKey(link => link.ChildExecutionWorkId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder
                 .Entity<Component>()

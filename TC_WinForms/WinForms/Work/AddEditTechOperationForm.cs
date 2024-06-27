@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NCalc;
+﻿using ExcelParsing.DataProcessing;
+using Microsoft.EntityFrameworkCore;
+//using NCalc;
 using System.CodeDom;
 using System.Data;
 using TC_WinForms.DataProcessing;
@@ -303,12 +304,13 @@ namespace TC_WinForms.WinForms.Work
                     {
                         wor.Coefficient = gg ?? "";
 
-                        Expression ee = new Expression(wor.techTransition?.TimeExecution.ToString().Replace(',', '.') + " " + wor.Coefficient.Replace(',', '.'));
+                        //Expression ee = new Expression(wor.techTransition?.TimeExecution.ToString().Replace(',', '.') + " " + wor.Coefficient.Replace(',', '.'));
 
+                        
                         try
                         {
-                            var bn = ee.Evaluate();
-                            wor.Value = Math.Round(double.Parse(bn.ToString()), 2);
+                            var bn = WorkParser.EvaluateExpression(wor.techTransition?.TimeExecution.ToString().Replace(',', '.') + " " + wor.Coefficient.Replace(',', '.')); //ee.Evaluate();
+                            wor.Value = Math.Round(bn, 2);//double.Parse(bn.ToString()), 2);
                         }
                         catch (Exception)
                         {
@@ -1862,6 +1864,37 @@ namespace TC_WinForms.WinForms.Work
         #region Повторить
 
         private ExecutionWork? executionWorkPovtor;
+        //private void DataGridViewPovtor_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+        //{
+        //    dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+        //    if (e.ColumnIndex == 1 && e.RowIndex >= 0)
+        //    {
+        //        var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
+        //        var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+        //        if (executionWorkPovtor != null)
+        //        {
+        //            if (isSelected)
+        //            {
+        //                if (!executionWorkPovtor.ListexecutionWorkRepeat2.Contains(currentEW))
+        //                {
+        //                    executionWorkPovtor.ListexecutionWorkRepeat2.Add(currentEW);
+        //                    TechOperationForm.UpdateGrid();
+        //                }
+        //            }
+        //            else
+        //            {
+        //                if (executionWorkPovtor.ListexecutionWorkRepeat2.Contains(currentEW))
+        //                {
+        //                    executionWorkPovtor.ListexecutionWorkRepeat2.Remove(currentEW);
+        //                    TechOperationForm.UpdateGrid();
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
         private void DataGridViewPovtor_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
             dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
@@ -1873,22 +1906,37 @@ namespace TC_WinForms.WinForms.Work
 
                 if (executionWorkPovtor != null)
                 {
+                    var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
+                        .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
+
                     if (isSelected)
                     {
-                        if (!executionWorkPovtor.ListexecutionWorkRepeat2.Contains(currentEW))
+                        if (existingRepeat == null)
                         {
-                            executionWorkPovtor.ListexecutionWorkRepeat2.Add(currentEW);
+                            var newRepeat = new ExecutionWorkRepeat
+                            {
+                                ParentExecutionWork = executionWorkPovtor,
+                                ParentExecutionWorkId = executionWorkPovtor.Id,
+                                ChildExecutionWork = currentEW,
+                                ChildExecutionWorkId = currentEW.Id,
+                                NewCoefficient = "*1"
+                            };
+                            executionWorkPovtor.ExecutionWorkRepeats.Add(newRepeat);
                             TechOperationForm.UpdateGrid();
                         }
                     }
                     else
                     {
-                        if (executionWorkPovtor.ListexecutionWorkRepeat2.Contains(currentEW))
+                        if (existingRepeat != null)
                         {
-                            executionWorkPovtor.ListexecutionWorkRepeat2.Remove(currentEW);
+                            executionWorkPovtor.ExecutionWorkRepeats.Remove(existingRepeat);
                             TechOperationForm.UpdateGrid();
                         }
                     }
+
+                    // todo - перерасчёт значение Value
+                    RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
+                    TechOperationForm.UpdateGrid();
                 }
             }
         }
@@ -1927,12 +1975,12 @@ namespace TC_WinForms.WinForms.Work
                 if (exeWork != null && exeWork.Repeat)
                 {
                     executionWorkPovtor = exeWork;
-                    var selectedEW = exeWork.ListexecutionWorkRepeat2.ToList();
+                    //var selectedEW = exeWork.ListexecutionWorkRepeat2.ToList();
+                    var selectedEW = exeWork.ExecutionWorkRepeats.Select(ewr => ewr.ChildExecutionWork).ToList();
 
                     foreach (TechOperationWork techOperationWork in al)
                     {
                         var lli = techOperationWork.executionWorks.Where(w => w.Delete == false /*&& w.Repeat == false*/).OrderBy(o => o.Order); ////// 26/06/2024 - добавил повторы в выборку. Т.к. в картах такие объекты тоже входят в повторы
-                                                                                                                                                    // todo - ограничить возможность выбора самого себя в повторах
 
                         foreach (ExecutionWork executionWork in lli)
                         {
@@ -1955,6 +2003,31 @@ namespace TC_WinForms.WinForms.Work
 
             }
 
+        }
+
+        private void RecalculateExecutionWorkPovtorValue(ExecutionWork executionWorkPovtor)
+        {
+            double totalValue = 0;
+
+            foreach (var repeat in executionWorkPovtor.ExecutionWorkRepeats)
+            {
+                double coefficient = 1;
+                if (!string.IsNullOrEmpty(repeat.NewCoefficient))
+                {
+                    try
+                    {
+                        coefficient = WorkParser.EvaluateExpression(repeat.NewCoefficient);
+                    }
+                    catch
+                    {
+                        coefficient = 1; // значение по умолчанию, если выражение не удаётся вычислить
+                    }
+                }
+
+                totalValue += repeat.ChildExecutionWork.Value * coefficient;
+            }
+
+            executionWorkPovtor.Value = totalValue;
         }
 
         #endregion
