@@ -72,6 +72,8 @@ namespace TC_WinForms.WinForms.Work
             var context = techOperationForm.context;
 
             dataGridViewPovtor.CellContentClick += DataGridViewPovtor_CellContentClick;
+            dataGridViewPovtor.CellValueChanged += DataGridViewPovtor_CellValueChanged;
+            dataGridViewPovtor.CellFormatting += dataGridViewPovtor_CellFormatting;
 
 
             comboBoxFiltrCategor.SelectedIndexChanged += ComboBoxFiltrCategor_SelectedIndexChanged;
@@ -1894,6 +1896,29 @@ namespace TC_WinForms.WinForms.Work
         //        }
         //    }
         //}
+        private void dataGridViewPovtor_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex == 1) // Индекс столбца с checkBox
+            {
+                var executionWork = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
+                if (executionWork == executionWorkPovtor)
+                {
+                    // Делаем ячейку недоступной
+                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
+                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
+                }
+            }
+            if (e.ColumnIndex == 4|| e.ColumnIndex == 5 || e.ColumnIndex == 6 ) // Индекс столбца с checkBox
+            {
+                var executionWork = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
+                if (executionWork == executionWorkPovtor)
+                {
+                    // Делаем ячейку недоступной
+                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
+                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
+                }
+            }
+        }
 
         private void DataGridViewPovtor_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
@@ -1939,9 +1964,91 @@ namespace TC_WinForms.WinForms.Work
                     TechOperationForm.UpdateGrid();
                 }
             }
+            //else if ((e.ColumnIndex == 4 || e.ColumnIndex == 5 || e.ColumnIndex == 6) && e.RowIndex >= 0)
+            //{
+            //    var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
+            //    var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+            //    if (executionWorkPovtor != null)
+            //    {
+            //        var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
+            //            .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
+
+            //        if (isSelected)
+            //        {
+            //            if (existingRepeat != null)
+            //            {
+            //                if (e.ColumnIndex == 4) 
+            //                { 
+            //                    existingRepeat.NewCoefficient = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+            //                }
+            //                else if (e.ColumnIndex == 5)
+            //                {
+            //                    existingRepeat.NewEtap = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+            //                }
+            //                else if (e.ColumnIndex == 6)
+            //                {
+            //                    existingRepeat.NewPosled = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+            //                }
+            //            }
+            //        }
+            //        else
+            //        {
+                        
+            //        }
+
+            //        // todo - перерасчёт значение Value
+            //        RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
+            //        TechOperationForm.UpdateGrid();
+            //    }
+            //}
+
+            
         }
 
+        private void DataGridViewPovtor_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
+        {
+            if ((e.ColumnIndex == 4 || e.ColumnIndex == 5 || e.ColumnIndex == 6) && e.RowIndex >= 0)
+            {
+                var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
+                var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[1].Value;
 
+                if (executionWorkPovtor != null)
+                {
+                    var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
+                        .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
+
+                    if (isSelected)
+                    {
+                        if (existingRepeat != null)
+                        {
+                            if (e.ColumnIndex == 4)
+                            {
+                                existingRepeat.NewCoefficient = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                            }
+                            else if (e.ColumnIndex == 5)
+                            {
+                                existingRepeat.NewEtap = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                            }
+                            else if (e.ColumnIndex == 6)
+                            {
+                                existingRepeat.NewPosled = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                            }
+
+                            RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
+                            TechOperationForm.UpdateGrid();
+                        }
+                    }
+                    else
+                    {
+                        // отмена изменений
+                        dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = null;
+                    }
+
+                    
+                }
+            }
+        }
         public void UpdatePovtor()
         {
             dataGridViewPovtor.Rows.Clear();
@@ -1977,16 +2084,18 @@ namespace TC_WinForms.WinForms.Work
                     executionWorkPovtor = exeWork;
                     //var selectedEW = exeWork.ListexecutionWorkRepeat2.ToList();
                     var selectedEW = exeWork.ExecutionWorkRepeats.Select(ewr => ewr.ChildExecutionWork).ToList();
-
+                    var selectedEWR = exeWork.ExecutionWorkRepeats.ToList();
                     foreach (TechOperationWork techOperationWork in al)
                     {
                         var lli = techOperationWork.executionWorks.Where(w => w.Delete == false /*&& w.Repeat == false*/).OrderBy(o => o.Order); ////// 26/06/2024 - добавил повторы в выборку. Т.к. в картах такие объекты тоже входят в повторы
 
                         foreach (ExecutionWork executionWork in lli)
                         {
+                            var isSelected = selectedEW.SingleOrDefault(s => s == executionWork) != null;
+
                             List<object> listItem = new List<object>();
                             listItem.Add(executionWork);
-                            if (selectedEW.SingleOrDefault(s => s == executionWork) != null)
+                            if (isSelected)
                             {
                                 listItem.Add(true);
                             }
@@ -1996,6 +2105,20 @@ namespace TC_WinForms.WinForms.Work
                             }
                             listItem.Add(techOperationWork.techOperation.Name);
                             listItem.Add(executionWork.techTransition?.Name);
+
+                            if (isSelected)
+                            {
+                                ExecutionWorkRepeat? techOperationWorkRepeat = selectedEWR.SingleOrDefault(s => s.ChildExecutionWork == executionWork);
+
+                                if (techOperationWorkRepeat != null)
+                                {
+                                    listItem.Add(techOperationWorkRepeat.NewCoefficient);
+
+                                    listItem.Add(techOperationWorkRepeat.NewEtap);
+                                    listItem.Add(techOperationWorkRepeat.NewPosled);
+                                }
+                            }
+
                             dataGridViewPovtor.Rows.Add(listItem.ToArray());
                         }
                     }

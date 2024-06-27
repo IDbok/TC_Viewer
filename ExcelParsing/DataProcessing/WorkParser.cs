@@ -1637,12 +1637,12 @@ public class WorkParser
 
         expression = expression.Trim();
         // если первый символ "*" удалить его
-        if (expression[0] == '*')
+        while (expression[0] == '*')
         {
             expression = expression.Substring(1);
         }
 
-        var value = table.Compute(expression.Replace(",",".").Replace("**","*"), string.Empty);
+        var value = table.Compute(expression.Replace(",","."), string.Empty);
         return Convert.ToDouble(value);
     }
 }

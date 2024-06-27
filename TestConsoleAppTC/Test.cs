@@ -26,13 +26,13 @@ internal class Program
     {
         Console.WriteLine("Hello, World!");
         TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v15;user=root;password=root";
-
+        Expretion();
         //CoefficientTests();
 
         //GetStaffs();
         //ParseNewDictionary();
 
-        ParseAllTC();
+        //ParseAllTC();
 
         //TCExecitionsPicture();
 
@@ -41,6 +41,11 @@ internal class Program
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    static void Expretion()
+    {
+        Console.WriteLine( WorkParser.EvaluateExpression("**3"));
+    }
     static void CoefficientTests()
     {
         using (var context = new MyDbContext())
