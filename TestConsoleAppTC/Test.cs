@@ -26,25 +26,36 @@ internal class Program
     {
         Console.WriteLine("Hello, World!");
         TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v15;user=root;password=root";
-        Expretion();
+
         //CoefficientTests();
 
         //GetStaffs();
         //ParseNewDictionary();
 
-        //ParseAllTC();
+        //MakeAllStatusesDraft(TechnologicalCard.TechnologicalCardStatus.Created);
+
+        ParseAllTC();
+        //CheckOldForm();
 
         //TCExecitionsPicture();
 
         //DeleteExecutionPictures();
+
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-    static void Expretion()
+    static void MakeAllStatusesDraft(TechnologicalCard.TechnologicalCardStatus status)
     {
-        Console.WriteLine( WorkParser.EvaluateExpression("**3"));
+        using (var db = new MyDbContext())
+        {
+            var allTC = db.TechnologicalCards.ToList();
+            foreach (var tc in allTC)
+            {
+                tc.Status = status;
+            }
+            db.SaveChanges();
+        }
     }
     static void CoefficientTests()
     {
@@ -223,36 +234,26 @@ internal class Program
         var fileNames = new List<string>
         {
             //"ТКР_v4.0_ред.xlsx",
-            //"ТКМ_v16.2.xlsx",
-            "ТК_ТТ_v4.3.xlsx"
+            "ТКМ_v16.2_ред.xlsx",
+            //"ТК_ТТ_v4.3_ред.xlsx"
         };
-        var parsingResults = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\Отчёт парсинга.xlsx";
-        exParser.ParseAllTCs(folder, fileNames, parsingResults);
+        var parsingFolder = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\";
+        var parsingFileName = "Отчёт парсинга.xlsx";
+        exParser.ParseAllTCs(folder, fileNames, parsingFolder, parsingFileName);//);//
     }
-
-    static void ParseTC(bool parseIntermediateTables = true, bool parseWorkSteps = true)
+    static void CheckOldForm()
     {
-        var article = "ТКР10_1.1.1";
-        var filePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\ТКР_v4.0_ред.xlsx";
-
-        if (parseIntermediateTables && parseWorkSteps)
+        var exParser = new ExcelParser();
+        var folder = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК";
+        var fileNames = new List<string>
         {
-            DeleteAllFromTC(article);
-        }
-
-        if (parseIntermediateTables)
-        {
-            var parser = new IntermediateTablesParser();
-            parser.ParseIntermediateObjects(filePath, article);
-        }
-
-        var parser2 = new WorkParser();
-        if (parseWorkSteps)
-        {
-            parser2.ParseTcWorkSteps(filePath, article);
-        }
-
-        parser2.ParseExecutionPictures(filePath, article);
+            "ТКР_v4.0_ред.xlsx",
+            "ТКМ_v16.2_ред.xlsx",
+            "ТК_ТТ_v4.3_ред.xlsx"
+        };
+        var parsingFolder = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\";
+        var parsingFileName = "Cтарая форма.xlsx";
+        exParser.FindOldFormTC(folder, fileNames, parsingFolder, parsingFileName);//);//
     }
 
     static void DeleteAllFromTC(string article)

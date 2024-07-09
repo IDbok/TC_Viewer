@@ -39,7 +39,9 @@ namespace ExcelParsing
         {
             var parser = new WorkParser();
 
-            parser.ParseTcWorkSteps(tcFilePath, tcName);
+            var note = string.Empty;
+
+            parser.ParseTcWorkSteps(tcFilePath, tcName, ref note );
         }
 
         private static void CreateDb()

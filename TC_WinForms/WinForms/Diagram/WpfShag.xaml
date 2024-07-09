@@ -7,10 +7,23 @@
              mc:Ignorable="d" >
     <Grid>       
         <Border BorderThickness="2" BorderBrush="Black" Margin="10" CornerRadius="5" >
-        <StackPanel>
+        <StackPanel Width="600">
             <TextBlock x:Name="TextShag" Text="№ шага" HorizontalAlignment="Center" FontSize="18"   />
 
-            <TextBox x:Name="TextDeystShag" MinHeight="150" TextWrapping="Wrap" TextAlignment="Center"  Text="Действия шага:" AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" TextChanged="TextDeystShag_TextChanged" />
+                <!--<TextBlock x:Name="TextDeystShag"
+                   MinHeight="150"
+                   TextWrapping="Wrap" TextAlignment="Center"
+                   xml:lang="ru">
+                    <Run Text="Действия шага:" />
+                </TextBlock>-->
+
+                <TextBox x:Name="TextDeystShag" 
+                     MinHeight="150"
+                     TextWrapping="Wrap" TextAlignment="Center" 
+                     Text="Действия шага:" 
+                     AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" 
+                     TextChanged="TextDeystShag_TextChanged" />
+            
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Добавить тех. переход" Margin="0,0,30,0"></TextBlock>
                 <ComboBox Name="ComboBoxTeh" Width="200" SelectionChanged="ComboBoxTeh_SelectionChanged" />

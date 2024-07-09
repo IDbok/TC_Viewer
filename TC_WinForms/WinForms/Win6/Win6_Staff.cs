@@ -53,13 +53,6 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
         pnlControls.Visible = !_isViewMode;
 
-        //btnAddNewObj.Enabled = !_isViewMode;
-        //btnDeleteObj.Enabled = !_isViewMode;
-        //btnMoveUp.Enabled = !_isViewMode;
-        //btnMoveDown.Enabled = !_isViewMode;
-
-        //dgvMain.ReadOnly = _isViewMode;
-
         // make columns editable
         dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = _isViewMode;
         dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = _isViewMode;

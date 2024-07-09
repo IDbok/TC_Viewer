@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 //using NCalc;
 using System.CodeDom;
 using System.Data;
+using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TcDbConnector;
 using TcModels.Models.IntermediateTables;
@@ -159,6 +160,10 @@ namespace TC_WinForms.WinForms.Work
         public void UpdateTO()
         {
             var offScroll = dataGridViewAllTO.FirstDisplayedScrollingRowIndex;
+
+            //DataGridViewRow currentRow = dataGridViewAllTO.CurrentRow;
+            int currentRowIndex = dataGridViewAllTO.CurrentRow?.Index ?? 0;
+
             dataGridViewAllTO.Rows.Clear();
 
             var context = TechOperationForm.context;
@@ -173,13 +178,8 @@ namespace TC_WinForms.WinForms.Work
                 AddTechOperationToGridAllTO(operation);
             }
 
-            try
-            {
+            if (offScroll > 0 && offScroll < dataGridViewAllTO.Rows.Count)
                 dataGridViewAllTO.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e)
-            {
-            }
         }
         private IEnumerable<TechOperation> FilterTechOperations(string searchText)
         {
@@ -216,13 +216,8 @@ namespace TC_WinForms.WinForms.Work
             comboBoxTO2.DataSource = list2;
             comboBoxTO3.DataSource = list2;
 
-            try
-            {
+            if (offScroll > 0 && offScroll < dataGridViewTO.Rows.Count)
                 dataGridViewTO.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e)
-            {
-            }
 
         }
         private void AddTechOperationToGridLocalTO(TechOperationWork techOperationWork)
@@ -512,7 +507,8 @@ namespace TC_WinForms.WinForms.Work
 
             try
             {
-                dataGridViewTPAll.FirstDisplayedScrollingRowIndex = offScroll;
+                if (offScroll > 0 && offScroll < dataGridViewTPAll.Rows.Count)
+                    dataGridViewTPAll.FirstDisplayedScrollingRowIndex = offScroll;
             }
             catch (Exception e)
             {
@@ -544,8 +540,10 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (ExecutionWork executionWork in LocalTPs)
             {
-                List<object> listItem = new List<object>();
-                listItem.Add(executionWork.IdGuid);
+                List<object> listItem = new List<object>
+                {
+                    executionWork.IdGuid
+                };
                 
                 // добавляем кнопку "Удалить" только для не типовых ТО
                 if (work.techOperation.Category == "Типовая ТО" && executionWork.Repeat == false)
@@ -596,7 +594,7 @@ namespace TC_WinForms.WinForms.Work
                 {
                     listItem.Add(executionWork.Value);
                 }
-                //////////////////////////////////////////////
+                ////////////////////////////////////////////////////////
                 
                 listItem.Add(executionWork.Comments);
 
@@ -618,7 +616,9 @@ namespace TC_WinForms.WinForms.Work
 
             try
             {
-                dataGridViewTPLocal.FirstDisplayedScrollingRowIndex = offScroll;
+                if (offScroll > 0 && offScroll < dataGridViewTPLocal.Rows.Count)
+                    dataGridViewTPLocal.FirstDisplayedScrollingRowIndex = offScroll;
+
             }
             catch (Exception e)
             {
@@ -811,7 +811,9 @@ namespace TC_WinForms.WinForms.Work
 
             try
             {
-                dataGridViewStaff.FirstDisplayedScrollingRowIndex = offScroll;
+                if (offScroll>0 && offScroll< dataGridViewStaff.Rows.Count)
+                    dataGridViewStaff.FirstDisplayedScrollingRowIndex = offScroll;
+
             }
             catch (Exception e)
             {
@@ -948,7 +950,8 @@ namespace TC_WinForms.WinForms.Work
 
             try
             {
-                dataGridViewAllSZ.FirstDisplayedScrollingRowIndex = offScroll;
+                if(offScroll>0 && offScroll< dataGridViewAllSZ.Rows.Count)
+                    dataGridViewAllSZ.FirstDisplayedScrollingRowIndex = offScroll;
             }
             catch (Exception e)
             {
@@ -986,7 +989,8 @@ namespace TC_WinForms.WinForms.Work
 
             try
             {
-                dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex = offScroll;
+                if (offScroll > 0 && offScroll < dataGridViewLocalSZ.Rows.Count)
+                    dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex = offScroll;
             }
             catch (Exception e)
             {
@@ -1201,7 +1205,8 @@ namespace TC_WinForms.WinForms.Work
 
             try
             {
-                dataGridViewComponentAll.FirstDisplayedScrollingRowIndex = offScroll;
+                if (offScroll>0 && offScroll < dataGridViewComponentAll.Rows.Count)
+                    dataGridViewComponentAll.FirstDisplayedScrollingRowIndex = offScroll;
             }
             catch (Exception e)
             {
@@ -1239,7 +1244,8 @@ namespace TC_WinForms.WinForms.Work
 
             try
             {
-                dataGridViewComponentLocal.FirstDisplayedScrollingRowIndex = offScroll;
+                if (offScroll > 0 && offScroll < dataGridViewComponentLocal.Rows.Count)
+                    dataGridViewComponentLocal.FirstDisplayedScrollingRowIndex = offScroll;
             }
             catch (Exception e)
             {
@@ -1355,7 +1361,8 @@ namespace TC_WinForms.WinForms.Work
 
             try
             {
-                dataGridViewInstrumentLocal.FirstDisplayedScrollingRowIndex = offScroll;
+                if (offScroll > 0 && offScroll < dataGridViewInstrumentLocal.Rows.Count)
+                    dataGridViewInstrumentLocal.FirstDisplayedScrollingRowIndex = offScroll;
             }
             catch (Exception e)
             {
@@ -1905,17 +1912,48 @@ namespace TC_WinForms.WinForms.Work
                 {
                     // Делаем ячейку недоступной
                     dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
-                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
+                    // Выделить строку цветом
+                    dataGridViewPovtor.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.DarkSeaGreen;
+                }
+                else if (executionWork.Order > executionWorkPovtor.Order)
+                {
+                    // Делаем ячейку недоступной
+                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
+                    // Выделить строку цветом
+                    dataGridViewPovtor.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.DarkSalmon;
                 }
             }
-            if (e.ColumnIndex == 4|| e.ColumnIndex == 5 || e.ColumnIndex == 6 ) // Индекс столбца с checkBox
+            if (e.ColumnIndex == 5 || e.ColumnIndex == 6 || e.ColumnIndex == 7 ) // Индекс столбца с checkBox
             {
                 var executionWork = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
                 if (executionWork == executionWorkPovtor)
                 {
                     // Делаем ячейку недоступной
                     dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
-                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
+                    
+
+                    //dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
+                }
+                else if (executionWork.Order > executionWorkPovtor.Order)
+                {
+                    // Делаем ячейку недоступной
+                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
+                    //dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
+                }
+                else if (executionWork.Order < executionWorkPovtor.Order)
+                {
+                    var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
+                        .SingleOrDefault(x => x.ChildExecutionWork == executionWork);
+                    if (existingRepeat != null)
+                    {
+                        dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
+                        dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = false;
+                    }
+                    else
+                    {
+                        dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.White;
+                        dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
+                    }
                 }
             }
         }
@@ -1924,12 +1962,13 @@ namespace TC_WinForms.WinForms.Work
         {
             dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
+
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
                 var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
 
-                if (executionWorkPovtor != null)
+                if (executionWorkPovtor != null && currentEW.Order < executionWorkPovtor.Order)
                 {
                     var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
                         .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
@@ -1954,14 +1993,23 @@ namespace TC_WinForms.WinForms.Work
                     {
                         if (existingRepeat != null)
                         {
+                            dataGridViewPovtor.Rows[e.RowIndex].Cells[5].Value = "";
+
                             executionWorkPovtor.ExecutionWorkRepeats.Remove(existingRepeat);
                             TechOperationForm.UpdateGrid();
                         }
                     }
 
-                    // todo - перерасчёт значение Value
+
                     RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
+                    
+                    // Перерисовать таблицу
+                    dataGridViewPovtor.Invalidate();
+                    //dataGridViewTPLocal.Invalidate();
+
                     TechOperationForm.UpdateGrid();
+
+
                 }
             }
             //else if ((e.ColumnIndex == 4 || e.ColumnIndex == 5 || e.ColumnIndex == 6) && e.RowIndex >= 0)
@@ -2008,7 +2056,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewPovtor_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
         {
-            if ((e.ColumnIndex == 4 || e.ColumnIndex == 5 || e.ColumnIndex == 6) && e.RowIndex >= 0)
+            if ((e.ColumnIndex == 5 || e.ColumnIndex == 6 || e.ColumnIndex == 7) && e.RowIndex >= 0)
             {
                 var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
                 var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[1].Value;
@@ -2022,15 +2070,15 @@ namespace TC_WinForms.WinForms.Work
                     {
                         if (existingRepeat != null)
                         {
-                            if (e.ColumnIndex == 4)
+                            if (e.ColumnIndex == 5)
                             {
                                 existingRepeat.NewCoefficient = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                             }
-                            else if (e.ColumnIndex == 5)
+                            else if (e.ColumnIndex == 6)
                             {
                                 existingRepeat.NewEtap = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                             }
-                            else if (e.ColumnIndex == 6)
+                            else if (e.ColumnIndex == 7)
                             {
                                 existingRepeat.NewPosled = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                             }
@@ -2043,9 +2091,10 @@ namespace TC_WinForms.WinForms.Work
                     {
                         // отмена изменений
                         dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = null;
+                        
                     }
 
-                    
+                    UpdateGridLocalTP();
                 }
             }
         }
@@ -2087,14 +2136,16 @@ namespace TC_WinForms.WinForms.Work
                     var selectedEWR = exeWork.ExecutionWorkRepeats.ToList();
                     foreach (TechOperationWork techOperationWork in al)
                     {
-                        var lli = techOperationWork.executionWorks.Where(w => w.Delete == false /*&& w.Repeat == false*/).OrderBy(o => o.Order); ////// 26/06/2024 - добавил повторы в выборку. Т.к. в картах такие объекты тоже входят в повторы
+                        var allEwInTo = techOperationWork.executionWorks.Where(w => w.Delete == false /*&& w.Repeat == false*/).OrderBy(o => o.Order); ////// 26/06/2024 - добавил повторы в выборку. Т.к. в картах такие объекты тоже входят в повторы
 
-                        foreach (ExecutionWork executionWork in lli)
+                        foreach (ExecutionWork executionWork in allEwInTo)
                         {
                             var isSelected = selectedEW.SingleOrDefault(s => s == executionWork) != null;
 
-                            List<object> listItem = new List<object>();
-                            listItem.Add(executionWork);
+                            List<object> listItem = new List<object>
+                            {
+                                executionWork
+                            };
                             if (isSelected)
                             {
                                 listItem.Add(true);
@@ -2104,7 +2155,9 @@ namespace TC_WinForms.WinForms.Work
                                 listItem.Add(false);
                             }
                             listItem.Add(techOperationWork.techOperation.Name);
-                            listItem.Add(executionWork.techTransition?.Name);
+                            listItem.Add(executionWork.techTransition?.Name ?? ""); // todo - проверить, может ли имя быть null у EW
+
+                            listItem.Add(executionWork.Coefficient ?? "");
 
                             if (isSelected)
                             {

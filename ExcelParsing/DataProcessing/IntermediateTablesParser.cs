@@ -10,8 +10,9 @@ using TcModels.Models.TcContent;
 namespace ExcelParsing.DataProcessing;
 
 public class IntermediateTablesParser
-
 {
+    private string? _notes;
+
     List<string> tablesNames = new List<string> { "Требования к составу бригады и квалификации", 
                  "Требования к материалам и комплектующим",
                  "Требования к механизмам",
@@ -35,9 +36,13 @@ public class IntermediateTablesParser
         ExcelPackage.LicenseContext = LicenseContext.Commercial;
     }
 
-    public void ParseIntermediateObjects(string tcFilePath, string tcArticle, CachedData? cachedData = null)
+    public void ParseIntermediateObjects(string tcFilePath, string tcArticle, ref string? notes, CachedData? cachedData = null)
     {
-        Console.WriteLine($"Парсинг промежуточных сущностей ТК {tcArticle}");
+
+        if (notes != null)
+        {
+            _notes = notes;
+        }
 
         var fileInfo = new FileInfo(tcFilePath);
 
@@ -89,7 +94,7 @@ public class IntermediateTablesParser
                         { "Тип (исполнение)", 0 },
                         { "Возможность совмещения обязанностей", 0 },
                         { "Квалификация", 0 },
-                        { "Обозначение", 0 }
+                        { "Обозначение", 0 },
                     } 
                 },
                 { "Требования к материалам и комплектующим", new Dictionary<string, int>()
@@ -137,7 +142,60 @@ public class IntermediateTablesParser
             {
                 if (table.Key != "Выполнение работ")
                 {
-                    tableColumnNumbers[table.Key] = ExcelParser.GetColumnsNumbers(startRows[table.Key], stepSheet);
+                    //tableColumnNumbers[table.Key] = ExcelParser.GetColumnsNumbers(startRows[table.Key], stepSheet);
+                    var colNumbers = ExcelParser.GetColumnsNumbers(startRows[table.Key], stepSheet);
+                    foreach(var colName in table.Value)
+                    {
+                        if (table.Key == "Требования к составу бригады и квалификации" && colName.Key == "Обозначение")
+                        {
+                            if (colNumbers.ContainsKey("Обозначение в ТК"))
+                            {
+                                table.Value[colName.Key] = colNumbers["Обозначение в ТК"];
+                            }
+                            else
+                            {
+                                table.Value[colName.Key] = colNumbers[colName.Key];
+                            }
+                        }
+                        else if (table.Key == "Требования к составу бригады и квалификации" && colName.Key == "Возможность совмещения обязанностей")
+                        {
+                            if (colNumbers.ContainsKey("Возможность совмещения"))
+                            {
+                                table.Value[colName.Key] = colNumbers["Возможность совмещения"];
+                            }
+                            else
+                            {
+                                table.Value[colName.Key] = colNumbers[colName.Key];
+                            }
+                        }
+                        else if (table.Key == "Требования к материалам и комплектующим" && colName.Key == "Примечание")
+                        {
+                            if (colNumbers.ContainsKey("Примечание"))
+                            {
+                                table.Value[colName.Key] = colNumbers[colName.Key];
+                            }
+                            else
+                            {
+                                // удалить колонку "Примечание"
+                                table.Value.Remove(colName.Key);
+                            }
+                        }
+                        else if (table.Key == "Требования к материалам и комплектующим" && colName.Key == "Стоим., руб. без НДС")
+                        {
+                            if (colNumbers.ContainsKey("Стоимость, руб. без НДС"))
+                            {
+                                table.Value[colName.Key] = colNumbers["Стоимость, руб. без НДС"]; 
+                            }
+                            else
+                            {
+                                table.Value[colName.Key] = colNumbers[colName.Key];
+                            }
+                        }
+                        else
+                        {
+                            table.Value[colName.Key] = colNumbers[colName.Key];
+                        }
+                    }
                 }
             }
 
@@ -148,7 +206,7 @@ public class IntermediateTablesParser
                 {
                     if (column.Value == 0)
                     {
-                        throw new Exception($"Колонка {column.Key} не найдена в таблице {table.Key}");
+                        throw new Exception($"Столбец {column.Key} не найден в таблице {table.Key}");
                     }
                 }
             }
@@ -234,35 +292,64 @@ public class IntermediateTablesParser
 
                     // Парсинг и добавление новых объектов
                     var tableName = "Требования к составу бригады и квалификации";
-                    Console.WriteLine($"Парсинг таблицы {tableName}");
-
-                    var staffTCs = ParseRows(startRows[tableName] + 1, startRows["Требования к материалам и комплектующим"] - 2,
+                    try
+                    {
+                        var staffTCs = ParseRows(startRows[tableName] + 1, startRows["Требования к материалам и комплектующим"] - 2,
                         stepSheet, tableColumnNumbers[tableName], staffsCache, currentTc);
-                    context.Staff_TCs.AddRange(staffTCs);
+                        context.Staff_TCs.AddRange(staffTCs);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception("ОШИБКА при парсинге таблицы 1.\n" + e.Message);
+                    }
 
                     tableName = "Требования к материалам и комплектующим";
-                    Console.WriteLine($"Парсинг таблицы {tableName}");
-                    var componentTCs = ParseRows(startRows[tableName] + 1, startRows["Требования к механизмам"] - 2,
+                    try
+                    {
+                        var componentTCs = ParseRows(startRows[tableName] + 1, startRows["Требования к механизмам"] - 2,
                         stepSheet, tableColumnNumbers[tableName], componentsCache, currentTc);
-                    context.Component_TCs.AddRange(componentTCs);
+                        context.Component_TCs.AddRange(componentTCs);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception("ОШИБКА при парсинге таблицы 2.\n" + e.Message);
+                    }
 
                     tableName = "Требования к механизмам";
-                    Console.WriteLine($"Парсинг таблицы {tableName}");
-                    var machineTCs = ParseRows(startRows[tableName] + 1, startRows["Требования к средствам защиты"] - 2,
+                    try
+                    {
+                        var machineTCs = ParseRows(startRows[tableName] + 1, startRows["Требования к средствам защиты"] - 2,
                         stepSheet, tableColumnNumbers[tableName], machinesCache, currentTc);
-                    context.Machine_TCs.AddRange(machineTCs);
+                        context.Machine_TCs.AddRange(machineTCs);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception("ОШИБКА при парсинге таблицы 3.\n" + e.Message);
+                    }
 
                     tableName = "Требования к средствам защиты";
-                    Console.WriteLine($"Парсинг таблицы {tableName}");
-                    var protectionTCs = ParseRows(startRows[tableName] + 1, startRows["Требования к инструментам и приспособлениям"] - 2,
+                    try
+                    {
+                        var protectionTCs = ParseRows(startRows[tableName] + 1, startRows["Требования к инструментам и приспособлениям"] - 2,
                         stepSheet, tableColumnNumbers[tableName], protectionsCache, currentTc);
-                    context.Protection_TCs.AddRange(protectionTCs);
+                        context.Protection_TCs.AddRange(protectionTCs);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception("ОШИБКА при парсинге таблицы 4.\n" + e.Message);
+                    }
 
                     tableName = "Требования к инструментам и приспособлениям";
-                    Console.WriteLine($"Парсинг таблицы {tableName}");
-                    var toolTCs = ParseRows(startRows[tableName] + 1, startRows["Выполнение работ"] - 2,
+                    try
+                    {
+                        var toolTCs = ParseRows(startRows[tableName] + 1, startRows["Выполнение работ"] - 2,
                         stepSheet, tableColumnNumbers[tableName], toolsCache, currentTc);
-                    context.Tool_TCs.AddRange(toolTCs);
+                        context.Tool_TCs.AddRange(toolTCs);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception("ОШИБКА при парсинге таблицы 5.\n" + e.Message);
+                    }
 
                     context.SaveChanges();
                     transaction.Commit();
@@ -290,12 +377,14 @@ public class IntermediateTablesParser
             var obj = staffsCache.FirstOrDefault(st => st.Name == name && st.Type == type);
             if (obj == null)
             {
-                throw new Exception($"Объект {typeof(Staff_TC)} {name} {type} не найден в БД.");
+                throw new Exception($"Объект {typeof(Staff_TC)} {name} {type} не найден в БД. Строка  {row}");
             }
 
             int.TryParse(Convert.ToString(sheet.Cells[row, columnsNumbers["№"]].Value), out var order);
-            var symbol = Convert.ToString(sheet.Cells[row, columnsNumbers["Обозначение"]].Value);
 
+
+            string? symbol  = Convert.ToString(sheet.Cells[row, columnsNumbers["Обозначение"]].Value);
+            
             if (order != 0 && !string.IsNullOrEmpty(symbol))
             {
                 var obj_tc = new Staff_TC
@@ -309,11 +398,11 @@ public class IntermediateTablesParser
 
                 objList.Add(obj_tc);
 
-                Console.WriteLine($"    {order}. {name} {type} ({symbol})");
+                // Console.WriteLine($"    {order}. {name} {type} ({symbol})");
             }
             else
             {
-                throw new Exception($"Не заполнены обязательные поля для объекта {typeof(Staff_TC)} {name} {type}. Строка {row}");
+                throw new Exception($"Не заполнено поле стоимость для объекта {typeof(Staff_TC)} {name} {type}. Строка {row}");
             }
         }
 
@@ -333,14 +422,16 @@ public class IntermediateTablesParser
             var obj = componentsCache.FirstOrDefault(st => st.Name == name && st.Type == type);
             if (obj == null)
             {
-                throw new Exception($"Объект {typeof(Component_TC)} {name} {type} не найден в БД.");
+                throw new Exception($"Объект {typeof(Component_TC)} {name} {type} не найден в БД. Строка   {row}");
             }
 
             int.TryParse(Convert.ToString(sheet.Cells[row, columnsNumbers["№"]].Value), out var order);
             double.TryParse(Convert.ToString(sheet.Cells[row, columnsNumbers["Кол-во"]].Value), out var quantity);
-            var note = Convert.ToString(sheet.Cells[row, columnsNumbers["Примечание"]].Value);
+            string note = "";
+            if (columnsNumbers.ContainsKey("Примечание"))
+                note = Convert.ToString(sheet.Cells[row, columnsNumbers["Примечание"]].Value)?? "";
 
-            if (order != 0 && quantity != 0)
+            if (order != 0)
             {
                 var obj_tc = new Component_TC
                 {
@@ -353,12 +444,8 @@ public class IntermediateTablesParser
                 };
 
                 objList.Add(obj_tc);
-                Console.WriteLine($"    {order}. {name} {type} - ({quantity})");
             }
-            else
-            {
-                throw new Exception($"Не заполнены обязательные поля для объекта {typeof(Component_TC)} {name} {type}. Строка {row}");
-            }
+            
         }
 
         return objList;
@@ -377,13 +464,15 @@ public class IntermediateTablesParser
             var staff = machinesCache.FirstOrDefault(st => st.Name == name && st.Type == type);
             if (staff == null)
             {
-                throw new Exception($"Объект {typeof(Machine_TC)} {name} {type} не найден в БД.");
+                throw new Exception($"Объект {typeof(Machine_TC)} {name} {type} не найден в БД. Строка {row}");
             }
 
             int.TryParse(Convert.ToString(sheet.Cells[row, columnsNumbers["№"]].Value), out var order);
             int.TryParse(Convert.ToString(sheet.Cells[row, columnsNumbers["Кол-во"]].Value), out var quantity);
 
-            if (order != 0 && quantity != 0)
+            
+
+            if (order != 0)
             {
                 var obj = new Machine_TC
                 {
@@ -396,13 +485,10 @@ public class IntermediateTablesParser
                 };
 
                 objList.Add(obj);
+            }
 
-                Console.WriteLine($"    {order}. {name} {type} - ({quantity})");
-            }
-            else
-            {
-                throw new Exception($"Не заполнены обязательные поля для объекта {typeof(Machine_TC)} {name} {type}. Строка {row}");
-            }
+            if ( quantity != 0)
+                _notes += $"Не заполнено поле стоимость для объекта {typeof(Machine_TC)} {name} {type}. Строка {row}\n";
         }
 
         return objList;
@@ -421,20 +507,15 @@ public class IntermediateTablesParser
             var obj = protectionsCache.FirstOrDefault(st => st.Name == name && st.Type == type);
             if (obj == null)
             {
-                //// проверка на исключения
-                //if (!string.IsNullOrEmpty(name) && protectionExceptions.ContainsKey(name) && protectionExceptions[name] == type)
-                //{
-                //    // переходим на другую строку
-                //    continue;
-                //}
-
-                throw new Exception($"Объект {typeof(Protection_TC)} {name} {type} не найден в БД.");
+                throw new Exception($"Объект {typeof(Protection_TC)} {name} {type} не найден в БД. Строка {row}");
             }
 
             int.TryParse(Convert.ToString(sheet.Cells[row, columnsNumbers["№"]].Value), out var order);
             int.TryParse(Convert.ToString(sheet.Cells[row, columnsNumbers["Кол-во"]].Value), out var quantity);
 
-            if (order != 0 && quantity != 0)
+            
+
+            if (order != 0)
             {
                 var obj_tc = new Protection_TC
                 {
@@ -445,13 +526,9 @@ public class IntermediateTablesParser
                 };
 
                 objList.Add(obj_tc);
-
-                Console.WriteLine($"    {order}. {name} {type} - ({quantity})");
             }
-            else
-            {
-                throw new Exception($"Не заполнены обязательные поля для объекта {typeof(Protection_TC)} {name} {type}. Строка {row}");
-            }
+            if (quantity != 0)
+                _notes += $"Не заполнено поле стоимость для объекта {typeof(Protection_TC)} {name} {type}. Строка {row}\n";
         }
 
         return objList;
@@ -477,12 +554,12 @@ public class IntermediateTablesParser
 
                     if (obj == null)
                     {
-                        throw new Exception($"Объект {typeof(Tool_TC)} {name} {type} не найден в БД.");
+                        throw new Exception($"Объект {typeof(Tool_TC)} {name} {type} не найден в БД. Строка  {row}");
                     }
                 }
                 else
                 {
-                    throw new Exception($"Объект {typeof(Tool_TC)} {name} {type} не найден в БД.");
+                    throw new Exception($"Объект {typeof(Tool_TC)} {name} {type} не найден в БД. Строка  {row}");
                 }
 
             }
@@ -490,7 +567,7 @@ public class IntermediateTablesParser
             int.TryParse(Convert.ToString(sheet.Cells[row, columnsNumbers["№"]].Value), out var order);
             int.TryParse(Convert.ToString(sheet.Cells[row, columnsNumbers["Кол-во"]].Value), out var quantity);
 
-            if (order != 0 && quantity != 0)
+            if (order != 0)
             {
                 var obj_tc = new Tool_TC
                 {
@@ -501,13 +578,9 @@ public class IntermediateTablesParser
                 };
 
                 objList.Add(obj_tc);
-
-                Console.WriteLine($"    {order}. {name} {type} - ({quantity})");
             }
-            else
-            {
-                throw new Exception($"Не заполнены обязательные поля для объекта {typeof(Tool_TC)} {name} {type}. Строка {row}");
-            }
+            if (quantity != 0)
+                _notes += $"Не заполнено поле стоимость для объекта {typeof(Tool_TC)} {name} {type}. Строка {row}\n";
         }
 
         return objList;

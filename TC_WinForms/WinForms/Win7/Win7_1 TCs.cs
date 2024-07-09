@@ -214,34 +214,37 @@ namespace TC_WinForms.WinForms
                 _bindingList, isFiltered ? _displayedTechnologicalCards : null);
         }
 
-        private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            if (dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedTechnologicalCard.Status))
-            {
-                if (e.Value != null && Enum.TryParse(typeof(TechnologicalCardStatus), e.Value.ToString(), out var status))
-                {
-                    switch ((TechnologicalCardStatus)status)
-                    {
-                        case TechnologicalCardStatus.Created:
-                            e.CellStyle.BackColor = Color.LightGray;
-                            break;
-                        case TechnologicalCardStatus.Draft:
-                            e.CellStyle.BackColor = Color.Yellow; //Color.LightBlue;
-                            break;
-                        case TechnologicalCardStatus.Remarked:
-                            e.CellStyle.BackColor = Color.Orange;
-                            break;
-                        case TechnologicalCardStatus.Approved:
-                            e.CellStyle.BackColor = Color.LightGreen;
-                            break;
-                        case TechnologicalCardStatus.Rejected:
-                            e.CellStyle.BackColor = Color.LightCoral;
-                            break;
-                    }
-                    e.Value = ""; // Устанавливаем текст ячейки в пустую строку
-                }
-            }
-        }
+        //private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        //{
+        //    if (dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedTechnologicalCard.Status))
+        //    {
+        //        if (e.Value != null && Enum.TryParse(typeof(TechnologicalCardStatus), e.Value.ToString(), out var status))
+        //        {
+        //            switch ((TechnologicalCardStatus)status!)
+        //            {
+        //                case TechnologicalCardStatus.Created:
+        //                    e.CellStyle.BackColor = Color.LightGray;
+        //                    break;
+        //                case TechnologicalCardStatus.Draft:
+        //                    e.CellStyle.BackColor = Color.Yellow;
+        //                    break;
+        //                case TechnologicalCardStatus.Remarked:
+        //                    e.CellStyle.BackColor = Color.Orange;
+        //                    break;
+        //                case TechnologicalCardStatus.Approved:
+        //                    e.CellStyle.BackColor = Color.LightGreen;
+        //                    break;
+        //                case TechnologicalCardStatus.Rejected:
+        //                    e.CellStyle.BackColor = Color.LightCoral;
+        //                    break;
+        //                case TechnologicalCardStatus.Completed:
+        //                    e.CellStyle.BackColor = Color.Red;
+        //                    break;
+        //            }
+        //            e.Value = ""; // Устанавливаем текст ячейки в пустую строку
+        //        }
+        //    }
+        //}
         private void dgvMain_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
             var row = dgvMain.Rows[e.RowIndex];
@@ -267,6 +270,9 @@ namespace TC_WinForms.WinForms
                         break;
                     case TechnologicalCardStatus.Rejected:
                         headerCell.Style.BackColor = Color.LightCoral;
+                        break;
+                    case TechnologicalCardStatus.Completed:
+                        headerCell.Style.BackColor = Color.SteelBlue;
                         break;
                 }
 

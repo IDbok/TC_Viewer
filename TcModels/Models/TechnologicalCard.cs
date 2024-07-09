@@ -24,9 +24,11 @@ namespace TcModels.Models
             Approved,
 
             [Description("Недействительная")] //ТК помечена как недействительная
-            Rejected
-        }
+            Rejected,
 
+            [Description("Заполнена")] //ТК заполнена (таблицы 1-6) и готова к проверке руководителя
+            Completed
+        }
 
         public static Dictionary<string, string> GetPropertiesNames()
         {

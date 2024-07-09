@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram
@@ -242,7 +243,7 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 var work = (ExecutionWork)ComboBoxTeh.SelectedItem;
 
-                TextDeystShag.Text += $"\n-{work?.techTransition?.Name}";
+                TextDeystShag.Text += $"\n-{work?.techTransition?.Name}. {work?.Comments};";
 
                 ComboBoxTeh.SelectedItem = null;
             }

@@ -72,7 +72,7 @@ namespace TC_WinForms.WinForms.Diagram
                    .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-                    .Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2)
+                   //.Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2) // todo - проверить, всё ли работает без этого 
                    .Include(r => r.ToolWorks).ThenInclude(r => r.tool).ToList();
 
 

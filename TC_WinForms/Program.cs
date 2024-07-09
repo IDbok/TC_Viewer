@@ -61,39 +61,10 @@ namespace TC_WinForms
             configGlobal = configGlo;
             TcDbConnector.StaticClass.ConnectString = configGlobal.ConnectionString;
 
-            var testObj = new TcModels.Models.TcContent.Tool()
-            {
-                Name = "TestMachine",
-                Type = "TestType",
-                Unit = "TestUnit",
-                Price = 1000,
-                Description = "TestDescription",
-                Manufacturer = "TestManufacturer",
-                ClassifierCode = "TestClassifierCode",
-                Links = new List<LinkEntety>()
-                {
-                    new LinkEntety()
-                    {
-                        Link = "https://google.com/",
-                        Name = "TestLinkName",
-                        IsDefault = true
-                    },
-                    new LinkEntety()
-                    {
-                        Link = "https://yandex.com/",
-                        Name = "TestLinkName2",
-                        IsDefault = false
-                    }
-                }
-
-            };
-
             var authForm = new Win8();
             authForm.ShowDialog();
 
-            Application.Run(MainForm); //MainForm);
-
-            //Test();
+            Application.Run(MainForm);
         }
         static void Test()
         {

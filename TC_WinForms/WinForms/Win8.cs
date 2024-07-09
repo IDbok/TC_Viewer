@@ -49,14 +49,25 @@ namespace TC_WinForms.WinForms
 
         private async void Win8_Load(object sender, EventArgs e)
         {
+            // найти переменную среды TEST_MODE
+            // если она есть и равна true, то включить тестовый режим
+            
+            string variableName = "TEST_MODE";
+            // Считывание значения переменной среды
+            string? variableValue = Environment.GetEnvironmentVariable(variableName);
+            if (variableValue != null && variableValue.ToLower() == "true")
+            {
+                /////////////////////////////////
+                txtLogin.Text = "implementer"; //"lead";// "manager"; // "user"; // "implementer"; //
+                txtPassword.Text = "pass";
 
-            /////////////////////////////////
-            txtLogin.Text = "lead"; //"lead";// "manager"; // "user"; // "implementer"; //
-            txtPassword.Text = "pass";
+                await Task.Delay(1000);
+                btnAuthorization_Click(null, null);
+                /////////////////////////////////
+            }
 
-            await Task.Delay(1000);
-            btnAuthorization_Click(null, null);
-            /////////////////////////////////
+
+
         }
     }
 }

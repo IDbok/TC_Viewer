@@ -106,7 +106,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     {
        if(e.ColumnIndex> dgvMain.ColumnCount-3) // todo: ненадёжный способ определения столбцов с комментариями
         {
-            if(e.ColumnIndex == dgvMain.ColumnCount-1)
+            if(e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)//dgvMain.ColumnCount-1)
             {
                 var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
                 var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
@@ -123,7 +123,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             }
 
-            if (e.ColumnIndex == dgvMain.ColumnCount - 2)
+            if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index)// dgvMain.ColumnCount - 2)
             {
                 var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
                 var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
@@ -667,9 +667,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public void UpdateGrid()
     {
+        var offScroll = dgvMain.FirstDisplayedScrollingRowIndex;
+
         ClearAndInitializeGrid();
         PopulateDataGrid();
         SetCommentViewMode();
+
+        if (offScroll < dgvMain.Rows.Count && offScroll > 0) 
+            dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
     }
 
     /// <summary>
@@ -699,9 +704,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         }
 
         dgvMain.Columns.Add("", "№ СЗ");
-        dgvMain.Columns.Add("", "Примечания");
-        dgvMain.Columns.Add("", "Замечание");
-        dgvMain.Columns.Add("", "Ответ");
+        dgvMain.Columns.Add("", "Примечание");
+        dgvMain.Columns.Add("RemarkColumn", "Замечание");
+        dgvMain.Columns.Add("ResponseColumn", "Ответ");
 
         int ii = 0;
 
@@ -731,12 +736,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             column.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         }
 
-        dgvMain.Columns[dgvMain.Columns.Count - 1].ReadOnly = false; // todo - зачем это действие?
+        //dgvMain.Columns[dgvMain.Columns.Count - 1].ReadOnly = false; // todo - зачем это действие?
+        // Устанавливаем форматирование для столбцов "Замечание" и "Ответ"
+        
 
-        if (TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() != DataProcessing.AuthorizationService.User.Role.User)
-        {
-            dgvMain.Columns[dgvMain.Columns.Count - 2].ReadOnly = false;
-        }
+        //if (TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() != DataProcessing.AuthorizationService.User.Role.User)
+        //{
+        //    dgvMain.Columns[dgvMain.Columns.Count - 2].ReadOnly = false;
+        //}
 
         dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
@@ -1064,9 +1071,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     private void DgvMain_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
     {
         // Первую строку всегда показывать
-        if (e.RowIndex == 0)
-            return;
-
+        //if (e.RowIndex < 0) // todo: Исправли с == 0  на  < 0 т.е мешает применению стиля к первой строке. Пока не поянятно, зачем была созданна.
+        //    return;
 
         if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 2)
         {
@@ -1083,6 +1089,42 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 e.FormattingApplied = true;
             }
         }
+
+        if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
+        {
+            var executionWork = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
+
+            if (executionWork != null)
+            {
+                if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index
+                    && TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() == DataProcessing.AuthorizationService.User.Role.Lead)
+                {
+                    CellCangeReadOlny(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                }
+                else if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index
+                    && TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() == DataProcessing.AuthorizationService.User.Role.Implementer)
+                {
+                    CellCangeReadOlny(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                }
+            }
+            else
+            {
+                // Делаем ячейки недоступными для редактирования, если элемент ExecutionWork отсутствует
+                if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
+                {
+                    CellCangeReadOlny(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                }
+            }
+        }
+        
+    }
+
+    private void CellCangeReadOlny(DataGridViewCell cell, bool isReadOnly)
+    {
+        // Делаем ячейку редактируемой
+        cell.ReadOnly = isReadOnly;
+        // Выделить строку цветом
+        cell.Style.BackColor = isReadOnly ? Color.White : Color.LightGray;
     }
 
     private void DgvMain_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
@@ -1119,6 +1161,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     bool IsTheSameCellValue(int column, int row)
     {
+        if (row == 0)
+        {
+            return false;
+        }
         DataGridViewCell cell1 = dgvMain[column, row];
         DataGridViewCell cell2 = dgvMain[column, row - 1];
         if (cell1.Value == null || cell2.Value == null)
@@ -1396,10 +1442,22 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     private void button2_Click(object sender, EventArgs e)
     {
-        _editForm = new AddEditTechOperationForm(this);
-        _editForm.ShowDialog();
+        // Проверяем, была ли форма создана и не была ли закрыта
+        if (_editForm == null || _editForm.IsDisposed)
+        {
+            _editForm = new AddEditTechOperationForm(this);
+        }
+
+        // Выводим форму на передний план
+        _editForm.Show();
+        _editForm.BringToFront();
 
         HasChanges = true;
+
+        //_editForm = new AddEditTechOperationForm(this);
+        //_editForm.Show();
+
+        //HasChanges = true;
     }
 
     private void button1_Click_1(object sender, EventArgs e)

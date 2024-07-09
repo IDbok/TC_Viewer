@@ -44,8 +44,6 @@ namespace TC_WinForms.WinForms
 
             SetTagsToButtons();
 
-            AccessInitialization();
-
             SetViewMode();
 
             //SetTCStatusAccess();
@@ -160,6 +158,7 @@ namespace TC_WinForms.WinForms
             {
                 _tc = tcRepository.GetTechnologicalCard(_tcId);
 
+                AccessInitialization();
                 SetTCStatusAccess();
             }
             catch (Exception ex)

@@ -234,6 +234,7 @@
             dataGridViewCheckBoxColumn4 = new DataGridViewCheckBoxColumn();
             dataGridViewTextBoxColumn73 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn79 = new DataGridViewTextBoxColumn();
+            dgvPovtorOldCoefficient = new DataGridViewTextBoxColumn();
             dgvPovtorCoefficient = new DataGridViewTextBoxColumn();
             dgvPovtorEtap = new DataGridViewTextBoxColumn();
             dgvPovtorPosled = new DataGridViewTextBoxColumn();
@@ -1931,7 +1932,7 @@
             dataGridViewPovtor.AllowUserToDeleteRows = false;
             dataGridViewPovtor.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewPovtor.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewPovtor.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn72, dataGridViewCheckBoxColumn4, dataGridViewTextBoxColumn73, dataGridViewTextBoxColumn79, dgvPovtorCoefficient, dgvPovtorEtap, dgvPovtorPosled });
+            dataGridViewPovtor.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn72, dataGridViewCheckBoxColumn4, dataGridViewTextBoxColumn73, dataGridViewTextBoxColumn79, dgvPovtorOldCoefficient, dgvPovtorCoefficient, dgvPovtorEtap, dgvPovtorPosled });
             dataGridViewPovtor.Location = new Point(4, 92);
             dataGridViewPovtor.Margin = new Padding(4);
             dataGridViewPovtor.MultiSelect = false;
@@ -2407,9 +2408,17 @@
             dataGridViewTextBoxColumn79.Name = "dataGridViewTextBoxColumn79";
             dataGridViewTextBoxColumn79.ReadOnly = true;
             // 
+            // dgvPovtorOldCoefficient
+            // 
+            dgvPovtorOldCoefficient.HeaderText = "Коэффициент";
+            dgvPovtorOldCoefficient.MinimumWidth = 8;
+            dgvPovtorOldCoefficient.Name = "dgvPovtorOldCoefficient";
+            dgvPovtorOldCoefficient.ReadOnly = true;
+            dgvPovtorOldCoefficient.Width = 150;
+            // 
             // dgvPovtorCoefficient
             // 
-            dgvPovtorCoefficient.HeaderText = "Коэффициент";
+            dgvPovtorCoefficient.HeaderText = "Коэффициент повтора";
             dgvPovtorCoefficient.MinimumWidth = 8;
             dgvPovtorCoefficient.Name = "dgvPovtorCoefficient";
             dgvPovtorCoefficient.Width = 150;
@@ -2720,6 +2729,7 @@
         private DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn4;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn73;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn79;
+        private DataGridViewTextBoxColumn dgvPovtorOldCoefficient;
         private DataGridViewTextBoxColumn dgvPovtorCoefficient;
         private DataGridViewTextBoxColumn dgvPovtorEtap;
         private DataGridViewTextBoxColumn dgvPovtorPosled;

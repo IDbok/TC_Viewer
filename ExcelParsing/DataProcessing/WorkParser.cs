@@ -18,6 +18,7 @@ public class WorkParser
 {
    // List<TechTransition> _newTransitions;
 
+    private string _notes;
     private const int StartRow = 2;
     private readonly string[] _stepColumns = {
         "Id ТО", "Id ТП", "TC_ID", "Артикул", "№",
@@ -42,15 +43,17 @@ public class WorkParser
             //    .ToList();
         }
     }
-    public void ParseTcWorkSteps(string tcFilePath, string tcArticle, CachedData? cachedData = null)
+    public void ParseTcWorkSteps(string tcFilePath, string tcArticle, ref string notes, CachedData? cachedData = null)
     {
-        Console.WriteLine($"Парсинг ход работ ТК {tcArticle}");
-
         var fileInfo = new FileInfo(tcFilePath);
-
         if (!fileInfo.Exists)
         {
             throw new FileNotFoundException($"Файл {tcFilePath} не найден.");
+        }
+
+        if (notes != null)
+        {
+            this._notes = notes;
         }
 
         var objList = new List<TechOperationWork>();
@@ -83,7 +86,16 @@ public class WorkParser
             // Находим конец таблицы хода работ
             var endRow = FindEndRow(stepSheet, startRow, newStepColumnsNumbers);
 
-            ParseRows(stepSheet, startRow, endRow, newStepColumnsNumbers, machinaryColumnsNumbers, techOperationsCache, techTransitionsCache, currentTc, objList);
+            int row = 0;
+
+            try
+            {
+                ParseRows(stepSheet, startRow, endRow, newStepColumnsNumbers, machinaryColumnsNumbers, techOperationsCache, techTransitionsCache, currentTc, objList, ref row);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Ошибка при парсинге строки {row} хода работ. {e.Message}");
+            }
 
             // Сохраняем данные в БД
             using (var context = new MyDbContext())
@@ -357,7 +369,6 @@ public class WorkParser
         {
             if (sheet.Cells[row, 1].Text.Contains(tableName))
             {
-                //Console.WriteLine("Таблица 6 начинается на строке: " + (row + 1));
                 return row + 1;
             }
         }
@@ -373,7 +384,7 @@ public class WorkParser
             {
                 if (sheet.Cells[row, columnsNumbers["Технологические операции"]].Text == "Наименование")
                 {
-                    Console.WriteLine("Таблица 6 заканчивается на строке: " + (row - 1));
+                    //Console.WriteLine("Таблица 6 заканчивается на строке: " + (row - 1));
                     return row - 1;
                 }
                 else
@@ -428,13 +439,16 @@ public class WorkParser
         List<TechOperation> techOperationsCache,
         List<TechTransition> techTransitionsCache,
         TechnologicalCard currentTc,
-        List<TechOperationWork> TOList)
+        List<TechOperationWork> TOList,
+        ref int currentRow
+        )
     {
+        
+
         //int stepRowCount = stepSheet.Dimension.Rows;
         int currentToId = 0, previousToId = 0;
-        int lastToOrderInTc = 1, lastEwOrderInTc = 1, rowNumber;
+        int lastToOrderInTc = 1, rowNumber;
         string lastEtapFormula = "";
-        //List<int> lastEtapRows = new List<int>();
         
         var exWorks = new List<ExecutionWork>();
 
@@ -444,6 +458,10 @@ public class WorkParser
 
         for (int row = startRow + 1; row <= endRow; row++)
         {
+            //if (row == 28)
+            //    Console.WriteLine();
+
+            currentRow = row;
             if (!int.TryParse(stepSheet.Cells[row, newStepColumnsNumbers["№"]].Text.Trim(), out rowNumber)) 
             {
                 throw new Exception($"Номер строки хода работ не является числом. Строка {row}");
@@ -452,7 +470,13 @@ public class WorkParser
             string name = stepSheet.Cells[row, newStepColumnsNumbers["Технологические переходы"]].Text.Trim();
 
             string listStaff = stepSheet.Cells[row, newStepColumnsNumbers["Исполнитель"]].Text;
-            string[] staffSymbols = listStaff.Split("\n");
+
+            // разделить строку на массив строк по символу переноса строки и пробелу
+
+            string[] separators = new string[] { "\n", " " };
+            string[] staffSymbols = listStaff.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            //string[] staffSymbols = listStaff.Split("\n");
+
 
             if (!string.IsNullOrEmpty(listStaff))
             {
@@ -464,26 +488,10 @@ public class WorkParser
                 var (etap, posled, formulaStep, valueStep) = GetFormulasAndStages(row, stepSheet, newStepColumnsNumbers, ref lastEtapFormula , out _);
                 
                 // Проверка участия механизмов в этапе, если механизм участвует, то третий элемент картежа - true
-                if (isTOChanges)
+                if (isTOChanges & machines.Count != 0)
                     GetMachineParticipation(row, stepSheet, machines);
 
-                if(machines.Count > 0)
-                {
-                    Console.Write($"        Механизм: ");
-                    foreach (var key in machines.Keys)
-                    {
-                        if (machines[key].Item3)
-                        {
-                            Console.Write($" {machines[key].Item1} |");
-                        }
-                    }
-                    Console.WriteLine();
-                }
-                
-                
-                Console.WriteLine($"        Исполнитель: {string.Join(", ", staffSymbols)}");
                 string protectionRange = stepSheet.Cells[row, newStepColumnsNumbers["№ СЗ"]].Text;
-                Console.WriteLine($"        СЗ: {protectionRange}");
 
                 string coefficient;
 
@@ -496,12 +504,6 @@ public class WorkParser
                 {
                     coefficient = GetStringBeforeAtSymbol(formulaStep);
                 }
-                string coeffText = string.IsNullOrEmpty(coefficient) ? "" : $"Коэффициент: {coefficient}";
-                string timeExecutionStep = string.IsNullOrEmpty(coefficient)
-                    ? techTransition!.TimeExecution.ToString()
-                    : EvaluateExpression(techTransition!.TimeExecution.ToString() + "*" + coefficient).ToString();
-
-                Console.WriteLine($"        Время ТП: {timeExecutionStep}; {coeffText}");
 
                 AddOrUpdateTechOperationWork(row, startRow, ref currentToId, ref previousToId, currentTc, ref lastToOrderInTc, TOList);
 
@@ -635,7 +637,21 @@ public class WorkParser
         var name = sheet.Cells[row, colNumber].Text.Trim();
         var type = sheet.Cells[row, colNumber + 1 ].Text.Trim();
         var unit = sheet.Cells[row, colNumber + 2].Text.Trim();
-        var quantity = Convert.ToDouble(sheet.Cells[row, colNumber + 3].Value);
+
+        double quantity = 0;
+        try
+        {
+            quantity = Convert.ToDouble(sheet.Cells[row, colNumber + 3].Value);
+        }
+        catch (Exception e)
+        {
+            if (sheet.Cells[row, colNumber + 3].Text == "По месту")
+                quantity = 0;
+            else
+                throw new Exception($"Ошибка при получении количества инструмента или компонента. Строка {row}. {e.Message}");
+        }
+        
+           
 
         if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(type) && IntermediateTablesParser.toolExceptions.ContainsKey((name, type)))
         {
@@ -667,7 +683,8 @@ public class WorkParser
         }
         else
         {
-            throw new Exception($"Инструмент или компонент {name} (строка {row}) не найден в кэше.");
+            _notes += $"Инструмент или компонент {name} (строка {row}) не найден в кэше.\n";
+            //throw new Exception($"Инструмент или компонент {name} (строка {row}) не найден в кэше.");
         }
 
         return ( tool, component);
@@ -684,7 +701,7 @@ public class WorkParser
         TechOperation? techOperation = null;
         TechTransition? techTransition = null;
 
-        string techOperationName = sheet.Cells[row, columnsNumbers["Технологические операции"]].Text;
+        string techOperationName = sheet.Cells[row, columnsNumbers["Технологические операции"]].Text.Trim();
         if (!string.IsNullOrEmpty(techOperationName))
         {
             techOperation = techOperations.FirstOrDefault(to => to.Name == techOperationName);
@@ -693,7 +710,7 @@ public class WorkParser
                 throw new Exception($"Технологическая операция {techOperationName} (строка {row}) не найдена в кэше.");
             }
             currentToId = techOperation.Id;
-            Console.WriteLine($"------------------ ТО: {techOperation.Name}");
+            // Console.WriteLine($"------------------ ТО: {techOperation.Name}");
         }
 
         string techTransitionName = sheet.Cells[row, columnsNumbers["Технологические переходы"]].Text.Trim();
@@ -728,7 +745,7 @@ public class WorkParser
                 }
 
             }
-            Console.WriteLine($"    ТП: {techTransition.Name} строка {row}");
+            //Console.WriteLine($"    ТП: {techTransition.Name} строка {row}");
         }
 
         return (techOperation, techTransition);
@@ -792,11 +809,22 @@ public class WorkParser
         {
             timeExecutionEtapColumn = "Время этапа, мин.";
         }
+        string formulaStep;
+        string formulaEtap;
 
-        string formulaStep = sheet.Cells[row, columnsNumbers[timeExecutionStepColumn]].Formula;
-        string formulaEtap = sheet.Cells[row, columnsNumbers[timeExecutionEtapColumn]].Formula;
+        string valueStep;
+        try
+        {
+            formulaStep = sheet.Cells[row, columnsNumbers[timeExecutionStepColumn]].Formula;
+            formulaEtap = sheet.Cells[row, columnsNumbers[timeExecutionEtapColumn]].Formula;
 
-        string valueStep = sheet.Cells[row, columnsNumbers[timeExecutionStepColumn]].Value.ToString() ?? "";
+            valueStep = sheet.Cells[row, columnsNumbers[timeExecutionStepColumn]].Value?.ToString() ?? "";
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Ошибка при получении формулы или значения времени выполнения действия или этапа. Строка {row}. {e.Message}");
+        }
+        
 
         if (string.IsNullOrEmpty(formulaStep))
         {
@@ -911,12 +939,14 @@ public class WorkParser
 
             for (int row = StartRow; row <= rowCount; row++)
             {
+
+                var isTimeExist = double.TryParse(Convert.ToString(worksheet.Cells[row, 4].Value), out double exTime);
                 var obj = new TechTransition
                 {
                     Id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
                     Name = Convert.ToString(worksheet.Cells[row, 3].Value),
                     Category = Convert.ToString(worksheet.Cells[row, 2].Value),
-                    TimeExecution = Convert.ToDouble(worksheet.Cells[row, 4].Value),
+                    TimeExecution = isTimeExist ? exTime : 1,
                     TimeExecutionChecked = Convert.ToBoolean(worksheet.Cells[row, 8].Value),
                     CommentName = Convert.ToString(worksheet.Cells[row, 6].Value),
                     CommentTimeExecution = Convert.ToString(worksheet.Cells[row, 7].Value),
@@ -1356,19 +1386,48 @@ public class WorkParser
         }
         return stageMachines;
     }
-    public static Dictionary<Machine_TC, (string, int, bool)> GetStageMachines2(List<Machine_TC> existMacines, Dictionary<string, int> machinesNames)
+    public Dictionary<Machine_TC, (string, int, bool)> GetStageMachines2(List<Machine_TC> existMacines, Dictionary<string, int> machinesNames)
     {
         var stageMachines = new Dictionary<Machine_TC, (string, int, bool)>();
         int maxDistance = 2;
+
+        var exceptions = new Dictionary<string, string>()
+            {
+                {"П11", "Грузовик П-11" },
+                {"грузовика", "Грузовик П-11" },
+
+                {"автомобиля ЭТЛ","Автолаборатория (КЛ)" },
+            };
+
+
+
         foreach (var machineName in machinesNames)
         {
-            var machine = existMacines.FirstOrDefault(m => CompareStrings(m.Child.Name, machineName.Key, maxDistance));
-            if (machine == null)
+            Machine_TC machine;
+            if (exceptions.ContainsKey(machineName.Key))
             {
-                throw new Exception($"Станок {machineName.Key} не найден в БД.");
+                var machineNameExc = exceptions[machineName.Key];
+                machine = existMacines.FirstOrDefault(m => CompareStrings(m.Child.Name, machineNameExc, maxDistance));
             }
-            stageMachines.Add(machine, (machineName.Key, machineName.Value, false));
+            else
+            {
+
+                machine = existMacines.FirstOrDefault(m => CompareStrings(m.Child.Name, machineName.Key, maxDistance));
+            }
+
+            if (machine != null)
+            {
+                stageMachines.Add(machine, (machineName.Key, machineName.Value, false));
+            }
+            else
+            {
+                _notes += $"Механизм {machineName.Key} не найден в карте.\n";
+            }
         }
+
+        if (existMacines.Count() != 0 && stageMachines.Count == 0)
+            _notes += $"Ни одного механизма найдено не было! Количество механизмов в карте {existMacines.Count()}\n";
+
         return stageMachines;
     }
     static bool CompareStrings(string source, string target, int maxDistance)
@@ -1627,22 +1686,41 @@ public class WorkParser
 
         if (match.Success)
         {
-            return match.Groups[1].Value;
+            var expression = match.Groups[1].Value;
+            // если первый символ "*" удалить его
+            if(expression.Count() > 0)
+            {
+                while (expression[0] == '*')
+                {
+                    expression = expression.Substring(1);
+                }
+            }
+            
+            return expression;
         }
-        return "*1";
+        return "1";
     }
     public static double EvaluateExpression(string expression)
     {
-        var table = new DataTable();
-
-        expression = expression.Trim();
-        // если первый символ "*" удалить его
-        while (expression[0] == '*')
+        try
         {
-            expression = expression.Substring(1);
-        }
+            var table = new DataTable();
 
-        var value = table.Compute(expression.Replace(",","."), string.Empty);
-        return Convert.ToDouble(value);
+            expression = expression.Trim();
+            // если первый символ "*" удалить его
+            while (expression[0] == '*')
+            {
+                expression = expression.Substring(1);
+            }
+
+            var value = table.Compute(expression.Replace(",", "."), string.Empty);
+            return Convert.ToDouble(value);
+        }
+        catch
+        {
+            throw new Exception($"Произошла ошибка при расчёте выражения {expression}");
+            return 0;
+        }
+        
     }
 }
