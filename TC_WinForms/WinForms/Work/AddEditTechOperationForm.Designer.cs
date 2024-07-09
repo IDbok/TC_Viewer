@@ -183,6 +183,14 @@
             tabPage9 = new TabPage();
             tableLayoutPanel11 = new TableLayoutPanel();
             dataGridViewPovtor = new DataGridView();
+            dataGridViewTextBoxColumn72 = new DataGridViewTextBoxColumn();
+            dataGridViewCheckBoxColumn4 = new DataGridViewCheckBoxColumn();
+            dataGridViewTextBoxColumn73 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn79 = new DataGridViewTextBoxColumn();
+            dgvPovtorOldCoefficient = new DataGridViewTextBoxColumn();
+            dgvPovtorCoefficient = new DataGridViewTextBoxColumn();
+            dgvPovtorEtap = new DataGridViewTextBoxColumn();
+            dgvPovtorPosled = new DataGridViewTextBoxColumn();
             labelComName = new Label();
             Column23 = new DataGridViewTextBoxColumn();
             Column25 = new DataGridViewTextBoxColumn();
@@ -230,14 +238,7 @@
             dataGridViewTextBoxColumn63 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn64 = new DataGridViewTextBoxColumn();
             tabPage10 = new TabPage();
-            dataGridViewTextBoxColumn72 = new DataGridViewTextBoxColumn();
-            dataGridViewCheckBoxColumn4 = new DataGridViewCheckBoxColumn();
-            dataGridViewTextBoxColumn73 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn79 = new DataGridViewTextBoxColumn();
-            dgvPovtorOldCoefficient = new DataGridViewTextBoxColumn();
-            dgvPovtorCoefficient = new DataGridViewTextBoxColumn();
-            dgvPovtorEtap = new DataGridViewTextBoxColumn();
-            dgvPovtorPosled = new DataGridViewTextBoxColumn();
+            btnToChange = new Button();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTO).BeginInit();
@@ -440,6 +441,7 @@
             // 
             // panel2
             // 
+            panel2.Controls.Add(btnToChange);
             panel2.Controls.Add(btnAddNewTO);
             panel2.Controls.Add(groupBox2);
             panel2.Dock = DockStyle.Fill;
@@ -1942,6 +1944,68 @@
             dataGridViewPovtor.Size = new Size(1557, 716);
             dataGridViewPovtor.TabIndex = 0;
             // 
+            // dataGridViewTextBoxColumn72
+            // 
+            dataGridViewTextBoxColumn72.HeaderText = "Id";
+            dataGridViewTextBoxColumn72.MinimumWidth = 6;
+            dataGridViewTextBoxColumn72.Name = "dataGridViewTextBoxColumn72";
+            dataGridViewTextBoxColumn72.Visible = false;
+            dataGridViewTextBoxColumn72.Width = 125;
+            // 
+            // dataGridViewCheckBoxColumn4
+            // 
+            dataGridViewCheckBoxColumn4.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewCheckBoxColumn4.HeaderText = "";
+            dataGridViewCheckBoxColumn4.MinimumWidth = 6;
+            dataGridViewCheckBoxColumn4.Name = "dataGridViewCheckBoxColumn4";
+            dataGridViewCheckBoxColumn4.Width = 50;
+            // 
+            // dataGridViewTextBoxColumn73
+            // 
+            dataGridViewTextBoxColumn73.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn73.HeaderText = "Технологические операции";
+            dataGridViewTextBoxColumn73.MinimumWidth = 6;
+            dataGridViewTextBoxColumn73.Name = "dataGridViewTextBoxColumn73";
+            // 
+            // dataGridViewTextBoxColumn79
+            // 
+            dataGridViewTextBoxColumn79.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn79.HeaderText = "Технологические переходы";
+            dataGridViewTextBoxColumn79.MinimumWidth = 6;
+            dataGridViewTextBoxColumn79.Name = "dataGridViewTextBoxColumn79";
+            dataGridViewTextBoxColumn79.ReadOnly = true;
+            // 
+            // dgvPovtorOldCoefficient
+            // 
+            dgvPovtorOldCoefficient.HeaderText = "Коэффициент";
+            dgvPovtorOldCoefficient.MinimumWidth = 8;
+            dgvPovtorOldCoefficient.Name = "dgvPovtorOldCoefficient";
+            dgvPovtorOldCoefficient.ReadOnly = true;
+            dgvPovtorOldCoefficient.Width = 150;
+            // 
+            // dgvPovtorCoefficient
+            // 
+            dgvPovtorCoefficient.HeaderText = "Коэффициент повтора";
+            dgvPovtorCoefficient.MinimumWidth = 8;
+            dgvPovtorCoefficient.Name = "dgvPovtorCoefficient";
+            dgvPovtorCoefficient.Width = 150;
+            // 
+            // dgvPovtorEtap
+            // 
+            dgvPovtorEtap.HeaderText = "Этап";
+            dgvPovtorEtap.MinimumWidth = 8;
+            dgvPovtorEtap.Name = "dgvPovtorEtap";
+            dgvPovtorEtap.Visible = false;
+            dgvPovtorEtap.Width = 150;
+            // 
+            // dgvPovtorPosled
+            // 
+            dgvPovtorPosled.HeaderText = "Последовательность";
+            dgvPovtorPosled.MinimumWidth = 8;
+            dgvPovtorPosled.Name = "dgvPovtorPosled";
+            dgvPovtorPosled.Visible = false;
+            dgvPovtorPosled.Width = 150;
+            // 
             // labelComName
             // 
             labelComName.AutoSize = true;
@@ -2377,67 +2441,15 @@
             tabPage10.Size = new Size(200, 100);
             tabPage10.TabIndex = 0;
             // 
-            // dataGridViewTextBoxColumn72
+            // btnToChange
             // 
-            dataGridViewTextBoxColumn72.HeaderText = "Id";
-            dataGridViewTextBoxColumn72.MinimumWidth = 6;
-            dataGridViewTextBoxColumn72.Name = "dataGridViewTextBoxColumn72";
-            dataGridViewTextBoxColumn72.Visible = false;
-            dataGridViewTextBoxColumn72.Width = 125;
-            // 
-            // dataGridViewCheckBoxColumn4
-            // 
-            dataGridViewCheckBoxColumn4.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            dataGridViewCheckBoxColumn4.HeaderText = "";
-            dataGridViewCheckBoxColumn4.MinimumWidth = 6;
-            dataGridViewCheckBoxColumn4.Name = "dataGridViewCheckBoxColumn4";
-            dataGridViewCheckBoxColumn4.Width = 50;
-            // 
-            // dataGridViewTextBoxColumn73
-            // 
-            dataGridViewTextBoxColumn73.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn73.HeaderText = "Технологические операции";
-            dataGridViewTextBoxColumn73.MinimumWidth = 6;
-            dataGridViewTextBoxColumn73.Name = "dataGridViewTextBoxColumn73";
-            // 
-            // dataGridViewTextBoxColumn79
-            // 
-            dataGridViewTextBoxColumn79.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn79.HeaderText = "Технологические переходы";
-            dataGridViewTextBoxColumn79.MinimumWidth = 6;
-            dataGridViewTextBoxColumn79.Name = "dataGridViewTextBoxColumn79";
-            dataGridViewTextBoxColumn79.ReadOnly = true;
-            // 
-            // dgvPovtorOldCoefficient
-            // 
-            dgvPovtorOldCoefficient.HeaderText = "Коэффициент";
-            dgvPovtorOldCoefficient.MinimumWidth = 8;
-            dgvPovtorOldCoefficient.Name = "dgvPovtorOldCoefficient";
-            dgvPovtorOldCoefficient.ReadOnly = true;
-            dgvPovtorOldCoefficient.Width = 150;
-            // 
-            // dgvPovtorCoefficient
-            // 
-            dgvPovtorCoefficient.HeaderText = "Коэффициент повтора";
-            dgvPovtorCoefficient.MinimumWidth = 8;
-            dgvPovtorCoefficient.Name = "dgvPovtorCoefficient";
-            dgvPovtorCoefficient.Width = 150;
-            // 
-            // dgvPovtorEtap
-            // 
-            dgvPovtorEtap.HeaderText = "Этап";
-            dgvPovtorEtap.MinimumWidth = 8;
-            dgvPovtorEtap.Name = "dgvPovtorEtap";
-            dgvPovtorEtap.Visible = false;
-            dgvPovtorEtap.Width = 150;
-            // 
-            // dgvPovtorPosled
-            // 
-            dgvPovtorPosled.HeaderText = "Последовательность";
-            dgvPovtorPosled.MinimumWidth = 8;
-            dgvPovtorPosled.Name = "dgvPovtorPosled";
-            dgvPovtorPosled.Visible = false;
-            dgvPovtorPosled.Width = 150;
+            btnToChange.Location = new Point(725, 36);
+            btnToChange.Margin = new Padding(2);
+            btnToChange.Name = "btnToChange";
+            btnToChange.Size = new Size(280, 35);
+            btnToChange.TabIndex = 5;
+            btnToChange.Text = "Заменить операцию";
+            btnToChange.Click += btnToChange_Click;
             // 
             // AddEditTechOperationForm
             // 
@@ -2733,6 +2745,7 @@
         private DataGridViewTextBoxColumn dgvPovtorCoefficient;
         private DataGridViewTextBoxColumn dgvPovtorEtap;
         private DataGridViewTextBoxColumn dgvPovtorPosled;
+        private Button btnToChange;
         //private DataGridViewCheckBoxColumn Column22;
     }
 }
