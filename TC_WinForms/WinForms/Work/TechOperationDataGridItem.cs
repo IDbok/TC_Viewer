@@ -42,6 +42,8 @@ namespace TC_WinForms.WinForms.Work
         public string Vopros = "";
         public string Otvet = "";
 
+        public string PictureName = "";
+
         public ExecutionWork executionWorkItem=null;
 
     }
