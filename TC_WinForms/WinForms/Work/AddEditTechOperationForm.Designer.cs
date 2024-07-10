@@ -95,14 +95,6 @@
             tabPage2 = new TabPage();
             tableLayoutPanel3 = new TableLayoutPanel();
             dataGridViewTPLocal = new DataGridView();
-            dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
-            DateGridLocalTPDetete = new DataGridViewButtonColumn();
-            dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
-            Time = new DataGridViewTextBoxColumn();
-            Column27 = new DataGridViewTextBoxColumn();
-            Column28 = new DataGridViewTextBoxColumn();
-            Column19 = new DataGridViewTextBoxColumn();
-            Order1 = new DataGridViewTextBoxColumn();
             comboBoxTO = new ComboBox();
             panel1 = new Panel();
             btnCreateNewTP = new Button();
@@ -183,6 +175,14 @@
             tabPage9 = new TabPage();
             tableLayoutPanel11 = new TableLayoutPanel();
             dataGridViewPovtor = new DataGridView();
+            dataGridViewTextBoxColumn72 = new DataGridViewTextBoxColumn();
+            dataGridViewCheckBoxColumn4 = new DataGridViewCheckBoxColumn();
+            dataGridViewTextBoxColumn73 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn79 = new DataGridViewTextBoxColumn();
+            dgvPovtorOldCoefficient = new DataGridViewTextBoxColumn();
+            dgvPovtorCoefficient = new DataGridViewTextBoxColumn();
+            dgvPovtorEtap = new DataGridViewTextBoxColumn();
+            dgvPovtorPosled = new DataGridViewTextBoxColumn();
             labelComName = new Label();
             Column23 = new DataGridViewTextBoxColumn();
             Column25 = new DataGridViewTextBoxColumn();
@@ -230,14 +230,15 @@
             dataGridViewTextBoxColumn63 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn64 = new DataGridViewTextBoxColumn();
             tabPage10 = new TabPage();
-            dataGridViewTextBoxColumn72 = new DataGridViewTextBoxColumn();
-            dataGridViewCheckBoxColumn4 = new DataGridViewCheckBoxColumn();
-            dataGridViewTextBoxColumn73 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn79 = new DataGridViewTextBoxColumn();
-            dgvPovtorOldCoefficient = new DataGridViewTextBoxColumn();
-            dgvPovtorCoefficient = new DataGridViewTextBoxColumn();
-            dgvPovtorEtap = new DataGridViewTextBoxColumn();
-            dgvPovtorPosled = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
+            DateGridLocalTPDetete = new DataGridViewButtonColumn();
+            dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
+            Time = new DataGridViewTextBoxColumn();
+            Coefficient = new DataGridViewTextBoxColumn();
+            Column28 = new DataGridViewTextBoxColumn();
+            Comment = new DataGridViewTextBoxColumn();
+            PictureName = new DataGridViewTextBoxColumn();
+            Order1 = new DataGridViewTextBoxColumn();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTO).BeginInit();
@@ -1024,7 +1025,7 @@
             dataGridViewTPLocal.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewTPLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewTPLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Time, Column27, Column28, Column19, Order1 });
+            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Time, Coefficient, Column28, Comment, PictureName, Order1 });
             dataGridViewTPLocal.Location = new Point(2, 52);
             dataGridViewTPLocal.Margin = new Padding(2);
             dataGridViewTPLocal.Name = "dataGridViewTPLocal";
@@ -1033,67 +1034,6 @@
             dataGridViewTPLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridViewTPLocal.Size = new Size(1566, 371);
             dataGridViewTPLocal.TabIndex = 1;
-            // 
-            // dataGridViewTextBoxColumn7
-            // 
-            dataGridViewTextBoxColumn7.HeaderText = "Id";
-            dataGridViewTextBoxColumn7.MinimumWidth = 6;
-            dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
-            dataGridViewTextBoxColumn7.Visible = false;
-            // 
-            // DateGridLocalTPDetete
-            // 
-            DateGridLocalTPDetete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            DateGridLocalTPDetete.HeaderText = "";
-            DateGridLocalTPDetete.MinimumWidth = 6;
-            DateGridLocalTPDetete.Name = "DateGridLocalTPDetete";
-            DateGridLocalTPDetete.Resizable = DataGridViewTriState.True;
-            DateGridLocalTPDetete.SortMode = DataGridViewColumnSortMode.Automatic;
-            DateGridLocalTPDetete.Text = "Удалить";
-            DateGridLocalTPDetete.Width = 125;
-            // 
-            // dataGridViewTextBoxColumn8
-            // 
-            dataGridViewTextBoxColumn8.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn8.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn8.HeaderText = "Технологические переходы";
-            dataGridViewTextBoxColumn8.MinimumWidth = 6;
-            dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
-            dataGridViewTextBoxColumn8.ReadOnly = true;
-            // 
-            // Time
-            // 
-            Time.FillWeight = 69.7860947F;
-            Time.HeaderText = "Базовое время действ., мин.";
-            Time.MinimumWidth = 6;
-            Time.Name = "Time";
-            Time.ReadOnly = true;
-            // 
-            // Column27
-            // 
-            Column27.HeaderText = "Коэффициент";
-            Column27.MinimumWidth = 6;
-            Column27.Name = "Column27";
-            // 
-            // Column28
-            // 
-            Column28.HeaderText = "Время действ., мин.";
-            Column28.MinimumWidth = 6;
-            Column28.Name = "Column28";
-            Column28.ReadOnly = true;
-            // 
-            // Column19
-            // 
-            Column19.HeaderText = "Комментарии";
-            Column19.MinimumWidth = 6;
-            Column19.Name = "Column19";
-            // 
-            // Order1
-            // 
-            Order1.HeaderText = "Order";
-            Order1.MinimumWidth = 6;
-            Order1.Name = "Order1";
-            Order1.Visible = false;
             // 
             // comboBoxTO
             // 
@@ -1942,6 +1882,68 @@
             dataGridViewPovtor.Size = new Size(1557, 716);
             dataGridViewPovtor.TabIndex = 0;
             // 
+            // dataGridViewTextBoxColumn72
+            // 
+            dataGridViewTextBoxColumn72.HeaderText = "Id";
+            dataGridViewTextBoxColumn72.MinimumWidth = 6;
+            dataGridViewTextBoxColumn72.Name = "dataGridViewTextBoxColumn72";
+            dataGridViewTextBoxColumn72.Visible = false;
+            dataGridViewTextBoxColumn72.Width = 125;
+            // 
+            // dataGridViewCheckBoxColumn4
+            // 
+            dataGridViewCheckBoxColumn4.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dataGridViewCheckBoxColumn4.HeaderText = "";
+            dataGridViewCheckBoxColumn4.MinimumWidth = 6;
+            dataGridViewCheckBoxColumn4.Name = "dataGridViewCheckBoxColumn4";
+            dataGridViewCheckBoxColumn4.Width = 50;
+            // 
+            // dataGridViewTextBoxColumn73
+            // 
+            dataGridViewTextBoxColumn73.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn73.HeaderText = "Технологические операции";
+            dataGridViewTextBoxColumn73.MinimumWidth = 6;
+            dataGridViewTextBoxColumn73.Name = "dataGridViewTextBoxColumn73";
+            // 
+            // dataGridViewTextBoxColumn79
+            // 
+            dataGridViewTextBoxColumn79.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn79.HeaderText = "Технологические переходы";
+            dataGridViewTextBoxColumn79.MinimumWidth = 6;
+            dataGridViewTextBoxColumn79.Name = "dataGridViewTextBoxColumn79";
+            dataGridViewTextBoxColumn79.ReadOnly = true;
+            // 
+            // dgvPovtorOldCoefficient
+            // 
+            dgvPovtorOldCoefficient.HeaderText = "Коэффициент";
+            dgvPovtorOldCoefficient.MinimumWidth = 8;
+            dgvPovtorOldCoefficient.Name = "dgvPovtorOldCoefficient";
+            dgvPovtorOldCoefficient.ReadOnly = true;
+            dgvPovtorOldCoefficient.Width = 150;
+            // 
+            // dgvPovtorCoefficient
+            // 
+            dgvPovtorCoefficient.HeaderText = "Коэффициент повтора";
+            dgvPovtorCoefficient.MinimumWidth = 8;
+            dgvPovtorCoefficient.Name = "dgvPovtorCoefficient";
+            dgvPovtorCoefficient.Width = 150;
+            // 
+            // dgvPovtorEtap
+            // 
+            dgvPovtorEtap.HeaderText = "Этап";
+            dgvPovtorEtap.MinimumWidth = 8;
+            dgvPovtorEtap.Name = "dgvPovtorEtap";
+            dgvPovtorEtap.Visible = false;
+            dgvPovtorEtap.Width = 150;
+            // 
+            // dgvPovtorPosled
+            // 
+            dgvPovtorPosled.HeaderText = "Последовательность";
+            dgvPovtorPosled.MinimumWidth = 8;
+            dgvPovtorPosled.Name = "dgvPovtorPosled";
+            dgvPovtorPosled.Visible = false;
+            dgvPovtorPosled.Width = 150;
+            // 
             // labelComName
             // 
             labelComName.AutoSize = true;
@@ -2377,67 +2379,72 @@
             tabPage10.Size = new Size(200, 100);
             tabPage10.TabIndex = 0;
             // 
-            // dataGridViewTextBoxColumn72
+            // dataGridViewTextBoxColumn7
             // 
-            dataGridViewTextBoxColumn72.HeaderText = "Id";
-            dataGridViewTextBoxColumn72.MinimumWidth = 6;
-            dataGridViewTextBoxColumn72.Name = "dataGridViewTextBoxColumn72";
-            dataGridViewTextBoxColumn72.Visible = false;
-            dataGridViewTextBoxColumn72.Width = 125;
+            dataGridViewTextBoxColumn7.HeaderText = "Id";
+            dataGridViewTextBoxColumn7.MinimumWidth = 6;
+            dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
+            dataGridViewTextBoxColumn7.Visible = false;
             // 
-            // dataGridViewCheckBoxColumn4
+            // DateGridLocalTPDetete
             // 
-            dataGridViewCheckBoxColumn4.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            dataGridViewCheckBoxColumn4.HeaderText = "";
-            dataGridViewCheckBoxColumn4.MinimumWidth = 6;
-            dataGridViewCheckBoxColumn4.Name = "dataGridViewCheckBoxColumn4";
-            dataGridViewCheckBoxColumn4.Width = 50;
+            DateGridLocalTPDetete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            DateGridLocalTPDetete.HeaderText = "";
+            DateGridLocalTPDetete.MinimumWidth = 6;
+            DateGridLocalTPDetete.Name = "DateGridLocalTPDetete";
+            DateGridLocalTPDetete.Resizable = DataGridViewTriState.True;
+            DateGridLocalTPDetete.SortMode = DataGridViewColumnSortMode.Automatic;
+            DateGridLocalTPDetete.Text = "Удалить";
+            DateGridLocalTPDetete.Width = 125;
             // 
-            // dataGridViewTextBoxColumn73
+            // dataGridViewTextBoxColumn8
             // 
-            dataGridViewTextBoxColumn73.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn73.HeaderText = "Технологические операции";
-            dataGridViewTextBoxColumn73.MinimumWidth = 6;
-            dataGridViewTextBoxColumn73.Name = "dataGridViewTextBoxColumn73";
+            dataGridViewTextBoxColumn8.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn8.FillWeight = 69.7860947F;
+            dataGridViewTextBoxColumn8.HeaderText = "Технологические переходы";
+            dataGridViewTextBoxColumn8.MinimumWidth = 6;
+            dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
+            dataGridViewTextBoxColumn8.ReadOnly = true;
             // 
-            // dataGridViewTextBoxColumn79
+            // Time
             // 
-            dataGridViewTextBoxColumn79.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn79.HeaderText = "Технологические переходы";
-            dataGridViewTextBoxColumn79.MinimumWidth = 6;
-            dataGridViewTextBoxColumn79.Name = "dataGridViewTextBoxColumn79";
-            dataGridViewTextBoxColumn79.ReadOnly = true;
+            Time.FillWeight = 69.7860947F;
+            Time.HeaderText = "Базовое время действ., мин.";
+            Time.MinimumWidth = 6;
+            Time.Name = "Time";
+            Time.ReadOnly = true;
             // 
-            // dgvPovtorOldCoefficient
+            // Coefficient
             // 
-            dgvPovtorOldCoefficient.HeaderText = "Коэффициент";
-            dgvPovtorOldCoefficient.MinimumWidth = 8;
-            dgvPovtorOldCoefficient.Name = "dgvPovtorOldCoefficient";
-            dgvPovtorOldCoefficient.ReadOnly = true;
-            dgvPovtorOldCoefficient.Width = 150;
+            Coefficient.HeaderText = "Коэффициент";
+            Coefficient.MinimumWidth = 6;
+            Coefficient.Name = "Coefficient";
             // 
-            // dgvPovtorCoefficient
+            // Column28
             // 
-            dgvPovtorCoefficient.HeaderText = "Коэффициент повтора";
-            dgvPovtorCoefficient.MinimumWidth = 8;
-            dgvPovtorCoefficient.Name = "dgvPovtorCoefficient";
-            dgvPovtorCoefficient.Width = 150;
+            Column28.HeaderText = "Время действ., мин.";
+            Column28.MinimumWidth = 6;
+            Column28.Name = "Column28";
+            Column28.ReadOnly = true;
             // 
-            // dgvPovtorEtap
+            // Comment
             // 
-            dgvPovtorEtap.HeaderText = "Этап";
-            dgvPovtorEtap.MinimumWidth = 8;
-            dgvPovtorEtap.Name = "dgvPovtorEtap";
-            dgvPovtorEtap.Visible = false;
-            dgvPovtorEtap.Width = 150;
+            Comment.HeaderText = "Комментарии";
+            Comment.MinimumWidth = 6;
+            Comment.Name = "Comment";
             // 
-            // dgvPovtorPosled
+            // PictureName
             // 
-            dgvPovtorPosled.HeaderText = "Последовательность";
-            dgvPovtorPosled.MinimumWidth = 8;
-            dgvPovtorPosled.Name = "dgvPovtorPosled";
-            dgvPovtorPosled.Visible = false;
-            dgvPovtorPosled.Width = 150;
+            PictureName.HeaderText = "Рисунок";
+            PictureName.MinimumWidth = 8;
+            PictureName.Name = "PictureName";
+            // 
+            // Order1
+            // 
+            Order1.HeaderText = "Order";
+            Order1.MinimumWidth = 6;
+            Order1.Name = "Order1";
+            Order1.Visible = false;
             // 
             // AddEditTechOperationForm
             // 
@@ -2717,14 +2724,6 @@
         private DataGridViewTextBoxColumn Column4;
         private DataGridViewTextBoxColumn Column5;
         private DataGridViewTextBoxColumn Column26;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
-        private DataGridViewButtonColumn DateGridLocalTPDetete;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
-        private DataGridViewTextBoxColumn Time;
-        private DataGridViewTextBoxColumn Column27;
-        private DataGridViewTextBoxColumn Column28;
-        private DataGridViewTextBoxColumn Column19;
-        private DataGridViewTextBoxColumn Order1;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn72;
         private DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn4;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn73;
@@ -2733,6 +2732,15 @@
         private DataGridViewTextBoxColumn dgvPovtorCoefficient;
         private DataGridViewTextBoxColumn dgvPovtorEtap;
         private DataGridViewTextBoxColumn dgvPovtorPosled;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
+        private DataGridViewButtonColumn DateGridLocalTPDetete;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
+        private DataGridViewTextBoxColumn Time;
+        private DataGridViewTextBoxColumn Coefficient;
+        private DataGridViewTextBoxColumn Column28;
+        private DataGridViewTextBoxColumn Comment;
+        private DataGridViewTextBoxColumn PictureName;
+        private DataGridViewTextBoxColumn Order1;
         //private DataGridViewCheckBoxColumn Column22;
     }
 }

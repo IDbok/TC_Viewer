@@ -44,6 +44,7 @@ namespace TC_WinForms.WinForms.Work
 
             dataGridViewTPLocal.CellClick += DataGridViewTPLocal_CellClick;
             dataGridViewTPLocal.CellEndEdit += DataGridViewTPLocal_CellEndEdit;
+            dataGridViewTPLocal.CellFormatting += DataGridViewTPLocal_CellFormatting;
 
             dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
             dataGridViewStaff.CellClick += DataGridViewStaff_CellClick;
@@ -103,6 +104,7 @@ namespace TC_WinForms.WinForms.Work
             UpdateTO();
             UpdateLocalTO();
         }
+
 
 
 
@@ -286,24 +288,28 @@ namespace TC_WinForms.WinForms.Work
                     wor.Comments = gg;
                     TechOperationForm.UpdateGrid();
                 }
-            }
-
-            if (e.ColumnIndex == 4)
+            } 
+            else if (e.ColumnIndex == 4)
             {
                 var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
                 var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
+
+
                 var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
                 if (wor != null)
                 {
+
+                    var oldValue = wor.Coefficient;
+
+                    if (oldValue == gg)
+                    {
+                        return;
+                    }
                     try
                     {
                         wor.Coefficient = gg ?? "";
-
-                        //Expression ee = new Expression(wor.techTransition?.TimeExecution.ToString().Replace(',', '.') + " " + wor.Coefficient.Replace(',', '.'));
-
-                        
                         try
                         {
                             var bn = WorkParser.EvaluateExpression(wor.techTransition?.TimeExecution.ToString().Replace(',', '.') + " " + wor.Coefficient.Replace(',', '.')); //ee.Evaluate();
@@ -314,17 +320,42 @@ namespace TC_WinForms.WinForms.Work
                             wor.Value = -1;
                         }
 
-                        TechOperationForm.UpdateGrid();
+
+                        // todo: реализовать обновление только ячейки времени выполнения, а не всей таблицы
+
+                        //var index = dataGridViewTPLocal.Columns["Value"].Index;
+
+                        //if (index == -1)
+                        //{
+                        //    return;
+                        //}
+
+                        //dataGridViewTPLocal.Rows[e.RowIndex].Cells[index].Value = wor.Value == -1 ? "Ошибка" : wor.Value;
 
                         BeginInvoke(new Action(() =>
                         {
                             UpdateGridLocalTP();
                         }));
+
+                        TechOperationForm.UpdateGrid();
                     }
                     catch (Exception)
                     {
 
                     }                                      
+                }
+            }
+            else if (e.ColumnIndex == 7)
+            {
+                var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                // TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == idd).
+                var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
+                if (wor != null)
+                {
+                    wor.PictureName = gg;
+                    TechOperationForm.UpdateGrid();
                 }
             }
 
@@ -344,6 +375,34 @@ namespace TC_WinForms.WinForms.Work
                 TechOperationForm.DeleteTechTransit(IddGuid, work);
                 UpdateGridLocalTP();
                 TechOperationForm.UpdateGrid();
+            }
+        }
+
+        private void DataGridViewTPLocal_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index 
+                || e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index )// Индекс столбца с checkBox
+            {
+                TechOperationForm.CellCangeReadOlny(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                
+            }
+            else if (e.ColumnIndex == dataGridViewTPLocal.Columns["Coefficient"].Index)
+            {
+                var nameIndex = dataGridViewTPLocal.Columns["dataGridViewTextBoxColumn8"]?.Index ?? 0;
+                string rowName = dataGridViewTPLocal.Rows[e.RowIndex].Cells[nameIndex].Value.ToString() ?? "";
+
+                if (rowName == "Повторить")
+                {
+                    TechOperationForm.CellCangeReadOlny(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                }
+                else
+                {
+                    TechOperationForm.CellCangeReadOlny(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                }
+            }
+            else
+            {
+                TechOperationForm.CellCangeReadOlny(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
             }
         }
 
@@ -598,6 +657,8 @@ namespace TC_WinForms.WinForms.Work
                 
                 listItem.Add(executionWork.Comments);
 
+                listItem.Add(executionWork.PictureName);
+
                 dataGridViewTPLocal.Rows.Add(listItem.ToArray());
             }
 
@@ -840,15 +901,17 @@ namespace TC_WinForms.WinForms.Work
                 }
 
 
-                List<object> listItem = new List<object>();
-                listItem.Add(staff);
-                listItem.Add("Добавить");
-                listItem.Add(staff.Name);
-                listItem.Add(staff.Type);
-                listItem.Add(staff.Functions);
-                listItem.Add(staff.CombineResponsibility ?? "");
-                listItem.Add(staff.Qualification);
-                listItem.Add(staff.Comment ?? "");
+                List<object> listItem = new List<object>
+                {
+                    staff,
+                    "Добавить",
+                    staff.Name,
+                    staff.Type,
+                    staff.Functions,
+                    staff.CombineResponsibility ?? "",
+                    staff.Qualification,
+                    staff.Comment ?? ""
+                };
                 dataGridViewStaffAll.Rows.Add(listItem.ToArray());
             }
 
@@ -904,15 +967,15 @@ namespace TC_WinForms.WinForms.Work
                 }
 
 
-                List<object> listItem = new List<object>();
-
-                listItem.Add(prot.Child);
-                listItem.Add("Добавить");
-
-                listItem.Add(prot.Child.Name);
-                listItem.Add(prot.Child.Type);
-                listItem.Add(prot.Child.Unit);
-                listItem.Add(prot.Quantity);
+                List<object> listItem = new List<object>
+                {
+                    prot.Child,
+                    "Добавить",
+                    prot.Child.Name,
+                    prot.Child.Type,
+                    prot.Child.Unit,
+                    prot.Quantity
+                };
 
                 dataGridViewAllSZ.Rows.Add(listItem.ToArray());
             }
@@ -936,15 +999,15 @@ namespace TC_WinForms.WinForms.Work
                     continue;
                 }
 
-                List<object> listItem = new List<object>();
-                listItem.Add(prot);
-
-                listItem.Add("Добавить");
-
-                listItem.Add(prot.Name);
-                listItem.Add(prot.Type);
-                listItem.Add(prot.Unit);
-                listItem.Add("");
+                List<object> listItem = new List<object>
+                {
+                    prot,
+                    "Добавить",
+                    prot.Name,
+                    prot.Type,
+                    prot.Unit,
+                    ""
+                };
                 dataGridViewAllSZ.Rows.Add(listItem.ToArray());
             }
 
@@ -975,15 +1038,15 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (Protection_TC sz in LocalTP)
             {
-                List<object> listItem = new List<object>();
-                listItem.Add(sz);
-
-                listItem.Add("Удалить");
-
-                listItem.Add(sz.Child.Name);
-                listItem.Add(sz.Child.Type);
-                listItem.Add(sz.Child.Unit);
-                listItem.Add(sz.Quantity);
+                List<object> listItem = new List<object>
+                {
+                    sz,
+                    "Удалить",
+                    sz.Child.Name,
+                    sz.Child.Type,
+                    sz.Child.Unit,
+                    sz.Quantity
+                };
                 dataGridViewLocalSZ.Rows.Add(listItem.ToArray());
             }
 
@@ -1131,15 +1194,15 @@ namespace TC_WinForms.WinForms.Work
                 }
 
 
-                List<object> listItem = new List<object>();
-                listItem.Add(componentTc.Child);
-
-                listItem.Add("Добавить");
-
-                listItem.Add(componentTc.Child.Name);
-                listItem.Add(componentTc.Child.Type);
-                listItem.Add(componentTc.Child.Unit);
-                listItem.Add(componentTc.Quantity);
+                List<object> listItem = new List<object>
+                {
+                    componentTc.Child,
+                    "Добавить",
+                    componentTc.Child.Name,
+                    componentTc.Child.Type,
+                    componentTc.Child.Unit,
+                    componentTc.Quantity
+                };
                 dataGridViewComponentAll.Rows.Add(listItem.ToArray());
             }
 
@@ -1183,15 +1246,15 @@ namespace TC_WinForms.WinForms.Work
                 }
 
 
-                List<object> listItem = new List<object>();
-                listItem.Add(component);
-
-                listItem.Add("Добавить");
-
-                listItem.Add(component.Name);
-                listItem.Add(component.Type);
-                listItem.Add(component.Unit);
-                listItem.Add("");
+                List<object> listItem = new List<object>
+                {
+                    component,
+                    "Добавить",
+                    component.Name,
+                    component.Type,
+                    component.Unit,
+                    ""
+                };
                 dataGridViewComponentAll.Rows.Add(listItem.ToArray());
             }
 
@@ -1229,16 +1292,16 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (ComponentWork componentWork in LocalComponent)
             {
-                List<object> listItem = new List<object>();
-                listItem.Add(componentWork);
-
-                listItem.Add("Удалить");
-
-                listItem.Add(componentWork.component.Name);
-                listItem.Add(componentWork.component.Type);
-                listItem.Add(componentWork.component.Unit);
-                listItem.Add(componentWork.Quantity.ToString());
-                listItem.Add(componentWork.Comments);
+                List<object> listItem = new List<object>
+                {
+                    componentWork,
+                    "Удалить",
+                    componentWork.component.Name,
+                    componentWork.component.Type,
+                    componentWork.component.Unit,
+                    componentWork.Quantity.ToString(),
+                    componentWork.Comments
+                };
                 dataGridViewComponentLocal.Rows.Add(listItem.ToArray());
             }
 
@@ -1346,16 +1409,16 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (var InstrumentWork in LocalInstrument)
             {
-                List<object> listItem = new List<object>();
-                listItem.Add(InstrumentWork);
-
-                listItem.Add("Удалить");
-
-                listItem.Add(InstrumentWork.tool.Name);
-                listItem.Add(InstrumentWork.tool.Type);
-                listItem.Add(InstrumentWork.tool.Unit);
-                listItem.Add(InstrumentWork.Quantity);
-                listItem.Add(InstrumentWork.Comments);
+                List<object> listItem = new List<object>
+                {
+                    InstrumentWork,
+                    "Удалить",
+                    InstrumentWork.tool.Name,
+                    InstrumentWork.tool.Type,
+                    InstrumentWork.tool.Unit,
+                    InstrumentWork.Quantity,
+                    InstrumentWork.Comments
+                };
                 dataGridViewInstrumentLocal.Rows.Add(listItem.ToArray());
             }
 

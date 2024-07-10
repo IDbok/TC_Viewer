@@ -48,6 +48,8 @@ namespace TcModels.Models.TcContent
         public string Vopros { get; set; } = "";
         public string Otvet { get; set; } = "";
 
+        public string PictureName { get; set; } = "";
+
         public override string ToString()
        {
            if (techTransition != null)

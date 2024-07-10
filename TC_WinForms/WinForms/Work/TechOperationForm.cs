@@ -88,8 +88,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         if (isCommentViewMode != null)
             _isCommentViewMode = (bool)isCommentViewMode;
 
-        dgvMain.Columns[dgvMain.ColumnCount - 1].Visible = _isCommentViewMode;
-        dgvMain.Columns[dgvMain.ColumnCount - 2].Visible = _isCommentViewMode;
+        dgvMain.Columns["RemarkColumn"].Visible = _isCommentViewMode;
+        dgvMain.Columns["ResponseColumn"].Visible = _isCommentViewMode;
+
+        //dgvMain.Columns[dgvMain.ColumnCount - 1].Visible = _isCommentViewMode;
+        //dgvMain.Columns[dgvMain.ColumnCount - 2].Visible = _isCommentViewMode;
     }
 
     public void SetViewMode(bool? isViewMode = null)
@@ -705,6 +708,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         dgvMain.Columns.Add("", "№ СЗ");
         dgvMain.Columns.Add("", "Примечание");
+        dgvMain.Columns.Add("", "Рис.");
         dgvMain.Columns.Add("RemarkColumn", "Замечание");
         dgvMain.Columns.Add("ResponseColumn", "Ответ");
 
@@ -799,7 +803,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                     Comments = executionWork.Comments,
                     Vopros = executionWork.Vopros,
                     Otvet = executionWork.Otvet,
-                    executionWorkItem = executionWork
+                    executionWorkItem = executionWork,
+
+                    PictureName = executionWork.PictureName,
                 };
 
                 if (itm.TechTransitionValue == "-1")
@@ -968,8 +974,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
                 str.Add(techOperationDataGridItem.Protections);
                 str.Add(techOperationDataGridItem.techWork?.Comments ?? "");
+
+                str.Add(techOperationDataGridItem.PictureName);
+
                 str.Add(techOperationDataGridItem.Vopros);
                 str.Add(techOperationDataGridItem.Otvet);
+
 
                 AddRowToGrid(str, Color.Yellow, Color.Yellow);
                 continue;
@@ -987,8 +997,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             str.Add(techOperationDataGridItem.Protections);
             str.Add(techOperationDataGridItem.techWork?.Comments ?? techOperationDataGridItem.Comments);
+
+            str.Add(techOperationDataGridItem.PictureName);
+
             str.Add(techOperationDataGridItem.Vopros);
             str.Add(techOperationDataGridItem.Otvet);
+
 
             if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
             {
@@ -1119,7 +1133,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         
     }
 
-    private void CellCangeReadOlny(DataGridViewCell cell, bool isReadOnly)
+    public void CellCangeReadOlny(DataGridViewCell cell, bool isReadOnly)
     {
         // Делаем ячейку редактируемой
         cell.ReadOnly = isReadOnly;

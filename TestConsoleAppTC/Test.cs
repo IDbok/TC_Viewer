@@ -30,7 +30,7 @@ internal class Program
         //CoefficientTests();
 
         //GetStaffs();
-        //ParseNewDictionary();
+        ParseNewDictionary();
 
         //MakeAllStatusesDraft(TechnologicalCard.TechnologicalCardStatus.Created);
 

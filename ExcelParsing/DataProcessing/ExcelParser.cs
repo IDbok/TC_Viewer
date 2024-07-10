@@ -386,20 +386,7 @@ public class ExcelParser
             Notes = error,
         };
     }
-    private class LogInfor
-    {
-        public string FileName { get; set; } = null!;
-        public string? Article { get; set; }
-        public string? ParsingResult1to5 { get; set; }
-        public string? ParsingResult6 { get; set; }
-        public string? Notes { get; set; }
-
-        public LogInfor(string FileName)
-        {
-            this.FileName = FileName;
-        }
-    }   
-
+    
     public List<Staff_TC> ParseExcelToObjectsStaff_TC(string filePath, out List<string> metaList)
     {
 
@@ -495,52 +482,7 @@ public class ExcelParser
         }
         return objList;
     }
-    //public List<TechnologicalCard> ParseExcelToObjectsTc(string filePath)
-    //{
-    //    var objList = new List<TechnologicalCard>();
-
-    //    using (var package = new ExcelPackage(new FileInfo(filePath)))
-    //    {
-    //        var worksheet = package.Workbook.Worksheets["ТК"];
-    //        int rowCount = worksheet.Dimension.Rows;
-
-    //        for (int row = 2; row <= rowCount; row++)
-    //        {
-    //            var isCompleted = Convert.ToString(worksheet.Cells[row, 13].Value);
-    //            var nameTc = Convert.ToString(worksheet.Cells[row, 14].Value);
-    //            string NoName = "Без названия";
-
-    //            var obj = new TechnologicalCard
-    //            {
-    //                Id = Convert.ToInt32(worksheet.Cells[row, 16].Value),
-
-    //                Article = Convert.ToString(worksheet.Cells[row, 1].Value),
-
-    //                Name = nameTc == "" ? NoName : nameTc,
-
-    //                Type = Convert.ToString(worksheet.Cells[row, 2].Value),
-    //                NetworkVoltage = Convert.ToSingle(worksheet.Cells[row, 3].Value),
-    //                TechnologicalProcessType = Convert.ToString(worksheet.Cells[row, 4].Value),
-    //                TechnologicalProcessName = Convert.ToString(worksheet.Cells[row, 5].Value),
-    //                Parameter = Convert.ToString(worksheet.Cells[row, 6].Value),
-    //                TechnologicalProcessNumber = Convert.ToString(worksheet.Cells[row, 7].Value),
-    //                FinalProduct = Convert.ToString(worksheet.Cells[row, 8].Value),
-    //                Applicability = Convert.ToString(worksheet.Cells[row, 9].Value),
-    //                Note = Convert.ToString(worksheet.Cells[row, 10].Value),
-    //                DamageType = Convert.ToString(worksheet.Cells[row, 11].Value),
-    //                RepairType = Convert.ToString(worksheet.Cells[row, 12].Value),
-
-    //                IsCompleted = isCompleted == "Есть" ? true : false,
-
-    //            };
-
-
-    //            objList.Add(obj);
-    //        }
-    //    }
-    //    return objList;
-    //}
-
+    
     public List<TechnologicalCard> ParseExcelToObjectsTc(string filePath)
     {
         var objList = new List<TechnologicalCard>();
@@ -850,8 +792,6 @@ public class ExcelParser
         return objList;
     }
 
-
-
     public List<List<string>> ParseRowsToStrings(List<string> columnsNames, string filepath, 
         string? sheetName = null, int sheetNumber = 0, int startRow = 1, int endRow = maxRow)
     {
@@ -1066,6 +1006,20 @@ public class ExcelParser
         }
 
         return parserInfos;
+    }
+
+    private class LogInfor
+    {
+        public string FileName { get; set; } = null!;
+        public string? Article { get; set; }
+        public string? ParsingResult1to5 { get; set; }
+        public string? ParsingResult6 { get; set; }
+        public string? Notes { get; set; }
+
+        public LogInfor(string FileName)
+        {
+            this.FileName = FileName;
+        }
     }
 }
 
