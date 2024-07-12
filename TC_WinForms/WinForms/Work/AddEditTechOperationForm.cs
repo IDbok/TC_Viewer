@@ -261,7 +261,7 @@ namespace TC_WinForms.WinForms.Work
                     wor.Comments = gg;
                     TechOperationForm.UpdateGrid();
                 }
-            } 
+            }
             else if (e.ColumnIndex == 4)
             {
                 var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
@@ -315,7 +315,7 @@ namespace TC_WinForms.WinForms.Work
                     catch (Exception)
                     {
 
-                    }                                      
+                    }
                 }
             }
             else if (e.ColumnIndex == 7)
@@ -353,11 +353,11 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPLocal_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index 
-                || e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index )// Индекс столбца с checkBox
+            if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index
+                || e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index)// Индекс столбца с checkBox
             {
                 TechOperationForm.CellCangeReadOlny(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
-                
+
             }
             else if (e.ColumnIndex == dataGridViewTPLocal.Columns["Coefficient"].Index)
             {
@@ -2426,7 +2426,7 @@ namespace TC_WinForms.WinForms.Work
                     return;
                 }
 
-                if(newTechOperation.Category == "Типовая ТО")
+                if (newTechOperation.Category == "Типовая ТО")
                 {
                     MessageBox.Show("Замена на типорую ТО не допустима.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
