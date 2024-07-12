@@ -7,9 +7,11 @@
              mc:Ignorable="d" >
     <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
         <StackPanel>
-        <StackPanel Name="ListWpfControlTO">
-        </StackPanel>
-        <Button Content="Добавить следующее ТО" HorizontalAlignment="Center" Margin="0,30,0,0" Click="Button_Click" />
+            <StackPanel Name="ListWpfControlTO">
+                
+            </StackPanel>
+            
+            <Button Content="Добавить следующее ТО" HorizontalAlignment="Center" Margin="0,30,0,0" Click="Button_Click" />
         </StackPanel>
     </ScrollViewer>
 </UserControl>
