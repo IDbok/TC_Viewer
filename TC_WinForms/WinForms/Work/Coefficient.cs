@@ -13,14 +13,14 @@ using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Work
 {
-    public partial class Coefficient : Form
+    public partial class CoefficientForm : Form
     {
-        public Coefficient()
-        {
-            InitializeComponent();
-        }
+        //public CoefficientForm()
+        //{
+        //    InitializeComponent();
+        //}
 
-        public Coefficient(TechTransition idd)
+        public CoefficientForm(TechTransition idd)
         {
             InitializeComponent();
             Idd = idd;
@@ -61,7 +61,7 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
-        public string GetCoefficent
+        public string GetCoefficient
         {
             get { return textBox1.Text; }
         }

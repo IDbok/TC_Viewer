@@ -25,16 +25,21 @@ internal class Program
     static async Task Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
-        TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v15;user=root;password=root";
+        TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v16;user=root;password=root";
+
+        var context = new MyDbContext();
+
+        var parser = new DictionaryParser(context);
+        parser.ParseDictionaries(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\Исходные\Справочник_ТК (6).xlsx");
 
         //CoefficientTests();
 
         //GetStaffs();
-        ParseNewDictionary();
+        //ParseNewDictionary();
 
         //MakeAllStatusesDraft(TechnologicalCard.TechnologicalCardStatus.Created);
 
-        ParseAllTC();
+        //ParseAllTC();
         //CheckOldForm();
 
         //TCExecitionsPicture();

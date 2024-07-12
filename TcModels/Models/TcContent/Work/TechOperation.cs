@@ -7,7 +7,7 @@ namespace TcModels.Models.TcContent
     public class TechOperation: IIdentifiable, IUpdatableEntity
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         public string? Category { get; set; }
 

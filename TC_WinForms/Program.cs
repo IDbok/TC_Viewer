@@ -48,7 +48,7 @@ namespace TC_WinForms
                 catch (Exception e)
                 {
                     Config config = new Config();
-                    config.ConnectionString = "server=localhost;database=tavrida_db_v15;user=root;password=root";
+                    config.ConnectionString = "server=localhost;database=tavrida_db_v16;user=root;password=root";
 
                     JavaScriptSerializer javaScriptSerializer1 = new JavaScriptSerializer();
                     string? bbn = javaScriptSerializer1.Serialize(config);
