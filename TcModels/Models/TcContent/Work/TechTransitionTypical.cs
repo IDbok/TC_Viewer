@@ -18,5 +18,8 @@ namespace TcModels.Models.TcContent.Work
         public string Etap { get; set; } = "";
         public string Posled { get; set; } = "";
 
+        public string? Coefficient { get; set; }
+        public string? Comments { get; set; }
+
     }
 }

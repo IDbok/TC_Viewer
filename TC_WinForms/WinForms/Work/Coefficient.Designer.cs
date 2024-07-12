@@ -1,6 +1,6 @@
 ﻿namespace TC_WinForms.WinForms.Work
 {
-    partial class Coefficient
+    partial class CoefficientForm
     {
         /// <summary>
         /// Required designer variable.

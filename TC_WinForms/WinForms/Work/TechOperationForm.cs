@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.DirectoryServices.ActiveDirectory;
 using System.Text;
+using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
 using TC_WinForms.Interfaces;
 using TcDbConnector;
@@ -1248,7 +1249,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
 
 
-    public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null, Coefficient coefficient = null)
+    public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null, CoefficientForm coefficient = null)
     {
         TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
         var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
@@ -1266,9 +1267,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 max = TOWork.executionWorks.Max(w => w.Order);
             }
 
-            if (tech.Name != "Повторить")
+            ExecutionWork techOpeWork = new ExecutionWork();
+
+            if (tech.Name != "Повторить" && tech.Name != "Повторить п.")
             {
-                ExecutionWork techOpeWork = new ExecutionWork();
                 techOpeWork.IdGuid = Guid.NewGuid();
                 techOpeWork.techOperationWork = TOWork;
                 techOpeWork.NewItem = true;
@@ -1276,31 +1278,35 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 techOpeWork.Value = tech.TimeExecution;
                 if (coefficient != null)
                 {
-                    techOpeWork.Coefficient = coefficient.GetCoefficent;
+                    techOpeWork.Coefficient = coefficient.GetCoefficient;
                     techOpeWork.Value = coefficient.GetValue;
                 }
                 techOpeWork.Order = max + 1;
                 TOWork.executionWorks.Add(techOpeWork);
-
-                if (techTransitionTypical != null)
-                {
-                    techOpeWork.Etap = techTransitionTypical.Etap;
-                    techOpeWork.Posled = techTransitionTypical.Posled;
-                }
-
             }
             else
             {
-                ExecutionWork techOpeWork = new ExecutionWork();
+                //ExecutionWork techOpeWork = new ExecutionWork();
                 techOpeWork.IdGuid = Guid.NewGuid();
                 techOpeWork.techOperationWork = TOWork;
                 techOpeWork.NewItem = true;
                 techOpeWork.Repeat = true;
                 techOpeWork.Order = max + 1;
-                //techOpeWork.techTransition = tech;
+                techOpeWork.techTransition = tech;
                 //techOpeWork.Value = tech.TimeExecution;
                 TOWork.executionWorks.Add(techOpeWork);
             }
+
+            if (techTransitionTypical != null)
+            {
+                techOpeWork.Etap = techTransitionTypical.Etap;
+                techOpeWork.Posled = techTransitionTypical.Posled;
+                techOpeWork.Coefficient = techTransitionTypical.Coefficient;
+                techOpeWork.Comments = techTransitionTypical.Comments ?? "";
+
+                techOpeWork.Value = string.IsNullOrEmpty(techTransitionTypical.Coefficient) ? tech.TimeExecution : WorkParser.EvaluateExpression(tech.TimeExecution + "*" + techTransitionTypical.Coefficient);
+            }
+
         }
 
     }

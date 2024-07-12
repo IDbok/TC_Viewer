@@ -88,21 +88,35 @@ public partial class Win7_TechOperation_Window : Form
     {
         if (e.RowIndex < 0) return;
 
-        if (e.ColumnIndex == 4)
+        if (e.ColumnIndex == 5)
         {
             var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
             var idd = (TechTransitionTypical)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
 
             idd.Etap = gg;
 
-        }
-
-        if (e.ColumnIndex == 5)
+        }else if (e.ColumnIndex == 6)
         {
             var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
             var idd = (TechTransitionTypical)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
 
             idd.Posled = gg;
+
+        }
+        else if (e.ColumnIndex == 7)
+        {
+            var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+            var idd = (TechTransitionTypical)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
+
+            idd.Comments = gg;
+
+        }
+        else if (e.ColumnIndex == 4)
+        {
+            var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+            var idd = (TechTransitionTypical)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
+
+            idd.Coefficient = gg;
 
         }
 
@@ -138,15 +152,18 @@ public partial class Win7_TechOperation_Window : Form
 
         foreach (TechTransitionTypical techTransitionTypical in LocalTP)
         {
-            List<object> listItem = new List<object>();
-            listItem.Add(techTransitionTypical);
-            listItem.Add("Удалить");
+            List<object> listItem = new List<object>
+            {
+                techTransitionTypical,
+                "Удалить",
+                techTransitionTypical.TechTransition?.Name!,
+                techTransitionTypical.TechTransition?.TimeExecution!,
+                techTransitionTypical.Coefficient ?? "",
+                techTransitionTypical.Etap,
+                techTransitionTypical.Posled,
+                techTransitionTypical.Comments ?? ""
 
-            listItem.Add(techTransitionTypical.TechTransition?.Name);
-            listItem.Add(techTransitionTypical.TechTransition?.TimeExecution);
-
-            listItem.Add(techTransitionTypical.Etap);
-            listItem.Add(techTransitionTypical.Posled);
+            };
 
 
             dataGridViewTPLocal.Rows.Add(listItem.ToArray());

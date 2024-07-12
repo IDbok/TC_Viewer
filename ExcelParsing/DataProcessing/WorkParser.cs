@@ -483,12 +483,12 @@ public class WorkParser
 
                 var (techOperation, techTransition) = GetTechOperationAndTransition(row, stepSheet, newStepColumnsNumbers, techOperationsCache, techTransitionsCache, ref currentToId);
 
-                bool isTOChanges = currentToId != previousToId;
+                //bool isTOChanges = currentToId != previousToId;
 
                 var (etap, posled, formulaStep, valueStep) = GetFormulasAndStages(row, stepSheet, newStepColumnsNumbers, ref lastEtapFormula , out _);
                 
                 // Проверка участия механизмов в этапе, если механизм участвует, то третий элемент картежа - true
-                if (isTOChanges & machines.Count != 0)
+                if (currentToId != previousToId & machines.Count != 0)
                     GetMachineParticipation(row, stepSheet, machines);
 
                 string protectionRange = stepSheet.Cells[row, newStepColumnsNumbers["№ СЗ"]].Text;
@@ -1495,7 +1495,7 @@ public class WorkParser
         }
         return columnsNumbers;
     }
-    public (string stage, string parallelIndex) ParseStageFormula(string formula, int rowNum, out List<int> allNumbers)
+    public static (string stage, string parallelIndex) ParseStageFormula(string formula, int rowNum, out List<int> allNumbers)
     {
         // Инициализируем переменные для хранения результатов
         string stage = "0";
@@ -1644,6 +1644,13 @@ public class WorkParser
         }
 
         // Возвращаем индекс параллельности и последовательности
+
+        // Если номер строки не входит в диапазон, то возвращаем 0
+        if (rowNum < allNumbers.Min() || rowNum > allNumbers.Max())
+        {
+            return ("", "");
+        }
+
         return (stage, parallelIndex);
     }
     public static (int min, int max) GetMinAndMaxValue(string formula)
@@ -1662,7 +1669,7 @@ public class WorkParser
 
         return (min, max);
     }
-    static string GetStringBeforeAtSymbol(string input, string symbol = "*INDEX")
+    public static string GetStringBeforeAtSymbol(string input, string symbol = "*INDEX")
     {
         string result = string.Empty;
         if (string.IsNullOrEmpty(input))
@@ -1704,22 +1711,22 @@ public class WorkParser
     {
         try
         {
+            expression = expression.Trim().Replace(",", ".");
+            // разделить выражение на части по разделителю "*" удаляя пустые значения
+            var parts = expression.Split(new[] { '*' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // собираем выражение заново
+            expression = string.Join("*", parts);
+
             var table = new DataTable();
 
-            expression = expression.Trim();
-            // если первый символ "*" удалить его
-            while (expression[0] == '*')
-            {
-                expression = expression.Substring(1);
-            }
-
-            var value = table.Compute(expression.Replace(",", "."), string.Empty);
-            return Convert.ToDouble(value);
+            var value = table.Compute(expression, string.Empty);
+            return Math.Round(Convert.ToDouble(value),2);
         }
         catch
         {
             throw new Exception($"Произошла ошибка при расчёте выражения {expression}");
-            return 0;
+            
         }
         
     }
