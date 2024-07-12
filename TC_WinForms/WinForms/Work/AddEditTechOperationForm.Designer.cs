@@ -2381,67 +2381,72 @@
             tabPage10.Size = new Size(200, 100);
             tabPage10.TabIndex = 0;
             // 
-            // dataGridViewTextBoxColumn72
+            // dataGridViewTextBoxColumn7
             // 
-            dataGridViewTextBoxColumn72.HeaderText = "Id";
-            dataGridViewTextBoxColumn72.MinimumWidth = 6;
-            dataGridViewTextBoxColumn72.Name = "dataGridViewTextBoxColumn72";
-            dataGridViewTextBoxColumn72.Visible = false;
-            dataGridViewTextBoxColumn72.Width = 125;
+            dataGridViewTextBoxColumn7.HeaderText = "Id";
+            dataGridViewTextBoxColumn7.MinimumWidth = 6;
+            dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
+            dataGridViewTextBoxColumn7.Visible = false;
             // 
-            // dataGridViewCheckBoxColumn4
+            // DateGridLocalTPDetete
             // 
-            dataGridViewCheckBoxColumn4.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            dataGridViewCheckBoxColumn4.HeaderText = "";
-            dataGridViewCheckBoxColumn4.MinimumWidth = 6;
-            dataGridViewCheckBoxColumn4.Name = "dataGridViewCheckBoxColumn4";
-            dataGridViewCheckBoxColumn4.Width = 50;
+            DateGridLocalTPDetete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            DateGridLocalTPDetete.HeaderText = "";
+            DateGridLocalTPDetete.MinimumWidth = 6;
+            DateGridLocalTPDetete.Name = "DateGridLocalTPDetete";
+            DateGridLocalTPDetete.Resizable = DataGridViewTriState.True;
+            DateGridLocalTPDetete.SortMode = DataGridViewColumnSortMode.Automatic;
+            DateGridLocalTPDetete.Text = "Удалить";
+            DateGridLocalTPDetete.Width = 125;
             // 
-            // dataGridViewTextBoxColumn73
+            // dataGridViewTextBoxColumn8
             // 
-            dataGridViewTextBoxColumn73.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn73.HeaderText = "Технологические операции";
-            dataGridViewTextBoxColumn73.MinimumWidth = 6;
-            dataGridViewTextBoxColumn73.Name = "dataGridViewTextBoxColumn73";
+            dataGridViewTextBoxColumn8.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn8.FillWeight = 69.7860947F;
+            dataGridViewTextBoxColumn8.HeaderText = "Технологические переходы";
+            dataGridViewTextBoxColumn8.MinimumWidth = 6;
+            dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
+            dataGridViewTextBoxColumn8.ReadOnly = true;
             // 
-            // dataGridViewTextBoxColumn79
+            // Time
             // 
-            dataGridViewTextBoxColumn79.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn79.HeaderText = "Технологические переходы";
-            dataGridViewTextBoxColumn79.MinimumWidth = 6;
-            dataGridViewTextBoxColumn79.Name = "dataGridViewTextBoxColumn79";
-            dataGridViewTextBoxColumn79.ReadOnly = true;
+            Time.FillWeight = 69.7860947F;
+            Time.HeaderText = "Базовое время действ., мин.";
+            Time.MinimumWidth = 6;
+            Time.Name = "Time";
+            Time.ReadOnly = true;
             // 
-            // dgvPovtorOldCoefficient
+            // Coefficient
             // 
-            dgvPovtorOldCoefficient.HeaderText = "Коэффициент";
-            dgvPovtorOldCoefficient.MinimumWidth = 8;
-            dgvPovtorOldCoefficient.Name = "dgvPovtorOldCoefficient";
-            dgvPovtorOldCoefficient.ReadOnly = true;
-            dgvPovtorOldCoefficient.Width = 150;
+            Coefficient.HeaderText = "Коэффициент";
+            Coefficient.MinimumWidth = 6;
+            Coefficient.Name = "Coefficient";
             // 
-            // dgvPovtorCoefficient
+            // Column28
             // 
-            dgvPovtorCoefficient.HeaderText = "Коэффициент повтора";
-            dgvPovtorCoefficient.MinimumWidth = 8;
-            dgvPovtorCoefficient.Name = "dgvPovtorCoefficient";
-            dgvPovtorCoefficient.Width = 150;
+            Column28.HeaderText = "Время действ., мин.";
+            Column28.MinimumWidth = 6;
+            Column28.Name = "Column28";
+            Column28.ReadOnly = true;
             // 
-            // dgvPovtorEtap
+            // Comment
             // 
-            dgvPovtorEtap.HeaderText = "Этап";
-            dgvPovtorEtap.MinimumWidth = 8;
-            dgvPovtorEtap.Name = "dgvPovtorEtap";
-            dgvPovtorEtap.Visible = false;
-            dgvPovtorEtap.Width = 150;
+            Comment.HeaderText = "Комментарии";
+            Comment.MinimumWidth = 6;
+            Comment.Name = "Comment";
             // 
-            // dgvPovtorPosled
+            // PictureName
             // 
-            dgvPovtorPosled.HeaderText = "Последовательность";
-            dgvPovtorPosled.MinimumWidth = 8;
-            dgvPovtorPosled.Name = "dgvPovtorPosled";
-            dgvPovtorPosled.Visible = false;
-            dgvPovtorPosled.Width = 150;
+            PictureName.HeaderText = "Рисунок";
+            PictureName.MinimumWidth = 8;
+            PictureName.Name = "PictureName";
+            // 
+            // Order1
+            // 
+            Order1.HeaderText = "Order";
+            Order1.MinimumWidth = 6;
+            Order1.Name = "Order1";
+            Order1.Visible = false;
             // 
             // AddEditTechOperationForm
             // 
