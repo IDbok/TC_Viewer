@@ -24,7 +24,7 @@ namespace TC_WinForms.WinForms.Diagram
         public List<TechOperationWork> TechOperationWorksList;
         WpfMainControl wpfMainControl;
         public DiagamToWork diagamToWork;
-        public  WpfMainControl _wpfMainControl;
+        public  WpfMainControl _wpfMainControl; // через этот объект осуществляется добавление DiagamToWork в TechnologicalCard
         public bool New=false;
 
         public WpfControlTO()
@@ -71,7 +71,7 @@ namespace TC_WinForms.WinForms.Diagram
 
             foreach (TechOperationWork? item in TechOperationWorksList.OrderBy(o=>o.Order).ToList())
             {
-                ComboBoxTO.Items.Add(item);
+                ComboBoxTO.Items.Add(item); // todo: чтобы убрать возможность выбора уже отображаемых ТО из ComboBoxTO, нужно добавить проверку наличия item в diagamToWork
             }
             wpfMainControl.Nomeraciya();
 

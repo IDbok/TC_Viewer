@@ -30,9 +30,9 @@ namespace TC_WinForms.WinForms.Diagram
         private int tcId;
         public TechnologicalCard technologicalCard;
 
-        public TechnologicalCard TehCarta;
+        public TechnologicalCard TehCarta; // todo: непонятно, зачем это поле
         public List<TechOperationWork> TechOperationWorksList;
-        public DiagramForm diagramForm;
+        public DiagramForm diagramForm; // используется только для проверки (фиксации) наличия изменений
 
         public WpfMainControl()
         {
@@ -51,9 +51,9 @@ namespace TC_WinForms.WinForms.Diagram
             TehCarta = context.TechnologicalCards
                .Include(t => t.Machines).Include(t => t.Machine_TCs)
                .Include(t => t.Protection_TCs)
-           //.Include(t => t.Protections)
-           .Include(t => t.Tool_TCs)
-           .Include(t => t.Component_TCs)
+               //.Include(t => t.Protections)
+               .Include(t => t.Tool_TCs)
+               .Include(t => t.Component_TCs)
                .Include(t => t.Staff_TCs)
                 .Single(s => s.Id == tcId);
 
@@ -90,7 +90,7 @@ namespace TC_WinForms.WinForms.Diagram
 
             foreach (DiagamToWork item in ListShag)
             {
-                ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList, this, item));
+                ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList, this, item)); // ListWpfControlTO - это StackPanel в WpfMainControl.xaml
                 Nomeraciya();
             }
 
@@ -131,9 +131,9 @@ namespace TC_WinForms.WinForms.Diagram
         {
             int nomer = 1;
 
-            int Order1 = 1;
-            int Order2 = 1;
-            int Order3 = 1;
+            int Order1 = 1; // порядковый номер отображения TO
+            int Order2 = 1; // порядковый номер отображения параллельных операций
+            int Order3 = 1; 
             int Order4 = 1;
 
             foreach (WpfControlTO item in ListWpfControlTO.Children)
