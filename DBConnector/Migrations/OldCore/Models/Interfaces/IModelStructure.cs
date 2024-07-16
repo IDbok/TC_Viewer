@@ -1,6 +1,6 @@
-﻿using TcModels.Models.IntermediateTables;
+﻿using TcDbConnector.Migrations.OldCore.Models.IntermediateTables;
 
-namespace TcModels.Models.Interfaces
+namespace TcDbConnector.Migrations.OldCore.Models.Interfaces
 {
     public interface IModelStructure : INameable, IClassifaerable
     {
@@ -16,5 +16,6 @@ namespace TcModels.Models.Interfaces
 
         public bool IsReleased { get; set; }
         public int? CreatedTCId { get; set; }
+
     }
 }

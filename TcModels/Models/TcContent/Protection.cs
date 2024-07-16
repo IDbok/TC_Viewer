@@ -4,7 +4,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Protection : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity//4. Требования к средствам защиты
+    public class Protection : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable//4. Требования к средствам защиты
     {
 
         public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
@@ -65,7 +65,7 @@ namespace TcModels.Models.TcContent
 
         public void ApplyUpdates(IUpdatableEntity source)
         {
-            if (source is Component sourceObject)
+            if (source is Protection sourceObject)
             {
                 Name = sourceObject.Name;
                 Type = sourceObject.Type;

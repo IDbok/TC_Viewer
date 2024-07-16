@@ -1,10 +1,11 @@
-﻿using TcModels.Models.Interfaces;
-using TcModels.Models.IntermediateTables;
-using TcModels.Models.TcContent.Work;
+﻿//using TcDbConnector.Migrations.OldCore.Models.Interfaces;
+using TcDbConnector.Migrations.OldCore.Models.IntermediateTables;
+using TcDbConnector.Migrations.OldCore.Models.TcContent.Work;
+using TcModels.Models.Interfaces;
 
-namespace TcModels.Models.TcContent
+namespace TcDbConnector.Migrations.OldCore.Models.TcContent
 {
-    public class Tool : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable, ILinkable //5. Требования к инструментам и приспособлениям
+    public class Tool : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable //5. Требования к инструментам и приспособлениям
     {
         static private EModelType modelType = EModelType.Tool;
         public EModelType ModelType { get { return modelType; } }
@@ -57,7 +58,7 @@ namespace TcModels.Models.TcContent
         public float? Price { get; set; }
         public string? Description { get; set; }
         public string? Manufacturer { get; set; }
-        public List<LinkEntety> Links { get; set; } = new ();
+        public List<TcModels.Models.IntermediateTables.LinkEntety> Links { get; set; } = new ();
         public string Categoty { get; set; } = "Tool";  // todo: исправить название на Category
         public string ClassifierCode { get; set; }
 
@@ -83,9 +84,9 @@ namespace TcModels.Models.TcContent
             }
         }
 
-        private void CompareLinks(List<LinkEntety> sourceLinks)
+        private void CompareLinks(List<TcModels.Models.IntermediateTables.LinkEntety> sourceLinks)
         {
-            var linksToRemove = new List<LinkEntety>();
+            var linksToRemove = new List<TcModels.Models.IntermediateTables.LinkEntety>();
             foreach (var link in Links)
             {
                 if (!sourceLinks.Contains(link))

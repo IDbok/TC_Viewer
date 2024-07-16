@@ -4,7 +4,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Component : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable //2. Требования к материалам и комплектующим
+    public class Component : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable, ILinkable //2. Требования к материалам и комплектующим
     {
         static EModelType modelType = EModelType.Component;
         public static EModelType ModelType { get => modelType; }

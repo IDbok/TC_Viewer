@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TcModels.Models;
-using TcModels.Models.IntermediateTables;
-using TcModels.Models.TcContent;
-using TcModels.Models.TcContent.Work;
+using TcDbConnector.Migrations.OldCore.Models;
+using TcDbConnector.Migrations.OldCore.Models.IntermediateTables;
+using TcDbConnector.Migrations.OldCore.Models.TcContent;
+using TcDbConnector.Migrations.OldCore.Models.TcContent.Work;
 
-namespace TcDbConnector;
+namespace TcDbConnector.Migrations;
 
-public class MyDbContext : DbContext
+public class OldDbContext : DbContext
 {
     public DbSet<TechnologicalProcess> TechnologicalProcesses { get; set; } = null!; // технологический процесс
     public DbSet<TechnologicalCard> TechnologicalCards { get; set; } = null!; // Технические карты
@@ -16,7 +16,7 @@ public class MyDbContext : DbContext
     public DbSet<Tool> Tools { get; set; } = null!;  // таблица 5 Инструменты
     public DbSet<Machine> Machines { get; set; } = null!; //таблица 3
     public DbSet<Protection> Protections { get; set; } = null!; //Таблица 4 Средства защиты
-    //public DbSet<WorkStep> WorkSteps { get; set; } = null!;
+                                                                //public DbSet<WorkStep> WorkSteps { get; set; } = null!;
 
     public DbSet<TechOperation> TechOperations { get; set; } = null!;
     public DbSet<TechTransition> TechTransitions { get; set; } = null!;
@@ -26,7 +26,7 @@ public class MyDbContext : DbContext
     public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
 
     public DbSet<ComponentWork> ComponentWorks { get; set; } = null!;
-   // public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
+    // public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
 
     //public DbSet<MaxEW> MaxEWs { get; set; } = null!;
     //public DbSet<SumEW> SumEWs { get; set; } = null!;
@@ -50,17 +50,17 @@ public class MyDbContext : DbContext
     public DbSet<DiagramShagToolsComponent> DiagramShagToolsComponent { get; set; } = null!;
 
 
-    public MyDbContext()
+    public OldDbContext()
     {
         //Database.EnsureDeleted();
         //Database.EnsureCreated(); // todo - create exception catch if db is unavailable
 
     }
-  
-    
+
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseMySql(TcDbConnector.StaticClass.ConnectString,
+        optionsBuilder.UseMySql(TcDbConnector.StaticClass.ConnectionStringOld,
             //"server=localhost;database=tavrida_db_v141;user=root;password=root",//
             new MySqlServerVersion(new Version(5, 7, 24)));
 
@@ -88,27 +88,27 @@ public class MyDbContext : DbContext
             .HasForeignKey(link => link.ChildExecutionWorkId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder
-            .Entity<Component>()
-            .HasMany(cp => cp.Parents)
-            .WithMany(ch => ch.Children)
-            .UsingEntity<Instrument_kit<Component>>(
-                j => j
-                    .HasOne(sttc => sttc.Parent)
-                    .WithMany(st => st.Kit)
-                    .HasForeignKey(sttc => sttc.ParentId),
-                j => j
-                    .HasOne(sttc => sttc.Child)
-                    .WithMany() //st => st.Kit)
-                    .HasForeignKey(sttc => sttc.ChildId),
-                j =>
-                {
-                    j.Property(sttc => sttc.Quantity).IsRequired().HasDefaultValue(0);
-                    j.Property(sttc => sttc.Order).IsRequired().HasDefaultValue(0);
-                    j.HasKey(t => new { t.ParentId, t.ChildId});
-                    //j.ToTable("Instrument_kit");
-                });
-        
+        //modelBuilder
+        //    .Entity<Component>()
+        //    .HasMany(cp => cp.Parents)
+        //    .WithMany(ch => ch.Children)
+        //    .UsingEntity<Instrument_kit<Component>>(
+        //        j => j
+        //            .HasOne(sttc => sttc.Parent)
+        //            .WithMany(st => st.Kit)
+        //            .HasForeignKey(sttc => sttc.ParentId),
+        //        j => j
+        //            .HasOne(sttc => sttc.Child)
+        //            .WithMany() //st => st.Kit)
+        //            .HasForeignKey(sttc => sttc.ChildId),
+        //        j =>
+        //        {
+        //            j.Property(sttc => sttc.Quantity).IsRequired().HasDefaultValue(0);
+        //            j.Property(sttc => sttc.Order).IsRequired().HasDefaultValue(0);
+        //            j.HasKey(t => new { t.ParentId, t.ChildId });
+        //            //j.ToTable("Instrument_kit");
+        //        });
+
         modelBuilder
             .Entity<TechnologicalCard>()
             .HasMany(tc => tc.Staffs)
@@ -127,7 +127,7 @@ public class MyDbContext : DbContext
                     j.Property(sttc => sttc.Symbol).HasDefaultValue("-");
                     j.Property(sttc => sttc.Order).HasDefaultValue(0);
                     j.Property(f => f.IdAuto).ValueGeneratedOnAdd();
-                    j.HasKey(t => new {  t.IdAuto}); //t.ParentId, t.ChildId,
+                    j.HasKey(t => new { t.IdAuto }); //t.ParentId, t.ChildId,
                     j.ToTable("Staff_TC");
                     // j.HasIndex(t => t.Symbol).IsUnique();
                 });
@@ -150,7 +150,7 @@ public class MyDbContext : DbContext
                 {
                     j.Property(sttc => sttc.Quantity).HasDefaultValue(0);
                     j.Property(sttc => sttc.Order).HasDefaultValue(0);
-                    j.HasKey(t => new { t.ParentId, t.ChildId});
+                    j.HasKey(t => new { t.ParentId, t.ChildId });
                     j.ToTable("Component_TC");
                 });
         modelBuilder
@@ -220,7 +220,7 @@ public class MyDbContext : DbContext
             .UsingEntity<StaffRelationship>(
                 j => j
                     .HasOne(sr => sr.RelatedStaff)
-                    .WithMany() 
+                    .WithMany()
                     .HasForeignKey(sr => sr.RelatedStaffId)
                     .OnDelete(DeleteBehavior.Cascade),
                 j => j

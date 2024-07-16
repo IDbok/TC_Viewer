@@ -11,6 +11,7 @@ using ExcelParsing;
 using TcModels.Models.TcContent.Work;
 using System.Xml.Linq;
 using TcDbConnector.Repositories;
+using TcDbConnector.Migrations;
 
 namespace TestConsoleAppTC;
 
@@ -25,13 +26,14 @@ internal class Program
     static async Task Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
-        TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v16;user=root;password=root";
+        //TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v16;user=root;password=root";
 
-        var context = new MyDbContext();
+        //var context = new MyDbContext();
 
-        var parser = new DictionaryParser(context);
-        parser.ParseDictionaries(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\Исходные\Справочник_ТК (6).xlsx");
+        //var parser = new DictionaryParser(context);
+        //parser.ParseDictionaries(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\Исходные\Справочник_ТК (6).xlsx");
 
+        Migration();
         //CoefficientTests();
 
         //GetStaffs();
@@ -49,7 +51,29 @@ internal class Program
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static void Migration()
+    {
+        string oldConnectionString = "Server=localhost;Database=tavrida_db_old;Uid=root;Pwd=root";
+        string newConnectionString = "Server=localhost;Database=tavrida_db_v17;Uid=root;Pwd=root";
 
+        TcDbConnector.StaticClass.ConnectString = newConnectionString;
+        TcDbConnector.StaticClass.ConnectionStringOld = oldConnectionString;
+
+        DataMigration.MigrateData(createNewDb: true);
+    }
+    static void CompareTables()
+    {
+        string oldConnectionString = "Server=localhost;Database=tavrida_db_old;Uid=root;Pwd=root";
+        string newConnectionString = "Server=localhost;Database=tavrida_db_v16;Uid=root;Pwd=root";
+        ConnectionTester.TestConnection(oldConnectionString);
+        ConnectionTester.TestConnection(newConnectionString);
+
+        //"Server=myServerAddress;Database=myDataBase;Uid=myUsername;Pwd=myPassword;"
+        //SchemaComparer.Compare(oldConnectionString: "server=localhost;database=tavrida_db_old;user=root;password=root",
+        //    newConnectionString: "server=localhost;database=tavrida_db_v16;user=root;password=root");
+        SchemaComparer.Compare(oldConnectionString: oldConnectionString,
+            newConnectionString: newConnectionString);
+    }
     static void MakeAllStatusesDraft(TechnologicalCard.TechnologicalCardStatus status)
     {
         using (var db = new MyDbContext())

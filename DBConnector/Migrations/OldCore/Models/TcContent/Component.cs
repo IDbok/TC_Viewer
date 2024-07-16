@@ -1,15 +1,16 @@
-﻿using TcModels.Models.Interfaces;
-using TcModels.Models.IntermediateTables;
-using TcModels.Models.TcContent.Work;
+﻿//using TcDbConnector.Migrations.OldCore.Models.Interfaces;
+using TcDbConnector.Migrations.OldCore.Models.IntermediateTables;
+using TcDbConnector.Migrations.OldCore.Models.TcContent.Work;
+using TcModels.Models.Interfaces;
 
-namespace TcModels.Models.TcContent
+namespace TcDbConnector.Migrations.OldCore.Models.TcContent
 {
-    public class Tool : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable, ILinkable //5. Требования к инструментам и приспособлениям
+    public class Component : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable//2. Требования к материалам и комплектующим
     {
-        static private EModelType modelType = EModelType.Tool;
-        public EModelType ModelType { get { return modelType; } }
+        static EModelType modelType = EModelType.Component;
+        public static EModelType ModelType { get => modelType; }
 
-        public Dictionary<string, string> GetPropertiesNames { get; } =  new Dictionary<string, string>
+        public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
             {
                 { nameof(Id), "ID" },
                 { nameof(Name), "Наименование" },
@@ -19,13 +20,11 @@ namespace TcModels.Models.TcContent
                 { nameof(Description), "Описание" },
                 { nameof(Manufacturer), "Производители (поставщики)" },
                 //{ nameof(Links), "Ссылки" }, // todo - fix problem with Links (load it from DB to DGV)
+                { nameof(Categoty), "Категория" },
                 { nameof(ClassifierCode), "Код в classifier" },
             };
         
-        public static Dictionary<string, int> GetPropertiesOrder()
-        {
-            int i = 0;
-            return new Dictionary<string, int>
+        public static Dictionary<string, int> GetPropertiesOrder { get; } = new Dictionary<string, int>
             {
                 { nameof(Id), 0 },
                 { nameof(Name), 1 },
@@ -35,38 +34,46 @@ namespace TcModels.Models.TcContent
                 { nameof(Description), 5 },
                 { nameof(Manufacturer), 6 },
                 //{ nameof(Links), 7 },
-                { nameof(ClassifierCode), 7 },
+                { nameof(Categoty), 7 },
+                { nameof(ClassifierCode), 8 },
 
             };
-        }
+        
         public List<string> GetPropertiesRequired { get; } = new List<string>
             {
                 { nameof(Name)},
                 { nameof(Unit) },
+                { nameof(Categoty) },
                 { nameof(ClassifierCode) },
             };
         
 
+        public List<Component> Parents { get; set; } = new();
+        public List<Component> Children { get; set; } = new();
+        //public List<Instrument_kit<Component>> Kit { get; set; } = new();
+
         public List<TechnologicalCard> TechnologicalCards { get; set; } = new();
-        public List<Tool_TC> Tool_TCs { get; set; } = new();
-        
-        public int Id { get; set; }
+        public List<Component_TC> Component_TCs { get; set; } = new();
+
+        public int Id  { get; set; }
+
         public string Name { get; set; }
         public string? Type { get; set; }
         public string Unit { get; set; }
         public float? Price { get; set; }
         public string? Description { get; set; }
         public string? Manufacturer { get; set; }
-        public List<LinkEntety> Links { get; set; } = new ();
-        public string Categoty { get; set; } = "Tool";  // todo: исправить название на Category
+        public List<TcModels.Models.IntermediateTables.LinkEntety> Links { get; set; } = new();
+        public string Categoty { get; set; } = "StandComp";
         public string ClassifierCode { get; set; }
+        public bool IsReleased { get; set ; } = false;
+        public int? CreatedTCId {  get; set; } = null;
 
-        public bool IsReleased { get; set; } = false;
-        public int? CreatedTCId { get; set; } = null;
-
+        public byte[]? Image { get; set; }
+        
         public void ApplyUpdates(IUpdatableEntity source)
         {
-            if (source is Tool sourceObject)
+            if (source is Component sourceObject)
             {
                 Name = sourceObject.Name;
                 Type = sourceObject.Type;
@@ -83,9 +90,9 @@ namespace TcModels.Models.TcContent
             }
         }
 
-        private void CompareLinks(List<LinkEntety> sourceLinks)
+        private void CompareLinks(List<TcModels.Models.IntermediateTables.LinkEntety> sourceLinks)
         {
-            var linksToRemove = new List<LinkEntety>();
+            var linksToRemove = new List<TcModels.Models.IntermediateTables.LinkEntety>();
             foreach (var link in Links)
             {
                 if (!sourceLinks.Contains(link))
@@ -112,5 +119,11 @@ namespace TcModels.Models.TcContent
                 }
             }
         }
+
+        public override string ToString()
+        {
+            return $"{Id}. {Name} {Type} {Price}/{Unit}";
+        }
+
     }
 }
