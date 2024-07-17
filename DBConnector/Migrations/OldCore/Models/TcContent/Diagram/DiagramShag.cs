@@ -21,6 +21,7 @@ namespace TcDbConnector.Migrations.OldCore.Models.TcContent
         public List<DiagramShagToolsComponent> ListDiagramShagToolsComponent { get; set; } = new List<DiagramShagToolsComponent>();
 
         public DiagramPosledov DiagramPosledov { get; set; }
+        public int DiagramPosledovId { get; set; }
         
         public int Order { get; set; }
 

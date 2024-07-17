@@ -11,12 +11,12 @@ public class DataMigration
     private static OldDbContext _oldDbContext = new();
     private static MyDbContext _myDbContext = new();
     
-    public static void MigrateData(bool createNewDb)
+    public static async void MigrateData(bool createNewDb)
     {
         if (_myDbContext.Database.CanConnect() && createNewDb)
         {
             _myDbContext.Database.EnsureDeleted();
-        }        
+        }
 
         // проверка на существование базы данных
         if (!_myDbContext.Database.CanConnect() && createNewDb)
@@ -36,6 +36,12 @@ public class DataMigration
             try
             {
                 MigrateDictionaries();
+
+                MigrateIntermediateTables();
+
+                MigrateWorkTables();
+
+                MigrateDiagrams();
 
                 //MigrateTechnologicalProcesses();
                 //MigrateTechOperations();
@@ -59,6 +65,37 @@ public class DataMigration
             {
                 transaction.Rollback();
                 throw;
+            }
+        }
+
+        // Картинки переносятся по частям, чтобы не перегружать максимальный размер пакета в базе данных
+
+        //рассчитать сколько всего картинок в таблице DiagramShag
+        var count = _oldDbContext.DiagramShag.Count();
+        // количество итераций
+        var step = 2;
+        var coefficient = count / step;
+        var iterations = count % step == 0 ? coefficient : coefficient + 1;
+        for (int i = 0; i < iterations; i++)
+        {
+            Console.WriteLine("Итерация " + i+1);
+            Task.CompletedTask.Wait(1000);
+            // транзакция для сохранения картинок
+            using (var transaction = _myDbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    MigrateDiagramShagPictures(i, step);
+
+                    _myDbContext.SaveChanges();
+
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
             }
         }
     }
@@ -389,4 +426,381 @@ public class DataMigration
     }
 
     #endregion
+
+    #region IntermediateTables
+
+    static void MigrateIntermediateTables()
+    {
+        MigrateProtectionTC();
+        MigrateStaffTC();
+        MigrateComponentTC();
+        MigrateToolTC();
+        MigrateMachineTC();
+    }
+
+    static void MigrateStaffTC()
+    {
+        var oldStaffTCs = _oldDbContext.Staff_TCs.ToList();
+
+        var newStaffTCs = oldStaffTCs.Select(staffTC =>
+        {
+            var newStaffTC = new newCore.IntermediateTables.Staff_TC
+            {
+                IdAuto = staffTC.IdAuto,
+                ChildId = staffTC.ChildId,
+                ParentId = staffTC.ParentId,
+                Order = staffTC.Order,
+                Symbol = staffTC.Symbol,
+
+            };
+
+            return newStaffTC;
+        }).ToList();
+
+        _myDbContext.Staff_TCs.AddRange(newStaffTCs);
+    }
+
+    static void MigrateComponentTC()
+    {
+        var oldComponentTCs = _oldDbContext.Component_TCs.ToList();
+
+        var newComponentTCs = oldComponentTCs.Select(componentTC =>
+        {
+            var newComponentTC = new newCore.IntermediateTables.Component_TC
+            {
+                ChildId = componentTC.ChildId,
+                ParentId = componentTC.ParentId,
+                Order = componentTC.Order,
+                Quantity = componentTC.Quantity,
+                Note = componentTC.Note,
+            };
+
+            return newComponentTC;
+        }).ToList();
+
+        _myDbContext.Component_TCs.AddRange(newComponentTCs);
+    }
+
+    static void MigrateToolTC()
+    {
+        var oldToolTCs = _oldDbContext.Tool_TCs.ToList();
+
+        var newToolTCs = oldToolTCs.Select(toolTC =>
+        {
+            var newToolTC = new newCore.IntermediateTables.Tool_TC
+            {
+                ChildId = toolTC.ChildId,
+                ParentId = toolTC.ParentId,
+                Order = toolTC.Order,
+                Quantity = toolTC.Quantity,
+                Note = toolTC.Note,
+            };
+
+            return newToolTC;
+        }).ToList();
+
+        _myDbContext.Tool_TCs.AddRange(newToolTCs);
+    }
+
+    static void MigrateMachineTC()
+    {
+        var oldMachineTCs = _oldDbContext.Machine_TCs.ToList();
+
+        var newMachineTCs = oldMachineTCs.Select(machineTC =>
+        {
+            var newMachineTC = new newCore.IntermediateTables.Machine_TC
+            {
+                ChildId = machineTC.ChildId,
+                ParentId = machineTC.ParentId,
+                Order = machineTC.Order,
+                Quantity = machineTC.Quantity,
+                Note = machineTC.Note,
+            };
+
+            return newMachineTC;
+        }).ToList();
+
+        _myDbContext.Machine_TCs.AddRange(newMachineTCs);
+    }
+
+    static void MigrateProtectionTC()
+    {
+        var oldProtectionTCs = _oldDbContext.Protection_TCs.ToList();
+
+        var newProtectionTCs = oldProtectionTCs.Select(protectionTC =>
+        {
+            var newProtectionTC = new newCore.IntermediateTables.Protection_TC
+            {
+                ChildId = protectionTC.ChildId,
+                ParentId = protectionTC.ParentId,
+                Order = protectionTC.Order,
+                Quantity = protectionTC.Quantity,
+                Note = protectionTC.Note,
+            };
+
+            return newProtectionTC;
+        }).ToList();
+
+        _myDbContext.Protection_TCs.AddRange(newProtectionTCs);
+    }
+
+    #endregion
+
+    #region WorkTables
+
+    static void MigrateWorkTables()
+    {
+        MigrateTechOperationWork();
+        MigrateToolWork();
+        MigrateComponentWork();
+    }
+
+    static void MigrateTechOperationWork()
+    {
+        var oldTechOperationWorks = _oldDbContext.TechOperationWorks.ToList();
+
+        var newTechOperationWorks = oldTechOperationWorks.Select(techOperationWork =>
+        {
+            var newTechOperationWork = new newCore.TcContent.TechOperationWork
+            {
+                Id = techOperationWork.Id,
+                techOperationId = techOperationWork.techOperationId,
+                TechnologicalCardId = techOperationWork.TechnologicalCardId,
+                Order = techOperationWork.Order,
+                Delete = techOperationWork.Delete,
+                NewItem = techOperationWork.NewItem,
+            };
+
+            return newTechOperationWork;
+        }).ToList();
+
+        _myDbContext.TechOperationWorks.AddRange(newTechOperationWorks);
+    }
+
+    static void MigrateToolWork()
+    {
+        var oldToolWorks = _oldDbContext.ToolWorks.ToList();
+
+        var newToolWorks = oldToolWorks.Select(toolWork =>
+        {
+            var newToolWork = new newCore.TcContent.ToolWork
+            {
+                Id = toolWork.Id,
+                techOperationWorkId = toolWork.techOperationWorkId,
+                toolId = toolWork.toolId,
+                Quantity = toolWork.Quantity,
+                Comments = toolWork.Comments,
+            };
+
+            return newToolWork;
+        }).ToList();
+
+        _myDbContext.ToolWorks.AddRange(newToolWorks);
+    }
+    static void MigrateComponentWork()
+    {
+        var oldComponentWorks = _oldDbContext.ComponentWorks.ToList();
+
+        var newComponentWorks = oldComponentWorks.Select(componentWork =>
+        {
+            var newComponentWork = new newCore.TcContent.ComponentWork
+            {
+                Id = componentWork.Id,
+                techOperationWorkId = componentWork.techOperationWorkId,
+                componentId = componentWork.componentId,
+                Quantity = componentWork.Quantity,
+                Comments = componentWork.Comments,
+            };
+
+            return newComponentWork;
+        }).ToList();
+
+        _myDbContext.ComponentWorks.AddRange(newComponentWorks);
+    }
+
+    static void MigrateExecutionWork()
+    {
+        var oldExecutionWorks = _oldDbContext.ExecutionWorks
+            .Include(x => x.Staffs)
+            .Include(x => x.Protections)
+            .Include(x => x.Machines)
+            .Include(x => x.ListexecutionWorkRepeat)
+            .Include(x => x.ListexecutionWorkRepeat2)
+            .Include(x => x.ExecutionWorkRepeats)
+            .ToList();
+
+        var newExecutionWorks = oldExecutionWorks.Select(executionWork =>
+        {
+            var newExecutionWork = new newCore.TcContent.ExecutionWork
+            {
+                Id = executionWork.Id,
+                techOperationWorkId = executionWork.techOperationWorkId,
+                techTransitionId = executionWork.techTransitionId,
+                Repeat = executionWork.Repeat,
+                ListexecutionWorkRepeat = executionWork.ListexecutionWorkRepeat,
+                ListexecutionWorkRepeat2 = executionWork.ListexecutionWorkRepeat2,
+                ExecutionWorkRepeats = executionWork.ExecutionWorkRepeats,
+                sumEw = executionWork.sumEw,
+                maxEw = executionWork.maxEw,
+                Coefficient = executionWork.Coefficient,
+                Value = executionWork.Value,
+                Comments = executionWork.Comments,
+                NewItem = executionWork.NewItem,
+                Delete = executionWork.Delete,
+                IdGuid = executionWork.IdGuid,
+                Order = executionWork.Order,
+                Etap = executionWork.Etap,
+                Posled = executionWork.Posled,
+                TempTimeExecution = executionWork.TempTimeExecution,
+                Vopros = executionWork.Vopros,
+                Otvet = executionWork.Otvet,
+                PictureName = executionWork.PictureName,
+            };
+
+            return newExecutionWork;
+        }).ToList();
+
+        _myDbContext.ExecutionWorks.AddRange(newExecutionWorks);
+    }
+
+    #region Diagrams
+
+    static void MigrateDiagrams()
+    {
+        MigrateDiagramToWork();
+        MigrateDiagramParalelno();
+        MigrateDiagramPosledov();
+        MigrateDiagramShag();
+        MigrateDiagramShagToolsComponent();
+    }
+    static void MigrateDiagramToWork()
+    {
+        var oldDiagramToWorks = _oldDbContext.DiagamToWork.ToList();
+
+        var newDiagramToWorks = oldDiagramToWorks.Select(diagramToWork =>
+        {
+            var newDiagramToWork = new newCore.TcContent.DiagamToWork
+            {
+                Id = diagramToWork.Id,
+                techOperationWorkId = diagramToWork.techOperationWorkId,
+                technologicalCardId = diagramToWork.technologicalCardId,
+                Order = diagramToWork.Order,
+            };
+
+            return newDiagramToWork;
+        }).ToList();
+
+        _myDbContext.DiagamToWork.AddRange(newDiagramToWorks);
+    }
+    static void MigrateDiagramParalelno()
+    {
+        var oldDiagramToWorks = _oldDbContext.DiagramParalelno.ToList();
+
+        var newDiagramToWorks = oldDiagramToWorks.Select(diagramToWork =>
+        {
+            var newDiagramToWork = new newCore.TcContent.DiagramParalelno
+            {
+                Id = diagramToWork.Id,
+                techOperationWorkId = diagramToWork.techOperationWorkId,
+                DiagamToWorkId = diagramToWork.DiagamToWorkId,
+                Order = diagramToWork.Order,
+            };
+
+            return newDiagramToWork;
+        }).ToList();
+
+        _myDbContext.DiagramParalelno.AddRange(newDiagramToWorks);
+    }
+    static void MigrateDiagramPosledov()
+    {
+        var oldDiagramPosledovs = _oldDbContext.DiagramPosledov.ToList();
+
+        var newDiagramPosledovs = oldDiagramPosledovs.Select(diagramPosledov =>
+        {
+            var newDiagramPosledov = new newCore.TcContent.DiagramPosledov
+            {
+                Id = diagramPosledov.Id,
+                DiagramParalelnoId = diagramPosledov.DiagramParalelnoId,
+                Order = diagramPosledov.Order,
+            };
+
+            return newDiagramPosledov;
+        }).ToList();
+
+        _myDbContext.DiagramPosledov.AddRange(newDiagramPosledovs);
+    }
+    static void MigrateDiagramShag()
+    {
+        var oldDiagramShags = _oldDbContext.DiagramShag.ToList();
+
+        var newDiagramShags = oldDiagramShags.Select(diagramShag =>
+        {
+            var newDiagramShag = new newCore.TcContent.DiagramShag
+            {
+                Id = diagramShag.Id,
+                Deystavie = diagramShag.Deystavie,
+                // ImageBase64 = diagramShag.ImageBase64,
+                NameImage = diagramShag.NameImage,
+                Nomer = diagramShag.Nomer,
+                DiagramPosledovId = diagramShag.DiagramPosledovId,
+                Order = diagramShag.Order,
+            };
+
+            return newDiagramShag;
+        }).ToList();
+
+        _myDbContext.DiagramShag.AddRange(newDiagramShags);
+    }
+    static void MigrateDiagramShagToolsComponent()
+    {
+        var oldDiagramShagToolsComponents = _oldDbContext.DiagramShagToolsComponent.ToList();
+
+        var newDiagramShagToolsComponents = oldDiagramShagToolsComponents.Select(diagramShagToolsComponent =>
+        {
+            var newDiagramShagToolsComponent = new newCore.TcContent.DiagramShagToolsComponent
+            {
+                Id = diagramShagToolsComponent.Id,
+                toolWorkId = diagramShagToolsComponent.toolWorkId,
+                componentWorkId = diagramShagToolsComponent.componentWorkId,
+
+                Quantity = diagramShagToolsComponent.Quantity,
+                DiagramShagId = diagramShagToolsComponent.DiagramShagId,
+            };
+
+            return newDiagramShagToolsComponent;
+        }).ToList();
+
+        _myDbContext.DiagramShagToolsComponent.AddRange(newDiagramShagToolsComponents);
+    }
+
+    static void MigrateDiagramShagPictures(int coefficient, int step)
+    {
+        var oldDiagramShags = _oldDbContext.DiagramShag.Skip(step * coefficient).Take(step).ToList();
+
+        var newDiagramShags = _myDbContext.DiagramShag.ToList();
+
+        foreach (var diagramShag in oldDiagramShags)
+        {
+            var newDiagramShag = newDiagramShags.FirstOrDefault(x => x.Id == diagramShag.Id);
+            if (newDiagramShag != null)
+            {
+                newDiagramShag.ImageBase64 = diagramShag.ImageBase64;
+
+                // Декодируем base64 строку в массив байтов
+                byte[] imageBytes = Convert.FromBase64String(diagramShag.ImageBase64);
+
+                // Получаем вес изображения в байтах
+                int weightInBytes = imageBytes.Length;
+
+                Console.WriteLine($"Шаг: {diagramShag.Id}Вес изображения: {weightInBytes} байт");
+            }
+        }
+    }
+
+    #endregion
+
+    
+
+    #endregion
+
 }

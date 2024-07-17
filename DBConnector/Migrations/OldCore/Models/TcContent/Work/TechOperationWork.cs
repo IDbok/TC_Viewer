@@ -12,13 +12,13 @@ namespace TcDbConnector.Migrations.OldCore.Models.TcContent
         public TechnologicalCard technologicalCard { get; set; }
         public int TechnologicalCardId { get; set; }
 
-        public  List<ToolWork> ToolWorks { get; set; } =new List<ToolWork>();
+        public  List<ToolWork> ToolWorks { get; set; } =new ();
 
-        public List<ComponentWork> ComponentWorks { get; set; } = new List<ComponentWork>();
+        public List<ComponentWork> ComponentWorks { get; set; } = new ();
 
         public ICollection<ExecutionWork> executionWorks { get; set; } = new List<ExecutionWork>();
 
-        public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new List<DiagramParalelno>();
+        public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new();
 
         [NotMapped] public bool Delete { get; set; } = false;
        [NotMapped] public bool NewItem { get; set; } = false;
