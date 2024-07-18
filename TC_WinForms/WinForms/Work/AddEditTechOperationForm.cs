@@ -1941,6 +1941,8 @@ namespace TC_WinForms.WinForms.Work
         //}
         private void dataGridViewPovtor_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
+            if (executionWorkPovtor == null) return;
+
             if (e.ColumnIndex == 1) // Индекс столбца с checkBox
             {
                 var executionWork = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
@@ -1951,7 +1953,8 @@ namespace TC_WinForms.WinForms.Work
                     // Выделить строку цветом
                     dataGridViewPovtor.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.DarkSeaGreen;
                 }
-                else if (executionWork.Order > executionWorkPovtor.Order)
+                else if (executionWork.Order > executionWorkPovtor!.Order 
+                    || executionWork.techOperationWork?.Order > executionWorkPovtor.techOperationWork?.Order)
                 {
                     // Делаем ячейку недоступной
                     dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
@@ -1959,7 +1962,7 @@ namespace TC_WinForms.WinForms.Work
                     dataGridViewPovtor.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.DarkSalmon;
                 }
             }
-            if (e.ColumnIndex == 5 || e.ColumnIndex == 6 || e.ColumnIndex == 7) // Индекс столбца с checkBox
+            else if (e.ColumnIndex == 5 || e.ColumnIndex == 6 || e.ColumnIndex == 7) // Индекс столбца с checkBox
             {
                 var executionWork = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
                 if (executionWork == executionWorkPovtor)
@@ -1970,13 +1973,14 @@ namespace TC_WinForms.WinForms.Work
 
                     //dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
                 }
-                else if (executionWork.Order > executionWorkPovtor.Order)
+                else if (executionWork.Order > executionWorkPovtor!.Order)
                 {
                     // Делаем ячейку недоступной
                     dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
                     //dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
                 }
-                else if (executionWork.Order < executionWorkPovtor.Order)
+                else if (executionWork.Order < executionWorkPovtor.Order 
+                    && executionWork.techOperationWork?.Order <= executionWorkPovtor.techOperationWork?.Order)
                 {
                     var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
                         .SingleOrDefault(x => x.ChildExecutionWork == executionWork);

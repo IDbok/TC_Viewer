@@ -54,12 +54,12 @@ internal class Program
     static void Migration()
     {
         string oldConnectionString = "Server=localhost;Database=tavrida_db_old;Uid=root;Pwd=root";
-        string newConnectionString = "Server=localhost;Database=tavrida_db_v17;Uid=root;Pwd=root";
+        string newConnectionString = "Server=localhost;Database=tavrida_db_main;Uid=root;Pwd=root";
 
         TcDbConnector.StaticClass.ConnectString = newConnectionString;
         TcDbConnector.StaticClass.ConnectionStringOld = oldConnectionString;
 
-        DataMigration.MigrateData(createNewDb: true);
+        DataMigration.MigrateData();
     }
     static void CompareTables()
     {

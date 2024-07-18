@@ -12,15 +12,15 @@ public class DataMigration
     private static OldDbContext _oldDbContext = new();
     private static MyDbContext _myDbContext = new();
     
-    public static async void MigrateData(bool createNewDb)
+    public static async void MigrateData()
     {
-        if (_myDbContext.Database.CanConnect() && createNewDb)
-        {
-            _myDbContext.Database.EnsureDeleted();
-        }
+        //if (_myDbContext.Database.CanConnect() && createNewDb)
+        //{
+        //    _myDbContext.Database.EnsureDeleted();
+        //}
 
         // проверка на существование базы данных
-        if (!_myDbContext.Database.CanConnect() && createNewDb)
+        if (!_myDbContext.Database.CanConnect() )//&& createNewDb)
         {
             //_myDbContext.Database.EnsureDeleted();
             _myDbContext.Database.EnsureCreated();
