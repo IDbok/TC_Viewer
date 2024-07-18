@@ -25,7 +25,7 @@ namespace TC_WinForms
         public static TechnologicalCard? NewTc { get; set; }
         public static TechnologicalProcess CurrentTp { get; set; } = new TechnologicalProcess();
 
-        public static Config configGlobal;
+        public static Config configGlobal = new Config();
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -37,55 +37,68 @@ namespace TC_WinForms
 
             ApplicationConfiguration.Initialize();
 
-            string text1 = "";
-            while (true)
-            {
-                try
-                {
-                    text1 = System.IO.File.ReadAllText($"appsettings.json");
-                    break;
-                }
-                catch (Exception e)
-                {
-                    Config config = new Config();
-                    config.ConnectionString = "server=localhost;database=tavrida_db_old;user=root;password=root";
+            string variableName = "TEST_MODE";
+            // Считывание значения переменной среды
+            string? variableValue = Environment.GetEnvironmentVariable(variableName);
+            bool isTestMode = variableValue != null && variableValue.ToLower() == "true";
 
-                    JavaScriptSerializer javaScriptSerializer1 = new JavaScriptSerializer();
-                    string? bbn = javaScriptSerializer1.Serialize(config);
-                    System.IO.File.WriteAllText($"appsettings.json", bbn);
+            if (isTestMode)
+            {
+                configGlobal.ConnectionString = "server=localhost;database=tavrida_db_main;user=root;password=root";
+            }
+            else
+            {
+                string text1 = "";
+                while (true)
+                {
+                    try
+                    {
+                        text1 = System.IO.File.ReadAllText($"appsettings.json");
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        Config config = new Config();
+
+                        config.ConnectionString = "server=127.0.0.1;port=3306;database=tavrida_db_main;user=root;password=lsSB1UaiX5";
+                        // "server=127.0.0.1;port=3306;database=tavrida_db_main;user=root;password=lsSB1UaiX5"
+                        JavaScriptSerializer javaScriptSerializer1 = new JavaScriptSerializer();
+                        string? bbn = javaScriptSerializer1.Serialize(config);
+                        System.IO.File.WriteAllText($"appsettings.json", bbn);
+                    }
                 }
+
+                JavaScriptSerializer javaScriptSerializer3 = new JavaScriptSerializer();
+                var configGlo = javaScriptSerializer3.Deserialize<Config>(text1);
+                configGlobal = configGlo;
             }
 
-            JavaScriptSerializer javaScriptSerializer3 = new JavaScriptSerializer();
-            var configGlo = javaScriptSerializer3.Deserialize<Config>(text1);
-            configGlobal = configGlo;
             TcDbConnector.StaticClass.ConnectString = configGlobal.ConnectionString;
 
-            var authForm = new Win8();
-            authForm.ShowDialog();
+            if (isTestMode)
+            {
+                string login = "implementer"; //"lead";// "manager"; // "user"; // "implementer"; //
+                string password = "pass";
+                AuthorizationService.AuthorizeUser(login, password);
+
+                if (AuthorizationService.CurrentUser != null)
+                {
+                    Program.MainForm = new Win7_new(AuthorizationService.CurrentUser.UserRole());
+                    //Program.MainForm.Show();
+                }
+                else
+                {
+                    throw new Exception("Пользователь не найден!");
+                }
+            }
+            else
+            {
+                var authForm = new Win8();
+                authForm.ShowDialog();
+            }
+
 
             Application.Run(MainForm);
-        }
-        static void Test()
-        {
-            DbConnector dbCon = new DbConnector();
-
-            TechnologicalCard _tc = dbCon.GetObject<TechnologicalCard>(488);
-
-            var form = new Win6_ExecutionScheme(_tc);
-            form.ShowDialog();
-
-            //var obj = dbCon.GetObjectWithLinks<Component>(1);
-
-            //if (obj != null)
-            //{
-            //    //obj.Image = File.ReadAllBytes(@"C:\Users\bokar\OneDrive\Рабочий стол\Рисунок5.png");// Image.FromFile();
-            //    var objEditor = new Win7_LinkObjectEditor(obj);
-
-                
-
-            //    objEditor.ShowDialog();
-            //}
         }
     }
 
