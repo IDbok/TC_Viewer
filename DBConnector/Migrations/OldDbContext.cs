@@ -68,11 +68,11 @@ public class OldDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //modelBuilder
-        //    .Entity<ExecutionWork>()
-        //    .HasMany(c => c.ListexecutionWorkRepeat)
-        //    .WithMany(s => s.ListexecutionWorkRepeat2)
-        //    .UsingEntity(j => j.ToTable("ExecutionWorkRepeat"));
+        modelBuilder
+            .Entity<ExecutionWork>()
+            .HasMany(c => c.ListexecutionWorkRepeat)
+            .WithMany(s => s.ListexecutionWorkRepeat2)
+            .UsingEntity(j => j.ToTable("ExecutionWorkRepeat"));
 
         modelBuilder
             .Entity<ExecutionWork>()

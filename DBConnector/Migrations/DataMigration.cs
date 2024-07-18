@@ -3,6 +3,7 @@
 using oldCore = TcDbConnector.Migrations.OldCore.Models;
 using newCore = TcModels.Models;
 using TcModels.Models.Interfaces;
+using TcModels.Models.IntermediateTables;
 
 namespace TcDbConnector.Migrations;
 
@@ -39,23 +40,40 @@ public class DataMigration
 
                 MigrateIntermediateTables();
 
+                //MigrateDiagrams();
+
+
+                _myDbContext.SaveChanges();
+
+                transaction.Commit();
+            }
+            catch (Exception e)
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+        using (var transaction = _myDbContext.Database.BeginTransaction())
+        {
+            try
+            {
                 MigrateWorkTables();
 
-                MigrateDiagrams();
+                _myDbContext.SaveChanges();
 
-                //MigrateTechnologicalProcesses();
-                //MigrateTechOperations();
-                //MigrateTechOperationWorks();
-                //MigrateExecutionWorks();
-                //MigrateProtectionTCs();
-                //MigrateStaffTCs();
-                //MigrateMachineTCs();
-                //MigrateExecutionWorkRepeats();
-                //MigrateDiagramParalelnos();
-                //MigrateToolWorks();
-                //MigrateComponentWorks();
-                //MigrateTechTransitions();
-                //MigrateConfigs();
+                transaction.Commit();
+            }
+            catch (Exception e)
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+        using (var transaction = _myDbContext.Database.BeginTransaction())
+        {
+            try
+            {
+                MigrateDiagrams();
 
                 _myDbContext.SaveChanges();
 
@@ -78,8 +96,8 @@ public class DataMigration
         var iterations = count % step == 0 ? coefficient : coefficient + 1;
         for (int i = 0; i < iterations; i++)
         {
-            Console.WriteLine("Итерация " + i+1);
-            Task.CompletedTask.Wait(1000);
+            //Console.WriteLine($"Итерация { i + 1}");
+            //Task.CompletedTask.Wait(1000);
             // транзакция для сохранения картинок
             using (var transaction = _myDbContext.Database.BeginTransaction())
             {
@@ -553,6 +571,8 @@ public class DataMigration
         MigrateTechOperationWork();
         MigrateToolWork();
         MigrateComponentWork();
+
+        MigrateExecutionWork();
     }
 
     static void MigrateTechOperationWork()
@@ -624,9 +644,7 @@ public class DataMigration
             .Include(x => x.Staffs)
             .Include(x => x.Protections)
             .Include(x => x.Machines)
-            .Include(x => x.ListexecutionWorkRepeat)
             .Include(x => x.ListexecutionWorkRepeat2)
-            .Include(x => x.ExecutionWorkRepeats)
             .ToList();
 
         var newExecutionWorks = oldExecutionWorks.Select(executionWork =>
@@ -637,9 +655,6 @@ public class DataMigration
                 techOperationWorkId = executionWork.techOperationWorkId,
                 techTransitionId = executionWork.techTransitionId,
                 Repeat = executionWork.Repeat,
-                ListexecutionWorkRepeat = executionWork.ListexecutionWorkRepeat,
-                ListexecutionWorkRepeat2 = executionWork.ListexecutionWorkRepeat2,
-                ExecutionWorkRepeats = executionWork.ExecutionWorkRepeats,
                 sumEw = executionWork.sumEw,
                 maxEw = executionWork.maxEw,
                 Coefficient = executionWork.Coefficient,
@@ -654,11 +669,86 @@ public class DataMigration
                 TempTimeExecution = executionWork.TempTimeExecution,
                 Vopros = executionWork.Vopros,
                 Otvet = executionWork.Otvet,
-                PictureName = executionWork.PictureName,
+                //PictureName = executionWork.PictureName,
             };
 
             return newExecutionWork;
         }).ToList();
+
+        foreach (var ew in oldExecutionWorks)
+        {
+            var newExecutionWork = newExecutionWorks.FirstOrDefault(x => x.Id == ew.Id);
+            if (newExecutionWork != null)
+            {
+                if (ew.Staffs.Count > 0)
+                {
+                    foreach (var stafftc in ew.Staffs)
+                    {
+                        var newStaff = _myDbContext.Staff_TCs.FirstOrDefault(x => x.IdAuto == stafftc.IdAuto);
+                        if (newStaff != null)
+                        {
+                            newExecutionWork.Staffs.Add(newStaff);
+                        }
+                        else
+                        {
+                            throw new Exception($"Staff_TC {stafftc.IdAuto} not found");
+                        }
+                    }
+                }
+                if (ew.Protections.Count > 0)
+                {
+                    foreach (var protectiontc in ew.Protections)
+                    {
+                        var newProtection = _myDbContext.Protection_TCs.FirstOrDefault(x => x.ChildId == protectiontc.ChildId && x.ParentId == protectiontc.ParentId && x.Order == protectiontc.Order);
+                        if (newProtection != null)
+                        {
+                            newExecutionWork.Protections.Add(newProtection);
+                        }
+                        else
+                        {
+                            throw new Exception($"Protection_TC {protectiontc.Order}.{protectiontc.ChildId} - {protectiontc.ParentId} not found");
+                        }
+                    }
+                }
+                if (ew.Machines.Count > 0)
+                {
+                    foreach (var machinetc in ew.Machines)
+                    {
+                        var newMachine = _myDbContext.Machine_TCs.FirstOrDefault(x => x.ChildId == machinetc.ChildId && x.ParentId == machinetc.ParentId && x.Order == machinetc.Order);
+                        if (newMachine != null)
+                        {
+                            newExecutionWork.Machines.Add(newMachine);
+                        }
+                        else
+                        {
+                            throw new Exception($"Machine_TC {machinetc.Order}.{machinetc.ChildId} - {machinetc.ParentId} not found");
+                        }
+                    }
+                }
+
+                if (ew.ListexecutionWorkRepeat2.Count > 0)
+                {
+                    foreach (var ewRepeat in ew.ListexecutionWorkRepeat2)
+                    {
+                        var newEwRepeat = newExecutionWorks.FirstOrDefault(x => x.Id == ewRepeat.Id);
+                        if (newEwRepeat != null)
+                        {
+                            var newExecutionWorkRepeat = new newCore.TcContent.ExecutionWorkRepeat
+                            {
+                                ParentExecutionWorkId = ew.Id,
+                                ChildExecutionWorkId = ewRepeat.Id,
+                            };
+                            newExecutionWork.ExecutionWorkRepeats.Add(newExecutionWorkRepeat);
+                        }
+                        else
+                        {
+                            throw new Exception($"ExecutionWork {ewRepeat.Id} not found");
+                        }
+                    }
+                }
+
+            }
+        }
 
         _myDbContext.ExecutionWorks.AddRange(newExecutionWorks);
     }
@@ -786,20 +876,18 @@ public class DataMigration
             {
                 newDiagramShag.ImageBase64 = diagramShag.ImageBase64;
 
-                // Декодируем base64 строку в массив байтов
-                byte[] imageBytes = Convert.FromBase64String(diagramShag.ImageBase64);
+                //// Декодируем base64 строку в массив байтов
+                //byte[] imageBytes = Convert.FromBase64String(diagramShag.ImageBase64);
 
-                // Получаем вес изображения в байтах
-                int weightInBytes = imageBytes.Length;
+                //// Получаем вес изображения в байтах
+                //int weightInBytes = imageBytes.Length;
 
-                Console.WriteLine($"Шаг: {diagramShag.Id}Вес изображения: {weightInBytes} байт");
+                //Console.WriteLine($"Шаг: {diagramShag.Id}Вес изображения: {weightInBytes} байт");
             }
         }
     }
 
     #endregion
-
-    
 
     #endregion
 

@@ -48,7 +48,7 @@ namespace TcDbConnector.Migrations.OldCore.Models.TcContent
         public string Vopros { get; set; } = "";
         public string Otvet { get; set; } = "";
 
-        public string PictureName { get; set; } = "";
+        //public string PictureName { get; set; } = "";
 
         public override string ToString()
        {
