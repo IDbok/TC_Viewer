@@ -4,6 +4,7 @@ using System.IO;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.WinForms;
 using TC_WinForms.WinForms.BlockScheme;
+using TC_WinForms.WinForms.Diagram;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -96,11 +97,19 @@ namespace TC_WinForms
                 var authForm = new Win8();
                 authForm.ShowDialog();
             }
+            Test();
 
+            //Application.Run(MainForm);
+        }
+        static void Test()
+        {
+            var form = new DiagramForm(493, false);
+            form.ShowDialog();
 
-            Application.Run(MainForm);
         }
     }
+
+    
 
     
 }

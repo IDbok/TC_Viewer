@@ -126,9 +126,15 @@ namespace TC_WinForms.WinForms.Diagram
                 {
                     if (diagramShag.ImageBase64 != "")
                     {
+
+                        ChangeImageVisibility(true);
                         var byt = Convert.FromBase64String(diagramShag.ImageBase64);
                         var bn = LoadImage(byt);
                         imageDiagram.Source = bn;
+                    }
+                    else
+                    {
+                        ChangeImageVisibility(false);
                     }
                 }
                 catch (Exception)
@@ -254,7 +260,10 @@ namespace TC_WinForms.WinForms.Diagram
         {
             var openFileDialog1 = new OpenFileDialog();
             if (openFileDialog1.ShowDialog() == DialogResult.Cancel)
+            {
+                ChangeImageVisibility(false);
                 return;
+            }
             // получаем выбранный файл
             string filename = openFileDialog1.FileName;
 
@@ -369,6 +378,29 @@ namespace TC_WinForms.WinForms.Diagram
                     wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
                 }
             }
+        }
+
+        private void btnLoadImage_Click(object sender, RoutedEventArgs e)
+        {
+            ChangeImageVisibility(true);
+            Image_MouseLeftButtonDown(sender, null);
+
+        }
+        private void ChangeImageVisibility(bool imageVisibility)
+        {
+            btnLoadImage.Visibility = imageVisibility ? Visibility.Collapsed : Visibility.Visible;
+            imageDiagram.Visibility = imageVisibility ? Visibility.Visible : Visibility.Collapsed;
+            gridImageName.Visibility = imageVisibility ? Visibility.Visible : Visibility.Collapsed;
+            btnDeleteImage.Visibility = imageVisibility ? Visibility.Visible : Visibility.Collapsed;
+            //if(imageVisibility)
+            //    imageDiagram.Source = "/WinForms/Diagram/Select.jpg";
+        }
+        
+        private void btnDeleteImage_Click(object sender, RoutedEventArgs e)
+        {
+            //diagramShag.ImageBase64 = "";
+            ChangeImageVisibility(false);
+            //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
     }

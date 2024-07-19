@@ -176,19 +176,29 @@
 
                             </StackPanel>
                     </GroupBox>
-                        <Border Background="#00000000"  MouseLeftButtonDown="Image_MouseLeftButtonDown" >
-                            <Image x:Name="imageDiagram" Source="/WinForms/Diagram/Select.jpg" Height="300" OpacityMask="Red"  />
-                        </Border>
-                        <Grid MinHeight="25">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="1*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="TextImage" Text="№ Рисунка" TextAlignment="Center"  />
-                        <TextBox x:Name="TBNameImage" Grid.Column="1" TextWrapping="Wrap" AcceptsReturn="True" UseLayoutRounding="False"  Width="295" TextChanged="TextBox_TextChanged"   />
+                    <Button x:Name="btnLoadImage" Content="Загрузить изображение" HorizontalAlignment="Center"
+                            VerticalAlignment="Top" Margin="0,0,0,0" 
+                            Click="btnLoadImage_Click"
+                            />
+                    <Border Background="#00000000"  MouseLeftButtonDown="Image_MouseLeftButtonDown" >
+                        <Image x:Name="imageDiagram" Visibility="Collapsed"
+                                Source="/WinForms/Diagram/Select.jpg" Height="300" OpacityMask="Red"  />
+                    </Border>
+                        <Button x:Name="btnDeleteImage" Content="Удалить изображение" HorizontalAlignment="Center"
+                                VerticalAlignment="Bottom" Margin="0,0,0,0" 
+                                Click="btnDeleteImage_Click"
+                                Visibility="Collapsed"
+                                />
 
 
-                    </Grid>
+                        <Grid x:Name="gridImageName" MinHeight="25" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="TextImage" Text="№ Рисунка" TextAlignment="Center"  />
+                            <TextBox x:Name="TBNameImage" Grid.Column="1" TextWrapping="Wrap" AcceptsReturn="True" UseLayoutRounding="False"  Width="295" TextChanged="TextBox_TextChanged"   />
+                        </Grid>
                 </StackPanel>
             </Border>            
         </StackPanel>
