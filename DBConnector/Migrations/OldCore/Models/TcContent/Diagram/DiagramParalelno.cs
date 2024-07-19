@@ -4,18 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TcModels.Models.TcContent
+namespace TcDbConnector.Migrations.OldCore.Models.TcContent
 {
-    public class DiagamToWork
+    public class DiagramParalelno
     {
         public int Id { get; set; }
+
         public int techOperationWorkId { get; set; }
         public TechOperationWork techOperationWork { get; set; }
-        public int technologicalCardId { get; set; }
-        public TechnologicalCard technologicalCard { get; set; }
-            
+        public int DiagamToWorkId { get; set; }
+        public DiagamToWork DiagamToWork { get; set; }
 
-        public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new List<DiagramParalelno>();
+        public List<DiagramPosledov> ListDiagramPosledov { get; set; } = new List<DiagramPosledov>();
+
         public int Order { get; set; }
+
     }
 }

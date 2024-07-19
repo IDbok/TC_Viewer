@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TcModels.Models.TcContent
+namespace TcDbConnector.Migrations.OldCore.Models.TcContent
 {
     public class DiagamToWork
     {
@@ -13,7 +13,7 @@ namespace TcModels.Models.TcContent
         public TechOperationWork techOperationWork { get; set; }
         public int technologicalCardId { get; set; }
         public TechnologicalCard technologicalCard { get; set; }
-            
+
 
         public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new List<DiagramParalelno>();
         public int Order { get; set; }

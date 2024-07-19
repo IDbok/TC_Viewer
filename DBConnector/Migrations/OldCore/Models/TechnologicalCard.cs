@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using TcModels.Models.Interfaces;
-using TcModels.Models.IntermediateTables;
-using TcModels.Models.TcContent;
-using TcModels.Models.TcContent.Work;
+using TcDbConnector.Migrations.OldCore.Models.Interfaces;
+using TcDbConnector.Migrations.OldCore.Models.IntermediateTables;
+using TcDbConnector.Migrations.OldCore.Models.TcContent;
+using TcDbConnector.Migrations.OldCore.Models.TcContent.Work;
 
-namespace TcModels.Models
+namespace TcDbConnector.Migrations.OldCore.Models
 {
     public class TechnologicalCard: INameable, IUpdatableEntity
     {
@@ -101,6 +101,7 @@ namespace TcModels.Models
         public byte[]? ExecutionScheme { get; set; }
 
         public TechnologicalCardStatus Status { get; set; } = TechnologicalCardStatus.Created;
+
 
 
         public List<Author> Authors { get; set; } = new();

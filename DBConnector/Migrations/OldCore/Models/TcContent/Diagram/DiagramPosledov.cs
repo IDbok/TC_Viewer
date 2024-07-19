@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TcModels.Models.TcContent
+namespace TcDbConnector.Migrations.OldCore.Models.TcContent
 {
     public class DiagramPosledov
     {
