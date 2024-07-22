@@ -45,7 +45,7 @@ namespace TC_WinForms
 
             if (isTestMode)
             {
-                configGlobal.ConnectionString = "server=localhost;database=tavrida_db_main;user=root;password=root";
+                configGlobal.ConnectionString = "server=localhost;database=tavrida_db_test;user=root;password=root";
             }
             else
             {

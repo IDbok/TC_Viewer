@@ -18,20 +18,11 @@
                 </StackPanel>
                 
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <StackPanel x:Name="ListWpfParalelno" HorizontalAlignment="Center" Visibility="Visible" >
-                    <local:WpfParalelno />
-                </StackPanel>
-                <Button Name="btnAddParallel"
-                    Content="Добавить ТО параллельно" 
-                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="30,0,0,0">
-                    <Button.LayoutTransform>
-                        <RotateTransform Angle="-90"/>
-                    </Button.LayoutTransform>
-                </Button>
+            <StackPanel x:Name="ListWpfParalelno" HorizontalAlignment="Center" Visibility="Visible" >
+                <local:WpfParalelno />
             </StackPanel>
-            
-        <Button x:Name="ButtonAddShag" Content="Добавить шаг" HorizontalAlignment="Center" Margin="0,30,0,0" Click="Button_Click"  Visibility="Collapsed" />
+
+            <Button x:Name="ButtonAddShag" Content="Добавить шаг" HorizontalAlignment="Center" Margin="0,30,0,0" Click="Button_Click"  Visibility="Collapsed" />
         </StackPanel>
     </Border>
 </UserControl>

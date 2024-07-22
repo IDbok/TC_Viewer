@@ -12,7 +12,7 @@
                 <Button Width="50" Content="Право" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_1" />
             </StackPanel>
             <StackPanel x:Name="ListWpfShag">
-                <local:WpfShag></local:WpfShag>
+                <local:WpfShag/>
             </StackPanel>
             <Button Content="Добавить последовательность" HorizontalAlignment="Center" Click="Button_Click"  />
         </StackPanel>

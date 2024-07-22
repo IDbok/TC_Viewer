@@ -32,7 +32,7 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
 
-        public WpfControlTO(List<TechOperationWork> techOperationWorksList, WpfMainControl _wpfMainControl, DiagamToWork _diagamToWork = null)
+        public WpfControlTO(WpfMainControl _wpfMainControl, DiagamToWork _diagamToWork = null)
         {
             InitializeComponent();
 
@@ -66,7 +66,7 @@ namespace TC_WinForms.WinForms.Diagram
                 }
             }
 
-            TechOperationWorksList = techOperationWorksList;
+            TechOperationWorksList = _wpfMainControl.TechOperationWorksList; //techOperationWorksList;
             wpfMainControl = _wpfMainControl;
 
             foreach (TechOperationWork? item in TechOperationWorksList.OrderBy(o=>o.Order).ToList())
