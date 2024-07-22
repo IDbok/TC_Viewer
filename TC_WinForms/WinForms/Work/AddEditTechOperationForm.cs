@@ -2432,7 +2432,7 @@ namespace TC_WinForms.WinForms.Work
 
                 if (newTechOperation.Category == "Типовая ТО")
                 {
-                    MessageBox.Show("Замена на типорую ТО не допустима.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Замена на типовую ТО недопустима.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
