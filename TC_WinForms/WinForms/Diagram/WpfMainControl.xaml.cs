@@ -34,11 +34,6 @@ namespace TC_WinForms.WinForms.Diagram
         public List<TechOperationWork> TechOperationWorksList;
         public DiagramForm diagramForm; // используется только для проверки (фиксации) наличия изменений
 
-        public WpfMainControl()
-        {
-            InitializeComponent();
-        }
-
         public WpfMainControl(int tcId, DiagramForm _diagramForm)
         {
             InitializeComponent();
@@ -88,17 +83,40 @@ namespace TC_WinForms.WinForms.Diagram
                              
                 .ToList();
 
-            foreach (DiagamToWork item in ListShag)
+
+            //foreach (DiagamToWork item in ListShag)
+            //{
+            //    WpfTo.AddParallelTO(item);
+            //    ListWpfControlTO.Children.Add(new WpfTO(TechOperationWorksList, this, item));
+            //    ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList, this, item)); // ListWpfControlTO - это StackPanel в WpfMainControl.xaml
+            //    Nomeraciya();
+            //}
+
+            // группировка ТО по ParallelIndex
+            var ListShagGroup = ListShag.GroupBy(g => g.ParallelIndex).ToList();
+
+            foreach (var ListShagItem in ListShagGroup)
             {
-                ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList, this, item)); // ListWpfControlTO - это StackPanel в WpfMainControl.xaml
-                Nomeraciya();
+                var listParalelno = ListShagItem.ToList();
+                WpfTO WpfTo = new WpfTO(this);
+                ListWpfControlTO.Children.Add(WpfTo);
+
+                foreach (DiagamToWork item in listParalelno)
+                {
+                    WpfTo.AddParallelTO(item);
+                    //ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList, this, item)); // ListWpfControlTO - это StackPanel в WpfMainControl.xaml
+                    //Nomeraciya();
+                }
             }
+
+
 
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList,this));
+            ListWpfControlTO.Children.Add(new WpfTO(this));
+            //ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList,this));
             diagramForm.HasChanges = true;
             Nomeraciya();
         }
@@ -122,7 +140,8 @@ namespace TC_WinForms.WinForms.Diagram
                 if (context.DiagamToWork.SingleOrDefault(s => s == controlTO.diagamToWork) != null)
                     context.DiagamToWork.Remove(controlTO.diagamToWork);
 
-                ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList, this));
+                ListWpfControlTO.Children.Add(new WpfTO(this));
+                //ListWpfControlTO.Children.Add(new WpfControlTO(TechOperationWorksList, this));
                 Nomeraciya();
             }                                
         }
@@ -136,34 +155,34 @@ namespace TC_WinForms.WinForms.Diagram
             int Order3 = 1; 
             int Order4 = 1;
 
-            foreach (WpfControlTO item in ListWpfControlTO.Children)
-            {
-               if(item.diagamToWork!=null) item.diagamToWork.Order = Order1;
-                Order1++;
-                Order2 = 1;
-                Order3 = 1;
-                Order4 = 1;
+            //foreach (WpfControlTO item in ListWpfControlTO.Children) //(WpfControlTO item in ListWpfControlTO.Children)
+            //{
+            //   if(item.diagamToWork!=null) item.diagamToWork.Order = Order1;
+            //    Order1++;
+            //    Order2 = 1;
+            //    Order3 = 1;
+            //    Order4 = 1;
 
-                foreach (WpfParalelno item2 in item.ListWpfParalelno.Children)
-                {
-                    if (item2.diagramParalelno != null) item2.diagramParalelno.Order = Order2;
-                    Order3 = 1;
-                    Order4 = 1;
+            //    foreach (WpfParalelno item2 in item.ListWpfParalelno.Children)
+            //    {
+            //        if (item2.diagramParalelno != null) item2.diagramParalelno.Order = Order2;
+            //        Order3 = 1;
+            //        Order4 = 1;
 
-                    foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
-                    {
-                        if (item3.diagramPosledov != null) item3.diagramPosledov.Order = Order3;
-                        Order4 = 1;
+            //        foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
+            //        {
+            //            if (item3.diagramPosledov != null) item3.diagramPosledov.Order = Order3;
+            //            Order4 = 1;
 
-                        foreach (WpfShag item4 in item3.ListWpfShag.Children)
-                        {
-                            if (item4.diagramShag != null) item4.diagramShag.Order = Order4;
-                            item4.SetNomer(nomer);
-                            nomer++;
-                        }
-                    }
-                }
-            }
+            //            foreach (WpfShag item4 in item3.ListWpfShag.Children)
+            //            {
+            //                if (item4.diagramShag != null) item4.diagramShag.Order = Order4;
+            //                item4.SetNomer(nomer);
+            //                nomer++;
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         public void Save()
