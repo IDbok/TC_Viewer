@@ -6,9 +6,10 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Controls;
+//using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
+using System.Windows.Input;
 using TC_WinForms.Interfaces;
 using TcModels.Models.Interfaces;
 
@@ -19,7 +20,7 @@ namespace TC_WinForms.WinForms.Diagram
         private int tcId;
         private bool isViewMode;
 
-       public WpfMainControl wpfDiagram;
+        public WpfMainControl wpfDiagram;
 
         public DiagramForm()
         {
@@ -43,8 +44,52 @@ namespace TC_WinForms.WinForms.Diagram
             this.wpfDiagram = wpfDiagram;
             elementHost.Child = wpfDiagram;
 
+            //this.KeyPreview = true;
+
+            //this.KeyDown += DiagramForm_KeyDown;
+
+            //wpfDiagram.KeyDown += WpfDiagram_KeyDown;
+
+            //AddButton();
 
         }
+        //private void AddButton()
+        //{
+        //    Button newButton = new Button();
+        //    newButton.Text = "Click Me";
+        //    newButton.Location = new System.Drawing.Point(10, 10); // Set the location as per your requirement
+        //    newButton.Click += new EventHandler(NewButton_Click);
+        //    this.Controls.Add(newButton);
+        //}
+        //private void AddToolStrip()
+        //{
+        //    toolStrip = new ToolStrip();
+        //    ToolStripButton newButton = new ToolStripButton("Click Me");
+        //    newButton.Click += new EventHandler(NewButton_Click);
+        //    toolStrip.Items.Add(newButton);
+        //    toolStrip.Dock = DockStyle.Top; // Dock the ToolStrip at the top
+        //    this.Controls.Add(toolStrip);
+        //}
+        //private void NewButton_Click(object sender, EventArgs e)
+        //{
+        //    MessageBox.Show("Button clicked!");
+        //}
+
+        //private void DiagramForm_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        //{
+        //    // Check if the key combination Ctrl + Shift + A is pressed
+        //    if (e.Control && e.Shift && e.KeyCode == Keys.A)
+        //    {
+        //        // Your code to handle the key combination
+        //        MessageBox.Show("Ctrl + Shift + A was pressed!");
+        //    }
+        //}
+        //private void WpfDiagram_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        //{
+        //    // Create a new KeyEventArgs for the WinForms form
+        //    var winFormsKeyEventArgs = new System.Windows.Forms.KeyEventArgs((Keys)KeyInterop.VirtualKeyFromKey(e.Key));
+        //    DiagramForm_KeyDown(sender, winFormsKeyEventArgs);
+        //}
 
         public bool HasChanges { get; set; }
 
@@ -63,7 +108,8 @@ namespace TC_WinForms.WinForms.Diagram
 
         public void SetViewMode(bool? isViewMode)
         {
-           
+
         }
+
     }
 }

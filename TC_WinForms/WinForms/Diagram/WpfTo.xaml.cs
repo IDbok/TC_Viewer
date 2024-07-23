@@ -12,20 +12,23 @@ namespace TC_WinForms.WinForms.Diagram
         private WpfMainControl _wpfMainControl;
         private string? parallelIndex;
 
+        public List<WpfControlTO> Children { get; set; } = new List<WpfControlTO>();
         public WpfTo()
         {
             InitializeComponent();
         }
         public WpfTo(WpfMainControl wpfMainControl,
-        DiagamToWork? _diagramToWork = null)
+            DiagamToWork? _diagramToWork = null, 
+            bool addDiagram = true)
         {
             InitializeComponent();
 
             _wpfMainControl = wpfMainControl;
 
             ListTOParalelno.Children.Clear();
+            Children.Clear();
 
-            if (_diagramToWork != null)
+            if(addDiagram)
                 AddWpfControlTO(wpfMainControl, _diagramToWork);
         }
 
@@ -37,35 +40,62 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 if (diagamToWork.ParallelIndex != null)
                     parallelIndex = diagamToWork.ParallelIndex;
-                else if (ListTOParalelno.Children.Count > 0)
+                else SetParallelIndex(diagamToWork);
+            }
+        }
+
+        private void SetParallelIndex(DiagamToWork diagamToWork)
+        {
+            if (diagamToWork.ParallelIndex == null)
+            {
+                if (Children.Count > 0)
                 {
                     if (parallelIndex == null)
-                        parallelIndex = new Random(10).Next(10).ToString();
+                        parallelIndex = new Random().Next(10000).ToString();
 
                     diagamToWork.ParallelIndex = parallelIndex;
 
                     _wpfMainControl.diagramForm.HasChanges = true;
-                }
 
-                _wpfMainControl.Nomeraciya();
+                    //установить индекс параллельности для всех дочерних элементов
+                    foreach (var child in Children)
+                    {
+                        child.diagamToWork.ParallelIndex = parallelIndex;
+                        child.ParallelButtonsVisibility(true);
+                    }
+                }
             }
         }
 
         private void btnAddTOParallel_Click(object sender, RoutedEventArgs e)
         {
-            AddWpfControlTO(_wpfMainControl);
+            if (_wpfMainControl.CheckIfTOIsAvailable())
+            {
+                AddWpfControlTO(_wpfMainControl);
 
-            //wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
-            //wpfControlTO.Nomeraciya();
+                _wpfMainControl.diagramForm.HasChanges = true;
+                _wpfMainControl.Nomeraciya();
+            }
         }
-        private void AddWpfControlTO(WpfMainControl _wpfMainControl,
-            DiagamToWork? _diagamToWork = null)
+        private void AddWpfControlTO(WpfMainControl wpfMainControl,
+            DiagamToWork? diagamToWork = null)
         {
-            var wpfControlTO = new WpfControlTO(_wpfMainControl, _diagamToWork);
+            if (diagamToWork == null)
+                diagamToWork = new DiagamToWork(); SetParallelIndex(diagamToWork);
+
+            var wpfControlTO = new WpfControlTO(wpfMainControl, diagamToWork);
             wpfControlTO.VerticalAlignment = VerticalAlignment.Top;
             wpfControlTO.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
 
             ListTOParalelno.Children.Add(wpfControlTO);
+            Children.Add(wpfControlTO);
         }
+
+        public void DeleteWpfControlTO(WpfControlTO wpfControlTO)
+        {
+            ListTOParalelno.Children.Remove(wpfControlTO);
+            Children.Remove(wpfControlTO);
+        }
+
     }
 }

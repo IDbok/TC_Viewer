@@ -11,7 +11,7 @@
                 
             </StackPanel>
             
-            <Button Content="Добавить следующее ТО" HorizontalAlignment="Center" Margin="0,30,0,0" Click="Button_Click" />
+            <Button Content="Добавить следующее ТО" HorizontalAlignment="Left" Margin="250,30,0,0" Click="Button_Click" />
             
         </StackPanel>
     </ScrollViewer>

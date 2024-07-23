@@ -348,7 +348,7 @@ namespace TC_WinForms.WinForms
         private async void btnShowWorkSteps_Click(object sender, EventArgs e) => await ShowForm(EModelType.WorkStep);
         //private async void btnInformation_Click(object sender, EventArgs e) => await ShowForm(EModelType.TechnologicalCard);
 
-        private async void buttonDiagram_Click(object sender, EventArgs e) => await ShowForm(EModelType.Diagram);
+        public async void buttonDiagram_Click(object sender, EventArgs e) => await ShowForm(EModelType.Diagram);
 
         private void UpdateButtonsState(EModelType activeModelType)
         {

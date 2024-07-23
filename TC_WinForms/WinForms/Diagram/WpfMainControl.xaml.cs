@@ -32,7 +32,11 @@ namespace TC_WinForms.WinForms.Diagram
 
         public TechnologicalCard TehCarta; // todo: непонятно, зачем это поле
         public List<TechOperationWork> TechOperationWorksList;
+
         public DiagramForm diagramForm; // используется только для проверки (фиксации) наличия изменений
+
+        private List<DiagamToWork> DeletedDiagrams = new List<DiagamToWork>();
+        private List<TechOperationWork> AvailableTechOperationWorks = new List<TechOperationWork>();
 
         public WpfMainControl()
         {
@@ -75,6 +79,10 @@ namespace TC_WinForms.WinForms.Diagram
                    //.Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2) // todo - проверить, всё ли работает без этого 
                    .Include(r => r.ToolWorks).ThenInclude(r => r.tool).ToList();
 
+            foreach(var tow in TechOperationWorksList)
+            {
+                AvailableTechOperationWorks.Add(tow);
+            }
 
            var ListShag = context.DiagamToWork.Where(w=>w.technologicalCard == technologicalCard)
 
@@ -97,7 +105,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 if (!isNull)
                 {
-                    var wpfTo = new WpfTo(this);
+                    var wpfTo = new WpfTo(this, addDiagram: false);
 
                     ListWpfControlTO.Children.Add(wpfTo);
 
@@ -115,9 +123,9 @@ namespace TC_WinForms.WinForms.Diagram
                         ListWpfControlTO.Children.Add(wpfTo);
                     }
                 }
-
-
             }
+
+            Nomeraciya();
 
             //foreach (DiagamToWork item in ListShag)
             //{
@@ -129,47 +137,100 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ListWpfControlTO.Children.Add(new WpfControlTO(this));
-            diagramForm.HasChanges = true;
-            Nomeraciya();
+            if (CheckIfTOIsAvailable())
+            {
+                ListWpfControlTO.Children.Add(new WpfTo(this));
+                diagramForm.HasChanges = true;
+                Nomeraciya();
+            }
         }
 
         public void DeleteControlTO(WpfControlTO controlTO)
         {
-            ListWpfControlTO.Children.Remove(controlTO);
-            try
+            // найти и удалить controlTO из ListWpfControlTO (WpfTo)
+            foreach(WpfTo wpfToItem in ListWpfControlTO.Children)
             {
-                
-            }
-            catch (Exception)
-            {
+                if (wpfToItem.Children.Contains(controlTO))
+                {
+                    DeletedDiagrams.Add(controlTO.diagamToWork);
 
+                    wpfToItem.DeleteWpfControlTO(controlTO);
+                    if (wpfToItem.Children.Count == 0)
+                    {
+                        ListWpfControlTO.Children.Remove(wpfToItem);
+                    }
+                    else if(wpfToItem.Children.Count == 1)
+                    {
+                        var lastWpfTo = wpfToItem.Children[0];
+                        lastWpfTo.ParallelButtonsVisibility(false);
+                        lastWpfTo.diagamToWork.ParallelIndex = null;
+                    }
+
+                    Nomeraciya();
+                    break;
+                }
             }
+
+            //ListWpfControlTO.Children.Remove(controlTO);
+
             
-            diagramForm.HasChanges = true;
+            //diagramForm.HasChanges = true;
 
-            if (ListWpfControlTO.Children.Count==0)
-            {
-                if (context.DiagamToWork.SingleOrDefault(s => s == controlTO.diagamToWork) != null)
-                    context.DiagamToWork.Remove(controlTO.diagamToWork);
+            //if (ListWpfControlTO.Children.Count==0)
+            //{
+            //    if (context.DiagamToWork.SingleOrDefault(s => s == controlTO.diagamToWork) != null)
+            //        context.DiagamToWork.Remove(controlTO.diagamToWork);
 
-                ListWpfControlTO.Children.Add(new WpfControlTO( this));
-                Nomeraciya();
-            }                                
+            //    ListWpfControlTO.Children.Add(new WpfTo(this, addDiagram: true));
+            //    Nomeraciya();
+            //}
         }
 
         internal void Nomeraciya() // todo : раскомментировать
         {
-            //int nomer = 1;
+            int nomer = 1;
 
-            //int Order1 = 1; // порядковый номер отображения TO
-            //int Order2 = 1; // порядковый номер отображения параллельных операций
-            //int Order3 = 1; 
-            //int Order4 = 1;
+            int Order1 = 1; // порядковый номер отображения TO
+            int Order2 = 1; // порядковый номер отображения параллельных операций
+            int Order3 = 1;
+            int Order4 = 1;
+
+            foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
+            {
+                foreach (var wpfControlToItem in wpfToItem.Children)
+                {
+                    if (wpfControlToItem.diagamToWork != null) wpfControlToItem.diagamToWork.Order = Order1;
+                    Order1++;
+                    Order2 = 1;
+                    Order3 = 1;
+                    Order4 = 1;
+
+                    foreach (WpfParalelno wpfParallelItem in wpfControlToItem.ListWpfParalelno.Children)
+                    {
+                        if (wpfParallelItem.diagramParalelno != null) wpfParallelItem.diagramParalelno.Order = Order2;
+                        Order3 = 1;
+                        Order4 = 1;
+
+                        foreach (WpfPosledovatelnost item3 in wpfParallelItem.ListWpfPosledovatelnost.Children)
+                        {
+                            if (item3.diagramPosledov != null) item3.diagramPosledov.Order = Order3;
+                            Order4 = 1;
+
+                            foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                            {
+                                if (item4.diagramShag != null) item4.diagramShag.Order = Order4;
+                                item4.SetNomer(nomer);
+                                nomer++;
+                            }
+                        }
+                    }
+                }
+                
+            }
 
             //foreach (WpfControlTO item in ListWpfControlTO.Children)
             //{
-            //   if(item.diagamToWork!=null) item.diagamToWork.Order = Order1;
+            //    if (item.diagamToWork != null) item.diagamToWork.Order = Order1;
             //    Order1++;
             //    Order2 = 1;
             //    Order3 = 1;
@@ -201,37 +262,52 @@ namespace TC_WinForms.WinForms.Diagram
         {
             try
             {
-                foreach (WpfControlTO item in ListWpfControlTO.Children)
+                foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
                 {
-                    foreach (WpfParalelno item2 in item.ListWpfParalelno.Children)
+                    foreach (var wpfControlToItem in wpfToItem.Children)
                     {
-                        foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
+                        foreach (WpfParalelno item2 in wpfControlToItem.ListWpfParalelno.Children)
                         {
-                            foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                            foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
                             {
-                                item4.SaveCollection();
+                                foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                                {
+                                    item4.SaveCollection();
+                                }
                             }
                         }
                     }
                 }
+
+                //foreach (WpfControlTO item in ListWpfControlTO.Children)
+                //{
+
+                //    foreach (WpfParalelno item2 in item.ListWpfParalelno.Children)
+                //    {
+                //        foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
+                //        {
+                //            foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                //            {
+                //                item4.SaveCollection();
+                //            }
+                //        }
+                //    }
+                //}
             }
             catch (Exception)
             {
 
             }       
-
-
-
-
             try
             {
-                //foreach (WpfControlTO item in ListWpfControlTO.Children)
-                //{
-                //    if(item.New && item.diagamToWork.techOperationWork!=null)
-                //    {
-                //        context.DiagamToWork.Add(item.diagamToWork);
-                //    }
-                //}
+                foreach (DiagamToWork item in DeletedDiagrams)
+                {
+                    item.techOperationWork = null;
+                    //if (item.New && item.diagamToWork.techOperationWork != null)
+                    //{
+                    //    context.DiagamToWork.Add(item.diagamToWork);
+                    //}
+                }
 
                 var bbn = context.DiagamToWork.Where(w => w.techOperationWork == null).ToList();
                 foreach (DiagamToWork item in bbn)
@@ -239,8 +315,7 @@ namespace TC_WinForms.WinForms.Diagram
                     context.DiagamToWork.Remove(item);
                 }
 
-
-                    context.SaveChanges();
+                context.SaveChanges();
             }
             catch (Exception ee)
             {
@@ -276,5 +351,67 @@ namespace TC_WinForms.WinForms.Diagram
                 }
             }
         }
+        public DiagamToWork? CheckInDeletedDiagrams(TechOperationWork techOperationWork)
+        {
+            return DeletedDiagrams.FirstOrDefault(d => d.techOperationWork == techOperationWork);
+        }
+        public void DeleteFromDeletedDiagrams(DiagamToWork diagramToWork)
+        {
+            DeletedDiagrams.Remove(diagramToWork);
+        }
+
+        public List<TechOperationWork> GetAvailableTechOperationWorks()
+        {
+            var allTOWs = TechOperationWorksList;
+            var notAvailableTOWs = new List<TechOperationWork>();
+            var availableTOWs = new List<TechOperationWork>();
+            // получаем все tow из уже добавленных в WpfTo
+            foreach(DiagamToWork dtw in GetAllDiagramToWorks())
+            {
+                notAvailableTOWs.Add(dtw.techOperationWork);
+            }
+            // получаем доступные tow
+            foreach (var tow in allTOWs)
+            {
+                if (!notAvailableTOWs.Contains(tow))
+                {
+                    availableTOWs.Add(tow);
+                }
+            }
+
+            return availableTOWs;
+        }
+
+        public List<DiagamToWork> GetAllDiagramToWorks()
+        {
+            var diagramToWorks = new List<DiagamToWork>();
+            // получаем все tow из уже добавленных в WpfTo
+            foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
+            {
+                foreach (var wpfControlToItem in wpfToItem.Children)
+                {
+                    if (wpfControlToItem.diagamToWork != null)
+                    {
+                        diagramToWorks.Add(wpfControlToItem.diagamToWork);
+                    }
+                }
+            }
+            return diagramToWorks;
+        }
+        /// <summary>
+        /// Проверяет, что кол-во DiagramToWork в ТК меньше чем кол-во TechOperationWorks
+        /// </summary>
+        /// <returns>true - если, TechOperationWorks больше чем  DiagramToWork. Если кол-во равно выдаёт сообщение о том, что все ТО представлены на блок-схеме</returns>
+        public bool CheckIfTOIsAvailable()
+        {
+            var allDiagramToWorks = GetAllDiagramToWorks();
+            if (allDiagramToWorks.Count >= TechOperationWorksList.Count)
+            {
+                System.Windows.Forms.MessageBox.Show("Все существующие в ТК операции уже представлены на блок-схеме");
+                return false;
+            }
+            return true;
+        }
     }
+
 }

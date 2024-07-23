@@ -103,9 +103,9 @@ namespace TC_WinForms
         }
         static void Test()
         {
-            var form = new DiagramForm(493, false);
+            //var form = new DiagramForm(493, false);
+            var form = new Win6_new(493);
             form.ShowDialog();
-
         }
     }
 
