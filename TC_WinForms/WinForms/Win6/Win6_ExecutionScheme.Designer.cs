@@ -30,6 +30,7 @@
         {
             pictureBoxExecutionScheme = new PictureBox();
             btnUploadExecutionScheme = new Button();
+            btnDeleteES = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBoxExecutionScheme).BeginInit();
             SuspendLayout();
             // 
@@ -38,29 +39,45 @@
             pictureBoxExecutionScheme.BackgroundImageLayout = ImageLayout.None;
             pictureBoxExecutionScheme.Dock = DockStyle.Fill;
             pictureBoxExecutionScheme.Location = new Point(0, 0);
+            pictureBoxExecutionScheme.Margin = new Padding(4, 4, 4, 4);
             pictureBoxExecutionScheme.Name = "pictureBoxExecutionScheme";
-            pictureBoxExecutionScheme.Size = new Size(588, 585);
+            pictureBoxExecutionScheme.Size = new Size(735, 731);
             pictureBoxExecutionScheme.TabIndex = 0;
             pictureBoxExecutionScheme.TabStop = false;
             // 
             // btnUploadExecutionScheme
             // 
             btnUploadExecutionScheme.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnUploadExecutionScheme.Location = new Point(483, 0);
+            btnUploadExecutionScheme.Location = new Point(604, 0);
+            btnUploadExecutionScheme.Margin = new Padding(4, 4, 4, 4);
             btnUploadExecutionScheme.Name = "btnUploadExecutionScheme";
-            btnUploadExecutionScheme.Size = new Size(105, 31);
+            btnUploadExecutionScheme.Size = new Size(131, 39);
             btnUploadExecutionScheme.TabIndex = 1;
             btnUploadExecutionScheme.Text = "Загрузить";
             btnUploadExecutionScheme.UseVisualStyleBackColor = true;
             btnUploadExecutionScheme.Click += btnUploadExecutionScheme_Click;
             // 
+            // btnDeleteES
+            // 
+            btnDeleteES.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnDeleteES.Location = new Point(604, 692);
+            btnDeleteES.Margin = new Padding(4);
+            btnDeleteES.Name = "btnDeleteES";
+            btnDeleteES.Size = new Size(131, 39);
+            btnDeleteES.TabIndex = 2;
+            btnDeleteES.Text = "Удалить";
+            btnDeleteES.UseVisualStyleBackColor = true;
+            btnDeleteES.Click += btnDeleteES_Click;
+            // 
             // Win6_ExecutionScheme
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(588, 585);
+            ClientSize = new Size(735, 731);
+            Controls.Add(btnDeleteES);
             Controls.Add(btnUploadExecutionScheme);
             Controls.Add(pictureBoxExecutionScheme);
+            Margin = new Padding(4, 4, 4, 4);
             Name = "Win6_ExecutionScheme";
             Text = "Win6_ExecutionScheme";
             Load += Win6_ExecutionScheme_Load;
@@ -72,5 +89,6 @@
 
         private PictureBox pictureBoxExecutionScheme;
         private Button btnUploadExecutionScheme;
+        private Button btnDeleteES;
     }
 }

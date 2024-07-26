@@ -49,6 +49,8 @@ public class MyDbContext : DbContext
     public DbSet<DiagramShag> DiagramShag { get; set; } = null!;
     public DbSet<DiagramShagToolsComponent> DiagramShagToolsComponent { get; set; } = null!;
 
+    public DbSet<ImageStorage> ImageStorage { get; set; }
+
 
     public MyDbContext()
     {
@@ -233,6 +235,21 @@ public class MyDbContext : DbContext
                     j.HasKey(t => t.Id);
                     //j.ToTable("Instrument_kit");
                 });
+
+        modelBuilder
+        .Entity<TechnologicalCard>()
+        .HasOne(tc => tc.ExecutionSchemeImage)
+        .WithMany()
+        .HasForeignKey(tc => tc.ExecutionSchemeImageId)
+        .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<ImageStorage>()
+        .Property(e => e.StorageType)
+        .HasConversion<int>();
+
+        modelBuilder.Entity<ImageStorage>()
+            .Property(e => e.Category)
+            .HasConversion<int>();
 
 
     }

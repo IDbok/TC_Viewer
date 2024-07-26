@@ -98,7 +98,10 @@ namespace TcModels.Models
         public string?  RepairType { get; set; } // Тип ремонта
         public bool IsCompleted { get; set; } // Наличие ТК
 
-        public byte[]? ExecutionScheme { get; set; }
+        public string? ExecutionSchemeBase64 { get; set; }
+
+        public long? ExecutionSchemeImageId { get; set; }
+        public ImageStorage? ExecutionSchemeImage { get; set; }
 
         public TechnologicalCardStatus Status { get; set; } = TechnologicalCardStatus.Created;
 
@@ -201,7 +204,8 @@ namespace TcModels.Models
                 Data = sourceCard.Data;
                 TechnologicalProcess = sourceCard.TechnologicalProcess;
 
-                ExecutionScheme = sourceCard.ExecutionScheme;
+                //ExecutionSchemeBase64 = sourceCard.ExecutionSchemeBase64;
+                ExecutionSchemeImageId = sourceCard.ExecutionSchemeImageId;
             }
         }
         public override string ToString()

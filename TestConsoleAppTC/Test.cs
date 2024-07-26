@@ -160,18 +160,6 @@ internal class Program
 
     }
 
-    static void DeleteExecutionPictures()
-    {
-        using (var db = new MyDbContext())
-        {
-            var allTC = db.TechnologicalCards.ToList();
-            foreach (var tc in allTC)
-            {
-                tc.ExecutionScheme = null;
-            }
-            db.SaveChanges();
-        }
-    }
 
     static void TCExecitionsPicture()
     {
@@ -308,7 +296,7 @@ internal class Program
 
                 tc.TechOperationWorks.Clear();
 
-                tc.ExecutionScheme = null;
+                //tc.ExecutionSchemeBase64 = null;
 
                 tc.Status = TechnologicalCard.TechnologicalCardStatus.Created;
 

@@ -17,17 +17,17 @@ namespace TcModels.Models.TcContent
         public List<ComponentWork> ComponentWorks { get; set; } = new List<ComponentWork>();
 
         public ICollection<ExecutionWork> executionWorks { get; set; } = new List<ExecutionWork>();
-
+        public string? ParallelIndex { get; set; }
         public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new List<DiagramParalelno>();
 
         [NotMapped] public bool Delete { get; set; } = false;
-       [NotMapped] public bool NewItem { get; set; } = false;
+        [NotMapped] public bool NewItem { get; set; } = false;
         
        public int Order { get; set; }
 
         public override string ToString()
-       {
-           return techOperation.Name;
-       }
+        {
+            return techOperation.Name;
+        }
     }
 }

@@ -160,7 +160,7 @@ public class DataMigration
                 DamageType = tc.DamageType,
                 RepairType = tc.RepairType,
                 IsCompleted = tc.IsCompleted,
-                ExecutionScheme = tc.ExecutionScheme,
+                ExecutionSchemeBase64 = tc.ExecutionScheme?.Length == 0 ?  Convert.ToBase64String(tc.ExecutionScheme) : null,
                 Status = (newCore.TechnologicalCard.TechnologicalCardStatus)tc.Status,
 
             };

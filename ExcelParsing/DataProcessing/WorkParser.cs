@@ -197,7 +197,7 @@ public class WorkParser
 
             
             var imageBytes = GetPictureFromExcelByRange(stepSheet, startRow, startColumn, endRow, endColumn);
-
+            
             if(tcRepository == null)
             {
                 tcRepository = new TechnologicalCardRepository(new MyDbContext());

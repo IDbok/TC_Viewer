@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
+using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 
@@ -36,12 +37,24 @@ namespace TC_WinForms.WinForms
         {
             SetViewMode(_isViewMode);
 
-            if (_tc.ExecutionScheme != null)
+            if (_tc.ExecutionSchemeImageId != null)
             {
-                DisplayImage(_tc.ExecutionScheme, pictureBoxExecutionScheme);
+                ImageStorage? image;
+                // Загрузить изображение схемы выполнения
+                using (var dbCon = new MyDbContext())
+                {
+                    image = dbCon.ImageStorage.Where(i => i.Id == _tc.ExecutionSchemeImageId).FirstOrDefault();
+                }
+
+                if (image != null && image.ImageBase64 != null)
+                {
+                    DisplayImage(image.ImageBase64, pictureBoxExecutionScheme);
+                    //DisplayImage(_tc.ExecutionSchemeBase64, pictureBoxExecutionScheme);
+                }
             }
 
-            
+
+
         }
         public void SetViewMode(bool? isViewMode)
         {
@@ -63,6 +76,16 @@ namespace TC_WinForms.WinForms
                 pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             }
         }
+        void DisplayImage(string base64String, PictureBox pictureBox)
+        {
+            byte[] imageBytes = Convert.FromBase64String(base64String);
+            using (var ms = new MemoryStream(imageBytes))
+            {
+                pictureBox.Image = Image.FromStream(ms);
+                pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            }
+        }
+
         private void btnUploadExecutionScheme_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -72,9 +95,22 @@ namespace TC_WinForms.WinForms
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    _tc.ExecutionScheme = File.ReadAllBytes(openFileDialog.FileName);
+                    var bytesImage = File.ReadAllBytes(openFileDialog.FileName);
+                    string base64Image = Convert.ToBase64String(bytesImage);
 
-                    DisplayImage(_tc.ExecutionScheme, pictureBoxExecutionScheme);
+                    var newImage = new ImageStorage
+                    {
+                        ImageBase64 = base64Image,
+                        Category = ImageCategory.ExecutionScheme
+                    };
+                    _tc.ExecutionSchemeImage = newImage;
+
+                    if (_tc.ExecutionSchemeImageId != null)
+                    {
+                        _tc.ExecutionSchemeImage.Id = (long)_tc.ExecutionSchemeImageId;
+                    }
+                    //_tc.ExecutionSchemeBase64 = base64Image;
+                    DisplayImage(_tc.ExecutionSchemeImage.ImageBase64, pictureBoxExecutionScheme);
 
                     HasChanges = true;
                 }
@@ -88,8 +124,24 @@ namespace TC_WinForms.WinForms
 
         public async Task SaveChanges()
         {
-            var dbCon = new DbConnector();
-            await dbCon.UpdateTcExecutionScheme(_tc.Id, _tc.ExecutionScheme!);
+            if (_tc.ExecutionSchemeImage != null || _tc.ExecutionSchemeImageId != null)
+            {
+                var dbCon = new DbConnector();
+                if (_tc.ExecutionSchemeImage?.ImageBase64 != null)
+                {
+                    await dbCon.UpdateTcExecutionScheme(_tc.Id, _tc.ExecutionSchemeImage.ImageBase64);
+                }
+                else
+                {
+                    await dbCon.DeleteTcExecutionScheme(_tc.Id);
+                }
+            }
+        }
+
+        private void btnDeleteES_Click(object sender, EventArgs e)
+        {
+            _tc.ExecutionSchemeImage?.ClearBase64Image();       
+            pictureBoxExecutionScheme.Image = null;
         }
     }
 }

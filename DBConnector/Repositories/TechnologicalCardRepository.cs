@@ -61,7 +61,8 @@ public class TechnologicalCardRepository
 
         tc.TechOperationWorks.Clear();
 
-        tc.ExecutionScheme = null;
+        //tc.ExecutionSchemeBase64 = null;
+        tc.ExecutionSchemeImageId = null;
 
         tc.Status = TechnologicalCard.TechnologicalCardStatus.Created;
 
@@ -105,7 +106,17 @@ public class TechnologicalCardRepository
             throw new Exception($"Технологическая карта {article} не найдена");
         }
 
-        tc.ExecutionScheme = executionScheme;
+        var base64String = Convert.ToBase64String(executionScheme);
+        var image = new ImageStorage
+        {
+            ImageBase64 = Convert.ToBase64String(executionScheme),
+            Category = ImageCategory.ExecutionScheme
+        };
+
+        _db.ImageStorage.Add(image);
+        _db.SaveChanges();
+
+        tc.ExecutionSchemeImageId = image.Id;
 
         _db.SaveChanges();
     }

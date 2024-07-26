@@ -959,20 +959,81 @@ namespace TC_WinForms.DataProcessing
             }
         }
 
-        public async Task UpdateTcExecutionScheme(int tcId, byte[] newES)
+        public async Task UpdateTcExecutionScheme(int tcId, string newES)
         {
-            using (var db = new MyDbContext())
+            try
             {
-                var tcToUpdate = await db.TechnologicalCards
-                    .Where(t => t.Id == tcId)
-                    .FirstOrDefaultAsync();
-
-                if (tcToUpdate != null)
+                using (var db = new MyDbContext())
                 {
-                    tcToUpdate.ExecutionScheme = newES;
-                    await db.SaveChangesAsync();
+                    var tcToUpdate = await db.TechnologicalCards
+                        .Where(t => t.Id == tcId)
+                        .FirstOrDefaultAsync();
+
+                    if (tcToUpdate != null)
+                    {
+                        if (tcToUpdate.ExecutionSchemeImageId != null)
+                        {
+                            var img = db.ImageStorage.Where(i => i.Id == tcToUpdate.ExecutionSchemeImageId).FirstOrDefault();
+                            if (img != null && img.ImageBase64 != newES)
+                            {
+                                img.ImageBase64 = newES;
+                                db.ImageStorage.Update(img);
+                            }
+                        }
+                        else
+                        {
+                            var img = new ImageStorage()
+                            {
+                                ImageBase64 = newES,
+                                Category = ImageCategory.ExecutionScheme
+                            };
+                            db.ImageStorage.Add(img); 
+                            await db.SaveChangesAsync();
+                            tcToUpdate.ExecutionSchemeImageId = img.Id;
+                            
+                        }
+                        //tcToUpdate.ExecutionSchemeBase64 = newES;
+                        //tcToUpdate.Name = "";
+                        await db.SaveChangesAsync();
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                MessageBox.Show("Ошибка при загрузке схемы исполнения.\nСхема в БД не сохранена.");
+            }
+            
         }
+        public async Task DeleteTcExecutionScheme(int tcId)
+        {
+            try
+            {
+                using (var db = new MyDbContext())
+                {
+                    var tcToUpdate = await db.TechnologicalCards
+                        .Where(t => t.Id == tcId)
+                        .FirstOrDefaultAsync();
+
+                    if (tcToUpdate != null)
+                    {
+                        if (tcToUpdate.ExecutionSchemeImageId != null)
+                        {
+                            var img = db.ImageStorage.Where(i => i.Id == tcToUpdate.ExecutionSchemeImageId).FirstOrDefault();
+                            if(img != null)
+                                db.ImageStorage.Remove(img);
+                            tcToUpdate.ExecutionSchemeImageId = null;
+
+                            await db.SaveChangesAsync();
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Ошибка при загрузке схемы исполнения.\nСхема в БД не сохранена.");
+            }
+
+        }
+
     }
 }
