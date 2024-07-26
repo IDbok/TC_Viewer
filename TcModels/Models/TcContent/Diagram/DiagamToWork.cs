@@ -14,7 +14,7 @@ namespace TcModels.Models.TcContent
         public int technologicalCardId { get; set; }
         public TechnologicalCard technologicalCard { get; set; }
 
-        public string? ParallelIndex { get; set; }
+        public string? ParallelIndex { get; set; } // todo: добавить в БД
         public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new List<DiagramParalelno>();
         public int Order { get; set; }
     }

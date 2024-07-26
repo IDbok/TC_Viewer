@@ -24,10 +24,12 @@ public class AuthorizationService
     {
         var users = new List<User>
         {
-            new User("user", "pass", null, null, User.Role.User),
-            new User("manager", "pass", null, null, User.Role.ProjectManager),
-            new User("lead", "pass", null, null, User.Role.Lead),
-            new User("implementer", "pass", null, null, User.Role.Implementer)
+            new User("user", "f88k44", null, null, User.Role.User),
+            new User("manager", "99eUiS", null, null, User.Role.ProjectManager),
+            new User("lead", "dXLPdF", null, null, User.Role.Lead),
+            new User("implementer", "30yP0e", null, null, User.Role.Implementer)
+
+            
         };
 
         foreach (var user in users)

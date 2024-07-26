@@ -51,7 +51,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         await LoadDataAsync(tcId);
 
         UpdateGrid();
-        SetCommentViewMode(false);
+        SetCommentViewMode();
         SetViewMode();
     }
     private async Task LoadDataAsync(int tcId)
@@ -88,6 +88,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     {
         if (isCommentViewMode != null)
             _isCommentViewMode = (bool)isCommentViewMode;
+        else
+            _isCommentViewMode = Win6_new.IsCommentViewMode;
 
         dgvMain.Columns["RemarkColumn"].Visible = _isCommentViewMode;
         dgvMain.Columns["ResponseColumn"].Visible = _isCommentViewMode;

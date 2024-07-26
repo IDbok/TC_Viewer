@@ -78,8 +78,15 @@ namespace TC_WinForms
 
             if (isTestMode)
             {
+                /*
+Новые пароли:
+"user", "f88k44"
+"manager", "99eUiS"
+"lead", "dXLPdF"
+"implementer", "30yP0e"
+            */
                 string login = "implementer"; //"lead";// "manager"; // "user"; // "implementer"; //
-                string password = "pass";
+                string password = "30yP0e";
                 AuthorizationService.AuthorizeUser(login, password);
 
                 if (AuthorizationService.CurrentUser != null)

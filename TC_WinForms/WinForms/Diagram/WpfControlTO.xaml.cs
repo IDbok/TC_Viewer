@@ -252,6 +252,8 @@ namespace TC_WinForms.WinForms.Diagram
         }
         private void ComboBoxTO_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
+            //ComboBoxTO.Items.Clear();
+
             var availableTechOperationWorks = _wpfMainControl.GetAvailableTechOperationWorks();
                
             foreach (TechOperationWork? item in availableTechOperationWorks.OrderBy(o => o.Order).ToList())

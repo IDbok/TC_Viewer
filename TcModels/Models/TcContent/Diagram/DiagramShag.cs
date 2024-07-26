@@ -25,5 +25,8 @@ namespace TcModels.Models.TcContent
         
         public int Order { get; set; }
 
+        public string? LeadComment { get; set; } // todo: добавить в БД
+        public string? ImplementerComment { get; set; } // todo: добавить в БД
+
     }
 }

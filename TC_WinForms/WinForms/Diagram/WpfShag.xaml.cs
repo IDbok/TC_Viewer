@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -25,10 +26,15 @@ namespace TC_WinForms.WinForms.Diagram
     /// <summary>
     /// Логика взаимодействия для WpfShag.xaml
     /// </summary>
-    public partial class WpfShag : System.Windows.Controls.UserControl
+    public partial class WpfShag : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
         private TechOperationWork selectedItem;
         WpfPosledovatelnost wpfPosledovatelnost;
+
+        private bool _isCommentViewMode;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public bool IsCommentViewMode => Win6_new.IsCommentViewMode;
 
         int Nomer = 0;
 
@@ -40,6 +46,23 @@ namespace TC_WinForms.WinForms.Diagram
         public WpfShag()
         {
             InitializeComponent();
+            DataContext = this;
+            Win6_new.CommentViewModeChanged += OnCommentViewModeChanged;
+        }
+        private void OnCommentViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsCommentViewMode));
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        // Не забудьте отписаться от события, чтобы избежать утечек памяти
+        ~WpfShag()
+        {
+            Win6_new.CommentViewModeChanged -= OnCommentViewModeChanged;
         }
 
         public void SaveCollection()
@@ -48,6 +71,10 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 diagramShag.Deystavie = TextDeystShag.Text;
             }
+
+
+            diagramShag.ImplementerComment = txtImplementerComment.Text;
+            diagramShag.LeadComment = txtLeadComment.Text;
 
             var allVB = AllItemGrid.Where(w => w.Add).ToList();
             diagramShag.ListDiagramShagToolsComponent = new List<DiagramShagToolsComponent>();
@@ -85,12 +112,14 @@ namespace TC_WinForms.WinForms.Diagram
                 diagramShag.Nomer = nomer;
             }
 
-            TextShag.Text = $"№{nomer} шага";
-            TextTable.Text = $"№{nomer} таблицы";
-            TextImage.Text = $"№{nomer} рисунка";
+            TextShag.Text = $"Шаг {nomer}";
+            TextTable.Text = $"Таблица {nomer}";
+            TextImage.Text = $"Рисунок {nomer}";
         }
 
-        public WpfShag(TechOperationWork selectedItem, WpfPosledovatelnost _wpfPosledovatelnost, DiagramShag _diagramShag=null)
+        public WpfShag(TechOperationWork selectedItem, 
+            WpfPosledovatelnost _wpfPosledovatelnost, 
+            DiagramShag _diagramShag=null)
         {
             InitializeComponent();
 
@@ -106,6 +135,8 @@ namespace TC_WinForms.WinForms.Diagram
                 try
                 {
                     TextDeystShag.Text = diagramShag.Deystavie.ToString();
+                    txtLeadComment.Text = diagramShag.LeadComment ?? "";
+                    txtImplementerComment.Text = diagramShag.ImplementerComment ?? "";
                 }
                 catch (Exception)
                 {
@@ -141,7 +172,9 @@ namespace TC_WinForms.WinForms.Diagram
                 {
 
                 }
-                
+
+                DataContext = this;
+                Win6_new.CommentViewModeChanged += OnCommentViewModeChanged;
 
             }
 
@@ -253,8 +286,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 ComboBoxTeh.SelectedItem = null;
             }
-        }             
-
+        }
 
         private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {

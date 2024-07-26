@@ -14,8 +14,28 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form, IViewModeable
     {
-        private bool _isViewMode = true;
-        private bool _isCommentViewMode = false;
+        private static bool _isViewMode = true;
+        private static bool _isCommentViewMode = false;
+
+        public static bool IsViewMode => _isViewMode;
+        public static bool IsCommentViewMode
+        {
+            get => _isCommentViewMode;
+            set
+            {
+                if (_isCommentViewMode != value)
+                {
+                    _isCommentViewMode = value;
+                    OnCommentViewModeChanged();
+                }
+            }
+        }
+        public static event Action CommentViewModeChanged;
+
+        private static void OnCommentViewModeChanged()
+        {
+            CommentViewModeChanged?.Invoke();
+        }
 
         private User.Role _accessLevel;
 
@@ -38,7 +58,7 @@ namespace TC_WinForms.WinForms
 
             InitializeComponent();
 
-            
+
 
             this.KeyDown += ControlSaveEvent;
 
@@ -221,7 +241,7 @@ namespace TC_WinForms.WinForms
 
             if (isSwitchingFromOrToWorkStep)
             {
-                if(!CheckForChanges()) // если false, то отменяем переключение
+                if (!CheckForChanges()) // если false, то отменяем переключение
                 {
                     return;
                 }
@@ -403,7 +423,6 @@ namespace TC_WinForms.WinForms
 
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
             SetViewMode(!_isViewMode);
         }
 
@@ -432,11 +451,9 @@ namespace TC_WinForms.WinForms
             if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
             {
                 await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
-
-
             }
 
-            if (_isCommentViewMode)
+            if (IsCommentViewMode)
             {
                 setRemarksModeToolStripMenuItem.Text = "Показать комментарии";
 
@@ -448,15 +465,17 @@ namespace TC_WinForms.WinForms
 
                 //SetViewMode();
             }
-            _isCommentViewMode = !_isCommentViewMode;
+            IsCommentViewMode = !IsCommentViewMode;
             SetCommentViewMode();
         }
 
         private void SetCommentViewMode()
         {
-            var ToForm = _formsCache[EModelType.WorkStep] as TechOperationForm;
-
-            ToForm.SetCommentViewMode(_isCommentViewMode);
+            if (!_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm) 
+                && cachedForm is TechOperationForm techOperationForm)
+            {
+                techOperationForm.SetCommentViewMode(IsCommentViewMode);
+            }
         }
 
         private void toolStripExecutionScheme_Click(object sender, EventArgs e)
@@ -470,6 +489,17 @@ namespace TC_WinForms.WinForms
 
             // вывести на передний план
             win6_ExecutionScheme.BringToFront();
+        }
+
+        private void toolStripDiagrams_Click(object sender, EventArgs e)
+        {
+            if (!_formsCache.TryGetValue(EModelType.Diagram, out var diagramForm) || diagramForm.IsDisposed)
+            {
+                diagramForm = CreateForm(EModelType.Diagram);
+                _formsCache[EModelType.Diagram] = diagramForm;
+            }
+            diagramForm.Show();
+            diagramForm.BringToFront();
         }
 
         enum WinNumber
