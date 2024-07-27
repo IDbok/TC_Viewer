@@ -33,7 +33,7 @@ namespace TcModels.Models.TcContent
 
         public string? Coefficient { get; set; } = "";
         public double Value { get; set; } // время выполнения
-        public string Comments { get; set; } = "";
+        public string? Comments { get; set; } = "";
 
         [NotMapped] public bool NewItem { get; set; }
        [NotMapped] public bool Delete { get; set; }
@@ -48,7 +48,7 @@ namespace TcModels.Models.TcContent
         public string Vopros { get; set; } = "";
         public string Otvet { get; set; } = "";
 
-        public string PictureName { get; set; } = "";
+        public string? PictureName { get; set; } = "";
 
         public override string ToString()
        {

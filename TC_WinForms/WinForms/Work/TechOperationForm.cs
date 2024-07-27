@@ -762,7 +762,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     /// </summary>
     private void PopulateDataGrid()
     {
-        var techOperationWorksListLocal = TechOperationWorksList.Where(w => !w.Delete).OrderBy(o => o.Order).ToList();
+        var techOperationWorksListLocal = 
+            TechOperationWorksList.Where(w => !w.Delete).OrderBy(o => o.Order).ToList();
         int nomer = 1;
 
         foreach (var techOperationWork in techOperationWorksListLocal)
