@@ -471,7 +471,7 @@ namespace TC_WinForms.WinForms
 
         private void SetCommentViewMode()
         {
-            if (!_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm) 
+            if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm) 
                 && cachedForm is TechOperationForm techOperationForm)
             {
                 techOperationForm.SetCommentViewMode(IsCommentViewMode);

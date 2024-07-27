@@ -1108,36 +1108,43 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
         }
 
-        if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
+        if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
+            || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
         {
             var executionWork = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
 
             if (executionWork != null)
             {
-                if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index
-                    && TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() == DataProcessing.AuthorizationService.User.Role.Lead)
+                if (
+                    //(e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
+                    //|| e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
+                    //&& 
+                    TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() 
+                    == DataProcessing.AuthorizationService.User.Role.Lead)
                 {
-                    CellCangeReadOlny(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
                 else if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index
-                    && TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() == DataProcessing.AuthorizationService.User.Role.Implementer)
+                    && TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() 
+                    == DataProcessing.AuthorizationService.User.Role.Implementer)
                 {
-                    CellCangeReadOlny(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
             }
             else
             {
                 // Делаем ячейки недоступными для редактирования, если элемент ExecutionWork отсутствует
-                if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
+                if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
+                    || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
                 {
-                    CellCangeReadOlny(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
                 }
             }
         }
         
     }
 
-    public void CellCangeReadOlny(DataGridViewCell cell, bool isReadOnly)
+    public void CellChangeReadOnly(DataGridViewCell cell, bool isReadOnly)
     {
         // Делаем ячейку редактируемой
         cell.ReadOnly = isReadOnly;
@@ -1617,5 +1624,31 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         //    }
         //}
     }
+
+    public void HighlightExecutionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)
+    {
+        if (executionWork == null)
+            return;
+
+        foreach (DataGridViewRow row in dgvMain.Rows)
+        {
+            if (row.Cells[0].Value is ExecutionWork currentWork 
+                && currentWork.Id == executionWork.Id 
+                && currentWork.techTransitionId == executionWork.techTransitionId
+                && currentWork.techOperationWorkId == executionWork.techOperationWorkId
+                )
+            {
+                dgvMain.ClearSelection(); // Снимите выделение со всех строк
+                row.Selected = true; // Выделите найденную строку
+                if (scrollToRow)
+                {
+                    dgvMain.FirstDisplayedScrollingRowIndex = row.Index; // Прокрутите до выделенной строки
+                }
+                break;
+            }
+        }
+    }
+
+
 
 }

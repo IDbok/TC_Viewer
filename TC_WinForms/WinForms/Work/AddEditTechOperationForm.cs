@@ -44,7 +44,8 @@ namespace TC_WinForms.WinForms.Work
 
             dataGridViewTPLocal.CellClick += DataGridViewTPLocal_CellClick;
             dataGridViewTPLocal.CellEndEdit += DataGridViewTPLocal_CellEndEdit;
-            dataGridViewTPLocal.CellFormatting += DataGridViewTPLocal_CellFormatting;
+            dataGridViewTPLocal.CellFormatting += DataGridViewTPLocal_CellFormatting; 
+            dataGridViewTPLocal.SelectionChanged += DataGridViewTPLocal_SelectionChanged;
 
             dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
             dataGridViewStaff.CellClick += DataGridViewStaff_CellClick;
@@ -356,7 +357,7 @@ namespace TC_WinForms.WinForms.Work
             if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index
                 || e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index)// Индекс столбца с checkBox
             {
-                TechOperationForm.CellCangeReadOlny(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                TechOperationForm.CellChangeReadOnly(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
 
             }
             else if (e.ColumnIndex == dataGridViewTPLocal.Columns["Coefficient"].Index)
@@ -366,17 +367,46 @@ namespace TC_WinForms.WinForms.Work
 
                 if (rowName == "Повторить")
                 {
-                    TechOperationForm.CellCangeReadOlny(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                    TechOperationForm.CellChangeReadOnly(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
                 }
                 else
                 {
-                    TechOperationForm.CellCangeReadOlny(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                    TechOperationForm.CellChangeReadOnly(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
             }
             else
             {
-                TechOperationForm.CellCangeReadOlny(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                TechOperationForm.CellChangeReadOnly(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
             }
+        }
+        private void DataGridViewTPLocal_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dataGridViewTPLocal.SelectedRows.Count > 0)
+            {
+                // Get the ExecutionWork object corresponding to the selected row
+                var selectedRow = dataGridViewTPLocal.SelectedRows[0];
+                var id = (Guid)selectedRow.Cells[0].Value;
+                var executionWork = FindExecutionWorkById(id);
+
+                if (executionWork != null)
+                {
+                    TechOperationForm.HighlightExecutionWorkRow(executionWork, false);
+                }
+            }
+        }
+
+        // Method to find ExecutionWork by its ID
+        private ExecutionWork? FindExecutionWorkById(Guid id)
+        {
+            foreach (var techOperationWork in TechOperationForm.TechOperationWorksList)
+            {
+                var executionWork = techOperationWork.executionWorks.SingleOrDefault(ew => ew.IdGuid == id);
+                if (executionWork != null)
+                {
+                    return executionWork;
+                }
+            }
+            return null;
         }
 
         private void DataGridViewTPAll_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -1943,58 +1973,42 @@ namespace TC_WinForms.WinForms.Work
         {
             if (executionWorkPovtor == null) return;
 
+            var executionWork = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
+            // позиция для executionWorkPovtor в таблице dataGridViewPovtor
+            var powtorIndex = dataGridViewPovtor.Rows.Cast<DataGridViewRow>().ToList().FindIndex(x => x.Cells[0].Value == executionWorkPovtor);
+            bool isReadOnlyRow = powtorIndex < e.RowIndex;
+
             if (e.ColumnIndex == 1) // Индекс столбца с checkBox
             {
-                var executionWork = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
                 if (executionWork == executionWorkPovtor)
                 {
-                    // Делаем ячейку недоступной
-                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
-                    // Выделить строку цветом
-                    dataGridViewPovtor.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.DarkSeaGreen;
+                    SetReadOnlyAndColor(e.ColumnIndex, Color.DarkSeaGreen);
                 }
-                else if (executionWork.Order > executionWorkPovtor!.Order 
-                    || executionWork.techOperationWork?.Order > executionWorkPovtor.techOperationWork?.Order)
+                else if (isReadOnlyRow)
                 {
-                    // Делаем ячейку недоступной
-                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
-                    // Выделить строку цветом
-                    dataGridViewPovtor.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.DarkSalmon;
+                    SetReadOnlyAndColor(e.ColumnIndex, Color.DarkSalmon);
                 }
             }
             else if (e.ColumnIndex == 5 || e.ColumnIndex == 6 || e.ColumnIndex == 7) // Индекс столбца с checkBox
             {
-                var executionWork = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-                if (executionWork == executionWorkPovtor)
+                if (executionWork == executionWorkPovtor || isReadOnlyRow)
                 {
                     // Делаем ячейку недоступной
                     dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
-
-
-                    //dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
                 }
-                else if (executionWork.Order > executionWorkPovtor!.Order)
-                {
-                    // Делаем ячейку недоступной
-                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
-                    //dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
-                }
-                else if (executionWork.Order < executionWorkPovtor.Order 
-                    && executionWork.techOperationWork?.Order <= executionWorkPovtor.techOperationWork?.Order)
+                else // todo: снимать повтор, если объект перемещают "ниже" повтора
                 {
                     var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
                         .SingleOrDefault(x => x.ChildExecutionWork == executionWork);
-                    if (existingRepeat != null)
-                    {
-                        dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.LightGray;
-                        dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = false;
-                    }
-                    else
-                    {
-                        dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.White;
-                        dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
-                    }
+
+                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = existingRepeat != null ? Color.LightGray : Color.White;
+                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = existingRepeat == null;
                 }
+            }
+            void SetReadOnlyAndColor(int columnIndex, Color color, bool readOnly = true)
+            {
+                dataGridViewPovtor.Rows[e.RowIndex].Cells[columnIndex].ReadOnly = readOnly;
+                dataGridViewPovtor.Rows[e.RowIndex].DefaultCellStyle.BackColor = color;
             }
         }
 
@@ -2008,7 +2022,10 @@ namespace TC_WinForms.WinForms.Work
                 var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
                 var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
 
-                if (executionWorkPovtor != null && currentEW.Order < executionWorkPovtor.Order)
+                // позиция для executionWorkPovtor в таблице dataGridViewPovtor
+                var powtorIndex = dataGridViewPovtor.Rows.Cast<DataGridViewRow>().ToList().FindIndex(x => x.Cells[0].Value == executionWorkPovtor);
+
+                if (executionWorkPovtor != null && powtorIndex > e.RowIndex)//currentEW.Order < executionWorkPovtor.Order)
                 {
                     var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
                         .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
@@ -2047,51 +2064,9 @@ namespace TC_WinForms.WinForms.Work
                     dataGridViewPovtor.Invalidate();
                     //dataGridViewTPLocal.Invalidate();
 
-                    TechOperationForm.UpdateGrid();
-
-
+                    TechOperationForm.UpdateGrid(); // todo: реализовать метод по изменению значения только для одной строки в таблице TechOperationForm
                 }
             }
-            //else if ((e.ColumnIndex == 4 || e.ColumnIndex == 5 || e.ColumnIndex == 6) && e.RowIndex >= 0)
-            //{
-            //    var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-            //    var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
-            //    if (executionWorkPovtor != null)
-            //    {
-            //        var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
-            //            .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
-
-            //        if (isSelected)
-            //        {
-            //            if (existingRepeat != null)
-            //            {
-            //                if (e.ColumnIndex == 4) 
-            //                { 
-            //                    existingRepeat.NewCoefficient = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-            //                }
-            //                else if (e.ColumnIndex == 5)
-            //                {
-            //                    existingRepeat.NewEtap = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-            //                }
-            //                else if (e.ColumnIndex == 6)
-            //                {
-            //                    existingRepeat.NewPosled = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-            //                }
-            //            }
-            //        }
-            //        else
-            //        {
-
-            //        }
-
-            //        // todo - перерасчёт значение Value
-            //        RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
-            //        TechOperationForm.UpdateGrid();
-            //    }
-            //}
-
-
         }
 
         private void DataGridViewPovtor_CellValueChanged(object? sender, DataGridViewCellEventArgs e)

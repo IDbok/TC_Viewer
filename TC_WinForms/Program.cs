@@ -85,8 +85,10 @@ namespace TC_WinForms
 "lead", "dXLPdF"
 "implementer", "30yP0e"
             */
-                string login = "implementer"; //"lead";// "manager"; // "user"; // "implementer"; //
-                string password = "30yP0e";
+                //string login = "implementer";
+                //string password = "30yP0e";
+                string login = "lead";
+                string password = "dXLPdF";
                 AuthorizationService.AuthorizeUser(login, password);
 
                 if (AuthorizationService.CurrentUser != null)
@@ -104,6 +106,7 @@ namespace TC_WinForms
                 var authForm = new Win8();
                 authForm.ShowDialog();
             }
+            
             Test();
 
             //Application.Run(MainForm);
