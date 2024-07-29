@@ -32,7 +32,7 @@ namespace TcModels.Models.TcContent
                 CommentName = sourceObject.CommentName;
                 CommentTimeExecution = sourceObject.CommentTimeExecution;
                 ExecutionWorks = sourceObject.ExecutionWorks;
-
+                IsReleased = sourceObject.IsReleased;
             }
         }
     }

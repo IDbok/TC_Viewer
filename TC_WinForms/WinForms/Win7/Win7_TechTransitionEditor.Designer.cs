@@ -136,9 +136,9 @@
             cbxTimeCheck.AutoSize = true;
             cbxTimeCheck.Location = new Point(446, 152);
             cbxTimeCheck.Name = "cbxTimeCheck";
-            cbxTimeCheck.Size = new Size(140, 29);
+            cbxTimeCheck.Size = new Size(130, 29);
             cbxTimeCheck.TabIndex = 17;
-            cbxTimeCheck.Text = "проверенно";
+            cbxTimeCheck.Text = "проверено";
             cbxTimeCheck.UseVisualStyleBackColor = true;
             // 
             // lblTimeUnit

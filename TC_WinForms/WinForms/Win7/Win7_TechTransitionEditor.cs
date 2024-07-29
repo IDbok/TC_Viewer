@@ -55,6 +55,8 @@ public partial class Win7_TechTransitionEditor : Form
 
             rtxtNameComment.Text = _editingObj.CommentName;
             rtxtTimeComment.Text = _editingObj.CommentTimeExecution;
+
+            cbxIsReleased.Checked = _editingObj.IsReleased;
         }
     }
 
@@ -93,6 +95,8 @@ public partial class Win7_TechTransitionEditor : Form
         _editingObj.TimeExecutionChecked = cbxTimeCheck.Checked;
         _editingObj.CommentName = rtxtNameComment.Text;
         _editingObj.CommentTimeExecution = rtxtTimeComment.Text;
+
+        _editingObj.IsReleased = cbxIsReleased.Checked;
 
 
         // проверка _editingObj на то, что все необходимые заполнены
