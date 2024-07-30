@@ -557,13 +557,13 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
                     ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter))
                         || obj.Categoty?.ToString() == categoryFilter) &&
 
-                    (obj.IsReleased == !cbxShowUnReleased.Checked) &&
-
-                    (!_isAddingForm ||
-                        (!cbxShowUnReleased.Checked ||
-                        (cbxShowUnReleased.Checked &&
-                        (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
-                    )
+                    (obj.IsReleased == !cbxShowUnReleased.Checked) 
+                    //&&
+                    //(!_isAddingForm ||
+                    //    (!cbxShowUnReleased.Checked ||
+                    //    (cbxShowUnReleased.Checked &&
+                    //    (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
+                    //)
                     ).ToList();
 
         return new BindingList<DisplayedTool>(filteredList);

@@ -670,13 +670,13 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
                     ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter))
                             || obj.Categoty?.ToString() == categoryFilter) &&
 
-                    (obj.IsReleased == !cbxShowUnReleased.Checked) &&
-
-                    (!_isAddingForm ||
-                        (!cbxShowUnReleased.Checked ||
-                        (cbxShowUnReleased.Checked &&
-                        (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
-                    )
+                    (obj.IsReleased == !cbxShowUnReleased.Checked) 
+                    //&& (!_isAddingForm ||
+                    //    (!cbxShowUnReleased.Checked ||
+                    //    (cbxShowUnReleased.Checked
+                    //    && (obj.CreatedTCId == null || obj.CreatedTCId == _tcId))
+                    //    )
+                    //)
                     ).ToList();
 
         return new BindingList<DisplayedComponent>(filteredList);

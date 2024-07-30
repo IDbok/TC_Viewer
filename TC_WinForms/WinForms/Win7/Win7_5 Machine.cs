@@ -527,13 +527,13 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
                         //(obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                         (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
                     ) &&
-                    (obj.IsReleased == !cbxShowUnReleased.Checked) &&
-
-                    (!_isAddingForm ||
-                        (!cbxShowUnReleased.Checked ||
-                        (cbxShowUnReleased.Checked &&
-                        (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
-                    )
+                    (obj.IsReleased == !cbxShowUnReleased.Checked) 
+                    //&&
+                    //(!_isAddingForm ||
+                    //    (!cbxShowUnReleased.Checked ||
+                    //    (cbxShowUnReleased.Checked &&
+                    //    (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
+                    //)
                     ).ToList();
 
         return new BindingList<DisplayedMachine>(filteredList);

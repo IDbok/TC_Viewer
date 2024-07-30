@@ -45,7 +45,7 @@ namespace TC_WinForms
 
             if (isTestMode)
             {
-                configGlobal.ConnectionString = "server=localhost;database=tavrida_db_test;user=root;password=root";
+                configGlobal.ConnectionString = "server=localhost;database=tavrida_db_main;user=root;password=root";
             }
             else
             {
@@ -85,10 +85,10 @@ namespace TC_WinForms
 "lead", "dXLPdF"
 "implementer", "30yP0e"
             */
-                //string login = "implementer";
-                //string password = "30yP0e";
-                string login = "lead";
-                string password = "dXLPdF";
+                string login = "implementer";
+                string password = "30yP0e";
+                //string login = "lead";
+                //string password = "dXLPdF";
                 AuthorizationService.AuthorizeUser(login, password);
 
                 if (AuthorizationService.CurrentUser != null)

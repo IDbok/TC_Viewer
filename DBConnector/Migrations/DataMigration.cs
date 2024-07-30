@@ -755,24 +755,37 @@ public class DataMigration
                 {
                     foreach (var ewRepeat in ew.ExecutionWorkRepeats)
                     {
-                        var newEwRepeat = newExecutionWorks.FirstOrDefault(x => x.Id == ewRepeat.Id);
-                        if (newEwRepeat != null)
+                        var newExecutionWorkRepeat = new newCore.TcContent.ExecutionWorkRepeat
                         {
-                            var newExecutionWorkRepeat = new newCore.TcContent.ExecutionWorkRepeat
-                            {
-                                ParentExecutionWorkId = ew.Id,
-                                ChildExecutionWorkId = ewRepeat.Id,
+                            Id = ewRepeat.Id,
 
-                                NewCoefficient = ewRepeat.NewCoefficient,
-                                NewEtap = ewRepeat.NewEtap,
-                                NewPosled = ewRepeat.NewPosled,
-                            };
-                            newExecutionWork.ExecutionWorkRepeats.Add(newExecutionWorkRepeat);
-                        }
-                        else
-                        {
-                            throw new Exception($"ExecutionWork {ewRepeat.Id} not found");
-                        }
+                            ParentExecutionWorkId = ew.Id,
+                            ChildExecutionWorkId = ewRepeat.ChildExecutionWorkId,
+
+                            NewCoefficient = ewRepeat.NewCoefficient,
+                            NewEtap = ewRepeat.NewEtap,
+                            NewPosled = ewRepeat.NewPosled,
+                        };
+                        newExecutionWork.ExecutionWorkRepeats.Add(newExecutionWorkRepeat);
+
+                        //var newEwRepeat = newExecutionWorks.FirstOrDefault(x => x.Id == ewRepeat.Id);
+                        //if (newEwRepeat != null)
+                        //{
+                        //    var newExecutionWorkRepeat = new newCore.TcContent.ExecutionWorkRepeat
+                        //    {
+                        //        ParentExecutionWorkId = ew.Id,
+                        //        ChildExecutionWorkId = ewRepeat.Id,
+
+                        //        NewCoefficient = ewRepeat.NewCoefficient,
+                        //        NewEtap = ewRepeat.NewEtap,
+                        //        NewPosled = ewRepeat.NewPosled,
+                        //    };
+                        //    newExecutionWork.ExecutionWorkRepeats.Add(newExecutionWorkRepeat);
+                        //}
+                        //else
+                        //{
+                        //    throw new Exception($"ExecutionWork {ewRepeat.Id} not found");
+                        //}
                     }
                 }
 

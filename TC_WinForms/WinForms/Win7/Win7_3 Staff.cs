@@ -483,13 +483,13 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
                         (obj.CombineResponsibility?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                         (obj.Qualification?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                         (obj.Comment?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)) &&
-                        (obj.IsReleased == !cbxShowUnReleased.Checked) &&
-
-                        (!_isAddingForm ||
-                            (!cbxShowUnReleased.Checked ||
-                            (cbxShowUnReleased.Checked &&
-                            (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
-                        )
+                        (obj.IsReleased == !cbxShowUnReleased.Checked) 
+                        //&&
+                        //(!_isAddingForm ||
+                        //    (!cbxShowUnReleased.Checked ||
+                        //    (cbxShowUnReleased.Checked &&
+                        //    (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
+                        //)
                         ).ToList();
 
                 _bindingList = new BindingList<DisplayedStaff>(filteredList);
