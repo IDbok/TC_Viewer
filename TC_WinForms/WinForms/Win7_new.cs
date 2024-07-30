@@ -29,7 +29,7 @@ namespace TC_WinForms.WinForms
         public Win7_new(User.Role accessLevel)
         {
             StaticWinForms.Win7_new = this;
-            
+
             _accessLevel = accessLevel;
             InitializeComponent();
 
@@ -405,6 +405,11 @@ namespace TC_WinForms.WinForms
             });
         }
 
+        private void infoToolStripButton_Click(object sender, EventArgs e)
+        {
+            // сообщение с информацией о программе
+            MessageBox.Show(ApplicationInfoService.GetApplicationInfo(), "О программе");
+        }
 
         enum WinNumber
         {

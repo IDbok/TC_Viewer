@@ -32,6 +32,7 @@ namespace TC_WinForms.WinForms.Work
         {
             InitializeComponent();
             TechOperationForm = techOperationForm;
+            //var context = techOperationForm.context;
 
             // dataGridViewAllTO.CellContentClick += DataGridViewAllTO_CellContentClick;
             dataGridViewAllTO.CellClick += DataGridViewAllTO_CellClick;
@@ -72,7 +73,6 @@ namespace TC_WinForms.WinForms.Work
 
             dataGridViewMeha.CellContentClick += DataGridViewMeha_CellContentClick;
 
-            var context = techOperationForm.context;
 
             dataGridViewPovtor.CellContentClick += DataGridViewPovtor_CellContentClick;
             dataGridViewPovtor.CellValueChanged += DataGridViewPovtor_CellValueChanged;
@@ -417,7 +417,7 @@ namespace TC_WinForms.WinForms.Work
                 var Idd = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
 
 
-                if (Idd.Name != "Повторить")
+                if (Idd.Name != "Повторить п.")
                 {
                     CoefficientForm coefficient = new CoefficientForm(Idd);
 
@@ -505,13 +505,15 @@ namespace TC_WinForms.WinForms.Work
                 }
             }
 
-            TechTransition povtor = new TechTransition();
-            povtor.Name = "Повторить";
-            List<object> listItem1 = new List<object>();
-            listItem1.Add(povtor);
-            listItem1.Add("Добавить");
-            listItem1.Add(povtor.Name);
-            dataGridViewTPAll.Rows.Add(listItem1.ToArray());
+            //TechTransition povtor = new TechTransition();
+            //povtor.Name = "Повторить";
+            //List<object> listItem1 = new List<object>
+            //{
+            //    povtor,
+            //    "Добавить",
+            //    povtor.Name
+            //};
+            //dataGridViewTPAll.Rows.Add(listItem1.ToArray());
 
             if (work?.techOperation.Category == "Типовая ТО")
             {
@@ -519,50 +521,35 @@ namespace TC_WinForms.WinForms.Work
             }
 
             var filteredTransitions = FilterTechTransitions(textBoxPoiskTP.Text);
+
+            // находим ТП "Повторить п." и добавляем его первым в список
+            var repeatTechTransition = allTP.SingleOrDefault(tp => tp.Name == "Повторить п.");
+            if (repeatTechTransition != null)
+            {
+                List<object> listItem = new()
+                {
+                    repeatTechTransition,
+                    "Добавить",
+                    repeatTechTransition.Name,
+                    repeatTechTransition.TimeExecution
+                };
+                dataGridViewTPAll.Rows.Add(listItem.ToArray());
+            }
+
             foreach (TechTransition techTransition in filteredTransitions)// allTP)
             {
-                //if (textBoxPoiskTP.Text != "" &&
-                //    techTransition.Name.ToLower().IndexOf(textBoxPoiskTP.Text.ToLower()) == -1)
-                //{
-                //    continue;
-                //}
+                if (techTransition.Name == "Повторить п.")
+                {
+                    continue;
+                }
 
-                //if (AddCategor)
-                //{
-                //    if (!string.IsNullOrEmpty(techTransition.Category))
-                //    {
-                //        if (comboBoxTPCategoriya.Items.Contains(techTransition.Category) == false)
-                //        {
-                //            comboBoxTPCategoriya.Items.Add(techTransition.Category);
-                //        }
-                //    }
-                //}
-
-                //if (comboBoxTPCategoriya.SelectedIndex > 0)
-                //{
-                //    if ((string)comboBoxTPCategoriya.SelectedItem != techTransition.Category)
-                //    {
-                //        continue;
-                //    }
-                //}
-
-
-                List<object> listItem = new List<object>();
-
-                listItem.Add(techTransition);
-                //if (list.SingleOrDefault(s => s.techTransitionId == techTransition.Id) != null)
-                //{
-                //    listItem.Add(true);
-                //}
-                //else
-                //{
-                //    listItem.Add(false);
-                //}
-                listItem.Add("Добавить");
-
-
-                listItem.Add(techTransition.Name);
-                listItem.Add(techTransition.TimeExecution);
+                List<object> listItem = new()
+                {
+                    techTransition,
+                    "Добавить",
+                    techTransition.Name,
+                    techTransition.TimeExecution
+                };
 
                 dataGridViewTPAll.Rows.Add(listItem.ToArray());
             }

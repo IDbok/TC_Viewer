@@ -4,6 +4,7 @@ using oldCore = TcDbConnector.Migrations.OldCore.Models;
 using newCore = TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
+using TcModels.Models;
 
 namespace TcDbConnector.Migrations;
 
@@ -20,11 +21,11 @@ public class DataMigration
         //}
 
         // проверка на существование базы данных
-        if (!_myDbContext.Database.CanConnect() )//&& createNewDb)
+        if (true )//!_myDbContext.Database.CanConnect() )//&& createNewDb)
         {
-            //_myDbContext.Database.EnsureDeleted();
+            _myDbContext.Database.EnsureDeleted();
             _myDbContext.Database.EnsureCreated();
-            Console.WriteLine("Новая БД создана!");
+            Console.WriteLine("Новая БД tavrida_db_main создана!");
         }
 
         if (!_oldDbContext.Database.CanConnect() || !_myDbContext.Database.CanConnect())
@@ -140,6 +141,18 @@ public class DataMigration
         // преобразовать сущности из oldCore в newCore
         var newTCs = oldTCs.Select(tc =>
         {
+            ImageStorage? image = null;
+
+            if (tc.ExecutionScheme != null && tc.ExecutionScheme.Length > 0)
+            {
+                image = new ImageStorage
+                {
+                    ImageBase64 = Convert.ToBase64String(tc.ExecutionScheme),
+                    Category = ImageCategory.ExecutionScheme,
+                    Name = tc.Article,
+                };
+            }
+
             var newTC = new newCore.TechnologicalCard
             {
                 Id = tc.Id,
@@ -160,9 +173,10 @@ public class DataMigration
                 DamageType = tc.DamageType,
                 RepairType = tc.RepairType,
                 IsCompleted = tc.IsCompleted,
-                ExecutionSchemeBase64 = tc.ExecutionScheme?.Length == 0 ?  Convert.ToBase64String(tc.ExecutionScheme) : null,
+                //ExecutionSchemeBase64 = tc.ExecutionScheme?.Length == 0 ?  Convert.ToBase64String(tc.ExecutionScheme) : null,
                 Status = (newCore.TechnologicalCard.TechnologicalCardStatus)tc.Status,
 
+                ExecutionSchemeImage = image,
             };
 
             return newTC;
@@ -644,11 +658,22 @@ public class DataMigration
             .Include(x => x.Staffs)
             .Include(x => x.Protections)
             .Include(x => x.Machines)
-            .Include(x => x.ListexecutionWorkRepeat2)
+            //.Include(x => x.ListexecutionWorkRepeat2)
+            .Include(x => x.ExecutionWorkRepeats)
             .ToList();
+
+        // получить id ТП "Повтор"
+        var techTransitionId = _myDbContext.TechTransitions
+            .FirstOrDefault(x => x.Name == "Повторить п.")?.Id;
 
         var newExecutionWorks = oldExecutionWorks.Select(executionWork =>
         {
+            if (executionWork.techTransitionId == null 
+            || executionWork.techTransition?.Name == "Повторить")
+            {
+                executionWork.techTransitionId = techTransitionId;
+            }
+
             var newExecutionWork = new newCore.TcContent.ExecutionWork
             {
                 Id = executionWork.Id,
@@ -726,9 +751,9 @@ public class DataMigration
                     }
                 }
 
-                if (ew.ListexecutionWorkRepeat2.Count > 0)
+                if (ew.ExecutionWorkRepeats.Count > 0)
                 {
-                    foreach (var ewRepeat in ew.ListexecutionWorkRepeat2)
+                    foreach (var ewRepeat in ew.ExecutionWorkRepeats)
                     {
                         var newEwRepeat = newExecutionWorks.FirstOrDefault(x => x.Id == ewRepeat.Id);
                         if (newEwRepeat != null)
@@ -737,6 +762,10 @@ public class DataMigration
                             {
                                 ParentExecutionWorkId = ew.Id,
                                 ChildExecutionWorkId = ewRepeat.Id,
+
+                                NewCoefficient = ewRepeat.NewCoefficient,
+                                NewEtap = ewRepeat.NewEtap,
+                                NewPosled = ewRepeat.NewPosled,
                             };
                             newExecutionWork.ExecutionWorkRepeats.Add(newExecutionWorkRepeat);
                         }

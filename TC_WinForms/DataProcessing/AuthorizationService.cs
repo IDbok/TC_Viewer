@@ -63,6 +63,18 @@ public class AuthorizationService
         }
     }
 
+    public static string UserRoleConverter(User.Role role)
+    {
+        return role switch
+        {
+            User.Role.User => "Пользователь",
+            User.Role.ProjectManager => "Руководитель комплексных проектов",
+            User.Role.Lead => "Технолог руководитель",
+            User.Role.Implementer => "Технолог исполнитель",
+            _ => "Неизвестно"
+        };
+    }
+
     public class User
     {
         public enum Role {Lead , Implementer, ProjectManager, User}
