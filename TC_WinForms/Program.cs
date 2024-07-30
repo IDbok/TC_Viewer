@@ -61,7 +61,7 @@ namespace TC_WinForms
                     {
                         Config config = new Config();
 
-                        config.ConnectionString = "server=10.1.100.142;database=tcvdb_15;user=tavrida;password=tavrida$555";
+                        config.ConnectionString = "server=10.1.100.142;database=tcvdb_main;user=tavrida;password=tavrida$555";
                         // "server=127.0.0.1;port=3306;database=tavrida_db_main;user=root;password=lsSB1UaiX5"
                         JavaScriptSerializer javaScriptSerializer1 = new JavaScriptSerializer();
                         string? bbn = javaScriptSerializer1.Serialize(config);
