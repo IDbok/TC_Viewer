@@ -8,6 +8,7 @@ using TC_WinForms.WinForms.Diagram;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.AuthorizationService.User;
 
 namespace TC_WinForms
 {
@@ -78,6 +79,22 @@ namespace TC_WinForms
 
             if (isTestMode)
             {
+                string login, password;
+                Role userRole = Role.Lead;
+
+                switch (userRole)
+                {
+                    case Role.User:
+                        login = "user"; password = "f88k44"; break;
+                    case Role.ProjectManager:
+                        login = "manager"; password = "99eUiS"; break;
+                    case Role.Lead:
+                        login = "lead"; password = "dXLPdF"; break;
+                    case Role.Implementer:
+                        login = "implementer"; password = "30yP0e"; break;
+                    default:
+                        login = "lead"; password = "dXLPdF"; break;
+                }
                 /*
 Новые пароли:
 "user", "f88k44"
@@ -85,10 +102,6 @@ namespace TC_WinForms
 "lead", "dXLPdF"
 "implementer", "30yP0e"
             */
-                string login = "implementer";
-                string password = "30yP0e";
-                //string login = "lead";
-                //string password = "dXLPdF";
                 AuthorizationService.AuthorizeUser(login, password);
 
                 if (AuthorizationService.CurrentUser != null)
