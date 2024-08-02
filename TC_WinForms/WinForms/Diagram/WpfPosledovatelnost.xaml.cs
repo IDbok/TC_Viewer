@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,13 +20,24 @@ namespace TC_WinForms.WinForms.Diagram
     /// <summary>
     /// Логика взаимодействия для WpfPosledovatelnost.xaml
     /// </summary>
-    public partial class WpfPosledovatelnost : System.Windows.Controls.UserControl
+    public partial class WpfPosledovatelnost : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+
         private TechOperationWork selectedItem;
-       public WpfParalelno wpfParalelno;
+        public WpfParalelno wpfParalelno;
 
-       public DiagramPosledov diagramPosledov;
+        public DiagramPosledov diagramPosledov;
+        public bool IsHiddenInViewMode => !Win6_new.IsViewMode;
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
+        }
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         public WpfPosledovatelnost()
         {
             InitializeComponent();
@@ -34,6 +46,7 @@ namespace TC_WinForms.WinForms.Diagram
         public WpfPosledovatelnost(TechOperationWork selectedItem, WpfParalelno _wpfParalelno, DiagramPosledov _diagramPosledov=null)
         {
             InitializeComponent();
+            DataContext = this;
 
             if (_diagramPosledov == null)
             {
@@ -68,8 +81,11 @@ namespace TC_WinForms.WinForms.Diagram
 
 
             wpfParalelno.Nomeraciya();
+            Win6_new.ViewModeChanged += OnViewModeChanged;
+            //OnViewModeChanged();
+            Console.WriteLine( "Posled " + IsHiddenInViewMode);
         }
-
+        
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             ListWpfShag.Children.Add(new WpfShag(selectedItem, this));

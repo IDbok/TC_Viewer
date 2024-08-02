@@ -1,24 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml.Linq;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram
@@ -31,10 +19,10 @@ namespace TC_WinForms.WinForms.Diagram
         private TechOperationWork selectedItem;
         WpfPosledovatelnost wpfPosledovatelnost;
 
-        private bool _isCommentViewMode;
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         public bool IsCommentViewMode => Win6_new.IsCommentViewMode;
+        public bool IsViewMode => Win6_new.IsViewMode;
+        public bool IsHiddenInViewMode => !IsViewMode;
 
         int Nomer = 0;
 
@@ -47,11 +35,23 @@ namespace TC_WinForms.WinForms.Diagram
         {
             InitializeComponent();
             DataContext = this;
+
             Win6_new.CommentViewModeChanged += OnCommentViewModeChanged;
+            Win6_new.ViewModeChanged += OnViewModeChanged;
+
+            // Обновление привязки
+            OnPropertyChanged(nameof(IsCommentViewMode));
+            OnPropertyChanged(nameof(IsViewMode));
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
         }
         private void OnCommentViewModeChanged()
         {
             OnPropertyChanged(nameof(IsCommentViewMode));
+        }
+        private void OnViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
+            OnPropertyChanged(nameof(IsViewMode));
         }
 
         protected void OnPropertyChanged(string propertyName)
@@ -59,10 +59,11 @@ namespace TC_WinForms.WinForms.Diagram
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        // Не забудьте отписаться от события, чтобы избежать утечек памяти
+        // Отписка от событий, чтобы избежать утечек памяти
         ~WpfShag()
         {
             Win6_new.CommentViewModeChanged -= OnCommentViewModeChanged;
+            Win6_new.ViewModeChanged -= OnViewModeChanged;
         }
 
         public void SaveCollection()
@@ -420,9 +421,16 @@ namespace TC_WinForms.WinForms.Diagram
         }
         private void ChangeImageVisibility(bool imageVisibility)
         {
-            btnLoadImage.Visibility = imageVisibility ? Visibility.Collapsed : Visibility.Visible;
             imageDiagram.Visibility = imageVisibility ? Visibility.Visible : Visibility.Collapsed;
             gridImageName.Visibility = imageVisibility ? Visibility.Visible : Visibility.Collapsed;
+
+            if (IsViewMode)
+            {
+                
+                return;
+            }
+
+            btnLoadImage.Visibility = imageVisibility ? Visibility.Collapsed : Visibility.Visible;
             btnDeleteImage.Visibility = imageVisibility ? Visibility.Visible : Visibility.Collapsed;
             //if(imageVisibility)
             //    imageDiagram.Source = "/WinForms/Diagram/Select.jpg";

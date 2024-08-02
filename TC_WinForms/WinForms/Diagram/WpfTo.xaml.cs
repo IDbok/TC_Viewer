@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 using TcModels.Models.TcContent;
 
@@ -7,11 +8,25 @@ namespace TC_WinForms.WinForms.Diagram
     /// <summary>
     /// Логика взаимодействия для WpfTo.xaml
     /// </summary>
-    public partial class WpfTo : System.Windows.Controls.UserControl
+    public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
         private WpfMainControl _wpfMainControl;
         private string? parallelIndex;
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public bool IsCommentViewMode => Win6_new.IsCommentViewMode;
+        public bool IsViewMode => Win6_new.IsViewMode;
+        public bool IsHiddenInViewMode => !IsViewMode;
+        private void OnViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
+            OnPropertyChanged(nameof(IsViewMode));
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         public List<WpfControlTO> Children { get; set; } = new List<WpfControlTO>();
         public WpfTo()
         {
@@ -22,6 +37,7 @@ namespace TC_WinForms.WinForms.Diagram
             bool addDiagram = true)
         {
             InitializeComponent();
+            DataContext = this;
 
             _wpfMainControl = wpfMainControl;
 
@@ -30,6 +46,12 @@ namespace TC_WinForms.WinForms.Diagram
 
             if(addDiagram)
                 AddWpfControlTO(wpfMainControl, _diagramToWork);
+            
+            Win6_new.ViewModeChanged += OnViewModeChanged;
+
+            // Обновление привязки
+            OnPropertyChanged(nameof(IsViewMode));
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
         }
 
         public void AddParallelTO(DiagamToWork? diagamToWork)

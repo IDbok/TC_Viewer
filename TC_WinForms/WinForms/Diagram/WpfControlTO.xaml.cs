@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,13 +20,18 @@ namespace TC_WinForms.WinForms.Diagram
     /// <summary>
     /// Логика взаимодействия для UserControl1.xaml
     /// </summary>
-    public partial class WpfControlTO : System.Windows.Controls.UserControl
+    public partial class WpfControlTO : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
         public List<TechOperationWork> TechOperationWorksList;
         //WpfMainControl _wpfMainControl;
         public DiagamToWork diagamToWork;
         public  WpfMainControl _wpfMainControl; // через этот объект осуществляется добавление DiagamToWork в TechnologicalCard
         public bool New=false;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public bool IsCommentViewMode => Win6_new.IsCommentViewMode;
+        private bool IsViewMode => Win6_new.IsViewMode;
+        public bool IsHiddenInViewMode => !IsViewMode;
 
         public WpfControlTO()
         {
@@ -35,6 +41,7 @@ namespace TC_WinForms.WinForms.Diagram
         public WpfControlTO(WpfMainControl wpfMainControl, DiagamToWork diagamToWork)
         {
             InitializeComponent();
+            DataContext = this;
 
             this._wpfMainControl = wpfMainControl;
             TechOperationWorksList = wpfMainControl.TechOperationWorksList; //techOperationWorksList;
@@ -56,6 +63,18 @@ namespace TC_WinForms.WinForms.Diagram
             //}
 
             UpdateDiagramToWork();
+
+            Win6_new.ViewModeChanged += OnViewModeChanged;
+        }
+
+        private void OnViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void UpdateDiagramToWork()
@@ -69,8 +88,9 @@ namespace TC_WinForms.WinForms.Diagram
                 ComboBoxTO.IsEnabled = false;
 
                 ListWpfParalelno.Visibility = Visibility.Visible;
-                ButtonAddShag.Visibility = Visibility.Visible;
 
+                if(!IsViewMode)
+                    ButtonAddShag.Visibility = Visibility.Visible;
 
                 _wpfMainControl.technologicalCard.DiagamToWork.Add(this.diagamToWork);
 
@@ -100,6 +120,9 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            if (this.diagamToWork.techOperationWork == null)
+                return;
+
             ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, this));
             _wpfMainControl.diagramForm.HasChanges = true;
             _wpfMainControl.Nomeraciya();

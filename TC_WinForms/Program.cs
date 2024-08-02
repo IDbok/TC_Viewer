@@ -120,14 +120,14 @@ namespace TC_WinForms
                 authForm.ShowDialog();
             }
             
-            //Test();
+            Test();
 
-            Application.Run(MainForm);
+            //Application.Run(MainForm);
         }
         static void Test()
         {
             //var form = new DiagramForm(493, false);
-            var form = new Win6_new(486);// 493);
+            var form = new Win6_new(493, viewMode: true);// 486);
             form.ShowDialog();
         }
     }

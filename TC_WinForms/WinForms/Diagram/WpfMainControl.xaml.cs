@@ -1,18 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.TcContent;
@@ -22,9 +10,8 @@ namespace TC_WinForms.WinForms.Diagram
     /// <summary>
     /// Логика взаимодействия для WpfMainControl.xaml
     /// </summary>
-    public partial class WpfMainControl : System.Windows.Controls.UserControl
+    public partial class WpfMainControl : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
-
         public MyDbContext context;
 
         private int tcId;
@@ -38,6 +25,19 @@ namespace TC_WinForms.WinForms.Diagram
         private List<DiagamToWork> DeletedDiagrams = new List<DiagamToWork>();
         private List<TechOperationWork> AvailableTechOperationWorks = new List<TechOperationWork>();
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public bool IsCommentViewMode => Win6_new.IsCommentViewMode;
+        private bool IsViewMode => Win6_new.IsViewMode;
+        public bool IsHiddenInViewMode => !IsViewMode;
+        private void OnViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         public WpfMainControl()
         {
             InitializeComponent();
@@ -46,6 +46,8 @@ namespace TC_WinForms.WinForms.Diagram
         public WpfMainControl(int tcId, DiagramForm _diagramForm)
         {
             InitializeComponent();
+            DataContext = this;
+
             this.tcId = tcId;
             diagramForm = _diagramForm;
             context = new MyDbContext();
@@ -132,7 +134,7 @@ namespace TC_WinForms.WinForms.Diagram
             //    ListWpfControlTO.Children.Add(new WpfControlTO(this, item)); // ListWpfControlTO - это StackPanel в WpfMainControl.xaml
             //    Nomeraciya();
             //}
-
+            Win6_new.ViewModeChanged += OnViewModeChanged;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

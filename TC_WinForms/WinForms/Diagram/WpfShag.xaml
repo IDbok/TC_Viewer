@@ -14,51 +14,54 @@
         <StackPanel Width="600">
             <TextBlock x:Name="TextShag" Text="№ шага" HorizontalAlignment="Center" FontSize="18"   />
 
-                <!--<TextBlock x:Name="TextDeystShag"
-                   MinHeight="150"
-                   TextWrapping="Wrap" TextAlignment="Center"
-                   xml:lang="ru">
-                    <Run Text="Действия шага:" />
-                </TextBlock>-->
+            <!--<TextBlock x:Name="TextDeystShag"
+                MinHeight="150"
+                TextWrapping="Wrap" TextAlignment="Center"
+                xml:lang="ru">
+                <Run Text="Действия шага:" />
+            </TextBlock>-->
 
-                <TextBox x:Name="TextDeystShag" 
-                     MinHeight="150"
-                     TextWrapping="Wrap" TextAlignment="Center" 
-                     
-                     AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" 
-                     TextChanged="TextDeystShag_TextChanged" /> <!--Text="Действия шага:"-->
-                <Grid x:Name="gridComments" 
-                      Visibility="{Binding IsCommentViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="20"/>
-                        <RowDefinition Height="1*"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
+            <TextBox x:Name="TextDeystShag" 
+                    MinHeight="150"
+                    TextWrapping="Wrap" TextAlignment="Center" 
+                    AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" 
+                    TextChanged="TextDeystShag_TextChanged"
+                    IsReadOnly="{Binding IsViewMode}"/> <!--Text="Действия шага:"-->
+            <Grid x:Name="gridComments" 
+                    Visibility="{Binding IsCommentViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
                     
-                    <TextBlock Grid.Column="0" Grid.Row="0"
-                        Text="Замечание" HorizontalAlignment="Center" FontSize="14"   />
-                    <TextBlock Grid.Column="1" Grid.Row="0"
-                        Text="Ответ на замечание" HorizontalAlignment="Center" FontSize="14"   />
+                <TextBlock Grid.Column="0" Grid.Row="0"
+                    Text="Замечание" HorizontalAlignment="Center" FontSize="14"   />
+                <TextBlock Grid.Column="1" Grid.Row="0"
+                    Text="Ответ на замечание" HorizontalAlignment="Center" FontSize="14"   />
                     
-                    <TextBox x:Name="txtLeadComment" 
-                             Grid.Column="0" Grid.Row="1"
-                             MinHeight="150"
-                             TextWrapping="Wrap" TextAlignment="Center" 
-                             AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="False" xml:lang="ru"/>
+                <TextBox x:Name="txtLeadComment" 
+                            Grid.Column="0" Grid.Row="1"
+                            MinHeight="150"
+                            TextWrapping="Wrap" TextAlignment="Center" 
+                            AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="False" xml:lang="ru"/>
 
-                    <TextBox x:Name="txtImplementerComment" 
-                             Grid.Column="1" Grid.Row="1"
-                             MinHeight="150"
-                             TextWrapping="Wrap" TextAlignment="Center" 
-                             AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="True" xml:lang="ru"/>
-                </Grid>
+                <TextBox x:Name="txtImplementerComment" 
+                            Grid.Column="1" Grid.Row="1"
+                            MinHeight="150"
+                            TextWrapping="Wrap" TextAlignment="Center" 
+                            AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="True" xml:lang="ru"/>
+            </Grid>
 
-                <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Добавить тех. переход" Margin="0,0,30,0"></TextBlock>
-                <ComboBox Name="ComboBoxTeh" Width="200" SelectionChanged="ComboBoxTeh_SelectionChanged" />
+                <ComboBox Name="ComboBoxTeh" Width="200" 
+                    SelectionChanged="ComboBoxTeh_SelectionChanged" 
+                    Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                    />  
             </StackPanel>
 
             <Border BorderThickness="2" BorderBrush="Black" Margin="10" CornerRadius="5" MinHeight="100">
@@ -68,7 +71,11 @@
                     <GroupBox Header="Материалы и инструменты" BorderBrush="Black">
                         <StackPanel>
 
-                                <ToggleButton x:Name="TG" Content="Редактирование" HorizontalAlignment="Center" Width="150" Margin="10" Click="TG_Click"  />
+                                <ToggleButton x:Name="TG" Content="Редактирование"
+                                              HorizontalAlignment="Center" Width="150" Margin="10" 
+                                              Click="TG_Click"  
+                                              Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                                              />
 
                                 <DataGrid x:Name="DataGridToolAndComponentsAdd" Visibility="Collapsed" CanUserAddRows="False" CanUserDeleteRows="False"
                                           AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False">
@@ -125,7 +132,7 @@
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridTemplateColumn Header="Комментарии" Width="120">
+                                        <DataGridTemplateColumn Header="Комментарии" Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding Path=Comments}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
@@ -134,7 +141,7 @@
                                         </DataGridTemplateColumn>
 
 
-                                        <DataGridTemplateColumn Header="Кол-во добавить" Width="110">
+                                        <DataGridTemplateColumn Header="Кол-во добавить" Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }"/>
@@ -211,15 +218,16 @@
                     <Button x:Name="btnLoadImage" Content="Загрузить изображение" HorizontalAlignment="Center"
                             VerticalAlignment="Top" Margin="0,0,0,0" 
                             Click="btnLoadImage_Click"
+                            Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
                             />
-                    <Border Background="#00000000"  MouseLeftButtonDown="Image_MouseLeftButtonDown" >
+                    <Border Background="#00000000" >
                         <Image x:Name="imageDiagram" Visibility="Collapsed"
                                 Source="/WinForms/Diagram/Select.jpg" Height="300" OpacityMask="Red"  />
                     </Border>
                         <Button x:Name="btnDeleteImage" Content="Удалить изображение" HorizontalAlignment="Center"
                                 VerticalAlignment="Bottom" Margin="0,0,0,0" 
                                 Click="btnDeleteImage_Click"
-                                Visibility="Collapsed"
+                                Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
                                 />
 
 
@@ -229,13 +237,19 @@
                                 <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock x:Name="TextImage" Text="№ Рисунка" TextAlignment="Center"  />
-                            <TextBox x:Name="TBNameImage" Grid.Column="1" TextWrapping="Wrap" AcceptsReturn="True" UseLayoutRounding="False"  Width="295" TextChanged="TextBox_TextChanged"   />
+                            <TextBox x:Name="TBNameImage" Grid.Column="1" TextWrapping="Wrap" 
+                                     AcceptsReturn="True" UseLayoutRounding="False"  Width="295" 
+                                     TextChanged="TextBox_TextChanged"
+                                     IsReadOnly="{Binding IsViewMode}"
+                                     />
                         </Grid>
                 </StackPanel>
             </Border>            
         </StackPanel>
     </Border>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="14" >
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="14" 
+                    Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                    >
             <Button Width="50" Content="Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_1" />
             <Button Width="50" Content="Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_2"/>
             <Button Width="50" Content="Удалить" HorizontalAlignment="Right"  Click="Button_Click" VerticalAlignment="Top" />

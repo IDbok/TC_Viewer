@@ -48,11 +48,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
     private async void TechOperationForm_Load(object sender, EventArgs e)
     {
+        // Блокировка формы на время загрузки данных
+        this.Enabled = false;
+
         await LoadDataAsync(tcId);
 
         UpdateGrid();
         SetCommentViewMode();
         SetViewMode();
+
+        this.Enabled = true;
     }
     private async Task LoadDataAsync(int tcId)
     {
@@ -1472,6 +1477,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     private void button2_Click(object sender, EventArgs e)
     {
+        // в случае Режима просмотра форма не открывается
+        if (Win6_new.IsViewMode)
+            return;
+
         // Проверяем, была ли форма создана и не была ли закрыта
         if (_editForm == null || _editForm.IsDisposed)
         {
@@ -1483,11 +1492,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         _editForm.BringToFront();
 
         HasChanges = true;
-
-        //_editForm = new AddEditTechOperationForm(this);
-        //_editForm.Show();
-
-        //HasChanges = true;
     }
 
     private void button1_Click_1(object sender, EventArgs e)

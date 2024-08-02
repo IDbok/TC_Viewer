@@ -17,7 +17,18 @@ namespace TC_WinForms.WinForms
         private static bool _isViewMode = true;
         private static bool _isCommentViewMode = false;
 
-        public static bool IsViewMode => _isViewMode;
+        public static bool IsViewMode
+        {
+            get => _isViewMode;
+            set
+            {
+                if (_isViewMode != value)
+                {
+                    _isViewMode = value;
+                    OnViewModeChanged();
+                }
+            }
+        }
         public static bool IsCommentViewMode
         {
             get => _isCommentViewMode;
@@ -30,11 +41,16 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
-        public static event Action CommentViewModeChanged;
+        public static event Action? CommentViewModeChanged;
+        public static event Action? ViewModeChanged;
 
         private static void OnCommentViewModeChanged()
         {
             CommentViewModeChanged?.Invoke();
+        }
+        private static void OnViewModeChanged()
+        {
+            ViewModeChanged?.Invoke();
         }
 
         private User.Role _accessLevel;
@@ -148,12 +164,12 @@ namespace TC_WinForms.WinForms
         {
             if (isViewMode != null)
             {
-                _isViewMode = (bool)isViewMode;
+                IsViewMode = (bool)isViewMode;
             }
 
-            SaveChangesToolStripMenuItem.Visible = !_isViewMode;
+            SaveChangesToolStripMenuItem.Visible = !IsViewMode;
 
-            updateToolStripMenuItem.Text = _isViewMode ? "Редактировать" : "Просмотр";
+            updateToolStripMenuItem.Text = IsViewMode ? "Редактировать" : "Просмотр";
 
             //btnInformation.Visible = !_isViewMode;
 
@@ -165,7 +181,7 @@ namespace TC_WinForms.WinForms
                 // is form is ISaveEventForm
                 if (form is IViewModeable cashForms)
                 {
-                    cashForms.SetViewMode(_isViewMode);
+                    cashForms.SetViewMode(IsViewMode);
                 }
             }
         }
@@ -423,7 +439,9 @@ namespace TC_WinForms.WinForms
 
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SetViewMode(!_isViewMode);
+            IsViewMode = !_isViewMode;
+
+            SetViewMode();
         }
 
         private async void printToolStripMenuItem_Click(object sender, EventArgs e)

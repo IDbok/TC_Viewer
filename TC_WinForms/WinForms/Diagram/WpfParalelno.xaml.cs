@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,13 +20,23 @@ namespace TC_WinForms.WinForms.Diagram
     /// <summary>
     /// Логика взаимодействия для WpfParalelno.xaml
     /// </summary>
-    public partial class WpfParalelno : System.Windows.Controls.UserControl
+    public partial class WpfParalelno : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
         private TechOperationWork selectedItem;
        public WpfControlTO wpfControlTO;
 
         public DiagramParalelno diagramParalelno;
+        public bool IsHiddenInViewMode => !Win6_new.IsViewMode;
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
+        }
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         public WpfParalelno()
         {
             InitializeComponent();
@@ -34,6 +45,7 @@ namespace TC_WinForms.WinForms.Diagram
         public WpfParalelno(TechOperationWork selectedItem, WpfControlTO _wpfControlTO, DiagramParalelno _diagramParalelno = null)
         {
             InitializeComponent();
+            DataContext = this;
 
             if (_diagramParalelno == null)
             {
@@ -65,9 +77,7 @@ namespace TC_WinForms.WinForms.Diagram
 
             wpfControlTO.Nomeraciya();
 
-
-
-
+            Win6_new.ViewModeChanged += OnViewModeChanged;
         }           
 
         private void Button_Click(object sender, RoutedEventArgs e)

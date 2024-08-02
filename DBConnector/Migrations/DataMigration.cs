@@ -694,7 +694,9 @@ public class DataMigration
                 TempTimeExecution = executionWork.TempTimeExecution,
                 Vopros = executionWork.Vopros,
                 Otvet = executionWork.Otvet,
-                //PictureName = executionWork.PictureName,
+
+                PictureName = string.IsNullOrEmpty(executionWork.PictureName) ? 
+                    null : executionWork.PictureName,
             };
 
             return newExecutionWork;
