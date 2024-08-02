@@ -14,6 +14,24 @@ public class ExcelParser
 
     public const int addToTitleRow = 1;
     public const int addToTable = addToTitleRow + 1;
+
+    private readonly string[] tcArticlesExceptions = new string[]
+    { 
+        "ТКМ10_1.2.3",
+        "ТКПС_1.1.1",
+        "ТКПС_1.1.3",
+        "ТКПС_1.1.5",
+        "ТКПС_1.6.1",
+        "ТКПС_1.10.1",
+        "ТКТТ_2.1",
+        "ТКПС_1.6.3",
+        "ТКПС_1.6.4",
+        "ТКПС_1.7.1",
+        "ТКПС_1.7.2",
+        "ТКПС_1.7.3"
+    };
+
+
     public ExcelParser()
     {
         ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -36,7 +54,8 @@ public class ExcelParser
         return new CachedData(staffs, components, tools, machines, protections, techOperations, techTransitions);
     }
     
-    public void ParseAllTCs(string folderPath, List<string> fileNames, string historyFileFolderPath, string historyFileName,  string? sheetName = null)
+    public void ParseAllTCs(string folderPath, List<string> fileNames, 
+        string historyFileFolderPath, string historyFileName,  string? sheetName = null)
     {
         List<LogInfor> logInfos = new List<LogInfor>
         {
@@ -83,6 +102,9 @@ public class ExcelParser
 
                     continue;
                 }
+
+                // исключить из парсинга ТК, которые не нужно парсить
+                tcSheetNames = tcSheetNames.Where(x => !tcArticlesExceptions.Contains(x)).ToList();
 
                 foreach (var tcSheetName in tcSheetNames)
                 {

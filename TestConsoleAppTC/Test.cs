@@ -26,27 +26,18 @@ internal class Program
     static async Task Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
-        //TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_v16;user=root;password=root";
+        TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
 
-        //var context = new MyDbContext();
+        var context = new MyDbContext();
 
-        //var parser = new DictionaryParser(context);
-        //parser.ParseDictionaries(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\Исходные\Справочник_ТК (6).xlsx");
+        var parser = new DictionaryParser(context);
 
-        Migration();
-        //CoefficientTests();
-
-        //GetStaffs();
-        //ParseNewDictionary();
-
-        //MakeAllStatusesDraft(TechnologicalCard.TechnologicalCardStatus.Created);
+        parser.ParseDictionaries(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\Исходные\Справочник_ТК (6).xlsx");
 
         //ParseAllTC();
-        //CheckOldForm();
 
-        //TCExecitionsPicture();
+        //Migration();
 
-        //DeleteExecutionPictures();
 
     }
 
@@ -315,17 +306,7 @@ internal class Program
         parser2.Test();
     }
 
-    static void ParseNewDictionary()
-    {
-        string structFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка структур.xlsx";
-        string tcFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Список ТК.xlsx";
-        string intermediateDictionaryFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточных сущностей.xlsx";
-        string workStepsFilePath = @"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\0. Обработка промежуточной сущности Ход работ.xlsx";
-
-        DbCreatorParser.ParseAll(structFilePath, tcFilePath, intermediateDictionaryFilePath, workStepsFilePath);
-
-        //DbCreator.DeserializeWorkStepsToDb();
-    }
+    
 
     static void GetStaffs()
     {

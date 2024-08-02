@@ -18,6 +18,20 @@ public class DictionaryParser
 
     public void ParseDictionaries(string filePath)
     {
+        bool isDbExist = context.Database.CanConnect();
+        // проверить наличие файла
+        if (!File.Exists(filePath))
+        {
+            throw new ArgumentException($"Файл {filePath} не найден!");
+        }
+        // проверить наличие БД
+        if (isDbExist == false)
+        {
+            //throw new Exception("База данных не найдена!");
+            context.Database.EnsureCreated();
+
+        }
+
         using var package = new ExcelPackage(new FileInfo(filePath));
 
         var techOperations = MapTechOperations(package, "Перечень ТО");
@@ -26,8 +40,50 @@ public class DictionaryParser
 
         var techTransitionTypicals = MapTechTransitionTypicals(package, "Типовые ТО", techOperations, techTransitions);
 
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
+        // если БД существует, то получаем существующие записи и добавляем к ним новые
+        if (isDbExist)
+        {
+            var existingTechOperations = context.TechOperations.ToList();
+            var existingTechTransitions = context.TechTransitions.ToList();
+            var existingTechTransitionTypicals = context.TechTransitionTypicals.ToList();
+
+            techOperations = techOperations.Where(to => !existingTechOperations.Any(eto => eto.Name == to.Name)).ToList();
+            techTransitions = techTransitions.Where(tt => !existingTechTransitions.Any(ett => ett.Name == tt.Name)).ToList();
+
+            // выделяем techTransitionTypical, которые содержат techTransition, которых нет в списке existingTechTransitionTypicals
+            // выделяем ТО, которые есть в existingTechTransitionTypicals
+            var toInExistingTTTs = existingTechTransitionTypicals.Select(ttt => ttt.TechOperation).Distinct().ToList();
+
+            var toInNewTTTs = techTransitionTypicals.Select(ttt => ttt.TechOperation).Distinct().ToList();
+
+            var toToAdd = toInNewTTTs.Where(to => !toInExistingTTTs.Any(toe => toe.Name == to.Name)).ToList();
+
+            // выделяем techTransitionTypicals которые содержат только новые TechOperations
+            techTransitionTypicals = techTransitionTypicals.Where(ttt => techOperations.Any(to => to.Name == ttt.TechOperation.Name) 
+            || toToAdd.Any(to => to.Name == ttt.TechOperation.Name)).ToList();
+            // в оставшихся techTransitionTypicals заменяем TechTransition и TechOperation, которые есть в списке existingTechTransitions на существующие
+            foreach (var ttt in techTransitionTypicals)
+            {
+                var existingTechOperation = existingTechOperations.FirstOrDefault(eto => eto.Name == ttt.TechOperation.Name);
+                if (existingTechOperation != null)
+                {
+                    ttt.TechOperation = existingTechOperation;
+                }
+                var existingTechTransition = existingTechTransitions.FirstOrDefault(ett => ett.Name == ttt.TechTransition.Name);
+                if (existingTechTransition != null)
+                {
+                    ttt.TechTransition = existingTechTransition;
+                }
+            }
+
+            // обновить статус ТО, как Типового, если он есть в списке techTransitionTypicals
+            var toToUpdateToTypical = techTransitionTypicals.Select(ttt => ttt.TechOperation).Distinct().ToList();
+            foreach (var to in toToUpdateToTypical)
+            {
+                to.Category = "Типовая ТО";
+            }
+        }
+
 
         using (var transaction = context.Database.BeginTransaction())
         {
@@ -46,8 +102,6 @@ public class DictionaryParser
                 throw new Exception("Ошибка при сохранении данных в БД", e);
             }
         }
-
-        //DbCreator.AddTechOperations(techOperations);
     }
 
 
@@ -67,7 +121,7 @@ public class DictionaryParser
         CheckAllColumnsExists(worksheet, columnNames);
 
         int rowCount = worksheet.Dimension.Rows;
-        int currentId = 1;
+        //int currentId = 1;
 
         var techOperations = new List<TechOperation>();
         for (int row = 2; row <= rowCount; row++)
@@ -87,13 +141,13 @@ public class DictionaryParser
 
                 Category = string.IsNullOrEmpty(Category) ? "ТО" : Category,
 
-                CreatedTCId = currentId,
+                //CreatedTCId = currentId,
 
                 IsReleased = true,
             };
 
             techOperations.Add(obj);
-            currentId++;
+            //currentId++;
         }
 
         return techOperations;
@@ -116,7 +170,7 @@ public class DictionaryParser
         }
         // для каждой категории получаем список переходов
         var techTransitions = new List<TechTransition>();
-        int currentId = 1;
+        //int currentId = 1;
         int emptyNameCount = 2;
         foreach (var category in categories)
         {
@@ -159,7 +213,7 @@ public class DictionaryParser
 
                 var obj = new TechTransition
                 {
-                    Id = currentId,
+                    //Id = currentId,
                     Name = name,
                     TimeExecution = timeExecution,
 
@@ -168,13 +222,13 @@ public class DictionaryParser
 
                     Category = category.Key,
 
-                    CreatedTCId = currentId,
+                    //CreatedTCId = currentId,
 
                     IsReleased = true,
                 };
 
                 techTransitions.Add(obj);
-                currentId++;
+                //currentId++;
             }
         }
 
