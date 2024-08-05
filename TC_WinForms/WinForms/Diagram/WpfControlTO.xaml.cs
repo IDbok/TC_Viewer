@@ -22,6 +22,8 @@ namespace TC_WinForms.WinForms.Diagram
     /// </summary>
     public partial class WpfControlTO : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly TcViewState _tcViewState;
+
         public List<TechOperationWork> TechOperationWorksList;
         //WpfMainControl _wpfMainControl;
         public DiagamToWork diagamToWork;
@@ -29,8 +31,8 @@ namespace TC_WinForms.WinForms.Diagram
         public bool New=false;
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        public bool IsCommentViewMode => Win6_new.IsCommentViewMode;
-        private bool IsViewMode => Win6_new.IsViewMode;
+        public bool IsCommentViewMode => _tcViewState.IsCommentViewMode;
+        private bool IsViewMode => _tcViewState.IsViewMode;
         public bool IsHiddenInViewMode => !IsViewMode;
 
         public WpfControlTO()
@@ -38,10 +40,12 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
 
-        public WpfControlTO(WpfMainControl wpfMainControl, DiagamToWork diagamToWork)
+        public WpfControlTO(WpfMainControl wpfMainControl, DiagamToWork diagamToWork, TcViewState tcViewState)
         {
             InitializeComponent();
             DataContext = this;
+
+            _tcViewState = tcViewState;
 
             this._wpfMainControl = wpfMainControl;
             TechOperationWorksList = wpfMainControl.TechOperationWorksList; //techOperationWorksList;
@@ -64,7 +68,7 @@ namespace TC_WinForms.WinForms.Diagram
 
             UpdateDiagramToWork();
 
-            Win6_new.ViewModeChanged += OnViewModeChanged;
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
         }
 
         private void OnViewModeChanged()
@@ -98,12 +102,12 @@ namespace TC_WinForms.WinForms.Diagram
 
                 if (this.diagamToWork.ListDiagramParalelno.Count == 0)
                 {
-                    ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, this));
+                    ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, this, _tcViewState));
                 }
 
                 foreach (DiagramParalelno diagramParalelno in this.diagamToWork.ListDiagramParalelno)
                 {
-                    ListWpfParalelno.Children.Add(new WpfParalelno(diagramParalelno.techOperationWork, this, diagramParalelno));
+                    ListWpfParalelno.Children.Add(new WpfParalelno(diagramParalelno.techOperationWork, this, _tcViewState, diagramParalelno));
                 }
 
             }
@@ -123,7 +127,7 @@ namespace TC_WinForms.WinForms.Diagram
             if (this.diagamToWork.techOperationWork == null)
                 return;
 
-            ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, this));
+            ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, this, _tcViewState));
             _wpfMainControl.diagramForm.HasChanges = true;
             _wpfMainControl.Nomeraciya();
         }
@@ -162,7 +166,7 @@ namespace TC_WinForms.WinForms.Diagram
                     _wpfMainControl.technologicalCard.DiagamToWork.Add(diagamToWork);
 
                     ListWpfParalelno.Children.Clear();
-                    ListWpfParalelno.Children.Add(new WpfParalelno(techOperationWork, this));
+                    ListWpfParalelno.Children.Add(new WpfParalelno(techOperationWork, this, _tcViewState));
                     _wpfMainControl.diagramForm.HasChanges = true;
 
                     ComboBoxTO.IsReadOnly = true;

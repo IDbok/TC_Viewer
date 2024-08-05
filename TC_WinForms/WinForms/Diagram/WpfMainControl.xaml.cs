@@ -12,6 +12,8 @@ namespace TC_WinForms.WinForms.Diagram
     /// </summary>
     public partial class WpfMainControl : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly TcViewState _tcViewState;
+
         public MyDbContext context;
 
         private int tcId;
@@ -26,8 +28,8 @@ namespace TC_WinForms.WinForms.Diagram
         private List<TechOperationWork> AvailableTechOperationWorks = new List<TechOperationWork>();
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        public bool IsCommentViewMode => Win6_new.IsCommentViewMode;
-        private bool IsViewMode => Win6_new.IsViewMode;
+        public bool IsCommentViewMode => _tcViewState.IsCommentViewMode;
+        private bool IsViewMode => _tcViewState.IsViewMode;
         public bool IsHiddenInViewMode => !IsViewMode;
         private void OnViewModeChanged()
         {
@@ -43,10 +45,12 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
 
-        public WpfMainControl(int tcId, DiagramForm _diagramForm)
+        public WpfMainControl(int tcId, DiagramForm _diagramForm, TcViewState tcViewState)
         {
             InitializeComponent();
             DataContext = this;
+
+            _tcViewState = tcViewState;
 
             this.tcId = tcId;
             diagramForm = _diagramForm;
@@ -107,7 +111,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 if (!isNull)
                 {
-                    var wpfTo = new WpfTo(this, addDiagram: false);
+                    var wpfTo = new WpfTo(this, _tcViewState, addDiagram: false);
 
                     ListWpfControlTO.Children.Add(wpfTo);
 
@@ -120,7 +124,7 @@ namespace TC_WinForms.WinForms.Diagram
                 {
                     foreach (DiagamToWork item in ListShagItem.ToList())
                     {
-                        var wpfTo = new WpfTo(this, item);
+                        var wpfTo = new WpfTo(this, _tcViewState, item);
 
                         ListWpfControlTO.Children.Add(wpfTo);
                     }
@@ -134,14 +138,14 @@ namespace TC_WinForms.WinForms.Diagram
             //    ListWpfControlTO.Children.Add(new WpfControlTO(this, item)); // ListWpfControlTO - это StackPanel в WpfMainControl.xaml
             //    Nomeraciya();
             //}
-            Win6_new.ViewModeChanged += OnViewModeChanged;
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             if (CheckIfTOIsAvailable())
             {
-                ListWpfControlTO.Children.Add(new WpfTo(this));
+                ListWpfControlTO.Children.Add(new WpfTo(this, _tcViewState));
                 diagramForm.HasChanges = true;
                 Nomeraciya();
             }

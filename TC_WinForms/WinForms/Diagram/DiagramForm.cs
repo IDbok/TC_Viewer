@@ -17,6 +17,8 @@ namespace TC_WinForms.WinForms.Diagram
 {
     public partial class DiagramForm : Form, ISaveEventForm, IViewModeable
     {
+        private readonly TcViewState _tcViewState;
+
         private int tcId;
         private bool isViewMode;
 
@@ -27,12 +29,14 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
 
-        public DiagramForm(int tcId, bool isViewMode)
+        public DiagramForm(int tcId, TcViewState tcViewState)// bool isViewMode)
         {
             InitializeComponent();
 
+            _tcViewState = tcViewState;
+
             this.tcId = tcId;
-            this.isViewMode = isViewMode;
+            //this.isViewMode = isViewMode;
 
             ElementHost elementHost = new ElementHost();
             elementHost.Dock = DockStyle.Fill;
@@ -40,7 +44,7 @@ namespace TC_WinForms.WinForms.Diagram
             this.Controls.Add(elementHost);
 
 
-            WpfMainControl wpfDiagram = new WpfMainControl(tcId, this);
+            WpfMainControl wpfDiagram = new WpfMainControl(tcId, this, _tcViewState);
             this.wpfDiagram = wpfDiagram;
             elementHost.Child = wpfDiagram;
 

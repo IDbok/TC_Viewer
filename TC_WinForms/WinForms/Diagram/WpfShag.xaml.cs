@@ -16,12 +16,14 @@ namespace TC_WinForms.WinForms.Diagram
     /// </summary>
     public partial class WpfShag : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly TcViewState _tcViewState;
+
         private TechOperationWork selectedItem;
         WpfPosledovatelnost wpfPosledovatelnost;
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        public bool IsCommentViewMode => Win6_new.IsCommentViewMode;
-        public bool IsViewMode => Win6_new.IsViewMode;
+        public bool IsCommentViewMode => _tcViewState.IsCommentViewMode;
+        public bool IsViewMode => _tcViewState.IsViewMode;
         public bool IsHiddenInViewMode => !IsViewMode;
 
         int Nomer = 0;
@@ -30,20 +32,25 @@ namespace TC_WinForms.WinForms.Diagram
 
 
         public DiagramShag diagramShag;
-
         public WpfShag()
         {
             InitializeComponent();
-            DataContext = this;
-
-            Win6_new.CommentViewModeChanged += OnCommentViewModeChanged;
-            Win6_new.ViewModeChanged += OnViewModeChanged;
-
-            // Обновление привязки
-            OnPropertyChanged(nameof(IsCommentViewMode));
-            OnPropertyChanged(nameof(IsViewMode));
-            OnPropertyChanged(nameof(IsHiddenInViewMode));
         }
+        //public WpfShag( TcViewState tcViewState)
+        //{
+        //    InitializeComponent();
+        //    DataContext = this;
+
+        //    _tcViewState = tcViewState;
+
+        //    _tcViewState.CommentViewModeChanged += OnCommentViewModeChanged;
+        //    _tcViewState.ViewModeChanged += OnViewModeChanged;
+
+        //    // Обновление привязки
+        //    OnPropertyChanged(nameof(IsCommentViewMode));
+        //    OnPropertyChanged(nameof(IsViewMode));
+        //    OnPropertyChanged(nameof(IsHiddenInViewMode));
+        //}
         private void OnCommentViewModeChanged()
         {
             OnPropertyChanged(nameof(IsCommentViewMode));
@@ -60,11 +67,11 @@ namespace TC_WinForms.WinForms.Diagram
         }
 
         // Отписка от событий, чтобы избежать утечек памяти
-        ~WpfShag()
-        {
-            Win6_new.CommentViewModeChanged -= OnCommentViewModeChanged;
-            Win6_new.ViewModeChanged -= OnViewModeChanged;
-        }
+        //~WpfShag()
+        //{
+        //    _tcViewState.CommentViewModeChanged -= OnCommentViewModeChanged;
+        //    _tcViewState.ViewModeChanged -= OnViewModeChanged;
+        //}
 
         public void SaveCollection()
         {
@@ -120,9 +127,12 @@ namespace TC_WinForms.WinForms.Diagram
 
         public WpfShag(TechOperationWork selectedItem, 
             WpfPosledovatelnost _wpfPosledovatelnost, 
+            TcViewState tcViewState,
             DiagramShag _diagramShag=null)
         {
             InitializeComponent();
+
+            _tcViewState = tcViewState;
 
             if (_diagramShag == null)
             {
@@ -175,7 +185,7 @@ namespace TC_WinForms.WinForms.Diagram
                 }
 
                 DataContext = this;
-                Win6_new.CommentViewModeChanged += OnCommentViewModeChanged;
+                _tcViewState.CommentViewModeChanged += OnCommentViewModeChanged;
 
             }
 

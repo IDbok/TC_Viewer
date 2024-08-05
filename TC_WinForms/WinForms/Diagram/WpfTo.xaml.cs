@@ -10,12 +10,14 @@ namespace TC_WinForms.WinForms.Diagram
     /// </summary>
     public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly TcViewState _tcViewState;
+
         private WpfMainControl _wpfMainControl;
         private string? parallelIndex;
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        public bool IsCommentViewMode => Win6_new.IsCommentViewMode;
-        public bool IsViewMode => Win6_new.IsViewMode;
+        public bool IsCommentViewMode => _tcViewState.IsCommentViewMode;
+        public bool IsViewMode => _tcViewState.IsViewMode;
         public bool IsHiddenInViewMode => !IsViewMode;
         private void OnViewModeChanged()
         {
@@ -33,11 +35,14 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
         public WpfTo(WpfMainControl wpfMainControl,
+            TcViewState tcViewState,
             DiagamToWork? _diagramToWork = null, 
             bool addDiagram = true)
         {
             InitializeComponent();
             DataContext = this;
+
+            _tcViewState = tcViewState;
 
             _wpfMainControl = wpfMainControl;
 
@@ -46,8 +51,8 @@ namespace TC_WinForms.WinForms.Diagram
 
             if(addDiagram)
                 AddWpfControlTO(wpfMainControl, _diagramToWork);
-            
-            Win6_new.ViewModeChanged += OnViewModeChanged;
+
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
 
             // Обновление привязки
             OnPropertyChanged(nameof(IsViewMode));
@@ -105,7 +110,7 @@ namespace TC_WinForms.WinForms.Diagram
             if (diagamToWork == null)
                 diagamToWork = new DiagamToWork(); SetParallelIndex(diagamToWork);
 
-            var wpfControlTO = new WpfControlTO(wpfMainControl, diagamToWork);
+            var wpfControlTO = new WpfControlTO(wpfMainControl, diagamToWork, _tcViewState);
             wpfControlTO.VerticalAlignment = VerticalAlignment.Top;
             wpfControlTO.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
 

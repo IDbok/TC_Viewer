@@ -22,11 +22,13 @@ namespace TC_WinForms.WinForms.Diagram
     /// </summary>
     public partial class WpfParalelno : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly TcViewState _tcViewState;
+
         private TechOperationWork selectedItem;
        public WpfControlTO wpfControlTO;
 
         public DiagramParalelno diagramParalelno;
-        public bool IsHiddenInViewMode => !Win6_new.IsViewMode;
+        public bool IsHiddenInViewMode => !_tcViewState.IsViewMode;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnViewModeChanged()
@@ -42,10 +44,12 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
 
-        public WpfParalelno(TechOperationWork selectedItem, WpfControlTO _wpfControlTO, DiagramParalelno _diagramParalelno = null)
+        public WpfParalelno(TechOperationWork selectedItem, WpfControlTO _wpfControlTO, TcViewState tcViewState, DiagramParalelno _diagramParalelno = null)
         {
             InitializeComponent();
             DataContext = this;
+
+            _tcViewState = tcViewState;
 
             if (_diagramParalelno == null)
             {
@@ -65,24 +69,24 @@ namespace TC_WinForms.WinForms.Diagram
 
             if (diagramParalelno.ListDiagramPosledov.Count == 0)
             {
-                ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, this));
+                ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, this, _tcViewState));
             }
             else
             {
                 foreach (DiagramPosledov diagramPosledov in diagramParalelno.ListDiagramPosledov)
                 {
-                    ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, this, diagramPosledov));
+                    ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, this, _tcViewState, diagramPosledov));
                 }
             }
 
             wpfControlTO.Nomeraciya();
 
-            Win6_new.ViewModeChanged += OnViewModeChanged;
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
         }           
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, this));
+            ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, this, _tcViewState));
             wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             wpfControlTO.Nomeraciya();
         }

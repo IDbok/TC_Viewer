@@ -32,6 +32,9 @@ namespace TC_WinForms.WinForms.Work
         {
             InitializeComponent();
             TechOperationForm = techOperationForm;
+
+            this.Text = $"{TechOperationForm.TehCarta.Name} ({TechOperationForm.TehCarta.Article}) - Редактор хода работ";
+
             //var context = techOperationForm.context;
 
             // dataGridViewAllTO.CellContentClick += DataGridViewAllTO_CellContentClick;
@@ -104,6 +107,8 @@ namespace TC_WinForms.WinForms.Work
 
             UpdateTO();
             UpdateLocalTO();
+
+
         }
 
 

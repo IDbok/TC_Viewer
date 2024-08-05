@@ -12,6 +12,8 @@ namespace TC_WinForms.WinForms;
 
 public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 {
+    private readonly TcViewState _tcViewState;
+
     private bool _isViewMode;
 
     private DbConnector dbCon = new DbConnector();
@@ -23,9 +25,11 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
     private int _tcId;
     public bool CloseFormsNoSave { get; set; } = false;
-    public Win6_Staff(int tcId, bool viewerMode = false)
+    public Win6_Staff(int tcId, TcViewState tcViewState) // bool viewerMode = false)
     {
-        _isViewMode = viewerMode;
+        _tcViewState = tcViewState;
+
+        //_isViewMode = viewerMode;
 
         InitializeComponent();
         this._tcId = tcId;
@@ -46,20 +50,20 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
     public void SetViewMode(bool? isViewMode = null)
     {
-        if (isViewMode != null)
-        {
-            _isViewMode = (bool)isViewMode;
-        }
+        //if (isViewMode != null)
+        //{
+        //    _isViewMode = (bool)isViewMode;
+        //}
 
-        pnlControls.Visible = !_isViewMode;
+        pnlControls.Visible = !_tcViewState.IsViewMode;
 
         // make columns editable
-        dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = _isViewMode;
-        dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = _isViewMode;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = _tcViewState.IsViewMode;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = _tcViewState.IsViewMode;
 
 
-        dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
-        dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 
         // update form
         dgvMain.Refresh();

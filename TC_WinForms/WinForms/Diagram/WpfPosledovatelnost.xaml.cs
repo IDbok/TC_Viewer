@@ -22,12 +22,13 @@ namespace TC_WinForms.WinForms.Diagram
     /// </summary>
     public partial class WpfPosledovatelnost : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly TcViewState _tcViewState;
 
         private TechOperationWork selectedItem;
         public WpfParalelno wpfParalelno;
 
         public DiagramPosledov diagramPosledov;
-        public bool IsHiddenInViewMode => !Win6_new.IsViewMode;
+        public bool IsHiddenInViewMode => !_tcViewState.IsViewMode;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnViewModeChanged()
@@ -43,10 +44,12 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
 
-        public WpfPosledovatelnost(TechOperationWork selectedItem, WpfParalelno _wpfParalelno, DiagramPosledov _diagramPosledov=null)
+        public WpfPosledovatelnost(TechOperationWork selectedItem, WpfParalelno _wpfParalelno, TcViewState tcViewState, DiagramPosledov _diagramPosledov=null)
         {
             InitializeComponent();
             DataContext = this;
+
+            _tcViewState = tcViewState;
 
             if (_diagramPosledov == null)
             {
@@ -68,27 +71,27 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 if (selectedItem != null)
                 {
-                    ListWpfShag.Children.Add(new WpfShag(selectedItem, this));
+                    ListWpfShag.Children.Add(new WpfShag(selectedItem, this, _tcViewState));
                 }
             }
             else
             {
                 foreach (DiagramShag diagramShag in diagramPosledov.ListDiagramShag)
                 {
-                    ListWpfShag.Children.Add(new WpfShag(selectedItem, this, diagramShag));
+                    ListWpfShag.Children.Add(new WpfShag(selectedItem, this, _tcViewState, diagramShag));
                 }
             }
 
 
             wpfParalelno.Nomeraciya();
-            Win6_new.ViewModeChanged += OnViewModeChanged;
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
             //OnViewModeChanged();
             Console.WriteLine( "Posled " + IsHiddenInViewMode);
         }
         
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ListWpfShag.Children.Add(new WpfShag(selectedItem, this));
+            ListWpfShag.Children.Add(new WpfShag(selectedItem, this, _tcViewState));
             wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
 
             wpfParalelno.Nomeraciya();

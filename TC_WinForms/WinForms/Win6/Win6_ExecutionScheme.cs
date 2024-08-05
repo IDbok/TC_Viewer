@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
+using TC_WinForms.WinForms.Work;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -18,24 +19,30 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_ExecutionScheme : Form, IViewModeable, ISaveEventForm
     {
-        private TechnologicalCard _tc;
+        private readonly TcViewState _tcViewState;
+
+        private readonly TechnologicalCard _tc;
         private bool _isViewMode = true;
 
         public bool HasChanges { get; private set; } = false;
 
         public bool CloseFormsNoSave { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public Win6_ExecutionScheme(TechnologicalCard tc, bool viewerMode = false)
+        public Win6_ExecutionScheme(TechnologicalCard tc, TcViewState tcViewState, bool viewerMode = false)
         {
             _tc = tc;
-            _isViewMode = viewerMode;
+
+            _tcViewState = tcViewState;
+            //_isViewMode = viewerMode;
 
             InitializeComponent();
+
+            this.Text = $"{_tc!.Name} ({_tc.Article}) - Схема исполнения";
         }
 
         private void Win6_ExecutionScheme_Load(object sender, EventArgs e)
         {
-            SetViewMode(_isViewMode);
+            SetViewMode();
 
             if (_tc.ExecutionSchemeImageId != null)
             {
@@ -56,17 +63,15 @@ namespace TC_WinForms.WinForms
 
 
         }
-        public void SetViewMode(bool? isViewMode)
+        public void SetViewMode(bool? isViewMode = false)
         {
-            if (isViewMode != null)
-            {
-                _isViewMode = (bool)isViewMode;
-            }
+            //if (isViewMode != null)
+            //{
+            //    _isViewMode = (bool)isViewMode;
+            //}
 
-            if (_isViewMode)
-            {
-                btnUploadExecutionScheme.Visible = false;
-            }
+            btnUploadExecutionScheme.Visible = !_tcViewState.IsViewMode;
+            btnDeleteES.Visible = !_tcViewState.IsViewMode;
         }
         void DisplayImage(byte[] imageBytes, PictureBox pictureBox)
         {
