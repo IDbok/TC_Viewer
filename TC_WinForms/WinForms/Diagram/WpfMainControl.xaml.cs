@@ -234,6 +234,8 @@ namespace TC_WinForms.WinForms.Diagram
                 
             }
 
+            diagramForm.HasChanges = true;
+
             //foreach (WpfControlTO item in ListWpfControlTO.Children)
             //{
             //    if (item.diagamToWork != null) item.diagamToWork.Order = Order1;

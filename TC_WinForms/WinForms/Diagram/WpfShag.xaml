@@ -11,7 +11,7 @@
     </UserControl.Resources>
     <Grid>       
         <Border BorderThickness="2" BorderBrush="Black" Margin="10" CornerRadius="5" >
-        <StackPanel Width="600">
+        <StackPanel Width="650">
             <TextBlock x:Name="TextShag" Text="№ шага" HorizontalAlignment="Center" FontSize="18"   />
 
             <!--<TextBlock x:Name="TextDeystShag"
@@ -247,12 +247,12 @@
             </Border>            
         </StackPanel>
     </Border>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="14" 
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="14" 
                     Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
                     >
-            <Button Width="50" Content="Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_1" />
-            <Button Width="50" Content="Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_2"/>
-            <Button Width="50" Content="Удалить" HorizontalAlignment="Right"  Click="Button_Click" VerticalAlignment="Top" />
+            <Button Width="50" Content="Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonDown_Click" />
+            <Button Width="50" Content="Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonUp_Click"/>
+            <Button Width="75" Content="Удалить Шаг" HorizontalAlignment="Right"  Click="ButtonDelete_Click" VerticalAlignment="Top" />
         </StackPanel>
         
     </Grid>

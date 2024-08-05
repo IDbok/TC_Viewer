@@ -133,6 +133,17 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
 
             _tcViewState = tcViewState;
+            DataContext = this;
+
+            _tcViewState = tcViewState;
+
+            _tcViewState.CommentViewModeChanged += OnCommentViewModeChanged;
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
+
+            // Обновление привязки
+            OnPropertyChanged(nameof(IsCommentViewMode));
+            OnPropertyChanged(nameof(IsViewMode));
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
 
             if (_diagramShag == null)
             {
@@ -184,8 +195,8 @@ namespace TC_WinForms.WinForms.Diagram
 
                 }
 
-                DataContext = this;
-                _tcViewState.CommentViewModeChanged += OnCommentViewModeChanged;
+                //DataContext = this;
+                //_tcViewState.CommentViewModeChanged += OnCommentViewModeChanged;
 
             }
 
@@ -267,6 +278,8 @@ namespace TC_WinForms.WinForms.Diagram
             var vb = AllItemGrid.Where(w => w.Add).ToList();
             DataGridToolAndComponentsShow.ItemsSource = vb;
 
+
+            
         }
 
         private BitmapImage LoadImage(byte[] imageData)
@@ -357,7 +370,7 @@ namespace TC_WinForms.WinForms.Diagram
             return bitmap;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void ButtonDelete_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.diagramPosledov.ListDiagramShag.Remove(diagramShag);
             wpfPosledovatelnost.DeleteItem(this);
@@ -365,14 +378,14 @@ namespace TC_WinForms.WinForms.Diagram
             wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void ButtonDown_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.Vniz(this);
             wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void ButtonUp_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.Verh(this);
             wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
