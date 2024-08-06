@@ -99,6 +99,8 @@ namespace TC_WinForms.WinForms.Diagram
                 .ThenInclude(i=>i.ListDiagramPosledov)
                 .ThenInclude(i => i.ListDiagramShag)
                 .ThenInclude(i=>i.ListDiagramShagToolsComponent)
+
+                .OrderBy(o => o.Order)
                              
                 .ToList();
 
@@ -115,7 +117,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                     ListWpfControlTO.Children.Add(wpfTo);
 
-                    foreach (DiagamToWork item in ListShagItem.ToList())
+                    foreach (DiagamToWork item in ListShagItem.OrderBy(x=> x.Order).ToList())
                     {
                         wpfTo.AddParallelTO(item);
                     }
@@ -206,6 +208,7 @@ namespace TC_WinForms.WinForms.Diagram
                 foreach (var wpfControlToItem in wpfToItem.Children)
                 {
                     if (wpfControlToItem.diagamToWork != null) wpfControlToItem.diagamToWork.Order = Order1;
+
                     Order1++;
                     Order2 = 1;
                     Order3 = 1;
@@ -213,18 +216,18 @@ namespace TC_WinForms.WinForms.Diagram
 
                     foreach (WpfParalelno wpfParallelItem in wpfControlToItem.ListWpfParalelno.Children)
                     {
-                        if (wpfParallelItem.diagramParalelno != null) wpfParallelItem.diagramParalelno.Order = Order2;
+                        if (wpfParallelItem.diagramParalelno != null) wpfParallelItem.diagramParalelno.Order = Order2++;
                         Order3 = 1;
                         Order4 = 1;
 
                         foreach (WpfPosledovatelnost item3 in wpfParallelItem.ListWpfPosledovatelnost.Children)
                         {
-                            if (item3.diagramPosledov != null) item3.diagramPosledov.Order = Order3;
+                            if (item3.diagramPosledov != null) item3.diagramPosledov.Order = Order3++;
                             Order4 = 1;
 
                             foreach (WpfShag item4 in item3.ListWpfShag.Children)
                             {
-                                if (item4.diagramShag != null) item4.diagramShag.Order = Order4;
+                                if (item4.diagramShag != null) item4.diagramShag.Order = Order4++;
                                 item4.SetNomer(nomer);
                                 nomer++;
                             }
@@ -235,39 +238,11 @@ namespace TC_WinForms.WinForms.Diagram
             }
 
             diagramForm.HasChanges = true;
-
-            //foreach (WpfControlTO item in ListWpfControlTO.Children)
-            //{
-            //    if (item.diagamToWork != null) item.diagamToWork.Order = Order1;
-            //    Order1++;
-            //    Order2 = 1;
-            //    Order3 = 1;
-            //    Order4 = 1;
-
-            //    foreach (WpfParalelno item2 in item.ListWpfParalelno.Children)
-            //    {
-            //        if (item2.diagramParalelno != null) item2.diagramParalelno.Order = Order2;
-            //        Order3 = 1;
-            //        Order4 = 1;
-
-            //        foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
-            //        {
-            //            if (item3.diagramPosledov != null) item3.diagramPosledov.Order = Order3;
-            //            Order4 = 1;
-
-            //            foreach (WpfShag item4 in item3.ListWpfShag.Children)
-            //            {
-            //                if (item4.diagramShag != null) item4.diagramShag.Order = Order4;
-            //                item4.SetNomer(nomer);
-            //                nomer++;
-            //            }
-            //        }
-            //    }
-            //}
         }
 
         public void Save()
         {
+            Nomeraciya();
             try
             {
                 foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
@@ -286,35 +261,17 @@ namespace TC_WinForms.WinForms.Diagram
                         }
                     }
                 }
-
-                //foreach (WpfControlTO item in ListWpfControlTO.Children)
-                //{
-
-                //    foreach (WpfParalelno item2 in item.ListWpfParalelno.Children)
-                //    {
-                //        foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
-                //        {
-                //            foreach (WpfShag item4 in item3.ListWpfShag.Children)
-                //            {
-                //                item4.SaveCollection();
-                //            }
-                //        }
-                //    }
-                //}
             }
             catch (Exception)
             {
 
-            }       
+            }
+            
             try
             {
                 foreach (DiagamToWork item in DeletedDiagrams)
                 {
                     item.techOperationWork = null;
-                    //if (item.New && item.diagamToWork.techOperationWork != null)
-                    //{
-                    //    context.DiagamToWork.Add(item.diagamToWork);
-                    //}
                 }
 
                 var bbn = context.DiagamToWork.Where(w => w.techOperationWork == null).ToList();
@@ -332,31 +289,51 @@ namespace TC_WinForms.WinForms.Diagram
            
         }
 
+        
         internal void Order(int v, WpfControlTO wpfControlTO)
         {
+            // v = 1 - вниз, v = 2 - вверх
+
+            // Поиск к какому WpfTo принадлежит wpfControlTO
+            WpfTo? wpfToContainer = FindContainer(wpfControlTO);
+
+            if (wpfToContainer == null) return;
+
             if (v == 1)
             {
-                int ib = ListWpfControlTO.Children.IndexOf(wpfControlTO);
+                int ib = ListWpfControlTO.Children.IndexOf(wpfToContainer);
                 if (ib < ListWpfControlTO.Children.Count - 1)
                 {
                     var cv = ListWpfControlTO.Children[ib + 1];
                     ListWpfControlTO.Children.Remove(cv);
                     ListWpfControlTO.Children.Insert(ib, cv);
-
-                    Nomeraciya();
                 }
             }
 
             if (v == 2)
             {
-                int ib = ListWpfControlTO.Children.IndexOf(wpfControlTO);
+                int ib = ListWpfControlTO.Children.IndexOf(wpfToContainer);
                 if (ib != 0)
                 {
                     var cv = ListWpfControlTO.Children[ib];
                     ListWpfControlTO.Children.Remove(cv);
                     ListWpfControlTO.Children.Insert(ib - 1, cv);
-                    Nomeraciya();
                 }
+            }
+
+            Nomeraciya();
+
+
+            WpfTo? FindContainer(WpfControlTO wpfControlTO)
+            {
+                foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
+                {
+                    if (wpfToItem.Children.Contains(wpfControlTO))
+                    {
+                        return wpfToItem;
+                    }
+                }
+                return null;
             }
         }
         public DiagamToWork? CheckInDeletedDiagrams(TechOperationWork techOperationWork)

@@ -73,7 +73,7 @@ namespace TC_WinForms.WinForms.Diagram
             }
             else
             {
-                foreach (DiagramPosledov diagramPosledov in diagramParalelno.ListDiagramPosledov)
+                foreach (DiagramPosledov diagramPosledov in diagramParalelno.ListDiagramPosledov.OrderBy(x => x.Order))
                 {
                     ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, this, _tcViewState, diagramPosledov));
                 }

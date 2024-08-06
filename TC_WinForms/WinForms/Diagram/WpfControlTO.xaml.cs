@@ -105,7 +105,7 @@ namespace TC_WinForms.WinForms.Diagram
                     ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, this, _tcViewState));
                 }
 
-                foreach (DiagramParalelno diagramParalelno in this.diagamToWork.ListDiagramParalelno)
+                foreach (DiagramParalelno diagramParalelno in this.diagamToWork.ListDiagramParalelno.OrderBy(x => x.Order))
                 {
                     ListWpfParalelno.Children.Add(new WpfParalelno(diagramParalelno.techOperationWork, this, _tcViewState, diagramParalelno));
                 }

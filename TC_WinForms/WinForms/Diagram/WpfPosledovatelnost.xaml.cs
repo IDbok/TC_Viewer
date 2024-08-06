@@ -76,7 +76,7 @@ namespace TC_WinForms.WinForms.Diagram
             }
             else
             {
-                foreach (DiagramShag diagramShag in diagramPosledov.ListDiagramShag)
+                foreach (DiagramShag diagramShag in diagramPosledov.ListDiagramShag.OrderBy(x => x.Order))
                 {
                     ListWpfShag.Children.Add(new WpfShag(selectedItem, this, _tcViewState, diagramShag));
                 }
