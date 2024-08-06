@@ -22,6 +22,8 @@ namespace TC_WinForms.WinForms.Diagram
     /// </summary>
     public partial class WpfParalelno : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly DiagramState _diagramState;
+
         private readonly TcViewState _tcViewState;
 
         private TechOperationWork selectedItem;
@@ -44,6 +46,14 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
 
+        public WpfParalelno(TechOperationWork selectedItem, DiagramState diagramState, DiagramParalelno _diagramParalelno = null) 
+            : this(selectedItem, diagramState.WpfControlTO, diagramState.TcViewState, _diagramParalelno)
+        {
+            _diagramState = new DiagramState(diagramState);
+            _diagramState.WpfParalelno = this;
+        }
+
+        [Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
         public WpfParalelno(TechOperationWork selectedItem, WpfControlTO _wpfControlTO, TcViewState tcViewState, DiagramParalelno _diagramParalelno = null)
         {
             InitializeComponent();

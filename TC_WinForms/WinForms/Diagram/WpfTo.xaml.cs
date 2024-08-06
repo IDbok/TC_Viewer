@@ -10,6 +10,8 @@ namespace TC_WinForms.WinForms.Diagram
     /// </summary>
     public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private DiagramState _diagramState;
+
         private readonly TcViewState _tcViewState;
 
         private WpfMainControl _wpfMainControl;
@@ -34,11 +36,15 @@ namespace TC_WinForms.WinForms.Diagram
         {
             InitializeComponent();
         }
+
         public WpfTo(WpfMainControl wpfMainControl,
             TcViewState tcViewState,
             DiagamToWork? _diagramToWork = null, 
             bool addDiagram = true)
         {
+            _diagramState = new DiagramState(wpfMainControl, tcViewState, _diagramToWork);
+            _diagramState.WpfTo = this;
+
             InitializeComponent();
             DataContext = this;
 
@@ -110,7 +116,7 @@ namespace TC_WinForms.WinForms.Diagram
             if (diagamToWork == null)
                 diagamToWork = new DiagamToWork(); SetParallelIndex(diagamToWork);
 
-            var wpfControlTO = new WpfControlTO(wpfMainControl, diagamToWork, _tcViewState);
+            var wpfControlTO = new WpfControlTO(_diagramState, diagamToWork); //(wpfMainControl, diagamToWork, _tcViewState);
             wpfControlTO.VerticalAlignment = VerticalAlignment.Top;
             wpfControlTO.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
 
@@ -122,6 +128,38 @@ namespace TC_WinForms.WinForms.Diagram
         {
             ListTOParalelno.Children.Remove(wpfControlTO);
             Children.Remove(wpfControlTO);
+        }
+
+        public void ChangeOrder(WpfControlTO wpfControlTO, MoveDirection direction)
+        {
+            switch (direction)
+            {
+               case MoveDirection.Left:
+                    if (Children.IndexOf(wpfControlTO) > 0)
+                    {
+                        var index = Children.IndexOf(wpfControlTO);
+                        Children.Remove(wpfControlTO);
+                        Children.Insert(index - 1, wpfControlTO);
+                    }
+                    break;
+
+                case MoveDirection.Right:
+                    if (Children.IndexOf(wpfControlTO) < Children.Count - 1)
+                    {
+                        var index = Children.IndexOf(wpfControlTO);
+                        Children.Remove(wpfControlTO);
+                        Children.Insert(index + 1, wpfControlTO);
+                    }
+                    break;
+            }
+
+            ListTOParalelno.Children.Clear();
+            foreach (var child in Children)
+            {
+                ListTOParalelno.Children.Add(child);
+            }
+
+            _wpfMainControl.Nomeraciya();
         }
 
     }
