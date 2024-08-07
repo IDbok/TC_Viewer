@@ -237,7 +237,10 @@ namespace TC_WinForms.WinForms.Diagram
                 
             }
 
-            diagramForm.HasChanges = true;
+            if(!_tcViewState.IsViewMode)
+            {
+                diagramForm.HasChanges = true;
+            }   
         }
 
         public void Save()

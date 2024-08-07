@@ -222,7 +222,7 @@
                             />
                     <Border Background="#00000000" >
                         <Image x:Name="imageDiagram" Visibility="Collapsed"
-                                Source="/WinForms/Diagram/Select.jpg" Height="300" OpacityMask="Red"  />
+                                Height="300" OpacityMask="Red"  />
                     </Border>
                         <Button x:Name="btnDeleteImage" Content="Удалить изображение" HorizontalAlignment="Center"
                                 VerticalAlignment="Bottom" Margin="0,0,0,0" 

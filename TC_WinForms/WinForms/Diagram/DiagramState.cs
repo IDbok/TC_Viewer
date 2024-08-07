@@ -41,7 +41,11 @@ public class DiagramState
         WpfControlTO = diagramState.WpfControlTO;
         WpfParalelno = diagramState.WpfParalelno;
         WpfPosledovatelnost = diagramState.WpfPosledovatelnost;
+    }
 
+    public void HasChanges()
+    {
+        WpfMainControl.diagramForm.HasChanges = true;
     }
 }
 

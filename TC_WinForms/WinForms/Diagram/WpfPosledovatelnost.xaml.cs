@@ -22,6 +22,7 @@ namespace TC_WinForms.WinForms.Diagram
     /// </summary>
     public partial class WpfPosledovatelnost : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly DiagramState _diagramState;
         private readonly TcViewState _tcViewState;
 
         private TechOperationWork selectedItem;
@@ -44,12 +45,26 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
 
-        public WpfPosledovatelnost(TechOperationWork selectedItem, WpfParalelno _wpfParalelno, TcViewState tcViewState, DiagramPosledov _diagramPosledov=null)
+        //public WpfPosledovatelnost(TechOperationWork selectedItem, DiagramState diagramState, DiagramPosledov _diagramPosledov = null)
+        //    : this(selectedItem, diagramState.WpfParalelno ?? throw new ArgumentNullException(nameof(diagramState.WpfParalelno))
+        //          , diagramState.TcViewState, _diagramPosledov)
+        //{
+        //    _diagramState = new DiagramState(diagramState);
+        //    _diagramState.WpfPosledovatelnost = this;
+        //}
+        //[Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
+        //public WpfPosledovatelnost(TechOperationWork selectedItem, WpfParalelno _wpfParalelno, TcViewState tcViewState, DiagramPosledov _diagramPosledov=null)
+        public WpfPosledovatelnost(TechOperationWork selectedItem, DiagramState diagramState, DiagramPosledov _diagramPosledov = null)
         {
             InitializeComponent();
             DataContext = this;
 
-            _tcViewState = tcViewState;
+            _diagramState = new DiagramState(diagramState);
+            _diagramState.WpfPosledovatelnost = this;
+
+            _tcViewState = _diagramState.TcViewState;
+
+            var _wpfParalelno = _diagramState.WpfParalelno ?? throw new ArgumentNullException(nameof(_diagramState.WpfParalelno));
 
             if (_diagramPosledov == null)
             {
@@ -71,14 +86,16 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 if (selectedItem != null)
                 {
-                    ListWpfShag.Children.Add(new WpfShag(selectedItem, this, _tcViewState));
+                    ListWpfShag.Children.Add(new WpfShag(selectedItem, _diagramState!));
+                        //this, _tcViewState));
                 }
             }
             else
             {
                 foreach (DiagramShag diagramShag in diagramPosledov.ListDiagramShag.OrderBy(x => x.Order))
                 {
-                    ListWpfShag.Children.Add(new WpfShag(selectedItem, this, _tcViewState, diagramShag));
+                    ListWpfShag.Children.Add(new WpfShag(selectedItem, _diagramState!, diagramShag));
+                    //this, _tcViewState, diagramShag));
                 }
             }
 
@@ -91,7 +108,8 @@ namespace TC_WinForms.WinForms.Diagram
         
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ListWpfShag.Children.Add(new WpfShag(selectedItem, this, _tcViewState));
+            ListWpfShag.Children.Add(new WpfShag(selectedItem, _diagramState!));
+            //this, _tcViewState));
             wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
 
             wpfParalelno.Nomeraciya();
