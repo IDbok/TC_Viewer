@@ -17,6 +17,8 @@ namespace TC_WinForms.WinForms
         private static bool _isViewMode = true;
         private static bool _isCommentViewMode = false;
 
+        public static event Action CommentViewModeChanged;
+
         public static bool IsViewMode => _isViewMode;
         public static bool IsCommentViewMode
         {
@@ -30,12 +32,6 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
-        public static event Action CommentViewModeChanged;
-
-        private static void OnCommentViewModeChanged()
-        {
-            CommentViewModeChanged?.Invoke();
-        }
 
         private User.Role _accessLevel;
 
@@ -45,11 +41,15 @@ namespace TC_WinForms.WinForms
 
         //TechOperationForm techOperationForm;
 
-        EModelType? activeModelType = null;
+        EModelType? activeModelType = null;                 //используется ли данное поле?
         private TechnologicalCard _tc = null!;
         private int _tcId;
         private DbConnector db = new DbConnector();
 
+        private static void OnCommentViewModeChanged()
+        {
+            CommentViewModeChanged?.Invoke();
+        }
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
             _tcId = tcId;
@@ -227,10 +227,11 @@ namespace TC_WinForms.WinForms
 
         }
 
-        private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        //private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
+        //{
 
-        }
+        //}
+
         private async Task ShowForm(EModelType modelType)
         {
 

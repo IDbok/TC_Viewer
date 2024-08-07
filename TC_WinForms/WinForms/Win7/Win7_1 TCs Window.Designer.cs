@@ -73,7 +73,7 @@
             txtArticle.Name = "txtArticle";
             txtArticle.Size = new Size(503, 27);
             txtArticle.TabIndex = 2;
-            txtArticle.TextChanged += textBox1_TextChanged;
+            txtArticle.TextChanged += TextBoxTextChanged;
             // 
             // label2
             // 
@@ -101,7 +101,7 @@
             txtTechProcessType.Name = "txtTechProcessType";
             txtTechProcessType.Size = new Size(503, 27);
             txtTechProcessType.TabIndex = 5;
-            txtTechProcessType.TextChanged += textBox1_TextChanged;
+            txtTechProcessType.TextChanged += TextBoxTextChanged;
             // 
             // label4
             // 
@@ -118,7 +118,7 @@
             txtTechProcess.Name = "txtTechProcess";
             txtTechProcess.Size = new Size(503, 27);
             txtTechProcess.TabIndex = 6;
-            txtTechProcess.TextChanged += textBox1_TextChanged;
+            txtTechProcess.TextChanged += TextBoxTextChanged;
             // 
             // label5
             // 
@@ -135,7 +135,7 @@
             txtParametr.Name = "txtParametr";
             txtParametr.Size = new Size(503, 27);
             txtParametr.TabIndex = 7;
-            txtParametr.TextChanged += textBox1_TextChanged;
+            txtParametr.TextChanged += TextBoxTextChanged;
             // 
             // label6
             // 
@@ -152,7 +152,7 @@
             txtFinalProduct.Name = "txtFinalProduct";
             txtFinalProduct.Size = new Size(503, 27);
             txtFinalProduct.TabIndex = 8;
-            txtFinalProduct.TextChanged += textBox1_TextChanged;
+            txtFinalProduct.TextChanged += TextBoxTextChanged;
             // 
             // label7
             // 
@@ -169,7 +169,7 @@
             txtApplicability.Name = "txtApplicability";
             txtApplicability.Size = new Size(503, 27);
             txtApplicability.TabIndex = 9;
-            txtApplicability.TextChanged += textBox1_TextChanged;
+            txtApplicability.TextChanged += TextBoxTextChanged;
             // 
             // label8
             // 
@@ -186,7 +186,7 @@
             txtNote.Name = "txtNote";
             txtNote.Size = new Size(503, 27);
             txtNote.TabIndex = 10;
-            txtNote.TextChanged += textBox1_TextChanged;
+            txtNote.TextChanged += TextBoxTextChanged;
             // 
             // label9
             // 
@@ -253,7 +253,7 @@
             btnSave.TabIndex = 23;
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;
-            btnSave.Click += button2_Click;
+            btnSave.Click += btnSave_Click;
             // 
             // btnExportExcel
             // 

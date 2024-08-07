@@ -41,12 +41,15 @@ namespace TC_WinForms
 
             string variableName = "TEST_MODE";
             // —читывание значени€ переменной среды
-            string? variableValue = Environment.GetEnvironmentVariable(variableName);
-            bool isTestMode = variableValue != null && variableValue.ToLower() == "true";
+            //string? variableValue = Environment.GetEnvironmentVariable(variableName);
+            //bool isTestMode = variableValue != null && variableValue.ToLower() == "true";
+            
+            bool isTestMode = true;
 
             if (isTestMode)
             {
-                configGlobal.ConnectionString = "server=localhost;database=tavrida_db_main;user=root;password=root";
+                //configGlobal.ConnectionString = "server=localhost;database=tavrida_db_main;user=root;password=root";
+                configGlobal.ConnectionString = "server=localhost;port=8889;database=tavrida_db_main;user=root;password=root";
             }
             else
             {
