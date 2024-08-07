@@ -120,7 +120,7 @@ namespace TC_WinForms
 
         static void Test()
         {
-            var appIndex = 0;
+            var appIndex = 1;
 
             switch (appIndex)
             {
@@ -130,7 +130,7 @@ namespace TC_WinForms
                 case 1:
                     {
                         //var form = new DiagramForm(493, false);
-                        var form = new Win6_new(493, viewMode: true);// 486);
+                        var form = new Win6_new(493, viewMode: false);// 486);
                         form.ShowDialog();
                     }
                     break;

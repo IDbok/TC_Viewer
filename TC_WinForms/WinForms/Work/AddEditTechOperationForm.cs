@@ -211,7 +211,9 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewTO.FirstDisplayedScrollingRowIndex;
             dataGridViewTO.Rows.Clear();
 
-            List<TechOperationWork> list = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false).OrderBy(o => o.Order)
+            List<TechOperationWork> list = TechOperationForm.TechOperationWorksList
+                .Where(w => w.Delete == false)
+                .OrderBy(o => o.Order)
                 .ToList();
 
             foreach (TechOperationWork techOperationWork in list)
@@ -520,10 +522,7 @@ namespace TC_WinForms.WinForms.Work
             //};
             //dataGridViewTPAll.Rows.Add(listItem1.ToArray());
 
-            if (work?.techOperation.Category == "Типовая ТО")
-            {
-                return;
-            }
+            
 
             var filteredTransitions = FilterTechTransitions(textBoxPoiskTP.Text);
 
@@ -539,6 +538,11 @@ namespace TC_WinForms.WinForms.Work
                     repeatTechTransition.TimeExecution
                 };
                 dataGridViewTPAll.Rows.Add(listItem.ToArray());
+            }
+
+            if (work?.techOperation.Category == "Типовая ТО")
+            {
+                return;
             }
 
             foreach (TechTransition techTransition in filteredTransitions)// allTP)
@@ -590,7 +594,9 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
-            var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Where(w => w.Delete == false).ToList();
+            var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work)
+                .executionWorks.Where(w => w.Delete == false)
+                .OrderBy(o => o.Order).ToList();
 
             foreach (ExecutionWork executionWork in LocalTPs)
             {
