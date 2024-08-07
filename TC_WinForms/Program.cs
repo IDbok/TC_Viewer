@@ -116,10 +116,8 @@ namespace TC_WinForms
 
                 Application.Run(MainForm);
             }
-            
-            //Test();
-
         }
+
         static void Test()
         {
             var appIndex = 0;
