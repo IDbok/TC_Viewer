@@ -52,6 +52,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         this.KeyPreview = true;
         this.KeyDown += new KeyEventHandler(Form_KeyDown);
+
+        _tcViewState.ViewModeChanged += OnViewModeChanged;
     }
     private async void TechOperationForm_Load(object sender, EventArgs e)
     {
@@ -119,6 +121,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         pnlControls.Visible = !_tcViewState.IsViewMode;
     }
+    private void OnViewModeChanged()
+    {
+        UpdateGrid();
+    }
+
     private void Form_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Control && e.KeyCode == Keys.V)
@@ -1187,10 +1194,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
         }
 
-        if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
+        if (!_tcViewState.IsViewMode && 
+            (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
             || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index
             || e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index
-            || e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
+            || e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index))
         {
             var executionWork = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
 
