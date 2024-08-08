@@ -21,10 +21,13 @@ namespace TC_WinForms.WinForms
 
         private bool _isAllFormsLoading = false;
 
-        public void SetPageInfo(int startRecord, int endRecord, int totalRecords)
-        {
-            lblPageInfo.Text = $"Показаны результаты с {startRecord} по {endRecord} из {totalRecords}";
-        }
+        //Метод потерял акутальность, функционал реализован в Form_PageInfoChanged(object sender, PageInfoEventArgs e)
+        //Удалить метод
+
+        //public void SetPageInfo(int startRecord, int endRecord, int totalRecords)
+        //{
+        //    lblPageInfo.Text = $"Показаны результаты с {startRecord} по {endRecord} из {totalRecords}";
+        //}
 
         public Win7_new(User.Role accessLevel)
         {
@@ -147,16 +150,20 @@ namespace TC_WinForms.WinForms
 
             return form;
         }
-        private void AddFormToPanel(WinNumber winNumber)
-        {
-            pnlDataViewer.Controls.Clear(); // Очищаем предыдущие формы
-            var form = _forms[winNumber];
-            if (form != null)
-            {
-                pnlDataViewer.Controls.Add(form); // Добавляем загруженную форму
-                form.Show();
-            }
-        }
+
+        //Метод потерял актуальность, функционал реализован в методе LoadFormInPanel(WinNumber winNumber)
+        //Удалить метод
+
+        //private void AddFormToPanel(WinNumber winNumber)
+        //{
+        //    pnlDataViewer.Controls.Clear(); // Очищаем предыдущие формы
+        //    var form = _forms[winNumber];
+        //    if (form != null)
+        //    {
+        //        pnlDataViewer.Controls.Add(form); // Добавляем загруженную форму
+        //        form.Show();
+        //    }
+        //}
 
         private void SetLoadingState(bool isLoading)
         {
@@ -288,17 +295,20 @@ namespace TC_WinForms.WinForms
             await Save();
         }
 
-        public async void UpdateTС(TechnologicalCard tc)
-        {
-            // найти ТК в форме с данным id и обновить ее
-            if (_forms.TryGetValue(WinNumber.TC, out var form))
-            {
-                if (form is Win7_1_TCs tcForm)
-                {
-                    //await tcForm.UpdateTc(tc);
-                }
-            }
-        }
+        //Метод потерял актуальность, функционал реализован в методе UpdateTC()
+        //Удалить метод
+
+        //public async void UpdateTС(TechnologicalCard tc)
+        //{
+        //    // найти ТК в форме с данным id и обновить ее
+        //    if (_forms.TryGetValue(WinNumber.TC, out var form))
+        //    {
+        //        if (form is Win7_1_TCs tcForm)
+        //        {
+        //            //await tcForm.UpdateTc(tc);
+        //        }
+        //    }
+        //}
 
         public async void UpdateTC()
         {

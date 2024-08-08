@@ -14,10 +14,27 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form, IViewModeable
     {
+
+        //Используется ли данное перечисление?
+        enum WinNumber
+        {
+            Staff = 1,
+            Component = 2,
+            Machine = 3,
+            Protection = 4,
+            Tool = 5
+        }
+
         private TcViewState tcViewState = new TcViewState();
+
 
         private static bool _isViewMode = true;
         private static bool _isCommentViewMode = false;
+
+
+        public static event Action CommentViewModeChanged;
+
+        public static bool IsViewMode => _isViewMode;
 
         public static bool IsViewMode
         {
@@ -31,6 +48,7 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
+
         public static bool IsCommentViewMode
         {
             get => _isCommentViewMode;
@@ -43,6 +61,8 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
+
+
         public static event Action? CommentViewModeChanged;
         public static event Action? ViewModeChanged;
 
@@ -55,6 +75,7 @@ namespace TC_WinForms.WinForms
             ViewModeChanged?.Invoke();
         }
 
+
         private User.Role _accessLevel;
 
         private Dictionary<EModelType, Form> _formsCache = new Dictionary<EModelType, Form>();
@@ -63,11 +84,15 @@ namespace TC_WinForms.WinForms
 
         //TechOperationForm techOperationForm;
 
-        EModelType? activeModelType = null;
+        EModelType? activeModelType = null;                 //используется ли данное поле?
         private TechnologicalCard _tc = null!;
         private int _tcId;
         private DbConnector db = new DbConnector();
 
+        private static void OnCommentViewModeChanged()
+        {
+            CommentViewModeChanged?.Invoke();
+        }
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
             tcViewState.IsViewMode = viewMode;
@@ -77,8 +102,6 @@ namespace TC_WinForms.WinForms
             _isViewMode = viewMode;
 
             InitializeComponent();
-
-
 
             this.KeyDown += ControlSaveEvent;
 
@@ -247,10 +270,11 @@ namespace TC_WinForms.WinForms
 
         }
 
-        private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        //private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
+        //{
 
-        }
+        //}
+
         private async Task ShowForm(EModelType modelType)
         {
 
@@ -420,7 +444,10 @@ namespace TC_WinForms.WinForms
             btnShowWorkSteps.Tag = EModelType.WorkStep;
         }
 
-        private void toolStripButton4_Click(object sender, EventArgs e) => SaveAllChanges();
+        //Данный метод не актуален(??), функционал реализован в методе SaveChangesToolStripMenuItem_Click
+        //Удалить метод
+        //private void toolStripButton4_Click(object sender, EventArgs e) => SaveAllChanges();
+
         private void SaveAllChanges()
         {
             foreach (var form in _formsCache.Values)
@@ -524,14 +551,7 @@ namespace TC_WinForms.WinForms
             diagramForm.BringToFront();
         }
 
-        enum WinNumber
-        {
-            Staff = 1,
-            Component = 2,
-            Machine = 3,
-            Protection = 4,
-            Tool = 5
-        }
+        
     }
 
 }
