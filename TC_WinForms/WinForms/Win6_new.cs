@@ -156,6 +156,7 @@ namespace TC_WinForms.WinForms
                 [TechnologicalCardStatus.Created] = () =>
                 {
                     //setApprovedStatusToolStripMenuItem.Enabled = false;
+                    setRemarksModeToolStripMenuItem.Visible = false;
                 }
             };
 
@@ -461,11 +462,13 @@ namespace TC_WinForms.WinForms
         private async void setDraftStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Draft);
+            setDraftStatusToolStripMenuItem.Enabled = false;
         }
 
         private async void setApprovedStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Approved);
+            setApprovedStatusToolStripMenuItem.Enabled = false;
         }
 
         private async void setRemarksModeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -473,6 +476,11 @@ namespace TC_WinForms.WinForms
             if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
             {
                 await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
+            }
+            else if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel != User.Role.Lead)
+            {
+                MessageBox.Show("Открыть этап замечаний может только Технолог-руководитель.");
+                return;
             }
 
             if (IsCommentViewMode)

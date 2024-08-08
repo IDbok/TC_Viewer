@@ -58,6 +58,8 @@ namespace TC_WinForms.WinForms.Diagram
 
             technologicalCard = context.TechnologicalCards.Single(x => x.Id == tcId);
 
+            _tcViewState.TechnologicalCard = technologicalCard;
+
             TehCarta = context.TechnologicalCards
                .Include(t => t.Machines).Include(t => t.Machine_TCs)
                .Include(t => t.Protection_TCs)

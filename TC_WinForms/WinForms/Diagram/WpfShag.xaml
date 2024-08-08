@@ -23,7 +23,7 @@
 
             <TextBox x:Name="TextDeystShag" 
                     MinHeight="150"
-                    TextWrapping="Wrap" TextAlignment="Center" 
+                    TextWrapping="Wrap" TextAlignment="Left" 
                     AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" 
                     TextChanged="TextDeystShag_TextChanged"
                     IsReadOnly="{Binding IsViewMode}"/> <!--Text="Действия шага:"-->

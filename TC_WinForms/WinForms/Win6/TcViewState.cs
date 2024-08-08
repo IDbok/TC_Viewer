@@ -1,9 +1,15 @@
-﻿namespace TC_WinForms.WinForms
+﻿
+
+using TcModels.Models;
+
+namespace TC_WinForms.WinForms
 {
     public class TcViewState
     {
         private bool _isViewMode = true;
         private bool _isCommentViewMode = false;
+
+        public TechnologicalCard? TechnologicalCard; // todo: make it readonly
 
         public bool IsViewMode
         {

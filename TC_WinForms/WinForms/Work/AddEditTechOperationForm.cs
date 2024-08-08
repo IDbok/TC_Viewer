@@ -839,6 +839,8 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
+            TechOperationForm.HighlightExecutionWorkRow(ExecutionWorkBox, true);
+
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
@@ -945,6 +947,8 @@ namespace TC_WinForms.WinForms.Work
             {
                 return;
             }
+
+            TechOperationForm.HighlightExecutionWorkRow(work, true);
 
             var context = TechOperationForm.context;
 

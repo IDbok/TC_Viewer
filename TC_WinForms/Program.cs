@@ -80,7 +80,7 @@ namespace TC_WinForms
             if (isTestMode)
             {
                 string login, password;
-                Role userRole = Role.Lead;
+                Role userRole = Role.Implementer;
 
                 switch (userRole)
                 {
