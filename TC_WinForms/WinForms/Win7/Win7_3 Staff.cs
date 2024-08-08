@@ -197,12 +197,12 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
             dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
         }
 
-        dgvMain.Columns[nameof(DisplayedStaff.Name)].Width = 200;
-        dgvMain.Columns[nameof(DisplayedStaff.ClassifierCode)].Width = 150;
-        dgvMain.Columns[nameof(DisplayedStaff.Type)].Width = 200;
-        //dgvMain.Columns[nameof(DisplayedStaff.Functions)].Width = 290;
-        dgvMain.Columns[nameof(DisplayedStaff.CombineResponsibility)].Width = 290;
-        dgvMain.Columns[nameof(DisplayedStaff.Qualification)].Width = 290;
+        dgvMain.Columns[nameof(DisplayedStaff.Name)].Width = 80;
+        dgvMain.Columns[nameof(DisplayedStaff.ClassifierCode)].Width = 30;
+        dgvMain.Columns[nameof(DisplayedStaff.Type)].Width = 80;
+        dgvMain.Columns[nameof(DisplayedStaff.Functions)].Width = 100;
+        dgvMain.Columns[nameof(DisplayedStaff.CombineResponsibility)].Width = 90;
+        dgvMain.Columns[nameof(DisplayedStaff.Qualification)].Width = 200;
 
     }
 
