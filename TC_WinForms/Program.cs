@@ -120,7 +120,7 @@ namespace TC_WinForms
 
         static void Test()
         {
-            var appIndex = 1;
+            var appIndex = 0;
 
             switch (appIndex)
             {
