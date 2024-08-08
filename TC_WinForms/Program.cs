@@ -42,7 +42,8 @@ namespace TC_WinForms
             string variableName = "TEST_MODE";
             //Environment.SetEnvironmentVariable("TEST_MODE","true");
 
-            // Считывание значения переменной среды
+
+            // Г‘Г·ГЁГІГ»ГўГ Г­ГЁГҐ Г§Г­Г Г·ГҐГ­ГЁГї ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г®Г© Г±Г°ГҐГ¤Г»
             string ? variableValue = Environment.GetEnvironmentVariable(variableName);
             bool isTestMode = variableValue != null && variableValue.ToLower() == "true";
 
@@ -107,7 +108,7 @@ namespace TC_WinForms
                 }
                 else
                 {
-                    throw new Exception("Пользователь не найден!");
+                    throw new Exception("ГЏГ®Г«ГјГ§Г®ГўГ ГІГҐГ«Гј Г­ГҐ Г­Г Г©Г¤ГҐГ­!");
                 }
 
                 Test();

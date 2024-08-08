@@ -1202,6 +1202,7 @@
             // 
             flowLayoutPanel1.AutoScroll = true;
             flowLayoutPanel1.Controls.Add(label1);
+            flowLayoutPanel1.Controls.Add(labelComName);
             flowLayoutPanel1.Controls.Add(label6);
             flowLayoutPanel1.Controls.Add(labelComTime);
             flowLayoutPanel1.Controls.Add(smoothScrollDataGridView1);
@@ -1222,7 +1223,7 @@
             label1.Name = "label1";
             label1.Size = new Size(155, 28);
             label1.TabIndex = 0;
-            label1.Text = "Комментарии:";
+            label1.Text = "Пояснение к тех. переходу:";
             // 
             // label6
             // 
@@ -1233,7 +1234,7 @@
             label6.Name = "label6";
             label6.Size = new Size(248, 28);
             label6.TabIndex = 2;
-            label6.Text = "Комментарии времени:";
+            label6.Text = "Правила расчета времени тех. перехода:";
             // 
             // labelComTime
             // 
