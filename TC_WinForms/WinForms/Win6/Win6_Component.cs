@@ -26,8 +26,10 @@ namespace TC_WinForms.WinForms
         private List<DisplayedComponent_TC> _newObjects = new List<DisplayedComponent_TC>();
         private List<DisplayedComponent_TC> _deletedObjects = new List<DisplayedComponent_TC>();
 
-
         public bool CloseFormsNoSave { get; set; } = false;
+
+
+        public Win6_Component(int tcId, bool viewerMode = false)
 
         public bool GetDontSaveData()
         {
@@ -41,6 +43,7 @@ namespace TC_WinForms.WinForms
             }
         }
         public Win6_Component(int tcId, TcViewState tcViewState)// bool viewerMode = false)
+
         {
             _tcViewState = tcViewState;
 
@@ -55,7 +58,13 @@ namespace TC_WinForms.WinForms
             dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
             dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
         }
-        
+
+        public bool GetDontSaveData()
+        {
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0) { return true; }
+            else { return false; }
+        }
+       
         public void SetViewMode(bool? isViewMode = null)
         {
             //if (isViewMode != null)
@@ -199,6 +208,8 @@ namespace TC_WinForms.WinForms
                 dgvMain.Columns[column].DefaultCellStyle.BackColor = Color.LightGray;
             }
         }
+
+        //Используется ли данный метод? Проверить и удалить в случае его неактуальности
         private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             // Проверяем, что это не заголовок столбца и не новая строка
