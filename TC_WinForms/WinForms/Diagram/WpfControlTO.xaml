@@ -4,22 +4,28 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TC_WinForms.WinForms.Diagram"
+              xmlns:converters="clr-namespace:TC_WinForms.WinForms.Diagram.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="550" d:DesignWidth="820">
+             d:DesignHeight="750" d:DesignWidth="820">
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
     <Border BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="5">
     <StackPanel HorizontalAlignment="Center">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
             <TextBlock Text="Выбрите ТО" />
                 <ComboBox Name="ComboBoxTO" Width="300" Margin="30,0,0,0"
                           SelectionChanged="ComboBoxTO_SelectionChanged" PreviewMouseDown="ComboBoxTO_PreviewMouseDown" />
-                <StackPanel Orientation="Horizontal" >
-                    <Button Width="50" Content="Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_1"  />
-                    <Button Width="50" Content="Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_2" />
+                <StackPanel Orientation="Horizontal" 
+                            Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                            >
+                    <Button Width="50" Content="Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonDown_Click"  />
+                    <Button Width="50" Content="Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonUp_Click" />
                     <StackPanel x:Name="pnlParallelButtons" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="Collapsed" >
                         <Button Width="50" Content="Влево" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
-                            Background="Red" Click="btnMoveLeft_Click"  />
+                            Click="btnMoveLeft_Click"  />
                         <Button Width="50" Content="Вправо" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
-                            Background="Red" Click="btnMoveRight_Click" />
+                            Click="btnMoveRight_Click" />
                     </StackPanel>
                     <Button Width="50" Content="Удалить" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="btnDelete_Click" />
                 </StackPanel>
@@ -29,7 +35,8 @@
                 <local:WpfParalelno />
             </StackPanel>
 
-            <Button x:Name="ButtonAddShag" Content="Добавить шаг" HorizontalAlignment="Center" Margin="0,30,0,0" Click="Button_Click"  Visibility="Collapsed" />
+            <Button x:Name="ButtonAddShag" Content="Добавить шаг" HorizontalAlignment="Center" Margin="0,30,0,0" Click="Button_Click"  
+                    Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}" />
         </StackPanel>
     </Border>
 </UserControl>

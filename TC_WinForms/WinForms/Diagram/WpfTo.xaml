@@ -4,8 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TC_WinForms.WinForms.Diagram"
+             xmlns:converters="clr-namespace:TC_WinForms.WinForms.Diagram.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="850">
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Horizontal">
             <StackPanel x:Name="ListTOParalelno" 
@@ -21,7 +25,9 @@
                 Click="btnAddTOParallel_Click"
                 Content="Добавить ТО параллельно" 
                 HorizontalAlignment="Right" VerticalAlignment="Top"
-                Margin="15,0,0,0">
+                Margin="15,0,0,0"
+                Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                    >
                 <Button.LayoutTransform>
                     <RotateTransform Angle="-90"/>
                 </Button.LayoutTransform>

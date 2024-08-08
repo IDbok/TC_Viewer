@@ -1,24 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml.Linq;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram
@@ -28,13 +16,16 @@ namespace TC_WinForms.WinForms.Diagram
     /// </summary>
     public partial class WpfShag : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly DiagramState _diagramState;
+        private readonly TcViewState _tcViewState;
+
         private TechOperationWork selectedItem;
         WpfPosledovatelnost wpfPosledovatelnost;
 
-        private bool _isCommentViewMode;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public bool IsCommentViewMode => Win6_new.IsCommentViewMode;
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public bool IsCommentViewMode => _tcViewState.IsCommentViewMode;
+        public bool IsViewMode => _tcViewState.IsViewMode;
+        public bool IsHiddenInViewMode => !IsViewMode;
 
         int Nomer = 0;
 
@@ -42,16 +33,20 @@ namespace TC_WinForms.WinForms.Diagram
 
 
         public DiagramShag diagramShag;
-
         public WpfShag()
         {
             InitializeComponent();
-            DataContext = this;
-            Win6_new.CommentViewModeChanged += OnCommentViewModeChanged;
         }
         private void OnCommentViewModeChanged()
         {
             OnPropertyChanged(nameof(IsCommentViewMode));
+        }
+        private void OnViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
+            OnPropertyChanged(nameof(IsViewMode));
+
+            ChangeImageVisibility();
         }
 
         protected void OnPropertyChanged(string propertyName)
@@ -59,11 +54,12 @@ namespace TC_WinForms.WinForms.Diagram
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        // Не забудьте отписаться от события, чтобы избежать утечек памяти
-        ~WpfShag()
-        {
-            Win6_new.CommentViewModeChanged -= OnCommentViewModeChanged;
-        }
+        // Отписка от событий, чтобы избежать утечек памяти
+        //~WpfShag()
+        //{
+        //    _tcViewState.CommentViewModeChanged -= OnCommentViewModeChanged;
+        //    _tcViewState.ViewModeChanged -= OnViewModeChanged;
+        //}
 
         public void SaveCollection()
         {
@@ -117,11 +113,34 @@ namespace TC_WinForms.WinForms.Diagram
             TextImage.Text = $"Рисунок {nomer}";
         }
 
+        public WpfShag(TechOperationWork selectedItem,
+            DiagramState diagramState,
+            DiagramShag _diagramShag=null) 
+            : this(selectedItem,
+                diagramState.WpfPosledovatelnost ?? throw new ArgumentNullException(nameof(diagramState.WpfPosledovatelnost)),
+                diagramState.TcViewState, _diagramShag)
+        {
+            _diagramState = new DiagramState(diagramState);
+        }
+        [Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
         public WpfShag(TechOperationWork selectedItem, 
             WpfPosledovatelnost _wpfPosledovatelnost, 
+            TcViewState tcViewState,
             DiagramShag _diagramShag=null)
         {
             InitializeComponent();
+
+            DataContext = this;
+
+            _tcViewState = tcViewState;
+
+            _tcViewState.CommentViewModeChanged += OnCommentViewModeChanged;
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
+
+            // Обновление привязки
+            OnPropertyChanged(nameof(IsCommentViewMode));
+            OnPropertyChanged(nameof(IsViewMode));
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
 
             if (_diagramShag == null)
             {
@@ -157,15 +176,15 @@ namespace TC_WinForms.WinForms.Diagram
                 {
                     if (diagramShag.ImageBase64 != "")
                     {
-
-                        ChangeImageVisibility(true);
                         var byt = Convert.FromBase64String(diagramShag.ImageBase64);
                         var bn = LoadImage(byt);
                         imageDiagram.Source = bn;
+
+                        ChangeImageVisibility();//true);
                     }
                     else
                     {
-                        ChangeImageVisibility(false);
+                        ChangeImageVisibility();//false);
                     }
                 }
                 catch (Exception)
@@ -173,8 +192,8 @@ namespace TC_WinForms.WinForms.Diagram
 
                 }
 
-                DataContext = this;
-                Win6_new.CommentViewModeChanged += OnCommentViewModeChanged;
+                //DataContext = this;
+                //_tcViewState.CommentViewModeChanged += OnCommentViewModeChanged;
 
             }
 
@@ -256,6 +275,8 @@ namespace TC_WinForms.WinForms.Diagram
             var vb = AllItemGrid.Where(w => w.Add).ToList();
             DataGridToolAndComponentsShow.ItemsSource = vb;
 
+
+            
         }
 
         private BitmapImage LoadImage(byte[] imageData)
@@ -293,7 +314,7 @@ namespace TC_WinForms.WinForms.Diagram
             var openFileDialog1 = new OpenFileDialog();
             if (openFileDialog1.ShowDialog() == DialogResult.Cancel)
             {
-                ChangeImageVisibility(false);
+                ChangeImageVisibility();// false);
                 return;
             }
             // получаем выбранный файл
@@ -310,7 +331,8 @@ namespace TC_WinForms.WinForms.Diagram
                 byte[] bytes = File.ReadAllBytes(filename);
                 string base64 = Convert.ToBase64String(bytes);
                 diagramShag.ImageBase64 = base64;
-                wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                
+                _diagramState.HasChanges();
             }
             catch (OutOfMemoryException)
             {
@@ -346,7 +368,7 @@ namespace TC_WinForms.WinForms.Diagram
             return bitmap;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void ButtonDelete_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.diagramPosledov.ListDiagramShag.Remove(diagramShag);
             wpfPosledovatelnost.DeleteItem(this);
@@ -354,14 +376,14 @@ namespace TC_WinForms.WinForms.Diagram
             wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void ButtonDown_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.Vniz(this);
             wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void ButtonUp_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.Verh(this);
             wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
@@ -414,25 +436,38 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void btnLoadImage_Click(object sender, RoutedEventArgs e)
         {
-            ChangeImageVisibility(true);
+            //ChangeImageVisibility();// true);
             Image_MouseLeftButtonDown(sender, null);
-
+            ChangeImageVisibility();
         }
-        private void ChangeImageVisibility(bool imageVisibility)
+        private void ChangeImageVisibility()
         {
-            btnLoadImage.Visibility = imageVisibility ? Visibility.Collapsed : Visibility.Visible;
-            imageDiagram.Visibility = imageVisibility ? Visibility.Visible : Visibility.Collapsed;
-            gridImageName.Visibility = imageVisibility ? Visibility.Visible : Visibility.Collapsed;
-            btnDeleteImage.Visibility = imageVisibility ? Visibility.Visible : Visibility.Collapsed;
-            //if(imageVisibility)
-            //    imageDiagram.Source = "/WinForms/Diagram/Select.jpg";
+            var isImage = imageDiagram.Source != null ;
+
+            imageDiagram.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
+            gridImageName.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
+
+            if (IsViewMode)
+            {
+                btnLoadImage.Visibility = Visibility.Collapsed;
+                btnDeleteImage.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                btnLoadImage.Visibility = isImage ? Visibility.Collapsed : Visibility.Visible;
+                btnDeleteImage.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
+            }
+
         }
         
         private void btnDeleteImage_Click(object sender, RoutedEventArgs e)
         {
-            //diagramShag.ImageBase64 = "";
-            ChangeImageVisibility(false);
-            //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            diagramShag.ImageBase64 = "";
+            imageDiagram.Source = null;
+            ChangeImageVisibility();// false);
+
+            _diagramState.HasChanges();
+            //_tcViewState.WpfMainControl.diagramForm.HasChanges = true;
         }
 
     }

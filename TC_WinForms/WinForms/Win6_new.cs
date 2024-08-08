@@ -14,6 +14,7 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form, IViewModeable
     {
+
         //Используется ли данное перечисление?
         enum WinNumber
         {
@@ -24,12 +25,30 @@ namespace TC_WinForms.WinForms
             Tool = 5
         }
 
+        private TcViewState tcViewState = new TcViewState();
+
+
         private static bool _isViewMode = true;
         private static bool _isCommentViewMode = false;
+
 
         public static event Action CommentViewModeChanged;
 
         public static bool IsViewMode => _isViewMode;
+
+        public static bool IsViewMode
+        {
+            get => _isViewMode;
+            set
+            {
+                if (_isViewMode != value)
+                {
+                    _isViewMode = value;
+                    OnViewModeChanged();
+                }
+            }
+        }
+
         public static bool IsCommentViewMode
         {
             get => _isCommentViewMode;
@@ -42,6 +61,20 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
+
+
+        public static event Action? CommentViewModeChanged;
+        public static event Action? ViewModeChanged;
+
+        private static void OnCommentViewModeChanged()
+        {
+            CommentViewModeChanged?.Invoke();
+        }
+        private static void OnViewModeChanged()
+        {
+            ViewModeChanged?.Invoke();
+        }
+
 
         private User.Role _accessLevel;
 
@@ -62,6 +95,8 @@ namespace TC_WinForms.WinForms
         }
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
+            tcViewState.IsViewMode = viewMode;
+
             _tcId = tcId;
             _accessLevel = role;
             _isViewMode = viewMode;
@@ -156,12 +191,12 @@ namespace TC_WinForms.WinForms
         {
             if (isViewMode != null)
             {
-                _isViewMode = (bool)isViewMode;
+                tcViewState.IsViewMode = (bool)isViewMode;
             }
 
-            SaveChangesToolStripMenuItem.Visible = !_isViewMode;
+            SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
 
-            updateToolStripMenuItem.Text = _isViewMode ? "Редактировать" : "Просмотр";
+            updateToolStripMenuItem.Text = tcViewState.IsViewMode ? "Редактировать" : "Просмотр";
 
             //btnInformation.Visible = !_isViewMode;
 
@@ -173,7 +208,7 @@ namespace TC_WinForms.WinForms
                 // is form is ISaveEventForm
                 if (form is IViewModeable cashForms)
                 {
-                    cashForms.SetViewMode(_isViewMode);
+                    cashForms.SetViewMode(tcViewState.IsViewMode);
                 }
             }
         }
@@ -321,21 +356,21 @@ namespace TC_WinForms.WinForms
             switch (modelType)
             {
                 case EModelType.Staff:
-                    return new Win6_Staff(_tcId, _isViewMode);
+                    return new Win6_Staff(_tcId, tcViewState);// _isViewMode);
                 case EModelType.Component:
-                    return new Win6_Component(_tcId, _isViewMode);
+                    return new Win6_Component(_tcId, tcViewState);// _isViewMode);
                 case EModelType.Machine:
-                    return new Win6_Machine(_tcId, _isViewMode);
+                    return new Win6_Machine(_tcId, tcViewState); //_isViewMode);
                 case EModelType.Protection:
-                    return new Win6_Protection(_tcId, _isViewMode);
+                    return new Win6_Protection(_tcId, tcViewState);// _isViewMode);
                 case EModelType.Tool:
-                    return new Win6_Tool(_tcId, _isViewMode);
+                    return new Win6_Tool(_tcId, tcViewState);// _isViewMode);
                 case EModelType.WorkStep:
-                    return new TechOperationForm(_tcId, _isViewMode);
+                    return new TechOperationForm(_tcId, tcViewState);// _isViewMode);
                 case EModelType.Diagram:
-                    return new DiagramForm(_tcId, _isViewMode);
+                    return new DiagramForm(_tcId, tcViewState);// _isViewMode);
                 case EModelType.ExecutionScheme:
-                    return new Win6_ExecutionScheme(_tc, _isViewMode);
+                    return new Win6_ExecutionScheme(_tc, tcViewState);// _isViewMode);
                 //case EModelType.TechnologicalCard:
                 //    return new Win7_1_TCs_Window(_tcId, win6Format: true);
                 default:
@@ -435,7 +470,9 @@ namespace TC_WinForms.WinForms
 
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SetViewMode(!_isViewMode);
+            tcViewState.IsViewMode = !tcViewState.IsViewMode;
+
+            SetViewMode();
         }
 
         private async void printToolStripMenuItem_Click(object sender, EventArgs e)

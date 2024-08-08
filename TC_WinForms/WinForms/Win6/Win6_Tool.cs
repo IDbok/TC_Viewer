@@ -13,6 +13,8 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_Tool : Form, ISaveEventForm, IViewModeable
     {
+        private readonly TcViewState _tcViewState;
+
         private bool _isViewMode;
 
         private DbConnector dbCon = new DbConnector();
@@ -23,9 +25,11 @@ namespace TC_WinForms.WinForms
         private List<DisplayedTool_TC> _newObjects = new List<DisplayedTool_TC>();
         private List<DisplayedTool_TC> _deletedObjects = new List<DisplayedTool_TC>();
         public bool CloseFormsNoSave { get; set; } = false;
-        public Win6_Tool(int tcId, bool viewerMode = false)
+        public Win6_Tool(int tcId, TcViewState tcViewState)// bool viewerMode = false)
         {
-            _isViewMode= viewerMode;
+            _tcViewState = tcViewState;
+
+            //_isViewMode= viewerMode;
             _tcId = tcId;
 
             InitializeComponent();
@@ -42,20 +46,20 @@ namespace TC_WinForms.WinForms
         
         public void SetViewMode(bool? isViewMode = null)
         {
-            if (isViewMode != null)
-            {
-                _isViewMode = (bool)isViewMode;
-            }
+            //if (isViewMode != null)
+            //{
+            //    _isViewMode = (bool)isViewMode;
+            //}
 
-            pnlControls.Visible = !_isViewMode;
+            pnlControls.Visible = !_tcViewState.IsViewMode;
 
             // make columns editable
-            dgvMain.Columns[nameof(DisplayedTool_TC.Order)].ReadOnly = _isViewMode;
-            dgvMain.Columns[nameof(DisplayedTool_TC.Quantity)].ReadOnly = _isViewMode;
+            dgvMain.Columns[nameof(DisplayedTool_TC.Order)].ReadOnly = _tcViewState.IsViewMode;
+            dgvMain.Columns[nameof(DisplayedTool_TC.Quantity)].ReadOnly = _tcViewState.IsViewMode;
 
 
-            dgvMain.Columns[nameof(DisplayedTool_TC.Order)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
-            dgvMain.Columns[nameof(DisplayedTool_TC.Quantity)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedTool_TC.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedTool_TC.Quantity)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 
             // update form
             dgvMain.Refresh();

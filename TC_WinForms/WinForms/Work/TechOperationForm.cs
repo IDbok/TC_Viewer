@@ -15,6 +15,8 @@ namespace TC_WinForms.WinForms.Work;
 
 public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 {
+    private readonly TcViewState _tcViewState;
+
     private bool _isViewMode;
     private bool _isCommentViewMode;
 
@@ -36,10 +38,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     //}
 
-    public TechOperationForm(int tcId, bool viewerMode = false)
+    public TechOperationForm(int tcId, TcViewState tcViewState)//,  bool viewerMode = false)
     {
+        this._tcViewState = tcViewState;
+
         this.tcId = tcId;
-        _isViewMode = viewerMode;
+        //_isViewMode = viewerMode;
         InitializeComponent();
         dgvMain.CellPainting += DgvMain_CellPainting;
         dgvMain.CellFormatting += DgvMain_CellFormatting;
@@ -48,11 +52,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
     private async void TechOperationForm_Load(object sender, EventArgs e)
     {
+        // Блокировка формы на время загрузки данных
+        this.Enabled = false;
+
         await LoadDataAsync(tcId);
 
         UpdateGrid();
         SetCommentViewMode();
         SetViewMode();
+
+        this.Enabled = true;
     }
     private async Task LoadDataAsync(int tcId)
     {
@@ -100,12 +109,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public void SetViewMode(bool? isViewMode = null)
     {
-        if (isViewMode != null)
-        {
-            _isViewMode = (bool)isViewMode;
-        }
+        //if (isViewMode != null)
+        //{
+        //    _isViewMode = (bool)isViewMode;
+        //}
 
-        pnlControls.Visible = !_isViewMode;
+        pnlControls.Visible = !_tcViewState.IsViewMode;
     }
 
     private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
@@ -1472,6 +1481,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     private void button2_Click(object sender, EventArgs e)
     {
+        // в случае Режима просмотра форма не открывается
+        if (_tcViewState.IsViewMode)
+            return;
+
         // Проверяем, была ли форма создана и не была ли закрыта
         if (_editForm == null || _editForm.IsDisposed)
         {
@@ -1483,11 +1496,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         _editForm.BringToFront();
 
         HasChanges = true;
-
-        //_editForm = new AddEditTechOperationForm(this);
-        //_editForm.Show();
-
-        //HasChanges = true;
     }
 
     private void button1_Click_1(object sender, EventArgs e)

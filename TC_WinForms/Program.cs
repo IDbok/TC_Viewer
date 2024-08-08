@@ -98,13 +98,6 @@ namespace TC_WinForms
                     default:
                         login = "lead"; password = "dXLPdF"; break;
                 }
-                /*
-Новые пароли:
-"user", "f88k44"
-"manager", "99eUiS"
-"lead", "dXLPdF"
-"implementer", "30yP0e"
-            */
                 AuthorizationService.AuthorizeUser(login, password);
 
                 if (AuthorizationService.CurrentUser != null)
@@ -116,22 +109,39 @@ namespace TC_WinForms
                 {
                     throw new Exception("Пользователь не найден!");
                 }
+
+                Test();
             }
             else
             {
                 var authForm = new Win8();
                 authForm.ShowDialog();
-            }
-            
-            //Test();
 
-            Application.Run(MainForm);
+                Application.Run(MainForm);
+            }
         }
+
         static void Test()
         {
-            //var form = new DiagramForm(493, false);
-            var form = new Win6_new(486);// 493);
-            form.ShowDialog();
+            var appIndex = 0;
+
+            switch (appIndex)
+            {
+                case 0:
+                    Application.Run(MainForm); break;
+
+                case 1:
+                    {
+                        //var form = new DiagramForm(493, false);
+                        var form = new Win6_new(493, viewMode: true);// 486);
+                        form.ShowDialog();
+                    }
+                    break;
+
+                default:
+                    Application.Run(MainForm); break;
+            }    
+            
         }
     }
 

@@ -26,6 +26,19 @@ internal class Program
     static async Task Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
+        
+
+        //ParseAllTC();
+
+        //Migration();
+        //UpdateDictionary();
+
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    static void UpdateDictionary()
+    {
         TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
 
         var context = new MyDbContext();
@@ -33,15 +46,7 @@ internal class Program
         var parser = new DictionaryParser(context);
 
         parser.ParseDictionaries(@"C:\Users\bokar\OneDrive\Работа\Таврида\Технологические карты\ТК\Исходные\Справочник_ТК (6).xlsx");
-
-        //ParseAllTC();
-
-        //Migration();
-
-
     }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static void Migration()
     {
         string oldConnectionString = "Server=localhost;Database=tavrida_db_old;Uid=root;Pwd=root";

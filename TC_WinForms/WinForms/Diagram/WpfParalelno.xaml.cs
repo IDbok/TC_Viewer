@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,21 +20,52 @@ namespace TC_WinForms.WinForms.Diagram
     /// <summary>
     /// Логика взаимодействия для WpfParalelno.xaml
     /// </summary>
-    public partial class WpfParalelno : System.Windows.Controls.UserControl
+    public partial class WpfParalelno : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly DiagramState _diagramState;
+
+        private readonly TcViewState _tcViewState;
+
         private TechOperationWork selectedItem;
        public WpfControlTO wpfControlTO;
 
         public DiagramParalelno diagramParalelno;
+        public bool IsHiddenInViewMode => !_tcViewState.IsViewMode;
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
+        }
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         public WpfParalelno()
         {
             InitializeComponent();
         }
 
-        public WpfParalelno(TechOperationWork selectedItem, WpfControlTO _wpfControlTO, DiagramParalelno _diagramParalelno = null)
+        //public WpfParalelno(TechOperationWork selectedItem, DiagramState diagramState, DiagramParalelno _diagramParalelno = null) 
+        //    : this(selectedItem, diagramState.WpfControlTO, diagramState.TcViewState, _diagramParalelno)
+        //{
+        //    _diagramState = new DiagramState(diagramState);
+        //    _diagramState.WpfParalelno = this;
+        //}
+
+        //[Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
+        //public WpfParalelno(TechOperationWork selectedItem, WpfControlTO _wpfControlTO, TcViewState tcViewState, DiagramParalelno _diagramParalelno = null)
+        public WpfParalelno(TechOperationWork selectedItem, DiagramState diagramState, DiagramParalelno _diagramParalelno = null)
         {
             InitializeComponent();
+            DataContext = this;
+
+            _diagramState = new DiagramState(diagramState);
+            _diagramState.WpfParalelno = this;
+
+            _tcViewState = _diagramState.TcViewState;
+
+            var _wpfControlTO = _diagramState.WpfControlTO;
 
             if (_diagramParalelno == null)
             {
@@ -53,26 +85,29 @@ namespace TC_WinForms.WinForms.Diagram
 
             if (diagramParalelno.ListDiagramPosledov.Count == 0)
             {
-                ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, this));
+                ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, _diagramState!));
+                    //this, _tcViewState));
             }
             else
             {
-                foreach (DiagramPosledov diagramPosledov in diagramParalelno.ListDiagramPosledov)
+                foreach (DiagramPosledov diagramPosledov in diagramParalelno.ListDiagramPosledov.OrderBy(x => x.Order))
                 {
-                    ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, this, diagramPosledov));
+                    ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, _diagramState!, diagramPosledov));
+                    //this, _tcViewState, diagramPosledov));
                 }
             }
 
             wpfControlTO.Nomeraciya();
 
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
+        }
 
 
-
-        }           
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, this));
+            ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, _diagramState!));
+                //this, _tcViewState));
             wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             wpfControlTO.Nomeraciya();
         }

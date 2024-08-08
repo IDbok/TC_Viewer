@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,21 +20,51 @@ namespace TC_WinForms.WinForms.Diagram
     /// <summary>
     /// Логика взаимодействия для WpfPosledovatelnost.xaml
     /// </summary>
-    public partial class WpfPosledovatelnost : System.Windows.Controls.UserControl
+    public partial class WpfPosledovatelnost : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+        private readonly DiagramState _diagramState;
+        private readonly TcViewState _tcViewState;
+
         private TechOperationWork selectedItem;
-       public WpfParalelno wpfParalelno;
+        public WpfParalelno wpfParalelno;
 
-       public DiagramPosledov diagramPosledov;
+        public DiagramPosledov diagramPosledov;
+        public bool IsHiddenInViewMode => !_tcViewState.IsViewMode;
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsHiddenInViewMode));
+        }
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         public WpfPosledovatelnost()
         {
             InitializeComponent();
         }
 
-        public WpfPosledovatelnost(TechOperationWork selectedItem, WpfParalelno _wpfParalelno, DiagramPosledov _diagramPosledov=null)
+        //public WpfPosledovatelnost(TechOperationWork selectedItem, DiagramState diagramState, DiagramPosledov _diagramPosledov = null)
+        //    : this(selectedItem, diagramState.WpfParalelno ?? throw new ArgumentNullException(nameof(diagramState.WpfParalelno))
+        //          , diagramState.TcViewState, _diagramPosledov)
+        //{
+        //    _diagramState = new DiagramState(diagramState);
+        //    _diagramState.WpfPosledovatelnost = this;
+        //}
+        //[Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
+        //public WpfPosledovatelnost(TechOperationWork selectedItem, WpfParalelno _wpfParalelno, TcViewState tcViewState, DiagramPosledov _diagramPosledov=null)
+        public WpfPosledovatelnost(TechOperationWork selectedItem, DiagramState diagramState, DiagramPosledov _diagramPosledov = null)
         {
             InitializeComponent();
+            DataContext = this;
+
+            _diagramState = new DiagramState(diagramState);
+            _diagramState.WpfPosledovatelnost = this;
+
+            _tcViewState = _diagramState.TcViewState;
+
+            var _wpfParalelno = _diagramState.WpfParalelno ?? throw new ArgumentNullException(nameof(_diagramState.WpfParalelno));
 
             if (_diagramPosledov == null)
             {
@@ -55,24 +86,30 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 if (selectedItem != null)
                 {
-                    ListWpfShag.Children.Add(new WpfShag(selectedItem, this));
+                    ListWpfShag.Children.Add(new WpfShag(selectedItem, _diagramState!));
+                        //this, _tcViewState));
                 }
             }
             else
             {
-                foreach (DiagramShag diagramShag in diagramPosledov.ListDiagramShag)
+                foreach (DiagramShag diagramShag in diagramPosledov.ListDiagramShag.OrderBy(x => x.Order))
                 {
-                    ListWpfShag.Children.Add(new WpfShag(selectedItem, this, diagramShag));
+                    ListWpfShag.Children.Add(new WpfShag(selectedItem, _diagramState!, diagramShag));
+                    //this, _tcViewState, diagramShag));
                 }
             }
 
 
             wpfParalelno.Nomeraciya();
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
+            //OnViewModeChanged();
+            Console.WriteLine( "Posled " + IsHiddenInViewMode);
         }
-
+        
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ListWpfShag.Children.Add(new WpfShag(selectedItem, this));
+            ListWpfShag.Children.Add(new WpfShag(selectedItem, _diagramState!));
+            //this, _tcViewState));
             wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
 
             wpfParalelno.Nomeraciya();

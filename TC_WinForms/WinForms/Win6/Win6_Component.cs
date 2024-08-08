@@ -13,6 +13,8 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_Component : Form, ISaveEventForm, IViewModeable
     {
+        private readonly TcViewState _tcViewState;
+
         private bool _isViewMode;
 
         private DbConnector dbCon = new DbConnector();
@@ -26,9 +28,26 @@ namespace TC_WinForms.WinForms
 
         public bool CloseFormsNoSave { get; set; } = false;
 
+
         public Win6_Component(int tcId, bool viewerMode = false)
+
+        public bool GetDontSaveData()
         {
-            _isViewMode = viewerMode;
+            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public Win6_Component(int tcId, TcViewState tcViewState)// bool viewerMode = false)
+
+        {
+            _tcViewState = tcViewState;
+
+            //_isViewMode = viewerMode;
 
             InitializeComponent();
             _tcId = tcId;
@@ -48,22 +67,22 @@ namespace TC_WinForms.WinForms
        
         public void SetViewMode(bool? isViewMode = null)
         {
-            if (isViewMode != null)
-            {
-                _isViewMode = (bool)isViewMode;
-            }
+            //if (isViewMode != null)
+            //{
+            //    _isViewMode = (bool)isViewMode;
+            //}
 
-            pnlControls.Visible = !_isViewMode;
+            pnlControls.Visible = !_tcViewState.IsViewMode;
 
             // make columns editable
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Order)].ReadOnly = _isViewMode;
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].ReadOnly = _isViewMode;
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Note)].ReadOnly = _isViewMode;
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Order)].ReadOnly = _tcViewState.IsViewMode;
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].ReadOnly = _tcViewState.IsViewMode;
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Note)].ReadOnly = _tcViewState.IsViewMode;
 
 
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Order)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Note)].DefaultCellStyle.BackColor = _isViewMode ? Color.White : Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Note)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 
             // update form
             dgvMain.Refresh();
