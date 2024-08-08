@@ -177,14 +177,11 @@ namespace TC_WinForms.WinForms
         }
 
 
-        private void button2_Click(object sender, EventArgs e)
+        private void btnSave_Click(object sender, EventArgs e)
         {
-            if (NoEmptiness())
+            if (NoEmptiness() && Save())
             {
-                if (Save())
-                {
                     MessageBox.Show("Сохранено!");
-                }
             }
         }
 
@@ -192,8 +189,7 @@ namespace TC_WinForms.WinForms
         {
             if (NoEmptiness())
             {
-                if (HasChanges()) 
-                    if (!Save()) return;
+                if (HasChanges() && !Save()) { return; }
 
                 var nn = LocalCard.Id;
                 var editorForm = new Win6_new(nn, role: _accessLevel);
@@ -204,7 +200,7 @@ namespace TC_WinForms.WinForms
         }
 
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void TextBoxTextChanged(object sender, EventArgs e)
         {
             ((TextBox)sender).BackColor = Color.White;
         }

@@ -40,13 +40,17 @@ namespace TC_WinForms
             ApplicationConfiguration.Initialize();
 
             string variableName = "TEST_MODE";
-            // Считывание значения переменной среды
-            string? variableValue = Environment.GetEnvironmentVariable(variableName);
+            //Environment.SetEnvironmentVariable("TEST_MODE","true");
+
+
+            // Г‘Г·ГЁГІГ»ГўГ Г­ГЁГҐ Г§Г­Г Г·ГҐГ­ГЁГї ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г®Г© Г±Г°ГҐГ¤Г»
+            string ? variableValue = Environment.GetEnvironmentVariable(variableName);
             bool isTestMode = variableValue != null && variableValue.ToLower() == "true";
 
             if (isTestMode)
             {
                 configGlobal.ConnectionString = "server=localhost;database=tavrida_db_main;user=root;password=root";
+                //configGlobal.ConnectionString = "server=localhost;port=3306;database=tavrida_db_main;user=root;password=12345";
             }
             else
             {
@@ -104,7 +108,7 @@ namespace TC_WinForms
                 }
                 else
                 {
-                    throw new Exception("Пользователь не найден!");
+                    throw new Exception("ГЏГ®Г«ГјГ§Г®ГўГ ГІГҐГ«Гј Г­ГҐ Г­Г Г©Г¤ГҐГ­!");
                 }
 
                 Test();
