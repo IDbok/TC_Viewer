@@ -14,6 +14,16 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form, IViewModeable
     {
+        //Используется ли данное перечисление?
+        enum WinNumber
+        {
+            Staff = 1,
+            Component = 2,
+            Machine = 3,
+            Protection = 4,
+            Tool = 5
+        }
+
         private static bool _isViewMode = true;
         private static bool _isCommentViewMode = false;
 
@@ -57,8 +67,6 @@ namespace TC_WinForms.WinForms
             _isViewMode = viewMode;
 
             InitializeComponent();
-
-
 
             this.KeyDown += ControlSaveEvent;
 
@@ -401,7 +409,10 @@ namespace TC_WinForms.WinForms
             btnShowWorkSteps.Tag = EModelType.WorkStep;
         }
 
-        private void toolStripButton4_Click(object sender, EventArgs e) => SaveAllChanges();
+        //Данный метод не актуален(??), функционал реализован в методе SaveChangesToolStripMenuItem_Click
+        //Удалить метод
+        //private void toolStripButton4_Click(object sender, EventArgs e) => SaveAllChanges();
+
         private void SaveAllChanges()
         {
             foreach (var form in _formsCache.Values)
@@ -503,14 +514,7 @@ namespace TC_WinForms.WinForms
             diagramForm.BringToFront();
         }
 
-        enum WinNumber
-        {
-            Staff = 1,
-            Component = 2,
-            Machine = 3,
-            Protection = 4,
-            Tool = 5
-        }
+        
     }
 
 }
