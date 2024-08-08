@@ -32,9 +32,9 @@ namespace TC_WinForms.WinForms
         private static bool _isCommentViewMode = false;
 
 
-        public static event Action CommentViewModeChanged;
+        //public static event Action CommentViewModeChanged;
 
-        public static bool IsViewMode => _isViewMode;
+        //public static bool IsViewMode => _isViewMode;
 
         public static bool IsViewMode
         {
@@ -66,10 +66,6 @@ namespace TC_WinForms.WinForms
         public static event Action? CommentViewModeChanged;
         public static event Action? ViewModeChanged;
 
-        private static void OnCommentViewModeChanged()
-        {
-            CommentViewModeChanged?.Invoke();
-        }
         private static void OnViewModeChanged()
         {
             ViewModeChanged?.Invoke();

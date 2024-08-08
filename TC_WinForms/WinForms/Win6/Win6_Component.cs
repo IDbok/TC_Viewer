@@ -29,19 +29,6 @@ namespace TC_WinForms.WinForms
         public bool CloseFormsNoSave { get; set; } = false;
 
 
-        public Win6_Component(int tcId, bool viewerMode = false)
-
-        public bool GetDontSaveData()
-        {
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
         public Win6_Component(int tcId, TcViewState tcViewState)// bool viewerMode = false)
 
         {
