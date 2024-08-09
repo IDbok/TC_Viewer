@@ -80,6 +80,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewPovtor.CellContentClick += DataGridViewPovtor_CellContentClick;
             dataGridViewPovtor.CellValueChanged += DataGridViewPovtor_CellValueChanged;
             dataGridViewPovtor.CellFormatting += dataGridViewPovtor_CellFormatting;
+            dataGridViewPovtor.SelectionChanged += DataGridViewPovtor_SelectionChanged;
 
 
             comboBoxFiltrCategor.SelectedIndexChanged += ComboBoxFiltrCategor_SelectedIndexChanged;
@@ -1971,6 +1972,19 @@ namespace TC_WinForms.WinForms.Work
         //        }
         //    }
         //}
+        private void DataGridViewPovtor_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dataGridViewPovtor.SelectedRows.Count > 0)
+            {
+                // Получаем выделенную строку
+                var selectedRow = dataGridViewPovtor.SelectedRows[0];
+                var executionWork = (ExecutionWork)selectedRow.Cells[0].Value;
+
+                // Вызываем метод для выделения строки
+                TechOperationForm.HighlightExecutionWorkRow(executionWork, false);
+            }
+        }
+
         private void dataGridViewPovtor_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (executionWorkPovtor == null) return;
