@@ -6,6 +6,7 @@ using System.Linq;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -18,7 +19,10 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
 
     private DbConnector dbCon = new DbConnector();
 
-    private List<DisplayedStaff> _displayedObjects;
+    private SelectionService<DisplayedStaff> _selectionService;
+
+
+    private List<DisplayedStaff> _displayedObjects = new();
     private static BindingList<DisplayedStaff> _bindingList;
 
     private bool _isAddingForm = false;
@@ -31,6 +35,8 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
     public bool isDataLoaded = false;
 
     private bool isFiltered = false;
+
+    //private List<int> _selectedIds = new List<int>();
 
     public void SetAsAddingForm()
     {
@@ -71,6 +77,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         _tcId = createdTCId;
         InitializeComponent();
 
+        _selectionService = new SelectionService<DisplayedStaff>(dgvMain, _displayedObjects);
     }
 
     private async void Win7_3_Staff_Load(object sender, EventArgs e)
@@ -104,6 +111,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
             //////////////////////////////////////////////////////////////////////////////////////////
 
             SetAddingFormEvents();
+
         }
 
         dgvMain.Visible = true;
@@ -112,8 +120,13 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
     }
     public async Task LoadDataAsync()
     {
-        _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Staff>(includeRelatedStaffs: true) //.Where(obj => obj.IsReleased == true)
+        var displayedList = await Task.Run(() => dbCon.GetObjectList<Staff>(includeRelatedStaffs: true) //.Where(obj => obj.IsReleased == true)
             .Select(obj => new DisplayedStaff(obj)).ToList());
+
+        foreach (var obj in displayedList)
+        {
+            _displayedObjects.Add(obj);
+        }
 
         FilteringObjects();
 
@@ -129,10 +142,6 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         //};
         //controlAccess.TryGetValue(accessLevel, out var action);
         //action?.Invoke();
-    }
-
-    private async void Win7_3_Staff_FormClosing(object sender, FormClosingEventArgs e)
-    {
     }
 
     private void btnAddNewObj_Click(object sender, EventArgs e)
@@ -214,21 +223,33 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
     {
         btnAddSelected.Click += BtnAddSelected_Click;
         btnCancel.Click += BtnCancel_Click;
+
+        dgvMain.CellValueChanged += _selectionService.CellValueChanged;
+        dgvMain.CurrentCellDirtyStateChanged += _selectionService.CurrentCellDirtyStateChanged;
     }
 
     void BtnAddSelected_Click(object sender, EventArgs e)
     {
-        // get selected rows
-        var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
-        if (selectedRows.Count == 0)
+        //// get selected rows
+        //var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
+
+        //if (selectedRows.Count == 0)
+        //{
+        //    MessageBox.Show("Выберите строки для добавления");
+        //    return;
+        //}
+
+        //// get selected objects
+        //var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedStaff).ToList();
+
+        // выделить объекты с id из _selectedIds из списка _displayedObjects
+        var selectedObjs = _selectionService.GetSelectedObjects();//_displayedObjects.Where(obj => _selectedIds.Contains(obj.Id)).ToList();
+
+        if (selectedObjs.Count == 0)
         {
             MessageBox.Show("Выберите строки для добавления");
             return;
         }
-
-
-        // get selected objects
-        var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedStaff).ToList();
         var newItems = new List<Staff>();
         foreach (var obj in selectedObjs)
         {
@@ -466,12 +487,9 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         {
             var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
 
-            //dgvMain.DataSource = null;
-
             if (string.IsNullOrWhiteSpace(searchText) && !cbxShowUnReleased.Checked)
             {
                 _bindingList = new BindingList<DisplayedStaff>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
-                //dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
                 isFiltered = false;
             }
             else
@@ -483,23 +501,20 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
                         (obj.CombineResponsibility?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                         (obj.Qualification?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                         (obj.Comment?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)) &&
-                        (obj.IsReleased == !cbxShowUnReleased.Checked) 
-                        //&&
-                        //(!_isAddingForm ||
-                        //    (!cbxShowUnReleased.Checked ||
-                        //    (cbxShowUnReleased.Checked &&
-                        //    (obj.CreatedTCId == null || obj.CreatedTCId == _tcId)))
-                        //)
+                        (obj.IsReleased == !cbxShowUnReleased.Checked)
                         ).ToList();
 
                 _bindingList = new BindingList<DisplayedStaff>(filteredList);
-                // dgvMain.DataSource = new BindingList<DisplayedStaff>(filteredList);
                 isFiltered = true;
             }
 
             dgvMain.DataSource = _bindingList;
 
             DisplayedEntityHelper.SetupDataGridView<DisplayedStaff>(dgvMain);
+
+            // Восстанавливаем выделенные объекты
+            if (_isAddingForm)
+                _selectionService.RestoreSelectedIds();
 
         }
         catch (Exception e)
@@ -508,6 +523,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         }
 
     }
+
     private void btnUpdate_Click(object sender, EventArgs e)
     {
         if (dgvMain.SelectedRows.Count != 1)
@@ -582,4 +598,6 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
     {
         FilteringObjects();
     }
+
+
 }

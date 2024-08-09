@@ -4,6 +4,7 @@ using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -15,9 +16,11 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 {
     private readonly User.Role _accessLevel;
 
+    private SelectionService<DisplayedTool> _selectionService;
+
     private DbConnector dbCon = new DbConnector();
 
-    private List<DisplayedTool> _displayedObjects;
+    private List<DisplayedTool> _displayedObjects = new();
     private BindingList<DisplayedTool> _bindingList;
 
     private bool _isAddingForm = false;
@@ -47,6 +50,8 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
         _newItemCreateActive = activateNewItemCreate;
         _tcId = createdTCId;
         InitializeComponent();
+
+        _selectionService = new SelectionService<DisplayedTool>(dgvMain, _displayedObjects);
 
     }
     private async void Win7_6_Tool_Load(object sender, EventArgs e)
@@ -88,18 +93,15 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
     public async Task LoadDataAsync()
     {
-        _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Tool>(includeLinks: true)
+        var displayedObjs = await Task.Run(() => dbCon.GetObjectList<Tool>(includeLinks: true)
             .Select(obj => new DisplayedTool(obj)).ToList());
+
+        foreach (var obj in displayedObjs)
+            _displayedObjects.Add(obj);
 
         FilteringObjects();
 
         _isDataLoaded = true;
-    }
-
-
-    private async void Win7_6_Tool_FormClosing(object sender, FormClosingEventArgs e)
-    {
-        
     }
 
     private void AccessInitialization()
@@ -204,20 +206,24 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
     {
         btnAddSelected.Click += BtnAddSelected_Click;
         btnCancel.Click += BtnCancel_Click;
+
+        dgvMain.CellValueChanged += _selectionService.CellValueChanged;
+        dgvMain.CurrentCellDirtyStateChanged += _selectionService.CurrentCellDirtyStateChanged;
     }
 
     void BtnAddSelected_Click(object sender, EventArgs e)
     {
-        // get selected rows
-        var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>()
-            .Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
-        if (selectedRows.Count == 0)
+        //// get selected rows
+        //var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>()
+        //    .Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
+
+        // get selected objects
+        var selectedObjs = _selectionService.GetSelectedObjects();//selectedRows.Select(r => r.DataBoundItem as DisplayedTool).ToList();
+        if (selectedObjs.Count == 0)
         {
             MessageBox.Show("Выберите строки для добавления");
             return;
         }
-        // get selected objects
-        var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedTool).ToList();
         var newItems = new List<Tool>();
         foreach (var obj in selectedObjs)
         {
@@ -506,26 +512,6 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
             }
             else
             {
-                //var filteredList = _displayedObjects.Where(obj =>
-                //    (searchText == ""
-                //        ||
-                //        (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                //        (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                //        (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                //        //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                //        (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                //        (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
-                //    ) &&
-                //    ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter))
-                //        || obj.Categoty?.ToString() == categoryFilter) &&
-
-                //    (obj.IsReleased == !cbxShowUnReleased.Checked) &&
-
-                //    (!_isAddingForm ||
-                //        (cbxShowUnReleased.Checked &&
-                //        (obj.CreatedTCId == null || obj.CreatedTCId == _tcId))
-                //    )
-                //    ).ToList();
 
                 _bindingList = FilteredBindingList(searchText);//new BindingList<DisplayedTool>(filteredList);
                 _isFiltered = true;
@@ -533,6 +519,10 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
             dgvMain.DataSource = _bindingList;
 
             DisplayedEntityHelper.SetupDataGridView<DisplayedTool>(dgvMain);
+
+            // Восстанавливаем выделенные объекты
+            if (_isAddingForm)
+                _selectionService.RestoreSelectedIds();
         }
         catch (Exception e)
         {

@@ -1178,33 +1178,37 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         //if (e.RowIndex < 0) // todo: Исправли с == 0  на  < 0 т.е мешает применению стиля к первой строке. Пока не поянятно, зачем была созданна.
         //    return;
 
+        // Если значение ячейки совпадает с предыдущим значением в столбце с ТО (индекс 2),
+        // то ячейка остается пустой.
         if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 2)
         {
             e.Value = string.Empty;
             e.FormattingApplied = true;
         }
 
+        // Если это столбцов с временем этапа и механизмов (индекс >= 6), и значение ячейки равно "-1",
+        // то ячейка остается пустой.
         if (e.ColumnIndex >= 6)
         {
-            var bb = (string)e.Value;
-            if (bb == "-1")
+            var cellValue = (string)e.Value;
+            if (cellValue == "-1")
             {
                 e.Value = string.Empty;
                 e.FormattingApplied = true;
             }
         }
 
-        if (!_tcViewState.IsViewMode && 
-            (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
-            || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index
-            || e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index
-            || e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index))
+        // Если мы находимся в режиме редактирования ТК (_tcViewState.IsViewMode == false),
+        // проверяем возможность редактирования ячейки.
+        if (!_tcViewState.IsViewMode)
         {
             var executionWork = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
 
             if (executionWork != null)
             {
-                if (TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() 
+                if ((e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
+                    || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index) 
+                    && DataProcessing.AuthorizationService.CurrentUser.UserRole() 
                     == DataProcessing.AuthorizationService.User.Role.Lead)
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
@@ -1215,16 +1219,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
-                else
+                else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index
+                    || e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
                 {
-                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
-            }
-            else
-            {
-                // Делаем ячейки недоступными для редактирования, если элемент ExecutionWork отсутствует
-                if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
-                    || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
+                else
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
                 }

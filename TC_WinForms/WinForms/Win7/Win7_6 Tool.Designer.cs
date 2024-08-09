@@ -210,7 +210,6 @@
             Controls.Add(pnlControls);
             Name = "Win7_6_Tool";
             Text = "Win7_6_Tool";
-            FormClosing += Win7_6_Tool_FormClosing;
             Load += Win7_6_Tool_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);

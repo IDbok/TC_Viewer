@@ -186,7 +186,6 @@
             Controls.Add(pnlControls);
             Name = "Win7_3_Staff";
             Text = "Win7_3_Staff";
-            FormClosing += Win7_3_Staff_FormClosing;
             Load += Win7_3_Staff_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);

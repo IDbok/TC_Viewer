@@ -212,7 +212,6 @@
             Controls.Add(pnlControls);
             Name = "Win7_4_Component";
             Text = "Win7_4_Component";
-            FormClosing += Win7_4_Component_FormClosing;
             Load += Win7_4_Component_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
