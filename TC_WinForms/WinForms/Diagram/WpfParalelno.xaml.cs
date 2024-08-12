@@ -59,6 +59,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             InitializeComponent();
             DataContext = this;
+            this.IsEnabled = true;
 
             _diagramState = new DiagramState(diagramState);
             _diagramState.WpfParalelno = this;

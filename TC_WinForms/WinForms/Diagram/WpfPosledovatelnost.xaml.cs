@@ -157,7 +157,6 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-
             wpfParalelno.Order(1, this);
             wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }

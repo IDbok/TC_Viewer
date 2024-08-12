@@ -35,7 +35,9 @@
                 <local:WpfParalelno />
             </StackPanel>
 
-            <Button x:Name="ButtonAddShag" Content="Добавить шаг" HorizontalAlignment="Center" Margin="0,30,0,0" Click="Button_Click"  
+            <Button x:Name="ButtonAddShag" Content="Добавить шаг" HorizontalAlignment="Center" Margin="0,30,0,0" 
+                    IsEnabled="False"
+                    Click="Button_Click"  
                     Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}" />
         </StackPanel>
     </Border>

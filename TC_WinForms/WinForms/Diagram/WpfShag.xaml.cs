@@ -20,6 +20,7 @@ namespace TC_WinForms.WinForms.Diagram
         private readonly DiagramState _diagramState;
         private readonly TcViewState _tcViewState;
 
+
         private TechOperationWork selectedItem;
         WpfPosledovatelnost wpfPosledovatelnost;
 
@@ -122,6 +123,7 @@ namespace TC_WinForms.WinForms.Diagram
                 diagramState.TcViewState, _diagramShag)
         {
             _diagramState = new DiagramState(diagramState);
+
         }
         [Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
         public WpfShag(TechOperationWork selectedItem, 
@@ -130,6 +132,7 @@ namespace TC_WinForms.WinForms.Diagram
             DiagramShag _diagramShag=null)
         {
             InitializeComponent();
+
 
             DataContext = this;
 
@@ -373,21 +376,21 @@ namespace TC_WinForms.WinForms.Diagram
         {
             wpfPosledovatelnost.diagramPosledov.ListDiagramShag.Remove(diagramShag);
             wpfPosledovatelnost.DeleteItem(this);
-            
-            wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+
+            _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
         private void ButtonDown_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.Vniz(this);
-            wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            _diagramState.HasChanges();  //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
 
         private void ButtonUp_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.Verh(this);
-            wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            _diagramState.HasChanges();  //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
 
@@ -397,7 +400,7 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 DataGridToolAndComponentsAdd.Visibility= Visibility.Visible;
                 DataGridToolAndComponentsShow.Visibility= Visibility.Collapsed;
-                wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             }
             else
             {
@@ -406,7 +409,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 var vb = AllItemGrid.Where(w=>w.Add).ToList();
                 DataGridToolAndComponentsShow.ItemsSource = vb;
-                wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             }
         }
 
@@ -418,7 +421,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 if (wpfPosledovatelnost != null)
                 {
-                    wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                    _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
                 }
             }
         }
@@ -430,7 +433,7 @@ namespace TC_WinForms.WinForms.Diagram
                 diagramShag.NameImage = TBNameImage.Text; 
                 if (wpfPosledovatelnost != null)
                 {
-                    wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                    _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
                 }
             }
         }

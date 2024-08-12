@@ -187,29 +187,9 @@ namespace TC_WinForms.WinForms.Diagram
                     ComboBoxTO.IsEnabled = false;
                     Nomeraciya();
                 }
+
+                ButtonAddShag.IsEnabled = true;
             }
-
-            //if (ComboBoxTO.SelectedItem != null)
-            //{
-            //    if (diagamToWork.techOperationWork != null)
-            //    {
-            //        return;
-            //    }
-
-            //    ListWpfParalelno.Visibility = Visibility.Visible;
-            //    ButtonAddShag.Visibility = Visibility.Visible;
-
-            //    diagamToWork.techOperationWork = (TechOperationWork)ComboBoxTO.SelectedItem;
-            //    _wpfMainControl.technologicalCard.DiagamToWork.Add(diagamToWork);
-
-            //    ListWpfParalelno.Children.Clear();
-            //    ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, this));
-            //    _wpfMainControl.diagramForm.HasChanges = true;
-
-            //    ComboBoxTO.IsReadOnly = true;
-            //    ComboBoxTO.IsEnabled = false;
-            //    Nomeraciya();
-            //}
         }
 
         public void DeteteParalelno(WpfParalelno paralelno)
