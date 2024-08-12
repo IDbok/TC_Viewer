@@ -107,7 +107,12 @@ namespace TC_WinForms.WinForms.Diagram
                 .ToList();
 
             // Сгруппировать по ParallelIndex, если ParallelIndex = null, то записать в отдельную группу
-            var ListShagGroup = ListShag.GroupBy(g => g.ParallelIndex).ToList();
+            var ListShagGroup = ListShag
+                .GroupBy(g => g.ParallelIndex != null ? g.ParallelIndex : g.Order.ToString())
+                .ToList();
+
+            // сгруппировать ListShagGroup по Order DiagramToWork внутри группы
+            ListShagGroup = ListShagGroup.OrderBy(o => o.FirstOrDefault()!.Order).ToList();
 
             foreach (var ListShagItem in ListShagGroup)
             {

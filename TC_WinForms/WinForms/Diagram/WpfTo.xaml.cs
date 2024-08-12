@@ -84,7 +84,7 @@ namespace TC_WinForms.WinForms.Diagram
                 if (Children.Count > 0)
                 {
                     if (parallelIndex == null)
-                        parallelIndex = new Random().Next(10000).ToString();
+                        parallelIndex = new Random().Next(1000000).ToString();
 
                     diagamToWork.ParallelIndex = parallelIndex;
 

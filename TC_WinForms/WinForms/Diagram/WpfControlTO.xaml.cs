@@ -183,8 +183,10 @@ namespace TC_WinForms.WinForms.Diagram
                     ListWpfParalelno.Children.Add(new WpfParalelno(techOperationWork, _diagramState));
                     _wpfMainControl.diagramForm.HasChanges = true;
 
+                    // todo : вопрос, как быть с объектами Component and Tool, которые привязаны к конкретному TechOperationWork
                     ComboBoxTO.IsReadOnly = true;
                     ComboBoxTO.IsEnabled = false;
+
                     Nomeraciya();
                 }
 
