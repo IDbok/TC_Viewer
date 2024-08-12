@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms.Diagram
 {
@@ -276,7 +277,7 @@ namespace TC_WinForms.WinForms.Diagram
             DataGridToolAndComponentsShow.ItemsSource = vb;
 
 
-            
+            CommentAccess();
         }
 
         private BitmapImage LoadImage(byte[] imageData)
@@ -457,7 +458,25 @@ namespace TC_WinForms.WinForms.Diagram
                 btnLoadImage.Visibility = isImage ? Visibility.Collapsed : Visibility.Visible;
                 btnDeleteImage.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
             }
+        }
+        private void CommentAccess()
+        {
+            if (_tcViewState.UserRole == User.Role.Lead)
+            {
+                txtLeadComment.IsReadOnly = false;
+                txtLeadComment.IsEnabled = true;
 
+                txtImplementerComment.IsReadOnly = false;
+                txtImplementerComment.IsEnabled = true;
+            }
+            else if(_tcViewState.UserRole == User.Role.Implementer)
+            {
+                txtLeadComment.IsReadOnly = true;
+                txtLeadComment.IsEnabled = false;
+
+                txtImplementerComment.IsReadOnly = false;
+                txtImplementerComment.IsEnabled = true;
+            }
         }
         
         private void btnDeleteImage_Click(object sender, RoutedEventArgs e)

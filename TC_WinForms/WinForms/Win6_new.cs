@@ -14,7 +14,7 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form, IViewModeable
     {
-        private TcViewState tcViewState = new TcViewState();
+        private TcViewState tcViewState;
 
         private static bool _isViewMode = true;
         private static bool _isCommentViewMode = false;
@@ -70,6 +70,7 @@ namespace TC_WinForms.WinForms
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
+            tcViewState = new TcViewState(role, _tc );
             tcViewState.IsViewMode = viewMode;
 
             _tcId = tcId;
