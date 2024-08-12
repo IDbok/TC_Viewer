@@ -483,7 +483,7 @@ namespace TC_WinForms.WinForms
                 return;
             }
 
-            if (IsCommentViewMode)
+            if (tcViewState.IsCommentViewMode)
             {
                 setRemarksModeToolStripMenuItem.Text = "Показать комментарии";
 
@@ -495,7 +495,7 @@ namespace TC_WinForms.WinForms
 
                 //SetViewMode();
             }
-            IsCommentViewMode = !IsCommentViewMode;
+            tcViewState.IsCommentViewMode = !tcViewState.IsCommentViewMode;
             SetCommentViewMode();
         }
 
@@ -504,7 +504,7 @@ namespace TC_WinForms.WinForms
             if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm) 
                 && cachedForm is TechOperationForm techOperationForm)
             {
-                techOperationForm.SetCommentViewMode(IsCommentViewMode);
+                techOperationForm.SetCommentViewMode();
             }
         }
 

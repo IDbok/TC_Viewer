@@ -98,12 +98,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
 
     
-    public void SetCommentViewMode(bool? isCommentViewMode = null)
+    public void SetCommentViewMode()
     {
-        if (isCommentViewMode != null)
-            _isCommentViewMode = (bool)isCommentViewMode;
-        else
-            _isCommentViewMode = Win6_new.IsCommentViewMode;
+        _isCommentViewMode = _tcViewState.IsCommentViewMode;
 
         dgvMain.Columns["RemarkColumn"].Visible = _isCommentViewMode;
         dgvMain.Columns["ResponseColumn"].Visible = _isCommentViewMode;
