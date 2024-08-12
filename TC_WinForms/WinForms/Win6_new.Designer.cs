@@ -38,6 +38,7 @@
             setDraftStatusToolStripMenuItem = new ToolStripMenuItem();
             setApprovedStatusToolStripMenuItem = new ToolStripMenuItem();
             setRemarksModeToolStripMenuItem = new ToolStripMenuItem();
+            SetMachineCollumnModeToolStripMenuItem = new ToolStripMenuItem();
             toolStripExecutionScheme = new ToolStripButton();
             toolStripDiagrams = new ToolStripButton();
             btnShowStaffs = new Button();
@@ -121,6 +122,13 @@
             setRemarksModeToolStripMenuItem.Size = new Size(306, 34);
             setRemarksModeToolStripMenuItem.Text = "Показать комментарии";
             setRemarksModeToolStripMenuItem.Click += setRemarksModeToolStripMenuItem_Click;
+            // 
+            // SetMachineCollumnModeToolStripMenuItem
+            // 
+            SetMachineCollumnModeToolStripMenuItem.Name = "SetMachineCollumnModeToolStripMenuItem";
+            SetMachineCollumnModeToolStripMenuItem.Size = new Size(237, 22);
+            SetMachineCollumnModeToolStripMenuItem.Text = "Скрыть столбцы механизмов";
+            SetMachineCollumnModeToolStripMenuItem.Click += SetMachineCollumnModeToolStripMenuItem_Click;
             // 
             // toolStripExecutionScheme
             // 
@@ -296,5 +304,6 @@
         private Button buttonDiagram;
         private ToolStripButton toolStripExecutionScheme;
         private ToolStripButton toolStripDiagrams;
+        private ToolStripMenuItem SetMachineCollumnModeToolStripMenuItem;
     }
 }

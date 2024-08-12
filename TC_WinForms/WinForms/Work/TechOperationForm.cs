@@ -19,6 +19,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     private bool _isViewMode;
     private bool _isCommentViewMode;
+    private bool _isMachineViewMode;
 
     public MyDbContext context { get; private set; } = new MyDbContext();
 
@@ -59,6 +60,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         UpdateGrid();
         SetCommentViewMode();
+        SetMachineViewMode();
         SetViewMode();
 
         this.Enabled = true;
@@ -92,7 +94,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             .ToListAsync();
     }
 
-    
     public void SetCommentViewMode(bool? isCommentViewMode = null)
     {
         if (isCommentViewMode != null)
@@ -102,11 +103,23 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         dgvMain.Columns["RemarkColumn"].Visible = _isCommentViewMode;
         dgvMain.Columns["ResponseColumn"].Visible = _isCommentViewMode;
-
-        //dgvMain.Columns[dgvMain.ColumnCount - 1].Visible = _isCommentViewMode;
-        //dgvMain.Columns[dgvMain.ColumnCount - 2].Visible = _isCommentViewMode;
     }
+  
+    public void SetMachineViewMode(bool? isMachineViewMode = null)
+    {
+        if (isMachineViewMode != null)
+            _isMachineViewMode = (bool)isMachineViewMode;
+        else
+            _isMachineViewMode = Win6_new.isMachineViewMode;
 
+        foreach(DataGridViewColumn col in dgvMain.Columns)
+        {
+            if (col.Name.Contains("Machine"))
+            {
+                col.Visible = _isMachineViewMode;
+            }
+        }
+    }
     public void SetViewMode(bool? isViewMode = null)
     {
         //if (isViewMode != null)
@@ -687,6 +700,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         ClearAndInitializeGrid();
         PopulateDataGrid();
         SetCommentViewMode();
+        SetMachineViewMode();
 
         if (offScroll < dgvMain.Rows.Count && offScroll > 0) 
             dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
@@ -713,10 +727,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         dgvMain.Columns.Add("", "");
         dgvMain.Columns.Add("", "");
 
+        int i = 0;
         foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
         {
-            dgvMain.Columns.Add("", "Время " + tehCartaMachineTC.Child.Name + ", мин.");
+            dgvMain.Columns.Add("Machine+{i}", "Время " + tehCartaMachineTC.Child.Name + ", мин.");
+            i++;
         }
+        i = 0;
 
         dgvMain.Columns.Add("", "№ СЗ");
         dgvMain.Columns.Add("", "Примечание");
