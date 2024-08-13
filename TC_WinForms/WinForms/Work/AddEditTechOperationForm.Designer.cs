@@ -1646,7 +1646,7 @@
             // 
             dataGridViewTextBoxColumn35.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridViewTextBoxColumn35.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn35.HeaderText = "Технологические переходы";
+            dataGridViewTextBoxColumn35.HeaderText = "Наименование";
             dataGridViewTextBoxColumn35.MinimumWidth = 6;
             dataGridViewTextBoxColumn35.Name = "dataGridViewTextBoxColumn35";
             dataGridViewTextBoxColumn35.ReadOnly = true;
@@ -1654,7 +1654,7 @@
             // dataGridViewTextBoxColumn36
             // 
             dataGridViewTextBoxColumn36.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn36.HeaderText = "Время действ., мин.";
+            dataGridViewTextBoxColumn36.HeaderText = "Тип (Исполнение)";
             dataGridViewTextBoxColumn36.MinimumWidth = 6;
             dataGridViewTextBoxColumn36.Name = "dataGridViewTextBoxColumn36";
             // 
