@@ -798,6 +798,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         dgvMain.Columns.Add("RemarkColumn", "Замечание");
         dgvMain.Columns.Add("ResponseColumn", "Ответ");
 
+        dgvMain.Columns["RemarkColumn"].HeaderCell.Style.Font = new Font("Segoe UI", 9f, FontStyle.Italic | FontStyle.Bold);
+        dgvMain.Columns["RemarkColumn"].DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
+
+        dgvMain.Columns["ResponseColumn"].HeaderCell.Style.Font = new Font("Segoe UI", 9f, FontStyle.Italic | FontStyle.Bold);
+        dgvMain.Columns["ResponseColumn"].DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
+
         int ii = 0;
 
         dgvMain.Columns[ii].Visible = false;
@@ -1245,8 +1251,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         // Пропуск заголовков колонок и строк, и первой строки
         if (e.RowIndex < 1 || e.ColumnIndex < 0)
         {
+            if (e.ColumnIndex == dgvMain.ColumnCount - 2)
+            {
+                e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
+            }
             e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
             return;
+        }
+
+        if (e.ColumnIndex == dgvMain.ColumnCount - 2)
+        {
+            e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
         }
 
         if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 2)
