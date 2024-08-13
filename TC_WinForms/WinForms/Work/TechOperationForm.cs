@@ -733,7 +733,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             dgvMain.Columns.Add("Machine+{i}", "Время " + tehCartaMachineTC.Child.Name + ", мин.");
             i++;
         }
-        i = 0;
 
         dgvMain.Columns.Add("", "№ СЗ");
         dgvMain.Columns.Add("", "Примечание");
