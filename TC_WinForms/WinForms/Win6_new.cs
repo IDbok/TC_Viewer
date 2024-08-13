@@ -14,7 +14,7 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form, IViewModeable
     {
-        private TcViewState tcViewState = new TcViewState();
+        private TcViewState tcViewState;
 
         private static bool _isViewMode = true;
         private static bool _isCommentViewMode = false;
@@ -92,6 +92,7 @@ namespace TC_WinForms.WinForms
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
+            tcViewState = new TcViewState(role, _tc );
             tcViewState.IsViewMode = viewMode;
 
             _tcId = tcId;
@@ -178,6 +179,7 @@ namespace TC_WinForms.WinForms
                 [TechnologicalCardStatus.Created] = () =>
                 {
                     //setApprovedStatusToolStripMenuItem.Enabled = false;
+                    setRemarksModeToolStripMenuItem.Visible = false;
                 }
             };
 
@@ -483,11 +485,13 @@ namespace TC_WinForms.WinForms
         private async void setDraftStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Draft);
+            setDraftStatusToolStripMenuItem.Enabled = false;
         }
 
         private async void setApprovedStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Approved);
+            setApprovedStatusToolStripMenuItem.Enabled = false;
         }
 
         private async void setRemarksModeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -496,8 +500,13 @@ namespace TC_WinForms.WinForms
             {
                 await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
             }
+            else if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel != User.Role.Lead)
+            {
+                MessageBox.Show("Открыть этап замечаний может только Технолог-руководитель.");
+                return;
+            }
 
-            if (IsCommentViewMode)
+            if (tcViewState.IsCommentViewMode)
             {
                 setRemarksModeToolStripMenuItem.Text = "Показать комментарии";
 
@@ -509,7 +518,7 @@ namespace TC_WinForms.WinForms
 
                 //SetViewMode();
             }
-            IsCommentViewMode = !IsCommentViewMode;
+            tcViewState.IsCommentViewMode = !tcViewState.IsCommentViewMode;
             SetCommentViewMode();
         }
 
@@ -546,7 +555,7 @@ namespace TC_WinForms.WinForms
             if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm) 
                 && cachedForm is TechOperationForm techOperationForm)
             {
-                techOperationForm.SetCommentViewMode(IsCommentViewMode);
+                techOperationForm.SetCommentViewMode();
             }
         }
 

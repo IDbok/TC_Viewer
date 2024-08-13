@@ -8,6 +8,7 @@ using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -19,8 +20,10 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 {
     private readonly User.Role _accessLevel;
 
+    private SelectionService<DisplayedComponent> _selectionService;
+
     private DbConnector dbCon = new DbConnector();
-    private List<DisplayedComponent> _displayedObjects;
+    private List<DisplayedComponent> _displayedObjects = new();
     private BindingList<DisplayedComponent> _bindingList;
 
     private readonly bool _isAddingForm = false;
@@ -37,7 +40,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     private DataGridViewCellEventArgs lastCellEvent;
     private DataGridViewCellEventArgs currentCellEvent;
     //private ToolTip toolTip;
-
+    //private List<int> _selectedIds = new List<int>();
     public Win7_4_Component(User.Role accessLevel)
     {
         _accessLevel = accessLevel;
@@ -59,8 +62,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
         InitializeComponent();
 
-        //dgvMain.RowPrePaint += new DataGridViewRowPrePaintEventHandler(dgvMain_RowPrePaint);
-        //InitializeTip();
+
+        _selectionService = new SelectionService<DisplayedComponent>(dgvMain, _displayedObjects);
     }
 
     private  void InitializeTip()
@@ -115,25 +118,17 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     }
     public async Task LoadDataAsync()
     {
-        _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Component>(includeLinks: true)
+        var displayedObj = await Task.Run(() => dbCon.GetObjectList<Component>(includeLinks: true)
             .Select(obj => new DisplayedComponent(obj)).ToList());
+
+        foreach(var obj in displayedObj)
+        {
+            _displayedObjects.Add(obj);
+        }
 
         FilteringObjects();
 
-        //_bindingList = new BindingList<DisplayedComponent>(_displayedObjects);
-
-        //dgvMain.DataSource = null; // cancel update of dgv while data is loading
-        ////_bindingList.ListChanged += BindingList_ListChanged;
-
-        //dgvMain.DataSource = _bindingList;
-
-        //dgvMain.CellContentClick += dgvMain_CellContentClick;
-
         _isDataLoaded = true;
-    }
-    private async void Win7_4_Component_FormClosing(object sender, FormClosingEventArgs e)
-    {
-
     }
     private void AccessInitialization()
     {
@@ -288,19 +283,31 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     {
         btnAddSelected.Click += BtnAddSelected_Click;
         btnCancel.Click += BtnCancel_Click;
+
+        dgvMain.CellValueChanged += _selectionService.CellValueChanged;
+        dgvMain.CurrentCellDirtyStateChanged += _selectionService.CurrentCellDirtyStateChanged;
     }
 
     void BtnAddSelected_Click(object sender, EventArgs e)
     {
-        // get selected rows
-        var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
-        if (selectedRows.Count == 0)
+        //// get selected rows
+        //var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
+        //if (selectedRows.Count == 0)
+        //{
+        //    MessageBox.Show("Выберите строки для добавления");
+        //    return;
+        //}
+        //// get selected objects
+        //var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedComponent).ToList();
+
+        // выделить объекты с id из _selectedIds из списка _displayedObjects
+        var selectedObjs = _selectionService.GetSelectedObjects();//_displayedObjects.Where(obj => _selectedIds.Contains(obj.Id)).ToList();
+
+        if (selectedObjs.Count == 0)
         {
             MessageBox.Show("Выберите строки для добавления");
             return;
         }
-        // get selected objects
-        var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedComponent).ToList();
         // find opened form
         var tcEditor = Application.OpenForms.OfType<Win6_Component>().FirstOrDefault();
         var newItems = new List<Component>();
@@ -626,26 +633,16 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
             }
             else
             {
-                //var filteredList = _displayedObjects.Where(obj =>
-                //    (searchText == ""
-                //        ||
-                //        (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                //        (obj.Type?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                //        (obj.Unit?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                //        //(obj.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                //        (obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                //        (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
-                //    ) &&
-                //    ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter))
-                //        || obj.Categoty?.ToString() == categoryFilter)
-                //    ).ToList();
-
                 _bindingList = FilteredBindingList(searchText);
                 _isFiltered = true;
 
-                //dgvMain.DataSource = new BindingList<DisplayedComponent>(filteredList);
+                
             }
             dgvMain.DataSource = _bindingList;
+
+            // Восстанавливаем выделенные объекты
+            if (_isAddingForm)
+                _selectionService.RestoreSelectedIds();
         }
         catch (Exception e)
         {
@@ -881,5 +878,4 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
             e.ToolTipSize = new Size(200, 200); // Размер всплывающего окна
         }
     }
-
 }

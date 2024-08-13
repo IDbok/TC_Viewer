@@ -4,6 +4,7 @@ using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -15,9 +16,11 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
 {
     private readonly User.Role _accessLevel;
 
+    private SelectionService<DisplayedMachine> _selectionService;
+
     private DbConnector dbCon = new DbConnector();
 
-    private List<DisplayedMachine> _displayedObjects;
+    private List<DisplayedMachine> _displayedObjects = new();
     private BindingList<DisplayedMachine> _bindingList;
     private List<Machine> _objects = new List<Machine>();
 
@@ -48,7 +51,7 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
         _newItemCreateActive = activateNewItemCreate;
 
         InitializeComponent();
-
+        _selectionService = new SelectionService<DisplayedMachine>(dgvMain, _displayedObjects);
     }
 
     private async void Win7_5_Machine_Load(object sender, EventArgs e)
@@ -89,28 +92,18 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
     public async Task LoadDataAsync()
     {
 
-        _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
+        var displayedObj = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
             .Select(obj => new DisplayedMachine(obj)).ToList());
+
+        foreach(var obj in displayedObj)
+        {
+            _displayedObjects.Add(obj);
+        }
 
         FilteringObjects();
 
-        //_bindingList = new BindingList<DisplayedMachine>(_displayedObjects);
-
-        //dgvMain.DataSource = null; // cancel update of dgv while data is loading
-        ////_bindingList.ListChanged += BindingList_ListChanged;
-
-        //dgvMain.DataSource = _bindingList;
-        ////SetLinkColumn();
-        //dgvMain.CellContentClick += dgvMain_CellContentClick;
-
         _isDataLoaded = true;
     }
-    private async void Win7_5_Machine_FormClosing(object sender, FormClosingEventArgs e)
-    {
-        
-    }
-
-
 
     private void AccessInitialization()
     {
@@ -224,19 +217,27 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
     {
         btnAddSelected.Click += BtnAddSelected_Click;
         btnCancel.Click += BtnCancel_Click;
+
+        dgvMain.CellValueChanged += _selectionService.CellValueChanged;
+        dgvMain.CurrentCellDirtyStateChanged += _selectionService.CurrentCellDirtyStateChanged;
     }
 
     void BtnAddSelected_Click(object sender, EventArgs e)
     {
-        // get selected rows
-        var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
-        if (selectedRows.Count == 0)
+        //// get selected rows
+        //var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
+        //if (selectedRows.Count == 0)
+        //{
+        //    MessageBox.Show("Выберите строки для добавления");
+        //    return;
+        //}
+        // get selected objects
+        var selectedObjs = _selectionService.GetSelectedObjects(); //selectedRows.Select(r => r.DataBoundItem as DisplayedMachine).ToList();
+        if (selectedObjs.Count == 0)
         {
             MessageBox.Show("Выберите строки для добавления");
             return;
         }
-        // get selected objects
-        var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedMachine).ToList();
         var newItems = new List<Machine>();
         foreach (var obj in selectedObjs)
         {
@@ -256,7 +257,6 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
         this.Close();
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     private class DisplayedMachine : INotifyPropertyChanged, IDisplayedEntity, IModelStructure
     {
@@ -508,6 +508,9 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
                 _isFiltered = true;
             }
             dgvMain.DataSource = _bindingList;
+
+            if (_isAddingForm)
+                _selectionService.RestoreSelectedIds();
         }
         catch (Exception e)
         {

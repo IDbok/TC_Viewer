@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TcModels.Models.TcContent;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms.Diagram
 {
@@ -18,6 +19,7 @@ namespace TC_WinForms.WinForms.Diagram
     {
         private readonly DiagramState _diagramState;
         private readonly TcViewState _tcViewState;
+
 
         private TechOperationWork selectedItem;
         WpfPosledovatelnost wpfPosledovatelnost;
@@ -121,6 +123,7 @@ namespace TC_WinForms.WinForms.Diagram
                 diagramState.TcViewState, _diagramShag)
         {
             _diagramState = new DiagramState(diagramState);
+
         }
         [Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
         public WpfShag(TechOperationWork selectedItem, 
@@ -129,6 +132,7 @@ namespace TC_WinForms.WinForms.Diagram
             DiagramShag _diagramShag=null)
         {
             InitializeComponent();
+
 
             DataContext = this;
 
@@ -276,7 +280,7 @@ namespace TC_WinForms.WinForms.Diagram
             DataGridToolAndComponentsShow.ItemsSource = vb;
 
 
-            
+            CommentAccess();
         }
 
         private BitmapImage LoadImage(byte[] imageData)
@@ -372,21 +376,21 @@ namespace TC_WinForms.WinForms.Diagram
         {
             wpfPosledovatelnost.diagramPosledov.ListDiagramShag.Remove(diagramShag);
             wpfPosledovatelnost.DeleteItem(this);
-            
-            wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+
+            _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
         private void ButtonDown_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.Vniz(this);
-            wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            _diagramState.HasChanges();  //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
 
         private void ButtonUp_Click(object sender, RoutedEventArgs e)
         {
             wpfPosledovatelnost.Verh(this);
-            wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            _diagramState.HasChanges();  //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
 
 
@@ -396,7 +400,7 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 DataGridToolAndComponentsAdd.Visibility= Visibility.Visible;
                 DataGridToolAndComponentsShow.Visibility= Visibility.Collapsed;
-                wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             }
             else
             {
@@ -405,7 +409,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 var vb = AllItemGrid.Where(w=>w.Add).ToList();
                 DataGridToolAndComponentsShow.ItemsSource = vb;
-                wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             }
         }
 
@@ -417,7 +421,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 if (wpfPosledovatelnost != null)
                 {
-                    wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                    _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
                 }
             }
         }
@@ -429,7 +433,7 @@ namespace TC_WinForms.WinForms.Diagram
                 diagramShag.NameImage = TBNameImage.Text; 
                 if (wpfPosledovatelnost != null)
                 {
-                    wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                    _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
                 }
             }
         }
@@ -457,7 +461,25 @@ namespace TC_WinForms.WinForms.Diagram
                 btnLoadImage.Visibility = isImage ? Visibility.Collapsed : Visibility.Visible;
                 btnDeleteImage.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
             }
+        }
+        private void CommentAccess()
+        {
+            if (_tcViewState.UserRole == User.Role.Lead)
+            {
+                txtLeadComment.IsReadOnly = false;
+                txtLeadComment.IsEnabled = true;
 
+                txtImplementerComment.IsReadOnly = false;
+                txtImplementerComment.IsEnabled = true;
+            }
+            else if(_tcViewState.UserRole == User.Role.Implementer)
+            {
+                txtLeadComment.IsReadOnly = true;
+                txtLeadComment.IsEnabled = false;
+
+                txtImplementerComment.IsReadOnly = false;
+                txtImplementerComment.IsEnabled = true;
+            }
         }
         
         private void btnDeleteImage_Click(object sender, RoutedEventArgs e)

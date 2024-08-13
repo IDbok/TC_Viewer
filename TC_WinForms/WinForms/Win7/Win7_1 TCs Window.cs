@@ -41,10 +41,12 @@ namespace TC_WinForms.WinForms
             {
                 LocalCard = context.TechnologicalCards.Single(s => s.Id == tcId);
                 load(LocalCard);
+                this.Text = "Редактирование технологической карты";
             }
             else
             {
                 btnSaveAndOpen.Text = "Сохранить и открыть";
+                this.Text = "Создание новой технологической карты";
             }
 
             if (win6Format)
@@ -55,7 +57,7 @@ namespace TC_WinForms.WinForms
                 btnSave.Visible = false;
             }
 
-            
+
             if (_accessLevel == User.Role.Lead)
             {
                 cbxStatus.Visible = true;
@@ -100,7 +102,7 @@ namespace TC_WinForms.WinForms
             // Сохраняем значения енама для последующего использования
             comboBox.Tag = enumValues;
         }
-            
+
         bool NoEmptiness()
         {
             bool ValueRet = true;
@@ -192,7 +194,7 @@ namespace TC_WinForms.WinForms
         {
             if (NoEmptiness())
             {
-                if (HasChanges()) 
+                if (HasChanges())
                     if (!Save()) return;
 
                 var nn = LocalCard.Id;
@@ -263,7 +265,7 @@ namespace TC_WinForms.WinForms
         //    {
         //        MessageBox.Show("Произошла ошибка при сохранении файла: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
         //    }
-            
+
         //}
 
         private bool FieldsIsNotEmpty()
@@ -282,7 +284,7 @@ namespace TC_WinForms.WinForms
                 return true;
             else
                 return false;
-        } 
+        }
         private bool HasChanges()
         {
             if (LocalCard == null)
@@ -304,6 +306,7 @@ namespace TC_WinForms.WinForms
             hasChanges |= LocalCard.Applicability != txtApplicability.Text;
             hasChanges |= LocalCard.Note != txtNote.Text;
             hasChanges |= LocalCard.IsCompleted != chbxIsCompleted.Checked;
+            hasChanges |= LocalCard.Status.GetDescription() != cbxStatus.SelectedItem.ToString();
 
             return hasChanges;
         }
@@ -322,19 +325,21 @@ namespace TC_WinForms.WinForms
             cbxNetworkVoltage.SelectedIndexChanged += ComponentChanged;
 
             chbxIsCompleted.CheckedChanged += ComponentChanged;
+
+            cbxStatus.SelectedIndexChanged += ComponentChanged;
         }
 
         private void ComponentChanged(object sender, EventArgs e)
         {
-            if(HasChanges())
+            if (HasChanges())
             {
                 btnSaveAndOpen.Text = "Сохранить и открыть";
-            }else
+            }
+            else
             {
                 btnSaveAndOpen.Text = "Открыть";
             }
         }
-
 
     }
 }

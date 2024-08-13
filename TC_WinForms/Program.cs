@@ -80,7 +80,7 @@ namespace TC_WinForms
             if (isTestMode)
             {
                 string login, password;
-                Role userRole = Role.Lead;
+                Role userRole = Role.Implementer;
 
                 switch (userRole)
                 {
@@ -130,7 +130,7 @@ namespace TC_WinForms
                 case 1:
                     {
                         //var form = new DiagramForm(493, false);
-                        var form = new Win6_new(493, viewMode: true);// 486);
+                        var form = new Win6_new(493, viewMode: false);// 486);
                         form.ShowDialog();
                     }
                     break;

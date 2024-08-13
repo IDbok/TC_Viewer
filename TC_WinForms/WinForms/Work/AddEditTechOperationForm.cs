@@ -80,6 +80,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewPovtor.CellContentClick += DataGridViewPovtor_CellContentClick;
             dataGridViewPovtor.CellValueChanged += DataGridViewPovtor_CellValueChanged;
             dataGridViewPovtor.CellFormatting += dataGridViewPovtor_CellFormatting;
+            dataGridViewPovtor.SelectionChanged += DataGridViewPovtor_SelectionChanged;
 
 
             comboBoxFiltrCategor.SelectedIndexChanged += ComboBoxFiltrCategor_SelectedIndexChanged;
@@ -211,7 +212,9 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewTO.FirstDisplayedScrollingRowIndex;
             dataGridViewTO.Rows.Clear();
 
-            List<TechOperationWork> list = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false).OrderBy(o => o.Order)
+            List<TechOperationWork> list = TechOperationForm.TechOperationWorksList
+                .Where(w => w.Delete == false)
+                .OrderBy(o => o.Order)
                 .ToList();
 
             foreach (TechOperationWork techOperationWork in list)
@@ -520,10 +523,7 @@ namespace TC_WinForms.WinForms.Work
             //};
             //dataGridViewTPAll.Rows.Add(listItem1.ToArray());
 
-            if (work?.techOperation.Category == "Типовая ТО")
-            {
-                return;
-            }
+            
 
             var filteredTransitions = FilterTechTransitions(textBoxPoiskTP.Text);
 
@@ -539,6 +539,11 @@ namespace TC_WinForms.WinForms.Work
                     repeatTechTransition.TimeExecution
                 };
                 dataGridViewTPAll.Rows.Add(listItem.ToArray());
+            }
+
+            if (work?.techOperation.Category == "Типовая ТО")
+            {
+                return;
             }
 
             foreach (TechTransition techTransition in filteredTransitions)// allTP)
@@ -590,7 +595,9 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
-            var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Where(w => w.Delete == false).ToList();
+            var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work)
+                .executionWorks.Where(w => w.Delete == false)
+                .OrderBy(o => o.Order).ToList();
 
             foreach (ExecutionWork executionWork in LocalTPs)
             {
@@ -833,6 +840,8 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
+            TechOperationForm.HighlightExecutionWorkRow(ExecutionWorkBox, true);
+
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
@@ -939,6 +948,8 @@ namespace TC_WinForms.WinForms.Work
             {
                 return;
             }
+
+            TechOperationForm.HighlightExecutionWorkRow(work, true);
 
             var context = TechOperationForm.context;
 
@@ -1961,6 +1972,19 @@ namespace TC_WinForms.WinForms.Work
         //        }
         //    }
         //}
+        private void DataGridViewPovtor_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dataGridViewPovtor.SelectedRows.Count > 0)
+            {
+                // Получаем выделенную строку
+                var selectedRow = dataGridViewPovtor.SelectedRows[0];
+                var executionWork = (ExecutionWork)selectedRow.Cells[0].Value;
+
+                // Вызываем метод для выделения строки
+                TechOperationForm.HighlightExecutionWorkRow(executionWork, false);
+            }
+        }
+
         private void dataGridViewPovtor_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (executionWorkPovtor == null) return;

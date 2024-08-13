@@ -58,6 +58,8 @@ namespace TC_WinForms.WinForms.Diagram
 
             technologicalCard = context.TechnologicalCards.Single(x => x.Id == tcId);
 
+            _tcViewState.TechnologicalCard = technologicalCard;
+
             TehCarta = context.TechnologicalCards
                .Include(t => t.Machines).Include(t => t.Machine_TCs)
                .Include(t => t.Protection_TCs)
@@ -105,7 +107,12 @@ namespace TC_WinForms.WinForms.Diagram
                 .ToList();
 
             // Сгруппировать по ParallelIndex, если ParallelIndex = null, то записать в отдельную группу
-            var ListShagGroup = ListShag.GroupBy(g => g.ParallelIndex).ToList();
+            var ListShagGroup = ListShag
+                .GroupBy(g => g.ParallelIndex != null ? g.ParallelIndex : g.Order.ToString())
+                .ToList();
+
+            // сгруппировать ListShagGroup по Order DiagramToWork внутри группы
+            ListShagGroup = ListShagGroup.OrderBy(o => o.FirstOrDefault()!.Order).ToList();
 
             foreach (var ListShagItem in ListShagGroup)
             {

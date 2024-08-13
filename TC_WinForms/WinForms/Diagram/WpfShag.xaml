@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TC_WinForms.WinForms.Diagram"
              xmlns:converters="clr-namespace:TC_WinForms.WinForms.Diagram.Converters"
-             mc:Ignorable="d" >
+             mc:Ignorable="d"
+             >
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
@@ -23,7 +24,7 @@
 
             <TextBox x:Name="TextDeystShag" 
                     MinHeight="150"
-                    TextWrapping="Wrap" TextAlignment="Center" 
+                    TextWrapping="Wrap" TextAlignment="Left" 
                     AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" 
                     TextChanged="TextDeystShag_TextChanged"
                     IsReadOnly="{Binding IsViewMode}"/> <!--Text="Действия шага:"-->

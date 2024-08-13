@@ -3,6 +3,7 @@ using System.Data;
 using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -14,8 +15,10 @@ namespace TC_WinForms.WinForms
     {
         private readonly User.Role _accessLevel;
 
+        private SelectionService<DisplayedProtection> _selectionService;
+
         private DbConnector dbCon = new DbConnector();
-        private List<DisplayedProtection> _displayedObjects;
+        private List<DisplayedProtection> _displayedObjects =new();
         private BindingList<DisplayedProtection> _bindingList;
 
         private readonly bool _isAddingForm = false;
@@ -45,6 +48,7 @@ namespace TC_WinForms.WinForms
 
             InitializeComponent();
 
+            _selectionService = new SelectionService<DisplayedProtection>(dgvMain, _displayedObjects);
         }
 
         private async void Win7_7_Protection_Load(object sender, EventArgs e)
@@ -82,8 +86,11 @@ namespace TC_WinForms.WinForms
         }
         private async Task LoadObjects()
         {
-            _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Protection>(includeLinks: true)
+            var displayedObjs = await Task.Run(() => dbCon.GetObjectList<Protection>(includeLinks: true)
                 .Select(obj => new DisplayedProtection(obj)).ToList());
+
+            foreach (var obj in displayedObjs)
+                _displayedObjects.Add(obj);
 
             FilteringObjects();
             //_bindingList = new BindingList<DisplayedProtection>(_displayedObjects);
@@ -183,19 +190,21 @@ namespace TC_WinForms.WinForms
         {
             btnAddSelected.Click += BtnAddSelected_Click;
             btnCancel.Click += BtnCancel_Click;
+
+            dgvMain.CellValueChanged += _selectionService.CellValueChanged;
+            dgvMain.CurrentCellDirtyStateChanged += _selectionService.CurrentCellDirtyStateChanged;
         }
 
         void BtnAddSelected_Click(object sender, EventArgs e)
         {
-            // get selected rows
-            var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
-            if (selectedRows.Count == 0)
+
+            // get selected objects
+            var selectedObjs = _selectionService.GetSelectedObjects();
+            if (selectedObjs.Count == 0)
             {
                 MessageBox.Show("Выберите строки для добавления");
                 return;
             }
-            // get selected objects
-            var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedProtection).ToList();
             // find opened form
             var tcEditor = Application.OpenForms.OfType<Win6_Protection>().FirstOrDefault();
             var newItems = new List<Protection>();
@@ -471,6 +480,10 @@ namespace TC_WinForms.WinForms
                     _isFiltered = true;
                 }
                 dgvMain.DataSource = _bindingList;
+
+                // Восстанавливаем выделенные объекты
+                if (_isAddingForm)
+                    _selectionService.RestoreSelectedIds();
             }
             catch (Exception e)
             {

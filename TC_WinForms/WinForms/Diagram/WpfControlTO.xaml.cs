@@ -183,33 +183,15 @@ namespace TC_WinForms.WinForms.Diagram
                     ListWpfParalelno.Children.Add(new WpfParalelno(techOperationWork, _diagramState));
                     _wpfMainControl.diagramForm.HasChanges = true;
 
+                    // todo : вопрос, как быть с объектами Component and Tool, которые привязаны к конкретному TechOperationWork
                     ComboBoxTO.IsReadOnly = true;
                     ComboBoxTO.IsEnabled = false;
+
                     Nomeraciya();
                 }
+
+                ButtonAddShag.IsEnabled = true;
             }
-
-            //if (ComboBoxTO.SelectedItem != null)
-            //{
-            //    if (diagamToWork.techOperationWork != null)
-            //    {
-            //        return;
-            //    }
-
-            //    ListWpfParalelno.Visibility = Visibility.Visible;
-            //    ButtonAddShag.Visibility = Visibility.Visible;
-
-            //    diagamToWork.techOperationWork = (TechOperationWork)ComboBoxTO.SelectedItem;
-            //    _wpfMainControl.technologicalCard.DiagamToWork.Add(diagamToWork);
-
-            //    ListWpfParalelno.Children.Clear();
-            //    ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, this));
-            //    _wpfMainControl.diagramForm.HasChanges = true;
-
-            //    ComboBoxTO.IsReadOnly = true;
-            //    ComboBoxTO.IsEnabled = false;
-            //    Nomeraciya();
-            //}
         }
 
         public void DeteteParalelno(WpfParalelno paralelno)

@@ -50,6 +50,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         dgvMain.CellFormatting += DgvMain_CellFormatting;
         dgvMain.CellEndEdit += DgvMain_CellEndEdit;
         dgvMain.CellMouseEnter += DgvMain_CellMouseEnter;
+
+        this.KeyPreview = true;
+        this.KeyDown += new KeyEventHandler(Form_KeyDown);
+
+        _tcViewState.ViewModeChanged += OnViewModeChanged;
     }
     private async void TechOperationForm_Load(object sender, EventArgs e)
     {
@@ -94,15 +99,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             .ToListAsync();
     }
 
-    public void SetCommentViewMode(bool? isCommentViewMode = null)
+    public void SetCommentViewMode()
     {
-        if (isCommentViewMode != null)
-            _isCommentViewMode = (bool)isCommentViewMode;
-        else
-            _isCommentViewMode = Win6_new.IsCommentViewMode;
+        var isCommentViewMode = _tcViewState.IsCommentViewMode;
 
-        dgvMain.Columns["RemarkColumn"].Visible = _isCommentViewMode;
-        dgvMain.Columns["ResponseColumn"].Visible = _isCommentViewMode;
+        dgvMain.Columns["RemarkColumn"].Visible = isCommentViewMode;
+        dgvMain.Columns["ResponseColumn"].Visible = isCommentViewMode;
     }
   
     public void SetMachineViewMode(bool? isMachineViewMode = null)
@@ -129,45 +131,117 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         pnlControls.Visible = !_tcViewState.IsViewMode;
     }
+    private void OnViewModeChanged()
+    {
+        UpdateGrid();
+    }
+
+    private void Form_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Control && e.KeyCode == Keys.V)
+        {
+            PasteClipboardValue();
+            e.Handled = true;
+        }
+        else if (e.KeyCode == Keys.Delete)
+        {
+            DeleteCellValue();
+            e.Handled = true;
+        }
+    }
+
+    private void DeleteCellValue()
+    {
+        if (dgvMain.CurrentCell != null && !dgvMain.CurrentCell.ReadOnly)
+        {
+            dgvMain.CurrentCell.Value = string.Empty;
+
+            // Вызов события CellEndEdit вручную
+            var args = new DataGridViewCellEventArgs(dgvMain.CurrentCell.ColumnIndex, dgvMain.CurrentCell.RowIndex);
+            DgvMain_CellEndEdit(dgvMain, args);
+        }
+    }
+
+    private void PasteClipboardValue()
+    {
+        if (dgvMain.CurrentCell != null && !dgvMain.CurrentCell.ReadOnly)
+        {
+            var clipboardText = Clipboard.GetText();
+            if (!string.IsNullOrEmpty(clipboardText))
+            {
+                dgvMain.CurrentCell.Value = clipboardText;
+
+                // Вызов события CellEndEdit вручную
+                var args = new DataGridViewCellEventArgs(dgvMain.CurrentCell.ColumnIndex, dgvMain.CurrentCell.RowIndex);
+                DgvMain_CellEndEdit(dgvMain, args);
+            }
+        }
+    }
 
     private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
-       if(e.ColumnIndex> dgvMain.ColumnCount-3) // todo: ненадёжный способ определения столбцов с комментариями
+        // todo: ненадёжный способ определения столбцов с комментариями
+        if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)//dgvMain.ColumnCount-1)
         {
-            if(e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)//dgvMain.ColumnCount-1)
+            var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
+            var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+            if (idd != null)
             {
-                var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
-                var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
-                if (idd!=null)
+                if (gg == null)
                 {
-                    if (gg == null)
-                    {
-                        gg = "";
-                    }
-                    idd.Otvet = gg;
-                    HasChanges = true;
+                    gg = "";
                 }
-
+                idd.Otvet = gg;
+                HasChanges = true;
             }
 
-            if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index)// dgvMain.ColumnCount - 2)
+        }
+        else if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index)// dgvMain.ColumnCount - 2)
+        {
+            var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
+            var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+            if (idd != null)
             {
-                var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
-                var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
-                if (idd != null)
+                if (gg == null)
                 {
-                    if (gg == null)
-                    {
-                        gg = "";
-                    }
-                    idd.Vopros = gg;
-                    HasChanges = true;
+                    gg = "";
                 }
-
+                idd.Vopros = gg;
+                HasChanges = true;
             }
         }
+        else if (e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
+        {
+            var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
+            var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+            if (idd != null)
+            {
+                if(gg == idd.PictureName) return;
+
+                idd.PictureName = gg;
+                HasChanges = true;
+            }
+        }
+        else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
+        {
+            var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
+            var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+            if (idd != null)
+            {
+                if (gg == idd.Comments) return;
+
+                idd.Comments = gg;
+                HasChanges = true;
+            }
+        }
+        //if (e.ColumnIndex> dgvMain.ColumnCount-3) 
+        //{
+            
+        //}
     }
 
     
@@ -735,10 +809,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         }
 
         dgvMain.Columns.Add("", "№ СЗ");
-        dgvMain.Columns.Add("", "Примечание");
-        dgvMain.Columns.Add("", "Рис.");
+        dgvMain.Columns.Add("CommentColumn", "Примечание");
+        dgvMain.Columns.Add("PictureNameColumn", "Рис.");
         dgvMain.Columns.Add("RemarkColumn", "Замечание");
         dgvMain.Columns.Add("ResponseColumn", "Ответ");
+
+        dgvMain.Columns["RemarkColumn"].HeaderCell.Style.Font = new Font("Segoe UI", 9f, FontStyle.Italic | FontStyle.Bold);
+        dgvMain.Columns["RemarkColumn"].DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
+
+        dgvMain.Columns["ResponseColumn"].HeaderCell.Style.Font = new Font("Segoe UI", 9f, FontStyle.Italic | FontStyle.Bold);
+        dgvMain.Columns["ResponseColumn"].DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
 
         int ii = 0;
 
@@ -1117,34 +1197,37 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         //if (e.RowIndex < 0) // todo: Исправли с == 0  на  < 0 т.е мешает применению стиля к первой строке. Пока не поянятно, зачем была созданна.
         //    return;
 
+        // Если значение ячейки совпадает с предыдущим значением в столбце с ТО (индекс 2),
+        // то ячейка остается пустой.
         if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 2)
         {
             e.Value = string.Empty;
             e.FormattingApplied = true;
         }
 
+        // Если это столбцов с временем этапа и механизмов (индекс >= 6), и значение ячейки равно "-1",
+        // то ячейка остается пустой.
         if (e.ColumnIndex >= 6)
         {
-            var bb = (string)e.Value;
-            if (bb == "-1")
+            var cellValue = (string)e.Value;
+            if (cellValue == "-1")
             {
                 e.Value = string.Empty;
                 e.FormattingApplied = true;
             }
         }
 
-        if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
-            || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
+        // Если мы находимся в режиме редактирования ТК (_tcViewState.IsViewMode == false),
+        // проверяем возможность редактирования ячейки.
+        if (!_tcViewState.IsViewMode)
         {
             var executionWork = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
 
             if (executionWork != null)
             {
-                if (
-                    //(e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
-                    //|| e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
-                    //&& 
-                    TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() 
+                if ((e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
+                    || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index) 
+                    && DataProcessing.AuthorizationService.CurrentUser.UserRole() 
                     == DataProcessing.AuthorizationService.User.Role.Lead)
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
@@ -1155,12 +1238,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
-            }
-            else
-            {
-                // Делаем ячейки недоступными для редактирования, если элемент ExecutionWork отсутствует
-                if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
-                    || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
+                else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index
+                    || e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
+                {
+                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                }
+                else
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
                 }
@@ -1184,8 +1267,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         // Пропуск заголовков колонок и строк, и первой строки
         if (e.RowIndex < 1 || e.ColumnIndex < 0)
         {
+            if (e.ColumnIndex == dgvMain.ColumnCount - 2)
+            {
+                e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
+            }
             e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
             return;
+        }
+
+        if (e.ColumnIndex == dgvMain.ColumnCount - 2)
+        {
+            e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
         }
 
         if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 2)
