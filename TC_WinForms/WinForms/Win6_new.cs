@@ -141,6 +141,7 @@ namespace TC_WinForms.WinForms
                 {
                     actionToolStripMenuItem.Visible = false;
                     setRemarksModeToolStripMenuItem.Visible = false;
+                    updateToolStripMenuItem.Visible = false;
                     // SaveChangesToolStripMenuItem.Enabled = false;
                 },
 
@@ -470,6 +471,11 @@ namespace TC_WinForms.WinForms
         {
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Approved);
             setApprovedStatusToolStripMenuItem.Enabled = false;
+
+            // становить viewmode
+            SetTCStatusAccess();
+            SetViewMode(true);
+            SetCommentViewMode(false);
         }
 
         private async void setRemarksModeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -496,12 +502,18 @@ namespace TC_WinForms.WinForms
 
                 //SetViewMode();
             }
-            tcViewState.IsCommentViewMode = !tcViewState.IsCommentViewMode;
             SetCommentViewMode();
         }
 
-        private void SetCommentViewMode()
+        private void SetCommentViewMode(bool? isComViewMode = null)
         {
+            if (isComViewMode != null)
+            {
+                tcViewState.IsCommentViewMode = (bool)isComViewMode;
+            }
+            else
+                tcViewState.IsCommentViewMode = !tcViewState.IsCommentViewMode;
+
             if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm) 
                 && cachedForm is TechOperationForm techOperationForm)
             {
