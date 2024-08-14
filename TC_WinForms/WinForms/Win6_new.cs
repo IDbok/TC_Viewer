@@ -18,6 +18,13 @@ namespace TC_WinForms.WinForms
 
         private static bool _isViewMode = true;
         private static bool _isCommentViewMode = false;
+        private static bool _isMachineCollumnViewMode = true;
+
+
+
+        //public static event Action CommentViewModeChanged;
+
+        //public static bool IsViewMode => _isViewMode;
 
         public static bool IsViewMode
         {
@@ -43,6 +50,21 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
+
+        public static bool isMachineViewMode
+        {
+            get => _isMachineCollumnViewMode;
+            set
+            {
+                if (_isMachineCollumnViewMode != value)
+                {
+                    _isMachineCollumnViewMode = value;
+                    OnCommentViewModeChanged();
+                }
+            }
+        }
+
+
         public static event Action? CommentViewModeChanged;
         public static event Action? ViewModeChanged;
 
@@ -500,6 +522,34 @@ namespace TC_WinForms.WinForms
             SetCommentViewMode();
         }
 
+        private async void SetMachineCollumnModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
+            {
+                await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
+            }
+
+            if (!isMachineViewMode)
+            {
+                SetMachineCollumnModeToolStripMenuItem.Text = "Скрыть столбцы механизмов";
+            }
+            else
+            {
+                SetMachineCollumnModeToolStripMenuItem.Text = "Показать стобцы механизмов";
+            }
+            isMachineViewMode = !isMachineViewMode;
+            SetMachineViewMode();
+        }
+
+        private void SetMachineViewMode()
+        {
+            if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm)
+                && cachedForm is TechOperationForm techOperationForm)
+            {
+                techOperationForm.SetMachineViewMode(isMachineViewMode);
+            }
+        }
+
         private void SetCommentViewMode()
         {
             if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm) 
@@ -533,14 +583,7 @@ namespace TC_WinForms.WinForms
             diagramForm.BringToFront();
         }
 
-        enum WinNumber
-        {
-            Staff = 1,
-            Component = 2,
-            Machine = 3,
-            Protection = 4,
-            Tool = 5
-        }
+        
     }
 
 }
