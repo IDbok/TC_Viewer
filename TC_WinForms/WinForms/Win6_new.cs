@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
@@ -7,6 +8,8 @@ using TC_WinForms.WinForms.Work;
 using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
+using TcModels.Models.IntermediateTables;
+using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
 
@@ -18,6 +21,7 @@ namespace TC_WinForms.WinForms
 
         private static bool _isViewMode = true;
         private static bool _isCommentViewMode = false;
+        private static bool _canTCStatusChange = true;
 
         public static bool IsViewMode
         {
@@ -43,8 +47,22 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
+        public static bool canTCStatusChange
+        {
+            get => _canTCStatusChange;
+            set
+            {
+                if (_canTCStatusChange != value)
+                {
+                    _canTCStatusChange = value;
+                    OnTCStatusModedChanged();
+                }
+            }
+        }
+
         public static event Action? CommentViewModeChanged;
         public static event Action? ViewModeChanged;
+        public static event Action? TCStatusModedChanged;
 
         private static void OnCommentViewModeChanged()
         {
@@ -53,6 +71,10 @@ namespace TC_WinForms.WinForms
         private static void OnViewModeChanged()
         {
             ViewModeChanged?.Invoke();
+        }
+        private static void OnTCStatusModedChanged()
+        {
+            TCStatusModedChanged?.Invoke();
         }
 
         private User.Role _accessLevel;
@@ -79,7 +101,7 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
 
 
-
+            
             this.KeyDown += ControlSaveEvent;
 
             SetTagsToButtons();
@@ -458,11 +480,65 @@ namespace TC_WinForms.WinForms
         }
 
         private void SaveChangesToolStripMenuItem_Click(object sender, EventArgs e) => SaveAllChanges();
+        private bool CheckChangesForTcDraftStatusChanging()
+        {
+            bool hasUnsavedChanges = false;
+            foreach (var fm in _formsCache.Values)
+            {
+                if (fm is ISaveEventForm saveForm && saveForm.HasChanges)
+                {
+                    hasUnsavedChanges = true;
+                    break;
+                }
+            }
+            if (hasUnsavedChanges)
+            {
+                var result = MessageBox.Show("Перед выпуском карты необходимо сохранить изменения.", "Сохранение изменений",
+                                             MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
+                if (result == DialogResult.Yes)
+                {
+                    SaveAllChanges();
+                    return true;
+                }
+                else
+                    return false;
+            }
+            return true;
+        }
         private async void setDraftStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!CheckChangesForTcDraftStatusChanging()) { return; }
+
+            canTCDraftStatusChange();
+
+            if (!_canTCStatusChange)
+            {
+                MessageBox.Show("Карта не может быть выпущена, если используются неопубликолванные элементы.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Draft);
             setDraftStatusToolStripMenuItem.Enabled = false;
+            MessageBox.Show("Техническая карта выпущена");
+        }
+
+        private void canTCDraftStatusChange()
+        {
+            
+            var unpublishedStaff = db.GetUnpublishedObjectList<Staff_TC, Staff>(_tcId).ToList();
+            var unpublishedComponent = db.GetUnpublishedObjectList<Component_TC, Component>(_tcId).ToList();
+            var unpublichedTool = db.GetUnpublishedObjectList<Tool_TC, Tool>(_tcId).ToList();
+            var unpublichedProtection = db.GetUnpublishedObjectList<Protection_TC, Protection>(_tcId).ToList();
+            var unpublichedMachine = db.GetUnpublishedObjectList<Machine_TC, Machine>(_tcId).ToList();
+
+            if (unpublishedStaff.Count != 0 || unpublishedComponent.Count != 0
+                || unpublichedTool.Count != 0 || unpublichedProtection.Count != 0 
+                || unpublichedMachine.Count != 0) 
+            {
+                _canTCStatusChange = false;
+                return;
+            }
+            _canTCStatusChange = true;
         }
 
         private async void setApprovedStatusToolStripMenuItem_Click(object sender, EventArgs e)

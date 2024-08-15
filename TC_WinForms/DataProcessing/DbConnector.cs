@@ -715,6 +715,98 @@ namespace TC_WinForms.DataProcessing
                 throw;
             }
         }
+
+        public List<C>? GetUnpublishedObjectList<T, C>(int tcID) where T : class, IIntermediateTable<TechnologicalCard, C>
+        {
+            List<T>? allObjectsTC = GetIntermediateObjectList<T, C>(tcID);
+            List<C>? unpublishedObjs = null;
+            C? unpublishedObj;
+            try
+            {
+                using (var context = new MyDbContext())
+                {
+                    unpublishedObjs = new List<C>();
+
+                    if (typeof(C) == typeof(Staff))
+                    {
+                        foreach (var obj in allObjectsTC)
+                        {
+                            unpublishedObj = context.Set<Staff>()
+                                                    .Where(tc => tc.Id == obj.ChildId && tc.IsReleased == false)
+                                                    .Cast<C>()
+                                                    .FirstOrDefault();
+                            if (unpublishedObj != null)
+                                unpublishedObjs.Add(unpublishedObj);
+                        }
+                        return unpublishedObjs;
+                    }
+                    if (typeof(C) == typeof(Component))
+                    {
+                        foreach (var obj in allObjectsTC)
+                        {
+                            unpublishedObj = context.Set<Component>()
+                                .Where(tc => tc.Id == obj.ChildId && tc.IsReleased == false)
+                                .Cast<C>()
+                                .FirstOrDefault();
+
+                            if (unpublishedObj != null)
+                                unpublishedObjs.Add(unpublishedObj);
+                        }
+                        return unpublishedObjs;
+                    }
+                    if (typeof(C) == typeof(Tool))
+                    {
+                        foreach (var obj in allObjectsTC)
+                        {
+                            unpublishedObj = context.Set<Tool>()
+                                .Where(tc => tc.Id == obj.ChildId && tc.IsReleased == false)
+                                .Cast<C>()
+                                .FirstOrDefault();
+
+                            if (unpublishedObj != null)
+                                unpublishedObjs.Add(unpublishedObj);
+                        }
+                        return unpublishedObjs;
+                    }
+                    if (typeof(C) == typeof(Protection))
+                    {
+                        foreach (var obj in allObjectsTC)
+                        {
+                            unpublishedObj = context.Set<Protection>()
+                                .Where(tc => tc.Id == obj.ChildId && tc.IsReleased == false)
+                                .Cast<C>()
+                                .FirstOrDefault();
+
+                            if (unpublishedObj != null)
+                                unpublishedObjs.Add(unpublishedObj);
+
+                        }
+                        return unpublishedObjs;
+                    }
+                    if (typeof(C) == typeof(Machine))
+                    {
+                        foreach (var obj in allObjectsTC)
+                        {
+                            unpublishedObj = context.Set<Machine>()
+                                .Where(tc => tc.Id == obj.ChildId && tc.IsReleased == false)
+                                .Cast<C>()
+                                .FirstOrDefault();
+
+                            if (unpublishedObj != null)
+                                unpublishedObjs.Add(unpublishedObj);
+                        }
+                        return unpublishedObjs;
+                    }
+                    return unpublishedObjs = null;
+                }
+            }
+            catch (Exception e)
+            {
+                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
+                throw;
+            }
+        }
+
         public T? GetObject<T>(int id) where T : class, IIdentifiable
         {
             T? obj = null;
