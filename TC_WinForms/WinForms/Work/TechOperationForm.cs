@@ -1351,8 +1351,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public void AddTechOperation(TechOperation TechOperat)
     {
-        var vb = TechOperationWorksList.Where(s => s.techOperation == TechOperat && s.Delete == true).ToList();
-
         int maxOrder = -1;
 
         if (TechOperationWorksList.Count > 0)
@@ -1360,9 +1358,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             maxOrder = TechOperationWorksList.Max(m => m.Order);
         }
 
-        if (vb.Count > 0)
+        // Данный механизм отвечает за добавление удалённого объекта с таким же Id
+        // был удалён в соответствии с п154 замечаний
+        //var vb = TechOperationWorksList.Where(s => s.techOperation == TechOperat && s.Delete == true).ToList();
+        if (false)//vb.Count > 0)
         {
-            vb[0].Delete = false;
+            //vb[0].Delete = false;
         }
         else
         {
@@ -1394,12 +1395,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null, CoefficientForm coefficient = null)
     {
         TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
-        var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
-
-        if (exec.Count > 0)
+        // Данный механизм отвечает за добавление удалённого объекта с таким же Id
+        // был удалён в соответствии с п154 замечаний
+        //var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
+        if (false)//exec.Count > 0)
         {
-            var one = exec[0];
-            one.Delete = false;
+            //var one = exec[0];
+            //one.Delete = false;
         }
         else
         {
