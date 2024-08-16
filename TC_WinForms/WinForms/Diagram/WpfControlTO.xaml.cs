@@ -83,6 +83,8 @@ namespace TC_WinForms.WinForms.Diagram
             UpdateDiagramToWork();
 
             _tcViewState.ViewModeChanged += OnViewModeChanged;
+
+            ButtonAddShag.IsEnabled = true; 
         }
 
         private void OnViewModeChanged()
@@ -107,8 +109,8 @@ namespace TC_WinForms.WinForms.Diagram
 
                 ListWpfParalelno.Visibility = Visibility.Visible;
 
-                if(!IsViewMode)
-                    ButtonAddShag.Visibility = Visibility.Visible;
+                //if(!IsViewMode)
+                //    ButtonAddShag.Visibility = Visibility.Visible;
 
                 _wpfMainControl.technologicalCard.DiagamToWork.Add(this.diagamToWork);
 
@@ -263,7 +265,7 @@ namespace TC_WinForms.WinForms.Diagram
             _wpfMainControl.diagramForm.HasChanges = true;
 
             diagamToWork.ParallelIndex = null;
-            _wpfMainControl.technologicalCard.DiagamToWork.Remove(diagamToWork);
+            //_wpfMainControl.technologicalCard.DiagamToWork.Remove(diagamToWork);
 
             _wpfMainControl.DeleteControlTO(this);
         }

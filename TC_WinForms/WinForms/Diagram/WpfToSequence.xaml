@@ -4,7 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TC_WinForms.WinForms.Diagram"
+             xmlns:converters="clr-namespace:TC_WinForms.WinForms.Diagram.Converters"
              mc:Ignorable="d" >
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
             <d:StackPanel HorizontalAlignment="Left">
@@ -34,6 +38,7 @@
                 Click="btnAddTOSequence_Click"
                 Content="Добавить ТО последовательно" 
                 HorizontalAlignment="Left" VerticalAlignment="Top"
+                 Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}" 
                 Margin="270,0,0,0"/>
         </StackPanel>
 

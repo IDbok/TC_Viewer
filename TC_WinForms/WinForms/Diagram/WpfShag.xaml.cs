@@ -65,11 +65,12 @@ namespace TC_WinForms.WinForms.Diagram
 
         public void SaveCollection()
         {
-            if (diagramShag != null)
+            if(diagramShag == null)
             {
-                diagramShag.Deystavie = TextDeystShag.Text;
+                return;
             }
 
+            diagramShag.Deystavie = TextDeystShag.Text;
 
             diagramShag.ImplementerComment = txtImplementerComment.Text;
             diagramShag.LeadComment = txtLeadComment.Text;

@@ -17,7 +17,8 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
 
     private WpfMainControl _wpfMainControl;
     private string? parallelIndex;
-    public string? MaxSequenceIndex => Children.Max(x => x.GetSequenceIndex());
+    public ObservableCollection<WpfToSequence> Children { get; set; } = new();
+    public int? MaxSequenceIndex => Children.Max(x => x.GetSequenceIndexAsInt());
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public bool IsCommentViewMode => _tcViewState.IsCommentViewMode;
@@ -33,7 +34,6 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-    public ObservableCollection<WpfToSequence> Children { get; set; } = new ();
     public WpfTo()
     {
         InitializeComponent();
@@ -77,9 +77,6 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
 
         _wpfMainControl = wpfMainControl;
 
-        //ListTOParalelno.Children.Clear();
-        Children.Clear();
-
         if(addDiagram)
             AddDiagramToWork(_diagramToWork);
 
@@ -97,7 +94,7 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
         if (diagamToWork != null)
         {
             if (diagamToWork.ParallelIndex != null)
-                parallelIndex = diagamToWork.ParallelIndex;
+                parallelIndex = diagamToWork.GetParallelIndex();
             //else UpdateParallelIndex(diagamToWork);
         }
     }
@@ -106,7 +103,7 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
     {
         if (Children.Count > 0)
         {
-            parallelIndex ??= new Random().Next(1000000).ToString();
+            parallelIndex ??= SetParallelIndex();
             _wpfMainControl.diagramForm.HasChanges = true;
 
             //установить индекс параллельности для всех дочерних элементов

@@ -61,8 +61,8 @@ public partial class WpfToSequence : System.Windows.Controls.UserControl, INotif
 
         if( Children.Count > 1 && sequenceIndex == null)
         {
-            var sequenceIndex = _diagramState.WpfTo?.MaxSequenceIndex + 1;
-            SetSequenceIndex(sequenceIndex);
+            var sequenceIndex = _diagramState.WpfTo?.MaxSequenceIndex ?? 0 + 1;
+            SetSequenceIndex(sequenceIndex.ToString());
         }
 
         //if (diagamToWork != null)
@@ -115,7 +115,8 @@ public partial class WpfToSequence : System.Windows.Controls.UserControl, INotif
             {
                 if (sequenceIndex == null)
                 {
-                    sequenceIndex = _diagramState.WpfTo?.MaxSequenceIndex ?? "1";
+                    var maxIndex = _diagramState.WpfTo?.MaxSequenceIndex ?? 0;
+                    sequenceIndex = (maxIndex + 1).ToString();
                 }
                 parallelIndex = parallelIndex + "/" + sequenceIndex;
             }
@@ -171,7 +172,7 @@ public partial class WpfToSequence : System.Windows.Controls.UserControl, INotif
         {
             var lastWpfTo = Children[0];
             lastWpfTo.ParallelButtonsVisibility(false);
-            lastWpfTo.diagamToWork.ParallelIndex = null;
+            lastWpfTo.diagamToWork.ParallelIndex = _diagramState.WpfTo?.GetParallelIndex();
         }
     }
 
@@ -220,5 +221,8 @@ public partial class WpfToSequence : System.Windows.Controls.UserControl, INotif
     {
         return sequenceIndex;
     }
-
+    public int? GetSequenceIndexAsInt() 
+    {         
+        return int.TryParse(sequenceIndex, out var result) ? result : null;
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using TcDbConnector;
@@ -26,6 +27,8 @@ namespace TC_WinForms.WinForms.Diagram
 
         private List<DiagamToWork> DeletedDiagrams = new List<DiagamToWork>();
         private List<TechOperationWork> AvailableTechOperationWorks = new List<TechOperationWork>();
+
+        public ObservableCollection<WpfTo> Children { get; set; } = new();
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public bool IsCommentViewMode => _tcViewState.IsCommentViewMode;
@@ -122,7 +125,7 @@ namespace TC_WinForms.WinForms.Diagram
                 {
                     var wpfTo = new WpfTo(this, _tcViewState, dTOWGroup.OrderBy(x => x.Order).ToList());
 
-                    ListWpfControlTO.Children.Add(wpfTo);
+                    Children.Add(wpfTo);
 
                     //foreach (DiagamToWork item in dTOWGroup.OrderBy(x=> x.Order).ToList())
                     //{
@@ -135,7 +138,7 @@ namespace TC_WinForms.WinForms.Diagram
                     {
                         var wpfTo = new WpfTo(this, _tcViewState, item);
 
-                        ListWpfControlTO.Children.Add(wpfTo);
+                        Children.Add(wpfTo);
                     }
                 }
             }
@@ -154,7 +157,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             if (CheckIfTOIsAvailable())
             {
-                ListWpfControlTO.Children.Add(new WpfTo(this, _tcViewState));
+                Children.Add(new WpfTo(this, _tcViewState));
                 diagramForm.HasChanges = true;
                 Nomeraciya();
             }
@@ -164,15 +167,16 @@ namespace TC_WinForms.WinForms.Diagram
         {
             // найти и удалить controlTO из ListWpfControlTO (WpfTo)
             //ICollection<WpfTo> wpfToList = ListWpfControlTO.Children;
-            for (int i = ListWpfControlTO.Children.Count - 1; i >= 0; i--)
+            for (int i = Children.Count - 1; i >= 0; i--)
             {
-                WpfTo wpfTo = ListWpfControlTO.Children[i] as WpfTo;
+                WpfTo wpfTo = Children[i];
                 for (int j = wpfTo.Children.Count - 1; j >= 0; j--)
                 {
                     var wpfToSq = wpfTo.Children[j];
                     if (wpfToSq.Children.Contains(controlTO))
                     {
                         DeletedDiagrams.Add(controlTO.diagamToWork);
+                        technologicalCard.DiagamToWork.Remove(controlTO.diagamToWork);
 
                         wpfToSq.DeleteWpfControlTO(controlTO);
 
@@ -220,7 +224,7 @@ namespace TC_WinForms.WinForms.Diagram
             int Order3 = 1;
             int Order4 = 1;
 
-            foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
+            foreach (WpfTo wpfToItem in Children)
             {
                 foreach (var wpfToSq in wpfToItem.Children)
                     foreach(var wpfControlToItem in wpfToSq.Children)
@@ -270,7 +274,7 @@ namespace TC_WinForms.WinForms.Diagram
             Nomeraciya();
             try
             {
-                foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
+                foreach (WpfTo wpfToItem in Children)
                     foreach (var wpfToSq in wpfToItem.Children)
                         foreach (var wpfControlToItem in wpfToSq.Children)
                             foreach (WpfParalelno item2 in wpfControlToItem.ListWpfParalelno.Children)
@@ -321,23 +325,23 @@ namespace TC_WinForms.WinForms.Diagram
 
             if (v == 1)
             {
-                int ib = ListWpfControlTO.Children.IndexOf(wpfToContainer);
-                if (ib < ListWpfControlTO.Children.Count - 1)
+                int ib = Children.IndexOf(wpfToContainer);
+                if (ib < Children.Count - 1)
                 {
-                    var cv = ListWpfControlTO.Children[ib + 1];
-                    ListWpfControlTO.Children.Remove(cv);
-                    ListWpfControlTO.Children.Insert(ib, cv);
+                    var cv = Children[ib + 1];
+                    Children.Remove(cv);
+                    Children.Insert(ib, cv);
                 }
             }
 
             if (v == 2)
             {
-                int ib = ListWpfControlTO.Children.IndexOf(wpfToContainer);
+                int ib = Children.IndexOf(wpfToContainer);
                 if (ib != 0)
                 {
-                    var cv = ListWpfControlTO.Children[ib];
-                    ListWpfControlTO.Children.Remove(cv);
-                    ListWpfControlTO.Children.Insert(ib - 1, cv);
+                    var cv = Children[ib];
+                    Children.Remove(cv);
+                    Children.Insert(ib - 1, cv);
                 }
             }
 
@@ -346,7 +350,7 @@ namespace TC_WinForms.WinForms.Diagram
 
             WpfTo? FindContainer(WpfControlTO wpfControlTO)
             {
-                foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
+                foreach (WpfTo wpfToItem in Children)
                 {
                     foreach(var wpfTOSq in wpfToItem.Children)
                     {
@@ -395,7 +399,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             var diagramToWorks = new List<DiagamToWork>();
             // получаем все tow из уже добавленных в WpfTo
-            foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
+            foreach (WpfTo wpfToItem in Children)
             {
                 foreach (var wpfToSq in wpfToItem.Children)
                 {
@@ -433,7 +437,7 @@ namespace TC_WinForms.WinForms.Diagram
         }
         public void DeleteWpfTO(WpfTo wpfTo)
         {
-            ListWpfControlTO.Children.Remove(wpfTo);
+            Children.Remove(wpfTo);
         }
     }
 
