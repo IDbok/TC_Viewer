@@ -956,7 +956,10 @@ namespace TC_WinForms.DataProcessing
                     tcToUpdate.Status = newStatus;
                     await db.SaveChangesAsync();
                 }
+                else return;
             }
+
+            tc.Status = newStatus;
         }
 
         public async Task UpdateTcExecutionScheme(int tcId, string newES)

@@ -116,18 +116,19 @@ namespace TC_WinForms.WinForms
         }
         public async Task LoadDataAsync()
         {
-            _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
-                //.OrderBy(tc => tc.Article)
-                    //.ThenBy(tc => tc.NetworkVoltage)
-                    //.ThenBy(tc => tc.Type)
-                .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
-
-            //_bindingList = new BindingList<DisplayedTechnologicalCard>(_displayedtechnologicalCards);
-            //_bindingList.ListChanged += BindingList_ListChanged;
-            //ConfigureDgvWithComboBoxColumn();
+            if (_accessLevel == User.Role.ProjectManager || _accessLevel == User.Role.User)
+            {
+                _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
+                    .Select(tc => new DisplayedTechnologicalCard(tc))
+                    .Where(tc => tc.Status == TechnologicalCardStatus.Approved).ToList());
+            }
+            else
+            {
+                _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
+                    .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
+            }
             totalPageCount = (int)Math.Ceiling(_displayedTechnologicalCards.Count / (double)_pageSize);
             UpdateDisplayedData();
-            //dgvMain.DataSource = _bindingList;
         }
         private void UpdateDisplayedData()
         {
@@ -254,26 +255,29 @@ namespace TC_WinForms.WinForms
             {
                 var headerCell = row.HeaderCell;
 
-                switch (displayedCard.Status)
+                if (_accessLevel != User.Role.User && _accessLevel != User.Role.ProjectManager)
                 {
-                    case TechnologicalCardStatus.Created:
-                        headerCell.Style.BackColor = Color.LightGray;
-                        break;
-                    case TechnologicalCardStatus.Draft:
-                        headerCell.Style.BackColor = Color.Yellow;
-                        break;
-                    case TechnologicalCardStatus.Remarked:
-                        headerCell.Style.BackColor = Color.Orange;
-                        break;
-                    case TechnologicalCardStatus.Approved:
-                        headerCell.Style.BackColor = Color.LightGreen;
-                        break;
-                    case TechnologicalCardStatus.Rejected:
-                        headerCell.Style.BackColor = Color.LightCoral;
-                        break;
-                    case TechnologicalCardStatus.Completed:
-                        headerCell.Style.BackColor = Color.SteelBlue;
-                        break;
+                    switch (displayedCard.Status)
+                    {
+                        case TechnologicalCardStatus.Created:
+                            headerCell.Style.BackColor = Color.LightGray;
+                            break;
+                        case TechnologicalCardStatus.Draft:
+                            headerCell.Style.BackColor = Color.Yellow;
+                            break;
+                        case TechnologicalCardStatus.Remarked:
+                            headerCell.Style.BackColor = Color.Orange;
+                            break;
+                        case TechnologicalCardStatus.Approved:
+                            headerCell.Style.BackColor = Color.LightGreen;
+                            break;
+                        case TechnologicalCardStatus.Rejected:
+                            headerCell.Style.BackColor = Color.LightCoral;
+                            break;
+                        case TechnologicalCardStatus.Completed:
+                            headerCell.Style.BackColor = Color.SteelBlue;
+                            break;
+                    }
                 }
 
                 // Рисуем заново заголовок строки, чтобы применить стиль
