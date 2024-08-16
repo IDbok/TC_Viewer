@@ -796,8 +796,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         dgvMain.Columns.Add("", "");
         dgvMain.Columns.Add("", "");
         dgvMain.Columns.Add("", "");
-        dgvMain.Columns.Add("", "");
-        dgvMain.Columns.Add("", "");
+        dgvMain.Columns.Add("Staff", "Исполнитель");
+        dgvMain.Columns.Add("TechTransitionName", "Технологические переходы");
         dgvMain.Columns.Add("", "");
         dgvMain.Columns.Add("", "");
 
@@ -830,11 +830,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         ii++;
         dgvMain.Columns[ii].HeaderText = "Технологические операции";
         ii++;
-        dgvMain.Columns[ii].HeaderText = "Исполнитель";
+        //dgvMain.Columns[ii].HeaderText = "Исполнитель";
         dgvMain.Columns[ii].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
         dgvMain.Columns[ii].Width = 120;
         ii++;
-        dgvMain.Columns[ii].HeaderText = "Технологические переходы";
+        //dgvMain.Columns[ii].HeaderText = "Технологические переходы";
         ii++;
         dgvMain.Columns[ii].HeaderText = "Время действ., мин.";
         ii++;
@@ -1055,6 +1055,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         {
             var str = new List<object>();
 
+            if(techOperationDataGridItem.Nomer == 18) // todo - убрать
+            {
+                Console.WriteLine();
+            }
+
             if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat)
             {
                 //var repeatNumList = techOperationDataGridItem.techWork.ListexecutionWorkRepeat2
@@ -1243,13 +1248,19 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
+                else if((executionWork.techTransition?.Name.Contains( "Повторить") ?? false)
+                    && (e.ColumnIndex == dgvMain.Columns["Staff"].Index
+                    || e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index))
+                {
+                    // пропускаю действие, т.к. отрисовка цвета уже произошла
+                    //SetCellBackColor(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], Color.Yellow);
+                }
                 else
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
                 }
             }
         }
-        
     }
 
     public void CellChangeReadOnly(DataGridViewCell cell, bool isReadOnly)
@@ -1258,6 +1269,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         cell.ReadOnly = isReadOnly;
         // Выделить строку цветом
         cell.Style.BackColor = isReadOnly ? Color.White : Color.LightGray;
+    }
+    private void SetCellBackColor(DataGridViewCell cell, Color color)
+    {
+        cell.Style.BackColor = color;
     }
 
     private void DgvMain_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
