@@ -245,14 +245,17 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void ButtonDown_Click(object sender, RoutedEventArgs e)
         {
-            _wpfMainControl.Order(1, this);
-            _wpfMainControl.diagramForm.HasChanges = true;
+            _diagramState.WpfTo?.ChangeOrder(this, MoveDirection.Down);
+            //_wpfMainControl.Order(1, this);
+            //_wpfMainControl.diagramForm.HasChanges = true;
         }
 
         private void ButtonUp_Click(object sender, RoutedEventArgs e)
         {
-            _wpfMainControl.Order(2, this);
-            _wpfMainControl.diagramForm.HasChanges = true;
+            _diagramState.WpfTo?.ChangeOrder(this, MoveDirection.Up);
+
+            //_wpfMainControl.Order(2, this);
+            //_wpfMainControl.diagramForm.HasChanges = true;
         }
 
         private void btnDelete_Click(object sender, RoutedEventArgs e)

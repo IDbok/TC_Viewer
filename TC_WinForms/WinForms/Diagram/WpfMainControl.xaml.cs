@@ -92,7 +92,7 @@ namespace TC_WinForms.WinForms.Diagram
                 AvailableTechOperationWorks.Add(tow);
             }
 
-           var ListShag = context.DiagamToWork.Where(w=>w.technologicalCard == technologicalCard)
+           var diagranToWorks = context.DiagamToWork.Where(w=>w.technologicalCard == technologicalCard)
 
                  .Include(i => i.ListDiagramParalelno)
                 .ThenInclude(ie => ie.techOperationWork)
@@ -107,31 +107,31 @@ namespace TC_WinForms.WinForms.Diagram
                 .ToList();
 
             // Сгруппировать по ParallelIndex, если ParallelIndex = null, то записать в отдельную группу
-            var ListShagGroup = ListShag
-                .GroupBy(g => g.ParallelIndex != null ? g.ParallelIndex : g.Order.ToString())
+            var dTOWGroups = diagranToWorks
+                .GroupBy(g => g.ParallelIndex != null ? g.GetParallelIndex() : g.Order.ToString())
                 .ToList();
 
             // сгруппировать ListShagGroup по Order DiagramToWork внутри группы
-            ListShagGroup = ListShagGroup.OrderBy(o => o.FirstOrDefault()!.Order).ToList();
+            dTOWGroups = dTOWGroups.OrderBy(o => o.FirstOrDefault()!.Order).ToList();
 
-            foreach (var ListShagItem in ListShagGroup)
+            foreach (var dTOWGroup in dTOWGroups)
             {
-                bool isNull = ListShagItem.Key == null;
+                bool isNull = dTOWGroup.Key == null;
 
                 if (!isNull)
                 {
-                    var wpfTo = new WpfTo(this, _tcViewState, addDiagram: false);
+                    var wpfTo = new WpfTo(this, _tcViewState, dTOWGroup.OrderBy(x => x.Order).ToList());
 
                     ListWpfControlTO.Children.Add(wpfTo);
 
-                    foreach (DiagamToWork item in ListShagItem.OrderBy(x=> x.Order).ToList())
-                    {
-                        wpfTo.AddParallelTO(item);
-                    }
+                    //foreach (DiagamToWork item in dTOWGroup.OrderBy(x=> x.Order).ToList())
+                    //{
+                    //    wpfTo.AddParallelTO(item);
+                    //}
                 }
                 else
                 {
-                    foreach (DiagamToWork item in ListShagItem.ToList())
+                    foreach (DiagamToWork item in dTOWGroup.ToList())
                     {
                         var wpfTo = new WpfTo(this, _tcViewState, item);
 
@@ -163,32 +163,42 @@ namespace TC_WinForms.WinForms.Diagram
         public void DeleteControlTO(WpfControlTO controlTO)
         {
             // найти и удалить controlTO из ListWpfControlTO (WpfTo)
-            foreach(WpfTo wpfToItem in ListWpfControlTO.Children)
+            //ICollection<WpfTo> wpfToList = ListWpfControlTO.Children;
+            for (int i = ListWpfControlTO.Children.Count - 1; i >= 0; i--)
             {
-                if (wpfToItem.Children.Contains(controlTO))
+                WpfTo wpfTo = ListWpfControlTO.Children[i] as WpfTo;
+                for (int j = wpfTo.Children.Count - 1; j >= 0; j--)
                 {
-                    DeletedDiagrams.Add(controlTO.diagamToWork);
-
-                    wpfToItem.DeleteWpfControlTO(controlTO);
-                    if (wpfToItem.Children.Count == 0)
+                    var wpfToSq = wpfTo.Children[j];
+                    if (wpfToSq.Children.Contains(controlTO))
                     {
-                        ListWpfControlTO.Children.Remove(wpfToItem);
-                    }
-                    else if(wpfToItem.Children.Count == 1)
-                    {
-                        var lastWpfTo = wpfToItem.Children[0];
-                        lastWpfTo.ParallelButtonsVisibility(false);
-                        lastWpfTo.diagamToWork.ParallelIndex = null;
-                    }
+                        DeletedDiagrams.Add(controlTO.diagamToWork);
 
-                    Nomeraciya();
-                    break;
+                        wpfToSq.DeleteWpfControlTO(controlTO);
+
+                        Nomeraciya();
+                        break;
+                    }
                 }
             }
 
+            //foreach (WpfTo wpfTo in wpfToList)
+            //    foreach (var wpfToSq in wpfTo.Children)
+            //    {
+            //        if (wpfToSq.Children.Contains(controlTO))
+            //        {
+            //            DeletedDiagrams.Add(controlTO.diagamToWork);
+
+            //            wpfToSq.DeleteWpfControlTO(controlTO);
+
+            //            Nomeraciya();
+            //            break;
+            //        }
+            //    }
+
             //ListWpfControlTO.Children.Remove(controlTO);
 
-            
+
             //diagramForm.HasChanges = true;
 
             //if (ListWpfControlTO.Children.Count==0)
@@ -212,35 +222,40 @@ namespace TC_WinForms.WinForms.Diagram
 
             foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
             {
-                foreach (var wpfControlToItem in wpfToItem.Children)
-                {
-                    if (wpfControlToItem.diagamToWork != null) wpfControlToItem.diagamToWork.Order = Order1;
-
-                    Order1++;
-                    Order2 = 1;
-                    Order3 = 1;
-                    Order4 = 1;
-
-                    foreach (WpfParalelno wpfParallelItem in wpfControlToItem.ListWpfParalelno.Children)
+                foreach (var wpfToSq in wpfToItem.Children)
+                    foreach(var wpfControlToItem in wpfToSq.Children)
                     {
-                        if (wpfParallelItem.diagramParalelno != null) wpfParallelItem.diagramParalelno.Order = Order2++;
+                        if (wpfControlToItem.diagamToWork != null) wpfControlToItem.diagamToWork.Order = Order1;
+
+                        Order1++;
+                        Order2 = 1;
                         Order3 = 1;
                         Order4 = 1;
 
-                        foreach (WpfPosledovatelnost item3 in wpfParallelItem.ListWpfPosledovatelnost.Children)
+                        foreach (WpfParalelno wpfParallelItem in wpfControlToItem.ListWpfParalelno.Children)
                         {
-                            if (item3.diagramPosledov != null) item3.diagramPosledov.Order = Order3++;
+                            if (wpfParallelItem.diagramParalelno != null) wpfParallelItem.diagramParalelno.Order = Order2++;
+                            Order3 = 1;
                             Order4 = 1;
 
-                            foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                            foreach (WpfPosledovatelnost item3 in wpfParallelItem.ListWpfPosledovatelnost.Children)
                             {
-                                if (item4.diagramShag != null) item4.diagramShag.Order = Order4++;
-                                item4.SetNomer(nomer);
-                                nomer++;
+                                if (item3.diagramPosledov != null) item3.diagramPosledov.Order = Order3++;
+                                Order4 = 1;
+
+                                foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                                {
+                                    if (item4.diagramShag != null)
+                                    {
+                                        item4.diagramShag.Order = Order4++;
+                                    }
+                                    // todo: проверка на то, что номер не изменился
+                                    item4.SetNomer(nomer);
+                                    nomer++;
+                                }
                             }
                         }
                     }
-                }
                 
             }
 
@@ -256,21 +271,16 @@ namespace TC_WinForms.WinForms.Diagram
             try
             {
                 foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
-                {
-                    foreach (var wpfControlToItem in wpfToItem.Children)
-                    {
-                        foreach (WpfParalelno item2 in wpfControlToItem.ListWpfParalelno.Children)
-                        {
-                            foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
-                            {
-                                foreach (WpfShag item4 in item3.ListWpfShag.Children)
-                                {
-                                    item4.SaveCollection();
-                                }
-                            }
-                        }
-                    }
-                }
+                    foreach (var wpfToSq in wpfToItem.Children)
+                        foreach (var wpfControlToItem in wpfToSq.Children)
+                            foreach (WpfParalelno item2 in wpfControlToItem.ListWpfParalelno.Children)
+                                foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
+                                    foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                                    {
+                                        item4.SaveCollection();
+                                    }
+
+                diagramForm.HasChanges = false;
             }
             catch (Exception)
             {
@@ -338,9 +348,12 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
                 {
-                    if (wpfToItem.Children.Contains(wpfControlTO))
+                    foreach(var wpfTOSq in wpfToItem.Children)
                     {
-                        return wpfToItem;
+                        if (wpfTOSq.Children.Contains(wpfControlTO))
+                        {
+                            return wpfToItem;
+                        }
                     }
                 }
                 return null;
@@ -361,6 +374,7 @@ namespace TC_WinForms.WinForms.Diagram
             var notAvailableTOWs = new List<TechOperationWork>();
             var availableTOWs = new List<TechOperationWork>();
             // получаем все tow из уже добавленных в WpfTo
+            var allDiagramToWorks = GetAllDiagramToWorks();
             foreach(DiagamToWork dtw in GetAllDiagramToWorks())
             {
                 notAvailableTOWs.Add(dtw.techOperationWork);
@@ -383,13 +397,23 @@ namespace TC_WinForms.WinForms.Diagram
             // получаем все tow из уже добавленных в WpfTo
             foreach (WpfTo wpfToItem in ListWpfControlTO.Children)
             {
-                foreach (var wpfControlToItem in wpfToItem.Children)
+                foreach (var wpfToSq in wpfToItem.Children)
                 {
-                    if (wpfControlToItem.diagamToWork != null)
+                    foreach (var wpfControlToItem in wpfToSq.Children)
                     {
-                        diagramToWorks.Add(wpfControlToItem.diagamToWork);
+                        if (wpfControlToItem.diagamToWork != null)
+                        {
+                            diagramToWorks.Add(wpfControlToItem.diagamToWork);
+                        }
                     }
                 }
+                //foreach (var wpfControlToItem in wpfToItem.Children)
+                //{
+                //    if (wpfControlToItem.diagamToWork != null)
+                //    {
+                //        diagramToWorks.Add(wpfControlToItem.diagamToWork);
+                //    }
+                //}
             }
             return diagramToWorks;
         }
@@ -406,6 +430,10 @@ namespace TC_WinForms.WinForms.Diagram
                 return false;
             }
             return true;
+        }
+        public void DeleteWpfTO(WpfTo wpfTo)
+        {
+            ListWpfControlTO.Children.Remove(wpfTo);
         }
     }
 
