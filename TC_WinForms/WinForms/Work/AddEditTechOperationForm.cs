@@ -352,11 +352,15 @@ namespace TC_WinForms.WinForms.Work
                 //var tech = allTP.Single(s => s.Id == Idd);
                 //TechOperationForm.AddTechTransition(tech, work);
 
+                // запрос на подтверждение удаления
+                var result = MessageBox.Show("Вы уверены, что хотите удалить ТП?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
 
-
-                TechOperationForm.DeleteTechTransit(IddGuid, work);
-                UpdateGridLocalTP();
-                TechOperationForm.UpdateGrid();
+                    TechOperationForm.DeleteTechTransit(IddGuid, work);
+                    UpdateGridLocalTP();
+                    TechOperationForm.UpdateGrid();
+                }
             }
         }
 
