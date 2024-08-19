@@ -26,7 +26,41 @@ internal class Program
     static async Task Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
-        
+
+        // получить ТК по id
+        TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
+        var context = new MyDbContext();
+        var tcId = 495;
+
+        var oldTc = context.TechnologicalCards
+            .Include(tc => tc.Staff_TCs)
+            .Include(tc => tc.Component_TCs)
+            .Include(tc => tc.Tool_TCs)
+            .Include(tc => tc.Machine_TCs)
+            .Include(tc => tc.Protection_TCs)
+            .Include(tc => tc.TechOperationWorks)
+        .FirstOrDefault(tc => tc.Id == tcId);
+
+        if (oldTc == null)
+        {
+            throw new Exception($"ТК с id {tcId} не найдена");
+        }
+
+        oldTc!.TechOperationWorks = 
+           context.TechOperationWorks.Where(w => w.TechnologicalCardId == tcId)
+               .Include(i => i.techOperation)
+               .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+               .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
+               .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
+               .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
+               .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
+               .Include(r => r.ToolWorks).ThenInclude(r => r.tool).ToList();
+
+        // создать новую ТК и сделать копию всех объектов из старой ТК
+        var newTc = new TechnologicalCard();
+        //newTc.CopyFrom(oldTc);
+
+        // сохранить новую ТК, как копию старой
 
         //ParseAllTC();
 

@@ -527,7 +527,6 @@ namespace TC_WinForms.WinForms
             SetCommentViewMode();
         }
 
-
         private async void SetMachineCollumnModeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
@@ -556,7 +555,8 @@ namespace TC_WinForms.WinForms
             }
         }
 
-        private void SetCommentViewMode()
+
+        private void SetCommentViewMode(bool? isComViewMode = null)
         {
             if (isComViewMode != null)
             {

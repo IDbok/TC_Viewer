@@ -13,20 +13,26 @@
     </UserControl.Resources>
     <Border BorderThickness="2" BorderBrush="Black"  Margin="5">
         <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
-            <StackPanel Orientation="Horizontal" Name="ListWpfPosledovatelnost">
-                <local:WpfPosledovatelnost  />
-            </StackPanel>
-            <Button VerticalAlignment="Center" Click="Button_Click"
-                    Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                <TextBlock Text="Добавить параллельность" TextWrapping="Wrap" Width="90" TextAlignment="Center" />
-            </Button>
-        </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" 
-                        Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0"
+                Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Button Width="50" Content="Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_1"  />
                 <Button Width="50" Content="Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_2" />
             </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1" >
+                <StackPanel Orientation="Horizontal" Name="ListWpfPosledovatelnost">
+                    <local:WpfPosledovatelnost  />
+                </StackPanel>
+                <Button VerticalAlignment="Center" Click="Button_Click"
+                        Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Text="Добавить параллельность" TextWrapping="Wrap" Width="90" TextAlignment="Center" />
+                </Button>
+            </StackPanel>
+            
         </Grid>
     </Border>
 </UserControl>
