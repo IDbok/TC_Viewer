@@ -555,6 +555,7 @@ namespace TC_WinForms.WinForms
             }
         }
 
+
         private void SetCommentViewMode(bool? isComViewMode = null)
         {
             if (isComViewMode != null)
