@@ -318,7 +318,8 @@ namespace TC_WinForms.WinForms
 
         private bool CheckForChanges()
         {
-            if (_accessLevel != User.Role.Lead || _accessLevel != User.Role.Implementer)
+
+            if (_accessLevel == User.Role.User || _accessLevel == User.Role.ProjectManager)
             // todo: заменить этот "костыль" на невозможность внесения изменений другими ролями
             {
                 return true;
