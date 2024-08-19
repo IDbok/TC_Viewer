@@ -8,7 +8,7 @@ using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram
 {
-    /// <summary>
+    /// <summary>F
     /// Логика взаимодействия для WpfMainControl.xaml
     /// </summary>
     public partial class WpfMainControl : System.Windows.Controls.UserControl, INotifyPropertyChanged
