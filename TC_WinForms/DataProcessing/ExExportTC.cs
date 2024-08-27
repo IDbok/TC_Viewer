@@ -37,6 +37,8 @@ public class ExExportTC
                         }
                         var excelExporter = new TCExcelExporter();
                         excelExporter.ExportTCtoFile(saveFileDialog.FileName, tc);
+
+                        MessageBox.Show($"Файл успешно сохранен", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {

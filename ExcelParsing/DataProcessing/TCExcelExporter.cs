@@ -18,8 +18,8 @@ namespace ExcelParsing.DataProcessing
         private readonly Color _lightYellow = Color.FromArgb(237, 125, 49);
         private readonly Color _lightGey = Color.FromArgb(242, 242, 242);
 
-        private readonly Color _lightBlue = Color.FromArgb(221, 235, 247);
-        private readonly Color _lightRed = Color.FromArgb(252, 228, 214);
+        private readonly Color _toolColor = Color.FromArgb(221, 235, 247);
+        private readonly Color _componentColor = Color.FromArgb(252, 228, 214);
 
         private readonly Color _yellow = Color.FromArgb(255, 255, 0);
 
@@ -553,7 +553,7 @@ namespace ExcelParsing.DataProcessing
                     sheet.Cells[currentRow, 6].Value = component.component.Unit;
                     sheet.Cells[currentRow, 7].Value = component.Quantity;
 
-                    ColorizeRange(sheet.Cells[currentRow, 4, currentRow, 7], _lightBlue);
+                    ColorizeRange(sheet.Cells[currentRow, 4, currentRow, 7], _componentColor);
 
                     RowFormat();
 
@@ -569,7 +569,7 @@ namespace ExcelParsing.DataProcessing
                     sheet.Cells[currentRow, 6].Value = component.tool.Unit;
                     sheet.Cells[currentRow, 7].Value = component.Quantity;
 
-                    ColorizeRange(sheet.Cells[currentRow, 4, currentRow, 7], _lightRed);
+                    ColorizeRange(sheet.Cells[currentRow, 4, currentRow, 7], _toolColor);
 
                     RowFormat();
 
@@ -627,14 +627,18 @@ namespace ExcelParsing.DataProcessing
 
                     sheet.Cells[currentRow, headersColumns["Технологические операции"]].Value = obj_tc.techOperation?.Name;
 
-                    var listRepeatedOtemOrders = executionWork.ListexecutionWorkRepeat2.Select(x => x.Order).ToList();
+                    //var listRepeatedOtemOrders = executionWork.ListexecutionWorkRepeat2.Select(x => x.Order).ToList();
+                    var listRepeatedOtemOrders = executionWork.ExecutionWorkRepeats
+                        .Select(x => x.ChildExecutionWork.Order).ToList();
                     sheet.Cells[currentRow, headersColumns["Технологические переходы"]].Value = "Повторить п. "
                         + ConvertListToRangeString(listRepeatedOtemOrders);
 
                     ColorizeRange(sheet.Cells[currentRow, headersColumns["Технологические переходы"]], _yellow);
 
                     // Время действия и времени этапа
-                    var repeatTime = executionWork.ListexecutionWorkRepeat2.Sum(x => x.Value);
+                    //var repeatTime = executionWork.ListexecutionWorkRepeat2.Sum(x => x.Value);
+                    var repeatTime = executionWork.ExecutionWorkRepeats
+                        .Sum(x => x.ChildExecutionWork.Value);
                     sheet.Cells[currentRow, headersColumns["Время действ., мин."]].Value = executionWork.Value != 0 ? executionWork.Value : repeatTime;
 
                 }
