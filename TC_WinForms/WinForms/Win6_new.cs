@@ -486,6 +486,14 @@ namespace TC_WinForms.WinForms
             await tcExporter.SaveTCtoExcelFile(_tc.Article, _tc.Id);
         }
 
+        private async void printDiagramToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            var diagramExporter = new DiadramExcelExport();
+
+            await diagramExporter.SaveDiagramToExelFile(_tc.Article, _tc.Id);
+        }
+
         private void SaveChangesToolStripMenuItem_Click(object sender, EventArgs e) => SaveAllChanges();
 
         private async void setDraftStatusToolStripMenuItem_Click(object sender, EventArgs e)
