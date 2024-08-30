@@ -52,7 +52,7 @@ namespace ExcelParsing.DataProcessing
                 throw new ArgumentException("Номер строки заголовка должен быть больше 0");
             }
 
-            sheet.Cells[headRow, 1].Value = header;
+            sheet.Cells[headRow, columnNums[0]].Value = header;
             var mergeRange = sheet.Cells[headRow, columnNums[0], headRow, columnNums[columnNums.Length - 1] - 1];
             mergeRange.Merge = true;
             mergeRange.Style.Font.Bold = true;
