@@ -120,7 +120,7 @@ namespace TC_WinForms
 
         static void Test()
         {
-            var appIndex = 0;
+            var appIndex = 1;
 
             switch (appIndex)
             {
@@ -129,16 +129,28 @@ namespace TC_WinForms
 
                 case 1:
                     {
-                        //var form = new DiagramForm(493, false);
-                        var form = new Win6_new(495, viewMode: false);// 486);
-                        form.ShowDialog();
+                        LoadTechnologicalCardEditor(494); // “ œ—_1.1.5 (495)
+                        //PrintTechnologicalCard(494); // “ œ—_1.1.3 (494)
                     }
                     break;
 
                 default:
                     Application.Run(MainForm); break;
-            }    
-            
+            }
+
+
+            void PrintTechnologicalCard(int tcId)
+            {
+                var tcExporter = new ExExportTC();
+
+                tcExporter.SaveTCtoExcelFile("TestTC", tcId).Wait();
+            }
+
+            void LoadTechnologicalCardEditor(int tcId, bool isViewMode = false)
+            {
+                var form = new Win6_new(tcId, viewMode: isViewMode);// 486);
+                form.ShowDialog();
+            }
         }
     }
 

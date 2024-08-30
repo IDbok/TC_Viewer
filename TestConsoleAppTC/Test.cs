@@ -13,6 +13,10 @@ using System.Xml.Linq;
 using TcDbConnector.Repositories;
 using TcDbConnector.Migrations;
 
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System.Drawing;
+
 namespace TestConsoleAppTC;
 
 internal class Program
@@ -32,45 +36,264 @@ internal class Program
         var context = new MyDbContext();
         var tcId = 495;
 
-        var oldTc = context.TechnologicalCards
-            .Include(tc => tc.Staff_TCs)
-            .Include(tc => tc.Component_TCs)
-            .Include(tc => tc.Tool_TCs)
-            .Include(tc => tc.Machine_TCs)
-            .Include(tc => tc.Protection_TCs)
-            .Include(tc => tc.TechOperationWorks)
-        .FirstOrDefault(tc => tc.Id == tcId);
+        var exporter = new ExcelExporter();
 
-        if (oldTc == null)
-        {
-            throw new Exception($"ТК с id {tcId} не найдена");
-        }
-
-        oldTc!.TechOperationWorks = 
-           context.TechOperationWorks.Where(w => w.TechnologicalCardId == tcId)
-               .Include(i => i.techOperation)
-               .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
-               .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
-               .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
-               .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
-               .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-               .Include(r => r.ToolWorks).ThenInclude(r => r.tool).ToList();
-
-        // создать новую ТК и сделать копию всех объектов из старой ТК
-        var newTc = new TechnologicalCard();
-        //newTc.CopyFrom(oldTc);
-
-        // сохранить новую ТК, как копию старой
-
-        //ParseAllTC();
-
-        //Migration();
-        //UpdateDictionary();
+        LoadImage();
+        //LoadImageInRangeExcel2();
 
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+    static void LoadImage()
+    {
+        // Пример пути к файлу Excel и изображению
+        var excelPath = @"C:\Users\bokar\Desktop\testPicture.xlsx";
+        var imagePath = @"C:\Users\bokar\Desktop\photo_2024-06-26_01-05-21.jpg";
+        //"C:\Users\bokar\Desktop\photo_2023-07-31_23-00-57.jpg";// 
+
+        // Создание файла Excel
+        using (var package = new ExcelPackage(new FileInfo(excelPath)))
+        {
+            var worksheet = package.Workbook.Worksheets.First(); //.Add("Sheet1");
+
+            // Получение начальной и конечной позиции ячеек по столбцам и строкам
+            var startCell = worksheet.Cells["C1"];
+            var endCell = worksheet.Cells["Z50"];
+
+            // Получение координат столбцов
+            var startColumn = startCell.Start.Column;
+            var endColumn = endCell.End.Column;
+
+            // Получение координат строк
+            var startRow = startCell.Start.Row;
+            var endRow = endCell.End.Row;
+
+            // Расчет ширины изображения в пикселях, учитывая только видимые столбцы
+            double widthInPixels = 0;
+            for (int col = startColumn; col <= endColumn; col++)
+            {
+                var column = worksheet.Column(col);
+                if (!column.Hidden) // Проверяем, что столбец не скрыт
+                {
+                    widthInPixels += column.Width * 7; // 7 - приблизительное количество пикселей на единицу ширины столбца
+                }
+            }
+
+            // Расчет высоты изображения в пикселях, учитывая только видимые строки
+            double heightInPixels = 0;
+            for (int row = startRow; row <= endRow; row++)
+            {
+                var rowHeight = worksheet.Row(row).Height;
+                heightInPixels += rowHeight * 0.75; // 0.75 - коэффициент перевода высоты строки в пиксели
+            }
+
+            // Загрузка изображения для получения его исходных размеров
+            using (var img = Image.FromFile(imagePath))
+            {
+                // Вычисление масштаба по ширине и высоте
+                double scaleWidth = widthInPixels / img.Width;
+                double scaleHeight = heightInPixels / img.Height;
+
+                // Определение наибольшего ограничения и установка масштабов
+                double scale = Math.Min(scaleWidth, scaleHeight);
+                double finalWidth = img.Width * scale;
+                double finalHeight = img.Height * scale;
+
+                // Добавление изображения на лист
+                var picture = worksheet.Drawings.AddPicture("MyImage111", new FileInfo(imagePath));
+
+                // Установка позиции и размеров изображения
+                picture.SetPosition(startRow - 1, 0, startColumn - 1, 0); // Позиция начальной ячейки (строка, смещение, столбец, смещение)
+                picture.SetSize((int)finalWidth, (int)finalHeight); // Установка итоговых размеров изображения
+            }
+
+            // Сохранение файла
+            package.Save();
+        }
+    }
+    static void LoadImageInRangeExcel2()
+    {
+        var filePath = @"C:\Users\bokar\Desktop\testPicture.xlsx";
+        var imagePath = @"C:\Users\bokar\Desktop\photo_2024-06-26_01-05-21.jpg";
+        // @"C:\Users\bokar\Desktop\photo_2023-09-04_09-57-04.jpg";
+        // @"C:\Users\bokar\Desktop\IMG_2563.JPEG";
+
+        var image = new FileInfo(imagePath);
+        var file = new FileInfo(filePath);
+
+        using var excelPackage = new ExcelPackage(file);
+        if (excelPackage.Workbook.Worksheets.Count == 0)
+        {
+            excelPackage.Workbook.Worksheets.Add("Sheet1");
+        }
+        var ws = excelPackage.Workbook.Worksheets.First();
+
+        double picWidth, picHeight;
+
+        using (var image2 = Image.FromFile(imagePath))
+        {
+            picWidth = image2.Width;
+            picHeight = image2.Height;
+        }
+
+        var leftTop = ws.Cells["A1"].Start;
+        var rightBottom = ws.Cells["D10"].End;
+
+        int totalWidth = 0;
+        int totalHeight = 0;
+
+        // Конвертация ширины столбцов в пиксели
+        for (int col = leftTop.Column; col <= rightBottom.Column; col++)
+        {
+            var colWidth = GetColumnWidthInPixels(ws.Column(col).Width);
+            totalWidth += colWidth;
+            Console.WriteLine($"столбец {col} с шириной {colWidth}");
+        }
+
+        // Конвертация высоты строк в пиксели
+        for (int row = leftTop.Row; row <= rightBottom.Row; row++)
+        {
+            var rowHeight = GetRowHeightInPixels(ws.Row(row).Height);
+            totalHeight += rowHeight;
+            Console.WriteLine($"строка {row} с высотой {rowHeight}");
+        }
+
+        Console.WriteLine($"Итого: высота - {totalHeight}, ширина - {totalWidth}");
+        Console.WriteLine($"Картинка имеет габариты: {picHeight}/{picWidth} (высота/ширина)");
+
+        double scaleWidth = (double)totalWidth / picWidth;
+        double scaleHeight = (double)totalHeight / picHeight;
+
+        // Выбираем наименьший коэффициент для сохранения пропорций
+        double scale = Math.Min(scaleWidth, scaleHeight);
+        int scaleInPercent = (int)(scale * 100);
+
+        Console.WriteLine($"Картинка изменится на {scaleInPercent}%");
+
+        var picture = ws.Drawings.AddPicture("pic7", image);
+        picture.SetPosition(0, 0, 0, 0);
+
+        var pixelWidth = (int)( 400 / 1.5 );
+        var pixelHeight = (int)( 267 / 1.5 );
+
+        picture.SetSize(pixelWidth, pixelHeight);
+
+        excelPackage.Save();
+    }
+
+    static int GetColumnWidthInPixels(double columnWidth)
+    {
+        // Примерная конвертация ширины столбца в пиксели
+        if (columnWidth < 1) columnWidth = 1;
+        return (int)Math.Truncate((columnWidth - 0.72) * 256 / 7 + 5);
+    }
+
+    static int GetRowHeightInPixels(double rowHeight)
+    {
+        double dpi = 96; // DPI экрана
+        return (int)(rowHeight * dpi / 72); // Конвертация пунктов в пиксели
+    }
+
+    static void LoadImageInRangeExcel()
+    {
+        var exporter = new ExcelExporter();
+
+        var filePath = @"C:\Users\bokar\Desktop\testPicture2.xlsx";
+
+        var imagePath = @"C:\Users\bokar\Desktop\IMG_2563.JPEG";// @"C:\Users\bokar\Desktop\photo_2024-06-26_01-05-21.jpg"; //@"C:\Users\bokar\Desktop\photo_2023-07-31_23-00-57.jpg"; // @"C:\Users\bokar\Desktop\photo_2023-09-04_09-57-04.jpg";// 
+
+        var image = new FileInfo(imagePath);
+
+        var file = new FileInfo(filePath);
+
+        var excelPackage = new ExcelPackage(file);
+
+        // добавить в ячейку А2 слово хуй
+        if (excelPackage.Workbook.Worksheets.Count == 0)
+        {
+            excelPackage.Workbook.Worksheets.Add("Sheet1");
+        }
+        var ws = excelPackage.Workbook.Worksheets.First();
+
+        //ws.Cells["A2"].Value = "хуй";
+        //Console.WriteLine("Слово добавлено");
+
+
+
+        // установить позицию и размер картинки
+        double picWidth;
+        double picHeight;
+
+        // Загружаем изображение с помощью System.Drawing, чтобы получить его размеры
+        using (var image2 = Image.FromFile(imagePath))
+        {
+            picWidth = image2.Width;
+            picHeight = image2.Height;
+        }
+
+        // установить размеры картинки исходя из области между ячейками
+        var leftTop = ws.Cells["A1"].Start;
+        var rightBottom = ws.Cells["D10"].End;
+
+        //var widthToPixels =  -1 ;//7.5; // 7.5 пикселей на единицу ширины
+        //var heightToPixels = 15; // 15 пикселей на единицу высоты
+
+        var totalWidth = 0;// ws.Column(1).Width;
+        var totalHeight = 0;// ws.Row(3).Height;
+
+        for (int col = leftTop.Column; col <= rightBottom.Column; col++)
+        {
+            var colWidth = GetWidthInPix(ws.Column(col).Width);
+            totalWidth += colWidth; // ширина столбца в пикселях
+            Console.WriteLine($"столбец {col} с шириной {colWidth}");
+        }
+
+
+        for (int row = leftTop.Row; row <= rightBottom.Row; row++)
+        {
+            var rowHeight = GetHeightInPix(ws.Row(row).Height);
+            totalHeight += rowHeight; // высота строки в пикселях
+
+            Console.WriteLine($"строка {row} с высотой {rowHeight}");
+        }
+
+        Console.WriteLine($"Итого: высота - {totalHeight}, ширина - {totalWidth}");
+        Console.WriteLine($"Картинка имеет габариты: {picHeight}/{picWidth} (высота/ширина)");
+        // Рассчитываем коэффициенты масштабирования по ширине и высоте
+        double scaleWidth = totalWidth / picWidth;
+        double scaleHeight = totalHeight / picHeight;
+
+        // Выбираем наименьший коэффициент, чтобы сохранить пропорции
+        double scale = Math.Min(scaleWidth, scaleHeight);
+        // Округляем до целого процента вниз
+        var scaleInPercentDouble = Math.Floor(scale * 0.675 * 100);
+        int scaleInPercent = (int)(scaleInPercentDouble);
+
+        Console.WriteLine($"Картинка изменится на {scaleInPercent}% ({scaleInPercentDouble})");
+
+
+        // добавить картинку в ячейку А3
+        var picture = ws.Drawings.AddPicture("pic3", image);
+
+        picture.SetPosition(0, 0, 0, 0);
+        picture.SetSize(scaleInPercent);
+        Console.WriteLine("Картинка добавлена");
+
+        // сохранить файл
+        excelPackage.Save();
+
+
+        int GetWidthInPix(double width)
+        {
+            var coef = 1.0564;
+            return (int)(width * 114 / 9.73 / coef); //(int)(width -1)/7 -7; //(int)(width * 7.5);
+        }
+        int GetHeightInPix(double height)
+        {
+            var coef = 1.03125;
+            return (int)(height * 2 / coef);
+        }
+    }
+
     static void UpdateDictionary()
     {
         TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";

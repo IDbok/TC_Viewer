@@ -6,6 +6,8 @@ using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using System.Text;
 using System;
+using TcDbConnector;
+using System.Reflection.PortableExecutable;
 
 namespace ExcelParsing.DataProcessing
 {
@@ -39,6 +41,17 @@ namespace ExcelParsing.DataProcessing
                 { 1, 6.82 }, // № СЗ
                 { 2, 32 }, // Примечание
                 { 3, 6.82 }, // Обозначение, Рисунок
+            };
+
+        // Название столбцов для таблицы и их номер столбца в Excel для Механизмов, СЗ и Интсрументов
+        private Dictionary<string, int> structHeadersColumns = new Dictionary<string, int>
+            {
+                { "№", 1 },
+                { "Наименование", 2 },
+                { "Тип (исполнение)", 5 },
+                { "Ед. Изм.", 6 },
+                { "Кол-во", 7 },
+                { "конец", 8 }
             };
 
         private Dictionary<Machine_TC,int> machineColumnNumber = new Dictionary<Machine_TC, int>();
@@ -81,17 +94,33 @@ namespace ExcelParsing.DataProcessing
 
             SetColumnWigth(sheet);
 
+
+
             var lastRow = AddStaffDataToExcel(tc.Staff_TCs.OrderBy(x => x.Order).ToList(), sheet, 3);
 
             lastRow = AddComponentDataToExcel(tc.Component_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
 
+            var headerMachineRow = lastRow;
             lastRow = AddMachineDataToExcel(machine_TCs, sheet, lastRow + 1);
 
             lastRow = AddProtectionDataToExcel(tc.Protection_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
 
             lastRow = AddToolDataToExcel(tc.Tool_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
 
+            var headerWorkStepsRow = lastRow;
             lastRow = AddTechOperationDataToExcel(tc.TechOperationWorks.OrderBy(x => x.Order).ToList(), machine_TCs, sheet, lastRow + 1);
+
+            // Скрытие столбцов механизмов в Таблице хода работ
+            HideMachineColumns(sheet);
+
+            // Добавление схемы исполнения на уровне с таблицей механизмы
+            AddExecutionSchemeToExcel(sheet, tc.ExecutionSchemeImageId, headerMachineRow , structHeadersColumns.Values.Max(), headerWorkStepsRow - 1);
+
+            // Установка заголовка (шапки) ТК
+            SetTCName(sheet, tc);
+
+            // Установка параметров для вывода на печать
+            SetPrinterSettings(sheet);
 
             Save();
             Close();
@@ -262,15 +291,16 @@ namespace ExcelParsing.DataProcessing
 
         public int AddMachineDataToExcel(List<Machine_TC> object_tcList, ExcelWorksheet sheet, int headRow)
         {
-            Dictionary<string, int> headersColumns = new Dictionary<string, int>
-            {
-                { "№", 1 },
-                { "Наименование", 2 },
-                { "Тип (исполнение)", 5 },
-                { "Ед. Изм.", 6 },
-                { "Кол-во", 7 },
-                {"конец", 8 }
-            };
+            Dictionary<string, int> headersColumns = structHeadersColumns;
+            //    new Dictionary<string, int>
+            //{
+            //    { "№", 1 },
+            //    { "Наименование", 2 },
+            //    { "Тип (исполнение)", 5 },
+            //    { "Ед. Изм.", 6 },
+            //    { "Кол-во", 7 },
+            //    { "конец", 8 }
+            //};
             // Добавление заголовков
             string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
             int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
@@ -334,15 +364,16 @@ namespace ExcelParsing.DataProcessing
 
         public int AddProtectionDataToExcel(List<Protection_TC> object_tcList, ExcelWorksheet sheet, int headRow)
         {
-            Dictionary<string, int> headersColumns = new Dictionary<string, int>
-            {
-                { "№", 1 },
-                { "Наименование", 2 },
-                { "Тип (исполнение)", 5 },
-                { "Ед. Изм.", 6 },
-                { "Кол-во", 7 },
-                {"конец", 8 }
-            };
+            Dictionary<string, int> headersColumns = structHeadersColumns;
+            //    new Dictionary<string, int>
+            //{
+            //    { "№", 1 },
+            //    { "Наименование", 2 },
+            //    { "Тип (исполнение)", 5 },
+            //    { "Ед. Изм.", 6 },
+            //    { "Кол-во", 7 },
+            //    {"конец", 8 }
+            //};
             // Добавление заголовков
             string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
             int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
@@ -402,15 +433,16 @@ namespace ExcelParsing.DataProcessing
         }
         public int AddToolDataToExcel(List<Tool_TC> object_tcList, ExcelWorksheet sheet, int headRow)
         {
-            Dictionary<string, int> headersColumns = new Dictionary<string, int>
-            {
-                { "№", 1 },
-                { "Наименование", 2 },
-                { "Тип (исполнение)", 5 },
-                { "Ед. Изм.", 6 },
-                { "Кол-во", 7 },
-                {"конец", 8 }
-            };
+            Dictionary<string, int> headersColumns = structHeadersColumns;
+            //    new Dictionary<string, int>
+            //{
+            //    { "№", 1 },
+            //    { "Наименование", 2 },
+            //    { "Тип (исполнение)", 5 },
+            //    { "Ед. Изм.", 6 },
+            //    { "Кол-во", 7 },
+            //    {"конец", 8 }
+            //};
             // Добавление заголовков
             string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
             int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
@@ -491,11 +523,13 @@ namespace ExcelParsing.DataProcessing
             { {"№ СЗ" ,1}, { "Примечание", 2 }, { "Рисунок", 3 }, { "конец", 4 } };
 
             int lastColumn = headersColumns["Время этапа, мин."];
-
+            var machineColumnNums = new List<int>();
             foreach (var machine_tc in machine_TCs)
             {
-                headersColumns.Add($"Время {machine_tc.Child.Name.ToLower()}, мин." , ++lastColumn); // todo: форматировать название механизма в соответствии с его склонением
-                machineColumnNumber.Add(machine_tc, lastColumn);
+                var machineColumnNum = ++lastColumn;
+                headersColumns.Add($"Время {machine_tc.Child.Name.ToLower()}, мин." , machineColumnNum); // todo: форматировать название механизма в соответствии с его склонением
+                machineColumnNumber.Add(machine_tc, machineColumnNum);
+
             }
 
             foreach (var additinghHader in additinghHadersColumns)
@@ -952,6 +986,97 @@ namespace ExcelParsing.DataProcessing
                 }
             }
         }
+        
+        public void AddExecutionSchemeToExcel(ExcelWorksheet sheet, long? executionSchemeImageId, int row, int column, int endRow)
+        {
+            if (executionSchemeImageId != null)
+            {
+                ImageStorage? image;
+                // Загрузить изображение схемы выполнения
+                using (var dbCon = new MyDbContext())
+                {
+                    image = dbCon.ImageStorage.Where(i => i.Id == executionSchemeImageId).FirstOrDefault();
+                }
+
+                // Сохранить изображение в Excel по указанным координатам
+                if (image != null)
+                {
+                    _exporter.AddImageToExcel(image, sheet, row +1, column, endRow, _columnWidths.Keys.Max());
+                }
+
+                // добавить подпись в начало изображения
+                var headRow = row;
+                var header = "Схема исполнения";
+                sheet.Cells[headRow, column].Value = header;
+                var mergeRange = sheet.Cells[headRow, column, headRow, _columnWidths.Keys.Max()];
+                mergeRange.Merge = true;
+                mergeRange.Style.Font.Bold = true;
+                mergeRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                mergeRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                mergeRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 0, 0));
+            }
+        }
+
+        private void HideMachineColumns(ExcelWorksheet sheet)
+        {
+            var machineColumnNums = machineColumnNumber.Values.ToList();
+
+            if (machineColumnNums.Count > 0)
+            {
+                foreach (var machineColumnNum in machineColumnNums)
+                {
+                    var machineCol = sheet.Columns[machineColumnNum];
+                    machineCol.Hidden = true;
+                }
+            }
+        }
+
+        private void SetPrinterSettings(ExcelWorksheet sheet)
+        {
+            // Настройка параметров печати
+            var printerSettings = sheet.PrinterSettings;
+
+            // Установка ориентации страницы: Ландшафтная
+            printerSettings.Orientation = eOrientation.Landscape;
+
+            // Установка размера бумаги: A4
+            printerSettings.PaperSize = ePaperSize.A4;
+
+            // Установка полей страницы (в сантиметрах, если в дюймах - нужно умножить на 2.54)
+            printerSettings.TopMargin = 1.0m / 2.54m;
+            printerSettings.BottomMargin = 1.0m / 2.54m;
+            printerSettings.LeftMargin = 1.0m / 2.54m;
+            printerSettings.RightMargin = 1.0m / 2.54m;
+
+            // Повторение строк заголовков на каждой странице печати
+            printerSettings.RepeatRows = sheet.Cells["1:1"];
+
+            //// Повторение столбцов на каждой странице печати
+            //printerSettings.RepeatColumns = sheet.Cells["A:A"];
+        }
+
+        private void SetTCName(ExcelWorksheet sheet, TechnologicalCard tc)
+        {
+            int[] columns = new int[] { 1, _columnWidths.Keys.Max()};
+            // Объединить первую строку листа
+            // Объединяем ячейки для текущего диапазона
+            var cells = sheet.Cells[1, columns.First(), 1, columns.Last()];
+            cells.Merge = true;
+
+            // Установить имя ТК в объединённую ячейку
+            cells.Value = string.IsNullOrEmpty(tc.Name) ? tc.Article : $"{tc.Name} ({tc.Article})";
+            // Выровнять текст по центру
+
+            cells.Style.Font.Bold = true;
+
+            cells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            cells.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            cells.Style.Border.BorderAround(ExcelBorderStyle.Double);
+            cells.Style.Fill.SetBackground(_lightGey);
+
+        }
+
         public void Save()
         {
             // Сохраняет изменения в пакете Excel
