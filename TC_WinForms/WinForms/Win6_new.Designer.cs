@@ -33,13 +33,13 @@
             toolStripFile = new ToolStripSplitButton();
             SaveChangesToolStripMenuItem = new ToolStripMenuItem();
             printToolStripMenuItem = new ToolStripMenuItem();
+            printBlockSchemeToolStripMenuItem = new ToolStripMenuItem();
             updateToolStripMenuItem = new ToolStripMenuItem();
             actionToolStripMenuItem = new ToolStripMenuItem();
             setDraftStatusToolStripMenuItem = new ToolStripMenuItem();
             setApprovedStatusToolStripMenuItem = new ToolStripMenuItem();
             setRemarksModeToolStripMenuItem = new ToolStripMenuItem();
             SetMachineCollumnModeToolStripMenuItem = new ToolStripMenuItem();
-            printBlockSchemeToolStripMenuItem = new ToolStripMenuItem();
             toolStripExecutionScheme = new ToolStripButton();
             toolStripDiagrams = new ToolStripButton();
             btnShowStaffs = new Button();
@@ -90,6 +90,13 @@
             printToolStripMenuItem.Text = "Печать";
             printToolStripMenuItem.Click += printToolStripMenuItem_Click;
             // 
+            // printBlockSchemeToolStripMenuItem
+            // 
+            printBlockSchemeToolStripMenuItem.Name = "printBlockSchemeToolStripMenuItem";
+            printBlockSchemeToolStripMenuItem.Size = new Size(354, 34);
+            printBlockSchemeToolStripMenuItem.Text = "Печать блок схемы";
+            printBlockSchemeToolStripMenuItem.Click += printDiagramToolStripMenuItem_Click;
+            // 
             // updateToolStripMenuItem
             // 
             updateToolStripMenuItem.Name = "updateToolStripMenuItem";
@@ -131,14 +138,6 @@
             SetMachineCollumnModeToolStripMenuItem.Size = new Size(354, 34);
             SetMachineCollumnModeToolStripMenuItem.Text = "Скрыть столбцы механизмов";
             SetMachineCollumnModeToolStripMenuItem.Click += SetMachineCollumnModeToolStripMenuItem_Click;
-            // 
-            // printBlockSchemeToolStripMenuItem
-            // 
-            printBlockSchemeToolStripMenuItem.Name = "printBlockSchemeToolStripMenuItem";
-            printBlockSchemeToolStripMenuItem.Size = new Size(354, 34);
-            printBlockSchemeToolStripMenuItem.Text = "Печать блок схемы";
-            printBlockSchemeToolStripMenuItem.Visible = false;
-            printBlockSchemeToolStripMenuItem.Click += printDiagramToolStripMenuItem_Click;
             // 
             // toolStripExecutionScheme
             // 
