@@ -38,6 +38,8 @@
             setDraftStatusToolStripMenuItem = new ToolStripMenuItem();
             setApprovedStatusToolStripMenuItem = new ToolStripMenuItem();
             setRemarksModeToolStripMenuItem = new ToolStripMenuItem();
+            SetMachineCollumnModeToolStripMenuItem = new ToolStripMenuItem();
+            printBlockSchemeToolStripMenuItem = new ToolStripMenuItem();
             toolStripExecutionScheme = new ToolStripButton();
             toolStripDiagrams = new ToolStripButton();
             btnShowStaffs = new Button();
@@ -49,7 +51,6 @@
             pnlControls = new Panel();
             buttonDiagram = new Button();
             pnlDataViewer = new Panel();
-            SetMachineCollumnModeToolStripMenuItem = new ToolStripMenuItem();
             toolStrip1.SuspendLayout();
             pnlControls.SuspendLayout();
             SuspendLayout();
@@ -67,7 +68,7 @@
             // toolStripFile
             // 
             toolStripFile.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            toolStripFile.DropDownItems.AddRange(new ToolStripItem[] { SaveChangesToolStripMenuItem, printToolStripMenuItem, updateToolStripMenuItem, actionToolStripMenuItem, setRemarksModeToolStripMenuItem, SetMachineCollumnModeToolStripMenuItem });
+            toolStripFile.DropDownItems.AddRange(new ToolStripItem[] { SaveChangesToolStripMenuItem, printToolStripMenuItem, updateToolStripMenuItem, actionToolStripMenuItem, setRemarksModeToolStripMenuItem, SetMachineCollumnModeToolStripMenuItem, printBlockSchemeToolStripMenuItem });
             toolStripFile.Image = (Image)resources.GetObject("toolStripFile.Image");
             toolStripFile.ImageTransparentColor = Color.Magenta;
             toolStripFile.Name = "toolStripFile";
@@ -105,14 +106,14 @@
             // setDraftStatusToolStripMenuItem
             // 
             setDraftStatusToolStripMenuItem.Name = "setDraftStatusToolStripMenuItem";
-            setDraftStatusToolStripMenuItem.Size = new Size(180, 22);
+            setDraftStatusToolStripMenuItem.Size = new Size(169, 22);
             setDraftStatusToolStripMenuItem.Text = "Выпустить ТК";
             setDraftStatusToolStripMenuItem.Click += setDraftStatusToolStripMenuItem_Click;
             // 
             // setApprovedStatusToolStripMenuItem
             // 
             setApprovedStatusToolStripMenuItem.Name = "setApprovedStatusToolStripMenuItem";
-            setApprovedStatusToolStripMenuItem.Size = new Size(180, 22);
+            setApprovedStatusToolStripMenuItem.Size = new Size(169, 22);
             setApprovedStatusToolStripMenuItem.Text = "Опубликовать ТК";
             setApprovedStatusToolStripMenuItem.Click += setApprovedStatusToolStripMenuItem_Click;
             // 
@@ -122,6 +123,20 @@
             setRemarksModeToolStripMenuItem.Size = new Size(237, 22);
             setRemarksModeToolStripMenuItem.Text = "Показать комментарии";
             setRemarksModeToolStripMenuItem.Click += setRemarksModeToolStripMenuItem_Click;
+            // 
+            // SetMachineCollumnModeToolStripMenuItem
+            // 
+            SetMachineCollumnModeToolStripMenuItem.Name = "SetMachineCollumnModeToolStripMenuItem";
+            SetMachineCollumnModeToolStripMenuItem.Size = new Size(237, 22);
+            SetMachineCollumnModeToolStripMenuItem.Text = "Скрыть столбцы механизмов";
+            SetMachineCollumnModeToolStripMenuItem.Click += SetMachineCollumnModeToolStripMenuItem_Click;
+            // 
+            // printBlockSchemeToolStripMenuItem
+            // 
+            printBlockSchemeToolStripMenuItem.Name = "printBlockSchemeToolStripMenuItem";
+            printBlockSchemeToolStripMenuItem.Size = new Size(237, 22);
+            printBlockSchemeToolStripMenuItem.Text = "Печать блок схемы";
+            printBlockSchemeToolStripMenuItem.Click += printDiagramToolStripMenuItem_Click;
             // 
             // toolStripExecutionScheme
             // 
@@ -252,13 +267,6 @@
             pnlDataViewer.Size = new Size(987, 315);
             pnlDataViewer.TabIndex = 35;
             // 
-            // SetMachineCollumnModeToolStripMenuItem
-            // 
-            SetMachineCollumnModeToolStripMenuItem.Name = "SetMachineCollumnModeToolStripMenuItem";
-            SetMachineCollumnModeToolStripMenuItem.Size = new Size(237, 22);
-            SetMachineCollumnModeToolStripMenuItem.Text = "Скрыть столбцы механизмов";
-            SetMachineCollumnModeToolStripMenuItem.Click += SetMachineCollumnModeToolStripMenuItem_Click;
-            // 
             // Win6_new
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -305,5 +313,6 @@
         private ToolStripButton toolStripExecutionScheme;
         private ToolStripButton toolStripDiagrams;
         private ToolStripMenuItem SetMachineCollumnModeToolStripMenuItem;
+        private ToolStripMenuItem printBlockSchemeToolStripMenuItem;
     }
 }

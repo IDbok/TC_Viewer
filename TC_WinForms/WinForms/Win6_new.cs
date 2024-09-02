@@ -16,8 +16,8 @@ namespace TC_WinForms.WinForms
     {
         private TcViewState tcViewState;
 
-        private static bool _isViewMode = true;
-        private static bool _isCommentViewMode = false;
+        //private static bool _isViewMode = true;
+        //private static bool _isCommentViewMode = false;
         private static bool _isMachineCollumnViewMode = true;
 
 
@@ -26,30 +26,30 @@ namespace TC_WinForms.WinForms
 
         //public static bool IsViewMode => _isViewMode;
 
-        public static bool IsViewMode
-        {
-            get => _isViewMode;
-            set
-            {
-                if (_isViewMode != value)
-                {
-                    _isViewMode = value;
-                    OnViewModeChanged();
-                }
-            }
-        }
-        public static bool IsCommentViewMode
-        {
-            get => _isCommentViewMode;
-            set
-            {
-                if (_isCommentViewMode != value)
-                {
-                    _isCommentViewMode = value;
-                    OnCommentViewModeChanged();
-                }
-            }
-        }
+        //public static bool IsViewMode
+        //{
+        //    get => _isViewMode;
+        //    set
+        //    {
+        //        if (_isViewMode != value)
+        //        {
+        //            _isViewMode = value;
+        //            OnViewModeChanged();
+        //        }
+        //    }
+        //}
+        //public static bool IsCommentViewMode
+        //{
+        //    get => _isCommentViewMode;
+        //    set
+        //    {
+        //        if (_isCommentViewMode != value)
+        //        {
+        //            _isCommentViewMode = value;
+        //            OnCommentViewModeChanged();
+        //        }
+        //    }
+        //}
 
         public static bool isMachineViewMode
         {
@@ -97,7 +97,7 @@ namespace TC_WinForms.WinForms
 
             _tcId = tcId;
             _accessLevel = role;
-            _isViewMode = viewMode;
+            //_isViewMode = viewMode;
 
             InitializeComponent();
 
@@ -144,7 +144,7 @@ namespace TC_WinForms.WinForms
         private void SetOnlyViewModeRoleAccess()
         {
             updateToolStripMenuItem.Visible = false;
-            if (!_isViewMode)
+            if (!tcViewState.IsViewMode)
             {
                 MessageBox.Show("Доступен только режим просмотра!");
                 SetViewMode(true);
@@ -164,6 +164,8 @@ namespace TC_WinForms.WinForms
                     actionToolStripMenuItem.Visible = false;
                     setRemarksModeToolStripMenuItem.Visible = false;
                     updateToolStripMenuItem.Visible = false;
+
+                    tcViewState.IsViewMode = true;
                     // SaveChangesToolStripMenuItem.Enabled = false;
                 },
 
@@ -248,13 +250,13 @@ namespace TC_WinForms.WinForms
 
         private async void Win6_new_FormClosing(object sender, FormClosingEventArgs e)
         {
+            
             // проверка на наличие изменений во всех формах
             if (!CheckForChanges()) // если false, то отменяем переключение
             {
                 e.Cancel = true;
                 return;
             }
-
             //close all inner forms
             foreach (var form in _formsCache.Values)
             {
@@ -264,10 +266,7 @@ namespace TC_WinForms.WinForms
                     form.Close();
                 }
             }
-            //foreach (Form frm in pnlDataViewer.Controls) // todo - move to WinProcessing and run it asynch
-            //{
-            //    frm.Close();
-            //}
+
             this.Dispose();
 
         }
@@ -319,6 +318,12 @@ namespace TC_WinForms.WinForms
 
         private bool CheckForChanges()
         {
+            if (_accessLevel != User.Role.Lead || _accessLevel != User.Role.Implementer)
+            // todo: заменить этот "костыль" на невозможность внесения изменений другими ролями
+            {
+                return true;
+            }
+
             // проверка на наличие изменений во всех формах
             bool hasUnsavedChanges = false;
 
@@ -479,6 +484,14 @@ namespace TC_WinForms.WinForms
             var tcExporter = new ExExportTC();
 
             await tcExporter.SaveTCtoExcelFile(_tc.Article, _tc.Id);
+        }
+
+        private async void printDiagramToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            var diagramExporter = new DiadramExcelExport();
+
+            await diagramExporter.SaveDiagramToExelFile(_tc.Article, _tc.Id);
         }
 
         private void SaveChangesToolStripMenuItem_Click(object sender, EventArgs e) => SaveAllChanges();
