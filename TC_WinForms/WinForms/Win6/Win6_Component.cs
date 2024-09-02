@@ -55,7 +55,7 @@ namespace TC_WinForms.WinForms
             dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
             dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
         }
-        
+
         public void SetViewMode(bool? isViewMode = null)
         {
             //if (isViewMode != null)
@@ -222,7 +222,7 @@ namespace TC_WinForms.WinForms
         {
 
             if (!HasChanges)
-            { 
+            {
                 return;
             }
             if (_newObjects.Count > 0)
@@ -305,7 +305,7 @@ namespace TC_WinForms.WinForms
 
         private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) // todo - fix problem with selection replacing row (error while remove it)
         {
-             ReorderRows(dgvMain, e, _bindingList);
+            ReorderRows(dgvMain, e, _bindingList);
         }
 
         private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
@@ -479,7 +479,57 @@ namespace TC_WinForms.WinForms
             }
 
         }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            // Выделение объекта выбранной строки
+            if (dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return;
+            }
+
+            var selectedRow = dgvMain.SelectedRows[0];
+            var displayedComponent = selectedRow.DataBoundItem as DisplayedComponent_TC;
+
+            if (displayedComponent != null) 
+            {
+                // load new form Win7_3_Component as dictonary
+                var newForm = new Win7_4_Component(activateNewItemCreate: true, createdTCId: _tcId, isUpdateMode: true);
+
+                newForm.WindowState = FormWindowState.Maximized;
+                newForm.ShowDialog();
+
+                // update object
+                var updatedComponent = newForm.GetUpdatedComponent();
+            }
+        }
+
+        public bool UpdateSelectedObject(Component updatedComponent)
+        {
+            if (dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return false;
+            }
+
+            var selectedRow = dgvMain.SelectedRows[0];
+            var displayedComponent = selectedRow.DataBoundItem as DisplayedComponent_TC;
+
+            if (displayedComponent != null)
+            {
+                displayedComponent.Name = updatedComponent.Name;
+                displayedComponent.Type = updatedComponent.Type;
+                displayedComponent.Unit = updatedComponent.Unit;
+                displayedComponent.Price = updatedComponent.Price ?? 0;
+                displayedComponent.Description = updatedComponent.Description;
+
+                return true;
+            }
+
+            return false;
+        }
     }
-    
+
 
 }

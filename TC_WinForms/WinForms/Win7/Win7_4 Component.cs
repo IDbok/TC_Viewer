@@ -51,8 +51,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         InitializeTip();
     }
 
-
-    public Win7_4_Component(bool activateNewItemCreate = false, int? createdTCId = null)
+    public Win7_4_Component(bool activateNewItemCreate = false, int? createdTCId = null, bool isUpdateMode = false)
     {
         _accessLevel = AuthorizationService.CurrentUser.UserRole();
 
@@ -118,7 +117,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     }
     public async Task LoadDataAsync()
     {
-        var displayedObj = await Task.Run(() => dbCon.GetObjectList<Component>(includeLinks: true)
+        var displayedObj = await Task.Run(() => DataService.GetComponents() //dbCon.GetObjectList<Component>(includeLinks: true)
             .Select(obj => new DisplayedComponent(obj)).ToList());
 
         foreach(var obj in displayedObj)
@@ -178,6 +177,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
     void SetDGVColumnsSettings()
     {
+        if (_isAddingForm) { return; }
 
         // автоподбор ширины столбцов под ширину таблицы
         dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -308,6 +308,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
             MessageBox.Show("Выберите строки для добавления");
             return;
         }
+
         // find opened form
         var tcEditor = Application.OpenForms.OfType<Win6_Component>().FirstOrDefault();
         var newItems = new List<Component>();
