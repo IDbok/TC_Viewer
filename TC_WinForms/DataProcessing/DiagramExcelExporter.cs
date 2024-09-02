@@ -451,31 +451,41 @@ namespace TC_WinForms.DataProcessing
             var bytepath = Convert.FromBase64String(shag.ImageBase64);
             Image bitmapImage = LoadImage(bytepath);
 
-            var memoryStream = new MemoryStream();
-            bitmapImage.Save(memoryStream, ImageFormat.Png);
-
-            ExcelPicture excelImage = null;
-            excelImage = sheet.Drawings.AddPicture(shag.NameImage + headRow, memoryStream);
-            excelImage.SetSize(100);
-
-            int printScaleDifference = Modulo(- headRow, _currentPrintHeigth);
-            var currentRow = (int)Math.Ceiling(excelImage.Image.Bounds.Height / rowHeightPixels) + 2;//Высота изображения с учетом вставки наименований в строках
-
-            if (printScaleDifference < currentRow)
+            //var memoryStream = new MemoryStream();
+            using(MemoryStream ms = new MemoryStream())
             {
-                headRow += printScaleDifference;
-                headRow = AddTONameToExcel(diagramTo_name, sheet, headRow, currentColumn);
-                headRow = AddShagName(shag, sheet, headRow, currentColumn) - 1;
+                if (bitmapImage.Width > 600 || bitmapImage.Height > 500)
+                {
+                    Bitmap resized = new Bitmap(bitmapImage, new Size((int)(bitmapImage.Width / 1.5d), (int)(bitmapImage.Height / 1.5d)));
+                    resized.Save(ms, ImageFormat.Png);
+                }
+                else
+                    bitmapImage.Save(ms, ImageFormat.Png);
+
+                ExcelPicture excelImage = null;
+                excelImage = sheet.Drawings.AddPicture(shag.NameImage + headRow, ms);
+                excelImage.SetSize(100);
+
+                int printScaleDifference = Modulo(-headRow, _currentPrintHeigth);
+                var currentRow = (int)Math.Ceiling(excelImage.Image.Bounds.Height / rowHeightPixels) + 2;//Высота изображения с учетом вставки наименований в строках
+
+                if (printScaleDifference < currentRow)
+                {
+                    headRow += printScaleDifference;
+                    headRow = AddTONameToExcel(diagramTo_name, sheet, headRow, currentColumn);
+                    headRow = AddShagName(shag, sheet, headRow, currentColumn) - 1;
+                }
+                currentRow = (int)Math.Ceiling(excelImage.Image.Bounds.Height / rowHeightPixels) + headRow + 2;//Текущая строка с учетом высоты изображения
+
+                excelImage.From.Column = columnNums[0] - 1;
+                excelImage.From.Row = headRow;
+                excelImage.From.ColumnOff = columnNums[1];
+
+                AddImageNameNum(shag, sheet, currentRow, currentColumn);
+
+                return currentRow + 2;
+
             }
-            currentRow = (int)Math.Ceiling(excelImage.Image.Bounds.Height / rowHeightPixels) + headRow + 2;//Текущая строка с учетом высоты изображения
-
-            excelImage.From.Column = columnNums[0];
-            excelImage.From.Row = headRow;
-            excelImage.From.ColumnOff = columnNums[1];
-
-            AddImageNameNum(shag, sheet, currentRow, currentColumn);
-
-            return currentRow + 2;
         }
 
         #endregion
@@ -529,7 +539,7 @@ namespace TC_WinForms.DataProcessing
         private int AddImageNameNum(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn)
         {
             int[] columnNumsNumb = { currentColumn, currentColumn + 3 };
-            int[] columnNumsName = { currentColumn + 4, currentColumn + 8 };
+            int[] columnNumsName = { currentColumn + 3, currentColumn + 8 };
 
             sheet.Cells[headRow, columnNumsNumb[0]].Value = "Рисунок " + shag.Nomer;
             sheet.Cells[headRow, columnNumsName[0]].Value = shag.NameImage;
