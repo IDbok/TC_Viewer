@@ -23,7 +23,7 @@ namespace TC_WinForms.DataProcessing
                     saveFileDialog.FilterIndex = 1;
                     saveFileDialog.RestoreDirectory = true;
 
-                    saveFileDialog.FileName = dgmArticle;
+                    saveFileDialog.FileName = dgmArticle+"_БС";
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
