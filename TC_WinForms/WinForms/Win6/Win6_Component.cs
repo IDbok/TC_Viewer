@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
@@ -261,6 +262,7 @@ namespace TC_WinForms.WinForms
         {
             var deletedObjects = _deletedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
             await dbCon.DeleteIntermediateObjectAsync(deletedObjects);
+
             _deletedObjects.Clear();
         }
 
@@ -499,9 +501,6 @@ namespace TC_WinForms.WinForms
 
                 newForm.WindowState = FormWindowState.Maximized;
                 newForm.ShowDialog();
-
-                // update object
-                var updatedComponent = newForm.GetUpdatedComponent();
             }
         }
 
@@ -518,11 +517,26 @@ namespace TC_WinForms.WinForms
 
             if (displayedComponent != null)
             {
-                displayedComponent.Name = updatedComponent.Name;
-                displayedComponent.Type = updatedComponent.Type;
-                displayedComponent.Unit = updatedComponent.Unit;
-                displayedComponent.Price = updatedComponent.Price ?? 0;
-                displayedComponent.Description = updatedComponent.Description;
+
+                if (displayedComponent.ChildId == updatedComponent.Id)
+                {
+                    MessageBox.Show("Ошибка обновления объекта: ID объекта совпадает");
+                    return false;
+                }
+
+                var newItem = CreateNewObject(updatedComponent, displayedComponent.Order);
+                newItem.Quantity = displayedComponent.Quantity ?? 0;
+                newItem.Note = displayedComponent.Note;
+
+                var newDisplayedComponent = new DisplayedComponent_TC(newItem);
+
+
+                // замена displayedComponent в dgvMain на newDisplayedComponent
+                var index = _bindingList.IndexOf(displayedComponent);
+                _bindingList[index] = newDisplayedComponent;
+
+                _newObjects.Add(newDisplayedComponent);
+                _deletedObjects.Add(displayedComponent);
 
                 return true;
             }

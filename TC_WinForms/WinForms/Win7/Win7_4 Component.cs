@@ -27,6 +27,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     private BindingList<DisplayedComponent> _bindingList;
 
     private readonly bool _isAddingForm = false;
+    private readonly bool _isUpdateItemMode = false;
     private Button btnAddSelected;
     private Button btnCancel;
 
@@ -58,6 +59,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         _isAddingForm = true;
         _tcId = createdTCId;
         _newItemCreateActive = activateNewItemCreate;
+        _isUpdateItemMode = isUpdateMode;
 
         InitializeComponent();
 
@@ -108,6 +110,11 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
                 btnAddNewObj.Text = "Создать новый объект";
             }
             //////////////////////////////////////////////////////////////////////////////////////////
+            if(_isUpdateItemMode)
+            {
+                btnAddSelected.Text = "Обновить";
+            }
+
             SetAddingFormEvents();
         }
 
@@ -214,26 +221,6 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
         dgvMain.Columns[nameof(DisplayedComponent.LinkNames)].Width = 100;
         dgvMain.Columns[nameof(DisplayedComponent.LinkNames)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-
-        //// Добавление столбца изображений
-        //var imageColumn = new DataGridViewImageColumn
-        //{
-        //    Name = nameof(DisplayedComponent.Image),
-        //    HeaderText = "Image",
-        //    DataPropertyName = nameof(DisplayedComponent.Image),
-        //    ImageLayout = DataGridViewImageCellLayout.Zoom,
-        //};
-        //imageColumn.Width = 50;
-        //// imageColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-
-        //dgvMain.Columns.Add(imageColumn);
-        //dgvMain.Columns[nameof(DisplayedComponent.Image)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-        //dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.
-
-        //foreach (DataGridViewRow row in dgvMain.Rows)
-        //{
-        //    row.Height = 100;
-        //}
     }
     private void dgvMain_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
     {
@@ -290,16 +277,43 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
     void BtnAddSelected_Click(object sender, EventArgs e)
     {
-        //// get selected rows
-        //var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
-        //if (selectedRows.Count == 0)
-        //{
-        //    MessageBox.Show("Выберите строки для добавления");
-        //    return;
-        //}
-        //// get selected objects
-        //var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedComponent).ToList();
+        if (_isUpdateItemMode) 
+        {
+            UpdateItem();
+        }
+        else
+        {
+            AddSelectedItems();
+        }
+        
+    }
+    void BtnCancel_Click(object sender, EventArgs e)
+    {
+        // close form
+        this.Close();
+    }
 
+    void UpdateItem()
+    {
+        var selectedObjs = _selectionService.GetSelectedObjects();
+
+        if(selectedObjs.Count != 1)
+        {
+            MessageBox.Show("Выберите одну строку для обновления");
+            return;
+        }
+
+        // find opened form
+        var tcEditor = Application.OpenForms.OfType<Win6_Component>().FirstOrDefault();
+        
+        tcEditor.UpdateSelectedObject(CreateNewObject(selectedObjs[0]));
+
+        // close form
+        this.Close();
+    }
+
+    void AddSelectedItems()
+    {
         // выделить объекты с id из _selectedIds из списка _displayedObjects
         var selectedObjs = _selectionService.GetSelectedObjects();//_displayedObjects.Where(obj => _selectedIds.Contains(obj.Id)).ToList();
 
@@ -322,14 +336,6 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         // close form
         this.Close();
     }
-    void BtnCancel_Click(object sender, EventArgs e)
-    {
-        // close form
-        this.Close();
-    }
-
-
-
 
     private class DisplayedComponent : INotifyPropertyChanged, IDisplayedEntity, IModelStructure, ICategoryable
     {

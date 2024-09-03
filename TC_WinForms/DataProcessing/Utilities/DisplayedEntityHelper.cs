@@ -54,25 +54,7 @@ namespace TC_WinForms.DataProcessing.Utilities
             }
         }
 
-        public static void AddNewObjectToDGV<T>(
-            ref T newObject,
-            BindingList<T> bindingList,
-            List<T> newObjectsList,
-            DataGridView dgv) where T : class, IDisplayedEntity, new()
-        {
-            if (newObject != null && !IsValidNewCard(newObject))
-            {
-                MessageBox.Show("Необходимо заполнить все обязательные поля для уже созданного объекта.");
-                return;
-            }
-
-            newObject = new T(); 
-            newObjectsList.Add(newObject); 
-            bindingList.Insert(0, newObject); 
-           
-            dgv.Refresh();
-            // TODO: - ? highlight new row and all its required fields
-        }
+       
 
         public static void DeleteSelectedObject<T>(
             DataGridView dgvMain,
@@ -107,6 +89,31 @@ namespace TC_WinForms.DataProcessing.Utilities
                 dgvMain.Refresh(); // TODO: reordering rows
             }
         }
+        public static void UpdateSelectedObject<T>(
+            DataGridView dgvMain,
+            BindingList<T> bindingList,
+            List<T> newObjects,
+            List<T> deletedObjects,
+            T newItem, T oldItem) where T : class, IDisplayedEntity, new()
+        {
+            if (dgvMain.SelectedRows.Count > 0)
+            {
+                
+
+                bindingList.Remove(oldItem);
+                deletedObjects.Add(oldItem);
+
+                if (newObjects.Contains(oldItem)) // if new card was deleted, remove it from new cards list
+                {
+                    newObjects.Remove(oldItem);
+                }
+
+
+
+                dgvMain.Refresh(); // TODO: reordering rows
+            }
+        }
+
         public static async Task DeleteSelectedObject<TDisp, TObj>(
             DataGridView dgvMain,
             BindingList<TDisp> bindingList,
