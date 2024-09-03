@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
@@ -26,6 +27,8 @@ namespace TC_WinForms.WinForms
         private List<DisplayedComponent_TC> _changedObjects = new List<DisplayedComponent_TC>();
         private List<DisplayedComponent_TC> _newObjects = new List<DisplayedComponent_TC>();
         private List<DisplayedComponent_TC> _deletedObjects = new List<DisplayedComponent_TC>();
+
+        private Dictionary<DisplayedComponent_TC, DisplayedComponent_TC> _replacedObjects = new Dictionary<DisplayedComponent_TC, DisplayedComponent_TC>();
 
 
         public bool CloseFormsNoSave { get; set; } = false;
@@ -238,6 +241,10 @@ namespace TC_WinForms.WinForms
             {
                 await DeleteDeletedObjects();
             }
+            if(_replacedObjects.Count > 0)
+            {
+                await SaveReplacedObjects();
+            }
 
             dgvMain.Refresh();
         }
@@ -254,6 +261,15 @@ namespace TC_WinForms.WinForms
             var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
 
             await dbCon.UpdateIntermediateObjectAsync(changedTcs);
+
+            _changedObjects.Clear();
+        }
+        private async Task SaveReplacedObjects()
+        {
+            var oldObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();
+            var newObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Value)).ToList();
+
+            await dbCon.ReplaceIntermediateObjectAsync(oldObject, newObject);
 
             _changedObjects.Clear();
         }
@@ -535,8 +551,15 @@ namespace TC_WinForms.WinForms
                 var index = _bindingList.IndexOf(displayedComponent);
                 _bindingList[index] = newDisplayedComponent;
 
-                _newObjects.Add(newDisplayedComponent);
-                _deletedObjects.Add(displayedComponent);
+                // проверяем наличие объекта в списке измененных объектов в значениях replacedObjects
+                if (_replacedObjects.ContainsKey(displayedComponent))
+                {
+                    _replacedObjects[displayedComponent] = newDisplayedComponent;
+                }
+                else
+                {
+                    _replacedObjects.Add(displayedComponent, newDisplayedComponent);
+                }
 
                 return true;
             }

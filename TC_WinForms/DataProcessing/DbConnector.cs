@@ -395,69 +395,90 @@ namespace TC_WinForms.DataProcessing
             }
         }
 
-        public async Task ReplaceIntermediateObjectAsync<T>(List<T> obj_TCs) where T : class, IIntermediateTableIds
+        public async Task ReplaceIntermediateObjectAsync<T>(List<T> old_TCs, List<T> new_TCs) where T : class, IIntermediateTableIds
         {
-            using (var db = new MyDbContext())
+            try
             {
-                var tcId = obj_TCs[0].ParentId;
-
-                var obj_TCsIds = obj_TCs.Select(t => t.ChildId).ToList();
-
-                var existingIds = await db.Set<T>()
-                    .Where(o => o.ParentId == tcId)
-                    .Select(t => t.ChildId)
-                    .ToListAsync();
-
-                var obj_TCsToDelete = obj_TCs.Where(t => existingIds
-                    .Any(eIds => eIds == t.ChildId))
-                    .ToList();
-
-                if (obj_TCsToDelete.Any())
+                using (var db = new MyDbContext())
                 {
-                    // удаляем объекты из связанных данных ComponentWork, ToolWork
-                    if (typeof(T) == typeof(Component_TC))
-                    {
-                        var cwToDelete = await db.Set<ComponentWork>()
-                                .Include(cw => cw.techOperationWork)
-                                .Where(cw => obj_TCsIds.Contains(cw.componentId)
-                                && cw.techOperationWork.TechnologicalCardId == tcId)
-                            .ToListAsync();
+                    var tcId = old_TCs[0].ParentId;
 
-                        var idsToDelete = cwToDelete.Select(cw => cw.Id).ToList();
-                        if (cwToDelete.Any())
+                    var obj_TCsIds = old_TCs.Select(t => t.ChildId).ToList();
+
+                    var obj_TCsToReplace = await db.Set<T>()
+                        .Where(o => o.ParentId == tcId 
+                            && obj_TCsIds.Contains(o.ChildId))
+                        .ToListAsync();
+
+                    //var existingIds = existingObj_TCs
+                    //    .Select(t => t.ChildId)
+                    //    .ToList();
+
+                    //var obj_TCsToReplace = old_TCs.Where(t => existingIds
+                    //    .Any(eIds => eIds == t.ChildId))
+                    //    .ToList();
+                    
+
+                    if (obj_TCsToReplace.Any())
+                    {
+                        List<ComponentWork> cwToReplace = new List<ComponentWork>();
+                        List<ToolWork> twToReplace = new List<ToolWork>();
+                        // удаляем объекты из связанных данных ComponentWork, ToolWork
+                        if (typeof(T) == typeof(Component_TC))
                         {
-                            db.Set<ComponentWork>().RemoveRange(cwToDelete);
+                            cwToReplace = await db.Set<ComponentWork>()
+                                    .Include(cw => cw.techOperationWork)
+                                    .Where(cw => obj_TCsIds.Contains(cw.componentId)
+                                    && cw.techOperationWork.TechnologicalCardId == tcId)
+                                .ToListAsync();
                         }
-                    }
-                    else if (typeof(T) == typeof(Tool_TC))
-                    {
-                        var twToDelete = await db.Set<ToolWork>()
-                            .Include(tw => tw.techOperationWork)
-                            .Where(tw => obj_TCsIds.Contains(tw.toolId)
-                            && tw.techOperationWork.TechnologicalCardId == tcId)
-                            .ToListAsync();
-
-                        var idsToDelete = twToDelete.Select(cw => cw.Id).ToList();
-
-                        if (twToDelete.Any())
+                        else if (typeof(T) == typeof(Tool_TC))
                         {
-                            db.Set<ToolWork>().RemoveRange(twToDelete);
+                            twToReplace = await db.Set<ToolWork>()
+                                .Include(tw => tw.techOperationWork)
+                                .Where(tw => obj_TCsIds.Contains(tw.toolId)
+                                && tw.techOperationWork.TechnologicalCardId == tcId)
+                                .ToListAsync();
                         }
-                    }
 
-                    db.Set<T>().RemoveRange(obj_TCsToDelete);
+                        for (int i = 0; i < old_TCs.Count; i++)
+                        {
+                            var oldId = old_TCs[i].ChildId;
+                            var newId = new_TCs[i].ChildId;
 
-                    try
-                    {
-                        await db.SaveChangesAsync();
-                    }
 
-                    catch (Exception e)
-                    {
-                        MessageBox.Show("Ошибка при сохранении данных. Изменения не сохранены.\n \n" + e.Message);
+                            db.Set<T>().RemoveRange(obj_TCsToReplace);
+
+                            db.Set<T>().AddRange(new_TCs);
+
+                            if (cwToReplace.Any())
+                            {
+                                cwToReplace.Where(cw => cw.componentId == oldId).ToList().ForEach(cw => cw.componentId = newId);
+                            }
+                            else if (twToReplace.Any())
+                            {
+                                twToReplace.Where(tw => tw.toolId == oldId).ToList().ForEach(tw => tw.toolId = newId);
+                            }
+
+                        }
+
+                        try
+                        {
+                            await db.SaveChangesAsync();
+                        }
+
+                        catch (Exception e)
+                        {
+                            MessageBox.Show("Ошибка при отправке запроса на сохранение данных.\n \n" + e.Message);
+                        }
                     }
                 }
             }
+            catch (Exception e)
+            {
+                MessageBox.Show("Ошибка при сохранении данных\n\n" + e.Message);
+            }
+            
         }
         public async Task DeleteIntermediateObjectAsync(List<Staff_TC> staffTCs)
         {

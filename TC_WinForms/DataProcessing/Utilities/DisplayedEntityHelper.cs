@@ -355,25 +355,5 @@ namespace TC_WinForms.DataProcessing.Utilities
             }
         }
 
-        //private static void OrderChangedEventHandler<T>(ListChangedEventArgs e, BindingList<T> bindingList, List<T> changedObjects) where T : class, IDisplayedEntity, IOrderable new()
-        //{
-        //    if (e.ListChangedType == ListChangedType.ItemChanged)
-        //    {
-        //        var changedItem = bindingList[e.NewIndex];
-
-        //        // check if changed Order property and get old value
-        //        if (e.PropertyDescriptor != null && e.PropertyDescriptor.Name == nameof(IOrderable.Order))
-        //        {
-        //            if (orderValue == e.RowIndex + 1) { return; }
-        //            MoveRowAndUpdateOrder(_bindingList, e.RowIndex, orderValue - 1);
-
-        //        }
-        //        if (!changedObjects.Contains(changedItem))
-        //        {
-        //            changedObjects.Add(changedItem);
-        //        }
-        //    }
-        //}
-
     }
 }
