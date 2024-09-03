@@ -4,7 +4,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Protection : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable//4. Требования к средствам защиты
+    public class Protection : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable, IReleasable//4. Требования к средствам защиты
     {
 
         public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>

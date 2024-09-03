@@ -4,7 +4,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class TechTransition: IIdentifiable, IUpdatableEntity
+    public class TechTransition: IIdentifiable, IUpdatableEntity, IReleasable
     {
         public int Id { get; set; }
         public string Name { get; set; }

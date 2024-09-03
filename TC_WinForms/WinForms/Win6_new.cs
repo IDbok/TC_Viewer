@@ -21,7 +21,6 @@ namespace TC_WinForms.WinForms
 
         private static bool _isViewMode = true;
         private static bool _isCommentViewMode = false;
-        private static bool _canTCStatusChange = true;
 
         public static bool IsViewMode
         {
@@ -47,18 +46,6 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
-        public static bool canTCStatusChange
-        {
-            get => _canTCStatusChange;
-            set
-            {
-                if (_canTCStatusChange != value)
-                {
-                    _canTCStatusChange = value;
-                    OnTCStatusModedChanged();
-                }
-            }
-        }
 
         public static event Action? CommentViewModeChanged;
         public static event Action? ViewModeChanged;
@@ -71,10 +58,6 @@ namespace TC_WinForms.WinForms
         private static void OnViewModeChanged()
         {
             ViewModeChanged?.Invoke();
-        }
-        private static void OnTCStatusModedChanged()
-        {
-            TCStatusModedChanged?.Invoke();
         }
 
         private User.Role _accessLevel;
@@ -510,11 +493,17 @@ namespace TC_WinForms.WinForms
         {
             if (!CheckChangesForTcDraftStatusChanging()) { return; }
 
-            canTCDraftStatusChange();
+            List <(string Type,string Name)> unpublishedElements = CanTCDraftStatusChange();
 
-            if (!_canTCStatusChange)
+            if (unpublishedElements.Count > 0)
             {
-                MessageBox.Show("Карта не может быть выпущена, если используются неопубликолванные элементы.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string elements = "";
+                foreach (var element in unpublishedElements) 
+                {
+                    elements += "Тип: " + element.Type + ". Название: " + element.Name + ".\n";
+                }
+
+                MessageBox.Show("Карта не может быть выпущена, если используются неопубликолванные элементы. \n" + elements, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Draft);
@@ -522,26 +511,72 @@ namespace TC_WinForms.WinForms
             MessageBox.Show("Техническая карта выпущена");
         }
 
-        private void canTCDraftStatusChange()
+        private string GetUnpublishedElementList(string typeName)
         {
-            
-            var unpublishedStaff = db.GetUnpublishedObjectList<Staff_TC, Staff>(_tcId).ToList();
-            var unpublishedComponent = db.GetUnpublishedObjectList<Component_TC, Component>(_tcId).ToList();
-            var unpublichedTool = db.GetUnpublishedObjectList<Tool_TC, Tool>(_tcId).ToList();
-            var unpublichedProtection = db.GetUnpublishedObjectList<Protection_TC, Protection>(_tcId).ToList();
-            var unpublichedMachine = db.GetUnpublishedObjectList<Machine_TC, Machine>(_tcId).ToList();
-
-            if (unpublishedStaff.Count != 0 || unpublishedComponent.Count != 0
-                || unpublichedTool.Count != 0 || unpublichedProtection.Count != 0 
-                || unpublichedMachine.Count != 0) 
+            switch(typeName)
             {
-                _canTCStatusChange = false;
-                return;
+                case "Staff":
+                    return "Персонал";
+                case "Tool":
+                    return "Инструменты";
+                case "Component":
+                    return "Материал/Комплектующее";
+                case "Protection":
+                    return "Средства защиты";
+                case "Machine":
+                    return "Механизмы";
+                case "TechOperation":
+                    return "Технологическая операция";
+                case "TechTransition":
+                    return "Технологический переход";
+                default:
+                    return "Неопознанный тип";
             }
-            _canTCStatusChange = true;
         }
 
-        private async void setApprovedStatusToolStripMenuItem_Click(object sender, EventArgs e)
+        private List<(string, string)> CanTCDraftStatusChange()
+        {
+            List<(string, string)> nameOfUmpablishedElements = new List<(string, string)>();
+
+            var unpublishedStaff = db.GetUnpublishedObjectList<Staff_TC, Staff>(_tcId).ToList();
+            if (unpublishedStaff.Count > 0)
+                foreach (var staff in unpublishedStaff)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(staff.GetType().Name), staff.Name));
+
+            var unpublishedComponent = db.GetUnpublishedObjectList<Component_TC, Component>(_tcId).ToList();
+            if (unpublishedComponent.Count > 0)
+                foreach (var component in unpublishedComponent)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(component.GetType().Name), component.Name));
+
+            var unpublichedTool = db.GetUnpublishedObjectList<Tool_TC, Tool>(_tcId).ToList();
+            if (unpublichedTool.Count > 0)
+                foreach (var tool in unpublichedTool)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(tool.GetType().Name), tool.Name));
+
+            var unpublichedProtection = db.GetUnpublishedObjectList<Protection_TC, Protection>(_tcId).ToList();
+            if (unpublichedProtection.Count > 0)
+                foreach (var protection in unpublichedProtection)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(protection.GetType().Name), protection.Name));
+
+            var unpublichedMachine = db.GetUnpublishedObjectList<Machine_TC, Machine>(_tcId).ToList();
+            if (unpublichedMachine.Count > 0)
+                foreach (var machine in unpublichedMachine)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(machine.GetType().Name), machine.Name));
+
+            var unpublichedTo = db.GetUnpublishedToOrTt<TechOperation>(_tcId).ToList();
+            if (unpublichedTo.Count > 0)
+                foreach (var techOperation in unpublichedTo)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(techOperation.GetType().Name), techOperation.Name));
+
+            var unpublichedTP = db.GetUnpublishedToOrTt<TechTransition>(_tcId).ToList();
+            if (unpublichedTP.Count > 0)
+                foreach (var techTransition in unpublichedTP)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(techTransition.GetType().Name), techTransition.Name));
+
+            return nameOfUmpablishedElements;
+        }
+
+        private async void SetApprovedStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Approved);
             setApprovedStatusToolStripMenuItem.Enabled = false;

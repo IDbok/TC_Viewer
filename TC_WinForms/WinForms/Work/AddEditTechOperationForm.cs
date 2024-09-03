@@ -192,8 +192,8 @@ namespace TC_WinForms.WinForms.Work
         }
         private IEnumerable<TechOperation> FilterTechOperations(string searchText)
         {
-            return allTO.Where(to => (string.IsNullOrEmpty(searchText) || to.Name.ToLower().Contains(searchText.ToLower()))
-                && (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId));
+            return allTO.Where(to => (string.IsNullOrEmpty(searchText) || to.Name.ToLower().Contains(searchText.ToLower())));
+                /*&& (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId || to.IsReleased == false))*/ //закомментирована фильтрация то, выводятся все ТО
         }
         private void AddTechOperationToGridAllTO(TechOperation techOperation)
         {
@@ -205,6 +205,8 @@ namespace TC_WinForms.WinForms.Work
                 techOperation.Category == "Типовая ТО"
             };
             dataGridViewAllTO.Rows.Add(row.ToArray());
+            if (!techOperation.IsReleased)
+                dataGridViewAllTO.Rows[dataGridViewAllTO.RowCount - 1].DefaultCellStyle.BackColor = Color.LightGray;
         }
 
         public void UpdateLocalTO()
@@ -475,7 +477,8 @@ namespace TC_WinForms.WinForms.Work
                 && ((comboBoxTPCategoriya.SelectedIndex == 0 || string.IsNullOrEmpty((string)comboBoxTPCategoriya.SelectedItem))
                     ||
                     to.Category == (string)comboBoxTPCategoriya.SelectedItem)
-                && (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId)
+                && (to.Name != "Повторить")//заглушка для копий Повторить в технологических переходах
+                /*&& (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId || to.IsReleased == false )*/  //закомментирована фильтрация тп, выводятся все ТП
                 )
             ;
         }
@@ -562,6 +565,8 @@ namespace TC_WinForms.WinForms.Work
                 };
 
                 dataGridViewTPAll.Rows.Add(listItem.ToArray());
+                if (!techTransition.IsReleased)
+                    dataGridViewTPAll.Rows[dataGridViewTPAll.RowCount - 1].DefaultCellStyle.BackColor = Color.LightGray;
             }
 
             try
