@@ -18,7 +18,7 @@ namespace TC_WinForms.WinForms.Work
         public TechOperationForm TechOperationForm { get; }
         private List<TechOperation> allTO;
         private List<TechTransition> allTP;
-        //private List<Staff_TC> AllStaff;
+        private List<Staff> AllStaff;
         private List<ExecutionWork> listExecutionWork;
 
         private TechOperationWork SelectedTO => (TechOperationWork)comboBoxTO.SelectedItem;
@@ -91,6 +91,7 @@ namespace TC_WinForms.WinForms.Work
             textBoxPoiskTP.TextChanged += TextBoxPoiskTP_TextChanged;
             textBoxPoiskSZ.TextChanged += TextBoxPoiskSZ_TextChanged;
             textBoxPoiskMach.TextChanged += TextBoxPoiskMach_TextChanged;
+            PoiskPersonal.TextChanged += TextBoxPersonalPoisk_TextChanged;
 
             comboBoxTPCategoriya.SelectedIndexChanged += ComboBoxTPCategoriya_SelectedIndexChanged;
 
@@ -352,11 +353,15 @@ namespace TC_WinForms.WinForms.Work
                 //var tech = allTP.Single(s => s.Id == Idd);
                 //TechOperationForm.AddTechTransition(tech, work);
 
+                // запрос на подтверждение удаления
+                var result = MessageBox.Show("Вы уверены, что хотите удалить ТП?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
 
-
-                TechOperationForm.DeleteTechTransit(IddGuid, work);
-                UpdateGridLocalTP();
-                TechOperationForm.UpdateGrid();
+                    TechOperationForm.DeleteTechTransit(IddGuid, work);
+                    UpdateGridLocalTP();
+                    TechOperationForm.UpdateGrid();
+                }
             }
         }
 
@@ -697,6 +702,11 @@ namespace TC_WinForms.WinForms.Work
             ClickDataGridViewStaff();
         }
 
+        private void TextBoxPersonalPoisk_TextChanged(object? sender, EventArgs e)
+        {
+            UpdateStaffAll();
+        }
+
         public void ClickDataGridViewStaff()
         {
             bool updateTO = false;
@@ -886,26 +896,48 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
+        public void UpdateStaffAll()
+        {
+            var offScroll = dataGridViewStaffAll.FirstDisplayedScrollingRowIndex;
+
+            var context = TechOperationForm.context;
+            AllStaff = context.Staffs.ToList();
+
+            dataGridViewStaffAll.Rows.Clear();
+
+            var filteredPersonal = FilterStaff(PoiskPersonal.Text);
+            foreach (Staff staff in filteredPersonal)
+            {
+                AddStuffToGridAllStaff(staff);
+            }
+
+            if (offScroll > 0 && offScroll < dataGridViewStaffAll.Rows.Count)
+                dataGridViewStaffAll.FirstDisplayedScrollingRowIndex = offScroll;
+        }
+
         public void UpdateGridStaffAll()
         {
             var ExecutionWorkBox = (ExecutionWork)comboBoxStaff.SelectedItem;
+
+            var context = TechOperationForm.context;
+            AllStaff = context.Staffs.ToList();
+
             dataGridViewStaffAll.Rows.Clear();
             if (ExecutionWorkBox == null)
             {
                 return;
             }
 
-            var allStaff = TechOperationForm.context.Staffs.ToList();
-            foreach (Staff staff in allStaff)
+            var filteredPersonal = FilterStaff(PoiskPersonal.Text);
+            foreach (Staff staff in filteredPersonal)
             {
-                if (PoiskPersonal.Text != "" &&
-                    staff.Name.ToLower().IndexOf(PoiskPersonal.Text.ToLower()) == -1)
-                {
-                    continue;
-                }
+                AddStuffToGridAllStaff(staff);
+            }
+        }
 
-
-                List<object> listItem = new List<object>
+        private void AddStuffToGridAllStaff(Staff staff)
+        {
+            List<object> staffRow = new List<object>
                 {
                     staff,
                     "Добавить",
@@ -916,9 +948,12 @@ namespace TC_WinForms.WinForms.Work
                     staff.Qualification,
                     staff.Comment ?? ""
                 };
-                dataGridViewStaffAll.Rows.Add(listItem.ToArray());
-            }
+            dataGridViewStaffAll.Rows.Add(staffRow.ToArray());
+        }
 
+        private IEnumerable<Staff> FilterStaff(string searchText)
+        {
+            return AllStaff.Where(stf => string.IsNullOrEmpty(searchText) || stf.Name.ToLower().Contains(searchText.ToLower()));
         }
 
 
@@ -1372,14 +1407,19 @@ namespace TC_WinForms.WinForms.Work
                 var value = (object)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[5].Value;
 
                 double don = 0;
-                if (double.TryParse((string)value, out don))
+                if (value is double doubleValue)
                 {
-                    Idd.Quantity = don;
+                    don = doubleValue;
                 }
-                else
+                else if (!double.TryParse((string)value, out don))
                 {
-                    Idd.Quantity = 0;
+                    don = 0;
                 }
+
+                if (Idd.Quantity == don)
+                    return;
+
+                Idd.Quantity = don;
                 //UpdateComponentAll();
                 //UpdateComponentLocal();
                 TechOperationForm.UpdateGrid();
@@ -1661,6 +1701,7 @@ namespace TC_WinForms.WinForms.Work
                     return;
 
                 Idd.Quantity = don;
+
                 //UpdateComponentAll();
                 //UpdateComponentLocal();
                 TechOperationForm.UpdateGrid();

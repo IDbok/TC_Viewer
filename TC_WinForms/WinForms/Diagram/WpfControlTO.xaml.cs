@@ -136,6 +136,8 @@ namespace TC_WinForms.WinForms.Diagram
             ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));// this, _tcViewState));
             _wpfMainControl.diagramForm.HasChanges = true;
             _wpfMainControl.Nomeraciya();
+
+            _diagramState.HasChanges();
         }
 
         private void ComboBoxTO_SelectionChanged(object sender, SelectionChangedEventArgs e)
