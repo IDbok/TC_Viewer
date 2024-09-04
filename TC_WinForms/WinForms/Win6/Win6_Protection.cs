@@ -500,7 +500,7 @@ namespace TC_WinForms.WinForms
             newForm.ShowDialog();
 
         }// add to UpdateMode
-        public bool UpdateSelectedObject(Protection updatedComponent)
+        public bool UpdateSelectedObject(Protection updatedObject)
         {
             if (dgvMain.SelectedRows.Count != 1)
             {
@@ -513,14 +513,19 @@ namespace TC_WinForms.WinForms
 
             if (selectedRow.DataBoundItem is DisplayedProtection_TC dObj)
             {
-
-                if (dObj.ChildId == updatedComponent.Id)
+                if (dObj.ChildId == updatedObject.Id)
                 {
                     MessageBox.Show("Ошибка обновления объекта: ID объекта совпадает");
                     return false;
                 }
+                // проверка на наличие объекта в списке существующих объектов
+                if (_bindingList.Any(obj => obj.ChildId == updatedObject.Id))
+                {
+                    MessageBox.Show("Ошибка обновления объекта: объект с таким ID уже существует");
+                    return false;
+                }
 
-                var newItem = CreateNewObject(updatedComponent, dObj.Order);
+                var newItem = CreateNewObject(updatedObject, dObj.Order);
                 newItem.Quantity = dObj.Quantity ?? 0;
                 newItem.Note = dObj.Note;
 
