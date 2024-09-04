@@ -21,9 +21,11 @@ namespace TC_WinForms.WinForms
         private int _tcId;
 
         private BindingList<DisplayedTool_TC> _bindingList;
-        private List<DisplayedTool_TC> _changedObjects = new List<DisplayedTool_TC>();
-        private List<DisplayedTool_TC> _newObjects = new List<DisplayedTool_TC>();
-        private List<DisplayedTool_TC> _deletedObjects = new List<DisplayedTool_TC>();
+        private List<DisplayedTool_TC> _changedObjects = new ();
+        private List<DisplayedTool_TC> _newObjects = new ();
+        private List<DisplayedTool_TC> _deletedObjects = new ();
+
+        private Dictionary<DisplayedTool_TC, DisplayedTool_TC> _replacedObjects = new ();// add to UpdateMode
         public bool CloseFormsNoSave { get; set; } = false;
         public Win6_Tool(int tcId, TcViewState tcViewState)// bool viewerMode = false)
         {
@@ -43,7 +45,7 @@ namespace TC_WinForms.WinForms
 
 
         }
-        
+
         public void SetViewMode(bool? isViewMode = null)
         {
             //if (isViewMode != null)
@@ -68,7 +70,7 @@ namespace TC_WinForms.WinForms
 
         public bool GetDontSaveData()
         {
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            if (HasChanges) 
             {
                 return true;
             }
@@ -103,7 +105,7 @@ namespace TC_WinForms.WinForms
             {
                 return;
             }
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            if (HasChanges)
             {
                 e.Cancel = true;
                 var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
@@ -210,7 +212,7 @@ namespace TC_WinForms.WinForms
             }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
+        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count + _replacedObjects.Count != 0; // update to UpdateMode
         public async Task SaveChanges()
         {
             if (!HasChanges)
@@ -228,6 +230,10 @@ namespace TC_WinForms.WinForms
             if (_deletedObjects.Count > 0)
             {
                 await DeleteDeletedObjects();
+            }
+            if (_replacedObjects.Count > 0) // add to UpdateMode
+            {
+                await SaveReplacedObjects();
             }
 
             dgvMain.Refresh();
@@ -255,7 +261,15 @@ namespace TC_WinForms.WinForms
             await dbCon.DeleteIntermediateObjectAsync(deletedObjects);
             _deletedObjects.Clear();
         }
+        private async Task SaveReplacedObjects() // add to UpdateMode
+        {
+            var oldObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();
+            var newObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Value)).ToList();
 
+            await dbCon.ReplaceIntermediateObjectAsync(oldObject, newObject);
+
+            _changedObjects.Clear();
+        }
         private Tool_TC CreateNewObject(DisplayedTool_TC dObj)
         {
             return new Tool_TC
@@ -476,6 +490,68 @@ namespace TC_WinForms.WinForms
 
         }
 
+        private void btnReplace_Click(object sender, EventArgs e)
+        {
+            // Выделение объекта выбранной строки
+            if (dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return;
+            }
+
+            // load new form Win7_3_Component as dictonary
+            var newForm = new Win7_6_Tool(activateNewItemCreate: true, createdTCId: _tcId, isUpdateMode: true);
+
+            newForm.WindowState = FormWindowState.Maximized;
+            newForm.ShowDialog();
+
+        }// add to UpdateMode
+        public bool UpdateSelectedObject(Tool updatedComponent)
+        {
+            if (dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return false;
+            }
+
+            var selectedRow = dgvMain.SelectedRows[0];
+            //var displayedComponent = selectedRow.DataBoundItem as DisplayedTool_TC;
+
+            if (selectedRow.DataBoundItem is DisplayedTool_TC dObj)
+            {
+
+                if (dObj.ChildId == updatedComponent.Id)
+                {
+                    MessageBox.Show("Ошибка обновления объекта: ID объекта совпадает");
+                    return false;
+                }
+
+                var newItem = CreateNewObject(updatedComponent, dObj.Order);
+                newItem.Quantity = dObj.Quantity ?? 0;
+                newItem.Note = dObj.Note;
+
+                var newDisplayedComponent = new DisplayedTool_TC(newItem);
+
+
+                // замена displayedComponent в dgvMain на newDisplayedComponent
+                var index = _bindingList.IndexOf(dObj);
+                _bindingList[index] = newDisplayedComponent;
+
+                // проверяем наличие объекта в списке измененных объектов в значениях replacedObjects
+                if (_replacedObjects.ContainsKey(dObj))
+                {
+                    _replacedObjects[dObj] = newDisplayedComponent;
+                }
+                else
+                {
+                    _replacedObjects.Add(dObj, newDisplayedComponent);
+                }
+
+                return true;
+            }
+
+            return false;
+        }// add to UpdateMode
     }
 
 }

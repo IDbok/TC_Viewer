@@ -409,21 +409,13 @@ namespace TC_WinForms.DataProcessing
                         .Where(o => o.ParentId == tcId 
                             && obj_TCsIds.Contains(o.ChildId))
                         .ToListAsync();
-
-                    //var existingIds = existingObj_TCs
-                    //    .Select(t => t.ChildId)
-                    //    .ToList();
-
-                    //var obj_TCsToReplace = old_TCs.Where(t => existingIds
-                    //    .Any(eIds => eIds == t.ChildId))
-                    //    .ToList();
-                    
-
                     if (obj_TCsToReplace.Any())
                     {
+                        // Выделяем объекты из связанных данных ComponentWork, ToolWork
                         List<ComponentWork> cwToReplace = new List<ComponentWork>();
                         List<ToolWork> twToReplace = new List<ToolWork>();
-                        // удаляем объекты из связанных данных ComponentWork, ToolWork
+
+                        List<ExecutionWork> executionWorks = new List<ExecutionWork>();
                         if (typeof(T) == typeof(Component_TC))
                         {
                             cwToReplace = await db.Set<ComponentWork>()
@@ -438,6 +430,28 @@ namespace TC_WinForms.DataProcessing
                                 .Include(tw => tw.techOperationWork)
                                 .Where(tw => obj_TCsIds.Contains(tw.toolId)
                                 && tw.techOperationWork.TechnologicalCardId == tcId)
+                                .ToListAsync();
+                        }
+                        else if (typeof(T) == typeof(Machine_TC))
+                        {
+                            executionWorks = await db.Set<ExecutionWork>()
+                                .Include(cw => cw.techOperationWork)
+
+                                .Include(st => st.Machines)
+
+                                .Where(ew => ew.techOperationWork.TechnologicalCardId == tcId &&
+                                  ew.Protections.Any(p => obj_TCsIds.Contains(p.ChildId)))
+                                .ToListAsync();
+                        }
+                        else if (typeof(T) == typeof(Protection_TC))
+                        {
+                            executionWorks = await db.Set<ExecutionWork>()
+                                .Include(cw => cw.techOperationWork)
+
+                                .Include(st => st.Protections)
+
+                                .Where(ew => ew.techOperationWork.TechnologicalCardId == tcId &&
+                                  ew.Protections.Any(p => obj_TCsIds.Contains(p.ChildId)))
                                 .ToListAsync();
                         }
 
@@ -458,6 +472,22 @@ namespace TC_WinForms.DataProcessing
                             else if (twToReplace.Any())
                             {
                                 twToReplace.Where(tw => tw.toolId == oldId).ToList().ForEach(tw => tw.toolId = newId);
+                            }
+
+                            if (executionWorks.Any() &&
+                                    (typeof(T) == typeof(Protection_TC) || typeof(T) == typeof(Machine_TC)))
+                            {
+                                foreach (var newTc in new_TCs)
+                                {
+                                    if (newTc is Protection_TC newProtectionTc)
+                                    {
+                                        executionWorks.ForEach(ew => ew.Protections.Add(newProtectionTc));
+                                    }
+                                    else if (newTc is Machine_TC newMachineTc)
+                                    {
+                                        executionWorks.ForEach(ew => ew.Machines.Add(newMachineTc));
+                                    }
+                                }
                             }
 
                         }

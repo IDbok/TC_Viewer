@@ -32,12 +32,12 @@
             pnlControls = new Panel();
             pnlFilters = new Panel();
             pnlControlBtns = new Panel();
+            btnReplace = new Button();
             btnMoveDown = new Button();
             btnDeleteObj = new Button();
             btnMoveUp = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
-            btnUpdate = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlControlBtns.SuspendLayout();
@@ -50,7 +50,7 @@
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 0);
-            dgvMain.Margin = new Padding(4, 4, 4, 4);
+            dgvMain.Margin = new Padding(4);
             dgvMain.Name = "dgvMain";
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
@@ -64,7 +64,7 @@
             pnlControls.Controls.Add(pnlControlBtns);
             pnlControls.Dock = DockStyle.Top;
             pnlControls.Location = new Point(0, 0);
-            pnlControls.Margin = new Padding(4, 4, 4, 4);
+            pnlControls.Margin = new Padding(4);
             pnlControls.Name = "pnlControls";
             pnlControls.Size = new Size(1000, 75);
             pnlControls.TabIndex = 1;
@@ -73,24 +73,35 @@
             // 
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
-            pnlFilters.Margin = new Padding(4, 4, 4, 4);
+            pnlFilters.Margin = new Padding(4);
             pnlFilters.Name = "pnlFilters";
             pnlFilters.Size = new Size(378, 75);
             pnlFilters.TabIndex = 25;
             // 
             // pnlControlBtns
             // 
-            pnlControlBtns.Controls.Add(btnUpdate);
+            pnlControlBtns.Controls.Add(btnReplace);
             pnlControlBtns.Controls.Add(btnMoveDown);
             pnlControlBtns.Controls.Add(btnDeleteObj);
             pnlControlBtns.Controls.Add(btnMoveUp);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
             pnlControlBtns.Location = new Point(385, 0);
-            pnlControlBtns.Margin = new Padding(4, 4, 4, 4);
+            pnlControlBtns.Margin = new Padding(4);
             pnlControlBtns.Name = "pnlControlBtns";
             pnlControlBtns.Size = new Size(615, 75);
             pnlControlBtns.TabIndex = 24;
+            // 
+            // btnReplace
+            // 
+            btnReplace.Location = new Point(100, 11);
+            btnReplace.Margin = new Padding(4);
+            btnReplace.Name = "btnReplace";
+            btnReplace.Size = new Size(142, 52);
+            btnReplace.TabIndex = 26;
+            btnReplace.Text = "Заменить";
+            btnReplace.UseVisualStyleBackColor = true;
+            btnReplace.Click += btnReplace_Click;
             // 
             // btnMoveDown
             // 
@@ -106,7 +117,7 @@
             // btnDeleteObj
             // 
             btnDeleteObj.Location = new Point(401, 11);
-            btnDeleteObj.Margin = new Padding(4, 4, 4, 4);
+            btnDeleteObj.Margin = new Padding(4);
             btnDeleteObj.Name = "btnDeleteObj";
             btnDeleteObj.Size = new Size(142, 52);
             btnDeleteObj.TabIndex = 25;
@@ -128,7 +139,7 @@
             // btnAddNewObj
             // 
             btnAddNewObj.Location = new Point(250, 11);
-            btnAddNewObj.Margin = new Padding(4, 4, 4, 4);
+            btnAddNewObj.Margin = new Padding(4);
             btnAddNewObj.Name = "btnAddNewObj";
             btnAddNewObj.Size = new Size(142, 52);
             btnAddNewObj.TabIndex = 23;
@@ -141,21 +152,10 @@
             pnlDataViewer.Controls.Add(dgvMain);
             pnlDataViewer.Dock = DockStyle.Fill;
             pnlDataViewer.Location = new Point(0, 75);
-            pnlDataViewer.Margin = new Padding(4, 4, 4, 4);
+            pnlDataViewer.Margin = new Padding(4);
             pnlDataViewer.Name = "pnlDataViewer";
             pnlDataViewer.Size = new Size(1000, 487);
             pnlDataViewer.TabIndex = 2;
-            // 
-            // btnUpdate
-            // 
-            btnUpdate.Location = new Point(100, 11);
-            btnUpdate.Margin = new Padding(4);
-            btnUpdate.Name = "btnUpdate";
-            btnUpdate.Size = new Size(142, 52);
-            btnUpdate.TabIndex = 26;
-            btnUpdate.Text = "Заменить";
-            btnUpdate.UseVisualStyleBackColor = true;
-            btnUpdate.Click += btnUpdate_Click;
             // 
             // Win6_Component
             // 
@@ -164,7 +164,7 @@
             ClientSize = new Size(1000, 562);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
-            Margin = new Padding(4, 4, 4, 4);
+            Margin = new Padding(4);
             Name = "Win6_Component";
             Text = "Win6_Component";
             FormClosing += Win6_Component_FormClosing;
@@ -187,6 +187,6 @@
         private Panel pnlDataViewer;
         private Button btnMoveDown;
         private Button btnMoveUp;
-        private Button btnUpdate;
+        private Button btnReplace;
     }
 }

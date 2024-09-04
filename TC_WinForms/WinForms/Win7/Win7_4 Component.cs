@@ -27,7 +27,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     private BindingList<DisplayedComponent> _bindingList;
 
     private readonly bool _isAddingForm = false;
-    private readonly bool _isUpdateItemMode = false;
+    private readonly bool _isUpdateItemMode = false;// add to UpdateMode
     private Button btnAddSelected;
     private Button btnCancel;
 
@@ -59,7 +59,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         _isAddingForm = true;
         _tcId = createdTCId;
         _newItemCreateActive = activateNewItemCreate;
-        _isUpdateItemMode = isUpdateMode;
+        _isUpdateItemMode = isUpdateMode;// add to UpdateMode
 
         InitializeComponent();
 
@@ -110,7 +110,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
                 btnAddNewObj.Text = "Создать новый объект";
             }
             //////////////////////////////////////////////////////////////////////////////////////////
-            if(_isUpdateItemMode)
+            
+            if(_isUpdateItemMode)// add to UpdateMode
             {
                 btnAddSelected.Text = "Обновить";
             }
@@ -277,7 +278,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
     void BtnAddSelected_Click(object sender, EventArgs e)
     {
-        if (_isUpdateItemMode) 
+        if (_isUpdateItemMode) // add to UpdateMode
         {
             UpdateItem();
         }

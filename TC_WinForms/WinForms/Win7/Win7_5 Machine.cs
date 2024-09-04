@@ -25,6 +25,7 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
     private List<Machine> _objects = new List<Machine>();
 
     private readonly bool _isAddingForm = false;
+    private readonly bool _isUpdateItemMode = false; // add to UpdateMode
     private Button btnAddSelected;
     private Button btnCancel;
 
@@ -42,11 +43,12 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
         AccessInitialization();
 
     }
-    public Win7_5_Machine(bool activateNewItemCreate = false, int? createdTCId = null)
+    public Win7_5_Machine(bool activateNewItemCreate = false, int? createdTCId = null, bool isUpdateMode = false)
     {
         _accessLevel = AuthorizationService.CurrentUser.UserRole();
 
         _isAddingForm = true;
+        _isUpdateItemMode = isUpdateMode; // add to UpdateMode
         _tcId = createdTCId;
         _newItemCreateActive = activateNewItemCreate;
 
@@ -82,6 +84,10 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
                 btnAddNewObj.Text = "Создать новый объект";
             }
             //////////////////////////////////////////////////////////////////////////////////////////
+            if (_isUpdateItemMode)// add to UpdateMode
+            {
+                btnAddSelected.Text = "Обновить";
+            }
             SetAddingFormEvents();
         }
 
@@ -224,13 +230,41 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
 
     void BtnAddSelected_Click(object sender, EventArgs e)
     {
-        //// get selected rows
-        //var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
-        //if (selectedRows.Count == 0)
-        //{
-        //    MessageBox.Show("Выберите строки для добавления");
-        //    return;
-        //}
+        if (_isUpdateItemMode) // add to UpdateMode
+        {
+            UpdateItem();
+        }
+        else
+        {
+            AddSelectedItems();
+        }
+    }
+    void BtnCancel_Click(object sender, EventArgs e)
+    {
+        // close form
+        this.Close();
+    }
+    void UpdateItem()
+    {
+        var selectedObjs = _selectionService.GetSelectedObjects();
+
+        if (selectedObjs.Count != 1)
+        {
+            MessageBox.Show("Выберите одну строку для обновления");
+            return;
+        }
+
+        // find opened form
+        var tcEditor = Application.OpenForms.OfType<Win6_Machine>().FirstOrDefault();
+
+        tcEditor.UpdateSelectedObject(CreateNewObject(selectedObjs[0]));
+
+        // close form
+        this.Close();
+    }
+
+    void AddSelectedItems()
+    {
         // get selected objects
         var selectedObjs = _selectionService.GetSelectedObjects(); //selectedRows.Select(r => r.DataBoundItem as DisplayedMachine).ToList();
         if (selectedObjs.Count == 0)
@@ -248,11 +282,6 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
 
         tcEditor.AddNewObjects(newItems);
 
-        // close form
-        this.Close();
-    }
-    void BtnCancel_Click(object sender, EventArgs e)
-    {
         // close form
         this.Close();
     }
