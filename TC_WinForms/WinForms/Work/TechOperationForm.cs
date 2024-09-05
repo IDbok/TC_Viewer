@@ -882,7 +882,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 list.Add(new TechOperationDataGridItem
                 {
                     Nomer = -1,
-                    TechOperation = techOperationWork.techOperation.Name
+                    TechOperation = techOperationWork.techOperation.Name,
+                    IdTO = techOperationWork.techOperation.Id
                 });
             }
 
@@ -917,6 +918,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                     executionWorkItem = executionWork,
 
                     PictureName = executionWork.PictureName,
+                    IdTO = techOperationWork.techOperation.Id
                 };
 
                 if (itm.TechTransitionValue == "-1")
@@ -1056,6 +1058,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         foreach (var techOperationDataGridItem in list)
         {
             var str = new List<object>();
+            var obj = context.Set<TechOperation>().Where(to => to.Id == techOperationDataGridItem.IdTO).FirstOrDefault();
 
             if(techOperationDataGridItem.Nomer == 18) // todo - убрать
             {
@@ -1096,8 +1099,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 str.Add(techOperationDataGridItem.Vopros);
                 str.Add(techOperationDataGridItem.Otvet);
 
+                if (!obj.IsReleased)
+                {
+                    AddRowToGrid(str, Color.Yellow, Color.Yellow, Color.FromArgb(220, 218, 233));
+                }
+                else
+                    AddRowToGrid(str, Color.Yellow, Color.Yellow);
 
-                AddRowToGrid(str, Color.Yellow, Color.Yellow);
                 continue;
             }
 
@@ -1123,6 +1131,18 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
             {
                 AddRowToGrid(str, techOperationDataGridItem.ItsComponent ? Color.Salmon : Color.Aquamarine, techOperationDataGridItem.ItsComponent ? Color.Salmon : Color.Aquamarine);
+            }
+            else if(!obj.IsReleased && techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
+            {
+                AddRowToGrid(str, Color.Empty, Color.FromArgb(220, 218, 233), Color.FromArgb(220, 218, 233));
+            }
+            else if(!obj.IsReleased)
+            {
+                AddRowToGrid(str, Color.Empty, Color.Empty, Color.FromArgb(220, 218, 233));
+            }
+            else if (techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
+            {
+                AddRowToGrid(str, Color.Empty, Color.FromArgb(220, 218, 233));
             }
             else
             {
@@ -1160,7 +1180,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     /// <param name="rowData">Список объектов, представляющий строку данных для добавления в DataGridView.</param>
     /// <param name="backColor1">Цвет фона первой ячейки.</param>
     /// <param name="backColor2">Цвет фона второй ячейки.</param>
-    private void AddRowToGrid(List<object> rowData, Color? backColor1 = null, Color? backColor2 = null)
+    private void AddRowToGrid(List<object> rowData, Color? backColor1 = null, Color? backColor2 = null, Color? backColor3 = null)
     {
         dgvMain.Rows.Add(rowData.ToArray());
 
@@ -1171,6 +1191,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         if (backColor2.HasValue)
         {
             dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = backColor2.Value;
+        }
+        if (backColor3.HasValue)
+        {
+            dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[2].Style.BackColor = backColor3.Value;
         }
         //dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[3].Style.BackColor = backColor1;
         //dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = backColor2;
@@ -1256,6 +1280,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     // пропускаю действие, т.к. отрисовка цвета уже произошла
                     //SetCellBackColor(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], Color.Yellow);
+                }
+                else if ((!executionWork.techTransition.IsReleased 
+                            || !executionWork.techOperationWork.techOperation.IsReleased)
+                        && (e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index
+                            || e.ColumnIndex == dgvMain.Columns[2].Index))
+                {
+                    // пропускаю действие, т.к. отрисовка цвета уже произошла
                 }
                 else
                 {
