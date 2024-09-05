@@ -4,7 +4,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Staff : INameable, IDGViewable, IUpdatableEntity, IRequiredProperties, IVersionable //1. Требования к составу бригады и квалификации
+    public class Staff : INameable, IDGViewable, IUpdatableEntity, IRequiredProperties, IVersionable, IReleasable //1. Требования к составу бригады и квалификации
     {
         public static List<string> GetChangeablePropertiesNames { get; } = new List<string>
             {
