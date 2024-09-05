@@ -118,7 +118,7 @@ namespace TC_WinForms.WinForms
                     await SaveChanges();
                 }
                 e.Cancel = false;
-                Close();
+                Dispose();
             }
         }
         public void AddNewObjects(List<Component> newObjs)
