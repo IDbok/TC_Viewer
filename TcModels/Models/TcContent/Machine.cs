@@ -4,7 +4,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Machine : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable  //3. Требования к механизмам
+    public class Machine : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable, IReleasable  //3. Требования к механизмам
     {
         static EModelType modelType = EModelType.Machine;
         public EModelType ModelType { get => modelType; }

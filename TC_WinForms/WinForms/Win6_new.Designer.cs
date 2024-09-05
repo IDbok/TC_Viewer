@@ -115,7 +115,7 @@
             setApprovedStatusToolStripMenuItem.Name = "setApprovedStatusToolStripMenuItem";
             setApprovedStatusToolStripMenuItem.Size = new Size(169, 22);
             setApprovedStatusToolStripMenuItem.Text = "Опубликовать ТК";
-            setApprovedStatusToolStripMenuItem.Click += setApprovedStatusToolStripMenuItem_Click;
+            setApprovedStatusToolStripMenuItem.Click += SetApprovedStatusToolStripMenuItem_Click;
             // 
             // setRemarksModeToolStripMenuItem
             // 

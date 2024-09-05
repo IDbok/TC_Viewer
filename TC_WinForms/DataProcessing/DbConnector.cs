@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.CodeDom;
+using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using TcDbConnector;
 using TcModels.Models;
@@ -716,6 +718,125 @@ namespace TC_WinForms.DataProcessing
                 throw;
             }
         }
+
+
+        public List<C> GetUnpublishedTO<T, C>(int tcID) where C : class, IReleasable, IIdentifiable
+        {
+            List<T>? allObjectsTC = null;
+            List<C>? unpublishedObjs = null;
+            C? unpublishedObj;
+
+            try
+            {
+                using (var context = new MyDbContext())
+                {
+                    var allObjects = context.Set<TechOperationWork>().Where(tow => tow.TechnologicalCardId == tcID).ToList();
+
+                    foreach (var obj in allObjects)
+                    {
+                        unpublishedObj = context.Set<TechOperation>().Where(to => to.Id == obj.techOperationId && to.IsReleased == false).Cast<C>()
+                                                .FirstOrDefault();
+
+                        if (unpublishedObj != null)
+                            unpublishedObjs.Add(unpublishedObj);
+                    }
+
+                    if (unpublishedObjs != null)
+                        return unpublishedObjs;
+                    else
+                        return unpublishedObjs = new List<C>();
+                }
+            }
+            catch (Exception e)
+            {
+                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
+                throw;
+            }
+        }
+
+        public List<C> GetUnpublishedToOrTt<C>(int tcID) where C : class, IReleasable, IIdentifiable
+        {
+            List<C>? unpublishedObjs = new List<C>();
+            C? unpublishedObj;
+
+            try
+            {
+                using (var context = new MyDbContext())
+                {
+                    var allObjects = context.Set<TechOperationWork>().Where(tow => tow.TechnologicalCardId == tcID).ToList();
+
+                    foreach (var obj in allObjects)
+                    {
+                        if(typeof(C) == typeof(TechOperation))
+                        {
+                            unpublishedObj = context.Set<TechOperation>()
+                                                .Where(to => to.Id == obj.techOperationId && to.IsReleased == false)
+                                                .Cast<C>()
+                                                .FirstOrDefault();
+
+                            if (unpublishedObj != null)
+                                unpublishedObjs.Add(unpublishedObj);
+                        }
+                        else
+                        {
+                            var allExecutionWork = context.Set<ExecutionWork>()
+                                                          .Where(ex => ex.techOperationWorkId == obj.Id)
+                                                          .ToList();
+                            foreach(var ex in allExecutionWork)
+                            {
+                                unpublishedObj = context.Set<TechTransition>()
+                                                        .Where(tpUnpb => tpUnpb.Id == ex.techTransitionId && tpUnpb.IsReleased == false)
+                                                        .Cast<C>()
+                                                        .FirstOrDefault();
+                                if (unpublishedObj != null)
+                                    unpublishedObjs.Add(unpublishedObj);
+                            }
+                        }
+                    }
+
+                    return unpublishedObjs;
+                }
+            }
+            catch (Exception e)
+            {
+                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
+                throw;
+            }
+        }
+
+        public List<C>? GetUnpublishedObjectList<T, C>(int tcID) where T : class, IIntermediateTable<TechnologicalCard, C>
+            where C : class, IReleasable, IIdentifiable
+        {
+            List<T>? allObjectsTC = null;
+            List<C>? unpublishedObjs = new List<C>();
+            C? unpublishedObj;
+            try
+            {
+                using (var context = new MyDbContext())
+                {
+                    unpublishedObjs = new List<C>();
+                    allObjectsTC = GetIntermediateObjectList<T, C>(tcID);                     
+
+                    foreach (var obj in allObjectsTC)
+                    {
+                        unpublishedObj = context.Set<C>()
+                                                .Where(tc => tc.Id == obj.ChildId && tc.IsReleased == false)
+                                                .Cast<C>()
+                                                .FirstOrDefault();
+                        if (unpublishedObj != null)
+                            unpublishedObjs.Add(unpublishedObj);
+                    }
+
+                    return unpublishedObjs;
+                }
+            }
+            catch (Exception e)
+            {
+                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
+                throw;
+            }
+        }
+
         public T? GetObject<T>(int id) where T : class, IIdentifiable
         {
             T? obj = null;
