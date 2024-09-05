@@ -20,6 +20,7 @@ namespace TC_WinForms.DataProcessing
 
         private int _pageCount;
         private int _currentParallelShag, _currentParallelTO;
+        private int _allParallelShag, _allParallelTO;
         private int _startCollumn;
         private int _parallelToCount;
 
@@ -29,6 +30,7 @@ namespace TC_WinForms.DataProcessing
 
         private bool isNextShagIsParallel = false;
         private bool isNextTOParallel = false;
+        private bool isShagStatusPrinted = false;
 
         private Dictionary<string, Color> _toColors = new Dictionary<string, Color> ();
         private Dictionary<int, int>  _nextPagesLastRow = new Dictionary<int, int>();
@@ -113,9 +115,19 @@ namespace TC_WinForms.DataProcessing
 
             var currentStatus = isNextTOParallel;
             if(toPosledovGroups.Count == 1 && toPosledovGroups[0].Key.Contains("_") && toPosledovGroups[0].ToList().Count() > 1)
+            {
                 isNextTOParallel = true;
+                _allParallelTO = toPosledovGroups[0].ToList().Count();
+            }
             else
+            {
                 isNextTOParallel = toPosledovGroups.Count > 1 ? true : false;
+                _allParallelTO = toPosledovGroups.Count;
+                if (toPosledovGroups[toPosledovGroups.Count - 1].Key.Contains("_"))
+                {
+                    _allParallelTO = _allParallelTO - 1 + toPosledovGroups[toPosledovGroups.Count - 1].ToList().Count();
+                }
+            }
 
             if (currentStatus != isNextTOParallel)
                 currentRow = AddTOParallel(sheet, currentRow, Modulo(-_startCollumn, _currentPrintWidgth) + _startCollumn - _currentPrintWidgth + 6);
@@ -208,15 +220,15 @@ namespace TC_WinForms.DataProcessing
             int pageRow = 1;
             int pageCollumn = _startCollumn;
             int pageCollumnindex = 0;
-
+            isShagStatusPrinted = false;
 
             foreach (DiagramParalelno parallel in parallelesList)
             {
+                _allParallelShag = parallel.ListDiagramPosledov.Count;
                 var currentStatus = isNextShagIsParallel;
                 isNextShagIsParallel = parallel.ListDiagramPosledov.Count > 1 ? true : false;
-                if(currentStatus != isNextShagIsParallel)
+                if(currentStatus != isNextShagIsParallel && !isNextShagIsParallel)
                     currentRow = AddParallelStatus(sheet, currentRow, _startCollumn);
-
                 foreach (DiagramPosledov posledov in parallel.ListDiagramPosledov)
                 {
                     _currentParallelShag = posledov.Order;
@@ -293,7 +305,11 @@ namespace TC_WinForms.DataProcessing
                 AddPageCount(currentRow, currentColumn, sheet);//проверка выполняется дважды
                 
                 currentRow = AddTONameToExcel(TOName, sheet, currentRow, currentColumn);
-
+                if(!isShagStatusPrinted && isNextShagIsParallel)
+                {
+                    currentRow = AddParallelStatus(sheet, currentRow - 1, currentColumn);
+                    isShagStatusPrinted = true;
+                }
                 if (!isOneParalell)
                     currentRow = AddCurrentParallelShagNum(sheet, currentRow-1, currentColumn);
                 if (isNextTOParallel && !isOneParalell)
@@ -587,8 +603,8 @@ namespace TC_WinForms.DataProcessing
 
             int[] columnNums = { currentColumn + 1, currentColumn + 7 };
             sheet.Cells[headRow, columnNums[0]].Value = isNextShagIsParallel 
-                                                            ? "Далее шаги выполняются параллельно"
-                                                            :"Далее шаги выполняются последовательно";
+                                                            ? "Шаги данной ТО выполняются параллельно("+_allParallelShag+")"
+                                                            : "Шаги данной ТО выполняются последовательно";
 
             AddStyleAlignment(headRow, columnNums, sheet);
 
@@ -632,7 +648,7 @@ namespace TC_WinForms.DataProcessing
             int[] columnNums = { currentColumn + 1, currentColumn + 7 };
             if(sheet.Cells[headRow, columnNums[0]].Value == null)
                 sheet.Cells[headRow, columnNums[0]].Value = isNextTOParallel
-                                                                ? "Далее ТО выполняются параллельно"
+                                                                ? "Далее ТО выполняются параллельно("+_allParallelTO+")" 
                                                                 : "Далее ТО выполняются последовательно";
 
             AddStyleAlignment(headRow, columnNums, sheet);
