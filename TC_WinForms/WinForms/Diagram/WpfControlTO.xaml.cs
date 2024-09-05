@@ -83,6 +83,8 @@ namespace TC_WinForms.WinForms.Diagram
             UpdateDiagramToWork();
 
             _tcViewState.ViewModeChanged += OnViewModeChanged;
+
+            ButtonAddShag.IsEnabled = true; 
         }
 
         private void OnViewModeChanged()
@@ -107,8 +109,8 @@ namespace TC_WinForms.WinForms.Diagram
 
                 ListWpfParalelno.Visibility = Visibility.Visible;
 
-                if(!IsViewMode)
-                    ButtonAddShag.Visibility = Visibility.Visible;
+                //if(!IsViewMode)
+                //    ButtonAddShag.Visibility = Visibility.Visible;
 
                 _wpfMainControl.technologicalCard.DiagamToWork.Add(this.diagamToWork);
 
@@ -144,6 +146,8 @@ namespace TC_WinForms.WinForms.Diagram
             ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));// this, _tcViewState));
             _wpfMainControl.diagramForm.HasChanges = true;
             _wpfMainControl.Nomeraciya();
+
+            _diagramState.HasChanges();
         }
 
         private void ComboBoxTO_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -183,33 +187,15 @@ namespace TC_WinForms.WinForms.Diagram
                     ListWpfParalelno.Children.Add(new WpfParalelno(techOperationWork, _diagramState));
                     _wpfMainControl.diagramForm.HasChanges = true;
 
+                    // todo : вопрос, как быть с объектами Component and Tool, которые привязаны к конкретному TechOperationWork
                     ComboBoxTO.IsReadOnly = true;
                     ComboBoxTO.IsEnabled = false;
+
                     Nomeraciya();
                 }
+
+                ButtonAddShag.IsEnabled = true;
             }
-
-            //if (ComboBoxTO.SelectedItem != null)
-            //{
-            //    if (diagamToWork.techOperationWork != null)
-            //    {
-            //        return;
-            //    }
-
-            //    ListWpfParalelno.Visibility = Visibility.Visible;
-            //    ButtonAddShag.Visibility = Visibility.Visible;
-
-            //    diagamToWork.techOperationWork = (TechOperationWork)ComboBoxTO.SelectedItem;
-            //    _wpfMainControl.technologicalCard.DiagamToWork.Add(diagamToWork);
-
-            //    ListWpfParalelno.Children.Clear();
-            //    ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, this));
-            //    _wpfMainControl.diagramForm.HasChanges = true;
-
-            //    ComboBoxTO.IsReadOnly = true;
-            //    ComboBoxTO.IsEnabled = false;
-            //    Nomeraciya();
-            //}
         }
 
         public void DeteteParalelno(WpfParalelno paralelno)
@@ -263,14 +249,17 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void ButtonDown_Click(object sender, RoutedEventArgs e)
         {
-            _wpfMainControl.Order(1, this);
-            _wpfMainControl.diagramForm.HasChanges = true;
+            _diagramState.WpfTo?.ChangeOrder(this, MoveDirection.Down);
+            //_wpfMainControl.Order(1, this);
+            //_wpfMainControl.diagramForm.HasChanges = true;
         }
 
         private void ButtonUp_Click(object sender, RoutedEventArgs e)
         {
-            _wpfMainControl.Order(2, this);
-            _wpfMainControl.diagramForm.HasChanges = true;
+            _diagramState.WpfTo?.ChangeOrder(this, MoveDirection.Up);
+
+            //_wpfMainControl.Order(2, this);
+            //_wpfMainControl.diagramForm.HasChanges = true;
         }
 
         private void btnDelete_Click(object sender, RoutedEventArgs e)
@@ -278,7 +267,7 @@ namespace TC_WinForms.WinForms.Diagram
             _wpfMainControl.diagramForm.HasChanges = true;
 
             diagamToWork.ParallelIndex = null;
-            _wpfMainControl.technologicalCard.DiagamToWork.Remove(diagamToWork);
+            //_wpfMainControl.technologicalCard.DiagamToWork.Remove(diagamToWork);
 
             _wpfMainControl.DeleteControlTO(this);
         }

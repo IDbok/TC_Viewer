@@ -597,7 +597,8 @@ namespace TC_WinForms.DataProcessing
                     .Include(ew => ew.Machines)
                     .Include(ew => ew.Protections)
                     .Include(ew => ew.techTransition)
-                    .Include(ew => ew.ListexecutionWorkRepeat2)
+                    .Include(ew => ew.ExecutionWorkRepeats)
+                    //.Include(ew => ew.ListexecutionWorkRepeat2)
                     .ToListAsync();
                 var tw = await db.ToolWorks.Where(tw => towIds.Contains(tw.techOperationWorkId))
                     .Include(tw => tw.tool)
@@ -1077,7 +1078,10 @@ namespace TC_WinForms.DataProcessing
                     tcToUpdate.Status = newStatus;
                     await db.SaveChangesAsync();
                 }
+                else return;
             }
+
+            tc.Status = newStatus;
         }
 
         public async Task UpdateTcExecutionScheme(int tcId, string newES)

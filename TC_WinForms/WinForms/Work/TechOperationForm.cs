@@ -19,6 +19,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     private bool _isViewMode;
     private bool _isCommentViewMode;
+    private bool _isMachineViewMode;
 
     public MyDbContext context { get; private set; } = new MyDbContext();
 
@@ -64,6 +65,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         UpdateGrid();
         SetCommentViewMode();
+        SetMachineViewMode();
         SetViewMode();
 
         this.Enabled = true;
@@ -97,18 +99,29 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             .ToListAsync();
     }
 
-    
     public void SetCommentViewMode()
     {
-        _isCommentViewMode = _tcViewState.IsCommentViewMode;
+        var isCommentViewMode = _tcViewState.IsCommentViewMode;
 
-        dgvMain.Columns["RemarkColumn"].Visible = _isCommentViewMode;
-        dgvMain.Columns["ResponseColumn"].Visible = _isCommentViewMode;
-
-        //dgvMain.Columns[dgvMain.ColumnCount - 1].Visible = _isCommentViewMode;
-        //dgvMain.Columns[dgvMain.ColumnCount - 2].Visible = _isCommentViewMode;
+        dgvMain.Columns["RemarkColumn"].Visible = isCommentViewMode;
+        dgvMain.Columns["ResponseColumn"].Visible = isCommentViewMode;
     }
+  
+    public void SetMachineViewMode(bool? isMachineViewMode = null)
+    {
+        if (isMachineViewMode != null)
+            _isMachineViewMode = (bool)isMachineViewMode;
+        else
+            _isMachineViewMode = Win6_new.isMachineViewMode;
 
+        foreach(DataGridViewColumn col in dgvMain.Columns)
+        {
+            if (col.Name.Contains("Machine"))
+            {
+                col.Visible = _isMachineViewMode;
+            }
+        }
+    }
     public void SetViewMode(bool? isViewMode = null)
     {
         //if (isViewMode != null)
@@ -210,6 +223,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
                 idd.PictureName = gg;
                 HasChanges = true;
+                _editForm?.UpdateGridLocalTP();
             }
         }
         else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
@@ -223,6 +237,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
                 idd.Comments = gg;
                 HasChanges = true;
+                _editForm?.UpdateGridLocalTP();
             }
         }
         //if (e.ColumnIndex> dgvMain.ColumnCount-3) 
@@ -761,6 +776,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         ClearAndInitializeGrid();
         PopulateDataGrid();
         SetCommentViewMode();
+        SetMachineViewMode();
 
         if (offScroll < dgvMain.Rows.Count && offScroll > 0) 
             dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
@@ -782,14 +798,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         dgvMain.Columns.Add("", "");
         dgvMain.Columns.Add("", "");
         dgvMain.Columns.Add("", "");
-        dgvMain.Columns.Add("", "");
-        dgvMain.Columns.Add("", "");
+        dgvMain.Columns.Add("Staff", "Исполнитель");
+        dgvMain.Columns.Add("TechTransitionName", "Технологические переходы");
         dgvMain.Columns.Add("", "");
         dgvMain.Columns.Add("", "");
 
+        int i = 0;
         foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
         {
-            dgvMain.Columns.Add("", "Время " + tehCartaMachineTC.Child.Name + ", мин.");
+            dgvMain.Columns.Add("Machine+{i}", "Время " + tehCartaMachineTC.Child.Name + ", мин.");
+            i++;
         }
 
         dgvMain.Columns.Add("", "№ СЗ");
@@ -797,6 +815,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         dgvMain.Columns.Add("PictureNameColumn", "Рис.");
         dgvMain.Columns.Add("RemarkColumn", "Замечание");
         dgvMain.Columns.Add("ResponseColumn", "Ответ");
+
+        dgvMain.Columns["RemarkColumn"].HeaderCell.Style.Font = new Font("Segoe UI", 9f, FontStyle.Italic | FontStyle.Bold);
+        dgvMain.Columns["RemarkColumn"].DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
+
+        dgvMain.Columns["ResponseColumn"].HeaderCell.Style.Font = new Font("Segoe UI", 9f, FontStyle.Italic | FontStyle.Bold);
+        dgvMain.Columns["ResponseColumn"].DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
 
         int ii = 0;
 
@@ -808,11 +832,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         ii++;
         dgvMain.Columns[ii].HeaderText = "Технологические операции";
         ii++;
-        dgvMain.Columns[ii].HeaderText = "Исполнитель";
+        //dgvMain.Columns[ii].HeaderText = "Исполнитель";
         dgvMain.Columns[ii].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
         dgvMain.Columns[ii].Width = 120;
         ii++;
-        dgvMain.Columns[ii].HeaderText = "Технологические переходы";
+        //dgvMain.Columns[ii].HeaderText = "Технологические переходы";
         ii++;
         dgvMain.Columns[ii].HeaderText = "Время действ., мин.";
         ii++;
@@ -1033,6 +1057,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         {
             var str = new List<object>();
 
+            if(techOperationDataGridItem.Nomer == 18) // todo - убрать
+            {
+                Console.WriteLine();
+            }
+
             if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat)
             {
                 //var repeatNumList = techOperationDataGridItem.techWork.ListexecutionWorkRepeat2
@@ -1221,13 +1250,19 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
+                else if((executionWork.techTransition?.Name.Contains( "Повторить") ?? false)
+                    && (e.ColumnIndex == dgvMain.Columns["Staff"].Index
+                    || e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index))
+                {
+                    // пропускаю действие, т.к. отрисовка цвета уже произошла
+                    //SetCellBackColor(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], Color.Yellow);
+                }
                 else
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
                 }
             }
         }
-        
     }
 
     public void CellChangeReadOnly(DataGridViewCell cell, bool isReadOnly)
@@ -1237,6 +1272,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         // Выделить строку цветом
         cell.Style.BackColor = isReadOnly ? Color.White : Color.LightGray;
     }
+    private void SetCellBackColor(DataGridViewCell cell, Color color)
+    {
+        cell.Style.BackColor = color;
+    }
 
     private void DgvMain_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
     {
@@ -1245,8 +1284,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         // Пропуск заголовков колонок и строк, и первой строки
         if (e.RowIndex < 1 || e.ColumnIndex < 0)
         {
+            if (e.ColumnIndex == dgvMain.ColumnCount - 2)
+            {
+                e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
+            }
             e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
             return;
+        }
+
+        if (e.ColumnIndex == dgvMain.ColumnCount - 2)
+        {
+            e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
         }
 
         if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 2)
@@ -1305,8 +1353,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public void AddTechOperation(TechOperation TechOperat)
     {
-        var vb = TechOperationWorksList.Where(s => s.techOperation == TechOperat && s.Delete == true).ToList();
-
         int maxOrder = -1;
 
         if (TechOperationWorksList.Count > 0)
@@ -1314,9 +1360,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             maxOrder = TechOperationWorksList.Max(m => m.Order);
         }
 
-        if (vb.Count > 0)
+        // Данный механизм отвечает за добавление удалённого объекта с таким же Id
+        // был удалён в соответствии с п154 замечаний
+        //var vb = TechOperationWorksList.Where(s => s.techOperation == TechOperat && s.Delete == true).ToList();
+        if (false)//vb.Count > 0)
         {
-            vb[0].Delete = false;
+            //vb[0].Delete = false;
         }
         else
         {
@@ -1348,12 +1397,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null, CoefficientForm coefficient = null)
     {
         TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
-        var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
-
-        if (exec.Count > 0)
+        // Данный механизм отвечает за добавление удалённого объекта с таким же Id
+        // был удалён в соответствии с п154 замечаний
+        //var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
+        if (false)//exec.Count > 0)
         {
-            var one = exec[0];
-            one.Delete = false;
+            //var one = exec[0];
+            //one.Delete = false;
         }
         else
         {

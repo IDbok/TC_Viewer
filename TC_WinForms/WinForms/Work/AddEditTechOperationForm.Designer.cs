@@ -1222,7 +1222,7 @@
             label1.Name = "label1";
             label1.Size = new Size(155, 28);
             label1.TabIndex = 0;
-            label1.Text = "Комментарии:";
+            label1.Text = "Пояснения к тех переходу:";
             // 
             // label6
             // 
@@ -1233,7 +1233,7 @@
             label6.Name = "label6";
             label6.Size = new Size(248, 28);
             label6.TabIndex = 2;
-            label6.Text = "Комментарии времени:";
+            label6.Text = "Правила расчета времени тех. перехода:";
             // 
             // labelComTime
             // 
@@ -1646,7 +1646,7 @@
             // 
             dataGridViewTextBoxColumn35.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridViewTextBoxColumn35.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn35.HeaderText = "Технологические переходы";
+            dataGridViewTextBoxColumn35.HeaderText = "Наименование";
             dataGridViewTextBoxColumn35.MinimumWidth = 6;
             dataGridViewTextBoxColumn35.Name = "dataGridViewTextBoxColumn35";
             dataGridViewTextBoxColumn35.ReadOnly = true;
@@ -1654,7 +1654,7 @@
             // dataGridViewTextBoxColumn36
             // 
             dataGridViewTextBoxColumn36.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn36.HeaderText = "Время действ., мин.";
+            dataGridViewTextBoxColumn36.HeaderText = "Тип (Исполнение)";
             dataGridViewTextBoxColumn36.MinimumWidth = 6;
             dataGridViewTextBoxColumn36.Name = "dataGridViewTextBoxColumn36";
             // 

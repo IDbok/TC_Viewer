@@ -38,6 +38,8 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
 
             this.Text = $"{_tc!.Name} ({_tc.Article}) - Схема исполнения";
+
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
         }
 
         private void Win6_ExecutionScheme_Load(object sender, EventArgs e)
@@ -62,6 +64,10 @@ namespace TC_WinForms.WinForms
 
 
 
+        }
+        private void OnViewModeChanged()
+        {
+            SetViewMode();
         }
         public void SetViewMode(bool? isViewMode = false)
         {

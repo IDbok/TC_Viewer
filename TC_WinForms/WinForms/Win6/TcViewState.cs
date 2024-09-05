@@ -1,6 +1,7 @@
 ﻿
 
 using TcModels.Models;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
@@ -8,9 +9,15 @@ namespace TC_WinForms.WinForms
     {
         private bool _isViewMode = true;
         private bool _isCommentViewMode = false;
+        public User.Role UserRole { get; }
 
         public TechnologicalCard? TechnologicalCard; // todo: make it readonly
 
+        public TcViewState(User.Role userRole, TechnologicalCard? technologicalCard)
+        {
+            UserRole = userRole;
+            this.TechnologicalCard = technologicalCard;
+        }
         public bool IsViewMode
         {
             get => _isViewMode;
@@ -35,6 +42,7 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
+
         public event Action? CommentViewModeChanged;
         public event Action? ViewModeChanged;
 

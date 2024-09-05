@@ -204,7 +204,6 @@ namespace TcModels.Models
                 Data = sourceCard.Data;
                 TechnologicalProcess = sourceCard.TechnologicalProcess;
 
-                //ExecutionSchemeBase64 = sourceCard.ExecutionSchemeBase64;
                 ExecutionSchemeImageId = sourceCard.ExecutionSchemeImageId;
             }
         }
@@ -212,6 +211,115 @@ namespace TcModels.Models
         {
             return $"{Id}.{Article} {Name}";
         }
-        
+
+        private TechnologicalCard CopyFrom(TechnologicalCard sourceCard)
+        {
+            // Создаем новый объект TechnologicalCard и копируем простые свойства
+            TechnologicalCard newCard = new TechnologicalCard
+            {
+                Article = sourceCard.Article,
+                Name = sourceCard.Name,
+                Description = sourceCard.Description,
+                Version = sourceCard.Version,
+                Type = sourceCard.Type,
+                NetworkVoltage = sourceCard.NetworkVoltage,
+                TechnologicalProcessType = sourceCard.TechnologicalProcessType,
+                TechnologicalProcessName = sourceCard.TechnologicalProcessName,
+                TechnologicalProcessNumber = sourceCard.TechnologicalProcessNumber,
+                Parameter = sourceCard.Parameter,
+                FinalProduct = sourceCard.FinalProduct,
+                Applicability = sourceCard.Applicability,
+                Note = sourceCard.Note,
+                DamageType = sourceCard.DamageType,
+                RepairType = sourceCard.RepairType,
+                IsCompleted = sourceCard.IsCompleted,
+                ExecutionSchemeBase64 = sourceCard.ExecutionSchemeBase64,
+                ExecutionSchemeImageId = sourceCard.ExecutionSchemeImageId,
+            };
+
+            // Копируем промежуточные таблицы
+            newCard.Staff_TCs = sourceCard.Staff_TCs.Select(stc =>
+                new Staff_TC
+                { Parent = newCard, Child = stc.Child, Order = stc.Order, Symbol = stc.Symbol }).ToList();
+            newCard.Component_TCs = sourceCard.Component_TCs.Select(ctc =>
+                new Component_TC
+                { Parent = newCard, Child = ctc.Child, Order = ctc.Order, Quantity = ctc.Quantity, Note = ctc.Note }).ToList();
+            newCard.Machine_TCs = sourceCard.Machine_TCs.Select(mtc =>
+                new Machine_TC
+                { Parent = newCard, Child = mtc.Child, Order = mtc.Order, Quantity = mtc.Quantity, Note = mtc.Note }).ToList();
+            newCard.Protection_TCs = sourceCard.Protection_TCs.Select(ptc =>
+                new Protection_TC
+                { Parent = newCard, Child = ptc.Child, Order = ptc.Order, Quantity = ptc.Quantity, Note = ptc.Note }).ToList();
+            newCard.Tool_TCs = sourceCard.Tool_TCs.Select(ttc =>
+                new Tool_TC
+                { Parent = newCard, Child = ttc.Child, Order = ttc.Order, Quantity = ttc.Quantity, Note = ttc.Note }).ToList();
+
+            // Копируем списки связанных объектов
+            newCard.TechOperationWorks = sourceCard.TechOperationWorks.Select(tow => 
+                new TechOperationWork 
+                { 
+                    technologicalCard = newCard,
+                    techOperation = tow.techOperation,
+
+                    ParallelIndex = tow.ParallelIndex,
+                    Order = tow.Order,
+
+                }).ToList();
+
+            foreach(var tow in newCard.TechOperationWorks)
+            {
+                tow.ToolWorks = sourceCard.TechOperationWorks.SelectMany(tow => tow.ToolWorks).Select(tw => 
+                    new ToolWork 
+                    { 
+                        techOperationWork = tow,
+                        tool = tw.tool,
+                        Quantity = tw.Quantity,
+                        Comments = tw.Comments
+                    }).ToList();
+
+                tow.ComponentWorks = sourceCard.TechOperationWorks.SelectMany(tow => tow.ComponentWorks).Select(cw => 
+                    new ComponentWork 
+                    { 
+                        techOperationWork = tow,
+                        component = cw.component,
+                        Quantity = cw.Quantity,
+                        Comments = cw.Comments
+                    }).ToList();
+
+                tow.executionWorks = sourceCard.TechOperationWorks.SelectMany(tow => tow.executionWorks).Select(ew => 
+                    new ExecutionWork
+                    {
+                        Order = ew.Order,
+
+                        techOperationWork = tow,
+                        techTransition = ew.techTransition,
+
+                        Repeat = ew.Repeat,
+
+                        Coefficient = ew.Coefficient,
+                        Value = ew.Value,
+
+                        Comments = ew.Comments,
+
+                        Etap = ew.Etap,
+                        Posled = ew.Posled,
+
+                        Vopros = ew.Vopros,
+                        Otvet = ew.Otvet,
+
+                        PictureName = ew.PictureName
+
+                    }).ToList();
+            }
+
+            newCard.DiagamToWork = sourceCard.DiagamToWork.Select(dtow => new DiagamToWork { /* Копирование свойств диаграмм */ }).ToList();
+
+            
+
+            // Возвращаем новый экземпляр TechnologicalCard с копиями всех связанных объектов
+            return newCard;
+        }
+
+
     }
 }

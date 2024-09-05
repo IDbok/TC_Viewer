@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Net;
 using TC_WinForms.DataProcessing;
 using static TC_WinForms.DataProcessing.AuthorizationService;
+using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.WinForms
 {
@@ -148,7 +149,9 @@ namespace TC_WinForms.WinForms
         {
             dataGridViewAllTP.Rows.Clear();
 
-            var allTehKart = context.TechnologicalCards.ToList();
+            // в проект можем добавить только выпущенные карты
+            List<TechnologicalCard> allTehKart = context.TechnologicalCards
+                    .Where(tc => tc.Status == TechnologicalCardStatus.Approved).ToList();
 
             foreach (TechnologicalCard card in allTehKart)
             {

@@ -17,35 +17,56 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form, IViewModeable
     {
-        private TcViewState tcViewState = new TcViewState();
+        private TcViewState tcViewState;
 
-        private static bool _isViewMode = true;
-        private static bool _isCommentViewMode = false;
+        //private static bool _isViewMode = true;
+        //private static bool _isCommentViewMode = false;
+        private static bool _isMachineCollumnViewMode = true;
 
-        public static bool IsViewMode
+
+
+        //public static event Action CommentViewModeChanged;
+
+        //public static bool IsViewMode => _isViewMode;
+
+        //public static bool IsViewMode
+        //{
+        //    get => _isViewMode;
+        //    set
+        //    {
+        //        if (_isViewMode != value)
+        //        {
+        //            _isViewMode = value;
+        //            OnViewModeChanged();
+        //        }
+        //    }
+        //}
+        //public static bool IsCommentViewMode
+        //{
+        //    get => _isCommentViewMode;
+        //    set
+        //    {
+        //        if (_isCommentViewMode != value)
+        //        {
+        //            _isCommentViewMode = value;
+        //            OnCommentViewModeChanged();
+        //        }
+        //    }
+        //}
+
+        public static bool isMachineViewMode
         {
-            get => _isViewMode;
+            get => _isMachineCollumnViewMode;
             set
             {
-                if (_isViewMode != value)
+                if (_isMachineCollumnViewMode != value)
                 {
-                    _isViewMode = value;
-                    OnViewModeChanged();
-                }
-            }
-        }
-        public static bool IsCommentViewMode
-        {
-            get => _isCommentViewMode;
-            set
-            {
-                if (_isCommentViewMode != value)
-                {
-                    _isCommentViewMode = value;
+                    _isMachineCollumnViewMode = value;
                     OnCommentViewModeChanged();
                 }
             }
         }
+
 
         public static event Action? CommentViewModeChanged;
         public static event Action? ViewModeChanged;
@@ -75,11 +96,12 @@ namespace TC_WinForms.WinForms
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
+            tcViewState = new TcViewState(role, _tc );
             tcViewState.IsViewMode = viewMode;
 
             _tcId = tcId;
             _accessLevel = role;
-            _isViewMode = viewMode;
+            //_isViewMode = viewMode;
 
             InitializeComponent();
 
@@ -126,7 +148,7 @@ namespace TC_WinForms.WinForms
         private void SetOnlyViewModeRoleAccess()
         {
             updateToolStripMenuItem.Visible = false;
-            if (!_isViewMode)
+            if (!tcViewState.IsViewMode)
             {
                 MessageBox.Show("Доступен только режим просмотра!");
                 SetViewMode(true);
@@ -145,6 +167,9 @@ namespace TC_WinForms.WinForms
                 {
                     actionToolStripMenuItem.Visible = false;
                     setRemarksModeToolStripMenuItem.Visible = false;
+                    updateToolStripMenuItem.Visible = false;
+
+                    tcViewState.IsViewMode = true;
                     // SaveChangesToolStripMenuItem.Enabled = false;
                 },
 
@@ -229,13 +254,13 @@ namespace TC_WinForms.WinForms
 
         private async void Win6_new_FormClosing(object sender, FormClosingEventArgs e)
         {
+            
             // проверка на наличие изменений во всех формах
             if (!CheckForChanges()) // если false, то отменяем переключение
             {
                 e.Cancel = true;
                 return;
             }
-
             //close all inner forms
             foreach (var form in _formsCache.Values)
             {
@@ -245,10 +270,7 @@ namespace TC_WinForms.WinForms
                     form.Close();
                 }
             }
-            //foreach (Form frm in pnlDataViewer.Controls) // todo - move to WinProcessing and run it asynch
-            //{
-            //    frm.Close();
-            //}
+
             this.Dispose();
 
         }
@@ -300,6 +322,13 @@ namespace TC_WinForms.WinForms
 
         private bool CheckForChanges()
         {
+
+            if (_accessLevel == User.Role.User || _accessLevel == User.Role.ProjectManager)
+            // todo: заменить этот "костыль" на невозможность внесения изменений другими ролями
+            {
+                return true;
+            }
+
             // проверка на наличие изменений во всех формах
             bool hasUnsavedChanges = false;
 
@@ -462,6 +491,14 @@ namespace TC_WinForms.WinForms
             await tcExporter.SaveTCtoExcelFile(_tc.Article, _tc.Id);
         }
 
+        private async void printDiagramToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            var diagramExporter = new DiadramExcelExport();
+
+            await diagramExporter.SaveDiagramToExelFile(_tc.Article, _tc.Id);
+        }
+
         private void SaveChangesToolStripMenuItem_Click(object sender, EventArgs e) => SaveAllChanges();
         private bool CheckChangesForTcDraftStatusChanging()
         {
@@ -580,6 +617,11 @@ namespace TC_WinForms.WinForms
         {
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Approved);
             setApprovedStatusToolStripMenuItem.Enabled = false;
+
+            // становить viewmode
+            SetTCStatusAccess();
+            SetViewMode(true);
+            SetCommentViewMode(false);
         }
 
         private async void setRemarksModeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -606,12 +648,47 @@ namespace TC_WinForms.WinForms
 
                 //SetViewMode();
             }
-            tcViewState.IsCommentViewMode = !tcViewState.IsCommentViewMode;
             SetCommentViewMode();
         }
 
-        private void SetCommentViewMode()
+        private async void SetMachineCollumnModeToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
+            {
+                await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
+            }
+
+            if (!isMachineViewMode)
+            {
+                SetMachineCollumnModeToolStripMenuItem.Text = "Скрыть столбцы механизмов";
+            }
+            else
+            {
+                SetMachineCollumnModeToolStripMenuItem.Text = "Показать стобцы механизмов";
+            }
+            isMachineViewMode = !isMachineViewMode;
+            SetMachineViewMode();
+        }
+
+        private void SetMachineViewMode()
+        {
+            if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm)
+                && cachedForm is TechOperationForm techOperationForm)
+            {
+                techOperationForm.SetMachineViewMode(isMachineViewMode);
+            }
+        }
+
+
+        private void SetCommentViewMode(bool? isComViewMode = null)
+        {
+            if (isComViewMode != null)
+            {
+                tcViewState.IsCommentViewMode = (bool)isComViewMode;
+            }
+            else
+                tcViewState.IsCommentViewMode = !tcViewState.IsCommentViewMode;
+
             if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm) 
                 && cachedForm is TechOperationForm techOperationForm)
             {
@@ -643,14 +720,7 @@ namespace TC_WinForms.WinForms
             diagramForm.BringToFront();
         }
 
-        enum WinNumber
-        {
-            Staff = 1,
-            Component = 2,
-            Machine = 3,
-            Protection = 4,
-            Tool = 5
-        }
+        
     }
 
 }

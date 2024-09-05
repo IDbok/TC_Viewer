@@ -12,9 +12,27 @@
     
     <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <StackPanel Name="ListWpfControlTO">
+            <d:StackPanel HorizontalAlignment="Left">
+                <local:WpfControlTO 
+                    VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            </d:StackPanel>
+
+            <!-- слева добавить кнопки, которые отвечают за перенос 
+всего блока параллельных ТО вверх и вниз-->
+
+            <ItemsControl x:Name="ListWpfControlTO"
+              ItemsSource="{Binding Children, 
+                RelativeSource={RelativeSource AncestorType=UserControl}}"> 
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            
+            <!--<StackPanel Name="ListWpfControlTO">
                 
-            </StackPanel>
+            </StackPanel>-->
             
             <Button Content="Добавить следующее ТО" HorizontalAlignment="Left" Margin="250,30,0,0" Click="Button_Click" 
                     Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
