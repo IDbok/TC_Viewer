@@ -893,41 +893,6 @@ namespace TC_WinForms.DataProcessing
             }
         }
 
-
-        public List<C> GetUnpublishedTO<T, C>(int tcID) where C : class, IReleasable, IIdentifiable
-        {
-            List<T>? allObjectsTC = null;
-            List<C>? unpublishedObjs = null;
-            C? unpublishedObj;
-
-            try
-            {
-                using (var context = new MyDbContext())
-                {
-                    var allObjects = context.Set<TechOperationWork>().Where(tow => tow.TechnologicalCardId == tcID).ToList();
-
-                    foreach (var obj in allObjects)
-                    {
-                        unpublishedObj = context.Set<TechOperation>().Where(to => to.Id == obj.techOperationId && to.IsReleased == false).Cast<C>()
-                                                .FirstOrDefault();
-
-                        if (unpublishedObj != null)
-                            unpublishedObjs.Add(unpublishedObj);
-                    }
-
-                    if (unpublishedObjs != null)
-                        return unpublishedObjs;
-                    else
-                        return unpublishedObjs = new List<C>();
-                }
-            }
-            catch (Exception e)
-            {
-                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
-                throw;
-            }
-        }
-
         public List<C> GetUnpublishedToOrTt<C>(int tcID) where C : class, IReleasable, IIdentifiable
         {
             List<C>? unpublishedObjs = new List<C>();

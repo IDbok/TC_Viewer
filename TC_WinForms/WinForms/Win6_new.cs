@@ -528,21 +528,6 @@ namespace TC_WinForms.WinForms
         }
         private async void setDraftStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!CheckChangesForTcDraftStatusChanging()) { return; }
-
-            List <(string Type,string Name)> unpublishedElements = CanTCDraftStatusChange();
-
-            if (unpublishedElements.Count > 0)
-            {
-                string elements = "";
-                foreach (var element in unpublishedElements) 
-                {
-                    elements += "Тип: " + element.Type + ". Название: " + element.Name + ".\n";
-                }
-
-                MessageBox.Show("Карта не может быть выпущена, если используются неопубликолванные элементы. \n" + elements, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Draft);
             setDraftStatusToolStripMenuItem.Enabled = false;
             MessageBox.Show("Техническая карта выпущена");
@@ -615,6 +600,21 @@ namespace TC_WinForms.WinForms
 
         private async void SetApprovedStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!CheckChangesForTcDraftStatusChanging()) { return; }
+
+            List<(string Type, string Name)> unpublishedElements = CanTCDraftStatusChange();
+
+            if (unpublishedElements.Count > 0)
+            {
+                string elements = "";
+                foreach (var element in unpublishedElements)
+                {
+                    elements += "Тип: " + element.Type + ". Название: " + element.Name + ".\n";
+                }
+
+                MessageBox.Show("Карта не может быть опубликована, если используются неопубликолванные элементы. \n" + elements, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Approved);
             setApprovedStatusToolStripMenuItem.Enabled = false;
 
@@ -622,6 +622,7 @@ namespace TC_WinForms.WinForms
             SetTCStatusAccess();
             SetViewMode(true);
             SetCommentViewMode(false);
+            MessageBox.Show("Техническая карта опубликована.");
         }
 
         private async void setRemarksModeToolStripMenuItem_Click(object sender, EventArgs e)
