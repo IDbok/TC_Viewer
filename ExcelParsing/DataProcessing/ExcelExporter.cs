@@ -1,6 +1,7 @@
 ﻿using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Drawing;
+using TcModels.Models;
 
 namespace ExcelParsing.DataProcessing
 {
@@ -68,6 +69,12 @@ namespace ExcelParsing.DataProcessing
 
             // Здесь можно добавить другие стили...
         }
+        /// <summary>
+        /// Объединяет ячейки в строке с 1 по последний минус 1 номер столбца
+        /// </summary>
+        /// <param name="sheet"></param>
+        /// <param name="rowNumber"></param>
+        /// <param name="columnNums"></param>
         public void MergeRowCellsByColumns(ExcelWorksheet sheet, int rowNumber, int[] columnNums)
         {
             // Проходим через каждый столбец в массиве
@@ -84,7 +91,8 @@ namespace ExcelParsing.DataProcessing
                 }
 
                 // Объединяем ячейки для текущего диапазона
-                sheet.Cells[rowNumber, startColumn, rowNumber, endColumn].Merge = true;
+                var cells = sheet.Cells[rowNumber, startColumn, rowNumber, endColumn];
+                cells.Merge = true;
             }
         }
         public void MergeColumnCellsByRows(ExcelWorksheet sheet, int startRow, int endRow, int columnNumber)
@@ -183,6 +191,77 @@ namespace ExcelParsing.DataProcessing
 
             return numRows * singleRowHeight; // Возвращает расчётную высоту
         }
+
+        public void AddImageToExcel(ImageStorage? imageStorage, ExcelWorksheet sheet, int startRow, int startColumn, int endRow, int endColumn)
+        {
+            if (imageStorage == null || imageStorage.ImageBase64 == null)
+            {
+                return;
+            }
+
+            // Преобразуем строку Base64 в массив байтов
+            byte[] imageBytes = Convert.FromBase64String(imageStorage.ImageBase64);
+
+            // Добавляем рабочий лист
+            var worksheet = sheet;
+
+            // Создаем MemoryStream из массива байтов изображения
+            using (var stream = new MemoryStream(imageBytes))
+            {
+                // Загружаем изображение с помощью System.Drawing, чтобы получить его размеры
+                using (var image = Image.FromStream(stream))
+                {
+                    double imageWidth = image.Width;
+                    double imageHeight = image.Height;
+
+                    // Добавляем изображение на рабочий лист
+                    var picture = sheet.Drawings.AddPicture("ExecutionScheme", new MemoryStream(imageBytes));
+
+                    // Вычисляем размеры ячеек, чтобы уместить изображение
+                    var pointToPixel = 1.5; //96d / 72d;
+
+                    double totalWidth = 0;
+                    double totalHeight = 0;
+
+                    // Расчет ширины изображения в пикселях, учитывая только видимые столбцы
+                    for (int col = startColumn; col <= endColumn; col++)
+                    {
+                        var column = worksheet.Column(col);
+                        if (!column.Hidden) // Проверяем, что столбец не скрыт
+                        {
+                            totalWidth += column.Width * 7; // 7 - приблизительное количество пикселей на единицу ширины столбца
+                        }
+                    }
+
+                    for (int row = startRow; row <= endRow; row++)
+                    {
+                        var rowHeight = sheet.Row(row).Height;
+                        totalHeight += sheet.Row(row).Height * pointToPixel; // высота строки в пикселях
+                    }
+
+                    // Вычисление масштаба по ширине и высоте
+                    double scaleWidth = totalWidth / imageWidth;
+                    double scaleHeight = totalHeight / imageHeight;
+
+                    // Определение наибольшего ограничения и установка масштабов
+                    double scale = Math.Min(scaleWidth, scaleHeight);
+                    double finalWidth = imageWidth * scale;
+                    double finalHeight = imageHeight * scale;
+
+                    // Устанавливаем положение изображения в указанной ячейке
+                    picture.SetPosition(startRow - 1, 0, startColumn - 1, 0); // Минус 1, потому что строки и столбцы начинаются с 1
+                    picture.SetSize((int)finalWidth, (int)finalHeight);
+                }
+
+                
+                //// Устанавливаем положение изображения в ячейке (например, A1)
+                //picture.SetPosition(startRow, 0, startColumn, 0); // row, rowOffsetPixels, col, colOffsetPixels
+                //picture.SetSize(200, 200); // Ширина и высота изображения
+            }
+
+            Console.WriteLine("Изображение добавлено и файл сохранен.");
+        }
+
         public void SaveAs(string filePath)
         {
             _excelPackage.SaveAs(new FileInfo(filePath));

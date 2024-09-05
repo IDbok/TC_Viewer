@@ -223,6 +223,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
                 idd.PictureName = gg;
                 HasChanges = true;
+                _editForm?.UpdateGridLocalTP();
             }
         }
         else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
@@ -236,6 +237,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
                 idd.Comments = gg;
                 HasChanges = true;
+                _editForm?.UpdateGridLocalTP();
             }
         }
         //if (e.ColumnIndex> dgvMain.ColumnCount-3) 
