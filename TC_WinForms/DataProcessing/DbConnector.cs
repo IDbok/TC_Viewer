@@ -416,8 +416,8 @@ namespace TC_WinForms.DataProcessing
                         // Выделяем объекты из связанных данных ComponentWork, ToolWork
                         List<ComponentWork> cwToReplace = new List<ComponentWork>();
                         List<ToolWork> twToReplace = new List<ToolWork>();
-
                         List<ExecutionWork> executionWorks = new List<ExecutionWork>();
+
                         if (typeof(T) == typeof(Component_TC))
                         {
                             cwToReplace = await db.Set<ComponentWork>()
@@ -442,7 +442,7 @@ namespace TC_WinForms.DataProcessing
                                 .Include(st => st.Machines)
 
                                 .Where(ew => ew.techOperationWork.TechnologicalCardId == tcId &&
-                                  ew.Protections.Any(p => obj_TCsIds.Contains(p.ChildId)))
+                                  ew.Machines.Any(p => obj_TCsIds.Contains(p.ChildId)))
                                 .ToListAsync();
                         }
                         else if (typeof(T) == typeof(Protection_TC))

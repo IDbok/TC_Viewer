@@ -271,7 +271,7 @@ namespace TC_WinForms.WinForms
 
             await dbCon.ReplaceIntermediateObjectAsync(oldObject, newObject);
 
-            _changedObjects.Clear();
+            _replacedObjects.Clear();
         }
         private Machine_TC CreateNewObject(DisplayedMachine_TC dObj)
         {
