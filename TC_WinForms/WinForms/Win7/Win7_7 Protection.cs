@@ -22,6 +22,7 @@ namespace TC_WinForms.WinForms
         private BindingList<DisplayedProtection> _bindingList;
 
         private readonly bool _isAddingForm = false;
+        private readonly bool _isUpdateItemMode = false; // add to UpdateMode
         private Button btnAddSelected;
         private Button btnCancel;
 
@@ -38,11 +39,12 @@ namespace TC_WinForms.WinForms
             //AccessInitialization();
 
         }
-        public Win7_7_Protection(bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
+        public Win7_7_Protection(bool activateNewItemCreate = false, int? createdTCId = null, bool isUpdateMode = false) // this constructor is for adding form in TC editer
         {
             _accessLevel = AuthorizationService.CurrentUser.UserRole();
 
             _isAddingForm = true;
+            _isUpdateItemMode = isUpdateMode; // add to UpdateMode
             _newItemCreateActive = activateNewItemCreate;
             _tcId = createdTCId;
 
@@ -75,6 +77,10 @@ namespace TC_WinForms.WinForms
                     btnAddNewObj.Text = "Создать новый объект";
                 }
                 //////////////////////////////////////////////////////////////////////////////////////////
+                if (_isUpdateItemMode)// add to UpdateMode
+                {
+                    btnAddSelected.Text = "Обновить";
+                }
                 SetAddingFormEvents();
             }
 
@@ -197,7 +203,41 @@ namespace TC_WinForms.WinForms
 
         void BtnAddSelected_Click(object sender, EventArgs e)
         {
+            if (_isUpdateItemMode) // add to UpdateMode
+            {
+                UpdateItem();
+            }
+            else
+            {
+                AddSelectedItems();
+            }
+        }
+        void BtnCancel_Click(object sender, EventArgs e)
+        {
+            // close form
+            this.Close();
+        }
+        void UpdateItem()
+        {
+            var selectedObjs = _selectionService.GetSelectedObjects();
 
+            if (selectedObjs.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для обновления");
+                return;
+            }
+
+            // find opened form
+            var tcEditor = Application.OpenForms.OfType<Win6_Protection>().FirstOrDefault();
+
+            tcEditor.UpdateSelectedObject(CreateNewObject(selectedObjs[0]));
+
+            // close form
+            this.Close();
+        }
+
+        void AddSelectedItems()
+        {
             // get selected objects
             var selectedObjs = _selectionService.GetSelectedObjects();
             if (selectedObjs.Count == 0)
@@ -218,20 +258,6 @@ namespace TC_WinForms.WinForms
             // close form
             this.Close();
         }
-        void BtnCancel_Click(object sender, EventArgs e)
-        {
-            // close form
-            this.Close();
-        }
-
-        //private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
-        //{
-        //    DisplayedEntityHelper.ListChangedEventHandler<DisplayedProtection>
-        //        (e, _bindingList, _newObjects, _changedObjects, ref _newObject);
-        //}
-
-
-
         private class DisplayedProtection : INotifyPropertyChanged, IDisplayedEntity, IModelStructure
         {
             public Dictionary<string, string> GetPropertiesNames()

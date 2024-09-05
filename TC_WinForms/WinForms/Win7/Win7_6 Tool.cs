@@ -24,6 +24,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
     private BindingList<DisplayedTool> _bindingList;
 
     private bool _isAddingForm = false;
+    private readonly bool _isUpdateItemMode = false; // add to UpdateMode
     private Button btnAddSelected;
     private Button btnCancel;
 
@@ -42,11 +43,12 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
         AccessInitialization();
 
     }
-    public Win7_6_Tool(bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
+    public Win7_6_Tool(bool activateNewItemCreate = false, int? createdTCId = null, bool isUpdateMode = false) // this constructor is for adding form in TC editer
     {
         _accessLevel = AuthorizationService.CurrentUser.UserRole();
 
         _isAddingForm = true;
+        _isUpdateItemMode = isUpdateMode; // add to UpdateMode
         _newItemCreateActive = activateNewItemCreate;
         _tcId = createdTCId;
         InitializeComponent();
@@ -83,6 +85,10 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
                 btnAddNewObj.Text = "Создать новый объект";
             }
             //////////////////////////////////////////////////////////////////////////////////////////
+            if (_isUpdateItemMode)// add to UpdateMode
+            {
+                btnAddSelected.Text = "Обновить";
+            }
             SetAddingFormEvents();
         }
 
@@ -151,6 +157,8 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
     void SetDGVColumnsSettings()
     {
+        if (_isUpdateItemMode) return;
+
         // автоподбор ширины столбцов под ширину таблицы
         dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
@@ -213,10 +221,41 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
     void BtnAddSelected_Click(object sender, EventArgs e)
     {
-        //// get selected rows
-        //var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>()
-        //    .Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
+        if (_isUpdateItemMode) // add to UpdateMode
+        {
+            UpdateItem();
+        }
+        else
+        {
+            AddSelectedItems();
+        }
+    }
+    void BtnCancel_Click(object sender, EventArgs e)
+    {
+        // close form
+        this.Close();
+    }
+    void UpdateItem()
+    {
+        var selectedObjs = _selectionService.GetSelectedObjects();
 
+        if (selectedObjs.Count != 1)
+        {
+            MessageBox.Show("Выберите одну строку для обновления");
+            return;
+        }
+
+        // find opened form
+        var tcEditor = Application.OpenForms.OfType<Win6_Tool>().FirstOrDefault();
+
+        tcEditor.UpdateSelectedObject(CreateNewObject(selectedObjs[0]));
+
+        // close form
+        this.Close();
+    }
+
+    void AddSelectedItems()
+    {
         // get selected objects
         var selectedObjs = _selectionService.GetSelectedObjects();//selectedRows.Select(r => r.DataBoundItem as DisplayedTool).ToList();
         if (selectedObjs.Count == 0)
@@ -238,12 +277,6 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
         // close form
         this.Close();
     }
-    void BtnCancel_Click(object sender, EventArgs e)
-    {
-        // close form
-        this.Close();
-    }
-
     private class DisplayedTool : INotifyPropertyChanged, IDisplayedEntity, IModelStructure, ICategoryable
     {
         public Dictionary<string, string> GetPropertiesNames()

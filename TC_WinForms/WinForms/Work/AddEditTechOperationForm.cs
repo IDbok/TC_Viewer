@@ -1412,14 +1412,19 @@ namespace TC_WinForms.WinForms.Work
                 var value = (object)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[5].Value;
 
                 double don = 0;
-                if (double.TryParse((string)value, out don))
+                if (value is double doubleValue)
                 {
-                    Idd.Quantity = don;
+                    don = doubleValue;
                 }
-                else
+                else if (!double.TryParse((string)value, out don))
                 {
-                    Idd.Quantity = 0;
+                    don = 0;
                 }
+
+                if (Idd.Quantity == don)
+                    return;
+
+                Idd.Quantity = don;
                 //UpdateComponentAll();
                 //UpdateComponentLocal();
                 TechOperationForm.UpdateGrid();
@@ -1688,14 +1693,20 @@ namespace TC_WinForms.WinForms.Work
                 var value = (object)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[5].Value;
 
                 double don = 0;
-                if (double.TryParse((string)value, out don))
+                if (value is double doubleValue)
                 {
-                    Idd.Quantity = don;
+                    don = doubleValue;
                 }
-                else
+                else if (!double.TryParse((string)value, out don))
                 {
-                    Idd.Quantity = 0;
+                    don = 0;
                 }
+
+                if (Idd.Quantity == don)
+                    return;
+
+                Idd.Quantity = don;
+
                 //UpdateComponentAll();
                 //UpdateComponentLocal();
                 TechOperationForm.UpdateGrid();

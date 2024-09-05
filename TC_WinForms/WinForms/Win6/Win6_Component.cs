@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
+using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
@@ -22,16 +24,18 @@ namespace TC_WinForms.WinForms
         private int _tcId;
 
         private BindingList<DisplayedComponent_TC> _bindingList;
-        private List<DisplayedComponent_TC> _changedObjects = new List<DisplayedComponent_TC>();
-        private List<DisplayedComponent_TC> _newObjects = new List<DisplayedComponent_TC>();
-        private List<DisplayedComponent_TC> _deletedObjects = new List<DisplayedComponent_TC>();
+        private List<DisplayedComponent_TC> _changedObjects = new ();
+        private List<DisplayedComponent_TC> _newObjects = new ();
+        private List<DisplayedComponent_TC> _deletedObjects = new ();
+
+        private Dictionary<DisplayedComponent_TC, DisplayedComponent_TC> _replacedObjects = new (); // add to UpdateMode
 
 
         public bool CloseFormsNoSave { get; set; } = false;
 
         public bool GetDontSaveData()
         {
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            if (HasChanges)
             {
                 return true;
             }
@@ -55,7 +59,7 @@ namespace TC_WinForms.WinForms
             dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
             dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
         }
-        
+
         public void SetViewMode(bool? isViewMode = null)
         {
             //if (isViewMode != null)
@@ -104,7 +108,7 @@ namespace TC_WinForms.WinForms
             {
                 return;
             }
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
+            if (HasChanges)
             {
                 e.Cancel = true;
                 var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
@@ -114,7 +118,7 @@ namespace TC_WinForms.WinForms
                     await SaveChanges();
                 }
                 e.Cancel = false;
-                Close();
+                Dispose();
             }
         }
         public void AddNewObjects(List<Component> newObjs)
@@ -143,23 +147,6 @@ namespace TC_WinForms.WinForms
 
             //// автоперенос в ячейках
             dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-
-            //// ширина столбцов по содержанию
-            //var autosizeColumn = new List<string>
-            //{
-            //    nameof(DisplayedComponent_TC.Order),
-            //    nameof(DisplayedComponent_TC.Name),
-            //    nameof(DisplayedComponent_TC.Type),
-            //    nameof(DisplayedComponent_TC.Unit),
-            //    nameof(DisplayedComponent_TC.Quantity),
-            //    nameof(DisplayedComponent_TC.Note),
-            //    nameof(DisplayedComponent_TC.ChildId),
-            //};
-
-            //foreach (var column in autosizeColumn)
-            //{
-            //    dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            //}
 
             int pixels = 35;
 
@@ -217,12 +204,12 @@ namespace TC_WinForms.WinForms
             }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
+        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count + _replacedObjects.Count != 0;// update to UpdateMode
         public async Task SaveChanges()
         {
 
             if (!HasChanges)
-            { 
+            {
                 return;
             }
             if (_newObjects.Count > 0)
@@ -236,6 +223,10 @@ namespace TC_WinForms.WinForms
             if (_deletedObjects.Count > 0)
             {
                 await DeleteDeletedObjects();
+            }
+            if(_replacedObjects.Count > 0)// add to UpdateMode
+            {
+                await SaveReplacedObjects();
             }
 
             dgvMain.Refresh();
@@ -256,11 +247,21 @@ namespace TC_WinForms.WinForms
 
             _changedObjects.Clear();
         }
+        private async Task SaveReplacedObjects() // add to UpdateMode
+        {
+            var oldObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();
+            var newObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Value)).ToList();
+
+            await dbCon.ReplaceIntermediateObjectAsync(oldObject, newObject);
+
+            _changedObjects.Clear();
+        }
 
         private async Task DeleteDeletedObjects()
         {
             var deletedObjects = _deletedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
             await dbCon.DeleteIntermediateObjectAsync(deletedObjects);
+
             _deletedObjects.Clear();
         }
 
@@ -305,7 +306,7 @@ namespace TC_WinForms.WinForms
 
         private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) // todo - fix problem with selection replacing row (error while remove it)
         {
-             ReorderRows(dgvMain, e, _bindingList);
+            ReorderRows(dgvMain, e, _bindingList);
         }
 
         private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
@@ -479,7 +480,75 @@ namespace TC_WinForms.WinForms
             }
 
         }
+
+        private void btnReplace_Click(object sender, EventArgs e) // add to UpdateMode
+        {
+            // Выделение объекта выбранной строки
+            if (dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return;
+            }
+
+            // load new form Win7_3_Component as dictionary
+            var newForm = new Win7_4_Component(activateNewItemCreate: true, createdTCId: _tcId, isUpdateMode: true);
+
+            newForm.WindowState = FormWindowState.Maximized;
+            newForm.ShowDialog();
+        }
+
+        public bool UpdateSelectedObject(Component updatedObject) // add to UpdateMode
+        {
+            if (dgvMain.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Выберите одну строку для редактирования");
+                return false;
+            }
+
+            var selectedRow = dgvMain.SelectedRows[0];
+            var displayedComponent = selectedRow.DataBoundItem as DisplayedComponent_TC;
+
+            if (displayedComponent != null)
+            {
+
+                if (displayedComponent.ChildId == updatedObject.Id)
+                {
+                    MessageBox.Show("Ошибка обновления объекта: ID объекта совпадает");
+                    return false;
+                }
+                // проверка на наличие объекта в списке существующих объектов
+                if (_bindingList.Any(obj => obj.ChildId == updatedObject.Id))
+                {
+                    MessageBox.Show("Ошибка обновления объекта: объект с таким ID уже существует");
+                    return false;
+                }
+                var newItem = CreateNewObject(updatedObject, displayedComponent.Order);
+                newItem.Quantity = displayedComponent.Quantity ?? 0;
+                newItem.Note = displayedComponent.Note;
+
+                var newDisplayedComponent = new DisplayedComponent_TC(newItem);
+
+
+                // замена displayedComponent в dgvMain на newDisplayedComponent
+                var index = _bindingList.IndexOf(displayedComponent);
+                _bindingList[index] = newDisplayedComponent;
+
+                // проверяем наличие объекта в списке измененных объектов в значениях replacedObjects
+                if (_replacedObjects.ContainsKey(displayedComponent))
+                {
+                    _replacedObjects[displayedComponent] = newDisplayedComponent;
+                }
+                else
+                {
+                    _replacedObjects.Add(displayedComponent, newDisplayedComponent);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
     }
-    
+
 
 }

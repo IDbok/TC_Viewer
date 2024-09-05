@@ -115,6 +115,7 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
                 await SaveChanges();
             }
             e.Cancel = false;
+            Dispose();
         }
     }
     public void AddNewObjects(List<Staff> newObjs)

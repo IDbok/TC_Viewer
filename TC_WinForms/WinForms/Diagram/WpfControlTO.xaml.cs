@@ -64,21 +64,11 @@ namespace TC_WinForms.WinForms.Diagram
             this._wpfMainControl = wpfMainControl;
             TechOperationWorksList = wpfMainControl.TechOperationWorksList; //techOperationWorksList;
 
-            //if (_diagamToWork == null)
-            //{
-            //    New = true;
-            //    diagamToWork = new DiagamToWork();
-            //}
             this.diagamToWork = diagamToWork;
             if (diagamToWork.Id == 0)
             {
                 New = true;
             }
-
-            //foreach (TechOperationWork? item in TechOperationWorksList.OrderBy(o => o.Order).ToList())
-            //{
-            //    ComboBoxTO.Items.Add(item); // todo: чтобы убрать возможность выбора уже отображаемых ТО из ComboBoxTO, нужно добавить проверку наличия item в diagamToWork
-            //}
 
             UpdateDiagramToWork();
 

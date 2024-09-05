@@ -42,48 +42,26 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="WinForms\Archive\Win2.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="WinForms\Win6\Win6_Protection.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="WinForms\Win6\Win6_Tool.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="WinForms\Win6\Win6_Machine.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="WinForms\Archive\Win2.cs" />
+    <Compile Update="WinForms\Win6\Win6_Protection.cs" />
+    <Compile Update="WinForms\Win6\Win6_Tool.cs" />
+    <Compile Update="WinForms\Win6\Win6_Machine.cs" />
     <Compile Update="WinForms\Win6\Win6_Component.cs" />
-    <Compile Update="WinForms\Win6\Win6_Staff.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="WinForms\Win6\Win6_Staff.cs" />
     <Compile Update="WinForms\Win6_new.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="WinForms\Archive\Win6_Generic.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="WinForms\Win7\Win7_Process.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="WinForms\Win7\Win7_TechTransition.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="WinForms\Win7\Win7_TechOperation.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="WinForms\Win7\Win7_7 Protection.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="WinForms\Win7\Win7_Process.cs" />
+    <Compile Update="WinForms\Win7\Win7_TechTransition.cs" />
+    <Compile Update="WinForms\Win7\Win7_TechOperation.cs" />
+    <Compile Update="WinForms\Win7\Win7_7 Protection.cs" />
     <Compile Update="WinForms\Win7\Win7_6 Tool.cs" />
-    <Compile Update="WinForms\Win7\Win7_5 Machine.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="WinForms\Win7\Win7_5 Machine.cs" />
     <Compile Update="WinForms\Win7\Win7_4 Component.cs" />
-    <Compile Update="WinForms\Win7\Win7_3 Staff.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="WinForms\Win7\Win7_3 Staff.cs" />
     <Compile Update="WinForms\Win7\Win7_2 Prj.cs">
       <SubType>Form</SubType>
     </Compile>
