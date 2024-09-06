@@ -180,6 +180,17 @@ namespace TC_WinForms.DataProcessing
                 }
                 else
                 {
+                    if (_parallelToCount > 1 && !isTOListisPosledow)
+                    {
+                        int tempColl = _startCollumn + ((_parallelToCount - 1) * 9);
+                        pageCollumn = Modulo(-tempColl, _currentPrintWidgth) + tempColl - _currentPrintWidgth + 1;
+
+                        if (_nextPagesLastCollumn.TryGetValue(pageCollumn, out int collCount))
+                            _startCollumn = collCount > _startCollumn ? collCount : _startCollumn;
+                        else
+                            _nextPagesLastCollumn.Add(pageCollumn, _startCollumn);
+                    }
+
                     workRow = AddParallelesToExel(diagram.ListDiagramParalelno, currentRow, techOperation.techOperation.Name, sheet);
                     resultRow = workRow > resultRow ? workRow : resultRow;
                     if (isTOListisPosledow)
