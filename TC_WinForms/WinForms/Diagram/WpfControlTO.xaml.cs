@@ -86,16 +86,40 @@ namespace TC_WinForms.WinForms.Diagram
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        private void SubscribeToSelectionChanged()
+        {
+            ComboBoxTO.SelectionChanged += ComboBoxTO_SelectionChanged;
+        }
+        private void UnsubscribeFromSelectionChanged()
+        {
+            ComboBoxTO.SelectionChanged -= ComboBoxTO_SelectionChanged;
+        }
+        private void SetTechOperationWorkToComboBox(TechOperationWork techOperationWork)
+        {
+            // Временно отписываемся от события
+            UnsubscribeFromSelectionChanged();
 
+            try
+            {
+                ComboBoxTO.SelectedItem = this.diagamToWork.techOperationWork;
+            }
+            finally
+            {
+                // Возвращаем подписку на событие
+                SubscribeToSelectionChanged();
+            }
+        }
         private void UpdateDiagramToWork()
         {
             if (this.diagamToWork.techOperationWork != null)
             {
                 ComboBoxTO.Items.Clear();
                 ComboBoxTO.Items.Add(this.diagamToWork.techOperationWork);
-                ComboBoxTO.SelectedItem = this.diagamToWork.techOperationWork;
-                ComboBoxTO.IsReadOnly = true;
-                ComboBoxTO.IsEnabled = false;
+                //ComboBoxTO.SelectedItem = this.diagamToWork.techOperationWork;
+                SetTechOperationWorkToComboBox(this.diagamToWork.techOperationWork);
+
+                //ComboBoxTO.IsReadOnly = true;
+                //ComboBoxTO.IsEnabled = false;
 
                 ListWpfParalelno.Visibility = Visibility.Visible;
 
@@ -120,6 +144,7 @@ namespace TC_WinForms.WinForms.Diagram
 
             ParallelButtonsVisibility(this.diagamToWork.ParallelIndex != null);
             this._wpfMainControl.Nomeraciya();
+            
         }
 
 
@@ -144,15 +169,65 @@ namespace TC_WinForms.WinForms.Diagram
         {
             if (ComboBoxTO.SelectedItem != null)
             {
+                var techOperationWork = (TechOperationWork)ComboBoxTO.SelectedItem;
+
                 if (diagamToWork.techOperationWork != null)
                 {
+                    if(diagamToWork.techOperationWork.Id == techOperationWork.Id)
+                    {
+                        return;
+                    }
+
+                    diagamToWork.techOperationWork = techOperationWork;
+                    diagamToWork.techOperationWorkId = techOperationWork.Id;
+
+                    if (diagamToWork.ListDiagramParalelno.Count > 0)
+                    {
+                        foreach(var item in diagamToWork.ListDiagramParalelno)
+                        {
+                            item.techOperationWork = techOperationWork;
+                            item.techOperationWorkId = techOperationWork.Id;
+
+                            foreach (var item2 in item.ListDiagramPosledov)
+                            {
+                                foreach (var item3 in item2.ListDiagramShag)
+                                {
+                                    foreach (var item4 in item3.ListDiagramShagToolsComponent)
+                                    {
+                                        if (item4.componentWork != null)
+                                        {
+                                            // проверка существует ли в новой ТО ComponentWork с таким же ComponentId
+                                            var componentWork = techOperationWork.ComponentWorks
+                                                .FirstOrDefault(x => x.componentId == item4.componentWork.componentId);
+                                            if (componentWork != null)
+                                                item4.componentWork = componentWork;
+                                            
+                                        }
+                                        else if (item4.toolWork != null)
+                                        {
+                                            // проверка существует ли в новой ТО ToolWork с таким же ToolId
+                                            var toolWork = techOperationWork.ToolWorks
+                                                .FirstOrDefault(x => x.toolId == item4.toolWork.toolId);
+                                            if (toolWork != null)
+                                                item4.toolWork = toolWork;
+                                        }
+                                    }
+                                    // тут нужно бы обновить таблицу с инструментами и компонентами в Шаге
+                                    
+                                }
+                            }
+                        }
+                    }
+
+                    _diagramState.HasChanges();
+
                     return;
                 }
 
                 ListWpfParalelno.Visibility = Visibility.Visible;
                 ButtonAddShag.Visibility = Visibility.Visible;
 
-                var techOperationWork = (TechOperationWork)ComboBoxTO.SelectedItem;
+                
                 var deletedDiagramToWork = _wpfMainControl.CheckInDeletedDiagrams(techOperationWork);
 
                 if (deletedDiagramToWork != null)
@@ -178,8 +253,8 @@ namespace TC_WinForms.WinForms.Diagram
                     _wpfMainControl.diagramForm.HasChanges = true;
 
                     // todo : вопрос, как быть с объектами Component and Tool, которые привязаны к конкретному TechOperationWork
-                    ComboBoxTO.IsReadOnly = true;
-                    ComboBoxTO.IsEnabled = false;
+                    //ComboBoxTO.IsReadOnly = true;
+                    //ComboBoxTO.IsEnabled = false;
 
                     Nomeraciya();
                 }
@@ -275,7 +350,11 @@ namespace TC_WinForms.WinForms.Diagram
             ComboBoxTO.Items.Clear();
 
             var availableTechOperationWorks = _wpfMainControl.GetAvailableTechOperationWorks();
-               
+
+            if (diagamToWork.techOperationWork != null)
+            {
+                ComboBoxTO.Items.Add(diagamToWork.techOperationWork);
+            }
             foreach (TechOperationWork? item in availableTechOperationWorks.OrderBy(o => o.Order).ToList())
             {
                 ComboBoxTO.Items.Add(item); // todo: чтобы убрать возможность выбора уже отображаемых ТО из ComboBoxTO, нужно добавить проверку наличия item в diagamToWork
