@@ -74,20 +74,15 @@ namespace TC_WinForms.WinForms.Diagram
 
             TechOperationWorksList =
                context.TechOperationWorks.Where(w => w.TechnologicalCardId == tcId)
-                   //.Include(i=>i.technologicalCard).ThenInclude(t=>t.Machine_TCs)
-                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Machines)
                    .Include(i => i.techOperation)
-                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Protection_TCs)
-                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Protections)
-                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Tool_TCs)
-                   //.Include(i => i.technologicalCard).ThenInclude(t => t.Component_TCs)
+
                    .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
 
                    .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
                    .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-                   //.Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2) // todo - проверить, всё ли работает без этого 
+
                    .Include(r => r.ToolWorks).ThenInclude(r => r.tool).ToList();
 
             foreach(var tow in TechOperationWorksList)
@@ -145,11 +140,6 @@ namespace TC_WinForms.WinForms.Diagram
 
             Nomeraciya();
 
-            //foreach (DiagamToWork item in ListShag)
-            //{
-            //    ListWpfControlTO.Children.Add(new WpfControlTO(this, item)); // ListWpfControlTO - это StackPanel в WpfMainControl.xaml
-            //    Nomeraciya();
-            //}
             _tcViewState.ViewModeChanged += OnViewModeChanged;
         }
 
@@ -166,7 +156,6 @@ namespace TC_WinForms.WinForms.Diagram
         public void DeleteControlTO(WpfControlTO controlTO)
         {
             // найти и удалить controlTO из ListWpfControlTO (WpfTo)
-            //ICollection<WpfTo> wpfToList = ListWpfControlTO.Children;
             for (int i = Children.Count - 1; i >= 0; i--)
             {
                 WpfTo wpfTo = Children[i];
@@ -186,33 +175,6 @@ namespace TC_WinForms.WinForms.Diagram
                 }
             }
 
-            //foreach (WpfTo wpfTo in wpfToList)
-            //    foreach (var wpfToSq in wpfTo.Children)
-            //    {
-            //        if (wpfToSq.Children.Contains(controlTO))
-            //        {
-            //            DeletedDiagrams.Add(controlTO.diagamToWork);
-
-            //            wpfToSq.DeleteWpfControlTO(controlTO);
-
-            //            Nomeraciya();
-            //            break;
-            //        }
-            //    }
-
-            //ListWpfControlTO.Children.Remove(controlTO);
-
-
-            //diagramForm.HasChanges = true;
-
-            //if (ListWpfControlTO.Children.Count==0)
-            //{
-            //    if (context.DiagamToWork.SingleOrDefault(s => s == controlTO.diagamToWork) != null)
-            //        context.DiagamToWork.Remove(controlTO.diagamToWork);
-
-            //    ListWpfControlTO.Children.Add(new WpfTo(this, addDiagram: true));
-            //    Nomeraciya();
-            //}
         }
 
         internal void Nomeraciya() // todo : раскомментировать
@@ -236,7 +198,7 @@ namespace TC_WinForms.WinForms.Diagram
                         Order3 = 1;
                         Order4 = 1;
 
-                        foreach (WpfParalelno wpfParallelItem in wpfControlToItem.ListWpfParalelno.Children)
+                        foreach (WpfParalelno wpfParallelItem in wpfControlToItem.Children)
                         {
                             if (wpfParallelItem.diagramParalelno != null) wpfParallelItem.diagramParalelno.Order = Order2++;
                             Order3 = 1;
@@ -277,7 +239,7 @@ namespace TC_WinForms.WinForms.Diagram
                 foreach (WpfTo wpfToItem in Children)
                     foreach (var wpfToSq in wpfToItem.Children)
                         foreach (var wpfControlToItem in wpfToSq.Children)
-                            foreach (WpfParalelno item2 in wpfControlToItem.ListWpfParalelno.Children)
+                            foreach (WpfParalelno item2 in wpfControlToItem.Children)
                                 foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
                                     foreach (WpfShag item4 in item3.ListWpfShag.Children)
                                     {
@@ -411,13 +373,6 @@ namespace TC_WinForms.WinForms.Diagram
                         }
                     }
                 }
-                //foreach (var wpfControlToItem in wpfToItem.Children)
-                //{
-                //    if (wpfControlToItem.diagamToWork != null)
-                //    {
-                //        diagramToWorks.Add(wpfControlToItem.diagamToWork);
-                //    }
-                //}
             }
             return diagramToWorks;
         }

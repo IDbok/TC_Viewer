@@ -173,5 +173,14 @@ namespace TC_WinForms.WinForms.Diagram
             wpfControlTO.Order(2, this);
             wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
+
+        public void UpdateAllShag()
+        {
+            foreach (WpfPosledovatelnost wpfPosledovatelnost in ListWpfPosledovatelnost.Children)
+            {
+
+                wpfPosledovatelnost.UpdateAllShag();
+            }
+        }
     }
 }
