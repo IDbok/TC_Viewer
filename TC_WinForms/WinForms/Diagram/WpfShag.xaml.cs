@@ -21,7 +21,7 @@ namespace TC_WinForms.WinForms.Diagram
         private readonly TcViewState _tcViewState;
 
 
-        private TechOperationWork selectedItem;
+        private TechOperationWork techOperationWork;
         WpfPosledovatelnost wpfPosledovatelnost;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -124,6 +124,12 @@ namespace TC_WinForms.WinForms.Diagram
                 diagramState.TcViewState, _diagramShag)
         {
             _diagramState = new DiagramState(diagramState);
+            if (diagramState.DiagramToWork?.techOperationWork != null)
+            {
+                techOperationWork = diagramState.DiagramToWork.techOperationWork;
+
+                UpdateDataGrids();
+            }
 
         }
         [Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
@@ -202,86 +208,81 @@ namespace TC_WinForms.WinForms.Diagram
 
             }
 
-
-            this.selectedItem = selectedItem;
             wpfPosledovatelnost = _wpfPosledovatelnost;
 
-            if (selectedItem != null)
-            {
-                ComboBoxTeh.ItemsSource = selectedItem.executionWorks;
-            }          
+            //if (techOperationWork == null)
+            //    this.techOperationWork = selectedItem;
 
+
+            //UpdateDataGrids();
+
+            CommentAccess();
+        }
+        public void UpdateDataGrids()
+        {
+            var techOperationWork = this.techOperationWork;
+
+            if (techOperationWork == null)
+                return;
+
+
+            // Создаем коллекцию для всех элементов
             AllItemGrid = new ObservableCollection<ItemDataGridShagAdd>();
 
-            foreach (var item in selectedItem.ToolWorks)
+            // Добавляем ToolWorks
+            foreach (var toolWork in techOperationWork.ToolWorks)
             {
-                ItemDataGridShagAdd itemDataGrid = new ItemDataGridShagAdd();
-                itemDataGrid.Name = item.tool.Name;
-                itemDataGrid.Type = item.tool.Type??"";
-                itemDataGrid.Unit = item.tool.Unit;
-                itemDataGrid.Count = item.Quantity.ToString();
-                itemDataGrid.Comments = item.Comments.ToString();
-                itemDataGrid.toolWork = item;
-                itemDataGrid.AddText = "";
-
-                System.Windows.Media.Brush brush = new SolidColorBrush(Colors.SkyBlue);
-                itemDataGrid.BrushBackground = brush;
-
-                AllItemGrid.Add(itemDataGrid);
-            }
-
-            foreach (var item in selectedItem.ComponentWorks)
-            {
-                ItemDataGridShagAdd itemDataGrid = new ItemDataGridShagAdd();
-                itemDataGrid.Name = item.component.Name;
-                itemDataGrid.Type = item.component.Type ?? "";
-                itemDataGrid.Unit = item.component.Unit;
-                itemDataGrid.Count = item.Quantity.ToString();
-                itemDataGrid.Comments = item.Comments??"";
-                itemDataGrid.componentWork = item;
-                itemDataGrid.AddText = "";
-
-                System.Windows.Media.Brush brush = new SolidColorBrush(Colors.LightPink);
-                itemDataGrid.BrushBackground = brush;
-
-                AllItemGrid.Add(itemDataGrid);
-            }
-
-            if(diagramShag.ListDiagramShagToolsComponent.Count>0)
-            {
-                foreach (DiagramShagToolsComponent itemS in diagramShag.ListDiagramShagToolsComponent)
+                var item = new ItemDataGridShagAdd
                 {
-                    if(itemS.toolWork!=null)
-                    {
-                        var ty = AllItemGrid.SingleOrDefault(s => s.toolWork == itemS.toolWork);
-                        if(ty!=null)
-                        {
-                            ty.Add = true;
-                            ty.AddText = itemS.Quantity.ToString();
-                        }
-                    }
+                    Name = toolWork.tool.Name,
+                    Type = toolWork.tool.Type ?? "",
+                    Unit = toolWork.tool.Unit,
+                    Count = toolWork.Quantity.ToString(),
+                    Comments = toolWork.Comments ?? "",
+                    toolWork = toolWork,
+                    AddText = "",
+                    BrushBackground = new SolidColorBrush(Colors.SkyBlue)
+                };
+                AllItemGrid.Add(item);
+            }
 
-                    if (itemS.componentWork != null)
-                    {
-                        var ty = AllItemGrid.SingleOrDefault(s => s.componentWork == itemS.componentWork);
-                        if (ty != null)
-                        {
-                            ty.Add = true;
-                            ty.AddText = itemS.Quantity.ToString();
-                        }
-                    }
+            // Добавляем ComponentWorks
+            foreach (var componentWork in techOperationWork.ComponentWorks)
+            {
+                var item = new ItemDataGridShagAdd
+                {
+                    Name = componentWork.component.Name,
+                    Type = componentWork.component.Type ?? "",
+                    Unit = componentWork.component.Unit,
+                    Count = componentWork.Quantity.ToString(),
+                    Comments = componentWork.Comments ?? "",
+                    componentWork = componentWork,
+                    AddText = "",
+                    BrushBackground = new SolidColorBrush(Colors.LightPink)
+                };
+                AllItemGrid.Add(item);
+            }
 
+            // Обновление добавленных элементов
+            foreach (var diagramShagToolsComponent in diagramShag.ListDiagramShagToolsComponent)
+            {
+                var existingItem = diagramShagToolsComponent.toolWork != null
+                    ? AllItemGrid.SingleOrDefault(i => i.toolWork == diagramShagToolsComponent.toolWork)
+                    : AllItemGrid.SingleOrDefault(i => i.componentWork == diagramShagToolsComponent.componentWork);
+
+                if (existingItem != null)
+                {
+                    existingItem.Add = true;
+                    existingItem.AddText = diagramShagToolsComponent.Quantity.ToString();
                 }
             }
 
+            // Добавление шагов в ComboBox
+            ComboBoxTeh.ItemsSource = techOperationWork.executionWorks;
 
+            // Устанавливаем источники данных для DataGrid
             DataGridToolAndComponentsAdd.ItemsSource = AllItemGrid;
-
-            var vb = AllItemGrid.Where(w => w.Add).ToList();
-            DataGridToolAndComponentsShow.ItemsSource = vb;
-
-
-            CommentAccess();
+            DataGridToolAndComponentsShow.ItemsSource = AllItemGrid.Where(i => i.Add).ToList();
         }
 
         private BitmapImage LoadImage(byte[] imageData)
