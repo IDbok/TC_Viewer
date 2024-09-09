@@ -7,7 +7,6 @@ using System.IO;
 using TcDbConnector;
 using TcModels.Models.TcContent;
 using System.Drawing.Imaging;
-using System.Security.Cryptography;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -32,7 +31,7 @@ namespace TC_WinForms.DataProcessing
         private bool isNextTOParallel = false;
         private bool isShagStatusPrinted = false;
 
-        private Dictionary<string, Color> _toColors = new Dictionary<string, Color> ();
+        private Dictionary<int, Color> _toColors = new Dictionary<int, Color> ();
         private Dictionary<int, int>  _nextPagesLastRow = new Dictionary<int, int>();
         private Dictionary<int, int> _nextPagesLastCollumn = new Dictionary<int, int>();
 
@@ -80,6 +79,22 @@ namespace TC_WinForms.DataProcessing
 
             var currentRow = 2; //стартовая строчка расположения диаграм
             _pageCount = 1;//Присваиваем значение счетчику старниц, нумерация с 1 страницы
+
+            _toColors.Add(0, Color.NavajoWhite);
+            Color toColor = GetTOColor();
+
+            for (int i = 1; i <= 4; i++)
+            {
+                if (!_toColors.ContainsValue(toColor))
+                    _toColors.TryAdd(i, toColor);
+
+                while (_toColors.ContainsValue(toColor))
+                {
+                   toColor = GetTOColor();
+                   _toColors.TryAdd(i, toColor);
+
+                }
+            }
 
             foreach (var dTOWGroup in dTOWGroups)
             {
@@ -156,13 +171,6 @@ namespace TC_WinForms.DataProcessing
                 var techOperation = context.TechOperationWorks.Where(t => t.Id == diagram.techOperationWorkId)
                                                                 .Include(t => t.techOperation).FirstOrDefault();
 
-                Color toColor = GetTOColor();
-                _toColors.TryAdd(techOperation.techOperation.Name, toColor);
-                while (_toColors.ContainsValue(toColor))
-                {
-                    toColor = GetTOColor();
-                    _toColors.TryAdd(techOperation.techOperation.Name, toColor);
-                }
 
                 if (_startCollumn > _currentPrintWidgth)
                 {
@@ -333,6 +341,7 @@ namespace TC_WinForms.DataProcessing
 
         private int AddTONameToExcel(String TOName, ExcelWorksheet sheet, int headRow, int currentColumn)
         {
+            Color toColor;
             var printScaleDifference = Modulo(-headRow, _currentPrintHeigth);
             if (printScaleDifference < 5) //Проверка наличия хотя бы 5 строк в конце листка, чтобы корректно отображались данные шага
             {
@@ -342,11 +351,14 @@ namespace TC_WinForms.DataProcessing
             int[] columnNums = { currentColumn+1, currentColumn + 7};
 
             sheet.Cells[headRow, columnNums[0]].Value = TOName;
-            if(_toColors.TryGetValue(TOName, out Color toColor))
-            {
-                sheet.Cells[headRow, columnNums[0], headRow, columnNums[columnNums.Length - 1] - 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                sheet.Cells[headRow, columnNums[0], headRow, columnNums[columnNums.Length - 1] - 1].Style.Fill.BackgroundColor.SetColor(toColor);
-            }
+
+            if (isNextTOParallel)
+                _toColors.TryGetValue(_currentParallelTO, out toColor);
+            else
+                _toColors.TryGetValue(0, out toColor);
+
+            sheet.Cells[headRow, columnNums[0], headRow, columnNums[columnNums.Length - 1] - 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+            sheet.Cells[headRow, columnNums[0], headRow, columnNums[columnNums.Length - 1] - 1].Style.Fill.BackgroundColor.SetColor(toColor);
 
             AddStyleAlignment(headRow, columnNums, sheet);
 
@@ -685,15 +697,10 @@ namespace TC_WinForms.DataProcessing
         private Color GetTOColor()
         {
             Random colorRnd = new Random();
-            int red = colorRnd.Next(240);
-            int green = colorRnd.Next(90, 240);
-            int blue = colorRnd.Next(90, 160);
-            red = Modulo(-red, 30) + red;
-            green = Modulo(-green, 30) + green;
-            blue = Modulo(-blue, 30) + blue;
+            int red = colorRnd.Next(0, 240);
+            red = Modulo(-red, 60) + red;
 
-
-            Color color = Color.FromArgb(red, green, blue);
+            Color color = Color.FromArgb(red, 160, 240);
 
             return color;
         }
