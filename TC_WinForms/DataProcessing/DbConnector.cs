@@ -893,6 +893,27 @@ namespace TC_WinForms.DataProcessing
             }
         }
 
+        public void DeleteRelatedToolComponentDiagram(int toId, int itemId)
+        {
+            try
+            {
+                using (var context = new MyDbContext())
+                {
+                    var relatedItems = context.DiagramShagToolsComponent.Where(s => s.componentWorkId == itemId || s.toolWorkId == itemId).ToList();
+                    foreach (var item in relatedItems)
+                    {
+                        context.Remove(item);
+                    }
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception e)
+            {
+                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
+                throw;
+            }
+        }
+
         public List<C> GetUnpublishedToOrTt<C>(int tcID) where C : class, IReleasable, IIdentifiable
         {
             List<C>? unpublishedObjs = new List<C>();

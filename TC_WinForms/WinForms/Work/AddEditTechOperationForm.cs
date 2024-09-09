@@ -1395,6 +1395,9 @@ namespace TC_WinForms.WinForms.Work
                 var work = (TechOperationWork)comboBoxTO2.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
 
+                DbConnector dbCon = new DbConnector();
+                dbCon.DeleteRelatedToolComponentDiagram(work.Id, Idd.Id);
+
                 work.ComponentWorks.Remove(Idd);
                 UpdateComponentAll();
                 UpdateComponentLocal();
@@ -1671,6 +1674,9 @@ namespace TC_WinForms.WinForms.Work
                     return;
                 }
                 var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
+
+                DbConnector dbCon = new DbConnector();
+                dbCon.DeleteRelatedToolComponentDiagram(work.Id, Idd.Id);
 
                 work.ToolWorks.Remove(Idd);
                 UpdateInstrumentAll();
