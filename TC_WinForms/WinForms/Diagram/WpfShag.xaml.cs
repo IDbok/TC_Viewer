@@ -21,7 +21,7 @@ namespace TC_WinForms.WinForms.Diagram
         private readonly TcViewState _tcViewState;
 
 
-        private TechOperationWork techOperationWork;
+        private TechOperationWork? techOperationWork => _diagramState.DiagramToWork?.techOperationWork;
         WpfPosledovatelnost wpfPosledovatelnost;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -126,7 +126,7 @@ namespace TC_WinForms.WinForms.Diagram
             _diagramState = new DiagramState(diagramState);
             if (diagramState.DiagramToWork?.techOperationWork != null)
             {
-                techOperationWork = diagramState.DiagramToWork.techOperationWork;
+                //techOperationWork = diagramState.DiagramToWork.techOperationWork;
 
                 UpdateDataGrids();
             }
@@ -220,7 +220,7 @@ namespace TC_WinForms.WinForms.Diagram
         }
         public void UpdateDataGrids()
         {
-            var techOperationWork = this.techOperationWork;
+            //var techOperationWork = this.techOperationWork;
 
             if (techOperationWork == null)
                 return;
