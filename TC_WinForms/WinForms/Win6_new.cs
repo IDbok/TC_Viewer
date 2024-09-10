@@ -89,6 +89,8 @@ namespace TC_WinForms.WinForms
 
         //TechOperationForm techOperationForm;
 
+        public string executionSchemeImage64{ get;set;}
+
         EModelType? activeModelType = null;
         private TechnologicalCard _tc = null!;
         private int _tcId;
@@ -381,7 +383,7 @@ namespace TC_WinForms.WinForms
                 case EModelType.Diagram:
                     return new DiagramForm(_tcId, tcViewState);// _isViewMode);
                 case EModelType.ExecutionScheme:
-                    return new Win6_ExecutionScheme(_tc, tcViewState);// _isViewMode);
+                    return new Win6_ExecutionScheme(_tc, tcViewState, this);// _isViewMode);
                 //case EModelType.TechnologicalCard:
                 //    return new Win7_1_TCs_Window(_tcId, win6Format: true);
                 default:
