@@ -12,6 +12,7 @@ using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Work;
 using TcDbConnector;
+using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 
@@ -21,6 +22,7 @@ namespace TC_WinForms.WinForms
     {
         private readonly TcViewState _tcViewState;
 
+        private TechnologicalCardRepository tcRepository = new TechnologicalCardRepository();
         private readonly TechnologicalCard _tc;
         private bool _isViewMode = true;
 
@@ -46,18 +48,38 @@ namespace TC_WinForms.WinForms
         {
             SetViewMode();
 
-            if (_tc.ExecutionSchemeImageId != null)
+            if (_tc.ExecutionSchemeImageId != null ||  (_tc.ExecutionSchemeImageId == null && _tcViewState?.TechnologicalCard.ExecutionSchemeBase64 != null))
             {
-                ImageStorage? image;
-                // Загрузить изображение схемы выполнения
-                using (var dbCon = new MyDbContext())
+                string imageBase64 = "";
+
+                if (_tcViewState?.TechnologicalCard?.ExecutionSchemeBase64 != null)
+                    imageBase64 = _tcViewState?.TechnologicalCard?.ExecutionSchemeBase64;
+                else
                 {
-                    image = dbCon.ImageStorage.Where(i => i.Id == _tc.ExecutionSchemeImageId).FirstOrDefault();
+                    try
+                    {
+                        for(int i = 1; i <=3; i++)//проверка на загрузку изображение, повторяем 3 раза
+                        {
+                            imageBase64 = tcRepository.GetImageBase64(_tc.ExecutionSchemeImageId);
+                            _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = imageBase64;
+
+                            if (i == 3 && (imageBase64 == "" || imageBase64 == null))
+                                throw new Exception("не удалось получить изображение");
+                            else if (imageBase64 != "")
+                                break;
+                        }
+                        
+                    }
+                    catch(Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                        this.Close();
+                    }
                 }
 
-                if (image != null && image.ImageBase64 != null)
+                if (imageBase64 != null)
                 {
-                    DisplayImage(image.ImageBase64, pictureBoxExecutionScheme);
+                    DisplayImage(imageBase64, pictureBoxExecutionScheme);
                     //DisplayImage(_tc.ExecutionSchemeBase64, pictureBoxExecutionScheme);
                 }
             }
@@ -65,6 +87,7 @@ namespace TC_WinForms.WinForms
 
 
         }
+        
         private void OnViewModeChanged()
         {
             SetViewMode();
@@ -123,6 +146,8 @@ namespace TC_WinForms.WinForms
                     //_tc.ExecutionSchemeBase64 = base64Image;
                     DisplayImage(_tc.ExecutionSchemeImage.ImageBase64, pictureBoxExecutionScheme);
 
+                    _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = _tc.ExecutionSchemeImage.ImageBase64;
+
                     HasChanges = true;
                 }
             }
@@ -141,10 +166,13 @@ namespace TC_WinForms.WinForms
                 if (_tc.ExecutionSchemeImage?.ImageBase64 != null)
                 {
                     await dbCon.UpdateTcExecutionScheme(_tc.Id, _tc.ExecutionSchemeImage.ImageBase64);
+                    _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = _tc.ExecutionSchemeImage.ImageBase64;
+
                 }
                 else
                 {
                     await dbCon.DeleteTcExecutionScheme(_tc.Id);
+                    _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = null;
                 }
             }
         }
@@ -153,6 +181,8 @@ namespace TC_WinForms.WinForms
         {
             _tc.ExecutionSchemeImage?.ClearBase64Image();       
             pictureBoxExecutionScheme.Image = null;
+
+            HasChanges = true;
         }
     }
 }
