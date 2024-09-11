@@ -168,6 +168,7 @@ namespace TC_WinForms.WinForms
                 dgvMain.Columns[column.Key].Resizable = DataGridViewTriState.False;
             }
 
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Type)].Resizable = DataGridViewTriState.True;
 
             // make columns readonly
             foreach (DataGridViewColumn column in dgvMain.Columns)
