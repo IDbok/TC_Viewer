@@ -88,14 +88,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             .Where(w => w.TechnologicalCardId == tcId)
             
             .Include(i => i.techOperation)
-            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+
             .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
             .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
             .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
             .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-            //.Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2)
             .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
+
             .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
             .ToListAsync();
     }
 
@@ -1060,19 +1061,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             var str = new List<object>();
             var obj = context.Set<TechOperation>().Where(to => to.Id == techOperationDataGridItem.IdTO).FirstOrDefault();
 
-            if(techOperationDataGridItem.Nomer == 18) // todo - убрать
-            {
-                Console.WriteLine();
-            }
-
             if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat)
             {
-                //var repeatNumList = techOperationDataGridItem.techWork.ListexecutionWorkRepeat2
-                //    .Select(executionWork => list.SingleOrDefault(s => s.techWork == executionWork))
-                //    .Where(bn => bn != null)
-                //    .Select(bn => bn.Nomer)
-                //    .ToList();
-
                 var repeatNumList = techOperationDataGridItem.techWork.ExecutionWorkRepeats
                     .Select(executionWorkRepeat => list.SingleOrDefault(s => s.techWork == executionWorkRepeat.ChildExecutionWork))
                     .Where(bn => bn != null)
@@ -1348,7 +1338,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
 
     }
-
+    /// <summary>
+    /// Проверяет ячейку на совпадение с предыдущей ячейкой в столбце dgvMain
+    /// </summary>
+    /// <param name="column"></param>
+    /// <param name="row"></param>
+    /// <returns></returns>
     bool IsTheSameCellValue(int column, int row)
     {
         if (row == 0)
@@ -1538,103 +1533,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         }
 
         return;
-
-        //using (var context = new MyDbContext())
-        //{
-        //    var TC = context.TechnologicalCards.Single(s => s.Id == 1);
-
-        //    TechOperation techOperation = new TechOperation();
-        //    techOperation.Name = "Установка автовышки";
-        //    context.TechOperations.Add(techOperation);
-
-        //    TechOperationWork techOperationWork = new TechOperationWork();
-        //    techOperationWork.techOperation = techOperation;
-        //    techOperationWork.technologicalCard = TC;
-
-        //    var techOperation2 = new TechOperation();
-        //    techOperation2.Name = "Подготовка к работе с люльки";
-        //    context.TechOperations.Add(techOperation2);
-
-        //    TechOperationWork techOperationWork2 = new TechOperationWork();
-        //    techOperationWork2.techOperation = techOperation2;
-        //    techOperationWork2.technologicalCard = TC;
-
-
-
-
-        //    TechTransition techTransition = new TechTransition();
-        //    techTransition.Name = "Определить место установки техники";
-        //    techTransition.TimeExecution = 3;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    ExecutionWork executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Установить автовышку";
-        //    techTransition.TimeExecution = 5.5;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Установить ограждение рабочей зоны";
-        //    techTransition.TimeExecution = 5;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Подготовить инструменты и материалы";
-        //    techTransition.TimeExecution = 4;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Загрузить в люльку инструменты и материалы";
-        //    techTransition.TimeExecution = 3;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork2;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Надеть страховочную привязь";
-        //    techTransition.TimeExecution = 1.5;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork2;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Войти в люльку, закрепиться удерживающим стропом, закрыть дверь на запорное устройство";
-        //    techTransition.TimeExecution = 1;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork2;
-        //    context.ExecutionWorks.Add(executionWork);
-
-
-        //    context.SaveChanges();
-        //}
     }
 
     private void button2_Click(object sender, EventArgs e)
