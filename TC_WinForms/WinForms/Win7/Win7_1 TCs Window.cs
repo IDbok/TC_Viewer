@@ -167,6 +167,7 @@ namespace TC_WinForms.WinForms
 
             try
             {
+                StaticWinForms.Win7_TC_search = StaticWinForms.Win7_TC.setSearch!;
                 context.SaveChanges();
                 StaticWinForms.Win7_new.UpdateTC();
             }
@@ -185,6 +186,7 @@ namespace TC_WinForms.WinForms
             {
                 if (Save())
                 {
+                    this.BringToFront();
                     MessageBox.Show("Сохранено!");
                 }
             }
