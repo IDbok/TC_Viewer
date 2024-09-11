@@ -35,6 +35,7 @@ namespace TC_WinForms.WinForms
 
         private bool isFiltered = false;
 
+        public string setSearch { get => txtSearch.Text;}
         private List<DisplayedTechnologicalCard> _filteredList;
         private int filteredPageIndex = 0;
         private int totalFilteredPageCount;
@@ -49,6 +50,7 @@ namespace TC_WinForms.WinForms
         public Win7_1_TCs(User.Role accessLevel)
         {
             _accessLevel = accessLevel;
+            StaticWinForms.Win7_TC = this;
 
             InitializeComponent();
             AccessInitialization();
@@ -113,6 +115,9 @@ namespace TC_WinForms.WinForms
 
             dgvMain.Visible = true;
             this.Enabled = true;
+
+            if (StaticWinForms.Win7_TC_search != null)
+                txtSearch.Text = StaticWinForms.Win7_TC_search;
         }
         public async Task LoadDataAsync()
         {
