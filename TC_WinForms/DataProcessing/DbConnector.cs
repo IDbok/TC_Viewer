@@ -416,8 +416,8 @@ namespace TC_WinForms.DataProcessing
                         // Выделяем объекты из связанных данных ComponentWork, ToolWork
                         List<ComponentWork> cwToReplace = new List<ComponentWork>();
                         List<ToolWork> twToReplace = new List<ToolWork>();
-
                         List<ExecutionWork> executionWorks = new List<ExecutionWork>();
+
                         if (typeof(T) == typeof(Component_TC))
                         {
                             cwToReplace = await db.Set<ComponentWork>()
@@ -442,7 +442,7 @@ namespace TC_WinForms.DataProcessing
                                 .Include(st => st.Machines)
 
                                 .Where(ew => ew.techOperationWork.TechnologicalCardId == tcId &&
-                                  ew.Protections.Any(p => obj_TCsIds.Contains(p.ChildId)))
+                                  ew.Machines.Any(p => obj_TCsIds.Contains(p.ChildId)))
                                 .ToListAsync();
                         }
                         else if (typeof(T) == typeof(Protection_TC))
@@ -884,41 +884,6 @@ namespace TC_WinForms.DataProcessing
                                     .Include(tc => tc.Child)
                                     .Cast<T>()
                                     .ToList();
-                }
-            }
-            catch (Exception e)
-            {
-                OnMessageToUI?.Invoke("Произошла ошибка при попытки подключиться к БД.\n" + e.ToString(), MessageType.Error);
-                throw;
-            }
-        }
-
-
-        public List<C> GetUnpublishedTO<T, C>(int tcID) where C : class, IReleasable, IIdentifiable
-        {
-            List<T>? allObjectsTC = null;
-            List<C>? unpublishedObjs = null;
-            C? unpublishedObj;
-
-            try
-            {
-                using (var context = new MyDbContext())
-                {
-                    var allObjects = context.Set<TechOperationWork>().Where(tow => tow.TechnologicalCardId == tcID).ToList();
-
-                    foreach (var obj in allObjects)
-                    {
-                        unpublishedObj = context.Set<TechOperation>().Where(to => to.Id == obj.techOperationId && to.IsReleased == false).Cast<C>()
-                                                .FirstOrDefault();
-
-                        if (unpublishedObj != null)
-                            unpublishedObjs.Add(unpublishedObj);
-                    }
-
-                    if (unpublishedObjs != null)
-                        return unpublishedObjs;
-                    else
-                        return unpublishedObjs = new List<C>();
                 }
             }
             catch (Exception e)

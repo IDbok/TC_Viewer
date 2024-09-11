@@ -17,8 +17,8 @@
                     <ComboBox Name="ComboBoxTO" Width="300" Margin="30,0,0,0"
                               SelectionChanged="ComboBoxTO_SelectionChanged" PreviewMouseDown="ComboBoxTO_PreviewMouseDown" />
                     <StackPanel Orientation="Horizontal" 
-                                Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
-                                >
+                                Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                        
                         <Button Width="50" Content="Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
                                 Click="ButtonDown_Click"  />
                         <Button Width="50" Content="Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
@@ -33,9 +33,20 @@
                     </StackPanel>
                 
             </StackPanel>
-            <StackPanel x:Name="ListWpfParalelno" HorizontalAlignment="Center" Visibility="Visible" >
+            
+            <d:StackPanel  HorizontalAlignment="Center" Visibility="Visible" >
                 <local:WpfParalelno />
-            </StackPanel>
+            </d:StackPanel>
+
+            <ItemsControl x:Name="ListWpfParalelno"
+                  ItemsSource="{Binding Children, 
+                    RelativeSource={RelativeSource AncestorType=UserControl}}"> 
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
 
             <Button x:Name="ButtonAddShag" Content="Добавить шаг" HorizontalAlignment="Center" Margin="0,30,0,0" 
                     IsEnabled="False"

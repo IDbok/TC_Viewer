@@ -166,5 +166,13 @@ namespace TC_WinForms.WinForms.Diagram
             wpfParalelno.Order(2, this);
             wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
         }
+
+        public void UpdateAllShag()
+        {
+            foreach (WpfShag wpfShag in ListWpfShag.Children)
+            {
+                wpfShag.UpdateDataGrids();
+            }
+        }
     }
 }

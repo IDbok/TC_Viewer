@@ -36,13 +36,13 @@ namespace TcModels.Models.TcContent
         public string? Comments { get; set; } = "";
 
         [NotMapped] public bool NewItem { get; set; }
-       [NotMapped] public bool Delete { get; set; }
-       [NotMapped] public Guid IdGuid { get; set; }
+        [NotMapped] public bool Delete { get; set; }
+        [NotMapped] public Guid IdGuid { get; set; }
         
-       public int Order { get; set; }
-       public string Etap { get; set; } = "";
-       public string Posled { get; set; } = "";
-       [NotMapped] public double TempTimeExecution { get; set; }
+        public int Order { get; set; }
+        public string Etap { get; set; } = "";
+        public string Posled { get; set; } = "";
+        [NotMapped] public double TempTimeExecution { get; set; }
 
 
         public string Vopros { get; set; } = "";
@@ -51,7 +51,7 @@ namespace TcModels.Models.TcContent
         public string? PictureName { get; set; } = "";
 
         public override string ToString()
-       {
+        {
            if (techTransition != null)
            {
                return techTransition.Name;
@@ -68,6 +68,6 @@ namespace TcModels.Models.TcContent
                 }
 
            }
-       }
+        }
     }
 }

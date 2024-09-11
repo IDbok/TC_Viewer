@@ -11,6 +11,7 @@ namespace TC_WinForms.WinForms.Work
     public class TechOperationDataGridItem
     {
         public int Nomer { get; set; }
+        public int IdTO { get; set; }
         public string TechOperation { get; set; } = null!; // todo - изменить на более понятное имя (например, TechOperationName)
 
         public string Staff { get; set; } = "";
