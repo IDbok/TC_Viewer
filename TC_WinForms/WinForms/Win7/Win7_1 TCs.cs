@@ -61,7 +61,11 @@ namespace TC_WinForms.WinForms
             {
                 [User.Role.Lead] = () => { },
 
-                [User.Role.Implementer] = () => { },
+                [User.Role.Implementer] = () => 
+                { 
+                    HideAllButtonsExcept(new List<System.Windows.Forms.Button> { btnViewMode });
+                    btnViewMode.Location = btnDeleteTC.Location;
+                },
 
                 [User.Role.ProjectManager] = () =>
                 {
