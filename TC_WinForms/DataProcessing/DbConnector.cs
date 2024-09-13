@@ -48,6 +48,25 @@ namespace TC_WinForms.DataProcessing
         {
             await AddTcAsync(new List<TechnologicalCard> { tc });
         }
+        public async Task AddOrUpdateTCAsync(TechnologicalCard tc)
+        {
+            using (var db = new MyDbContext())
+            {
+                
+                var existingTc = await db.Set<TechnologicalCard>()
+                        .FirstOrDefaultAsync(t => t.Id == tc.Id);
+
+                if (existingTc != null)
+                    existingTc.ApplyUpdates(tc);
+                else
+                    await db.TechnologicalCards.AddAsync(tc);
+
+                if (db.ChangeTracker.HasChanges())
+                {
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
         public async Task AddTcAsync(List<TechnologicalCard> tcs)
         {
             using (var db = new MyDbContext())
