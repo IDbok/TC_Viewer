@@ -493,17 +493,35 @@ namespace TC_WinForms.DataProcessing
             //var memoryStream = new MemoryStream();
             using(MemoryStream ms = new MemoryStream())
             {
-                if (bitmapImage.Width > 600 || bitmapImage.Height > 500)
+                try
                 {
-                    Bitmap resized = new Bitmap(bitmapImage, new Size((int)(bitmapImage.Width / 1.5d), (int)(bitmapImage.Height / 1.5d)));
-                    resized.Save(ms, ImageFormat.Png);
-                }
-                else
                     bitmapImage.Save(ms, ImageFormat.Png);
+                }
+                catch
+                {
+                    Bitmap bitmap = new Bitmap(bitmapImage.Width, bitmapImage.Height, bitmapImage.PixelFormat);
+                    Graphics g = Graphics.FromImage(bitmap);
+                    g.DrawImage(bitmapImage, new Point(0, 0));
+                    g.Dispose();
+                    bitmapImage.Dispose();
+                    bitmap.Save(ms, ImageFormat.Png);
+                    bitmapImage = bitmap; // preserve clone      
+                }
 
                 ExcelPicture excelImage = null;
                 excelImage = sheet.Drawings.AddPicture(shag.NameImage + headRow, ms);
-                excelImage.SetSize(100);
+                if((excelImage.Size.Width / 9525)  > 500)
+                {
+                    int i = 100;
+                    while((excelImage.Size.Width / 9529) > 530)
+                    {
+                        excelImage.SetSize(i);
+                        i -= 5;
+                    }
+                }    
+                else
+                    excelImage.SetSize(100);
+
 
                 int printScaleDifference = Modulo(-headRow, _currentPrintHeigth);
                 var currentRow = (int)Math.Ceiling(excelImage.Image.Bounds.Height / rowHeightPixels) + 2;//Высота изображения с учетом вставки наименований в строках
