@@ -7,7 +7,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models
 {
-    public class TechnologicalCard: INameable, IUpdatableEntity
+    public class TechnologicalCard: INameable, IUpdatableEntity, ITechnologicalCard
     {
         public enum TechnologicalCardStatus
         {
