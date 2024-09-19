@@ -31,7 +31,14 @@ namespace TC_WinForms.DataProcessing
         private bool isNextTOParallel = false;
         private bool isShagStatusPrinted = false;
 
-        private Dictionary<int, Color> _toColors = new Dictionary<int, Color> ();
+        private Dictionary<int, Color> _toColors = new Dictionary<int, Color> 
+        {
+            [0] = Color.NavajoWhite,
+            [1] = Color.LightSkyBlue,
+            [2] = Color.Pink,
+            [3] = Color.Plum,
+            [4] = Color.Thistle
+        };
         private Dictionary<int, int>  _nextPagesLastRow = new Dictionary<int, int>();
         private Dictionary<int, int> _nextPagesLastCollumn = new Dictionary<int, int>();
 
@@ -80,21 +87,7 @@ namespace TC_WinForms.DataProcessing
             var currentRow = 2; //стартовая строчка расположения диаграм
             _pageCount = 1;//Присваиваем значение счетчику старниц, нумерация с 1 страницы
 
-            _toColors.Add(0, Color.NavajoWhite);
-            Color toColor = GetTOColor();
-
-            for (int i = 1; i <= 4; i++)
-            {
-                if (!_toColors.ContainsValue(toColor))
-                    _toColors.TryAdd(i, toColor);
-
-                while (_toColors.ContainsValue(toColor))
-                {
-                   toColor = GetTOColor();
-                   _toColors.TryAdd(i, toColor);
-
-                }
-            }
+           
 
             foreach (var dTOWGroup in dTOWGroups)
             {
@@ -465,9 +458,9 @@ namespace TC_WinForms.DataProcessing
                     sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[4]].Style.Fill.PatternType = ExcelFillStyle.Solid;
 
                     if (item.tableObject.GetType().Name == "Tool")//Окраживание ячеек в зависимоти от типа
-                        sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[4]].Style.Fill.BackgroundColor.SetColor(Color.Aquamarine);
+                        sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[4]].Style.Fill.BackgroundColor.SetColor(Color.PaleTurquoise);
                     else
-                        sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[4]].Style.Fill.BackgroundColor.SetColor(Color.Salmon);
+                        sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[4]].Style.Fill.BackgroundColor.SetColor(Color.LightSalmon);
 
                     // Переход к следующей строке
                     currentRow++;
@@ -703,17 +696,6 @@ namespace TC_WinForms.DataProcessing
 
                 _pageCount++;
             }
-        }
-
-        private Color GetTOColor()
-        {
-            Random colorRnd = new Random();
-            int red = colorRnd.Next(0, 240);
-            red = Modulo(-red, 60) + red;
-
-            Color color = Color.FromArgb(red, 160, 240);
-
-            return color;
         }
         #endregion
 
