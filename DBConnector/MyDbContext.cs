@@ -250,7 +250,10 @@ public class MyDbContext : DbContext
         modelBuilder.Entity<ImageStorage>()
             .Property(e => e.Category)
             .HasConversion<int>();
-
+        
+        modelBuilder.Entity<TechOperationWork>()
+            .Property<string>("ParallelIndex")
+            .HasColumnName("ParallelIndex");
 
     }
 
