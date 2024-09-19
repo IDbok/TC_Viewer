@@ -41,6 +41,8 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewAllTO.CellClick += DataGridViewAllTO_CellClick;
 
             dataGridViewTO.CellClick += DataGridViewTO_CellClick;
+            dataGridViewTO.CellEndEdit += DataGridViewTO_CellEndEdit;
+            dataGridViewTO.CellFormatting += DataGridViewTO_CellFormatting;
 
             //dataGridViewTPAll.CellContentClick += DataGridViewTPAll_CellContentClick;
             dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
@@ -203,7 +205,9 @@ namespace TC_WinForms.WinForms.Work
                 techOperation,
                 "Добавить",
                 techOperation.Name,
-                techOperation.Category == "Типовая ТО"
+                techOperation.Category == "Типовая ТО",
+                "",
+                ""
             };
             dataGridViewAllTO.Rows.Add(row.ToArray());
             if (!techOperation.IsReleased)
@@ -236,12 +240,16 @@ namespace TC_WinForms.WinForms.Work
         }
         private void AddTechOperationToGridLocalTO(TechOperationWork techOperationWork)
         {
+            
             var row = new List<object>
             {
                 techOperationWork,
                 "Удалить",
                 techOperationWork.techOperation.Name,
-                techOperationWork.techOperation.Category == "Типовая ТО"
+                techOperationWork.techOperation.Category == "Типовая ТО",
+                techOperationWork.Order,
+                techOperationWork.GetParallelIndex().ToString() ?? "",
+                techOperationWork.GetSequenceGroupIndex().ToString() ?? ""
             };
             dataGridViewTO.Rows.Add(row.ToArray());
         }
@@ -253,6 +261,74 @@ namespace TC_WinForms.WinForms.Work
             UpdateGridLocalTP();
         }
 
+        private void DataGridViewTO_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == dataGridViewTO.Columns["ParallelIndex"].Index)
+            {
+                var newValue = (string)dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+                var techOperationWork = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
+
+                if (techOperationWork != null)
+                {
+                    if(newValue != techOperationWork.GetParallelIndex().ToString())
+                    {
+                        if (newValue == "")
+                        {
+                            techOperationWork.SetParallelIndex(0);
+                        }
+                        else
+                        {
+                            if (int.TryParse(newValue, out var result))
+                            {
+                                techOperationWork.SetParallelIndex(result);
+                            }
+                        }
+
+                        TechOperationForm.UpdateGrid();
+                    }
+                }
+            }
+            else if (e.ColumnIndex == dataGridViewTO.Columns["SequenceGroupIndex"].Index)
+            {
+                var newValue = (string)dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+                var techOperationWork = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
+
+                if (techOperationWork != null)
+                {
+                    if (newValue != techOperationWork.GetSequenceGroupIndex().ToString())
+                    {
+                        if (newValue == "")
+                        {
+                            techOperationWork.SetSequenceGroupIndex(0);
+                        }
+                        else
+                        {
+                            if (int.TryParse(newValue, out var result))
+                            {
+                                techOperationWork.SetSequenceGroupIndex(result);
+                            }
+                        }
+
+                        TechOperationForm.UpdateGrid();
+                    }
+                }
+            }
+        }
+
+        private void DataGridViewTO_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex == dataGridViewTO.Columns["ParallelIndex"].Index
+                || e.ColumnIndex == dataGridViewTO.Columns["SequenceGroupIndex"].Index)
+            {
+                TechOperationForm.CellChangeReadOnly(dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+            }
+            else
+            {
+                TechOperationForm.CellChangeReadOnly(dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+            }
+        }
 
         #endregion
 
@@ -308,15 +384,6 @@ namespace TC_WinForms.WinForms.Work
 
                         // todo: реализовать обновление только ячейки времени выполнения, а не всей таблицы
 
-                        //var index = dataGridViewTPLocal.Columns["Value"].Index;
-
-                        //if (index == -1)
-                        //{
-                        //    return;
-                        //}
-
-                        //dataGridViewTPLocal.Rows[e.RowIndex].Cells[index].Value = wor.Value == -1 ? "Ошибка" : wor.Value;
-
                         BeginInvoke(new Action(() =>
                         {
                             UpdateGridLocalTP();
@@ -369,6 +436,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPLocal_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
+
             if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index
                 || e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index)// Индекс столбца с checkBox
             {

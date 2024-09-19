@@ -457,6 +457,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         AddRowsToGrid();
     }
 
+
+
     #region Расчёт времени этапов
     private void CalculateEtapTimes() 
     {
@@ -639,56 +641,37 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     private void ProcessParallelGroup(List<TechOperationDataGridItem> etapGroup)
     {
+        var times = new List<double>();
 
-        var groups = new List<List<TechOperationDataGridItem>>();
-
-        var parallelIndex = etapGroup[0].techWork.techOperationWork.GetParallelIndex();
-        var sequenceGroupIndex = etapGroup[0].techWork.techOperationWork.GetSequenceGroupIndex();
-
-        // выделить шаги ТО идущих последовательно в отдельные группы
-
-        // группируем по sequenceGroupIndex, если она есть или по ТО id 
         var groups2 = etapGroup.GroupBy(g => g.techWork.techOperationWork.GetSequenceGroupIndex()).ToList();
-
         foreach (var group in groups2)
         {
-            // if (sequenceGroupIndex == null) то все шаги одной ТО выполняются в одной группе
+            // if (sequenceGroupIndex == null) то в группы выделяются ТО
             if (group.Key == null)
             {
                 var nullIndexGroups = group.ToList().GroupBy(g => g.techWork.techOperationWorkId).ToList();
 
-                foreach (var group3 in nullIndexGroups)
+                foreach (var parGroup in nullIndexGroups)
                 {
-                    var currentGroup = new List<TechOperationDataGridItem>();
-                    foreach (var item in group3)
-                    {
-                        currentGroup.Add(item);
-                    }
-
-                    groups.Add(currentGroup);
+                    times.Add(CalculateMaxEtapTime(parGroup.ToList()));
                 }
             }
             else
             {
-                var currentGroup = new List<TechOperationDataGridItem>();
-                foreach (var item in group)
+                var sequenceTimes = new List<double>();
+                var sequenceGroups = group.GroupBy(g => g.techWork.techOperationWorkId).ToArray();
+
+                foreach(var seqGroup in sequenceGroups)
                 {
-                    currentGroup.Add(item);
+                    sequenceTimes.Add(CalculateMaxEtapTime(seqGroup.ToList()));
                 }
 
-                groups.Add(currentGroup);
+                times.Add(sequenceTimes.Sum());
             }
         }
 
-        // пропустить их через ProcessEtapGroup и получить время выполнения всех параллельно идущих шагов
-        var times = new List<double>();
-        foreach (var group in groups)
-        {
-            times.Add(CalculateMaxEtapTime(group));
-        }
         // присвоить это время первому шагу. Остальным присвоить -1
         etapGroup.ForEach(i => i.TimeEtap = "-1");
-        //etapGroup.OrderBy(i => i.techWork.Order).ToArray()[0].TimeEtap = times.Max().ToString();
         etapGroup[0].TimeEtap = times.Max().ToString();
     }
 
@@ -724,6 +707,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
 
     #endregion
+
+
 
     /// <summary>
     /// Добавляет строки в DataGridView на основе подготовленного списка TechOperationDataGridItem.
