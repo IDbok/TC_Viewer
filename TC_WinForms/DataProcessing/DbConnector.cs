@@ -12,7 +12,7 @@ using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.DataProcessing
 {
-    public class DbConnector
+    public class DbConnector: IDataProvider
     {
         public enum MessageType
         {
@@ -699,6 +699,39 @@ namespace TC_WinForms.DataProcessing
             }
         }
         
+        public TechnologicalCard? GetDataTechCard(int tcId, string cardName)
+        {
+            using (var context = new MyDbContext())
+            {
+                return context.Set<TechnologicalCard>()
+                                        .Where(t => t.Id == tcId)
+                                        .Include(t => t.Machines)
+                                        .Include(t => t.Machine_TCs)
+                                        .Include(t => t.Protection_TCs)
+                                        .Include(t => t.Tool_TCs)
+                                        .Include(t => t.Component_TCs)
+                                        .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+                                        .FirstOrDefault();
+            }
+        }
+
+        public List<TechOperationWork>? GetDataTechOperationList(int tcId, string cardName)
+        {
+            using (var context = new MyDbContext())
+            {
+                return context.Set<TechOperationWork>()
+                                    .Where (t => t.TechnologicalCardId == tcId)
+                                    .Include(i => i.techOperation)
+                                    .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+                                    .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
+                                    .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
+                                    .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
+                                    .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
+                                    .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
+                                    .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+                                    .ToList();
+            }
+        }
 
         public int GetLastId<T>() where T : class, IIdentifiable
         {
