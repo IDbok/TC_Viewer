@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
@@ -23,7 +22,7 @@ namespace TC_WinForms.WinForms
         //private static bool _isViewMode = true;
         //private static bool _isCommentViewMode = false;
         private static bool _isMachineCollumnViewMode = true;
-        public MyCachedDataProvider _dataProvider { get; set; }
+
 
 
         //public static event Action CommentViewModeChanged;
@@ -378,7 +377,7 @@ namespace TC_WinForms.WinForms
                 case EModelType.Tool:
                     return new Win6_Tool(_tcId, tcViewState);// _isViewMode);
                 case EModelType.WorkStep:
-                    return new TechOperationForm(_tcId, tcViewState, this);// _isViewMode);
+                    return new TechOperationForm(_tcId, tcViewState);// _isViewMode);
                 case EModelType.Diagram:
                     return new DiagramForm(_tcId, tcViewState);// _isViewMode);
                 case EModelType.ExecutionScheme:

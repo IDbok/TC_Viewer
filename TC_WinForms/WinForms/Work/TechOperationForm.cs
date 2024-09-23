@@ -1,8 +1,8 @@
 ﻿using System.Data;
+using System.DirectoryServices.ActiveDirectory;
 using System.Text;
 using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
-using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
 using TcDbConnector;
 using TcModels.Models;
@@ -31,9 +31,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     public List<TechOperationWork> TechOperationWorksList = null!;
     public TechnologicalCard TehCarta = null!;
 
-    private Win6_new parent;
-    private MyCachedDataProvider _dataProvider;
-
     public bool CloseFormsNoSave { get; set; } = false;
 
     //public TechOperationForm()
@@ -42,12 +39,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     //}
 
-    public TechOperationForm(int tcId, TcViewState tcViewState, Win6_new parent)//,  bool viewerMode = false)
+    public TechOperationForm(int tcId, TcViewState tcViewState)//,  bool viewerMode = false)
     {
-
         this._tcViewState = tcViewState;
-
-        this.parent = parent;
 
         this.tcId = tcId;
         //_isViewMode = viewerMode;
@@ -60,24 +54,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         this.KeyPreview = true;
         this.KeyDown += new KeyEventHandler(Form_KeyDown);
 
-
         _tcViewState.ViewModeChanged += OnViewModeChanged;
-
-        try
-        {
-            LoadData();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show("Возникла критическая ошибка: \n" + ex.Message + "\n" + ex.StackTrace, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            throw ex;
-        }
-
     }
     private async void TechOperationForm_Load(object sender, EventArgs e)
     {
         // Блокировка формы на время загрузки данных
         this.Enabled = false;
+
+        await LoadDataAsync(tcId);
 
         UpdateGrid();
         SetCommentViewMode();
@@ -86,32 +70,33 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         this.Enabled = true;
     }
-    private void LoadData()
+    private async Task LoadDataAsync(int tcId)
     {
-        var context = new MyDbContext();
-        
-        _dataProvider = parent._dataProvider != null 
-                            ? parent._dataProvider 
-                            : new MyCachedDataProvider(new DbConnector(), new Cache<List<TechnologicalCard>>(), new Cache<List<List<TechOperationWork>>>());
+        // Загрузка в контекст данных о вложенных сущностях Staff
+        //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
 
-        var tasks = new List<Task>();
+        TehCarta =  await context.TechnologicalCards
+            .Include(t => t.Machines)
+            .Include(t => t.Machine_TCs)
+            .Include(t => t.Protection_TCs)
+            .Include(t => t.Tool_TCs)
+            .Include(t => t.Component_TCs)
+            .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+            .SingleAsync(s => s.Id == tcId);
 
-        if (context.ChangeTracker.HasChanges())
-        {
-            context.SaveChanges();
-        }
-
-        tasks.Add(Task.Run(() => { TehCarta = _dataProvider.GetDataTechCard(tcId, parent.Text); }));
-        tasks.Add(Task.Run(() => { TechOperationWorksList = _dataProvider.GetDataTechOperationList(tcId, parent.Text); }));
-
-        Task t = Task.WhenAll(tasks);
-        try
-        {
-            t.Wait();
-        }
-        catch { }
-
-        parent._dataProvider = _dataProvider;
+        TechOperationWorksList = await context.TechOperationWorks
+            .Where(w => w.TechnologicalCardId == tcId)
+            
+            .Include(i => i.techOperation)
+            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+            .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
+            .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
+            .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
+            .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
+            //.Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2)
+            .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
+            .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+            .ToListAsync();
     }
 
     public void SetCommentViewMode()
@@ -819,9 +804,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         dgvMain.Columns.Add("", "");
 
         int i = 0;
-        foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs.ToList())
+        foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
         {
-            dgvMain.Columns.Add("Machine " + i, "Время " + tehCartaMachineTC.Child.Name + ", мин.");
+            dgvMain.Columns.Add("Machine+{i}", "Время " + tehCartaMachineTC.Child.Name + ", мин.");
             i++;
         }
 
