@@ -96,6 +96,7 @@
             tabPage2 = new TabPage();
             tableLayoutPanel3 = new TableLayoutPanel();
             dataGridViewTPLocal = new DataGridView();
+            Column19 = new DataGridViewCheckBoxColumn();
             comboBoxTO = new ComboBox();
             panel1 = new Panel();
             btnCreateNewTP = new Button();
@@ -1614,7 +1615,7 @@
             dataGridViewLocalSZ.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewLocalSZ.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewLocalSZ.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewLocalSZ.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn34, dataGridViewButtonColumn8, dataGridViewTextBoxColumn35, dataGridViewTextBoxColumn36 });
+            dataGridViewLocalSZ.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn34, dataGridViewButtonColumn8, Column19, dataGridViewTextBoxColumn35, dataGridViewTextBoxColumn36 });
             dataGridViewLocalSZ.Location = new Point(4, 54);
             dataGridViewLocalSZ.Margin = new Padding(4);
             dataGridViewLocalSZ.Name = "dataGridViewLocalSZ";
@@ -2408,14 +2409,12 @@
             DateGridLocalTPDetete.Text = "Удалить";
             DateGridLocalTPDetete.Width = 125;
             // 
-            // dataGridViewTextBoxColumn8
+            // Column19
             // 
-            dataGridViewTextBoxColumn8.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn8.FillWeight = 69.7860947F;
-            dataGridViewTextBoxColumn8.HeaderText = "Технологические переходы";
-            dataGridViewTextBoxColumn8.MinimumWidth = 6;
-            dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
-            dataGridViewTextBoxColumn8.ReadOnly = true;
+            Column19.MinimumWidth = 40;
+            Column19.Width = 50;
+            Column19.HeaderText = "";
+            Column19.Name = "Column19";
             // 
             // Time
             // 
@@ -2753,6 +2752,7 @@
         private DataGridViewTextBoxColumn PictureName;
         private DataGridViewTextBoxColumn Order1;
         private Button btnToChange;
+        private DataGridViewCheckBoxColumn Column19;
         //private DataGridViewCheckBoxColumn Column22;
     }
 }
