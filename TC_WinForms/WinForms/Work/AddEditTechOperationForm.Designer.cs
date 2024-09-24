@@ -107,6 +107,7 @@
             Comment = new DataGridViewTextBoxColumn();
             PictureName = new DataGridViewTextBoxColumn();
             Order1 = new DataGridViewTextBoxColumn();
+            Column19 = new DataGridViewCheckBoxColumn();
             comboBoxTO = new ComboBox();
             panel1 = new Panel();
             btnCreateNewTP = new Button();
@@ -1689,9 +1690,9 @@
             dataGridViewLocalSZ.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewLocalSZ.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewLocalSZ.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewLocalSZ.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn34, dataGridViewButtonColumn8, dataGridViewTextBoxColumn35, dataGridViewTextBoxColumn36 });
-            dataGridViewLocalSZ.Location = new Point(3, 32);
-            dataGridViewLocalSZ.Margin = new Padding(3, 2, 3, 2);
+            dataGridViewLocalSZ.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn34, dataGridViewButtonColumn8, Column19, dataGridViewTextBoxColumn35, dataGridViewTextBoxColumn36 });
+            dataGridViewLocalSZ.Location = new Point(4, 54);
+            dataGridViewLocalSZ.Margin = new Padding(4);
             dataGridViewLocalSZ.Name = "dataGridViewLocalSZ";
             dataGridViewLocalSZ.RowHeadersWidth = 51;
             dataGridViewLocalSZ.RowTemplate.Height = 29;
@@ -2465,6 +2466,71 @@
             tabPage10.Size = new Size(200, 100);
             tabPage10.TabIndex = 0;
             // 
+            // dataGridViewTextBoxColumn7
+            // 
+            dataGridViewTextBoxColumn7.HeaderText = "Id";
+            dataGridViewTextBoxColumn7.MinimumWidth = 6;
+            dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
+            dataGridViewTextBoxColumn7.Visible = false;
+            // 
+            // DateGridLocalTPDetete
+            // 
+            DateGridLocalTPDetete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            DateGridLocalTPDetete.HeaderText = "";
+            DateGridLocalTPDetete.MinimumWidth = 6;
+            DateGridLocalTPDetete.Name = "DateGridLocalTPDetete";
+            DateGridLocalTPDetete.Resizable = DataGridViewTriState.True;
+            DateGridLocalTPDetete.SortMode = DataGridViewColumnSortMode.Automatic;
+            DateGridLocalTPDetete.Text = "Удалить";
+            DateGridLocalTPDetete.Width = 125;
+            // 
+            // Column19
+            // 
+            Column19.MinimumWidth = 40;
+            Column19.Width = 50;
+            Column19.HeaderText = "";
+            Column19.Name = "Column19";
+            // 
+            // Time
+            // 
+            Time.FillWeight = 69.7860947F;
+            Time.HeaderText = "Базовое время действ., мин.";
+            Time.MinimumWidth = 6;
+            Time.Name = "Time";
+            Time.ReadOnly = true;
+            // 
+            // Coefficient
+            // 
+            Coefficient.HeaderText = "Коэффициент";
+            Coefficient.MinimumWidth = 6;
+            Coefficient.Name = "Coefficient";
+            // 
+            // Column28
+            // 
+            Column28.HeaderText = "Время действ., мин.";
+            Column28.MinimumWidth = 6;
+            Column28.Name = "Column28";
+            Column28.ReadOnly = true;
+            // 
+            // Comment
+            // 
+            Comment.HeaderText = "Примечание";
+            Comment.MinimumWidth = 6;
+            Comment.Name = "Comment";
+            // 
+            // PictureName
+            // 
+            PictureName.HeaderText = "Рисунок";
+            PictureName.MinimumWidth = 8;
+            PictureName.Name = "PictureName";
+            // 
+            // Order1
+            // 
+            Order1.HeaderText = "Order";
+            Order1.MinimumWidth = 6;
+            Order1.Name = "Order1";
+            Order1.Visible = false;
+            // 
             // AddEditTechOperationForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -2762,6 +2828,7 @@
         private DataGridViewTextBoxColumn PictureName;
         private DataGridViewTextBoxColumn Order1;
         private Button btnToChange;
+        private DataGridViewCheckBoxColumn Column19;
         private DataGridViewTextBoxColumn ParallelIndex;
         private DataGridViewTextBoxColumn SequenceGroupIndex;
         //private DataGridViewCheckBoxColumn Column22;
