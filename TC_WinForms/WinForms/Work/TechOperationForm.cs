@@ -106,7 +106,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         dgvMain.Columns["RemarkColumn"].Visible = isCommentViewMode;
         dgvMain.Columns["ResponseColumn"].Visible = isCommentViewMode;
     }
-  
+
     public void SetMachineViewMode(bool? isMachineViewMode = null)
     {
         if (isMachineViewMode != null)
@@ -806,7 +806,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         int i = 0;
         foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
         {
-            dgvMain.Columns.Add("Machine+{i}", "Время " + tehCartaMachineTC.Child.Name + ", мин.");
+            dgvMain.Columns.Add("Machine" + i, "Время " + tehCartaMachineTC.Child.Name + ", мин.");
             i++;
         }
 
@@ -859,9 +859,45 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         //    dgvMain.Columns[dgvMain.Columns.Count - 2].ReadOnly = false;
         //}
 
-        dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        foreach (DataGridViewColumn col in dgvMain.Columns)
+        {
+            col.FillWeight = col.HeaderText.Contains("Время") ? GetFillWeight("Время") : GetFillWeight(col.HeaderText);
+            col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            col.MinimumWidth = col.HeaderText.Contains("Время") ? 50 :(int)col.FillWeight;
+            col.MinimumWidth = col.HeaderText.Contains("Замечание") || col.HeaderText.Contains("Ответ") ? 200 : (int)col.FillWeight;
+            col.Resizable = col.HeaderText.Contains("Замечание") || col.HeaderText.Contains("Ответ") ? DataGridViewTriState.True : DataGridViewTriState.NotSet;
+        }
+
         dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
         dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dgvMain.Columns[2].Frozen = true;
+
+    }
+
+    private float GetFillWeight(string FieldName)
+    {
+        switch (FieldName)
+        {
+            case "":
+                return 100;
+            case "№":
+                return 30;
+            case "Технологические операции":
+            case "Технологические переходы":
+            case "Примечание":
+            case "Рис.":
+                return 140;
+            case "Исполнитель":
+                return 120;
+            case "Время":
+            case "№ СЗ":
+                return 50;
+            case "Замечание":
+            case "Ответ":
+                return 300;
+            default:
+                return 100;
+        }
     }
 
     /// <summary>

@@ -510,6 +510,7 @@
             tabControl1.Size = new Size(1588, 866);
             tabControl1.TabIndex = 1;
             tabControl1.SelectedIndexChanged += tabControl1_SelectedIndexChanged;
+            tabControl1.Dock = DockStyle.Fill;
             // 
             // tabPage1
             // 

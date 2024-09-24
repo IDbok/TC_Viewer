@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.CodeDom;
 using System.Data;
 using System.Windows.Forms;
+using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TcDbConnector;
 using TcModels.Models.IntermediateTables;
@@ -41,6 +42,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewAllTO.CellClick += DataGridViewAllTO_CellClick;
 
             dataGridViewTO.CellClick += DataGridViewTO_CellClick;
+            dataGridViewTO.CellValidating += CellValidating;
 
             //dataGridViewTPAll.CellContentClick += DataGridViewTPAll_CellContentClick;
             dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
@@ -50,39 +52,45 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewTPLocal.CellEndEdit += DataGridViewTPLocal_CellEndEdit;
             dataGridViewTPLocal.CellFormatting += DataGridViewTPLocal_CellFormatting;
             dataGridViewTPLocal.SelectionChanged += DataGridViewTPLocal_SelectionChanged;
+            dataGridViewTPLocal.CellValidating += CellValidating;
 
             dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
             dataGridViewStaff.CellClick += DataGridViewStaff_CellClick;
             dataGridViewStaff.CellEndEdit += DataGridViewStaff_CellEndEdit;
             dataGridViewStaff.CellBeginEdit += DataGridViewStaff_CellBeginEdit;
-
+            dataGridViewStaff.CellValidating += CellValidating;
 
             dataGridViewStaffAll.CellClick += DataGridViewStaffAll_CellClick;
 
             dataGridViewComponentAll.CellClick += DataGridViewComponentAll_CellClick;
             dataGridViewComponentLocal.CellClick += DataGridViewComponentLocal_CellClick;
             dataGridViewComponentLocal.CellEndEdit += DataGridViewComponentLocal_CellEndEdit;
+            dataGridViewComponentLocal.CellValidating += CellValidating;
+
 
             dataGridViewInstumentAll.CellClick += DataGridViewInstumentAll_CellClick;
             dataGridViewInstrumentLocal.CellClick += DataGridViewInstrumentLocal_CellClick;
             dataGridViewInstrumentLocal.CellEndEdit += DataGridViewInstrumentLocal_CellEndEdit;
+            dataGridViewInstrumentLocal.CellValidating += CellValidating;
 
             dataGridViewAllSZ.CellClick += DataGridViewAllSZ_CellClick;
             dataGridViewLocalSZ.CellClick += DataGridViewLocalSZ_CellClick;
-            dataGridViewLocalSZ.CellContentClick += DataGridViewSZ_CellContentClick;
 
+            dataGridViewLocalSZ.CellValidating += CellValidating;
+            dataGridViewLocalSZ.CellContentClick += DataGridViewSZ_CellContentClick;
 
             dataGridViewEtap.CellEndEdit += DataGridViewEtap_CellEndEdit;
             dataGridViewEtap.CellContentClick += DataGridViewEtap_CellContentClick;
+            dataGridViewEtap.CellValidating += CellValidating;
 
             dataGridViewMeha.CellContentClick += DataGridViewMeha_CellContentClick;
-
+            dataGridViewMeha.CellValidating += CellValidating;
 
             dataGridViewPovtor.CellContentClick += DataGridViewPovtor_CellContentClick;
             dataGridViewPovtor.CellValueChanged += DataGridViewPovtor_CellValueChanged;
             dataGridViewPovtor.CellFormatting += dataGridViewPovtor_CellFormatting;
             dataGridViewPovtor.SelectionChanged += DataGridViewPovtor_SelectionChanged;
-
+            dataGridViewPovtor.CellValidating += CellValidating;
 
             comboBoxFiltrCategor.SelectedIndexChanged += ComboBoxFiltrCategor_SelectedIndexChanged;
             comboBoxFilterComponent.SelectedIndexChanged += ComboBoxFilterComponent_SelectedIndexChanged;
@@ -111,7 +119,21 @@ namespace TC_WinForms.WinForms.Work
             UpdateTO();
             UpdateLocalTO();
 
+            
+        }
 
+        private void CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
+        {
+            var Left = Keyboard.IsKeyDown(System.Windows.Input.Key.Left);
+            var Right = Keyboard.IsKeyDown(System.Windows.Input.Key.Right);
+            var Up = Keyboard.IsKeyDown(System.Windows.Input.Key.Up);
+            var Down = Keyboard.IsKeyDown(System.Windows.Input.Key.Down);
+
+            var currentGrid = sender as DataGridView;
+            if (currentGrid.CurrentCell.IsInEditMode && (Left || Right || Up || Down))
+            {
+                e.Cancel = true;
+            }
         }
 
 
