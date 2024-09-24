@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TcDbConnector.Interfaces;
 using TcModels.Models;
+using static TcModels.Models.TechnologicalCard;
 
 namespace TcDbConnector.Repositories;
 
-public class TechnologicalCardRepository
+public class TechnologicalCardRepository: IRepository<TechnologicalCard>
 {
     private readonly MyDbContext _db;
     //private readonly ILogger<TechnologicalCardRepository> _logger;
@@ -18,7 +20,213 @@ public class TechnologicalCardRepository
         _db = new MyDbContext();
         //_logger = logger;
     }
+    public async Task CreateObject(TechnologicalCard tc)
+    {
+        await CreateObject(new List<TechnologicalCard> { tc });
+    }
 
+    public async Task<bool> CreateObject(List<TechnologicalCard> item)
+    {
+        try
+        {
+            using (var db = new MyDbContext())
+            {
+                var tcIds = item.Select(t => t.Id).ToList();
+                var existingTcs = await db.TechnologicalCards
+                    .Where(t => tcIds.Contains(t.Id))
+                    .Select(t => t.Id)
+                    .ToListAsync();
+
+                var newTcs = item.Where(t => !existingTcs.Contains(t.Id)).ToList();
+
+                if (newTcs.Any())
+                {
+                    await db.TechnologicalCards.AddRangeAsync(newTcs);
+                    await db.SaveChangesAsync();
+                }
+                return true;
+            };
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteObject(List<int> idList)
+    {
+        try
+        {
+            using (var db = new MyDbContext())
+            {
+                var tcsToDelete = await db.Set<TechnologicalCard>()
+                                          .Where(tc => idList.Contains(tc.Id))
+                                          .ToListAsync();
+
+                if (tcsToDelete.Any())
+                {
+                    db.Set<TechnologicalCard>().RemoveRange(tcsToDelete);
+
+                    await db.SaveChangesAsync();
+                }
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
+    public IEnumerable<TechnologicalCard> GetListObjects()
+    {
+        try
+        {
+            using (var context = new MyDbContext())
+            {
+                var techCardList = context.TechnologicalCards;
+                int i = 0;
+
+                while (techCardList == null)
+                {
+                    techCardList = context.TechnologicalCards;
+                    i = techCardList == null ? i++ : i;
+                    if (i == 3)
+                        throw new Exception();
+                }
+
+                return techCardList;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    public async Task<TechnologicalCard> GetObject(int tcId)
+    {
+        try
+        {
+            using (var context = new MyDbContext())
+            {
+                int i = 0;
+                var tc = context.Set<TechnologicalCard>()
+                                        .Where(t => t.Id == tcId)
+                                        .Include(t => t.Machines)
+                                        .Include(t => t.Machine_TCs)
+                                        .Include(t => t.Protection_TCs)
+                                        .Include(t => t.Tool_TCs)
+                                        .Include(t => t.Component_TCs)
+                                        .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+                                        .SingleOrDefaultAsync();
+                while (tc == null)
+                {
+                    tc = context.Set<TechnologicalCard>()
+                                        .Where(t => t.Id == tcId)
+                                        .Include(t => t.Machines)
+                                        .Include(t => t.Machine_TCs)
+                                        .Include(t => t.Protection_TCs)
+                                        .Include(t => t.Tool_TCs)
+                                        .Include(t => t.Component_TCs)
+                                        .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+                                        .SingleOrDefaultAsync();
+                    i = tc == null ? i++ : i;
+                    if (i == 3)
+                        throw new Exception();
+                }
+
+                return tc.Result;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    public Task<List<TechnologicalCard>> GetObjects(int tcId)
+    {
+        try
+        {
+            using (var context = new MyDbContext())
+            {
+                int i = 0;
+                var tc = context.Set<TechnologicalCard>()
+                                        .Where(t => t.Id == tcId)
+                                        .Include(t => t.Machines)
+                                        .Include(t => t.Machine_TCs)
+                                        .Include(t => t.Protection_TCs)
+                                        .Include(t => t.Tool_TCs)
+                                        .Include(t => t.Component_TCs)
+                                        .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+                                        .ToListAsync();
+                while (tc == null)
+                {
+                    tc = context.Set<TechnologicalCard>()
+                                        .Where(t => t.Id == tcId)
+                                        .Include(t => t.Machines)
+                                        .Include(t => t.Machine_TCs)
+                                        .Include(t => t.Protection_TCs)
+                                        .Include(t => t.Tool_TCs)
+                                        .Include(t => t.Component_TCs)
+                                        .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+                                        .ToListAsync();
+                    i = tc == null ? i++ : i;
+                    if (i == 3)
+                        throw new Exception();
+                }
+
+                return tc;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    public async Task UpdateObject(List<TechnologicalCard> itemList)
+    {
+        using (var context = new MyDbContext())
+        {
+            foreach (var item in itemList)
+            {
+                var existingTc = await context.Set<TechnologicalCard>()
+                    .FirstOrDefaultAsync(t => t.Id == item.Id);
+
+                if (existingTc != null)
+                {
+                    existingTc.ApplyUpdates(item);
+                }
+            }
+
+
+            if (context.ChangeTracker.HasChanges())
+            {
+                await context.SaveChangesAsync();
+            }
+        }
+    }
+
+    public async Task UpdateStatusTc(TechnologicalCard tc, TechnologicalCardStatus newStatus)
+    {
+        using (var db = new MyDbContext())
+        {
+            var tcToUpdate = await db.TechnologicalCards
+                .Where(t => t.Id == tc.Id)
+                .FirstOrDefaultAsync();
+
+            if (tcToUpdate != null)
+            {
+                tcToUpdate.Status = newStatus;
+                await db.SaveChangesAsync();
+            }
+            else return;
+        }
+
+        tc.Status = newStatus;
+    }
     public TechnologicalCard GetTechnologicalCard(int Id)
     {
         var tc = _db.TechnologicalCards.Where(tc => tc.Id == Id)
@@ -37,6 +245,7 @@ public class TechnologicalCardRepository
 
         return tc;
     }
+
     public void DeleteInnerEntitiesAsync(string article)
     {
         var tc = _db.TechnologicalCards.Where(tc => tc.Article == article)

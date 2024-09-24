@@ -23,8 +23,22 @@ namespace TcModels.Models.TcContent
         [NotMapped] public bool Delete { get; set; } = false;
         [NotMapped] public bool NewItem { get; set; } = false;
         
-       public int Order { get; set; }
-
+        public int Order { get; set; }
+        public void ApplyUpdates(TechOperationWork source)
+        {
+            if (source is TechOperationWork sourceCard)
+            {
+                techOperation = sourceCard.techOperation;
+                TechnologicalCardId = sourceCard.TechnologicalCardId;
+                techOperationId = sourceCard.techOperationId;
+                technologicalCard = sourceCard.technologicalCard;
+                ToolWorks = sourceCard.ToolWorks;
+                ComponentWorks = sourceCard.ComponentWorks;
+                executionWorks = sourceCard.executionWorks;
+                ParallelIndex = sourceCard.ParallelIndex;
+                ListDiagramParalelno = sourceCard.ListDiagramParalelno;
+            }
+        }
         public override string ToString()
         {
             return techOperation.Name;

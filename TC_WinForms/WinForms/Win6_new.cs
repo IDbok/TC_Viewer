@@ -1,10 +1,12 @@
-﻿using System.Drawing;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Diagram;
 using TC_WinForms.WinForms.Work;
+using TcDbConnector;
 using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -86,8 +88,9 @@ namespace TC_WinForms.WinForms
         private Dictionary<EModelType, Form> _formsCache = new Dictionary<EModelType, Form>();
         private EModelType? _activeModelType = null;
         private Form _activeForm = null;
+        private TCCache cache;
 
-        //TechOperationForm techOperationForm;
+    //TechOperationForm techOperationForm;
 
         EModelType? activeModelType = null;
         private TechnologicalCard _tc = null!;
@@ -112,6 +115,10 @@ namespace TC_WinForms.WinForms
             SetTagsToButtons();
 
             SetViewMode();
+            cache = new TCCache(new TechnologicalCardRepository(), new TechOperationWorkRepository(), new MemoryCache(new MemoryCacheOptions()));
+            //cache.GetTechnologicalCardAsync(_tcId);
+            //cache.GetTechOperationsAsync(_tcId);
+
 
             //SetTCStatusAccess();
         }
@@ -224,10 +231,9 @@ namespace TC_WinForms.WinForms
         private async void Win6_new_Load(object sender, EventArgs e)
         {
             // download TC from db
-            var tcRepository = new TechnologicalCardRepository();
             try
             {
-                _tc = tcRepository.GetTechnologicalCard(_tcId);
+                _tc = await cache.GetTechnologicalCardAsync(_tcId);
 
                 AccessInitialization();
                 SetTCStatusAccess();
@@ -244,7 +250,10 @@ namespace TC_WinForms.WinForms
             {
                 this.Text += $" - {_tc.Status.GetDescription()}";
             }
+            this.Enabled = false;
             await ShowForm(EModelType.WorkStep);
+            this.Enabled = true;
+
         }
 
         private void btnBack_Click(object sender, EventArgs e)
@@ -377,7 +386,7 @@ namespace TC_WinForms.WinForms
                 case EModelType.Tool:
                     return new Win6_Tool(_tcId, tcViewState);// _isViewMode);
                 case EModelType.WorkStep:
-                    return new TechOperationForm(_tcId, tcViewState);// _isViewMode);
+                    return new TechOperationForm(_tcId, tcViewState, cache);// _isViewMode);
                 case EModelType.Diagram:
                     return new DiagramForm(_tcId, tcViewState);// _isViewMode);
                 case EModelType.ExecutionScheme:

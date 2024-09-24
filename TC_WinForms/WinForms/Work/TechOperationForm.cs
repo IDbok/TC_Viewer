@@ -30,7 +30,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public List<TechOperationWork> TechOperationWorksList = null!;
     public TechnologicalCard TehCarta = null!;
-
+    private TCCache cache;
     public bool CloseFormsNoSave { get; set; } = false;
 
     //public TechOperationForm()
@@ -39,10 +39,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     //}
 
-    public TechOperationForm(int tcId, TcViewState tcViewState)//,  bool viewerMode = false)
+    public TechOperationForm(int tcId, TcViewState tcViewState, TCCache cache)//,  bool viewerMode = false)
     {
         this._tcViewState = tcViewState;
-
+        this.cache = cache;
         this.tcId = tcId;
         //_isViewMode = viewerMode;
         InitializeComponent();
@@ -61,7 +61,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         // Блокировка формы на время загрузки данных
         this.Enabled = false;
 
-        await LoadDataAsync(tcId);
+        try
+        {
+            await LoadDataAsync(tcId);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message);
+        }
 
         UpdateGrid();
         SetCommentViewMode();
@@ -72,31 +79,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
     private async Task LoadDataAsync(int tcId)
     {
-        // Загрузка в контекст данных о вложенных сущностях Staff
-        //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
+        TehCarta = await cache.GetTechnologicalCardAsync(tcId);
 
-        TehCarta =  await context.TechnologicalCards
-            .Include(t => t.Machines)
-            .Include(t => t.Machine_TCs)
-            .Include(t => t.Protection_TCs)
-            .Include(t => t.Tool_TCs)
-            .Include(t => t.Component_TCs)
-            .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
-            .SingleAsync(s => s.Id == tcId);
-
-        TechOperationWorksList = await context.TechOperationWorks
-            .Where(w => w.TechnologicalCardId == tcId)
-            
-            .Include(i => i.techOperation)
-            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
-            .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
-            .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
-            .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
-            .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-            //.Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2)
-            .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
-            .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
-            .ToListAsync();
+        TechOperationWorksList = await cache.GetTechOperationsAsync(tcId);
     }
 
     public void SetCommentViewMode()
