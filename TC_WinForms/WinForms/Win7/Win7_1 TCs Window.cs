@@ -169,7 +169,7 @@ namespace TC_WinForms.WinForms
 
             try
             {
-                dbCon.UpdateTCAsync(LocalCard);
+                await dbCon.UpdateTCAsync(LocalCard);
                 if (AfterSave != null)
                 {
                     await AfterSave(LocalCard);
@@ -200,7 +200,7 @@ namespace TC_WinForms.WinForms
             if (NoEmptiness())
             {
                 if (HasChanges())
-                    if (!Save().IsCompletedSuccessfully) return;
+                    Save();
 
                 var nn = LocalCard.Id;
                 var editorForm = new Win6_new(nn, role: _accessLevel);

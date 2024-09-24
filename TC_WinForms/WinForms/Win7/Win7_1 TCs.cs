@@ -425,7 +425,7 @@ namespace TC_WinForms.WinForms
                 if (obj != 0)
                 {
                     var objEditor = new Win7_1_TCs_Window(obj, role: _accessLevel);
-                    objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView<TechnologicalCard, DisplayedTechnologicalCard>(updatedObj as TechnologicalCard);
+                    objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView(updatedObj);
                     objEditor.Show();
                 }
                 else
@@ -520,7 +520,7 @@ namespace TC_WinForms.WinForms
         }
 
 
-        private class DisplayedTechnologicalCard : INotifyPropertyChanged, IDisplayedEntity, IIdentifiable, ITechnologicalCard
+        private class DisplayedTechnologicalCard : INotifyPropertyChanged, IDisplayedEntity, IIdentifiable
         {
             public Dictionary<string, string> GetPropertiesNames()
             {
@@ -897,12 +897,10 @@ namespace TC_WinForms.WinForms
             }
 
         }
-        public void UpdateObjectInDataGridView<TModel, TDisplayed>(TModel modelObject)
-                where TModel : ITechnologicalCard
-                where TDisplayed : class, ITechnologicalCard
+        public void UpdateObjectInDataGridView(TechnologicalCard modelObject)
         {
             // Обновляем объект в DataGridView
-            var displayedObject = _displayedTechnologicalCards.OfType<TDisplayed>().FirstOrDefault(obj => obj.Id == modelObject.Id);
+            var displayedObject = _displayedTechnologicalCards.FirstOrDefault(obj => obj.Id == modelObject.Id);
             if (displayedObject != null)
             {
                 displayedObject.Article = modelObject.Article;
