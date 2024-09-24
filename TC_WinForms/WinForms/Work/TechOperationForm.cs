@@ -50,6 +50,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         _tcViewState.ViewModeChanged += OnViewModeChanged;
     }
+
     private async void TechOperationForm_Load(object sender, EventArgs e)
     {
         // Блокировка формы на время загрузки данных
@@ -64,33 +65,38 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         this.Enabled = true;
     }
+
     private async Task LoadDataAsync(int tcId)
     {
         // Загрузка в контекст данных о вложенных сущностях Staff
         //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
 
         TehCarta =  await context.TechnologicalCards
+
             .Include(t => t.Machines)
             .Include(t => t.Machine_TCs)
             .Include(t => t.Protection_TCs)
             .Include(t => t.Tool_TCs)
             .Include(t => t.Component_TCs)
+
             .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+            
             .SingleAsync(s => s.Id == tcId);
 
         TechOperationWorksList = await context.TechOperationWorks
             .Where(w => w.TechnologicalCardId == tcId)
             
-            .Include(i => i.techOperation)
+                .Include(i => i.techOperation)
 
-            .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
-            .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
-            .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
-            .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-            .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
+                .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
+                .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
+                .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
+                .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
+                .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
 
-            .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
-            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+                .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+                .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+
             .ToListAsync();
     }
 
@@ -117,10 +123,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
         }
     }
+
     public void SetViewMode(bool? isViewMode = null)
     {
         pnlControls.Visible = !_tcViewState.IsViewMode;
     }
+
     private void OnViewModeChanged()
     {
         UpdateGrid();
@@ -232,28 +240,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         }
     }
 
-    //public void UpdataBD()
-    //{
-    //    var vb = context.ExecutionWorks.
-    //        Include(t => t.techTransition)
-    //        .ToList();
-
-    //    foreach (var v in vb)
-    //    {
-    //        if (v.techTransition != null)
-    //        {
-    //            v.Value = v.techTransition.TimeExecution;
-    //        }
-    //    }
-    //    context.SaveChanges();
-    //}
-
-
     public bool GetDontSaveData()
     {
         return HasChanges;
     }
-
 
     private void TechOperationForm_FormClosed(object sender, FormClosedEventArgs e)
     {
@@ -460,6 +450,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
 
     #region Расчёт времени этапов
+
     private void CalculateEtapTimes() 
     {
         // Group items by ParallelIndex
@@ -489,11 +480,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
 
     /// <summary>
-    /// Группирует строки по Индексу параллельности или этапу. При отсутствии одного из этих признаков добавляет в стак лист с один элементом
+    /// Группирует строки по Индексу параллельности или этапу. 
+    /// При отсутствии одного из этих признаков добавляет в стак лист с один элементом
     /// </summary>
     /// <param name="items"></param>
     /// <returns></returns>
-    private Stack<(GroupType, List<TechOperationDataGridItem>, List<TechOperationDataGridItem>)> GroupByParallelIndex(List<TechOperationDataGridItem> items)
+    private Stack<(GroupType, List<TechOperationDataGridItem>, List<TechOperationDataGridItem>)> 
+        GroupByParallelIndex(List<TechOperationDataGridItem> items)
     {
         var parallelGroups = new Stack<(GroupType, List<TechOperationDataGridItem>, List<TechOperationDataGridItem>)>();
 
@@ -653,6 +646,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
                 foreach (var parGroup in nullIndexGroups)
                 {
+
                     times.Add(CalculateMaxEtapTime(parGroup.ToList()));
                 }
             }
@@ -677,15 +671,47 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     private double CalculateMaxEtapTime(List<TechOperationDataGridItem> etapGroup)
     {
+        // todo: проверка на наличие различных этапов внутри группы
+        // Если есть разные этапы, то группируем по этапам и выполняем расчёт времени рекурсивно
+        var etapGroups = etapGroup.GroupBy(g => g.Etap).ToList();
+        if (etapGroups.Count > 1)
+        {
+            var times = new List<double>();
+            foreach (var group in etapGroups)
+            {
+                times.Add(CalculateMaxEtapTime(group.ToList()));
+            }
+
+            return times.Max();
+        }
+
+        // Если этап у всех операций равен 0 или "",
+        // то суммировать время всех операций в группе
+        if (etapGroup.All(a => a.Etap == "" || a.Etap == "0" 
+            //|| a.Etap == etapGroup[0].Etap
+            ))
+        {
+            return etapGroup.Sum(s => s.techWork.Value);
+        }
+
         var executionWorks = etapGroup.Where(w => w.Work).Select(s => s.techWork).ToList();
 
         var executionTimes = new List<double>();
+
+        var sequenceTimes = new List<double>();
 
         foreach (var item in etapGroup)
         {
             if (item.Work)
             {
                 var executionWork = item.techWork;
+
+                // Если у шага нет группы параллельности, то считаем его выполнение последовательным
+                if (executionWork.Etap == "" || executionWork.Etap == "0")
+                {
+                    executionTimes.Add(executionWork.Value);
+                    continue;
+                }
 
                 if (!string.IsNullOrEmpty(executionWork.Posled) && executionWork.Posled != "0")
                 {
@@ -702,6 +728,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 }
             }
         }
+
+        executionTimes.Add(sequenceTimes.Sum());
 
         return executionTimes.Max();
     }
@@ -950,6 +978,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         // Выделить строку цветом
         cell.Style.BackColor = isReadOnly ? Color.White : Color.LightGray;
     }
+
     private void SetCellBackColor(DataGridViewCell cell, Color color)
     {
         cell.Style.BackColor = color;
@@ -995,6 +1024,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
 
     }
+
     /// <summary>
     /// Проверяет ячейку на совпадение с предыдущей ячейкой в столбце dgvMain
     /// </summary>
@@ -1281,6 +1311,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
 
     public bool HasChanges { get; set; }
+
     public async Task SaveChanges()
     {
         button1_Click_1(null, null);
