@@ -79,7 +79,7 @@ namespace TC_WinForms.WinForms
 
             SetViewMode();
 
-            //SetTCStatusAccess();
+            FormClosed += (s,e) => Dispose();
         }
         private void AccessInitialization()
         {
@@ -197,6 +197,8 @@ namespace TC_WinForms.WinForms
 
                 AccessInitialization();
                 SetTCStatusAccess();
+
+                UpdateFormTitle();
             }
             catch (Exception ex)
             {
@@ -204,15 +206,33 @@ namespace TC_WinForms.WinForms
                 this.Close();
             }
 
+            // повторить загрузку 3 раза, в случае ошибки закрыть форму
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    await ShowForm(EModelType.WorkStep);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    if (i == 2)
+                    {
+                        MessageBox.Show("Ошибка загрузки формы: " + ex.Message);
+                        this.Close();
+                    }
+                }
+            }
 
+        }
+        private void UpdateFormTitle()
+        {
             this.Text = $"{_tc.Name} ({_tc.Article})";
             if (_tc.Status != TechnologicalCardStatus.Approved)
             {
                 this.Text += $" - {_tc.Status.GetDescription()}";
             }
-            await ShowForm(EModelType.WorkStep);
         }
-
         private void btnBack_Click(object sender, EventArgs e)
         {
             WinProcessing.BackFormBtn(this);
@@ -236,9 +256,6 @@ namespace TC_WinForms.WinForms
                     form.Close();
                 }
             }
-
-            this.Dispose();
-
         }
 
         private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
