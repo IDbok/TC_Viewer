@@ -42,8 +42,6 @@ namespace TC_WinForms.WinForms
 
             dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
             dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
-
-
         }
 
         public void SetViewMode(bool? isViewMode = null)
@@ -262,6 +260,7 @@ namespace TC_WinForms.WinForms
             await dbCon.DeleteIntermediateObjectAsync(deletedObjects);
             _deletedObjects.Clear();
         }
+
         private async Task SaveReplacedObjects() // add to UpdateMode
         {
             var oldObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();

@@ -50,7 +50,7 @@ namespace TC_WinForms.WinForms.Work
 
             dataGridViewTPLocal.CellClick += DataGridViewTPLocal_CellClick;
             dataGridViewTPLocal.CellEndEdit += DataGridViewTPLocal_CellEndEdit;
-            dataGridViewTPLocal.CellFormatting += DataGridViewTPLocal_CellFormatting; 
+            dataGridViewTPLocal.CellFormatting += DataGridViewTPLocal_CellFormatting;
             dataGridViewTPLocal.SelectionChanged += DataGridViewTPLocal_SelectionChanged;
 
             dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
@@ -196,7 +196,7 @@ namespace TC_WinForms.WinForms.Work
         private IEnumerable<TechOperation> FilterTechOperations(string searchText)
         {
             return allTO.Where(to => (string.IsNullOrEmpty(searchText) || to.Name.ToLower().Contains(searchText.ToLower())));
-                /*&& (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId || to.IsReleased == false))*/ //закомментирована фильтрация то, выводятся все ТО
+            /*&& (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId || to.IsReleased == false))*/ //закомментирована фильтрация то, выводятся все ТО
         }
         private void AddTechOperationToGridAllTO(TechOperation techOperation)
         {
@@ -240,7 +240,7 @@ namespace TC_WinForms.WinForms.Work
         }
         private void AddTechOperationToGridLocalTO(TechOperationWork techOperationWork)
         {
-            
+
             var row = new List<object>
             {
                 techOperationWork,
@@ -271,7 +271,7 @@ namespace TC_WinForms.WinForms.Work
 
                 if (techOperationWork != null)
                 {
-                    if(newValue != techOperationWork.GetParallelIndex().ToString())
+                    if (newValue != techOperationWork.GetParallelIndex().ToString())
                     {
                         if (newValue == "")
                         {
@@ -599,7 +599,7 @@ namespace TC_WinForms.WinForms.Work
             //};
             //dataGridViewTPAll.Rows.Add(listItem1.ToArray());
 
-            
+
 
             var filteredTransitions = FilterTechTransitions(textBoxPoiskTP.Text);
 
@@ -2558,6 +2558,11 @@ namespace TC_WinForms.WinForms.Work
             {
                 MessageBox.Show("Выберите по одной строке в обеих таблицах для замены.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+        }
+
+        private void AddEditTechOperationForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Dispose();
         }
     }
 }

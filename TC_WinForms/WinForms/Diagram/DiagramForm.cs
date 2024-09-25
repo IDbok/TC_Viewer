@@ -115,5 +115,9 @@ namespace TC_WinForms.WinForms.Diagram
 
         }
 
+        private void DiagramForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Dispose();
+        }
     }
 }

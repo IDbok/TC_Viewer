@@ -23,37 +23,6 @@ namespace TC_WinForms.WinForms
         //private static bool _isCommentViewMode = false;
         private static bool _isMachineCollumnViewMode = true;
 
-
-
-        //public static event Action CommentViewModeChanged;
-
-        //public static bool IsViewMode => _isViewMode;
-
-        //public static bool IsViewMode
-        //{
-        //    get => _isViewMode;
-        //    set
-        //    {
-        //        if (_isViewMode != value)
-        //        {
-        //            _isViewMode = value;
-        //            OnViewModeChanged();
-        //        }
-        //    }
-        //}
-        //public static bool IsCommentViewMode
-        //{
-        //    get => _isCommentViewMode;
-        //    set
-        //    {
-        //        if (_isCommentViewMode != value)
-        //        {
-        //            _isCommentViewMode = value;
-        //            OnCommentViewModeChanged();
-        //        }
-        //    }
-        //}
-
         public static bool isMachineViewMode
         {
             get => _isMachineCollumnViewMode;
@@ -66,7 +35,6 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
-
 
         public static event Action? CommentViewModeChanged;
         public static event Action? ViewModeChanged;
@@ -104,8 +72,6 @@ namespace TC_WinForms.WinForms
             //_isViewMode = viewMode;
 
             InitializeComponent();
-
-
             
             this.KeyDown += ControlSaveEvent;
 
@@ -300,7 +266,7 @@ namespace TC_WinForms.WinForms
                     if (_formsCache[formKey] != null)
                     {
                         _formsCache[formKey].Close();
-                        _formsCache[formKey].Dispose();
+                        //_formsCache[formKey].Dispose();
                     }
                 }
                 _formsCache.Clear(); // Очищаем кеш

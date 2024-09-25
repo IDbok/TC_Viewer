@@ -1197,30 +1197,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         }
     }
 
-    private void button1_Click(object sender, EventArgs e)
-    {
-
-        using (var context = new MyDbContext())
-        {
-            var TC = context.TechnologicalCards.Single(s => s.Id == 1);
-
-            var ff = context.Protections.Take(5).ToList();
-
-
-            foreach (Protection protection in ff)
-            {
-                Protection_TC tt = new Protection_TC();
-                tt.Child = protection;
-                tt.Quantity = 5;
-                TC.Protection_TCs.Add(tt);
-            }
-
-            context.SaveChanges();
-        }
-
-        return;
-    }
-
     private void button2_Click(object sender, EventArgs e)
     {
         // в случае Режима просмотра форма не открывается
@@ -1237,7 +1213,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         _editForm.Show();
         _editForm.BringToFront();
 
-        HasChanges = true;
+        HasChanges = true; // todo: Устанавливаем флаг изменений если реально были изменения
     }
 
     private void button1_Click_1(object sender, EventArgs e)
@@ -1362,6 +1338,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     private void TechOperationForm_FormClosing(object sender, FormClosingEventArgs e)
     {
+
+        Dispose();
         //if (HasChanges)
         //{
         //    var result = MessageBox.Show("Вы хотите сохранить изменения перед закрытием?", "Сохранение изменений", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
