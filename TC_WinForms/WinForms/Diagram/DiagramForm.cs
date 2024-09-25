@@ -56,6 +56,8 @@ namespace TC_WinForms.WinForms.Diagram
 
             //AddButton();
 
+            this.FormClosed += (sender, elementHost) => this.Dispose();
+
         }
         //private void AddButton()
         //{
@@ -115,9 +117,5 @@ namespace TC_WinForms.WinForms.Diagram
 
         }
 
-        private void DiagramForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Dispose();
-        }
     }
 }

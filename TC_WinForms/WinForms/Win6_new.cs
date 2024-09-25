@@ -250,6 +250,9 @@ namespace TC_WinForms.WinForms
 
             if (_activeModelType == modelType) return;
 
+            // Блокировка формы при переключении
+            this.Enabled = false;
+
             bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep;
 
 
@@ -284,6 +287,8 @@ namespace TC_WinForms.WinForms
             _activeModelType = modelType;
 
             UpdateButtonsState(modelType);
+
+            this.Enabled = true;
         }
 
         private bool CheckForChanges()

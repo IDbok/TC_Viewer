@@ -40,6 +40,8 @@ namespace TC_WinForms.WinForms
             this.Text = $"{_tc!.Name} ({_tc.Article}) - Схема исполнения";
 
             _tcViewState.ViewModeChanged += OnViewModeChanged;
+
+            this.FormClosed += (s, e) => this.Dispose();
         }
 
         private void Win6_ExecutionScheme_Load(object sender, EventArgs e)

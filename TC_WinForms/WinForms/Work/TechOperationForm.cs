@@ -49,6 +49,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         this.KeyDown += new KeyEventHandler(Form_KeyDown);
 
         _tcViewState.ViewModeChanged += OnViewModeChanged;
+
+        //this.FormClosed += (sender, e) => this.Dispose();
     }
 
     private async void TechOperationForm_Load(object sender, EventArgs e)
@@ -245,23 +247,26 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         return HasChanges;
     }
 
-    private void TechOperationForm_FormClosed(object sender, FormClosedEventArgs e)
-    {
-        // Закрытие дочерней формы, если она была открыта
-        _editForm?.Close();
-    }
 
     public void UpdateGrid()
     {
-        var offScroll = dgvMain.FirstDisplayedScrollingRowIndex;
+        try // временная заглушка от ошибки возникающей при переключении на другую форму в процессе загрузки данных
+        {
+            var offScroll = dgvMain.FirstDisplayedScrollingRowIndex;
 
-        ClearAndInitializeGrid();
-        PopulateDataGrid();
-        SetCommentViewMode();
-        SetMachineViewMode();
+            ClearAndInitializeGrid();
+            PopulateDataGrid();
+            SetCommentViewMode();
+            SetMachineViewMode();
 
-        if (offScroll < dgvMain.Rows.Count && offScroll > 0) 
-            dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
+            if (offScroll < dgvMain.Rows.Count && offScroll > 0)
+                dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
+        }
+        catch (Exception ex)
+        {
+            //MessageBox.Show(ex.Message);
+        }
+
     }
 
     /// <summary>
@@ -1374,20 +1379,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     private void TechOperationForm_FormClosing(object sender, FormClosingEventArgs e)
     {
-
-        Dispose();
-        //if (HasChanges)
-        //{
-        //    var result = MessageBox.Show("Вы хотите сохранить изменения перед закрытием?", "Сохранение изменений", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-        //    if (result == DialogResult.Yes)
-        //    {
-        //        button1_Click_1(null, null);
-        //    }
-        //    else if (result == DialogResult.Cancel)
-        //    {
-        //        e.Cancel = true;
-        //    }
-        //}
+        _editForm?.Close();
     }
 
     public void HighlightExecutionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)

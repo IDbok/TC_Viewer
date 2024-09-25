@@ -38,7 +38,6 @@
             Margin = new Padding(3, 2, 3, 2);
             Name = "DiagramForm";
             Text = "DiagramForm";
-            FormClosing += DiagramForm_FormClosing;
             ResumeLayout(false);
         }
 
