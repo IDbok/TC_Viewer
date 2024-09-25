@@ -26,6 +26,8 @@ namespace TC_WinForms.DataProcessing
 
         private readonly int _currentPrintHeigth = 43;
         private readonly int _currentPrintWidgth = 18;
+        private readonly int _currentRixelWidgthShag = 530;
+
 
         private bool isNextShagIsParallel = false;
         private bool isNextTOParallel = false;
@@ -493,20 +495,37 @@ namespace TC_WinForms.DataProcessing
             //var memoryStream = new MemoryStream();
             using(MemoryStream ms = new MemoryStream())
             {
-                if (bitmapImage.Width > 600 || bitmapImage.Height > 500)
+                try
                 {
-                    Bitmap resized = new Bitmap(bitmapImage, new Size((int)(bitmapImage.Width / 1.5d), (int)(bitmapImage.Height / 1.5d)));
-                    resized.Save(ms, ImageFormat.Png);
+                    bitmapImage.Save(ms, ImageFormat.Png); //пытаемся сохранить изображение в MemoryStream
                 }
-                else
-                    bitmapImage.Save(ms, ImageFormat.Png);
+                catch //Обход ошибки сохранения. Она связана с размером изображения и одновременным открытием изображения GDI+. Изображение будет с нуля отрисовано в копии и все сторонние процессы будут закрыты.
+                {
+                    Bitmap bitmap = new Bitmap(bitmapImage.Width, bitmapImage.Height, bitmapImage.PixelFormat); //Создаем копию текущего изображения
+                    Graphics g = Graphics.FromImage(bitmap); //создаем объект для отрисовки изображения в копии файла
+                    g.DrawImage(bitmapImage, new Point(0, 0)); // отрисовываем изображение
+                    g.Dispose(); //завершаем процесс объекта для отрисовки
+                    bitmapImage.Dispose(); // завершаем процесс оригинального объекта, чтобы не было ошибки, связанной с уже изначально открытым процессом в GDI+
+                    bitmap.Save(ms, ImageFormat.Png); // повторно сохраняем изображение в MemoryStream
+                }
 
                 ExcelPicture excelImage = null;
                 excelImage = sheet.Drawings.AddPicture(shag.NameImage + headRow, ms);
-                excelImage.SetSize(100);
+                if((excelImage.Size.Width / 9525)  > _currentRixelWidgthShag) //Сравниваем, войдет ли по ширине пикселей текущий масштаб изображения в заданную ширину шага. Ширину изображения делим на указанное в формуле число соотношения к пикселям
+                {
+                    int i = 100;//Число для задания масштаба, по умолчанию 100
+                    while((excelImage.Size.Width / 9525) > _currentRixelWidgthShag) //Уменьшаем масштаб, пока изображения не поместится
+                    {
+                        excelImage.SetSize(i);
+                        i -= 5;
+                    }
+                }    
+                else
+                    excelImage.SetSize(100); //задаем масштаб изображения по умолчанию
+
 
                 int printScaleDifference = Modulo(-headRow, _currentPrintHeigth);
-                var currentRow = (int)Math.Ceiling(excelImage.Image.Bounds.Height / rowHeightPixels) + 2;//Высота изображения с учетом вставки наименований в строках
+                var currentRow = (int)Math.Ceiling((excelImage.Size.Height / 9525) / rowHeightPixels) + 2;//Высота изображения с учетом вставки наименований в строках
 
                 if (printScaleDifference < currentRow)
                 {
@@ -514,7 +533,7 @@ namespace TC_WinForms.DataProcessing
                     headRow = AddTONameToExcel(diagramTo_name, sheet, headRow, currentColumn);
                     headRow = AddShagName(shag, sheet, headRow, currentColumn) - 1;
                 }
-                currentRow = (int)Math.Ceiling(excelImage.Image.Bounds.Height / rowHeightPixels) + headRow + 2;//Текущая строка с учетом высоты изображения
+                currentRow = (int)Math.Ceiling((excelImage.Size.Height / 9525) / rowHeightPixels) + headRow + 2;//Текущая строка с учетом высоты изображения
 
                 excelImage.From.Column = columnNums[0] - 1;
                 excelImage.From.Row = headRow;
