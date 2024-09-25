@@ -98,6 +98,7 @@
             tabPage2 = new TabPage();
             tableLayoutPanel3 = new TableLayoutPanel();
             dataGridViewTPLocal = new DataGridView();
+            Column19 = new DataGridViewCheckBoxColumn();
             dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
             DateGridLocalTPDetete = new DataGridViewButtonColumn();
             dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
@@ -2832,6 +2833,7 @@
         private DataGridViewCheckBoxColumn Column19;
         private DataGridViewTextBoxColumn ParallelIndex;
         private DataGridViewTextBoxColumn SequenceGroupIndex;
+        private DataGridViewCheckBoxColumn Column19;
         //private DataGridViewCheckBoxColumn Column22;
     }
 }

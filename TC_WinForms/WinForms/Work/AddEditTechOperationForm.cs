@@ -42,6 +42,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewAllTO.CellClick += DataGridViewAllTO_CellClick;
 
             dataGridViewTO.CellClick += DataGridViewTO_CellClick;
+            dataGridViewTO.CellValidating += CellValidating;
             dataGridViewTO.CellEndEdit += DataGridViewTO_CellEndEdit;
             dataGridViewTO.CellFormatting += DataGridViewTO_CellFormatting;
             dataGridViewTO.CellValidating += CellValidating;
