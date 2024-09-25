@@ -47,5 +47,8 @@ namespace TC_WinForms.WinForms.Work
 
         public ExecutionWork executionWorkItem=null;
 
+        public double TotalTime { get; set; } 
+        public double TimeEtapValue { get; set; }
+
     }
 }
