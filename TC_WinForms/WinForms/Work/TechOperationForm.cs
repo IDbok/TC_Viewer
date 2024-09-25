@@ -30,6 +30,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public List<TechOperationWork> TechOperationWorksList = null!;
     public TechnologicalCard TehCarta = null!;
+    public List<Machine> Machines = null!;
+    public List<Machine_TC> Machine_TCs = null!;
+    public List<Component_TC> Component_TCs = null!;
+    public List<Tool_TC> Tool_TCs = null!;
+
+
+
 
     public bool CloseFormsNoSave { get; set; } = false;
 
@@ -76,13 +83,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
 
         TehCarta =  await context.TechnologicalCards
-            .Include(t => t.Machines)
-            .Include(t => t.Machine_TCs)
             .Include(t => t.Protection_TCs)
-            .Include(t => t.Tool_TCs)
-            .Include(t => t.Component_TCs)
             .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
-            .SingleAsync(s => s.Id == tcId);
+            .FirstAsync(s => s.Id == tcId);
+
+        Machines = await context.Machines.Where(t => t.TechnologicalCards.Contains(TehCarta)).ToListAsync();
+
+        Machine_TCs = await context.Machine_TCs.Where(t => t.ParentId == tcId).ToListAsync();
+
+        Component_TCs = await context.Component_TCs.Where(t => t.ParentId == tcId).ToListAsync();
+
+        Tool_TCs = await context.Tool_TCs.Where(t => t.ParentId == tcId).ToListAsync();
 
         TechOperationWorksList = await context.TechOperationWorks
             .Where(w => w.TechnologicalCardId == tcId)
@@ -804,7 +815,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         dgvMain.Columns.Add("", "");
 
         int i = 0;
-        foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
+        foreach (Machine_TC tehCartaMachineTC in Machine_TCs)
         {
             dgvMain.Columns.Add("Machine+{i}", "Время " + tehCartaMachineTC.Child.Name + ", мин.");
             i++;
@@ -897,7 +908,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 var staffStr = string.Join(",", executionWork.Staffs.Select(s => s.Symbol));
                 var protectList = executionWork.Protections.Select(p => p.Order).ToList();
                 var protectStr = ConvertListToRangeString(protectList);
-                var mach = TehCarta.Machine_TCs.Select(tc => executionWork.Machines.Contains(tc)).ToList();
+                var mach = Machine_TCs.Select(tc => executionWork.Machines.Contains(tc)).ToList();
 
                 var itm = new TechOperationDataGridItem
                 {
@@ -1160,7 +1171,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     {
         techOperationDataGridItem.listMachStr = new List<string>();
 
-        for (var index = 0; index < TehCarta.Machine_TCs.Count; index++)
+        for (var index = 0; index < Machine_TCs.Count; index++)
         {
             if (techOperationDataGridItem.listMachStr.Count == 0 && techOperationDataGridItem.listMach.Count > 0)
             {
@@ -1693,23 +1704,23 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             foreach (ToolWork toolWork in techOperationWork.ToolWorks)
             {
-                if (TehCarta.Tool_TCs.SingleOrDefault(s => s.Child == toolWork.tool) == null)
+                if (Tool_TCs.SingleOrDefault(s => s.Child == toolWork.tool) == null)
                 {
                     Tool_TC tool = new Tool_TC();
                     tool.Child = toolWork.tool;
                     tool.Quantity = toolWork.Quantity;
-                    TehCarta.Tool_TCs.Add(tool);
+                    Tool_TCs.Add(tool);
                 }
             }
 
             foreach (ComponentWork componentWork in techOperationWork.ComponentWorks)
             {
-                if (TehCarta.Component_TCs.SingleOrDefault(s => s.Child == componentWork.component) == null)
+                if (Component_TCs.SingleOrDefault(s => s.Child == componentWork.component) == null)
                 {
                     Component_TC Comp = new Component_TC();
                     Comp.Child = componentWork.component;
                     Comp.Quantity = componentWork.Quantity;
-                    TehCarta.Component_TCs.Add(Comp);
+                    Component_TCs.Add(Comp);
                 }
             }
         }

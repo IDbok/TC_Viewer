@@ -1198,7 +1198,7 @@ namespace TC_WinForms.WinForms.Work
 
             var context = TechOperationForm.context;
 
-            var AllMyComponent = TechOperationForm.TehCarta.Component_TCs.Where(w => w.ParentId == TechOperationForm.tcId).ToList();
+            var AllMyComponent = TechOperationForm.Component_TCs.Where(w => w.ParentId == TechOperationForm.tcId).ToList();
 
             var AllComponent = context.Components.ToList();
 
@@ -1506,7 +1506,7 @@ namespace TC_WinForms.WinForms.Work
 
             var context = TechOperationForm.context;
 
-            var AllMyInstr = TechOperationForm.TehCarta.Tool_TCs.ToList();
+            var AllMyInstr = TechOperationForm.Tool_TCs.ToList();
 
             var AllInstr = context.Tools.ToList();
 
@@ -1748,7 +1748,7 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewMeha.FirstDisplayedScrollingRowIndex;
             dataGridViewMeha.Rows.Clear();
 
-            var Msch = TechOperationForm.TehCarta.Machine_TCs.ToList();
+            var Msch = TechOperationForm.Machine_TCs.ToList();
             var context = TechOperationForm.context;
             var all = context.Machines.ToList();
 
@@ -1811,7 +1811,7 @@ namespace TC_WinForms.WinForms.Work
 
             var al = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false).OrderBy(o => o.Order);
 
-            var allMsch = TechOperationForm.TehCarta.Machine_TCs.ToList();
+            var allMsch = TechOperationForm.Machine_TCs.ToList();
 
             while (dataGridViewEtap.Columns.Count > 5)
             {
@@ -1921,7 +1921,7 @@ namespace TC_WinForms.WinForms.Work
                 var che = (bool)dataGridViewEtap.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 var id = (ExecutionWork)dataGridViewEtap.Rows[e.RowIndex].Cells[0].Value;
 
-                var allMsch = TechOperationForm.TehCarta.Machine_TCs.ToList();
+                var allMsch = TechOperationForm.Machine_TCs.ToList();
                 var mach = allMsch[e.ColumnIndex - 5];
 
                 var bn = id.Machines.SingleOrDefault(s => s == mach);
@@ -1955,18 +1955,18 @@ namespace TC_WinForms.WinForms.Work
                 var id = (Machine)dataGridViewMeha.Rows[e.RowIndex].Cells[0].Value;
                 var che = (bool)dataGridViewMeha.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
 
-                var allMsch = TechOperationForm.TehCarta.Machines.ToList();
+                var allMsch = TechOperationForm.Machines.ToList();
 
                 if (che)
                 {
-                    var bn = TechOperationForm.TehCarta.Machine_TCs.SingleOrDefault(s => s.Child == id);
+                    var bn = TechOperationForm.Machine_TCs.SingleOrDefault(s => s.Child == id);
                     if (bn == null)
                     {
                         bn = new Machine_TC();
                         bn.Child = id;
                         bn.Quantity = 1;
                         bn.Parent = TechOperationForm.TehCarta;
-                        TechOperationForm.TehCarta.Machine_TCs.Add(bn);
+                        TechOperationForm.Machine_TCs.Add(bn);
                         dataGridViewEtapUpdate();
                         dataGridViewMehaUpdate();
                         TechOperationForm.UpdateGrid();
@@ -1974,10 +1974,10 @@ namespace TC_WinForms.WinForms.Work
                 }
                 else
                 {
-                    var bn = TechOperationForm.TehCarta.Machine_TCs.SingleOrDefault(s => s.Child == id);
+                    var bn = TechOperationForm.Machine_TCs.SingleOrDefault(s => s.Child == id);
                     if (bn != null)
                     {
-                        TechOperationForm.TehCarta.Machine_TCs.Remove(bn);
+                        TechOperationForm.Machine_TCs.Remove(bn);
                         dataGridViewEtapUpdate();
                         dataGridViewMehaUpdate();
                         TechOperationForm.UpdateGrid();
