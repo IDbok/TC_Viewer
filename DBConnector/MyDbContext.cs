@@ -57,14 +57,17 @@ public class MyDbContext : DbContext
         //Database.EnsureDeleted();
         //Database.EnsureCreated(); // todo - create exception catch if db is unavailable
 
+        Database.SetCommandTimeout(70);
     }
   
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseMySql(TcDbConnector.StaticClass.ConnectString,
+        optionsBuilder
+            .UseMySql(TcDbConnector.StaticClass.ConnectString,
             //"server=localhost;database=tavrida_db_v141;user=root;password=root",//
             new MySqlServerVersion(new Version(5, 7, 24)));
+
 
     }
 
