@@ -135,7 +135,7 @@ namespace TC_WinForms.WinForms
         }
 
 
-        async Task Save()
+        async Task SaveAsync()
         {
             if (LocalCard == null)
             {
@@ -187,7 +187,7 @@ namespace TC_WinForms.WinForms
         {
             if (NoEmptiness())
             {
-                if (Save().IsCompletedSuccessfully)
+                if (SaveAsync().IsCompletedSuccessfully)
                 {
                     this.BringToFront();
                     MessageBox.Show("Сохранено!");
@@ -200,7 +200,7 @@ namespace TC_WinForms.WinForms
             if (NoEmptiness())
             {
                 if (HasChanges())
-                    Save();
+                    SaveAsync();
 
                 var nn = LocalCard.Id;
                 var editorForm = new Win6_new(nn, role: _accessLevel);
