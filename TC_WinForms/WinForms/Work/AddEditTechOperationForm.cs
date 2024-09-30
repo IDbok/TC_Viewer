@@ -1133,35 +1133,36 @@ namespace TC_WinForms.WinForms.Work
             var protection = context.Protections.ToList();
             var LocalTP = work.Protections.ToList();
 
-            var Allsz = context.Protection_TCs.Where(w => w.ParentId == TechOperationForm.tcId).ToList();
+            var Allsz = TechOperationForm.TehCarta.Protection_TCs.ToList();
 
-            foreach (Protection_TC prot in Allsz)
-            {
-                if (textBoxPoiskSZ.Text != "" &&
-                    prot.Child.Name.ToLower().IndexOf(textBoxPoiskSZ.Text.ToLower()) == -1)
-                {
-                    continue;
-                }
-
-
-                if (LocalTP.SingleOrDefault(s => s.Child == prot.Child) != null)
-                {
-                    continue;
-                }
+            //todo: удалить за ненадобностью, изменен формат работы с СЗ
+            //foreach (Protection_TC prot in Allsz)
+            //{
+            //    if (textBoxPoiskSZ.Text != "" &&
+            //        prot.Child.Name.ToLower().IndexOf(textBoxPoiskSZ.Text.ToLower()) == -1)
+            //    {
+            //        continue;
+            //    }
 
 
-                List<object> listItem = new List<object>
-                {
-                    prot.Child,
-                    "Добавить",
-                    prot.Child.Name,
-                    prot.Child.Type,
-                    prot.Child.Unit,
-                    prot.Quantity
-                };
+            //    if (LocalTP.SingleOrDefault(s => s.Child == prot.Child) != null)
+            //    {
+            //        continue;
+            //    }
 
-                dataGridViewAllSZ.Rows.Add(listItem.ToArray());
-            }
+
+            //    List<object> listItem = new List<object>
+            //    {
+            //        prot.Child,
+            //        "Добавить",
+            //        prot.Child.Name,
+            //        prot.Child.Type,
+            //        prot.Child.Unit,
+            //        prot.Quantity
+            //    };
+
+            //    dataGridViewAllSZ.Rows.Add(listItem.ToArray());
+            //}
 
 
             foreach (Protection prot in protection)
@@ -1219,7 +1220,7 @@ namespace TC_WinForms.WinForms.Work
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
-            var AllSZ = TechOperationForm.TehCarta.Protection_TCs.OrderBy(x => x.Order);
+            var AllSZ = TechOperationForm.TehCarta.Protection_TCs.OrderBy(x => x.Order).ToList();
 
             foreach (Protection_TC protection_TC in AllSZ)
             {
@@ -1275,7 +1276,7 @@ namespace TC_WinForms.WinForms.Work
                 protectionTc.Order = orderMax + 1;
 
                 context.Protection_TCs.Add(protectionTc);
-                
+
                 UpdateGridAllSZ();
                 UpdateGridLocalSZ();
             }
@@ -1296,6 +1297,7 @@ namespace TC_WinForms.WinForms.Work
                         techCart.Remove(idd);
 
                         UpdateGridLocalSZ();
+                        UpdateGridAllSZ();
                         TechOperationForm.UpdateGrid();
                     }
                 }
@@ -1335,7 +1337,7 @@ namespace TC_WinForms.WinForms.Work
 
             var context = TechOperationForm.context;
 
-            var AllMyComponent = TechOperationForm.TehCarta.Component_TCs.Where(w => w.ParentId == TechOperationForm.tcId).ToList();
+            var AllMyComponent = TechOperationForm.TehCarta.Component_TCs.Where(w => w.ParentId == TechOperationForm.tcId).OrderBy(x => x.Order).ToList();
 
             var AllComponent = context.Components.ToList();
 
@@ -1643,7 +1645,7 @@ namespace TC_WinForms.WinForms.Work
 
             var context = TechOperationForm.context;
 
-            var AllMyInstr = TechOperationForm.TehCarta.Tool_TCs.ToList();
+            var AllMyInstr = TechOperationForm.TehCarta.Tool_TCs.OrderBy(x => x.Order).ToList();
 
             var AllInstr = context.Tools.ToList();
 
