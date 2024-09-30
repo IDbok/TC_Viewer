@@ -23,37 +23,6 @@ namespace TC_WinForms.WinForms
         //private static bool _isCommentViewMode = false;
         private static bool _isMachineCollumnViewMode = true;
 
-
-
-        //public static event Action CommentViewModeChanged;
-
-        //public static bool IsViewMode => _isViewMode;
-
-        //public static bool IsViewMode
-        //{
-        //    get => _isViewMode;
-        //    set
-        //    {
-        //        if (_isViewMode != value)
-        //        {
-        //            _isViewMode = value;
-        //            OnViewModeChanged();
-        //        }
-        //    }
-        //}
-        //public static bool IsCommentViewMode
-        //{
-        //    get => _isCommentViewMode;
-        //    set
-        //    {
-        //        if (_isCommentViewMode != value)
-        //        {
-        //            _isCommentViewMode = value;
-        //            OnCommentViewModeChanged();
-        //        }
-        //    }
-        //}
-
         public static bool isMachineViewMode
         {
             get => _isMachineCollumnViewMode;
@@ -66,7 +35,6 @@ namespace TC_WinForms.WinForms
                 }
             }
         }
-
 
         public static event Action? CommentViewModeChanged;
         public static event Action? ViewModeChanged;
@@ -104,8 +72,6 @@ namespace TC_WinForms.WinForms
             //_isViewMode = viewMode;
 
             InitializeComponent();
-
-
             
             this.KeyDown += ControlSaveEvent;
 
@@ -113,7 +79,7 @@ namespace TC_WinForms.WinForms
 
             SetViewMode();
 
-            //SetTCStatusAccess();
+            FormClosed += (s,e) => Dispose();
         }
         private void AccessInitialization()
         {
@@ -231,6 +197,8 @@ namespace TC_WinForms.WinForms
 
                 AccessInitialization();
                 SetTCStatusAccess();
+
+                UpdateFormTitle();
             }
             catch (Exception ex)
             {
@@ -238,15 +206,33 @@ namespace TC_WinForms.WinForms
                 this.Close();
             }
 
+            // повторить загрузку 3 раза, в случае ошибки закрыть форму
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    await ShowForm(EModelType.WorkStep);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    if (i == 2)
+                    {
+                        MessageBox.Show("Ошибка загрузки формы: " + ex.Message);
+                        this.Close();
+                    }
+                }
+            }
 
+        }
+        private void UpdateFormTitle()
+        {
             this.Text = $"{_tc.Name} ({_tc.Article})";
             if (_tc.Status != TechnologicalCardStatus.Approved)
             {
                 this.Text += $" - {_tc.Status.GetDescription()}";
             }
-            await ShowForm(EModelType.WorkStep);
         }
-
         private void btnBack_Click(object sender, EventArgs e)
         {
             WinProcessing.BackFormBtn(this);
@@ -270,9 +256,6 @@ namespace TC_WinForms.WinForms
                     form.Close();
                 }
             }
-
-            this.Dispose();
-
         }
 
         private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
@@ -283,6 +266,9 @@ namespace TC_WinForms.WinForms
         {
 
             if (_activeModelType == modelType) return;
+
+            // Блокировка формы при переключении
+            this.Enabled = false;
 
             bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep;
 
@@ -300,7 +286,7 @@ namespace TC_WinForms.WinForms
                     if (_formsCache[formKey] != null)
                     {
                         _formsCache[formKey].Close();
-                        _formsCache[formKey].Dispose();
+                        //_formsCache[formKey].Dispose();
                     }
                 }
                 _formsCache.Clear(); // Очищаем кеш
@@ -318,6 +304,8 @@ namespace TC_WinForms.WinForms
             _activeModelType = modelType;
 
             UpdateButtonsState(modelType);
+
+            this.Enabled = true;
         }
 
         private bool CheckForChanges()

@@ -17,7 +17,12 @@ namespace TcModels.Models.TcContent
         public List<ComponentWork> ComponentWorks { get; set; } = new List<ComponentWork>();
 
         public ICollection<ExecutionWork> executionWorks { get; set; } = new List<ExecutionWork>();
-        public string? ParallelIndex { get; set; }
+        /// <summary>
+        /// Хранилище переменных для параллельных операций в формате int / int,
+        /// где первое число - это индекс параллельность операции, второе - индекс группы последовательных операций
+        /// ( ParallelIndex / SequenceGroupIndex )
+        /// </summary>
+        private string? ParallelIndex { get; set; }
         public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new List<DiagramParalelno>();
 
         [NotMapped] public bool Delete { get; set; } = false;
@@ -29,5 +34,84 @@ namespace TcModels.Models.TcContent
         {
             return techOperation.Name;
         }
+
+        public TechOperationWork()
+        {
+            
+        }
+
+        public TechOperationWork(TechnologicalCard technologicalCard, TechOperation techOperation, 
+            int order, string? parallelIndex)
+        {
+            this.technologicalCard = technologicalCard;
+            this.techOperation = techOperation;
+            Order = order;
+            ParallelIndex = parallelIndex;
+        }
+
+        public int? GetParallelIndex()
+        {
+            if (ParallelIndex == null)
+                return null;
+
+            var index = ParallelIndex.Split('/');
+
+            if (int.TryParse(index[0], out var result))
+                return result;
+
+            return null; // Возвращаем null, если парсинг не удался
+        }
+
+        public void SetParallelIndex(int index)
+        {
+            if (index < 0)
+                throw new ArgumentOutOfRangeException(nameof(index), "ParallelIndex cannot be less than 0");
+
+            if (index == 0)
+            {
+                ParallelIndex = null;
+                return;
+            }
+
+            var groupIndex = GetSequenceGroupIndex();
+
+            ParallelIndex = groupIndex == null
+                ? index.ToString()
+                : index + "/" + groupIndex;
+        }
+
+        public int? GetSequenceGroupIndex()
+        {
+            if (ParallelIndex == null)
+                return null;
+
+            var index = ParallelIndex.Split('/');
+
+            if (index.Length > 1 && int.TryParse(index[1], out var result))
+                return result;
+
+            return null;
+        }
+
+        public void SetSequenceGroupIndex(int index)
+        {
+            if (ParallelIndex == null)
+                throw new InvalidOperationException("ParallelIndex is null");
+
+            if (index < 0)
+                throw new ArgumentOutOfRangeException(nameof(index), "SequenceGroupIndex cannot be less than 0");
+
+            var parallelIndex = GetParallelIndex();
+            if (parallelIndex == null)
+                throw new InvalidOperationException("ParallelIndex is null");
+
+            ParallelIndex = parallelIndex + "/" + index;
+        }
+
+        public string? GetParallelIndexString()
+        {
+            return ParallelIndex;
+        }
+
     }
 }
