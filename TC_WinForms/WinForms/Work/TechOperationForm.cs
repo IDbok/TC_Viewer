@@ -1298,6 +1298,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     Tool_TC tool = new Tool_TC();
                     tool.Child = toolWork.tool;
+                    tool.Order = TehCarta.Tool_TCs.Count + 1;
                     tool.Quantity = toolWork.Quantity;
                     TehCarta.Tool_TCs.Add(tool);
                 }
@@ -1309,6 +1310,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     Component_TC Comp = new Component_TC();
                     Comp.Child = componentWork.component;
+                    Comp.Order = TehCarta.Component_TCs.Count + 1;
                     Comp.Quantity = componentWork.Quantity;
                     TehCarta.Component_TCs.Add(Comp);
                 }
