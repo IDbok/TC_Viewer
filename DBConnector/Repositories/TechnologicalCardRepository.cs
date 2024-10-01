@@ -97,6 +97,12 @@ public class TechnologicalCardRepository
         _db.SaveChanges();
     }
 
+    public string getImageBase64(TechnologicalCard tc)
+    {
+        var imageBase64 = _db.ImageStorage.Where(i => i.Id == tc.ExecutionSchemeImageId).Select(u => u.ImageBase64).FirstOrDefault();
+        return imageBase64;
+    }
+
     public void UpdateExecutionScheme(string article, byte[] executionScheme)
     {
         var tc = _db.TechnologicalCards.Where(tc => tc.Article == article).FirstOrDefault();

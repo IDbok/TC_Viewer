@@ -228,7 +228,7 @@ namespace TC_WinForms.WinForms
             try
             {
                 _tc = tcRepository.GetTechnologicalCard(_tcId);
-
+                tcViewState.TechnologicalCard = _tc;
                 AccessInitialization();
                 SetTCStatusAccess();
             }
