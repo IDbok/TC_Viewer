@@ -19,6 +19,8 @@ namespace TC_WinForms.WinForms
         private List<object> AllEllement = new List<object>();
 
         private TechnologicalCard LocalCard = null;
+        public delegate Task PostSaveAction<TModel>(TModel modelObject) where TModel : TechnologicalCard;
+        public PostSaveAction<TechnologicalCard> AfterSave { get; set; }
 
         public Win7_1_TCs_Window(int? tcId = null, bool win6Format = false, User.Role role = User.Role.Lead)
         {
@@ -133,7 +135,7 @@ namespace TC_WinForms.WinForms
         }
 
 
-        bool Save()
+        async Task<bool> SaveAsync()
         {
             if (LocalCard == null)
             {
@@ -167,24 +169,26 @@ namespace TC_WinForms.WinForms
 
             try
             {
-                StaticWinForms.Win7_TC_search = StaticWinForms.Win7_TC.setSearch!;
-                context.SaveChanges();
-                StaticWinForms.Win7_new.UpdateTC();
+                await dbCon.UpdateTCAsync(LocalCard);
+                if (AfterSave != null)
+                {
+                    await AfterSave(LocalCard);
+                }
+                return true;
             }
             catch (Exception exception)
             {
                 MessageBox.Show(exception.Message);
                 return false;
             }
-            return true;
         }
 
 
-        private void button2_Click(object sender, EventArgs e)
+        private async void button2_Click(object sender, EventArgs e)
         {
             if (NoEmptiness())
             {
-                if (Save())
+                if (await SaveAsync())
                 {
                     this.BringToFront();
                     MessageBox.Show("Сохранено!");
@@ -192,18 +196,20 @@ namespace TC_WinForms.WinForms
             }
         }
 
-        private void btnSaveAndOpen_Click(object sender, EventArgs e)
+        private async void btnSaveAndOpen_Click(object sender, EventArgs e)
         {
             if (NoEmptiness())
             {
                 if (HasChanges())
-                    if (!Save()) return;
+                {
+                    if (!await SaveAsync())
+                        return;
+                }
 
                 var nn = LocalCard.Id;
                 var editorForm = new Win6_new(nn, role: _accessLevel);
                 this.Close();
                 editorForm.Show();
-
             }
         }
 
