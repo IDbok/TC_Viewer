@@ -68,7 +68,6 @@ namespace TC_WinForms.WinForms
                         }
 
                         DisplayImage(image!.ImageBase64!, pictureBoxExecutionScheme);
-                        _parent.executionSchemeImage64 = image.ImageBase64;
                     }
                 }
             }
