@@ -62,7 +62,7 @@ namespace TC_WinForms.WinForms
                         {
                             using (var dbCon = new MyDbContext())//todo: переписать метод, создать отдельный репозиторий на работу с изображениями
                             {
-                                imageBase64 = tcRepository.getImageBase64(_tc);
+                                imageBase64 = tcRepository.getImageBase64(_tc.ExecutionSchemeImageId);
                                 _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = imageBase64;
                             }
 
