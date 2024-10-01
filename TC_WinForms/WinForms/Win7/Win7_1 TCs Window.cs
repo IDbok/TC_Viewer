@@ -135,7 +135,7 @@ namespace TC_WinForms.WinForms
         }
 
 
-        async Task SaveAsync()
+        async Task<bool> SaveAsync()
         {
             if (LocalCard == null)
             {
@@ -174,20 +174,21 @@ namespace TC_WinForms.WinForms
                 {
                     await AfterSave(LocalCard);
                 }
+                return true;
             }
             catch (Exception exception)
             {
                 MessageBox.Show(exception.Message);
-                return;
+                return false;
             }
         }
 
 
-        private void button2_Click(object sender, EventArgs e)
+        private async void button2_Click(object sender, EventArgs e)
         {
             if (NoEmptiness())
             {
-                if (SaveAsync().IsCompletedSuccessfully)
+                if (await SaveAsync())
                 {
                     this.BringToFront();
                     MessageBox.Show("Сохранено!");
@@ -195,12 +196,15 @@ namespace TC_WinForms.WinForms
             }
         }
 
-        private void btnSaveAndOpen_Click(object sender, EventArgs e)
+        private async void btnSaveAndOpen_Click(object sender, EventArgs e)
         {
             if (NoEmptiness())
             {
                 if (HasChanges())
-                    SaveAsync();
+                {
+                    if (!await SaveAsync())
+                        return;
+                }
 
                 var nn = LocalCard.Id;
                 var editorForm = new Win6_new(nn, role: _accessLevel);
