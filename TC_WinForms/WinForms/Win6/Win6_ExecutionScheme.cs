@@ -14,14 +14,13 @@ using TC_WinForms.WinForms.Work;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
-using static System.Windows.Forms.DataFormats;
 
 namespace TC_WinForms.WinForms
 {
     public partial class Win6_ExecutionScheme : Form, IViewModeable, ISaveEventForm
     {
         private readonly TcViewState _tcViewState;
-        private Win6_new _parent;
+
         private readonly TechnologicalCard _tc;
         private bool _isViewMode = true;
 
@@ -29,10 +28,10 @@ namespace TC_WinForms.WinForms
 
         public bool CloseFormsNoSave { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public Win6_ExecutionScheme(TechnologicalCard tc, TcViewState tcViewState, Win6_new parent, bool viewerMode = false)
+        public Win6_ExecutionScheme(TechnologicalCard tc, TcViewState tcViewState, bool viewerMode = false)
         {
             _tc = tc;
-            _parent = parent;
+
             _tcViewState = tcViewState;
             //_isViewMode = viewerMode;
 
@@ -46,35 +45,25 @@ namespace TC_WinForms.WinForms
         private void Win6_ExecutionScheme_Load(object sender, EventArgs e)
         {
             SetViewMode();
-            try
+
+            if (_tc.ExecutionSchemeImageId != null)
             {
-                if (_parent.executionSchemeImage64 != null)
+                ImageStorage? image;
+                // Загрузить изображение схемы выполнения
+                using (var dbCon = new MyDbContext())
                 {
-                    DisplayImage(_parent.executionSchemeImage64, pictureBoxExecutionScheme);
+                    image = dbCon.ImageStorage.Where(i => i.Id == _tc.ExecutionSchemeImageId).FirstOrDefault();
                 }
-                else if (_tc.ExecutionSchemeImageId != null)
+
+                if (image != null && image.ImageBase64 != null)
                 {
-                    using (var dbCon = new MyDbContext())
-                    {
-                        ImageStorage? image = new ImageStorage();
-
-                        for (int i = 0; i < 3; i++)
-                        {
-                            image = dbCon.ImageStorage.Where(i => i.Id == _tc.ExecutionSchemeImageId).FirstOrDefault();
-                            if (image != null)
-                                break;
-                            else if (i == 2)
-                                throw new Exception("Не удалолсь получить изображение");
-                        }
-
-                        DisplayImage(image!.ImageBase64!, pictureBoxExecutionScheme);
-                    }
+                    DisplayImage(image.ImageBase64, pictureBoxExecutionScheme);
+                    //DisplayImage(_tc.ExecutionSchemeBase64, pictureBoxExecutionScheme);
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Произошла ошибка при загрузке данных: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+
+
+
         }
         private void OnViewModeChanged()
         {
@@ -136,7 +125,6 @@ namespace TC_WinForms.WinForms
 
                     HasChanges = true;
                 }
-                _parent.executionSchemeImage64 = _tc.ExecutionSchemeImage.ImageBase64;
             }
         }
 
@@ -163,10 +151,8 @@ namespace TC_WinForms.WinForms
 
         private void btnDeleteES_Click(object sender, EventArgs e)
         {
-            _tc.ExecutionSchemeImage?.ClearBase64Image();
+            _tc.ExecutionSchemeImage?.ClearBase64Image();       
             pictureBoxExecutionScheme.Image = null;
-            _parent.executionSchemeImage64 = null;
         }
-
     }
 }
