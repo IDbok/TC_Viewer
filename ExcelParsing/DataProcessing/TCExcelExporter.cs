@@ -254,6 +254,9 @@ namespace ExcelParsing.DataProcessing
 
                 sheet.Cells[currentRow, columnNums[4]].Value = obj_tc.Quantity;
 
+                sheet.Cells[currentRow, columnNums[5]].Value = obj_tc.Child?.Price;
+                sheet.Cells[currentRow, columnNums[6]].Value = obj_tc.Note;
+
                 // Форматирование ячеек
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;

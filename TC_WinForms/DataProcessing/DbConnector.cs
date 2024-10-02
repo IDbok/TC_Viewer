@@ -772,43 +772,78 @@ namespace TC_WinForms.DataProcessing
         {
             using (var db = new MyDbContext())
             {
-                var tc = db.TechnologicalCards.Where(tc => tc.Id == id)
+                //var tc = db.TechnologicalCards.Where(tc => tc.Id == id)
 
-                    .Include(tc => tc.Staff_TCs).ThenInclude(tc => tc.Child)
-                    .Include(tc => tc.Component_TCs).ThenInclude(tc => tc.Child)
-                    .Include(tc => tc.Tool_TCs).ThenInclude(tc => tc.Child)
-                    .Include(tc => tc.Machine_TCs).ThenInclude(tc => tc.Child)
-                    .Include(tc => tc.Protection_TCs).ThenInclude(tc => tc.Child)
+                //    .Include(tc => tc.Staff_TCs).ThenInclude(tc => tc.Child)
+                //    .Include(tc => tc.Component_TCs).ThenInclude(tc => tc.Child)
+                //    .Include(tc => tc.Tool_TCs).ThenInclude(tc => tc.Child)
+                //    .Include(tc => tc.Machine_TCs).ThenInclude(tc => tc.Child)
+                //    .Include(tc => tc.Protection_TCs).ThenInclude(tc => tc.Child)
 
-                    .Include(tc => tc.TechOperationWorks).ThenInclude(tc => tc.techOperation)
+                //    .Include(tc => tc.TechOperationWorks).ThenInclude(tc => tc.techOperation)
 
-                    .FirstOrDefault();
-                var towIds = tc.TechOperationWorks.Select(tow => tow.Id).ToList();
+                //    .FirstOrDefault();
+                //var towIds = tc.TechOperationWorks.Select(tow => tow.Id).ToList();
 
-                var ew = await db.ExecutionWorks.Where(ew => towIds.Contains(ew.techOperationWorkId))
-                    .Include(ew => ew.Staffs)
-                    .Include(ew => ew.Machines)
-                    .Include(ew => ew.Protections)
-                    .Include(ew => ew.techTransition)
-                    .Include(ew => ew.ExecutionWorkRepeats)
-                    //.Include(ew => ew.ListexecutionWorkRepeat2)
-                    .ToListAsync();
-                var tw = await db.ToolWorks.Where(tw => towIds.Contains(tw.techOperationWorkId))
-                    .Include(tw => tw.tool)
-                    .ToListAsync();
-                var cw = await db.ComponentWorks.Where(cw => towIds.Contains(cw.techOperationWorkId))
-                    .Include(cw => cw.component)
+                //var ew = await db.ExecutionWorks.Where(ew => towIds.Contains(ew.techOperationWorkId))
+                //    .Include(ew => ew.Staffs)
+                //    .Include(ew => ew.Machines)
+                //    .Include(ew => ew.Protections)
+                //    .Include(ew => ew.techTransition)
+                //    .Include(ew => ew.ExecutionWorkRepeats)
+                //    //.Include(ew => ew.ListexecutionWorkRepeat2)
+                //    .ToListAsync();
+                //var tw = await db.ToolWorks.Where(tw => towIds.Contains(tw.techOperationWorkId))
+                //    .Include(tw => tw.tool)
+                //    .ToListAsync();
+                //var cw = await db.ComponentWorks.Where(cw => towIds.Contains(cw.techOperationWorkId))
+                //    .Include(cw => cw.component)
+                //    .ToListAsync();
+
+                //foreach (var tow in tc.TechOperationWorks)
+                //{
+                //    var ewList = ew.Where(ew => ew.techOperationWorkId == tow.Id).ToList();
+                //    var twList = tw.Where(tw => tw.techOperationWorkId == tow.Id).ToList();
+                //    var cwList = cw.Where(cw => cw.techOperationWorkId == tow.Id).ToList();
+
+                //    tow.executionWorks = ewList;
+                //    tow.ToolWorks = twList;
+                //    tow.ComponentWorks = cwList;
+                //}
+
+                //return tc;
+
+                
+                TechnologicalCard tc = await db.TechnologicalCards
+
+                    .Include(t => t.Machine_TCs).ThenInclude(tc => tc.Child)
+                    .Include(t => t.Protection_TCs).ThenInclude(tc => tc.Child)
+                    .Include(t => t.Tool_TCs).ThenInclude(tc => tc.Child)
+                    .Include(t => t.Component_TCs).ThenInclude(tc => tc.Child)
+                    .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+
+                    .FirstAsync(s => s.Id == id);
+
+
+                tc.TechOperationWorks = await db.TechOperationWorks
+                    .Where(w => w.TechnologicalCardId == id)
+                        .Include(i => i.techOperation)
+                        .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+                        .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
                     .ToListAsync();
 
                 foreach (var tow in tc.TechOperationWorks)
                 {
-                    var ewList = ew.Where(ew => ew.techOperationWorkId == tow.Id).ToList();
-                    var twList = tw.Where(tw => tw.techOperationWorkId == tow.Id).ToList();
-                    var cwList = cw.Where(cw => cw.techOperationWorkId == tow.Id).ToList();
+                    // Загружаем executionWorks для текущего tow по частям с жадной загрузкой связанных данных
+                    tow.executionWorks = await db.ExecutionWorks
+                        .Where(ew => ew.techOperationWorkId == tow.Id)
+                        .Include(ew => ew.techTransition)
+                        .Include(ew => ew.Protections)
+                        .Include(ew => ew.Machines)
+                        .Include(ew => ew.Staffs)
+                        .Include(ew => ew.ExecutionWorkRepeats)
 
-                    tow.executionWorks = ewList;
-                    tow.ToolWorks = twList;
-                    tow.ComponentWorks = cwList;
+                        .ToListAsync();
                 }
 
                 return tc;
