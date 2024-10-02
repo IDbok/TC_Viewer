@@ -33,7 +33,14 @@ namespace TC_WinForms.DataProcessing
         private bool isNextTOParallel = false;
         private bool isShagStatusPrinted = false;
 
-        private Dictionary<int, Color> _toColors = new Dictionary<int, Color> ();
+        private Dictionary<int, Color> _toColors = new Dictionary<int, Color> 
+        {
+            [0] = Color.NavajoWhite,
+            [1] = Color.LightSkyBlue,
+            [2] = Color.Pink,
+            [3] = Color.Plum,
+            [4] = Color.Thistle
+        };
         private Dictionary<int, int>  _nextPagesLastRow = new Dictionary<int, int>();
         private Dictionary<int, int> _nextPagesLastCollumn = new Dictionary<int, int>();
 
@@ -82,21 +89,7 @@ namespace TC_WinForms.DataProcessing
             var currentRow = 2; //стартовая строчка расположения диаграм
             _pageCount = 1;//Присваиваем значение счетчику старниц, нумерация с 1 страницы
 
-            _toColors.Add(0, Color.NavajoWhite);
-            Color toColor = GetTOColor();
-
-            for (int i = 1; i <= 4; i++)
-            {
-                if (!_toColors.ContainsValue(toColor))
-                    _toColors.TryAdd(i, toColor);
-
-                while (_toColors.ContainsValue(toColor))
-                {
-                   toColor = GetTOColor();
-                   _toColors.TryAdd(i, toColor);
-
-                }
-            }
+           
 
             foreach (var dTOWGroup in dTOWGroups)
             {
@@ -243,13 +236,15 @@ namespace TC_WinForms.DataProcessing
             int pageCollumnindex = 0;
             isShagStatusPrinted = false;
 
+            var centerCollumn = Modulo(-currentCollumn, _currentPrintWidgth) + currentCollumn - _currentPrintWidgth + 6;
+
             foreach (DiagramParalelno parallel in parallelesList)
             {
                 _allParallelShag = parallel.ListDiagramPosledov.Count;
                 var currentStatus = isNextShagIsParallel;
                 isNextShagIsParallel = parallel.ListDiagramPosledov.Count > 1 ? true : false;
                 if(currentStatus != isNextShagIsParallel && !isNextShagIsParallel)
-                    currentRow = AddParallelStatus(sheet, currentRow, _startCollumn);
+                    currentRow = AddParallelStatus(sheet, currentRow, centerCollumn);
                 foreach (DiagramPosledov posledov in parallel.ListDiagramPosledov)
                 {
                     _currentParallelShag = posledov.Order;
@@ -452,6 +447,17 @@ namespace TC_WinForms.DataProcessing
                     sheet.Cells[currentRow, columnNums[3]].Value = item.tableObject.Unit;
                     sheet.Cells[currentRow, columnNums[4]].Value = item.Quantity;
 
+                    int[] cols = { columnNums[1], columnNums[2] };
+                    int[] colsType = { columnNums[2], columnNums[3] };
+
+                    var rowCount = GetRowsCountByData(item.tableObject.Name, sheet, cols);
+                    rowCount = rowCount <= 1 ? 0 : rowCount;
+                    if(rowCount == 0)
+                    {
+                        rowCount = GetRowsCountByData(item.tableObject.Type, sheet, colsType);
+                        rowCount = rowCount <= 1 ? 0 : rowCount;
+                    }
+
                     // Форматирование ячеек
                     AddStyleAlignment(currentRow, columnNums, sheet);
 
@@ -462,17 +468,18 @@ namespace TC_WinForms.DataProcessing
                     sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                     // Объединение ячеек между столбцами
-                    _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
+                    _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums, rowCount);
 
-                    sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[4]].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[4]].Style.Fill.PatternType = ExcelFillStyle.Solid;
 
                     if (item.tableObject.GetType().Name == "Tool")//Окраживание ячеек в зависимоти от типа
-                        sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[4]].Style.Fill.BackgroundColor.SetColor(Color.Aquamarine);
+                        sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[4]].Style.Fill.BackgroundColor.SetColor(Color.Aquamarine);
                     else
-                        sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[4]].Style.Fill.BackgroundColor.SetColor(Color.Salmon);
+                        sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[4]].Style.Fill.BackgroundColor.SetColor(Color.Salmon);
+
 
                     // Переход к следующей строке
-                    currentRow++;
+                    currentRow = currentRow + rowCount + 1;
                     i++;
                 }
             }
@@ -533,15 +540,17 @@ namespace TC_WinForms.DataProcessing
                     headRow = AddTONameToExcel(diagramTo_name, sheet, headRow, currentColumn);
                     headRow = AddShagName(shag, sheet, headRow, currentColumn) - 1;
                 }
+
                 currentRow = (int)Math.Ceiling((excelImage.Size.Height / 9525) / rowHeightPixels) + headRow + 2;//Текущая строка с учетом высоты изображения
+
 
                 excelImage.From.Column = columnNums[0] - 1;
                 excelImage.From.Row = headRow;
                 excelImage.From.ColumnOff = columnNums[1];
 
-                AddImageNameNum(shag, sheet, currentRow, currentColumn);
+                currentRow = AddImageNameNum(shag, sheet, currentRow, currentColumn);
 
-                return currentRow + 2;
+                return currentRow;
 
             }
         }
@@ -563,7 +572,7 @@ namespace TC_WinForms.DataProcessing
         {
             var collumnsWidth = (collumnNums[collumnNums.Length - 1] - collumnNums[0]) * sheet.Column(collumnNums[collumnNums.Length - 1]).Width;
             var rowCount = data.Length / collumnsWidth;
-            rowCount = Math.Ceiling(rowCount) + 1;
+            rowCount = rowCount < 1.15d ? Math.Floor(rowCount): Math.Ceiling(rowCount);
             return (int)rowCount;
         }
         private int AddTableToolNumber(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn)
@@ -597,15 +606,25 @@ namespace TC_WinForms.DataProcessing
         private int AddImageNameNum(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn)
         {
             int[] columnNumsNumb = { currentColumn, currentColumn + 3 };
-            int[] columnNumsName = { currentColumn + 3, currentColumn + 8 };
+            int[] columnNumsName = { currentColumn + 3, currentColumn + 7 };
+            int[] rowsNums = { headRow, headRow + 1 };
 
-            sheet.Cells[headRow, columnNumsNumb[0]].Value = "Рисунок " + shag.Nomer;
-            sheet.Cells[headRow, columnNumsName[0]].Value = shag.NameImage;
+            sheet.Cells[rowsNums[0], columnNumsNumb[0]].Value = "Рисунок " + shag.Nomer;
+
+            rowsNums[rowsNums.Length - 1] = GetRowsCountByData(shag.NameImage, sheet, columnNumsName) == 1 
+                ? headRow
+                : GetRowsCountByData(shag.NameImage, sheet, columnNumsName) + headRow;
+
+            sheet.Cells[rowsNums[0], columnNumsName[0], rowsNums[rowsNums.Length - 1], columnNumsName[1]].Merge = true;
+            sheet.Cells[rowsNums[0], columnNumsName[0], rowsNums[rowsNums.Length - 1], columnNumsName[1]].Style.WrapText = true;
+            sheet.Cells[rowsNums[0], columnNumsName[0]].Value = shag.NameImage;
 
             AddStyleAlignment(headRow, columnNumsNumb, sheet);
-            AddStyleAlignment(headRow, columnNumsName, sheet);
+            _exporter.ApplyCellFormatting(sheet.Cells[rowsNums[0], columnNumsName[0], rowsNums[rowsNums.Length - 1], columnNumsName[1]]);
 
-            return headRow + 2;
+            //AddStyleAlignment(headRow, columnNumsName, sheet);
+
+            return rowsNums[rowsNums.Length - 1] + 3;
         }
         public Image LoadImage(byte[] imageData)
         {
@@ -712,8 +731,7 @@ namespace TC_WinForms.DataProcessing
             var pageCollumn = Modulo(-currentColumn, _currentPrintWidgth) + currentColumn;
             var pageRow = Modulo(-currentRow, _currentPrintHeigth) + currentRow - _currentPrintHeigth + 1;
 
-            if (sheet.Cells[pageRow, pageCollumn].Value == null
-                    && (_currentParallelShag == 1 || _currentParallelShag == 3))
+            if (sheet.Cells[pageRow, pageCollumn].Value == null)
             {
                 sheet.Cells[pageRow, pageCollumn].Value = "Лист №" + _pageCount;
                 sheet.Cells[pageRow, pageCollumn, pageRow + _currentPrintHeigth - 1, pageCollumn].Merge = true;
@@ -722,17 +740,6 @@ namespace TC_WinForms.DataProcessing
 
                 _pageCount++;
             }
-        }
-
-        private Color GetTOColor()
-        {
-            Random colorRnd = new Random();
-            int red = colorRnd.Next(0, 240);
-            red = Modulo(-red, 60) + red;
-
-            Color color = Color.FromArgb(red, 160, 240);
-
-            return color;
         }
         #endregion
 

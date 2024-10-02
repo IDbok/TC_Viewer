@@ -400,7 +400,7 @@ namespace TC_WinForms.WinForms
                 Manufacturer = obj.Child.Manufacturer;
                 Categoty = obj.Child.Categoty;
                 ClassifierCode = obj.Child.ClassifierCode;
-
+                Note = obj.Note;
                 IsReleased = obj.Child.IsReleased;
 
                 previousOrder = Order;

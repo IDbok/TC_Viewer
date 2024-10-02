@@ -12,6 +12,7 @@ namespace TcModels.Models.TcContent
 
         public string Deystavie { get; set; } = "";
 
+        // todo: перенести на работу через ImageStorage
         public string ImageBase64 { get; set; } = "";
 
         public string NameImage { get; set; } = "";

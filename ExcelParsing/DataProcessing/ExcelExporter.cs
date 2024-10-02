@@ -75,7 +75,7 @@ namespace ExcelParsing.DataProcessing
         /// <param name="sheet"></param>
         /// <param name="rowNumber"></param>
         /// <param name="columnNums"></param>
-        public void MergeRowCellsByColumns(ExcelWorksheet sheet, int rowNumber, int[] columnNums)
+        public void MergeRowCellsByColumns(ExcelWorksheet sheet, int rowNumber, int[] columnNums, int addedRows = 0)
         {
             // Проходим через каждый столбец в массиве
             for (int i = 0; i < columnNums.Length - 1; i++)
@@ -87,11 +87,13 @@ namespace ExcelParsing.DataProcessing
                 // Если начальный и конечный столбцы равны, значит, столбец не должен объединяться с другими
                 if (startColumn == endColumn)
                 {
+                    if (addedRows > 0)
+                        sheet.Cells[rowNumber, startColumn, rowNumber + addedRows, endColumn].Merge = true;
                     continue; // Пропускаем итерацию
                 }
 
                 // Объединяем ячейки для текущего диапазона
-                var cells = sheet.Cells[rowNumber, startColumn, rowNumber, endColumn];
+                var cells = sheet.Cells[rowNumber, startColumn, rowNumber + addedRows, endColumn];
                 cells.Merge = true;
             }
         }

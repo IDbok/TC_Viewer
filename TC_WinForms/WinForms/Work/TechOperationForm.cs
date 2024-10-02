@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.DirectoryServices.ActiveDirectory;
+using System.Drawing.Printing;
 using System.Text;
 using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
@@ -58,7 +59,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         // Блокировка формы на время загрузки данных
         this.Enabled = false;
 
-        await LoadDataAsync(tcId);
+        // спросить у пользователя, какой загрузкой воспользоваться
+
+        await LoadDataAsync6(tcId);
 
         UpdateGrid();
         SetCommentViewMode();
@@ -68,12 +71,66 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         this.Enabled = true;
     }
 
-    private async Task LoadDataAsync(int tcId)
-    {
-        // Загрузка в контекст данных о вложенных сущностях Staff
-        //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
+    //private async Task LoadDataAsync(int tcId)
+    //{
+    //    // Загрузка в контекст данных о вложенных сущностях Staff
+    //    //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
 
-        TehCarta =  await context.TechnologicalCards
+    //    // подсчёт времени выполнения запроса
+    //    double tcLoad=0;
+    //    double towLoad= 0;
+
+    //    var sw = new System.Diagnostics.Stopwatch();
+
+    //    TehCarta =  await context.TechnologicalCards
+
+    //        .Include(t => t.Machines)
+    //        .Include(t => t.Machine_TCs)
+    //        .Include(t => t.Protection_TCs)
+    //        .Include(t => t.Tool_TCs)
+    //        .Include(t => t.Component_TCs)
+
+    //        .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+            
+    //        .FirstAsync(s => s.Id == tcId);
+
+    //    tcLoad = sw.Elapsed.TotalMilliseconds;
+
+    //    sw.Restart();
+
+    //    TechOperationWorksList = await context.TechOperationWorks
+    //        .Where(w => w.TechnologicalCardId == tcId)
+            
+    //            .Include(i => i.techOperation)
+
+    //            .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
+    //            .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
+    //            .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
+    //            .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
+    //            .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
+
+    //            .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+    //            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+
+    //        .ToListAsync();
+
+    //    towLoad = sw.Elapsed.TotalMilliseconds;
+    //    sw.Stop();
+
+    //    if (Program.isTestMode)
+    //        MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
+    //}
+
+    private async Task LoadDataAsync6(int tcId)
+    {
+        // Подсчёт времени выполнения запроса
+        double tcLoad = 0;
+        double towLoad = 0;
+
+        var sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+
+        TehCarta = await context.TechnologicalCards
 
             .Include(t => t.Machines)
             .Include(t => t.Machine_TCs)
@@ -82,25 +139,41 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             .Include(t => t.Component_TCs)
 
             .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
-            
-            .SingleAsync(s => s.Id == tcId);
+
+            .FirstAsync(s => s.Id == tcId);
+
+        tcLoad = sw.Elapsed.TotalMilliseconds;
+        sw.Restart();
 
         TechOperationWorksList = await context.TechOperationWorks
             .Where(w => w.TechnologicalCardId == tcId)
-            
                 .Include(i => i.techOperation)
-
-                .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
-                .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
-                .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
-                .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-                .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
-
                 .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
                 .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
-
             .ToListAsync();
+
+        foreach (var tow in TechOperationWorksList)
+        {
+            // Загружаем executionWorks для текущего tow по частям с жадной загрузкой связанных данных
+            tow.executionWorks = await context.ExecutionWorks
+                .Where(ew => ew.techOperationWorkId == tow.Id)
+                .Include(ew => ew.techTransition) 
+                .Include(ew => ew.Protections) 
+                .Include(ew => ew.Machines) 
+                .Include(ew => ew.Staffs) 
+                .Include(ew => ew.ExecutionWorkRepeats)
+            
+                .ToListAsync();
+        }
+
+        towLoad = sw.Elapsed.TotalMilliseconds;
+        sw.Stop();
+
+        // Выводим время выполнения (для режима тестирования)
+        if (Program.isTestMode)
+            MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
     }
+
 
     public void SetCommentViewMode()
     {
@@ -1298,6 +1371,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     Tool_TC tool = new Tool_TC();
                     tool.Child = toolWork.tool;
+                    tool.Order = TehCarta.Tool_TCs.Count + 1;
                     tool.Quantity = toolWork.Quantity;
                     TehCarta.Tool_TCs.Add(tool);
                 }
@@ -1309,6 +1383,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     Component_TC Comp = new Component_TC();
                     Comp.Child = componentWork.component;
+                    Comp.Order = TehCarta.Component_TCs.Count + 1;
                     Comp.Quantity = componentWork.Quantity;
                     TehCarta.Component_TCs.Add(Comp);
                 }

@@ -895,6 +895,7 @@ namespace TC_WinForms.WinForms.Work
                 if (idd != null)
                 {
                     Staff_TC staffTc = new Staff_TC();
+                    staffTc.Order = TechOperationForm.TehCarta.Staff_TCs.Count + 1;
                     staffTc.Child = idd;
                     staffTc.Symbol = " ";
                     vv.Add(staffTc);
@@ -1275,7 +1276,9 @@ namespace TC_WinForms.WinForms.Work
                 protectionTc.Quantity = 1;
                 protectionTc.Order = orderMax + 1;
 
-                context.Protection_TCs.Add(protectionTc);
+
+                    context.Protection_TCs.Add(protectionTc);
+
 
                 UpdateGridAllSZ();
                 UpdateGridLocalSZ();
@@ -2103,6 +2106,7 @@ namespace TC_WinForms.WinForms.Work
                     {
                         bn = new Machine_TC();
                         bn.Child = id;
+                        bn.Order = TechOperationForm.TehCarta.Machine_TCs.Count + 1;
                         bn.Quantity = 1;
                         bn.Parent = TechOperationForm.TehCarta;
                         TechOperationForm.TehCarta.Machine_TCs.Add(bn);
