@@ -277,6 +277,7 @@ namespace TC_WinForms.WinForms
             {
                 if (!CheckForChanges()) // если false, то отменяем переключение
                 {
+                    this.Enabled = true;
                     return;
                 }
 
@@ -331,7 +332,8 @@ namespace TC_WinForms.WinForms
 
             if (hasUnsavedChanges)
             {
-                var result = MessageBox.Show("Вы хотите сохранить изменения?", "Сохранение изменений", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                var result = MessageBox.Show("Вы хотите сохранить изменения?", "Сохранение изменений",
+                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
                     foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
