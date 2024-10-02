@@ -48,8 +48,8 @@
             groupBox2 = new GroupBox();
             textBoxPoiskTo = new TextBox();
             tabControl1 = new TabControl();
-            tabPage1 = new TabPage();
-            tabPage6 = new TabPage();
+            tabPageTO = new TabPage();
+            tabPageTool = new TabPage();
             tableLayoutPanel6 = new TableLayoutPanel();
             dataGridViewInstrumentLocal = new DataGridView();
             dataGridViewTextBoxColumn20 = new DataGridViewTextBoxColumn();
@@ -72,7 +72,7 @@
             textBoxPoiskInstrument = new TextBox();
             groupBox3 = new GroupBox();
             comboBoxFiltrCategor = new ComboBox();
-            tabPage5 = new TabPage();
+            tabPageComponent = new TabPage();
             tableLayoutPanel5 = new TableLayoutPanel();
             dataGridViewComponentAll = new DataGridView();
             dataGridViewTextBoxColumn9 = new DataGridViewTextBoxColumn();
@@ -95,7 +95,7 @@
             textBoxPoiskComponent = new TextBox();
             groupBox9 = new GroupBox();
             comboBoxFilterComponent = new ComboBox();
-            tabPage2 = new TabPage();
+            tabPageTP = new TabPage();
             tableLayoutPanel3 = new TableLayoutPanel();
             dataGridViewTPLocal = new DataGridView();
             dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
@@ -125,7 +125,7 @@
             label6 = new Label();
             labelComTime = new Label();
             smoothScrollDataGridView1 = new DataProcessing.SmoothScrollDataGridView();
-            tabPage4 = new TabPage();
+            tabPageStaff = new TabPage();
             tableLayoutPanel4 = new TableLayoutPanel();
             groupBox4 = new GroupBox();
             PoiskPersonal = new TextBox();
@@ -150,7 +150,7 @@
             Column16 = new DataGridViewTextBoxColumn();
             Column17 = new DataGridViewTextBoxColumn();
             comboBoxStaff = new ComboBox();
-            tabPage7 = new TabPage();
+            tabPageProtection = new TabPage();
             tableLayoutPanel8 = new TableLayoutPanel();
             groupBox6 = new GroupBox();
             textBoxPoiskSZ = new TextBox();
@@ -168,7 +168,7 @@
             dataGridViewTextBoxColumn35 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn36 = new DataGridViewTextBoxColumn();
             comboBoxSZ = new ComboBox();
-            tabPage8 = new TabPage();
+            tabPageStage = new TabPage();
             tableLayoutPanel9 = new TableLayoutPanel();
             groupBox7 = new GroupBox();
             textBoxPoiskMach = new TextBox();
@@ -185,7 +185,7 @@
             dataGridViewTextBoxColumn39 = new DataGridViewTextBoxColumn();
             Column8 = new DataGridViewTextBoxColumn();
             Column9 = new DataGridViewTextBoxColumn();
-            tabPage9 = new TabPage();
+            tabPageRepeat = new TabPage();
             tableLayoutPanel11 = new TableLayoutPanel();
             dataGridViewPovtor = new DataGridView();
             dataGridViewTextBoxColumn72 = new DataGridViewTextBoxColumn();
@@ -249,22 +249,22 @@
             panel2.SuspendLayout();
             groupBox2.SuspendLayout();
             tabControl1.SuspendLayout();
-            tabPage1.SuspendLayout();
-            tabPage6.SuspendLayout();
+            tabPageTO.SuspendLayout();
+            tabPageTool.SuspendLayout();
             tableLayoutPanel6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewInstrumentLocal).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewInstumentAll).BeginInit();
             tableLayoutPanel12.SuspendLayout();
             groupBox1.SuspendLayout();
             groupBox3.SuspendLayout();
-            tabPage5.SuspendLayout();
+            tabPageComponent.SuspendLayout();
             tableLayoutPanel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewComponentAll).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewComponentLocal).BeginInit();
             tableLayoutPanel13.SuspendLayout();
             groupBox8.SuspendLayout();
             groupBox9.SuspendLayout();
-            tabPage2.SuspendLayout();
+            tabPageTP.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPLocal).BeginInit();
             panel1.SuspendLayout();
@@ -277,22 +277,22 @@
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPAll).BeginInit();
             flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)smoothScrollDataGridView1).BeginInit();
-            tabPage4.SuspendLayout();
+            tabPageStaff.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
             groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStaffAll).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStaff).BeginInit();
-            tabPage7.SuspendLayout();
+            tabPageProtection.SuspendLayout();
             tableLayoutPanel8.SuspendLayout();
             groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllSZ).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewLocalSZ).BeginInit();
-            tabPage8.SuspendLayout();
+            tabPageStage.SuspendLayout();
             tableLayoutPanel9.SuspendLayout();
             groupBox7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewMeha).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewEtap).BeginInit();
-            tabPage9.SuspendLayout();
+            tabPageRepeat.SuspendLayout();
             tableLayoutPanel11.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewPovtor).BeginInit();
             tableLayoutPanel2.SuspendLayout();
@@ -505,14 +505,14 @@
             // 
             // tabControl1
             // 
-            tabControl1.Controls.Add(tabPage1);
-            tabControl1.Controls.Add(tabPage6);
-            tabControl1.Controls.Add(tabPage5);
-            tabControl1.Controls.Add(tabPage2);
-            tabControl1.Controls.Add(tabPage4);
-            tabControl1.Controls.Add(tabPage7);
-            tabControl1.Controls.Add(tabPage8);
-            tabControl1.Controls.Add(tabPage9);
+            tabControl1.Controls.Add(tabPageTO);
+            tabControl1.Controls.Add(tabPageTool);
+            tabControl1.Controls.Add(tabPageComponent);
+            tabControl1.Controls.Add(tabPageTP);
+            tabControl1.Controls.Add(tabPageStaff);
+            tabControl1.Controls.Add(tabPageProtection);
+            tabControl1.Controls.Add(tabPageStage);
+            tabControl1.Controls.Add(tabPageRepeat);
             tabControl1.Dock = DockStyle.Fill;
             tabControl1.Location = new Point(0, 0);
             tabControl1.Margin = new Padding(3, 2, 3, 2);
@@ -522,28 +522,28 @@
             tabControl1.TabIndex = 1;
             tabControl1.SelectedIndexChanged += tabControl1_SelectedIndexChanged;
             // 
-            // tabPage1
+            // tabPageTO
             // 
-            tabPage1.Controls.Add(tableLayoutPanel1);
-            tabPage1.Location = new Point(4, 24);
-            tabPage1.Margin = new Padding(3, 2, 3, 2);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3, 2, 3, 2);
-            tabPage1.Size = new Size(1104, 494);
-            tabPage1.TabIndex = 0;
-            tabPage1.Text = "Технологические операции";
-            tabPage1.UseVisualStyleBackColor = true;
+            tabPageTO.Controls.Add(tableLayoutPanel1);
+            tabPageTO.Location = new Point(4, 24);
+            tabPageTO.Margin = new Padding(3, 2, 3, 2);
+            tabPageTO.Name = "tabPageTO";
+            tabPageTO.Padding = new Padding(3, 2, 3, 2);
+            tabPageTO.Size = new Size(1104, 494);
+            tabPageTO.TabIndex = 0;
+            tabPageTO.Text = "Технологические операции";
+            tabPageTO.UseVisualStyleBackColor = true;
             // 
-            // tabPage6
+            // tabPageTool
             // 
-            tabPage6.Controls.Add(tableLayoutPanel6);
-            tabPage6.Location = new Point(4, 24);
-            tabPage6.Margin = new Padding(3, 2, 3, 2);
-            tabPage6.Name = "tabPage6";
-            tabPage6.Size = new Size(1104, 492);
-            tabPage6.TabIndex = 4;
-            tabPage6.Text = "Инструменты";
-            tabPage6.UseVisualStyleBackColor = true;
+            tabPageTool.Controls.Add(tableLayoutPanel6);
+            tabPageTool.Location = new Point(4, 24);
+            tabPageTool.Margin = new Padding(3, 2, 3, 2);
+            tabPageTool.Name = "tabPageTool";
+            tabPageTool.Size = new Size(1104, 494);
+            tabPageTool.TabIndex = 4;
+            tabPageTool.Text = "Инструменты";
+            tabPageTool.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel6
             // 
@@ -770,17 +770,17 @@
             comboBoxFiltrCategor.Size = new Size(266, 23);
             comboBoxFiltrCategor.TabIndex = 0;
             // 
-            // tabPage5
+            // tabPageComponent
             // 
-            tabPage5.Controls.Add(tableLayoutPanel5);
-            tabPage5.Location = new Point(4, 24);
-            tabPage5.Margin = new Padding(3, 2, 3, 2);
-            tabPage5.Name = "tabPage5";
-            tabPage5.Padding = new Padding(3, 2, 3, 2);
-            tabPage5.Size = new Size(1104, 492);
-            tabPage5.TabIndex = 3;
-            tabPage5.Text = "Компоненты";
-            tabPage5.UseVisualStyleBackColor = true;
+            tabPageComponent.Controls.Add(tableLayoutPanel5);
+            tabPageComponent.Location = new Point(4, 24);
+            tabPageComponent.Margin = new Padding(3, 2, 3, 2);
+            tabPageComponent.Name = "tabPageComponent";
+            tabPageComponent.Padding = new Padding(3, 2, 3, 2);
+            tabPageComponent.Size = new Size(1104, 494);
+            tabPageComponent.TabIndex = 3;
+            tabPageComponent.Text = "Компоненты";
+            tabPageComponent.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel5
             // 
@@ -1008,17 +1008,17 @@
             comboBoxFilterComponent.Size = new Size(266, 23);
             comboBoxFilterComponent.TabIndex = 0;
             // 
-            // tabPage2
+            // tabPageTP
             // 
-            tabPage2.Controls.Add(tableLayoutPanel3);
-            tabPage2.Location = new Point(4, 24);
-            tabPage2.Margin = new Padding(3, 2, 3, 2);
-            tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(3, 2, 3, 2);
-            tabPage2.Size = new Size(1104, 492);
-            tabPage2.TabIndex = 1;
-            tabPage2.Text = "Технологические переходы";
-            tabPage2.UseVisualStyleBackColor = true;
+            tabPageTP.Controls.Add(tableLayoutPanel3);
+            tabPageTP.Location = new Point(4, 24);
+            tabPageTP.Margin = new Padding(3, 2, 3, 2);
+            tabPageTP.Name = "tabPageTP";
+            tabPageTP.Padding = new Padding(3, 2, 3, 2);
+            tabPageTP.Size = new Size(1104, 494);
+            tabPageTP.TabIndex = 1;
+            tabPageTP.Text = "Технологические переходы";
+            tabPageTP.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel3
             // 
@@ -1331,17 +1331,17 @@
             smoothScrollDataGridView1.Size = new Size(6, 5);
             smoothScrollDataGridView1.TabIndex = 4;
             // 
-            // tabPage4
+            // tabPageStaff
             // 
-            tabPage4.Controls.Add(tableLayoutPanel4);
-            tabPage4.Location = new Point(4, 24);
-            tabPage4.Margin = new Padding(3, 2, 3, 2);
-            tabPage4.Name = "tabPage4";
-            tabPage4.Padding = new Padding(3, 2, 3, 2);
-            tabPage4.Size = new Size(1104, 492);
-            tabPage4.TabIndex = 2;
-            tabPage4.Text = "Персонал";
-            tabPage4.UseVisualStyleBackColor = true;
+            tabPageStaff.Controls.Add(tableLayoutPanel4);
+            tabPageStaff.Location = new Point(4, 24);
+            tabPageStaff.Margin = new Padding(3, 2, 3, 2);
+            tabPageStaff.Name = "tabPageStaff";
+            tabPageStaff.Padding = new Padding(3, 2, 3, 2);
+            tabPageStaff.Size = new Size(1104, 494);
+            tabPageStaff.TabIndex = 2;
+            tabPageStaff.Text = "Персонал";
+            tabPageStaff.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel4
             // 
@@ -1566,17 +1566,17 @@
             comboBoxStaff.TabIndex = 3;
             comboBoxStaff.SelectedIndexChanged += comboBoxStaff_SelectedIndexChanged;
             // 
-            // tabPage7
+            // tabPageProtection
             // 
-            tabPage7.Controls.Add(tableLayoutPanel8);
-            tabPage7.Location = new Point(4, 24);
-            tabPage7.Margin = new Padding(3, 2, 3, 2);
-            tabPage7.Name = "tabPage7";
-            tabPage7.Padding = new Padding(3, 2, 3, 2);
-            tabPage7.Size = new Size(1104, 492);
-            tabPage7.TabIndex = 5;
-            tabPage7.Text = "Средства защиты";
-            tabPage7.UseVisualStyleBackColor = true;
+            tabPageProtection.Controls.Add(tableLayoutPanel8);
+            tabPageProtection.Location = new Point(4, 24);
+            tabPageProtection.Margin = new Padding(3, 2, 3, 2);
+            tabPageProtection.Name = "tabPageProtection";
+            tabPageProtection.Padding = new Padding(3, 2, 3, 2);
+            tabPageProtection.Size = new Size(1104, 494);
+            tabPageProtection.TabIndex = 5;
+            tabPageProtection.Text = "Средства защиты";
+            tabPageProtection.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel8
             // 
@@ -1750,16 +1750,16 @@
             comboBoxSZ.TabIndex = 2;
             comboBoxSZ.SelectedIndexChanged += comboBoxSZ_SelectedIndexChanged;
             // 
-            // tabPage8
+            // tabPageStage
             // 
-            tabPage8.Controls.Add(tableLayoutPanel9);
-            tabPage8.Location = new Point(4, 24);
-            tabPage8.Margin = new Padding(3, 2, 3, 2);
-            tabPage8.Name = "tabPage8";
-            tabPage8.Size = new Size(1104, 492);
-            tabPage8.TabIndex = 6;
-            tabPage8.Text = "Этапы и механизмы";
-            tabPage8.UseVisualStyleBackColor = true;
+            tabPageStage.Controls.Add(tableLayoutPanel9);
+            tabPageStage.Location = new Point(4, 24);
+            tabPageStage.Margin = new Padding(3, 2, 3, 2);
+            tabPageStage.Name = "tabPageStage";
+            tabPageStage.Size = new Size(1104, 494);
+            tabPageStage.TabIndex = 6;
+            tabPageStage.Text = "Этапы и механизмы";
+            tabPageStage.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel9
             // 
@@ -1930,17 +1930,17 @@
             Column9.SortMode = DataGridViewColumnSortMode.NotSortable;
             Column9.Width = 140;
             // 
-            // tabPage9
+            // tabPageRepeat
             // 
-            tabPage9.Controls.Add(tableLayoutPanel11);
-            tabPage9.Location = new Point(4, 24);
-            tabPage9.Margin = new Padding(3, 2, 3, 2);
-            tabPage9.Name = "tabPage9";
-            tabPage9.Padding = new Padding(3, 2, 3, 2);
-            tabPage9.Size = new Size(1104, 492);
-            tabPage9.TabIndex = 7;
-            tabPage9.Text = "Повторить";
-            tabPage9.UseVisualStyleBackColor = true;
+            tabPageRepeat.Controls.Add(tableLayoutPanel11);
+            tabPageRepeat.Location = new Point(4, 24);
+            tabPageRepeat.Margin = new Padding(3, 2, 3, 2);
+            tabPageRepeat.Name = "tabPageRepeat";
+            tabPageRepeat.Padding = new Padding(3, 2, 3, 2);
+            tabPageRepeat.Size = new Size(1104, 494);
+            tabPageRepeat.TabIndex = 7;
+            tabPageRepeat.Text = "Повторить";
+            tabPageRepeat.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel11
             // 
@@ -2490,8 +2490,8 @@
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
             tabControl1.ResumeLayout(false);
-            tabPage1.ResumeLayout(false);
-            tabPage6.ResumeLayout(false);
+            tabPageTO.ResumeLayout(false);
+            tabPageTool.ResumeLayout(false);
             tableLayoutPanel6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridViewInstrumentLocal).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewInstumentAll).EndInit();
@@ -2499,7 +2499,7 @@
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             groupBox3.ResumeLayout(false);
-            tabPage5.ResumeLayout(false);
+            tabPageComponent.ResumeLayout(false);
             tableLayoutPanel5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridViewComponentAll).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewComponentLocal).EndInit();
@@ -2507,7 +2507,7 @@
             groupBox8.ResumeLayout(false);
             groupBox8.PerformLayout();
             groupBox9.ResumeLayout(false);
-            tabPage2.ResumeLayout(false);
+            tabPageTP.ResumeLayout(false);
             tableLayoutPanel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridViewTPLocal).EndInit();
             panel1.ResumeLayout(false);
@@ -2522,25 +2522,25 @@
             flowLayoutPanel1.ResumeLayout(false);
             flowLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)smoothScrollDataGridView1).EndInit();
-            tabPage4.ResumeLayout(false);
+            tabPageStaff.ResumeLayout(false);
             tableLayoutPanel4.ResumeLayout(false);
             groupBox4.ResumeLayout(false);
             groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStaffAll).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStaff).EndInit();
-            tabPage7.ResumeLayout(false);
+            tabPageProtection.ResumeLayout(false);
             tableLayoutPanel8.ResumeLayout(false);
             groupBox6.ResumeLayout(false);
             groupBox6.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllSZ).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewLocalSZ).EndInit();
-            tabPage8.ResumeLayout(false);
+            tabPageStage.ResumeLayout(false);
             tableLayoutPanel9.ResumeLayout(false);
             groupBox7.ResumeLayout(false);
             groupBox7.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewMeha).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewEtap).EndInit();
-            tabPage9.ResumeLayout(false);
+            tabPageRepeat.ResumeLayout(false);
             tableLayoutPanel11.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridViewPovtor).EndInit();
             tableLayoutPanel2.ResumeLayout(false);
@@ -2560,8 +2560,8 @@
         private TableLayoutPanel tableLayoutPanel1;
         private DataGridView dataGridViewAllTO;
         private TabControl tabControl1;
-        private TabPage tabPage1;
-        private TabPage tabPage2;
+        private TabPage tabPageTO;
+        private TabPage tabPageTP;
         private DataGridView dataGridViewTO;
         private TableLayoutPanel tableLayoutPanel3;
         private DataGridView dataGridViewTPAll;
@@ -2577,7 +2577,7 @@
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private TabControl tabControl2;
         private ComboBox comboBoxTO;
-        private TabPage tabPage4;
+        private TabPage tabPageStaff;
         private TableLayoutPanel tableLayoutPanel4;
         private DataGridView dataGridViewStaff;
         private ComboBox comboBoxStaff;
@@ -2585,7 +2585,7 @@
         private DataGridViewButtonColumn dataGridViewCheckBoxColumn2;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
         private DataGridViewTextBoxColumn TimeExecution;
-        private TabPage tabPage5;
+        private TabPage tabPageComponent;
         private TableLayoutPanel tableLayoutPanel5;
         private DataGridView dataGridViewComponentAll;
         private DataGridView dataGridViewComponentLocal;
@@ -2596,7 +2596,7 @@
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
         private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Column3;
-        private TabPage tabPage6;
+        private TabPage tabPageTool;
         private TableLayoutPanel tableLayoutPanel6;
         private DataGridView dataGridViewInstumentAll;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn15;
@@ -2609,7 +2609,7 @@
         private ComboBox comboBoxTO3;
         private GroupBox groupBox1;
         private TextBox textBoxPoiskInstrument;
-        private TabPage tabPage7;
+        private TabPage tabPageProtection;
         private TableLayoutPanel tableLayoutPanel8;
         private DataGridView dataGridViewAllSZ;
         private DataGridView dataGridViewLocalSZ;
@@ -2635,7 +2635,7 @@
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn33;
         private DataGridViewTextBoxColumn Column6;
         private DataGridViewTextBoxColumn Column7;
-        private TabPage tabPage8;
+        private TabPage tabPageStage;
         private DataGridView dataGridViewEtap;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn37;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn38;
@@ -2678,7 +2678,7 @@
         private DataGridViewTextBoxColumn Column15;
         private DataGridViewTextBoxColumn Column16;
         private DataGridViewTextBoxColumn Column17;
-        private TabPage tabPage9;
+        private TabPage tabPageRepeat;
         private TableLayoutPanel tableLayoutPanel11;
         private DataGridView dataGridViewPovtor;
         private TableLayoutPanel tableLayoutPanel10;

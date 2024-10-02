@@ -170,9 +170,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         towLoad = sw.Elapsed.TotalMilliseconds;
         sw.Stop();
 
-        // Выводим время выполнения (для режима тестирования)
-        if (Program.isTestMode)
-            MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
+        //// Выводим время выполнения (для режима тестирования)
+        //if (Program.isTestMode)
+        //    MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
     }
 
 

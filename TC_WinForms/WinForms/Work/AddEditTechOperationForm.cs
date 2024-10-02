@@ -916,7 +916,7 @@ namespace TC_WinForms.WinForms.Work
 
                 if (idd != null)
                 {
-                    if (MessageBox.Show("Вы действительно хотите полностью удалить данную роль из техкарты?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
+                    if (MessageBox.Show("Вы действительно хотите удалить данную роль из техкарты?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
                     {
                         var vv = TechOperationForm.TehCarta.Staff_TCs;
                         vv.Remove(idd);
@@ -2458,7 +2458,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (tabControl1.SelectedTab.Name == "tabPage2")
+            if (tabControl1.SelectedTab.Name == "tabPageTP")
             {
                 var select = dataGridViewTO.SelectedRows;
                 if (select.Count > 0)
@@ -2473,43 +2473,8 @@ namespace TC_WinForms.WinForms.Work
                         }
                     }
                 }
-            }
-
-            if (tabControl1.SelectedTab.Name == "tabPage5")
-            {
-                var select = dataGridViewTO.SelectedRows;
-                if (select.Count > 0)
-                {
-                    var id = (TechOperationWork)select[0].Cells[0].Value;
-
-                    foreach (TechOperationWork item in comboBoxTO2.Items)
-                    {
-                        if (item == id)
-                        {
-                            comboBoxTO2.SelectedItem = item;
-                        }
-                    }
-                }
-            }
-
-            if (tabControl1.SelectedTab.Name == "tabPage6")
-            {
-                var select = dataGridViewTO.SelectedRows;
-                if (select.Count > 0)
-                {
-                    var id = (TechOperationWork)select[0].Cells[0].Value;
-
-                    foreach (TechOperationWork item in comboBoxTO3.Items)
-                    {
-                        if (item == id)
-                        {
-                            comboBoxTO3.SelectedItem = item;
-                        }
-                    }
-                }
-            }
-
-            if (tabControl1.SelectedTab.Name == "tabPage4")
+            } else
+            if (tabControl1.SelectedTab.Name == "tabPageStaff")
             {
                 var select = dataGridViewTPLocal.SelectedRows;
                 if (select.Count > 0)
@@ -2524,9 +2489,41 @@ namespace TC_WinForms.WinForms.Work
                         }
                     }
                 }
-            }
+                UpdateGridStaff();
+            } else
+            if (tabControl1.SelectedTab.Name == "tabPageComponent")
+            {
+                var select = dataGridViewTO.SelectedRows;
+                if (select.Count > 0)
+                {
+                    var id = (TechOperationWork)select[0].Cells[0].Value;
 
-            if (tabControl1.SelectedTab.Name == "tabPage7")
+                    foreach (TechOperationWork item in comboBoxTO2.Items)
+                    {
+                        if (item == id)
+                        {
+                            comboBoxTO2.SelectedItem = item;
+                        }
+                    }
+                }
+            } else
+            if (tabControl1.SelectedTab.Name == "tabPageTool")
+            {
+                var select = dataGridViewTO.SelectedRows;
+                if (select.Count > 0)
+                {
+                    var id = (TechOperationWork)select[0].Cells[0].Value;
+
+                    foreach (TechOperationWork item in comboBoxTO3.Items)
+                    {
+                        if (item == id)
+                        {
+                            comboBoxTO3.SelectedItem = item;
+                        }
+                    }
+                }
+            } else      
+            if (tabControl1.SelectedTab.Name == "tabPageProtection")
             {
                 var select = dataGridViewTPLocal.SelectedRows;
                 if (select.Count > 0)
@@ -2541,20 +2538,16 @@ namespace TC_WinForms.WinForms.Work
                         }
                     }
                 }
-            }
-
-            if (tabControl1.SelectedTab.Name == "tabPage8")
+            } else
+            if (tabControl1.SelectedTab.Name == "tabPageStage")
             {
                 dataGridViewEtapUpdate();
                 dataGridViewMehaUpdate();
-            }
-
-            if (tabControl1.SelectedTab.Name == "tabPage9")
+            } else
+            if (tabControl1.SelectedTab.Name == "tabPageRepeat")
             {
                 UpdatePovtor();
             }
-
-
         }
 
         public void UpdateTable(int table)
