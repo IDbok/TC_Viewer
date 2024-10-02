@@ -121,7 +121,7 @@ namespace TC_WinForms.WinForms.Work
             UpdateTO();
             UpdateLocalTO();
 
-            
+
         }
 
         private void CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
@@ -1087,7 +1087,7 @@ namespace TC_WinForms.WinForms.Work
                 var check = (bool)row.Cells[2].Value;
                 var sz = LocalTP.Protections.SingleOrDefault(p => p == idd);
 
-                if(check)
+                if (check)
                 {
                     if (sz == null)
                     {
@@ -1247,7 +1247,7 @@ namespace TC_WinForms.WinForms.Work
                 if (offScroll > 0 && offScroll < dataGridViewLocalSZ.Rows.Count)
                     dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex = offScroll;
             }
-            catch (Exception e) {}
+            catch (Exception e) { }
         }
 
         private void DataGridViewAllSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -1275,7 +1275,7 @@ namespace TC_WinForms.WinForms.Work
                 protectionTc.Quantity = 1;
                 protectionTc.Order = orderMax + 1;
 
-                    context.Protection_TCs.Add(protectionTc);
+                context.Protection_TCs.Add(protectionTc);
 
                 UpdateGridAllSZ();
                 UpdateGridLocalSZ();
@@ -1290,8 +1290,8 @@ namespace TC_WinForms.WinForms.Work
 
                 if (idd != null)
                 {
-                    var result = MessageBox.Show("Вы действительно хотите полностью удалить данное СЗ из техкарты?","Удалить СЗ", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
-                    if(result == DialogResult.Yes)
+                    var result = MessageBox.Show("Вы действительно хотите полностью удалить данное СЗ из техкарты?", "Удалить СЗ", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
+                    if (result == DialogResult.Yes)
                     {
                         var techCart = TechOperationForm.TehCarta.Protection_TCs;
                         techCart.Remove(idd);
@@ -2631,7 +2631,8 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
-        private void AddEditTechOperationForm_FormClosing(object sender, FormClosingEventArgs e)
+
+        private void AddEditTechOperationForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             this.Dispose();
         }
