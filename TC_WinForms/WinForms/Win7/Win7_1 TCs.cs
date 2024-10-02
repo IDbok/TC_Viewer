@@ -35,6 +35,7 @@ namespace TC_WinForms.WinForms
 
         private bool isFiltered = false;
 
+        public string setSearch { get => txtSearch.Text;}
         private List<DisplayedTechnologicalCard> _filteredList;
         private int filteredPageIndex = 0;
         private int totalFilteredPageCount;
@@ -61,7 +62,11 @@ namespace TC_WinForms.WinForms
             {
                 [User.Role.Lead] = () => { },
 
-                [User.Role.Implementer] = () => { },
+                [User.Role.Implementer] = () => 
+                { 
+                    HideAllButtonsExcept(new List<System.Windows.Forms.Button> { btnViewMode });
+                    btnViewMode.Location = btnDeleteTC.Location;
+                },
 
                 [User.Role.ProjectManager] = () =>
                 {
@@ -418,13 +423,14 @@ namespace TC_WinForms.WinForms
         {
             if (dgvMain.SelectedRows.Count == 1)
             {
-                var selectedRow = dgvMain.SelectedRows[0];
-                int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
-                if (id != 0)
+                var selectedObj = dgvMain.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
+                var obj = Convert.ToInt32(selectedObj?.Cells["Id"].Value);
+
+                if (obj != 0)
                 {
-                    Win7_1_TCs_Window win71TCsWindow = new Win7_1_TCs_Window(id, role: _accessLevel);
-                    win71TCsWindow.Show();
-                    //OpenTechnologicalCardEditor(id);
+                    var objEditor = new Win7_1_TCs_Window(obj, role: _accessLevel);
+                    objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView(updatedObj);
+                    objEditor.Show();
                 }
                 else
                 {
@@ -436,7 +442,7 @@ namespace TC_WinForms.WinForms
                 MessageBox.Show("Выберите одну карту для редактирования.");
             }
         }
-
+        
         //private void OpenTechnologicalCardEditor(int tcId)
         //{
         //    var editorForm = new Win6_new(tcId);
@@ -895,7 +901,36 @@ namespace TC_WinForms.WinForms
             }
 
         }
+        public void UpdateObjectInDataGridView(TechnologicalCard modelObject)
+        {
+            // Обновляем объект в DataGridView
+            var displayedObject = _displayedTechnologicalCards.FirstOrDefault(obj => obj.Id == modelObject.Id);
+            if (displayedObject != null)
+            {
+                displayedObject.Article = modelObject.Article;
+                displayedObject.Version = modelObject.Version;
+                displayedObject.Name = modelObject.Name;
+                displayedObject.Type = modelObject.Type;
+                displayedObject.NetworkVoltage = modelObject.NetworkVoltage;
+                displayedObject.TechnologicalProcessType = modelObject.TechnologicalProcessType;
+                displayedObject.TechnologicalProcessName = modelObject.TechnologicalProcessName;
+                displayedObject.TechnologicalProcessNumber = modelObject.TechnologicalProcessNumber;
+                displayedObject.Parameter = modelObject.Parameter;
+                displayedObject.FinalProduct = modelObject.FinalProduct;
+                displayedObject.Applicability = modelObject.Applicability;
+                displayedObject.Note = modelObject.Note;
+                displayedObject.DamageType = modelObject.DamageType;
+                displayedObject.RepairType = modelObject.RepairType;
+                displayedObject.IsCompleted = modelObject.IsCompleted;
+                displayedObject.Status = modelObject.Status;
+                displayedObject.Description = modelObject.Description;
+                
+                dgvMain.Refresh();
 
+                FilterTechnologicalCards();
+            }
+
+        }
         private void cbxNetworkVoltageFilter_SelectedIndexChanged(object sender, EventArgs e)
         {
             FilterTechnologicalCards();

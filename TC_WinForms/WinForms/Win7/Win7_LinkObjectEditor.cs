@@ -312,7 +312,7 @@ namespace TC_WinForms.WinForms
 
             //int changePixelsY = -60;
 
-            MoveItems(-60,
+            MoveItems(-30,
                 lblDescription, rtxtDescription,
                 lblManufacturer, rtxtManufacturer,
                 lblLinks, dgvLinks,
@@ -325,7 +325,7 @@ namespace TC_WinForms.WinForms
             cbxCategory.Visible = false;
             lblCategory.Visible = false;
 
-            MoveItems(-60,
+            MoveItems(-40,
                 lblClassifierCode, txtClassifierCode,
                 lblPrice, txtPrice, lblPrice2,
                 lblDescription, rtxtDescription,

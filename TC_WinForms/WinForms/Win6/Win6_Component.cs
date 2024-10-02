@@ -58,6 +58,8 @@ namespace TC_WinForms.WinForms
 
             dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
             dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
+
+            this.FormClosed += (sender, e) => this.Dispose();
         }
 
         public void SetViewMode(bool? isViewMode = null)
@@ -118,7 +120,7 @@ namespace TC_WinForms.WinForms
                     await SaveChanges();
                 }
                 e.Cancel = false;
-                Dispose();
+                //Dispose();
             }
         }
         public void AddNewObjects(List<Component> newObjs)
@@ -168,6 +170,7 @@ namespace TC_WinForms.WinForms
                 dgvMain.Columns[column.Key].Resizable = DataGridViewTriState.False;
             }
 
+            dgvMain.Columns[nameof(DisplayedComponent_TC.Type)].Resizable = DataGridViewTriState.True;
 
             // make columns readonly
             foreach (DataGridViewColumn column in dgvMain.Columns)
@@ -397,7 +400,7 @@ namespace TC_WinForms.WinForms
                 Manufacturer = obj.Child.Manufacturer;
                 Categoty = obj.Child.Categoty;
                 ClassifierCode = obj.Child.ClassifierCode;
-
+                Note = obj.Note;
                 IsReleased = obj.Child.IsReleased;
 
                 previousOrder = Order;

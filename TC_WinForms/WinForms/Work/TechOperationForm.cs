@@ -26,19 +26,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public readonly int tcId;
 
-    private List<TechOperationDataGridItem> list = new List<TechOperationDataGridItem>();
+    private List<TechOperationDataGridItem> TechOperationDataGridItems = new List<TechOperationDataGridItem>();
     private AddEditTechOperationForm? _editForm;
 
     public List<TechOperationWork> TechOperationWorksList = null!;
     public TechnologicalCard TehCarta = null!;
 
     public bool CloseFormsNoSave { get; set; } = false;
-
-    //public TechOperationForm()
-    //{
-    //    InitializeComponent();
-
-    //}
 
     public TechOperationForm(int tcId, TcViewState tcViewState)//,  bool viewerMode = false)
     {
@@ -56,7 +50,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         this.KeyDown += new KeyEventHandler(Form_KeyDown);
 
         _tcViewState.ViewModeChanged += OnViewModeChanged;
+
+        //this.FormClosed += (sender, e) => this.Dispose();
     }
+
     private async void TechOperationForm_Load(object sender, EventArgs e)
     {
         // Блокировка формы на время загрузки данных
@@ -71,32 +68,38 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         this.Enabled = true;
     }
+
     private async Task LoadDataAsync(int tcId)
     {
         // Загрузка в контекст данных о вложенных сущностях Staff
         //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
 
         TehCarta =  await context.TechnologicalCards
+
             .Include(t => t.Machines)
             .Include(t => t.Machine_TCs)
             .Include(t => t.Protection_TCs)
             .Include(t => t.Tool_TCs)
             .Include(t => t.Component_TCs)
+
             .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+            
             .SingleAsync(s => s.Id == tcId);
 
         TechOperationWorksList = await context.TechOperationWorks
             .Where(w => w.TechnologicalCardId == tcId)
             
-            .Include(i => i.techOperation)
-            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
-            .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
-            .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
-            .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
-            .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-            //.Include(r => r.executionWorks).ThenInclude(t => t.ListexecutionWorkRepeat2)
-            .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
-            .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+                .Include(i => i.techOperation)
+
+                .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
+                .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
+                .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
+                .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
+                .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
+
+                .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+                .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+
             .ToListAsync();
     }
 
@@ -107,7 +110,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         dgvMain.Columns["RemarkColumn"].Visible = isCommentViewMode;
         dgvMain.Columns["ResponseColumn"].Visible = isCommentViewMode;
     }
-  
+
     public void SetMachineViewMode(bool? isMachineViewMode = null)
     {
         if (isMachineViewMode != null)
@@ -123,15 +126,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
         }
     }
+
     public void SetViewMode(bool? isViewMode = null)
     {
-        //if (isViewMode != null)
-        //{
-        //    _isViewMode = (bool)isViewMode;
-        //}
-
         pnlControls.Visible = !_tcViewState.IsViewMode;
     }
+
     private void OnViewModeChanged()
     {
         UpdateGrid();
@@ -241,31 +241,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 _editForm?.UpdateGridLocalTP();
             }
         }
-        //if (e.ColumnIndex> dgvMain.ColumnCount-3) 
-        //{
-            
-        //}
     }
-
-    
-
-    
-    public void UpdataBD()
-    {
-        var vb = context.ExecutionWorks.
-            Include(t => t.techTransition)
-            .ToList();
-
-        foreach (var v in vb)
-        {
-            if (v.techTransition != null)
-            {
-                v.Value = v.techTransition.TimeExecution;
-            }
-        }
-        context.SaveChanges();
-    }
-
 
     public bool GetDontSaveData()
     {
@@ -273,514 +249,25 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
 
 
-    private void TechOperationForm_FormClosed(object sender, FormClosedEventArgs e)
-    {
-        // Закрытие дочерней формы, если она была открыта
-        _editForm?.Close();
-    }
-
-    #region Удалённый метод
-    //public void UpdateGrid()
-    //{
-    //    dgvMain.Rows.Clear();
-    //    list.Clear();
-
-    //    while (dgvMain.Columns.Count > 0)
-    //    {
-    //        dgvMain.Columns.RemoveAt(0);
-    //    }
-
-    //    dgvMain.Columns.Add("", "");
-    //    dgvMain.Columns.Add("", "");
-    //    dgvMain.Columns.Add("", "");
-    //    dgvMain.Columns.Add("", "");
-    //    dgvMain.Columns.Add("", "");
-    //    dgvMain.Columns.Add("", "");
-    //    dgvMain.Columns.Add("", "");
-
-
-    //    foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
-    //    {
-    //        dgvMain.Columns.Add("", "Время " + tehCartaMachineTC.Child.Name + ", мин.");
-    //    }
-
-    //    dgvMain.Columns.Add("", "№ СЗ");
-    //    dgvMain.Columns.Add("", "Примечания");
-
-    //    dgvMain.Columns.Add("", "Замечание");
-    //    dgvMain.Columns.Add("", "Ответ");
-
-    //    int ii = 0;
-
-    //    dgvMain.Columns[ii].Visible = false;
-    //    ii++;
-
-    //    dgvMain.Columns[ii].HeaderText = "№";
-    //    dgvMain.Columns[ii].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-    //    dgvMain.Columns[ii].Width = 30;
-    //    ii++;
-    //    dgvMain.Columns[ii].HeaderText = "Технологические операции";
-    //    ii++;
-    //    dgvMain.Columns[ii].HeaderText = "Исполнитель";
-    //    dgvMain.Columns[ii].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-    //    dgvMain.Columns[ii].Width = 120;
-    //    ii++;
-    //    dgvMain.Columns[ii].HeaderText = "Технологические переходы";
-    //    ii++;
-    //    dgvMain.Columns[ii].HeaderText = "Время действ., мин.";
-    //    ii++;
-
-    //    dgvMain.Columns[ii].HeaderText = "Время этапа, мин.";
-    //    ii++;
-
-
-    //    foreach (DataGridViewColumn column in dgvMain.Columns)
-    //    {
-    //        column.SortMode = DataGridViewColumnSortMode.NotSortable;
-    //    }
-
-    //    // автоподбор ширины столбцов под ширину таблицы
-    //    dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-    //    dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
-    //    dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-
-    //    //dgvMain.RowHeadersWidth = 25;
-
-    //    // автоперенос в ячейках
-    //    dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-
-
-    //    foreach (DataGridViewColumn column in dgvMain.Columns)
-    //    {
-    //        column.ReadOnly = true;
-    //        column.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-    //    }
-
-
-    //    dgvMain.Columns[dgvMain.Columns.Count - 1].ReadOnly = false;
-
-    //    if (TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() != DataProcessing.AuthorizationService.User.Role.User)
-    //    {
-    //        dgvMain.Columns[dgvMain.Columns.Count - 2].ReadOnly = false;
-    //    }
-
-    //    var TechOperationWorksListLocal = TechOperationWorksList.Where(w => w.Delete == false).OrderBy(o => o.Order).ToList();
-
-
-
-    //    int nomer = 1;
-    //    foreach (TechOperationWork techOperationWork in TechOperationWorksListLocal)
-    //    {
-    //        List<ExecutionWork> bb = techOperationWork.executionWorks.Where(w => w.Delete == false).OrderBy(o => o.Order).ToList();
-
-    //        if (bb.Count == 0)
-    //        {
-    //            list.Add(new TechOperationDataGridItem
-    //            {
-    //                Nomer = -1,
-    //                TechOperation = techOperationWork.techOperation.Name
-    //            });
-    //        }
-
-    //        foreach (ExecutionWork executionWork in bb)
-    //        {
-    //            if (executionWork.IdGuid == new Guid())
-    //            {
-    //                executionWork.IdGuid = Guid.NewGuid();
-    //            }
-
-    //            string StaffStr = "";
-
-    //            foreach (Staff_TC executionWorkStaff in executionWork.Staffs)
-    //            {
-    //                if (StaffStr != "")
-    //                {
-    //                    StaffStr += ",";
-    //                }
-
-    //                StaffStr += executionWorkStaff.Symbol;
-    //            }
-
-
-    //            var protectList = new List<int>();
-    //            string ProtectStr = "";
-    //            foreach (Protection_TC executionWorkProtection in executionWork.Protections)
-    //            {
-    //                protectList.Add(executionWorkProtection.Order);
-    //                //if (ProtectStr != "")
-    //                //{
-    //                //    ProtectStr += ",";
-    //                //}
-
-    //                //ProtectStr += executionWorkProtection.Order;
-    //            }
-
-    //            ProtectStr = ConvertListToRangeString(protectList);
-
-
-    //            List<bool> mach = new List<bool>();
-
-    //            foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
-    //            {
-    //                var sing = executionWork.Machines.SingleOrDefault(s => s == tehCartaMachineTC);
-
-
-    //                if (sing == null)
-    //                {
-    //                    mach.Add(false);
-
-    //                }
-    //                else
-    //                {
-    //                    mach.Add(true);
-    //                }
-    //            }
-
-    //            var itm = new TechOperationDataGridItem
-    //            {
-    //                Nomer = nomer,
-    //                Staff = StaffStr,
-    //                TechOperation = techOperationWork.techOperation.Name,
-    //                TechTransition = executionWork.techTransition?.Name,
-    //                TechTransitionValue = executionWork.Value.ToString(),
-    //                Protections = ProtectStr,
-    //                Etap = executionWork.Etap,
-    //                Posled = executionWork.Posled,
-    //                Work = true,
-    //                techWork = executionWork,
-    //                listMach = mach,
-    //                Comments = executionWork.Comments,
-    //                Vopros = executionWork.Vopros,
-    //                Otvet = executionWork.Otvet,
-    //                executionWorkItem = executionWork
-    //            };
-
-    //            if (itm.TechTransitionValue == "-1")
-    //            {
-    //                itm.TechTransitionValue = "Ошибка";
-    //            }
-
-    //            list.Add(itm);
-
-
-    //            nomer++;
-    //        }
-
-
-    //        foreach (ToolWork toolWork in techOperationWork.ToolWorks)
-    //        {
-    //            string strComp =
-    //                $"{toolWork.tool.Name}   {toolWork.tool.Type}    {toolWork.tool.Unit}";
-    //            list.Add(new TechOperationDataGridItem
-    //            {
-    //                Nomer = nomer,
-    //                Staff = "",
-    //                TechOperation = techOperationWork.techOperation.Name,
-    //                TechTransition = strComp,
-    //                TechTransitionValue = toolWork.Quantity.ToString(),
-    //                ItsTool = true,
-    //                Comments = toolWork.Comments ?? ""
-
-    //            });
-    //            nomer++;
-    //        }
-
-    //        foreach (ComponentWork componentWork in techOperationWork.ComponentWorks)
-    //        {
-    //            string strComp =
-    //                $"{componentWork.component.Name}   {componentWork.component.Type}    {componentWork.component.Unit}";
-
-    //            list.Add(new TechOperationDataGridItem
-    //            {
-    //                Nomer = nomer,
-    //                Staff = "",
-    //                TechOperation = techOperationWork.techOperation.Name,
-    //                TechTransition = strComp,
-    //                TechTransitionValue = componentWork.Quantity.ToString(),
-    //                ItsComponent = true,
-    //                Comments = componentWork.Comments ?? ""
-    //            });
-    //            nomer++;
-    //        }
-
-    //    }
-
-
-    //    for (var index = 0; index < list.Count; index++)
-    //    {
-    //        TechOperationDataGridItem techOperationDataGridItem = list[index];
-
-    //        List<ExecutionWork> podchet = new List<ExecutionWork>();
-    //        List<TechOperationDataGridItem> podchet2 = new List<TechOperationDataGridItem>();
-    //        List<TechOperationDataGridItem> TampPodchet = new List<TechOperationDataGridItem>();
-
-    //        if (techOperationDataGridItem.Work)
-    //        {
-    //            podchet.Add(techOperationDataGridItem.techWork);
-    //            podchet2.Add(techOperationDataGridItem);
-    //            if (techOperationDataGridItem.Etap != "" && techOperationDataGridItem.Etap != "0")
-    //            {
-    //                int plusIndex = index;
-    //                while (true)
-    //                {
-    //                    plusIndex = plusIndex + 1;
-    //                    if (plusIndex < list.Count)
-    //                    {
-    //                        TechOperationDataGridItem tech2 = list[plusIndex];
-    //                        if (tech2.Work == false)
-    //                        {
-    //                            TampPodchet.Add(tech2);
-    //                            continue;
-    //                        }
-
-    //                        if (techOperationDataGridItem.Etap == tech2.Etap)
-    //                        {
-    //                            index = plusIndex;
-    //                            podchet.Add(tech2.techWork);
-    //                            podchet2.Add(tech2);
-    //                            tech2.TimeEtap = "-1";
-    //                            TampPodchet.ForEach(f => f.TimeEtap = "-1");
-    //                        }
-    //                        else
-    //                        {
-    //                            break;
-    //                        }
-    //                    }
-    //                    else
-    //                    {
-    //                        break;
-    //                    }
-    //                }
-    //            }
-
-    //            double Paral = 0;
-
-    //            foreach (ExecutionWork executionWork in podchet)
-    //            {
-    //                if (executionWork.Posled != "" && executionWork.Posled != "0")
-    //                {
-    //                    var allSum = podchet.Where(w => w.Posled == executionWork.Posled && w.Value != -1)
-    //                        .Sum(s => s.Value);
-    //                    executionWork.TempTimeExecution = allSum;
-    //                }
-    //                else
-    //                {
-    //                    executionWork.TempTimeExecution = executionWork.Value == -1 ? 0 : executionWork.Value;
-    //                }
-    //            }
-
-    //            var col = podchet2[0].listMach.Count;
-    //            if (podchet2.Count > 1)
-    //            {
-
-    //                for (int i = 0; i < col; i++)
-    //                {
-    //                    bool tr = false;
-    //                    foreach (TechOperationDataGridItem operationDataGridItem in podchet2)
-    //                    {
-    //                        if (operationDataGridItem.listMach[i] == true)
-    //                        {
-    //                            tr = true;
-    //                        }
-    //                    }
-
-    //                    if (tr)
-    //                    {
-    //                        foreach (TechOperationDataGridItem operationDataGridItem in podchet2)
-    //                        {
-    //                            operationDataGridItem.listMach[i] = true;
-    //                        }
-    //                    }
-    //                }
-    //            }
-
-
-
-    //            Paral = podchet.Max(m => m.TempTimeExecution);
-    //            techOperationDataGridItem.TimeEtap = Paral.ToString();
-    //        }
-    //    }
-
-    //    foreach (TechOperationDataGridItem techOperationDataGridItem in list)
-    //    {
-    //        List<object> str = new List<object>();
-
-    //        if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat == true)
-    //        {
-    //            var repeatNumList = new List<int>();
-    //            string strP = "";
-
-    //            foreach (ExecutionWork executionWork in techOperationDataGridItem.techWork.ListexecutionWorkRepeat2)
-    //            {
-    //                var bn = list.SingleOrDefault(s => s.techWork == executionWork);
-    //                if (bn != null)
-    //                {
-    //                    repeatNumList.Add(bn.Nomer);
-    //                    //if (strP == "")
-    //                    //{
-    //                    //    strP = "п. " + bn.Nomer;
-    //                    //}
-    //                    //else
-    //                    //{
-    //                    //    strP += "," + bn.Nomer;
-    //                    //}
-    //                }
-    //            }
-    //            strP = ConvertListToRangeString(repeatNumList);
-
-    //            str.Add(techOperationDataGridItem.executionWorkItem);
-
-    //            str.Add(techOperationDataGridItem.Nomer.ToString());
-    //            str.Add(techOperationDataGridItem.TechOperation);
-    //            str.Add(techOperationDataGridItem.Staff);
-    //            str.Add("Повторить п." + strP);
-    //            str.Add(techOperationDataGridItem.TechTransitionValue);
-    //            str.Add(techOperationDataGridItem.TimeEtap);
-
-    //            techOperationDataGridItem.listMachStr = new List<string>();
-    //            if (techOperationDataGridItem.listMachStr.Count == 0 && techOperationDataGridItem.listMach.Count > 0)
-    //            {
-    //                for (var index = 0; index < TehCarta.Machine_TCs.Count; index++)
-    //                {
-    //                    bool b = techOperationDataGridItem.listMach[index];
-    //                    if (b)
-    //                    {
-    //                        str.Add(techOperationDataGridItem.TimeEtap);
-    //                    }
-    //                    else
-    //                    {
-    //                        if (techOperationDataGridItem.TimeEtap == "-1")
-    //                        {
-    //                            str.Add("-1");
-    //                        }
-    //                        else
-    //                        {
-    //                            str.Add("");
-    //                        }
-    //                    }
-    //                }
-    //            }
-
-    //            str.Add(techOperationDataGridItem.Protections);
-
-    //            if (techOperationDataGridItem.techWork != null)
-    //            {
-    //                str.Add(techOperationDataGridItem.techWork.Comments);
-    //            }
-    //            else
-    //            {
-    //                str.Add("");
-    //            }
-
-    //            str.Add(techOperationDataGridItem.Vopros);
-    //            str.Add(techOperationDataGridItem.Otvet);
-
-
-    //            dgvMain.Rows.Add(str.ToArray());
-
-    //            dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[3].Style.BackColor = Color.Yellow;
-    //            dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = Color.Yellow;
-
-    //            continue;
-    //        }
-
-    //        str.Add(techOperationDataGridItem.executionWorkItem);
-
-    //        if (techOperationDataGridItem.Nomer != -1)
-    //        {
-    //            str.Add(techOperationDataGridItem.Nomer.ToString());
-    //        }
-    //        else
-    //        {
-    //            str.Add("");
-    //        }
-
-    //        str.Add(techOperationDataGridItem.TechOperation);
-    //        str.Add(techOperationDataGridItem.Staff);
-    //        str.Add(techOperationDataGridItem.TechTransition);
-    //        str.Add(techOperationDataGridItem.TechTransitionValue);
-    //        str.Add(techOperationDataGridItem.TimeEtap);
-
-
-    //        techOperationDataGridItem.listMachStr = new List<string>();
-
-
-    //        for (var index = 0; index < TehCarta.Machine_TCs.Count; index++)
-    //        {
-    //            if (techOperationDataGridItem.listMachStr.Count == 0 && techOperationDataGridItem.listMach.Count > 0)
-    //            {
-    //                bool b = techOperationDataGridItem.listMach[index];
-    //                if (b)
-    //                {
-    //                    str.Add(techOperationDataGridItem.TimeEtap);
-    //                }
-    //                else
-    //                {
-    //                    if (techOperationDataGridItem.TimeEtap == "-1")
-    //                    {
-    //                        str.Add("-1");
-    //                    }
-    //                    else
-    //                    {
-    //                        str.Add("");
-    //                    }
-    //                }
-
-    //            }
-    //            else
-    //            {
-    //                str.Add("");
-    //            }
-    //        }
-
-    //        str.Add(techOperationDataGridItem.Protections);
-
-    //        if (techOperationDataGridItem.techWork != null)
-    //        {
-    //            str.Add(techOperationDataGridItem.techWork.Comments);
-    //        }
-    //        else
-    //        {
-    //            str.Add(techOperationDataGridItem.Comments);
-    //        }
-
-    //        str.Add(techOperationDataGridItem.Vopros);
-    //        str.Add(techOperationDataGridItem.Otvet);
-
-    //        dgvMain.Rows.Add(str.ToArray());
-
-    //        if (techOperationDataGridItem.ItsComponent)
-    //        {
-    //            dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[3].Style.BackColor = Color.Salmon;
-    //            dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = Color.Salmon;
-    //        }
-
-    //        if (techOperationDataGridItem.ItsTool)
-    //        {
-    //            dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[3].Style.BackColor = Color.Aquamarine;
-    //            dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = Color.Aquamarine;
-    //        }
-
-    //    }
-
-
-    //    SetCommentViewMode();
-
-    //}
-
-    #endregion
-
     public void UpdateGrid()
     {
-        var offScroll = dgvMain.FirstDisplayedScrollingRowIndex;
+        try // временная заглушка от ошибки возникающей при переключении на другую форму в процессе загрузки данных
+        {
+            var offScroll = dgvMain.FirstDisplayedScrollingRowIndex;
 
-        ClearAndInitializeGrid();
-        PopulateDataGrid();
-        SetCommentViewMode();
-        SetMachineViewMode();
+            ClearAndInitializeGrid();
+            PopulateDataGrid();
+            SetCommentViewMode();
+            SetMachineViewMode();
 
-        if (offScroll < dgvMain.Rows.Count && offScroll > 0) 
-            dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
+            if (offScroll < dgvMain.Rows.Count && offScroll > 0)
+                dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
+        }
+        catch (Exception ex)
+        {
+            //MessageBox.Show(ex.Message);
+        }
+
     }
 
     /// <summary>
@@ -789,7 +276,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     private void ClearAndInitializeGrid()
     {
         dgvMain.Rows.Clear();
-        list.Clear();
+        TechOperationDataGridItems.Clear();
 
         while (dgvMain.Columns.Count > 0)
         {
@@ -807,7 +294,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         int i = 0;
         foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
         {
-            dgvMain.Columns.Add("Machine+{i}", "Время " + tehCartaMachineTC.Child.Name + ", мин.");
+            dgvMain.Columns.Add("Machine" + i, "Время " + tehCartaMachineTC.Child.Name + ", мин.");
             i++;
         }
 
@@ -860,9 +347,45 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         //    dgvMain.Columns[dgvMain.Columns.Count - 2].ReadOnly = false;
         //}
 
-        dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        foreach (DataGridViewColumn col in dgvMain.Columns)
+        {
+            col.FillWeight = col.HeaderText.Contains("Время") ? GetFillWeight("Время") : GetFillWeight(col.HeaderText);
+            col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            col.MinimumWidth = col.HeaderText.Contains("Время") ? 50 :(int)col.FillWeight;
+            col.MinimumWidth = col.HeaderText.Contains("Замечание") || col.HeaderText.Contains("Ответ") ? 200 : (int)col.FillWeight;
+            col.Resizable = col.HeaderText.Contains("Замечание") || col.HeaderText.Contains("Ответ") ? DataGridViewTriState.True : DataGridViewTriState.NotSet;
+        }
+
         dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
         dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dgvMain.Columns[2].Frozen = true;
+
+    }
+
+    private float GetFillWeight(string FieldName)
+    {
+        switch (FieldName)
+        {
+            case "":
+                return 100;
+            case "№":
+                return 30;
+            case "Технологические операции":
+            case "Технологические переходы":
+            case "Примечание":
+            case "Рис.":
+                return 140;
+            case "Исполнитель":
+                return 120;
+            case "Время":
+            case "№ СЗ":
+                return 50;
+            case "Замечание":
+            case "Ответ":
+                return 300;
+            default:
+                return 100;
+        }
     }
 
     /// <summary>
@@ -880,7 +403,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             if (executionWorks.Count == 0)
             {
-                list.Add(new TechOperationDataGridItem
+                TechOperationDataGridItems.Add(new TechOperationDataGridItem
                 {
                     Nomer = -1,
                     TechOperation = techOperationWork.techOperation.Name,
@@ -927,13 +450,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                     itm.TechTransitionValue = "Ошибка";
                 }
 
-                list.Add(itm);
+                TechOperationDataGridItems.Add(itm);
                 nomer++;
             }
 
             foreach (var toolWork in techOperationWork.ToolWorks.Where(t => t.IsDeleted != true).ToList())
             {
-                list.Add(new TechOperationDataGridItem
+                TechOperationDataGridItems.Add(new TechOperationDataGridItem
                 {
                     Nomer = nomer,
                     Staff = "",
@@ -948,7 +471,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             foreach (var componentWork in techOperationWork.ComponentWorks.Where(t => t.IsDeleted != true).ToList())
             {
-                list.Add(new TechOperationDataGridItem
+                TechOperationDataGridItems.Add(new TechOperationDataGridItem
                 {
                     Nomer = nomer,
                     Staff = "",
@@ -962,120 +485,315 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
         }
 
-        CalculateEtapTimes();
+        CalculateEtapTimes();// CalculateStageTimesUpdated();// CalculateEtapTimes();
         AddRowsToGrid();
     }
 
-    /// <summary>
-    /// Рассчитывает время этапов для технологических операций, обрабатывая списки ExecutionWork и TechOperationDataGridItem.
-    /// </summary>
-    private void CalculateEtapTimes()
+
+
+    #region Расчёт времени этапов
+
+    private void CalculateEtapTimes() 
     {
-        for (var index = 0; index < list.Count; index++)
+        // Group items by ParallelIndex
+        var parallelGroups = GroupByParallelIndex(TechOperationDataGridItems);
+
+        // Process each group
+        foreach (var group in parallelGroups)
         {
-            var techOperationDataGridItem = list[index];
+            var currentGroupType = group.Item1;
+            var currentGroupList = group.Item2;
+            var currentGroupProducts = group.Item3;
 
-            if (techOperationDataGridItem.Work)
+            switch (currentGroupType)
             {
-                var podchet = new List<ExecutionWork> { techOperationDataGridItem.techWork };
-                var podchet2 = new List<TechOperationDataGridItem> { techOperationDataGridItem };
-                var tampPodchet = new List<TechOperationDataGridItem>();
+                case GroupType.Single:
+                    ProcessSingleGroup(currentGroupList);
+                    break;
+                case GroupType.Etap:
+                    ProcessEtapGroup(currentGroupList);
+                    break;
+                case GroupType.ParallelIndex:
+                    ProcessParallelGroup(currentGroupList);
+                    break;
+            }
+            currentGroupProducts.ForEach(i => i.TimeEtap = "-1");
+        }
+    }
 
-                if (!string.IsNullOrEmpty(techOperationDataGridItem.Etap) && techOperationDataGridItem.Etap != "0")
+    /// <summary>
+    /// Группирует строки по Индексу параллельности или этапу. 
+    /// При отсутствии одного из этих признаков добавляет в стак лист с один элементом
+    /// </summary>
+    /// <param name="items"></param>
+    /// <returns></returns>
+    private Stack<(GroupType, List<TechOperationDataGridItem>, List<TechOperationDataGridItem>)> 
+        GroupByParallelIndex(List<TechOperationDataGridItem> items)
+    {
+        var parallelGroups = new Stack<(GroupType, List<TechOperationDataGridItem>, List<TechOperationDataGridItem>)>();
+
+        var currentParallelIndex = 0;
+        var currentEtap = "";
+
+        foreach (var item in items)
+        {
+            if (item.Work)
+            {
+                int? parallelIndex = item.techWork.techOperationWork.GetParallelIndex();
+
+                if (parallelIndex == null)
                 {
-                    int plusIndex = index;
-                    while (true)
+                    // проверка на наличие этапа
+                    if (item.Etap == "" || item.Etap == "0")
                     {
-                        plusIndex++;
-                        if (plusIndex < list.Count)
-                        {
-                            var tech2 = list[plusIndex];
-                            if (!tech2.Work)
-                            {
-                                tampPodchet.Add(tech2);
-                                continue;
-                            }
+                        // обнуляем этап
+                        currentEtap = "";
 
-                            if (techOperationDataGridItem.Etap == tech2.Etap)
-                            {
-                                index = plusIndex;
-                                podchet.Add(tech2.techWork);
-                                podchet2.Add(tech2);
-                                tech2.TimeEtap = "-1";
-                                tampPodchet.ForEach(f => f.TimeEtap = "-1");
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
+                        parallelGroups.Push((GroupType.Single, 
+                            new List<TechOperationDataGridItem> { item },
+                            new List<TechOperationDataGridItem>()));
 
-                foreach (var executionWork in podchet)
-                {
-                    if (!string.IsNullOrEmpty(executionWork.Posled) && executionWork.Posled != "0")
-                    {
-                        var allSum = podchet.Where(w => w.Posled == executionWork.Posled && w.Value != -1).Sum(s => s.Value);
-                        executionWork.TempTimeExecution = allSum;
+                        continue;
                     }
                     else
                     {
-                        executionWork.TempTimeExecution = executionWork.Value == -1 ? 0 : executionWork.Value;
-                    }
-                }
-
-                if (podchet2.Count > 1)
-                {
-                    var col = podchet2[0].listMach.Count;
-                    for (int i = 0; i < col; i++)
-                    {
-                        bool tr = podchet2.Any(item => item.listMach[i]);
-                        if (tr)
+                        // проверка на смену этапа
+                        if (currentEtap != item.Etap)
                         {
-                            foreach (var item in podchet2)
-                            {
-                                item.listMach[i] = true;
-                            }
+                            currentEtap = item.Etap;
+
+                            parallelGroups.Push((GroupType.Etap, 
+                                new List<TechOperationDataGridItem> { item },
+                                new List<TechOperationDataGridItem>()));
+
+                            continue;
+                        }
+                        else
+                        {
+                            // добавляем в текущий список
+                            parallelGroups.Peek().Item2.Add(item);
                         }
                     }
                 }
+                else
+                {
+                    // обнуляем этап ????
+                    currentEtap = "";
 
-                double paral = podchet.Max(m => m.TempTimeExecution);
-                techOperationDataGridItem.TimeEtap = paral.ToString();
+                    if (currentParallelIndex != parallelIndex)
+                    {
+
+                        currentParallelIndex = parallelIndex.Value;
+
+                        parallelGroups.Push((GroupType.ParallelIndex, 
+                            new List<TechOperationDataGridItem> { item } ,
+                            new List<TechOperationDataGridItem>()));
+                    }
+                    else
+                    {
+                        parallelGroups.Peek().Item2.Add(item);
+                    }
+                }
+            }
+            else
+            {
+                parallelGroups.Peek().Item3.Add(item);
+            }
+
+        }
+
+        return parallelGroups;
+    }
+    enum GroupType
+    {
+        Single,
+        Etap, 
+        ParallelIndex,
+    }
+
+    private double ProcessEtapGroup(List<TechOperationDataGridItem> etapGroup)
+    {
+        var executionWorks = new List<ExecutionWork>();
+
+        foreach (var item in etapGroup)
+        {
+            if (item.Work)
+            {
+                executionWorks.Add(item.techWork);
             }
         }
+
+        // Process ExecutionWorks based on Posled
+        foreach (var executionWork in executionWorks)
+        {
+            if (!string.IsNullOrEmpty(executionWork.Posled) && executionWork.Posled != "0")
+            {
+                var allSum = executionWorks
+                    .Where(w => w.Posled == executionWork.Posled && w.Value != -1)
+                    .Sum(s => s.Value);
+                executionWork.TempTimeExecution = allSum;
+            }
+            else
+            {
+                executionWork.TempTimeExecution = executionWork.Value == -1 ? 0 : executionWork.Value;
+            }
+        }
+
+        // Adjust listMach if necessary
+        if (etapGroup.Count > 1)
+        {
+            var col = etapGroup[0].listMach.Count;
+            for (int i = 0; i < col; i++)
+            {
+                bool tr = etapGroup.Any(item => item.listMach[i]);
+                if (tr)
+                {
+                    foreach (var item in etapGroup)
+                    {
+                        item.listMach[i] = true;
+                    }
+                }
+            }
+        }
+
+        // Calculate the maximum TempTimeExecution among ExecutionWorks
+        double maxTime = CalculateMaxEtapTime(etapGroup); //executionWorks.Max(m => m.TempTimeExecution);
+
+
+        etapGroup.ForEach(item => item.TimeEtap = "-1");
+        etapGroup[0].TimeEtap = maxTime.ToString();
+
+        return maxTime;
     }
+
+    private void ProcessSingleGroup(List<TechOperationDataGridItem> etapGroup)
+    {
+        foreach (var item in etapGroup)
+        {
+            item.TimeEtap = item.techWork.Value.ToString();
+        }
+    }
+
+    private void ProcessParallelGroup(List<TechOperationDataGridItem> etapGroup)
+    {
+        var times = new List<double>();
+
+        var groups2 = etapGroup.GroupBy(g => g.techWork.techOperationWork.GetSequenceGroupIndex()).ToList();
+        foreach (var group in groups2)
+        {
+            // if (sequenceGroupIndex == null) то в группы выделяются ТО
+            if (group.Key == null)
+            {
+                var nullIndexGroups = group.ToList().GroupBy(g => g.techWork.techOperationWorkId).ToList();
+
+                foreach (var parGroup in nullIndexGroups)
+                {
+
+                    times.Add(CalculateMaxEtapTime(parGroup.ToList()));
+                }
+            }
+            else
+            {
+                var sequenceTimes = new List<double>();
+                var sequenceGroups = group.GroupBy(g => g.techWork.techOperationWorkId).ToArray();
+
+                foreach(var seqGroup in sequenceGroups)
+                {
+                    sequenceTimes.Add(CalculateMaxEtapTime(seqGroup.ToList()));
+                }
+
+                times.Add(sequenceTimes.Sum());
+            }
+        }
+
+        // присвоить это время первому шагу. Остальным присвоить -1
+        etapGroup.ForEach(i => i.TimeEtap = "-1");
+        etapGroup[0].TimeEtap = times.Max().ToString();
+    }
+
+    private double CalculateMaxEtapTime(List<TechOperationDataGridItem> etapGroup)
+    {
+        // todo: проверка на наличие различных этапов внутри группы
+        // Если есть разные этапы, то группируем по этапам и выполняем расчёт времени рекурсивно
+        var etapGroups = etapGroup.GroupBy(g => g.Etap).ToList();
+        if (etapGroups.Count > 1)
+        {
+            var times = new List<double>();
+            foreach (var group in etapGroups)
+            {
+                times.Add(CalculateMaxEtapTime(group.ToList()));
+            }
+
+            return times.Max();
+        }
+
+        // Если этап у всех операций равен 0 или "",
+        // то суммировать время всех операций в группе
+        if (etapGroup.All(a => a.Etap == "" || a.Etap == "0" 
+            //|| a.Etap == etapGroup[0].Etap
+            ))
+        {
+            return etapGroup.Sum(s => s.techWork.Value);
+        }
+
+        var executionWorks = etapGroup.Where(w => w.Work).Select(s => s.techWork).ToList();
+
+        var executionTimes = new List<double>();
+
+        var sequenceTimes = new List<double>();
+
+        foreach (var item in etapGroup)
+        {
+            if (item.Work)
+            {
+                var executionWork = item.techWork;
+
+                // Если у шага нет группы параллельности, то считаем его выполнение последовательным
+                if (executionWork.Etap == "" || executionWork.Etap == "0")
+                {
+                    executionTimes.Add(executionWork.Value);
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(executionWork.Posled) && executionWork.Posled != "0")
+                {
+                    var allSum = executionWorks
+                        .Where(w => w.Posled == executionWork.Posled && w.Value != -1 
+                            && w.Etap == executionWork.Etap && w.Etap != "0" && w.Etap != "")
+                        .Sum(s => s.Value);
+
+                    executionTimes.Add(allSum);
+                }
+                else
+                {
+                    executionTimes.Add(executionWork.Value);
+                }
+            }
+        }
+
+        executionTimes.Add(sequenceTimes.Sum());
+
+        return executionTimes.Max();
+    }
+
+    #endregion
+
+
 
     /// <summary>
     /// Добавляет строки в DataGridView на основе подготовленного списка TechOperationDataGridItem.
     /// </summary>
     private void AddRowsToGrid()
     {
-        foreach (var techOperationDataGridItem in list)
+        foreach (var techOperationDataGridItem in TechOperationDataGridItems)
         {
             var str = new List<object>();
             var obj = context.Set<TechOperation>().Where(to => to.Id == techOperationDataGridItem.IdTO).FirstOrDefault();
 
-            if(techOperationDataGridItem.Nomer == 18) // todo - убрать
-            {
-                Console.WriteLine();
-            }
-
             if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat)
             {
-                //var repeatNumList = techOperationDataGridItem.techWork.ListexecutionWorkRepeat2
-                //    .Select(executionWork => list.SingleOrDefault(s => s.techWork == executionWork))
-                //    .Where(bn => bn != null)
-                //    .Select(bn => bn.Nomer)
-                //    .ToList();
-
                 var repeatNumList = techOperationDataGridItem.techWork.ExecutionWorkRepeats
-                    .Select(executionWorkRepeat => list.SingleOrDefault(s => s.techWork == executionWorkRepeat.ChildExecutionWork))
+                    .Select(executionWorkRepeat => TechOperationDataGridItems.SingleOrDefault(s => s.techWork == executionWorkRepeat.ChildExecutionWork))
                     .Where(bn => bn != null)
                     .Select(bn => bn.Nomer)
                     .ToList();
@@ -1201,7 +919,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         //dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = backColor2;
     }
 
-
     private void DgvMain_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
     {
         if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
@@ -1221,7 +938,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
         }
     }
-
 
     private void DgvMain_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
     {
@@ -1304,6 +1020,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         // Выделить строку цветом
         cell.Style.BackColor = isReadOnly ? Color.White : Color.LightGray;
     }
+
     private void SetCellBackColor(DataGridViewCell cell, Color color)
     {
         cell.Style.BackColor = color;
@@ -1350,6 +1067,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     }
 
+    /// <summary>
+    /// Проверяет ячейку на совпадение с предыдущей ячейкой в столбце dgvMain
+    /// </summary>
+    /// <param name="column"></param>
+    /// <param name="row"></param>
+    /// <returns></returns>
     bool IsTheSameCellValue(int column, int row)
     {
         if (row == 0)
@@ -1425,14 +1148,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         }
     }
 
-
     public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null, CoefficientForm coefficient = null)
     {
         TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
         // Данный механизм отвечает за добавление удалённого объекта с таким же Id
         // был удалён в соответствии с п154 замечаний
         //var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
-        if (false)//exec.Count > 0)
+        if (false) //exec.Count > 0)
         {
             //var one = exec[0];
             //one.Delete = false;
@@ -1535,127 +1257,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         }
     }
 
-    private void button1_Click(object sender, EventArgs e)
-    {
-
-        using (var context = new MyDbContext())
-        {
-            var TC = context.TechnologicalCards.Single(s => s.Id == 1);
-
-            var ff = context.Protections.Take(5).ToList();
-
-
-            foreach (Protection protection in ff)
-            {
-                Protection_TC tt = new Protection_TC();
-                tt.Child = protection;
-                tt.Quantity = 5;
-                TC.Protection_TCs.Add(tt);
-            }
-
-            context.SaveChanges();
-        }
-
-        return;
-
-        //using (var context = new MyDbContext())
-        //{
-        //    var TC = context.TechnologicalCards.Single(s => s.Id == 1);
-
-        //    TechOperation techOperation = new TechOperation();
-        //    techOperation.Name = "Установка автовышки";
-        //    context.TechOperations.Add(techOperation);
-
-        //    TechOperationWork techOperationWork = new TechOperationWork();
-        //    techOperationWork.techOperation = techOperation;
-        //    techOperationWork.technologicalCard = TC;
-
-        //    var techOperation2 = new TechOperation();
-        //    techOperation2.Name = "Подготовка к работе с люльки";
-        //    context.TechOperations.Add(techOperation2);
-
-        //    TechOperationWork techOperationWork2 = new TechOperationWork();
-        //    techOperationWork2.techOperation = techOperation2;
-        //    techOperationWork2.technologicalCard = TC;
-
-
-
-
-        //    TechTransition techTransition = new TechTransition();
-        //    techTransition.Name = "Определить место установки техники";
-        //    techTransition.TimeExecution = 3;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    ExecutionWork executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Установить автовышку";
-        //    techTransition.TimeExecution = 5.5;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Установить ограждение рабочей зоны";
-        //    techTransition.TimeExecution = 5;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Подготовить инструменты и материалы";
-        //    techTransition.TimeExecution = 4;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Загрузить в люльку инструменты и материалы";
-        //    techTransition.TimeExecution = 3;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork2;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Надеть страховочную привязь";
-        //    techTransition.TimeExecution = 1.5;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork2;
-        //    context.ExecutionWorks.Add(executionWork);
-
-        //    techTransition = new TechTransition();
-        //    techTransition.Name = "Войти в люльку, закрепиться удерживающим стропом, закрыть дверь на запорное устройство";
-        //    techTransition.TimeExecution = 1;
-        //    context.TechTransitions.Add(techTransition);
-
-        //    executionWork = new ExecutionWork();
-        //    executionWork.techTransition = techTransition;
-        //    executionWork.techOperationWork = techOperationWork2;
-        //    context.ExecutionWorks.Add(executionWork);
-
-
-        //    context.SaveChanges();
-        //}
-    }
-
     private void button2_Click(object sender, EventArgs e)
     {
         // в случае Режима просмотра форма не открывается
@@ -1672,7 +1273,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         _editForm.Show();
         _editForm.BringToFront();
 
-        HasChanges = true;
+        HasChanges = true; // todo: Устанавливаем флаг изменений если реально были изменения
     }
 
     private void button1_Click_1(object sender, EventArgs e)
@@ -1727,6 +1328,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     Tool_TC tool = new Tool_TC();
                     tool.Child = toolWork.tool;
+                    tool.Order = TehCarta.Tool_TCs.Count + 1;
                     tool.Quantity = toolWork.Quantity;
                     TehCarta.Tool_TCs.Add(tool);
                 }
@@ -1746,6 +1348,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     Component_TC Comp = new Component_TC();
                     Comp.Child = componentWork.component;
+                    Comp.Order = TehCarta.Component_TCs.Count + 1;
                     Comp.Quantity = componentWork.Quantity;
                     TehCarta.Component_TCs.Add(Comp);
                 }
@@ -1765,6 +1368,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     }
 
     public bool HasChanges { get; set; }
+
     public async Task SaveChanges()
     {
         button1_Click_1(null, null);
@@ -1815,18 +1419,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     private void TechOperationForm_FormClosing(object sender, FormClosingEventArgs e)
     {
-        //if (HasChanges)
-        //{
-        //    var result = MessageBox.Show("Вы хотите сохранить изменения перед закрытием?", "Сохранение изменений", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-        //    if (result == DialogResult.Yes)
-        //    {
-        //        button1_Click_1(null, null);
-        //    }
-        //    else if (result == DialogResult.Cancel)
-        //    {
-        //        e.Cancel = true;
-        //    }
-        //}
+        _editForm?.Close();
     }
 
     public void HighlightExecutionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)
@@ -1852,7 +1445,4 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
         }
     }
-
-
-
 }

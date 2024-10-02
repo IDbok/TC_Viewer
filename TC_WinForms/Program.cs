@@ -40,7 +40,6 @@ namespace TC_WinForms
             ApplicationConfiguration.Initialize();
 
             string variableName = "TEST_MODE";
-            // Считывание значения переменной среды
             string? variableValue = Environment.GetEnvironmentVariable(variableName);
             bool isTestMode = variableValue != null && variableValue.ToLower() == "true";
 
@@ -129,7 +128,7 @@ namespace TC_WinForms
 
                 case 1:
                     {
-                        LoadTechnologicalCardEditor(494); // ТКПС_1.1.5 (495)
+                        LoadTechnologicalCardEditor(451); // ТКПС_1.1.5 (495)
                         //PrintTechnologicalCard(494); // ТКПС_1.1.3 (494)
                     }
                     break;

@@ -32,10 +32,10 @@
             // 
             // DiagramForm
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1000, 562);
-            Margin = new Padding(4, 4, 4, 4);
+            ClientSize = new Size(700, 337);
+            Margin = new Padding(3, 2, 3, 2);
             Name = "DiagramForm";
             Text = "DiagramForm";
             ResumeLayout(false);

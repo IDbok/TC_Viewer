@@ -113,6 +113,29 @@ namespace TC_WinForms.WinForms
         }
         private void AccessInitialization()
         {
+            var controlAccess = new Dictionary<User.Role, Action>
+            {
+                [User.Role.Lead] = () => { },
+
+                [User.Role.Implementer] = () =>
+                {
+                    HideAllButtons();
+                },
+
+                [User.Role.ProjectManager] = () => { },
+
+                [User.Role.User] = () => { }
+            };
+
+            controlAccess.TryGetValue(_accessLevel, out var action);
+            action?.Invoke();
+        }
+        private void HideAllButtons()
+        {
+            foreach (var button in pnlControlBtns.Controls.OfType<System.Windows.Forms.Button>())
+            {
+                button.Visible = false;
+            }
         }
 
         private void btnAddNewObj_Click(object sender, EventArgs e)

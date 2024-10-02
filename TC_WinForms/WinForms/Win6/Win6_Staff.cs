@@ -42,6 +42,8 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
         dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
         dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
+
+        this.FormClosed += (sender, e) => this.Dispose();
     }
 
     private void AccessInitialization()
@@ -115,9 +117,11 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
                 await SaveChanges();
             }
             e.Cancel = false;
-            Dispose();
+            //Dispose();
         }
     }
+
+
     public void AddNewObjects(List<Staff> newObjs)
     {
         foreach (var obj in newObjs)

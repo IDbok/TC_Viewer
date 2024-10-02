@@ -76,7 +76,6 @@
             Name = "TechOperationForm";
             Text = "TechOperationForm";
             FormClosing += TechOperationForm_FormClosing;
-            FormClosed += TechOperationForm_FormClosed;
             Load += TechOperationForm_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
