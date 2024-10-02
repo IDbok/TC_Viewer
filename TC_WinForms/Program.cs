@@ -14,7 +14,7 @@ namespace TC_WinForms
 {
     internal static class Program
     {
-        public static bool testMode = true; //false;//
+        public static bool isTestMode = false;
         public static Form MainForm { get; set; }
         public static List<Form> FormsBack { get; set; } = new List<Form>();
         public static List<Form> FormsForward { get; set; } = new List<Form>();
@@ -41,7 +41,7 @@ namespace TC_WinForms
 
             string variableName = "TEST_MODE";
             string? variableValue = Environment.GetEnvironmentVariable(variableName);
-            bool isTestMode = variableValue != null && variableValue.ToLower() == "true";
+            isTestMode = variableValue != null && variableValue.ToLower() == "true";
 
             if (isTestMode)
             {
