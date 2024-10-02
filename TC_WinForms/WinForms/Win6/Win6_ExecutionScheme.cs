@@ -44,7 +44,7 @@ namespace TC_WinForms.WinForms
             _tcViewState.ViewModeChanged += OnViewModeChanged;
         }
 
-        private void Win6_ExecutionScheme_Load(object sender, EventArgs e)
+        private async void Win6_ExecutionScheme_Load(object sender, EventArgs e)
         {
             SetViewMode();
 
@@ -54,18 +54,18 @@ namespace TC_WinForms.WinForms
 
                 if (_tcViewState?.TechnologicalCard?.ExecutionSchemeBase64 != null)
                     imageBase64 = _tcViewState?.TechnologicalCard?.ExecutionSchemeBase64;
-                else
+                else if(_tc.ExecutionSchemeImageId != null)
                 {
                     try
                     {
                         for(int i = 1; i <=3; i++)//проверка на загрузку изображение, повторяем 3 раза
                         {
-                            imageBase64 = tcRepository.GetImageBase64(_tc.ExecutionSchemeImageId);
+                            imageBase64 = await tcRepository.GetImageBase64Async((long)_tc.ExecutionSchemeImageId);
                             _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = imageBase64;
 
                             if (i == 3 && (imageBase64 == "" || imageBase64 == null))
                                 throw new Exception("не удалось получить изображение");
-                            else if (imageBase64 != "")
+                            else if (imageBase64 != null && imageBase64 != "")
                                 break;
                         }
                         
