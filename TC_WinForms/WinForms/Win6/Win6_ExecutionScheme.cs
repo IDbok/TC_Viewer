@@ -60,11 +60,8 @@ namespace TC_WinForms.WinForms
                     {
                         for(int i = 1; i <=3; i++)//проверка на загрузку изображение, повторяем 3 раза
                         {
-                            using (var dbCon = new MyDbContext())//todo: переписать метод, создать отдельный репозиторий на работу с изображениями
-                            {
-                                imageBase64 = tcRepository.getImageBase64(_tc.ExecutionSchemeImageId);
-                                _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = imageBase64;
-                            }
+                            imageBase64 = tcRepository.GetImageBase64(_tc.ExecutionSchemeImageId);
+                            _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = imageBase64;
 
                             if (i == 3 && (imageBase64 == "" || imageBase64 == null))
                                 throw new Exception("не удалось получить изображение");

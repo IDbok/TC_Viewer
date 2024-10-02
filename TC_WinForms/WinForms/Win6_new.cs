@@ -96,7 +96,7 @@ namespace TC_WinForms.WinForms
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
-            tcViewState = new TcViewState(role, _tc );
+            tcViewState = new TcViewState(role);
             tcViewState.IsViewMode = viewMode;
 
             _tcId = tcId;
