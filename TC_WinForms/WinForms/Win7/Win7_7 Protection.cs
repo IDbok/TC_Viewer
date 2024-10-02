@@ -36,7 +36,7 @@ namespace TC_WinForms.WinForms
             _accessLevel = accessLevel;
 
             InitializeComponent();
-            //AccessInitialization();
+            AccessInitialization();
 
         }
         public Win7_7_Protection(bool activateNewItemCreate = false, int? createdTCId = null, bool isUpdateMode = false) // this constructor is for adding form in TC editer
@@ -88,7 +88,6 @@ namespace TC_WinForms.WinForms
             this.Enabled = true;
             //progressBar.Visible = false;
 
-            AccessInitialization();
         }
         private async Task LoadObjects()
         {
