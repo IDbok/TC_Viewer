@@ -931,7 +931,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 nomer++;
             }
 
-            foreach (var toolWork in techOperationWork.ToolWorks.Where(t => t.IsDeleted != true).ToList())
+            foreach (var toolWork in techOperationWork.ToolWorks.Where(t => t.IsDeleted == false).ToList())
             {
                 list.Add(new TechOperationDataGridItem
                 {
@@ -946,7 +946,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 nomer++;
             }
 
-            foreach (var componentWork in techOperationWork.ComponentWorks.Where(t => t.IsDeleted != true).ToList())
+            foreach (var componentWork in techOperationWork.ComponentWorks.Where(t => t.IsDeleted == false).ToList())
             {
                 list.Add(new TechOperationDataGridItem
                 {
@@ -1498,7 +1498,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         }
     }
 
-    public void DeleteToolWork(ToolWork tool)
+    public void MarkToDeleteToolWork(ToolWork tool)
     {
         var vb = context.ToolWorks.SingleOrDefault(s => s == tool);
         if (vb != null)
@@ -1507,7 +1507,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         }
     }
 
-    public void DeleteComponentWork(ComponentWork comp)
+    public void MarkToDeleteComponentWork(ComponentWork comp)
     {
         var vb = context.ComponentWorks.SingleOrDefault(s => s == comp);
         if (vb != null)

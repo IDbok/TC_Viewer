@@ -1379,6 +1379,8 @@ namespace TC_WinForms.WinForms.Work
                 if(existedIdd != null)
                 {
                     existedIdd.IsDeleted = false;
+                    work.ComponentWorks.Remove(existedIdd);
+                    work.ComponentWorks.Insert(work.ComponentWorks.Count, existedIdd);
                 }
                 else
                 {
@@ -1401,7 +1403,7 @@ namespace TC_WinForms.WinForms.Work
                 var work = (TechOperationWork)comboBoxTO2.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                TechOperationForm.DeleteComponentWork(Idd);
+                TechOperationForm.MarkToDeleteComponentWork(Idd);
 
                 UpdateComponentAll();
                 UpdateComponentLocal();
@@ -1660,6 +1662,8 @@ namespace TC_WinForms.WinForms.Work
                 if (existedIdd != null)
                 {
                     existedIdd.IsDeleted = false;
+                    work.ToolWorks.Remove(existedIdd);
+                    work.ToolWorks.Insert(work.ToolWorks.Count, existedIdd);
                 }
                 else
                 {
@@ -1688,7 +1692,7 @@ namespace TC_WinForms.WinForms.Work
                 }
                 var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                TechOperationForm.DeleteToolWork(Idd);
+                TechOperationForm.MarkToDeleteToolWork(Idd);
 
                 UpdateInstrumentAll();
                 UpdateInstrumentLocal();
