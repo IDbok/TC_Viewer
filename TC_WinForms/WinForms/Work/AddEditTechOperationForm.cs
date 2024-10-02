@@ -1,12 +1,10 @@
 ﻿using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
 //using NCalc;
-using System.CodeDom;
 using System.Data;
 using System.Windows.Forms;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
-using TcDbConnector;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using Component = TcModels.Models.TcContent.Component;
@@ -1345,7 +1343,7 @@ namespace TC_WinForms.WinForms.Work
 
             var AllComponent = context.Components.ToList();
 
-            var LocalComponent = work.ComponentWorks.ToList();
+            var LocalComponent = work.ComponentWorks.Where(c => c.IsDeleted == false).ToList();
 
 
             bool UpdFilt = false;
@@ -1477,7 +1475,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
 
-            var LocalComponent = work.ComponentWorks.ToList();
+            var LocalComponent = work.ComponentWorks.Where(c => c.IsDeleted == false).ToList();
 
             foreach (ComponentWork componentWork in LocalComponent)
             {
@@ -1520,10 +1518,21 @@ namespace TC_WinForms.WinForms.Work
                 var work = (TechOperationWork)comboBoxTO2.SelectedItem;
                 var Idd = (Component)dataGridViewComponentAll.Rows[e.RowIndex].Cells[0].Value;
 
-                ComponentWork componentWork = new ComponentWork();
-                componentWork.component = Idd;
-                componentWork.Quantity = 1;
-                work.ComponentWorks.Add(componentWork);
+                var existedIdd = work.ComponentWorks.Where(c => c.componentId == Idd.Id && c.IsDeleted == true).FirstOrDefault();
+                
+                if(existedIdd != null)
+                {
+                    existedIdd.IsDeleted = false;
+                    work.ComponentWorks.Remove(existedIdd);
+                    work.ComponentWorks.Insert(work.ComponentWorks.Count, existedIdd);
+                }
+                else
+                {
+                    ComponentWork componentWork = new ComponentWork();
+                    componentWork.component = Idd;
+                    componentWork.Quantity = 1;
+                    work.ComponentWorks.Add(componentWork);
+                }
 
                 UpdateComponentAll();
                 UpdateComponentLocal();
@@ -1538,7 +1547,8 @@ namespace TC_WinForms.WinForms.Work
                 var work = (TechOperationWork)comboBoxTO2.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                work.ComponentWorks.Remove(Idd);
+                TechOperationForm.MarkToDeleteComponentWork(Idd);
+
                 UpdateComponentAll();
                 UpdateComponentLocal();
                 TechOperationForm.UpdateGrid();
@@ -1599,7 +1609,7 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
-            var LocalInstrument = work.ToolWorks.ToList();
+            var LocalInstrument = work.ToolWorks.Where(t => t.IsDeleted == false).ToList();
 
             foreach (var InstrumentWork in LocalInstrument)
             {
@@ -1653,7 +1663,7 @@ namespace TC_WinForms.WinForms.Work
 
             var AllInstr = context.Tools.ToList();
 
-            var LocalComponent = work.ToolWorks.ToList();
+            var LocalComponent = work.ToolWorks.Where(c => c.IsDeleted == false).ToList();
 
             bool UpdFilt = false;
 
@@ -1791,11 +1801,22 @@ namespace TC_WinForms.WinForms.Work
                 }
 
                 var Idd = (Tool)dataGridViewInstumentAll.Rows[e.RowIndex].Cells[0].Value;
+                var existedIdd = work.ToolWorks.Where(t => t.toolId == Idd.Id && t.IsDeleted == true).FirstOrDefault();
 
-                ToolWork toolWork = new ToolWork();
-                toolWork.tool = Idd;
-                toolWork.Quantity = 1;
-                work.ToolWorks.Add(toolWork);
+                if (existedIdd != null)
+                {
+                    existedIdd.IsDeleted = false;
+                    work.ToolWorks.Remove(existedIdd);
+                    work.ToolWorks.Insert(work.ToolWorks.Count, existedIdd);
+                }
+                else
+                {
+                    ToolWork toolWork = new ToolWork();
+                    toolWork.tool = Idd;
+                    toolWork.Quantity = 1;
+                    work.ToolWorks.Add(toolWork);
+                }
+
 
                 UpdateInstrumentAll();
                 UpdateInstrumentLocal();
@@ -1815,7 +1836,8 @@ namespace TC_WinForms.WinForms.Work
                 }
                 var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                work.ToolWorks.Remove(Idd);
+                TechOperationForm.MarkToDeleteToolWork(Idd);
+
                 UpdateInstrumentAll();
                 UpdateInstrumentLocal();
                 TechOperationForm.UpdateGrid();
