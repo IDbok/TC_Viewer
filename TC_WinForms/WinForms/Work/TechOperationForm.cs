@@ -3,6 +3,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Text;
 using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
+using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
 using TcDbConnector;
 using TcModels.Models;
@@ -930,7 +931,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 nomer++;
             }
 
-            foreach (var toolWork in techOperationWork.ToolWorks)
+            foreach (var toolWork in techOperationWork.ToolWorks.Where(t => t.IsDeleted != true).ToList())
             {
                 list.Add(new TechOperationDataGridItem
                 {
@@ -945,7 +946,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 nomer++;
             }
 
-            foreach (var componentWork in techOperationWork.ComponentWorks)
+            foreach (var componentWork in techOperationWork.ComponentWorks.Where(t => t.IsDeleted != true).ToList())
             {
                 list.Add(new TechOperationDataGridItem
                 {
@@ -1497,6 +1498,24 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         }
     }
 
+    public void DeleteToolWork(ToolWork tool)
+    {
+        var vb = context.ToolWorks.SingleOrDefault(s => s == tool);
+        if (vb != null)
+        {
+            vb.IsDeleted = true;
+        }
+    }
+
+    public void DeleteComponentWork(ComponentWork comp)
+    {
+        var vb = context.ComponentWorks.SingleOrDefault(s => s == comp);
+        if (vb != null)
+        {
+            vb.IsDeleted = true;
+        }
+    }
+
     public void DeleteTechTransit(Guid IdGuid, TechOperationWork techOperationWork) //todo - IdGuid используется только для удаления тех операций. Можно оптимизировать этот процесс и убрать поле IdGuid из ExecutionWork
     {
         TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
@@ -1662,6 +1681,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         //context.ChangeTracker.Clear();
 
         // TehCarta.Staff_TCs = Staff_TC;
+        DbConnector dbCon = new DbConnector();
 
         List<TechOperationWork> AllDele = TechOperationWorksList.Where(w => w.Delete == true).ToList();
         foreach (TechOperationWork techOperationWork in AllDele)
@@ -1691,6 +1711,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 to = techOperationWork;
             }
 
+            var delTools = techOperationWork.ToolWorks.Where(w => w.IsDeleted == true).ToList();
+
+            foreach (ToolWork delTool in delTools)
+            {
+                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id);
+                techOperationWork.ToolWorks.Remove(delTool);
+            }
+
+
+
             foreach (ToolWork toolWork in techOperationWork.ToolWorks)
             {
                 if (TehCarta.Tool_TCs.SingleOrDefault(s => s.Child == toolWork.tool) == null)
@@ -1700,6 +1730,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                     tool.Quantity = toolWork.Quantity;
                     TehCarta.Tool_TCs.Add(tool);
                 }
+            }
+
+            var delComponents = techOperationWork.ComponentWorks.Where(w => w.IsDeleted == true).ToList();
+
+            foreach (var delComp in delComponents)
+            {
+                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id);
+                techOperationWork.ComponentWorks.Remove(delComp);
             }
 
             foreach (ComponentWork componentWork in techOperationWork.ComponentWorks)

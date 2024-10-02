@@ -893,7 +893,7 @@ namespace TC_WinForms.DataProcessing
             }
         }
 
-        public void DeleteRelatedToolComponentDiagram(int toId, int itemId)
+        public void DeleteRelatedToolComponentDiagram(int itemId)
         {
             try
             {
