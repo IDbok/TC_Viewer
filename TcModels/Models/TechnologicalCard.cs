@@ -256,15 +256,17 @@ namespace TcModels.Models
 
             // Копируем списки связанных объектов
             newCard.TechOperationWorks = sourceCard.TechOperationWorks.Select(tow => 
-                new TechOperationWork 
-                { 
-                    technologicalCard = newCard,
-                    techOperation = tow.techOperation,
+                new TechOperationWork (newCard, tow.techOperation, tow.Order, tow.GetParallelIndexString())
+                //{ 
+                //    technologicalCard = newCard,
+                //    techOperation = tow.techOperation,
 
-                    ParallelIndex = tow.ParallelIndex,
-                    Order = tow.Order,
+                    
+                //    ParallelIndex = tow.GetParallelIndexString(),
+                //    Order = tow.Order,
 
-                }).ToList();
+                //}
+                ).ToList();
 
             foreach(var tow in newCard.TechOperationWorks)
             {

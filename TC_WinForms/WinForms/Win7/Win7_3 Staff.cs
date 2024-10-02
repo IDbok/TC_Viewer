@@ -118,6 +118,13 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         this.Enabled = true;
         //progressBar.Visible = false;
     }
+    private void HideAllButtons()
+    {
+        foreach (var button in pnlControlBtns.Controls.OfType<System.Windows.Forms.Button>())
+        {
+            button.Visible = false;
+        }
+    }
     public async Task LoadDataAsync()
     {
         var displayedList = await Task.Run(() => dbCon.GetObjectList<Staff>(includeRelatedStaffs: true) //.Where(obj => obj.IsReleased == true)
@@ -134,14 +141,22 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
     }
     private void AccessInitialization()
     {
-        //var controlAccess = new Dictionary<int, Action>
-        //{
-        //    [0] = () => {  },
-        //    [1] = () => {  },
-        //    [2] = () => {  },
-        //};
-        //controlAccess.TryGetValue(accessLevel, out var action);
-        //action?.Invoke();
+        var controlAccess = new Dictionary<User.Role, Action>
+        {
+            [User.Role.Lead] = () => { },
+
+            [User.Role.Implementer] = () =>
+            {
+                HideAllButtons();
+            },
+
+            [User.Role.ProjectManager] = () => {},
+
+            [User.Role.User] = () => {}
+        };
+
+        controlAccess.TryGetValue(_accessLevel, out var action);
+        action?.Invoke();
     }
 
     private void btnAddNewObj_Click(object sender, EventArgs e)

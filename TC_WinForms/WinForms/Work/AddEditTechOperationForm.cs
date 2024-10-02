@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 //using NCalc;
 using System.Data;
+using System.Windows.Forms;
+using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -38,6 +40,9 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewAllTO.CellClick += DataGridViewAllTO_CellClick;
 
             dataGridViewTO.CellClick += DataGridViewTO_CellClick;
+            dataGridViewTO.CellValidating += CellValidating;
+            dataGridViewTO.CellEndEdit += DataGridViewTO_CellEndEdit;
+            dataGridViewTO.CellFormatting += DataGridViewTO_CellFormatting;
 
             //dataGridViewTPAll.CellContentClick += DataGridViewTPAll_CellContentClick;
             dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
@@ -45,40 +50,47 @@ namespace TC_WinForms.WinForms.Work
 
             dataGridViewTPLocal.CellClick += DataGridViewTPLocal_CellClick;
             dataGridViewTPLocal.CellEndEdit += DataGridViewTPLocal_CellEndEdit;
-            dataGridViewTPLocal.CellFormatting += DataGridViewTPLocal_CellFormatting; 
+            dataGridViewTPLocal.CellFormatting += DataGridViewTPLocal_CellFormatting;
             dataGridViewTPLocal.SelectionChanged += DataGridViewTPLocal_SelectionChanged;
+            dataGridViewTPLocal.CellValidating += CellValidating;
 
             dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
             dataGridViewStaff.CellClick += DataGridViewStaff_CellClick;
             dataGridViewStaff.CellEndEdit += DataGridViewStaff_CellEndEdit;
             dataGridViewStaff.CellBeginEdit += DataGridViewStaff_CellBeginEdit;
-
+            dataGridViewStaff.CellValidating += CellValidating;
 
             dataGridViewStaffAll.CellClick += DataGridViewStaffAll_CellClick;
 
             dataGridViewComponentAll.CellClick += DataGridViewComponentAll_CellClick;
             dataGridViewComponentLocal.CellClick += DataGridViewComponentLocal_CellClick;
             dataGridViewComponentLocal.CellEndEdit += DataGridViewComponentLocal_CellEndEdit;
+            dataGridViewComponentLocal.CellValidating += CellValidating;
+
 
             dataGridViewInstumentAll.CellClick += DataGridViewInstumentAll_CellClick;
             dataGridViewInstrumentLocal.CellClick += DataGridViewInstrumentLocal_CellClick;
             dataGridViewInstrumentLocal.CellEndEdit += DataGridViewInstrumentLocal_CellEndEdit;
+            dataGridViewInstrumentLocal.CellValidating += CellValidating;
 
             dataGridViewAllSZ.CellClick += DataGridViewAllSZ_CellClick;
             dataGridViewLocalSZ.CellClick += DataGridViewLocalSZ_CellClick;
 
+            dataGridViewLocalSZ.CellValidating += CellValidating;
+            dataGridViewLocalSZ.CellContentClick += DataGridViewSZ_CellContentClick;
 
             dataGridViewEtap.CellEndEdit += DataGridViewEtap_CellEndEdit;
             dataGridViewEtap.CellContentClick += DataGridViewEtap_CellContentClick;
+            dataGridViewEtap.CellValidating += CellValidating;
 
             dataGridViewMeha.CellContentClick += DataGridViewMeha_CellContentClick;
-
+            dataGridViewMeha.CellValidating += CellValidating;
 
             dataGridViewPovtor.CellContentClick += DataGridViewPovtor_CellContentClick;
             dataGridViewPovtor.CellValueChanged += DataGridViewPovtor_CellValueChanged;
             dataGridViewPovtor.CellFormatting += dataGridViewPovtor_CellFormatting;
             dataGridViewPovtor.SelectionChanged += DataGridViewPovtor_SelectionChanged;
-
+            dataGridViewPovtor.CellValidating += CellValidating;
 
             comboBoxFiltrCategor.SelectedIndexChanged += ComboBoxFiltrCategor_SelectedIndexChanged;
             comboBoxFilterComponent.SelectedIndexChanged += ComboBoxFilterComponent_SelectedIndexChanged;
@@ -107,8 +119,23 @@ namespace TC_WinForms.WinForms.Work
             UpdateTO();
             UpdateLocalTO();
 
-
+            
         }
+
+        private void CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
+        {
+            var Left = Keyboard.IsKeyDown(System.Windows.Input.Key.Left);
+            var Right = Keyboard.IsKeyDown(System.Windows.Input.Key.Right);
+            var Up = Keyboard.IsKeyDown(System.Windows.Input.Key.Up);
+            var Down = Keyboard.IsKeyDown(System.Windows.Input.Key.Down);
+
+            var currentGrid = sender as DataGridView;
+            if (currentGrid.CurrentCell.IsInEditMode && (Left || Right || Up || Down))
+            {
+                e.Cancel = true;
+            }
+        }
+
 
 
 
@@ -191,7 +218,7 @@ namespace TC_WinForms.WinForms.Work
         private IEnumerable<TechOperation> FilterTechOperations(string searchText)
         {
             return allTO.Where(to => (string.IsNullOrEmpty(searchText) || to.Name.ToLower().Contains(searchText.ToLower())));
-                /*&& (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId || to.IsReleased == false))*/ //закомментирована фильтрация то, выводятся все ТО
+            /*&& (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId || to.IsReleased == false))*/ //закомментирована фильтрация то, выводятся все ТО
         }
         private void AddTechOperationToGridAllTO(TechOperation techOperation)
         {
@@ -200,7 +227,9 @@ namespace TC_WinForms.WinForms.Work
                 techOperation,
                 "Добавить",
                 techOperation.Name,
-                techOperation.Category == "Типовая ТО"
+                techOperation.Category == "Типовая ТО",
+                "",
+                ""
             };
             dataGridViewAllTO.Rows.Add(row.ToArray());
             if (!techOperation.IsReleased)
@@ -233,12 +262,16 @@ namespace TC_WinForms.WinForms.Work
         }
         private void AddTechOperationToGridLocalTO(TechOperationWork techOperationWork)
         {
+
             var row = new List<object>
             {
                 techOperationWork,
                 "Удалить",
                 techOperationWork.techOperation.Name,
-                techOperationWork.techOperation.Category == "Типовая ТО"
+                techOperationWork.techOperation.Category == "Типовая ТО",
+                techOperationWork.Order,
+                techOperationWork.GetParallelIndex().ToString() ?? "",
+                techOperationWork.GetSequenceGroupIndex().ToString() ?? ""
             };
             dataGridViewTO.Rows.Add(row.ToArray());
         }
@@ -250,6 +283,74 @@ namespace TC_WinForms.WinForms.Work
             UpdateGridLocalTP();
         }
 
+        private void DataGridViewTO_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == dataGridViewTO.Columns["ParallelIndex"].Index)
+            {
+                var newValue = (string)dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+                var techOperationWork = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
+
+                if (techOperationWork != null)
+                {
+                    if (newValue != techOperationWork.GetParallelIndex().ToString())
+                    {
+                        if (newValue == "")
+                        {
+                            techOperationWork.SetParallelIndex(0);
+                        }
+                        else
+                        {
+                            if (int.TryParse(newValue, out var result))
+                            {
+                                techOperationWork.SetParallelIndex(result);
+                            }
+                        }
+
+                        TechOperationForm.UpdateGrid();
+                    }
+                }
+            }
+            else if (e.ColumnIndex == dataGridViewTO.Columns["SequenceGroupIndex"].Index)
+            {
+                var newValue = (string)dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+                var techOperationWork = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
+
+                if (techOperationWork != null)
+                {
+                    if (newValue != techOperationWork.GetSequenceGroupIndex().ToString())
+                    {
+                        if (newValue == "")
+                        {
+                            techOperationWork.SetSequenceGroupIndex(0);
+                        }
+                        else
+                        {
+                            if (int.TryParse(newValue, out var result))
+                            {
+                                techOperationWork.SetSequenceGroupIndex(result);
+                            }
+                        }
+
+                        TechOperationForm.UpdateGrid();
+                    }
+                }
+            }
+        }
+
+        private void DataGridViewTO_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex == dataGridViewTO.Columns["ParallelIndex"].Index
+                || e.ColumnIndex == dataGridViewTO.Columns["SequenceGroupIndex"].Index)
+            {
+                TechOperationForm.CellChangeReadOnly(dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+            }
+            else
+            {
+                TechOperationForm.CellChangeReadOnly(dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+            }
+        }
 
         #endregion
 
@@ -305,15 +406,6 @@ namespace TC_WinForms.WinForms.Work
 
                         // todo: реализовать обновление только ячейки времени выполнения, а не всей таблицы
 
-                        //var index = dataGridViewTPLocal.Columns["Value"].Index;
-
-                        //if (index == -1)
-                        //{
-                        //    return;
-                        //}
-
-                        //dataGridViewTPLocal.Rows[e.RowIndex].Cells[index].Value = wor.Value == -1 ? "Ошибка" : wor.Value;
-
                         BeginInvoke(new Action(() =>
                         {
                             UpdateGridLocalTP();
@@ -366,6 +458,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPLocal_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
+
             if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index
                 || e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index)// Индекс столбца с checkBox
             {
@@ -528,7 +621,7 @@ namespace TC_WinForms.WinForms.Work
             //};
             //dataGridViewTPAll.Rows.Add(listItem1.ToArray());
 
-            
+
 
             var filteredTransitions = FilterTechTransitions(textBoxPoiskTP.Text);
 
@@ -800,6 +893,7 @@ namespace TC_WinForms.WinForms.Work
                 if (idd != null)
                 {
                     Staff_TC staffTc = new Staff_TC();
+                    staffTc.Order = TechOperationForm.TehCarta.Staff_TCs.Count + 1;
                     staffTc.Child = idd;
                     staffTc.Symbol = " ";
                     vv.Add(staffTc);
@@ -968,8 +1062,53 @@ namespace TC_WinForms.WinForms.Work
             UpdateGridAllSZ();
             UpdateGridLocalSZ();
         }
+        private void DataGridViewSZ_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            dataGridViewLocalSZ.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            ClickDataGridViewSZ();
+        }
+        private void ClickDataGridViewSZ()
+        {
+            bool updateTO = false;
 
+            var allSZ = TechOperationForm.TehCarta.Protection_TCs.ToList();
+            var ExecutionWorkBox = (ExecutionWork)comboBoxSZ.SelectedItem;
+            var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
+            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
+
+            var workF = (ExecutionWork)comboBoxSZ.SelectedItem;
+
+            foreach (DataGridViewRow? row in dataGridViewLocalSZ.Rows)
+            {
+                var idd = (Protection_TC)row.Cells[0].Value;
+                var check = (bool)row.Cells[2].Value;
+                var sz = LocalTP.Protections.SingleOrDefault(p => p == idd);
+
+                if(check)
+                {
+                    if (sz == null)
+                    {
+                        var szFromAll = allSZ.SingleOrDefault(s => s == idd);
+                        workF.Protections.Add(szFromAll);
+                        updateTO = true;
+                    }
+                }
+                else
+                {
+                    if (sz != null)
+                    {
+                        var szDel = workF.Protections.Remove(sz);
+                        updateTO = true;
+                    }
+                }
+            }
+
+            if (updateTO)
+            {
+                TechOperationForm.UpdateGrid();
+            }
+        }
         private void TextBoxPoiskSZ_TextChanged(object? sender, EventArgs e)
         {
             UpdateGridAllSZ();
@@ -1069,27 +1208,35 @@ namespace TC_WinForms.WinForms.Work
         public void UpdateGridLocalSZ()
         {
             var offScroll = dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex;
+            var ExecutionWorkBox = (ExecutionWork)comboBoxSZ.SelectedItem;
             dataGridViewLocalSZ.Rows.Clear();
-            var work = (ExecutionWork)comboBoxSZ.SelectedItem;
-
-            if (work == null)
+            if (ExecutionWorkBox == null)
             {
                 return;
             }
 
-            var LocalTP = work.Protections.ToList();
+            var work = (TechOperationWork)comboBoxTO.SelectedItem;
+            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
-            foreach (Protection_TC sz in LocalTP)
+            var AllSZ = TechOperationForm.TehCarta.Protection_TCs.OrderBy(x => x.Order);
+
+            foreach (Protection_TC protection_TC in AllSZ)
             {
-                List<object> listItem = new List<object>
-                {
-                    sz,
-                    "Удалить",
-                    sz.Child.Name,
-                    sz.Child.Type,
-                    sz.Child.Unit,
-                    sz.Quantity
-                };
+                List<object> listItem = new List<object>();
+                listItem.Add(protection_TC);
+                listItem.Add("Удалить");
+
+                var vs = LocalTP.Protections.SingleOrDefault(s => s == protection_TC);
+                if (vs != null)
+                    listItem.Add(true);
+                else
+                    listItem.Add(false);
+
+                listItem.Add(protection_TC.Child.Name);
+                listItem.Add(protection_TC.Child.Type);
+                listItem.Add(protection_TC.Child.Unit);
+                listItem.Add(protection_TC.Quantity);
+
                 dataGridViewLocalSZ.Rows.Add(listItem.ToArray());
             }
 
@@ -1098,10 +1245,7 @@ namespace TC_WinForms.WinForms.Work
                 if (offScroll > 0 && offScroll < dataGridViewLocalSZ.Rows.Count)
                     dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex = offScroll;
             }
-            catch (Exception e)
-            {
-            }
-
+            catch (Exception e) {}
         }
 
         private void DataGridViewAllSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -1112,39 +1256,27 @@ namespace TC_WinForms.WinForms.Work
                 var Idd = (Protection)dataGridViewAllSZ.Rows[e.RowIndex].Cells[0].Value;
 
                 var context = TechOperationForm.context;
-
                 var orderMax = 0;
-
                 var tc = work.techOperationWork.technologicalCard;
 
                 var list = tc.Protection_TCs.ToList();
 
-                var proty = list.SingleOrDefault(s => s.Child == Idd);
-                if (proty != null)
+                if (list.Count > 0)
                 {
-                    work.Protections.Add(proty);
+                    orderMax = list.Max(m => m.Order);
                 }
-                else
-                {
-                    if (list.Count > 0)
-                    {
-                        orderMax = list.Max(m => m.Order);
-                    }
 
-                    Protection_TC protectionTc = new Protection_TC();
-                    protectionTc.Child = Idd;
-                    protectionTc.ParentId = TechOperationForm.tcId;
-                    protectionTc.Parent = tc;
-                    protectionTc.Quantity = 1;
-                    protectionTc.Order = orderMax + 1;
+                Protection_TC protectionTc = new Protection_TC();
+                protectionTc.Child = Idd;
+                protectionTc.ParentId = TechOperationForm.tcId;
+                protectionTc.Parent = tc;
+                protectionTc.Quantity = 1;
+                protectionTc.Order = orderMax + 1;
 
                     context.Protection_TCs.Add(protectionTc);
-                    work.Protections.Add(protectionTc);
-                }
 
                 UpdateGridAllSZ();
                 UpdateGridLocalSZ();
-                TechOperationForm.UpdateGrid();
             }
         }
 
@@ -1152,13 +1284,20 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (ExecutionWork)comboBoxSZ.SelectedItem;
-                var Idd = (Protection_TC)dataGridViewLocalSZ.Rows[e.RowIndex].Cells[0].Value;
+                var idd = (Protection_TC)dataGridViewLocalSZ.Rows[e.RowIndex].Cells[0].Value;
 
-                work.Protections.Remove(Idd);
-                UpdateGridAllSZ();
-                UpdateGridLocalSZ();
-                TechOperationForm.UpdateGrid();
+                if (idd != null)
+                {
+                    var result = MessageBox.Show("Вы действительно хотите полностью удалить данное СЗ из техкарты?","Удалить СЗ", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
+                    if(result == DialogResult.Yes)
+                    {
+                        var techCart = TechOperationForm.TehCarta.Protection_TCs;
+                        techCart.Remove(idd);
+
+                        UpdateGridLocalSZ();
+                        TechOperationForm.UpdateGrid();
+                    }
+                }
             }
         }
 
@@ -1985,6 +2124,7 @@ namespace TC_WinForms.WinForms.Work
                     {
                         bn = new Machine_TC();
                         bn.Child = id;
+                        bn.Order = TechOperationForm.TehCarta.Machine_TCs.Count + 1;
                         bn.Quantity = 1;
                         bn.Parent = TechOperationForm.TehCarta;
                         TechOperationForm.TehCarta.Machine_TCs.Add(bn);
@@ -2511,6 +2651,11 @@ namespace TC_WinForms.WinForms.Work
             {
                 MessageBox.Show("Выберите по одной строке в обеих таблицах для замены.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+        }
+
+        private void AddEditTechOperationForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Dispose();
         }
     }
 }
