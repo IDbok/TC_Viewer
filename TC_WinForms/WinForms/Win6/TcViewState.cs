@@ -13,10 +13,9 @@ namespace TC_WinForms.WinForms
 
         public TechnologicalCard? TechnologicalCard; // todo: make it readonly
 
-        public TcViewState(User.Role userRole, TechnologicalCard? technologicalCard)
+        public TcViewState(User.Role userRole)
         {
             UserRole = userRole;
-            this.TechnologicalCard = technologicalCard;
         }
         public bool IsViewMode
         {

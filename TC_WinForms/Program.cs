@@ -1,6 +1,9 @@
 using Nancy.Json;
+using System.Configuration;
 using System.Drawing;
 using System.IO;
+using System.Security.AccessControl;
+using System.Windows.Media;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.WinForms;
 using TC_WinForms.WinForms.BlockScheme;
@@ -34,7 +37,7 @@ namespace TC_WinForms
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
+            //To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
 
             ApplicationConfiguration.Initialize();
