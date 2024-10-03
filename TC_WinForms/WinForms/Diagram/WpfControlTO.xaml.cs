@@ -152,11 +152,6 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
         if (this.diagamToWork.techOperationWork == null)
             return;
 
-        var result = System.Windows.Forms.MessageBox.Show("Вы действительно хотите удалить операцию?", 
-            "Удаление операции", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        if (result == DialogResult.No)
-            return;
-
         //ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));// this, _tcViewState));
         Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));
         _wpfMainControl.diagramForm.HasChanges = true;
@@ -357,6 +352,11 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
 
     private void btnDelete_Click(object sender, RoutedEventArgs e)
     {
+        var result = System.Windows.Forms.MessageBox.Show("Вы действительно хотите удалить операцию?",
+            "Удаление операции", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        if (result == DialogResult.No)
+            return;
+
         _wpfMainControl.diagramForm.HasChanges = true;
 
         diagamToWork.ParallelIndex = null;
