@@ -43,7 +43,6 @@ namespace TC_WinForms
             ApplicationConfiguration.Initialize();
 
             string variableName = "TEST_MODE";
-            // —читывание значени€ переменной среды
             string? variableValue = Environment.GetEnvironmentVariable(variableName);
             isTestMode = variableValue != null && variableValue.ToLower() == "true";
 

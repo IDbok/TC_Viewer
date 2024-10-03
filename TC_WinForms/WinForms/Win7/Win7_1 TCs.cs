@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel;
+using System.DirectoryServices.ActiveDirectory;
 using System.Reflection.Metadata;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
@@ -50,7 +51,6 @@ namespace TC_WinForms.WinForms
         public Win7_1_TCs(User.Role accessLevel)
         {
             _accessLevel = accessLevel;
-            StaticWinForms.Win7_TC = this;
 
             InitializeComponent();
             AccessInitialization();
@@ -119,9 +119,6 @@ namespace TC_WinForms.WinForms
 
             dgvMain.Visible = true;
             this.Enabled = true;
-
-            if (StaticWinForms.Win7_TC_search != null)
-                txtSearch.Text = StaticWinForms.Win7_TC_search;
         }
         public async Task LoadDataAsync()
         {
@@ -195,14 +192,11 @@ namespace TC_WinForms.WinForms
 
         private void btnCreateTC_Click(object sender, EventArgs e)
         {
-            //DisplayedEntityHelper.AddNewObjectToDGV(ref _newObject,
-            //    _bindingList,
-            //    _newObjects,
-            //    dgvMain);
-            //AddNewTechnologicalCard();
+            var objEditor = new Win7_1_TCs_Window(role: _accessLevel);
 
-            Win7_1_TCs_Window win71TCsWindow = new Win7_1_TCs_Window(role: _accessLevel);
-            win71TCsWindow.Show();
+            objEditor.AfterSave = async (createObj) => AddObjectInDataGridView(createObj);
+
+            objEditor.Show();
         }
 
         private void btnUpdateTC_Click(object sender, EventArgs e)
@@ -427,13 +421,14 @@ namespace TC_WinForms.WinForms
         {
             if (dgvMain.SelectedRows.Count == 1)
             {
-                var selectedRow = dgvMain.SelectedRows[0];
-                int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
-                if (id != 0)
+                var selectedObj = dgvMain.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
+                var obj = Convert.ToInt32(selectedObj?.Cells["Id"].Value);
+
+                if (obj != 0)
                 {
-                    Win7_1_TCs_Window win71TCsWindow = new Win7_1_TCs_Window(id, role: _accessLevel);
-                    win71TCsWindow.Show();
-                    //OpenTechnologicalCardEditor(id);
+                    var objEditor = new Win7_1_TCs_Window(obj, role: _accessLevel);
+                    objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView(updatedObj);
+                    objEditor.Show();
                 }
                 else
                 {
@@ -445,7 +440,7 @@ namespace TC_WinForms.WinForms
                 MessageBox.Show("Выберите одну карту для редактирования.");
             }
         }
-
+        
         //private void OpenTechnologicalCardEditor(int tcId)
         //{
         //    var editorForm = new Win6_new(tcId);
@@ -904,7 +899,63 @@ namespace TC_WinForms.WinForms
             }
 
         }
+        public void UpdateObjectInDataGridView(TechnologicalCard modelObject)
+        {
+            // Обновляем объект в DataGridView
+            var displayedObject = _displayedTechnologicalCards.FirstOrDefault(obj => obj.Id == modelObject.Id);
+            if (displayedObject != null)
+            {
+                displayedObject.Article = modelObject.Article;
+                displayedObject.Version = modelObject.Version;
+                displayedObject.Name = modelObject.Name;
+                displayedObject.Type = modelObject.Type;
+                displayedObject.NetworkVoltage = modelObject.NetworkVoltage;
+                displayedObject.TechnologicalProcessType = modelObject.TechnologicalProcessType;
+                displayedObject.TechnologicalProcessName = modelObject.TechnologicalProcessName;
+                displayedObject.TechnologicalProcessNumber = modelObject.TechnologicalProcessNumber;
+                displayedObject.Parameter = modelObject.Parameter;
+                displayedObject.FinalProduct = modelObject.FinalProduct;
+                displayedObject.Applicability = modelObject.Applicability;
+                displayedObject.Note = modelObject.Note;
+                displayedObject.DamageType = modelObject.DamageType;
+                displayedObject.RepairType = modelObject.RepairType;
+                displayedObject.IsCompleted = modelObject.IsCompleted;
+                displayedObject.Status = modelObject.Status;
+                displayedObject.Description = modelObject.Description;
+                
+                dgvMain.Refresh();
 
+                FilterTechnologicalCards();
+            }
+
+        }
+
+        public void AddObjectInDataGridView(TechnologicalCard modelObject)
+        {
+            var newDisplayedObject = new DisplayedTechnologicalCard();
+
+            newDisplayedObject.Article = modelObject.Article;
+            newDisplayedObject.Version = modelObject.Version;
+            newDisplayedObject.Name = modelObject.Name;
+            newDisplayedObject.Type = modelObject.Type;
+            newDisplayedObject.NetworkVoltage = modelObject.NetworkVoltage;
+            newDisplayedObject.TechnologicalProcessType = modelObject.TechnologicalProcessType;
+            newDisplayedObject.TechnologicalProcessName = modelObject.TechnologicalProcessName;
+            newDisplayedObject.TechnologicalProcessNumber = modelObject.TechnologicalProcessNumber;
+            newDisplayedObject.Parameter = modelObject.Parameter;
+            newDisplayedObject.FinalProduct = modelObject.FinalProduct;
+            newDisplayedObject.Applicability = modelObject.Applicability;
+            newDisplayedObject.Note = modelObject.Note;
+            newDisplayedObject.DamageType = modelObject.DamageType;
+            newDisplayedObject.RepairType = modelObject.RepairType;
+            newDisplayedObject.IsCompleted = modelObject.IsCompleted;
+            newDisplayedObject.Status = modelObject.Status;
+            newDisplayedObject.Description = modelObject.Description;
+
+            _displayedTechnologicalCards.Insert(0, newDisplayedObject);
+
+            FilterTechnologicalCards();
+        }
         private void cbxNetworkVoltageFilter_SelectedIndexChanged(object sender, EventArgs e)
         {
             FilterTechnologicalCards();
