@@ -934,6 +934,7 @@ namespace TC_WinForms.WinForms
         {
             var newDisplayedObject = new DisplayedTechnologicalCard();
 
+            newDisplayedObject.Id = modelObject.Id;
             newDisplayedObject.Article = modelObject.Article;
             newDisplayedObject.Version = modelObject.Version;
             newDisplayedObject.Name = modelObject.Name;
