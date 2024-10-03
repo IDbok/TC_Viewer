@@ -1256,7 +1256,7 @@ namespace TC_WinForms.WinForms.Work
                 var work = (ExecutionWork)comboBoxSZ.SelectedItem;
                 var Idd = (Protection)dataGridViewAllSZ.Rows[e.RowIndex].Cells[0].Value;
 
-                var context = TechOperationForm.context;
+                var tehCardProtections = TechOperationForm.TehCarta.Protection_TCs;
                 var orderMax = 0;
                 var tc = work.techOperationWork.technologicalCard;
 
@@ -1275,7 +1275,7 @@ namespace TC_WinForms.WinForms.Work
                 protectionTc.Order = orderMax + 1;
 
 
-                context.Protection_TCs.Add(protectionTc);
+                tehCardProtections.Add(protectionTc);
 
 
 
