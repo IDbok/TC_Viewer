@@ -895,7 +895,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
                 if (!obj.IsReleased)
                 {
-                    AddRowToGrid(str, Color.Yellow, Color.Yellow, Color.FromArgb(220, 218, 233));
+                    AddRowToGrid(str, Color.Yellow, Color.Yellow, Color.Pink);
                 }
                 else
                     AddRowToGrid(str, Color.Yellow, Color.Yellow);
@@ -928,15 +928,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
             else if(!obj.IsReleased && techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
             {
-                AddRowToGrid(str, Color.Empty, Color.FromArgb(220, 218, 233), Color.FromArgb(220, 218, 233));
+                AddRowToGrid(str, Color.Empty, Color.Pink, Color.Pink);
             }
             else if(!obj.IsReleased)
             {
-                AddRowToGrid(str, Color.Empty, Color.Empty, Color.FromArgb(220, 218, 233));
+                AddRowToGrid(str, Color.Empty, Color.Empty, Color.Pink);
             }
             else if (techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
             {
-                AddRowToGrid(str, Color.Empty, Color.FromArgb(220, 218, 233));
+                AddRowToGrid(str, Color.Empty, Color.Pink);
             }
             else
             {
