@@ -62,7 +62,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
         // спросить у пользователя, какой загрузкой воспользоваться
 
-        await LoadDataAsync6(tcId);
+        await LoadDataAsync8(tcId);
 
         UpdateGrid();
         SetCommentViewMode();
@@ -72,55 +72,55 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         this.Enabled = true;
     }
 
-    //private async Task LoadDataAsync(int tcId)
-    //{
-    //    // Загрузка в контекст данных о вложенных сущностях Staff
-    //    //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
+    private async Task LoadDataAsync(int tcId)
+    {
+        // Загрузка в контекст данных о вложенных сущностях Staff
+        //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
 
-    //    // подсчёт времени выполнения запроса
-    //    double tcLoad=0;
-    //    double towLoad= 0;
+        // подсчёт времени выполнения запроса
+        double tcLoad = 0;
+        double towLoad = 0;
 
-    //    var sw = new System.Diagnostics.Stopwatch();
+        var sw = new System.Diagnostics.Stopwatch();
 
-    //    TehCarta =  await context.TechnologicalCards
+        TehCarta = await context.TechnologicalCards
 
-    //        .Include(t => t.Machines)
-    //        .Include(t => t.Machine_TCs)
-    //        .Include(t => t.Protection_TCs)
-    //        .Include(t => t.Tool_TCs)
-    //        .Include(t => t.Component_TCs)
+            .Include(t => t.Machines)
+            .Include(t => t.Machine_TCs)
+            .Include(t => t.Protection_TCs)
+            .Include(t => t.Tool_TCs)
+            .Include(t => t.Component_TCs)
 
-    //        .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
-            
-    //        .FirstAsync(s => s.Id == tcId);
+            .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
 
-    //    tcLoad = sw.Elapsed.TotalMilliseconds;
+            .FirstAsync(s => s.Id == tcId);
 
-    //    sw.Restart();
+        tcLoad = sw.Elapsed.TotalMilliseconds;
 
-    //    TechOperationWorksList = await context.TechOperationWorks
-    //        .Where(w => w.TechnologicalCardId == tcId)
-            
-    //            .Include(i => i.techOperation)
+        sw.Restart();
 
-    //            .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
-    //            .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
-    //            .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
-    //            .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-    //            .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
+        TechOperationWorksList = await context.TechOperationWorks
+            .Where(w => w.TechnologicalCardId == tcId)
 
-    //            .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
-    //            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+                .Include(i => i.techOperation)
 
-    //        .ToListAsync();
+                .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
+                .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
+                .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
+                .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
+                .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
 
-    //    towLoad = sw.Elapsed.TotalMilliseconds;
-    //    sw.Stop();
+                .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+                .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
 
-    //    if (Program.isTestMode)
-    //        MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
-    //}
+            .ToListAsync();
+
+        towLoad = sw.Elapsed.TotalMilliseconds;
+        sw.Stop();
+
+        if (Program.IsTestMode)
+            MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
+    }
 
     private async Task LoadDataAsync6(int tcId)
     {
@@ -170,10 +170,155 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         towLoad = sw.Elapsed.TotalMilliseconds;
         sw.Stop();
 
+        // Выводим время выполнения (для режима тестирования)
+        if (Program.IsTestMode)
+            MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
+    }
+    private async Task LoadDataAsync7(int tcId)
+    {
+        // Подсчёт времени выполнения запроса
+        double tcLoad = 0;
+        double towLoad = 0;
+
+        var sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+
+        // 1. Загружаем TehCarta с использованием менее тяжёлого запроса
+        TehCarta = await context.TechnologicalCards
+            .Include(t => t.Machines)
+            .Include(t => t.Machine_TCs)
+            .Include(t => t.Protection_TCs)
+            .Include(t => t.Tool_TCs)
+            .Include(t => t.Component_TCs)
+            .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+            .FirstAsync(s => s.Id == tcId);
+
+        tcLoad = sw.Elapsed.TotalMilliseconds;
+        sw.Restart();
+
+        // 2. Загружаем TechOperationWorks отдельно
+        TechOperationWorksList = await context.TechOperationWorks
+            .Where(w => w.TechnologicalCardId == tcId)
+            .Include(i => i.techOperation)
+            .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+            .ToListAsync();
+
+        // 3. Используем параллельную загрузку executionWorks для каждого TechOperationWork
+        var loadExecutionWorksTasks = TechOperationWorksList.Select(async tow =>
+        {
+            // Загружаем executionWorks для текущего tow с жадной загрузкой связанных данных
+            tow.executionWorks = await context.ExecutionWorks
+                .Where(ew => ew.techOperationWorkId == tow.Id)
+                .Include(ew => ew.techTransition)
+                .Include(ew => ew.Protections)
+                .Include(ew => ew.Machines)
+                .Include(ew => ew.Staffs)
+                .Include(ew => ew.ExecutionWorkRepeats)
+                .ToListAsync();
+        });
+
+        // Ожидаем выполнения всех запросов параллельно
+        await Task.WhenAll(loadExecutionWorksTasks);
+
+        towLoad = sw.Elapsed.TotalMilliseconds;
+        sw.Stop();
+
         //// Выводим время выполнения (для режима тестирования)
         //if (Program.isTestMode)
         //    MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
     }
+
+    private async Task LoadDataAsync8(int tcId)
+    {
+        // Подсчёт времени выполнения запроса
+        double tcLoad = 0;
+        double towLoad = 0;
+
+        var sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+
+        // 1. Загружаем TechnologicalCard отдельно без связанных данных
+        TehCarta = await context.TechnologicalCards
+            .FirstAsync(t => t.Id == tcId);
+
+        // 2. Загружаем все связанные данные отдельными запросами
+
+        // Machine_TCs
+        var machineTcs = await context.Machine_TCs
+            .Where(m => m.ParentId == tcId).Include(m => m.Child)
+            .ToListAsync();
+
+        // Protection_TCs
+        var protectionTcs = await context.Protection_TCs
+            .Where(pt => pt.ParentId == tcId).Include(m => m.Child)
+            .ToListAsync();
+
+        // Tool_TCs
+        var toolTcs = await context.Tool_TCs
+            .Where(tt => tt.ParentId == tcId).Include(m => m.Child)
+            .ToListAsync();
+
+        // Component_TCs
+        var componentTcs = await context.Component_TCs
+            .Where(ct => ct.ParentId == tcId).Include(m => m.Child)
+            .ToListAsync();
+
+        // Staff_TCs
+        var staffTcs = await context.Staff_TCs
+            .Where(st => st.ParentId == tcId).Include(m => m.Child)
+            .ToListAsync();
+
+        
+
+        tcLoad = sw.Elapsed.TotalMilliseconds;
+        sw.Restart();
+
+        // 3. Загружаем TechOperationWorks
+        TechOperationWorksList = await context.TechOperationWorks
+            .Where(w => w.TechnologicalCardId == tcId)
+            .Include(i => i.techOperation)
+            .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+            .ToListAsync();
+
+        // 4. Загружаем ExecutionWorks для всех TechOperationWorks
+        var techOperationWorkIds = TechOperationWorksList.Select(tow => tow.Id).ToList();
+
+        var executionWorks = await context.ExecutionWorks
+            .Where(ew => techOperationWorkIds.Contains(ew.techOperationWorkId))
+            .Include(ew => ew.techTransition)
+            .Include(ew => ew.Protections)
+            .Include(ew => ew.Machines)
+            .Include(ew => ew.Staffs)
+            .Include(ew => ew.ExecutionWorkRepeats)
+            .ToListAsync();
+
+
+        //// 5. Присваиваем загруженные данные вручную родительским объектам
+        //foreach (var tow in TechOperationWorksList)
+        //{
+        //    tow.executionWorks = executionWorks
+        //        .Where(ew => ew.techOperationWorkId == tow.Id)
+        //        .ToList();
+        //}
+
+        // Присваиваем другие связанные данные (например, машины) аналогичным образом
+        
+        TehCarta.Machine_TCs = machineTcs;
+        TehCarta.Protection_TCs = protectionTcs;
+        TehCarta.Tool_TCs = toolTcs;
+        TehCarta.Component_TCs = componentTcs;
+        TehCarta.Staff_TCs = staffTcs;
+
+        towLoad = sw.Elapsed.TotalMilliseconds;
+        sw.Stop();
+
+        // Выводим время выполнения (для режима тестирования)
+        if (Program.IsTestMode)
+            MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
+    }
+
 
 
     public void SetCommentViewMode()

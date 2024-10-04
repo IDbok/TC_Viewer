@@ -18,9 +18,9 @@ namespace TC_WinForms
     internal static class Program
     {
 #if DEBUG
-        public static bool isTestMode = true;
+        public static bool IsTestMode = true;
 #else
-        public static bool isTestMode = false;
+        public static bool IsTestMode = false;
 #endif
         public static Form MainForm { get; set; }
         public static List<Form> FormsBack { get; set; } = new List<Form>();
@@ -84,7 +84,7 @@ namespace TC_WinForms
 
 #if DEBUG
             string login, password;
-            Role userRole = Role.Lead;
+            Role userRole = Role.Admin;
 
             switch (userRole)
             {
@@ -96,9 +96,12 @@ namespace TC_WinForms
                     login = "lead"; password = "dXLPdF"; break;
                 case Role.Implementer:
                     login = "implementer"; password = "30yP0e"; break;
+                case Role.Admin:
+                    login = "admin"; password = "admin1"; break;
                 default:
                     login = "lead"; password = "dXLPdF"; break;
             }
+
             AuthorizationService.AuthorizeUser(login, password);
 
             if (AuthorizationService.CurrentUser != null)

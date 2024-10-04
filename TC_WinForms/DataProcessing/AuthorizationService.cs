@@ -27,9 +27,9 @@ public class AuthorizationService
             new User("user", "f88k44", null, null, User.Role.User),
             new User("manager", "99eUiS", null, null, User.Role.ProjectManager),
             new User("lead", "dXLPdF", null, null, User.Role.Lead),
-            new User("implementer", "30yP0e", null, null, User.Role.Implementer)
+            new User("implementer", "30yP0e", null, null, User.Role.Implementer),
+            new User("admin", "admin1", null, null, User.Role.Implementer)
 
-            
         };
 
         foreach (var user in users)
@@ -50,6 +50,11 @@ public class AuthorizationService
                 if (user != null)
                 {
                     CurrentUser = user;
+
+                    if (user.UserRole() == User.Role.Admin)
+                    {
+                        Program.IsTestMode = true;
+                    }
                 }
                 return new Author
                 {
@@ -71,13 +76,15 @@ public class AuthorizationService
             User.Role.ProjectManager => "Руководитель комплексных проектов",
             User.Role.Lead => "Технолог руководитель",
             User.Role.Implementer => "Технолог исполнитель",
+            User.Role.Admin => "Администратор",
+
             _ => "Неизвестно"
         };
     }
 
     public class User
     {
-        public enum Role {Lead , Implementer, ProjectManager, User}
+        public enum Role {Lead , Implementer, ProjectManager, User, Admin}
 
         private string login;
         private string password; // Только для инициализации, не для использования напрямую!

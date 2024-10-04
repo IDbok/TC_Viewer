@@ -16,7 +16,7 @@ namespace TC_WinForms
         public Win1()
         {
             InitializeComponent();
-            if (Program.isTestMode) TestMode();
+            if (Program.IsTestMode) TestMode();
 
             // add some test data in lbxPreviousActionsTC
             lbxPreviousActionsTC.Items.Add("Добропожаловать в программу!");
