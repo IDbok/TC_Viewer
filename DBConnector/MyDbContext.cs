@@ -57,7 +57,7 @@ public class MyDbContext : DbContext
         //Database.EnsureDeleted();
         //Database.EnsureCreated(); // todo - create exception catch if db is unavailable
 
-        Database.SetCommandTimeout(70);
+        Database.SetCommandTimeout(120);
     }
   
     
