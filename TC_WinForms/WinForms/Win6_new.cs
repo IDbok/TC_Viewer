@@ -193,7 +193,7 @@ namespace TC_WinForms.WinForms
             var tcRepository = new TechnologicalCardRepository();
             try
             {
-                _tc = tcRepository.GetTechnologicalCard(_tcId);
+                _tc = await tcRepository.GetTechnologicalCardAsync(_tcId);
                 tcViewState.TechnologicalCard = _tc;
                 AccessInitialization();
                 SetTCStatusAccess();

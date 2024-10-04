@@ -19,16 +19,16 @@ public class TechnologicalCardRepository
         //_logger = logger;
     }
 
-    public TechnologicalCard GetTechnologicalCard(int Id)
+    public async Task<TechnologicalCard> GetTechnologicalCardAsync(int Id)
     {
-        var tc = _db.TechnologicalCards.Where(tc => tc.Id == Id)
-                .Include(tc => tc.Staff_TCs)
-                .Include(tc => tc.Component_TCs)
-                .Include(tc => tc.Tool_TCs)
-                .Include(tc => tc.Machine_TCs)
-                .Include(tc => tc.Protection_TCs)
-                .Include(tc => tc.TechOperationWorks)
-                .FirstOrDefault();
+        var tc = await _db.TechnologicalCards.Where(tc => tc.Id == Id)
+                //.Include(tc => tc.Staff_TCs)
+                //.Include(tc => tc.Component_TCs)
+                //.Include(tc => tc.Tool_TCs)
+                //.Include(tc => tc.Machine_TCs)
+                //.Include(tc => tc.Protection_TCs)
+                //.Include(tc => tc.TechOperationWorks)
+                .FirstOrDefaultAsync();
 
         if (tc == null)
         {
