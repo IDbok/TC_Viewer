@@ -97,7 +97,7 @@ namespace TcModels.Models
         public string? DamageType { get; set; } // Тип повреждения
         public string?  RepairType { get; set; } // Тип ремонта
         public bool IsCompleted { get; set; } // Наличие ТК
-
+        [NotMapped]
         public string? ExecutionSchemeBase64 { get; set; }
 
         public long? ExecutionSchemeImageId { get; set; }
