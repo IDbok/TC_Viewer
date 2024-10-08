@@ -203,6 +203,7 @@ namespace TcModels.Models
                 RepairType = sourceCard.RepairType;
                 Data = sourceCard.Data;
                 TechnologicalProcess = sourceCard.TechnologicalProcess;
+                Status = sourceCard.Status;
 
                 ExecutionSchemeImageId = sourceCard.ExecutionSchemeImageId;
             }
