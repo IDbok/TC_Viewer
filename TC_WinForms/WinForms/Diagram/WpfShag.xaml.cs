@@ -284,7 +284,7 @@ namespace TC_WinForms.WinForms.Diagram
             DataGridToolAndComponentsAdd.ItemsSource = AllItemGrid;
             DataGridToolAndComponentsShow.ItemsSource = AllItemGrid.Where(i => i.Add).ToList();
         }
-
+        
         private BitmapImage LoadImage(byte[] imageData)
         {
             if (imageData == null || imageData.Length == 0) return null;
@@ -445,7 +445,27 @@ namespace TC_WinForms.WinForms.Diagram
                 }
             }
         }
+        private void TextBox_CommentTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (diagramShag != null)
+            {
+                ItemDataGridShagAdd gridItem = (ItemDataGridShagAdd)(((System.Windows.Controls.TextBox)sender).DataContext);
 
+                if(gridItem.toolWork != null)
+                {
+                    gridItem.toolWork.Comments = ((System.Windows.Controls.TextBox)sender).Text;
+                }
+                else if(gridItem.componentWork != null)
+                {
+                    gridItem.componentWork.Comments = ((System.Windows.Controls.TextBox)sender).Text;
+                }
+
+                if (wpfPosledovatelnost != null)
+                {
+                    _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                }
+            }
+        }
         private void btnLoadImage_Click(object sender, RoutedEventArgs e)
         {
             //ChangeImageVisibility();// true);
@@ -500,5 +520,5 @@ namespace TC_WinForms.WinForms.Diagram
             //_tcViewState.WpfMainControl.diagramForm.HasChanges = true;
         }
 
+        }
     }
-}
