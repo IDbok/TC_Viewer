@@ -1,22 +1,25 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.Data;
 using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TcDbConnector;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms;
 
-public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
+public partial class Win6_Staff : Form, IViewModeable
 {
     private readonly TcViewState _tcViewState;
 
     private bool _isViewMode;
 
-    private DbConnector dbCon = new DbConnector();
+    private MyDbContext context;
+
     private BindingList<DisplayedStaff_TC> _bindingList;
 
     private List<DisplayedStaff_TC> _changedObjects = new List<DisplayedStaff_TC>();
@@ -25,11 +28,10 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
     private int _tcId;
     public bool CloseFormsNoSave { get; set; } = false;
-    public Win6_Staff(int tcId, TcViewState tcViewState) // bool viewerMode = false)
+    public Win6_Staff(int tcId, TcViewState tcViewState, MyDbContext context) // bool viewerMode = false)
     {
         _tcViewState = tcViewState;
-
-        //_isViewMode = viewerMode;
+        this.context = context;
 
         InitializeComponent();
         this._tcId = tcId;
@@ -52,11 +54,6 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
     public void SetViewMode(bool? isViewMode = null)
     {
-        //if (isViewMode != null)
-        //{
-        //    _isViewMode = (bool)isViewMode;
-        //}
-
         pnlControls.Visible = !_tcViewState.IsViewMode;
 
         // make columns editable
@@ -72,66 +69,45 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
     }
 
-    public bool GetDontSaveData()
+    private void Win6_Staff_Load(object sender, EventArgs e)
     {
-        if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    private async void Win6_Staff_Load(object sender, EventArgs e)
-    {
-        await LoadObjects();
+        LoadObjects();
 
         dgvMain.AllowUserToDeleteRows = false;
 
         SetViewMode();
     }
-    private async Task LoadObjects()
+    private void LoadObjects()
     {
-        var tcList = await Task.Run(() => dbCon.GetIntermediateObjectList<Staff_TC, Staff>(_tcId).OrderBy(obj => obj.Order)
-            .Select(obj => new DisplayedStaff_TC(obj)).ToList());
+        var tcList = _tcViewState.TechnologicalCard.Staff_TCs
+            .Select(obj => new DisplayedStaff_TC(obj)).ToList();
         _bindingList = new BindingList<DisplayedStaff_TC>(tcList);
         _bindingList.ListChanged += BindingList_ListChanged;
         dgvMain.DataSource = _bindingList;
 
         SetDGVColumnsSettings();
     }
-    private async void Win6_Staff_FormClosing(object sender, FormClosingEventArgs e)
-    {
-        if (CloseFormsNoSave)
-        {
-            return;
-        }
-        if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-        {
-            e.Cancel = true;
-            var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
-
-            if (result == DialogResult.Yes)
-            {
-                await SaveChanges();
-            }
-            e.Cancel = false;
-            //Dispose();
-        }
-    }
-
 
     public void AddNewObjects(List<Staff> newObjs)
     {
         foreach (var obj in newObjs)
         {
             var newStaffTC = CreateNewObject(obj, _bindingList.Count + 1);
+            var staff = context.Staffs.Where(s => s.Id == newStaffTC.ChildId).First();
+
+            //Прикрепляем для отслеживания в БД объект Staff, используется для обхода ошибки добавления связанных объектов
+            //Помогает избежать ошибку попытки повторного добавления в базу уже существующий в ней элементов.
+            context.Staffs.Attach(staff);
+
+            _tcViewState.TechnologicalCard.Staff_TCs.Add(newStaffTC);
+
+            //Явно говорим контексту что связываем новый и существуйющий объект
+            newStaffTC.Child = staff;
+            newStaffTC.ChildId = staff.Id;
+
 
             var displayedStaffTC = new DisplayedStaff_TC(newStaffTC);
             _bindingList.Add(displayedStaffTC);
-
-            _newObjects.Add(displayedStaffTC);
         }
         dgvMain.Refresh();
     }
@@ -139,53 +115,6 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
 
     /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
-    public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
-    public async Task SaveChanges()
-    {
-
-        if (!HasChanges)
-        {
-            return;
-        }
-        if (_newObjects.Count > 0)
-        {
-            await SaveNewObjects();
-        }
-        if (_changedObjects.Count > 0)
-        {
-            await SaveChangedObjects();
-        }
-        if (_deletedObjects.Count > 0)
-        {
-            await DeleteDeletedObjects();
-        }
-
-        dgvMain.Refresh();
-    }
-    private async Task SaveNewObjects()
-    {
-        var newObjects = _newObjects.Select(dObj => CreateNewObject(dObj)).ToList();
-
-        await dbCon.AddIntermediateObjectAsync(newObjects);
-
-        _newObjects.Clear();
-    }
-    private async Task SaveChangedObjects()
-    {
-        var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-
-        await dbCon.UpdateIntermediateObjectAsync(changedTcs);
-
-        _changedObjects.Clear();
-    }
-
-    private async Task DeleteDeletedObjects()
-    {
-        var deletedObjects = _deletedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-        await dbCon.DeleteIntermediateObjectAsync(deletedObjects);
-        _deletedObjects.Clear();
-    }
-
     private Staff_TC CreateNewObject(DisplayedStaff_TC dObj)
     {
         return new Staff_TC
@@ -328,6 +257,28 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
     {
         DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
             _bindingList, _newObjects, _deletedObjects);
+
+        if(_deletedObjects.Count != 0)
+        {
+            foreach (var obj in _deletedObjects)
+            {
+                foreach(var techOperationWork in _tcViewState.TechOperationWorksList)
+                {
+                    foreach(var evecutionWork in techOperationWork.executionWorks)
+                    {
+                        var staffToRemove = evecutionWork.Staffs.Where(s => s.IdAuto == obj.IdAuto && s.ChildId == obj.ChildId).FirstOrDefault();
+                        if (staffToRemove != null)
+                            evecutionWork.Staffs.Remove(staffToRemove);
+                    }
+                }
+
+                var deletedObj = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IdAuto == obj.IdAuto && s.ChildId == obj.ChildId).FirstOrDefault();
+                if (deletedObj != null)
+                    _tcViewState.TechnologicalCard.Staff_TCs.Remove(deletedObj);
+            }
+
+            _deletedObjects.Clear();
+        }
     }
 
 
@@ -394,6 +345,17 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
     {
         DisplayedEntityHelper.ListChangedEventHandlerIntermediate
             (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
+
+        if(_changedObjects.Count != 0)
+        { 
+            foreach (var obj in _changedObjects)
+            {
+                var changedObject = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.ChildId == obj.ChildId && s.IdAuto == obj.IdAuto).FirstOrDefault();
+                changedObject.ApplyUpdates(CreateNewObject(obj));
+            }
+
+            _changedObjects.Clear();
+        }
     }
 
 

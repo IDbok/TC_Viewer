@@ -1,6 +1,7 @@
 ﻿
 
 using TcModels.Models;
+using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
@@ -11,8 +12,9 @@ namespace TC_WinForms.WinForms
         private bool _isCommentViewMode = false;
         public User.Role UserRole { get; }
 
-        public TechnologicalCard? TechnologicalCard; // todo: make it readonly
-
+        public TechnologicalCard TechnologicalCard { get; set; } // todo: make it readonly
+        public List<TechOperationWork> TechOperationWorksList { get; set; }
+        public List<DiagamToWork> DiagramToWorkList { get; set; }
         public TcViewState(User.Role userRole)
         {
             UserRole = userRole;

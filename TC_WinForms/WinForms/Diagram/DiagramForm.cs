@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using TC_WinForms.Interfaces;
+using TcDbConnector;
 using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.WinForms.Diagram
@@ -29,7 +30,7 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
 
-        public DiagramForm(int tcId, TcViewState tcViewState)// bool isViewMode)
+        public DiagramForm(int tcId, TcViewState tcViewState, MyDbContext context)// bool isViewMode)
         {
             InitializeComponent();
 
@@ -44,7 +45,7 @@ namespace TC_WinForms.WinForms.Diagram
             this.Controls.Add(elementHost);
 
 
-            WpfMainControl wpfDiagram = new WpfMainControl(tcId, this, _tcViewState);
+            WpfMainControl wpfDiagram = new WpfMainControl(tcId, this, _tcViewState, context);
             this.wpfDiagram = wpfDiagram;
             elementHost.Child = wpfDiagram;
 
@@ -117,5 +118,9 @@ namespace TC_WinForms.WinForms.Diagram
 
         }
 
+        private async void DiagramForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            await SaveChanges();
+        }
     }
 }

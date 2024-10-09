@@ -151,7 +151,6 @@ namespace TC_WinForms.WinForms
             MinimumSize = new Size(1124, 489);
             Name = "Win6_Staff";
             Text = "Win6_Staff";
-            FormClosing += Win6_Staff_FormClosing;
             Load += Win6_Staff_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);

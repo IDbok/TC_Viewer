@@ -167,7 +167,6 @@
             Margin = new Padding(4, 4, 4, 4);
             Name = "Win6_Protection";
             Text = "Win6_Protection";
-            FormClosing += Win6_Protection_FormClosing;
             Load += Win6_Protection_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
