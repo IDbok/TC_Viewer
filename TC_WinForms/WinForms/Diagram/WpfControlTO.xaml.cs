@@ -26,6 +26,9 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
     public bool IsCommentViewMode => _tcViewState.IsCommentViewMode;
     private bool IsViewMode => _tcViewState.IsViewMode;
     public bool IsHiddenInViewMode => !IsViewMode;
+
+    private bool isDropDownOpen = false;
+    private TechOperationWork? _currentTechOperationWork;
     public ObservableCollection<WpfParalelno> Children { get; set; } = new();
 
     public WpfControlTO()
@@ -388,5 +391,40 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
             ComboBoxTO.Items.Add(item); // todo: чтобы убрать возможность выбора уже отображаемых ТО из ComboBoxTO, нужно добавить проверку наличия item в diagamToWork
         }
     }
+
+    private void ComboBoxTO_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (!isDropDownOpen)
+        {
+            // Останавливаем прокрутку самого ComboBox
+            e.Handled = true;
+
+            // Поднимаем событие вверх по визуальному дереву для прокрутки формы
+            var parent = ((System.Windows.Controls.ComboBox)sender).Parent as UIElement;
+            if (parent != null)
+            {
+                parent.RaiseEvent(new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+                {
+                    RoutedEvent = UIElement.MouseWheelEvent
+                });
+            }
+        }
+    }
+    private void ComboBoxTO_DropDownOpened(object sender, EventArgs e)
+    {
+        isDropDownOpen = true;
+    }
+
+    private void ComboBoxTO_DropDownClosed(object sender, EventArgs e)
+    {
+        isDropDownOpen = false;
+
+        // Сохраняем предыдущее значение при закрытии списка
+        if (ComboBoxTO.SelectedItem == null )
+        {
+            SetTechOperationWorkToComboBox(diagamToWork.techOperationWork);
+        }
+    }
+
 
 }
