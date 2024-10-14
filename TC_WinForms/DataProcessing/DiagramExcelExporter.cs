@@ -508,9 +508,9 @@ namespace TC_WinForms.DataProcessing
                 }
                 catch //Обход ошибки сохранения. Она связана с размером изображения и одновременным открытием изображения GDI+. Изображение будет с нуля отрисовано в копии и все сторонние процессы будут закрыты.
                 {
-                    Bitmap bitmap = new Bitmap(bitmapImage.Width, bitmapImage.Height, bitmapImage.PixelFormat); //Создаем копию текущего изображения
+                    Bitmap bitmap = new Bitmap(bitmapImage, bitmapImage.Width, bitmapImage.Height); //Создаем копию текущего изображения
                     Graphics g = Graphics.FromImage(bitmap); //создаем объект для отрисовки изображения в копии файла
-                    g.DrawImage(bitmapImage, new Point(0, 0)); // отрисовываем изображение
+                    g.DrawImage(bitmapImage, 0f, 0f, (float)bitmapImage.Width, (float)bitmapImage.Height); // отрисовываем изображение
                     g.Dispose(); //завершаем процесс объекта для отрисовки
                     bitmapImage.Dispose(); // завершаем процесс оригинального объекта, чтобы не было ошибки, связанной с уже изначально открытым процессом в GDI+
                     bitmap.Save(ms, ImageFormat.Png); // повторно сохраняем изображение в MemoryStream
@@ -526,7 +526,7 @@ namespace TC_WinForms.DataProcessing
                         excelImage.SetSize(i);
                         i -= 5;
                     }
-                }    
+                }
                 else
                     excelImage.SetSize(100); //задаем масштаб изображения по умолчанию
 
