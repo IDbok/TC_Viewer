@@ -39,6 +39,7 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
         InitializeComponent();
     }
 
+    // todo: избавитться от двух конструкторов, использовать со списком диаграмм
     public WpfTo(WpfMainControl wpfMainControl,
         TcViewState tcViewState,
         List<DiagamToWork> diagramToWorks)

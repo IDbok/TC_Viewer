@@ -140,6 +140,8 @@ namespace TC_WinForms.WinForms.Diagram
         }
         private void AddDiagramsToChildren()
         {
+            AvailableTechOperationWorks.Clear();
+
             foreach (var tow in TechOperationWorksList)
             {
                 AvailableTechOperationWorks.Add(tow);
@@ -162,11 +164,6 @@ namespace TC_WinForms.WinForms.Diagram
                     var wpfTo = new WpfTo(this, _tcViewState, dTOWGroup.OrderBy(x => x.Order).ToList());
 
                     Children.Add(wpfTo);
-
-                    //foreach (DiagamToWork item in dTOWGroup.OrderBy(x=> x.Order).ToList())
-                    //{
-                    //    wpfTo.AddParallelTO(item);
-                    //}
                 }
                 else
                 {
@@ -224,7 +221,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         }
 
-        internal void Nomeraciya() // todo : раскомментировать
+        internal void Nomeraciya()
         {
             int nomer = 1;
 
@@ -441,6 +438,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             Children.Remove(wpfTo);
         }
+
     }
 
     

@@ -4,13 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TC_WinForms.WinForms.Diagram"
-            xmlns:converters="clr-namespace:TC_WinForms.WinForms.Diagram.Converters"
-            mc:Ignorable="d" >
+             xmlns:converters="clr-namespace:TC_WinForms.WinForms.Diagram.Converters"
+             mc:Ignorable="d" 
+             Loaded="OnLoad">
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
     
-    <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Loaded="OnLoad">
+    <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+                  ScrollViewer.VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <d:StackPanel HorizontalAlignment="Left">
                 <local:WpfControlTO 
