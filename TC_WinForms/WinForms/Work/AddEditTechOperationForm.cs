@@ -880,6 +880,8 @@ namespace TC_WinForms.WinForms.Work
                 {
                     this.BeginInvoke((Action)(() => UpdateGridStaff()));
                 });
+
+                TechOperationForm.UpdateGrid();
             }
         }
 
@@ -921,7 +923,19 @@ namespace TC_WinForms.WinForms.Work
                         var vv = TechOperationForm.TehCarta.Staff_TCs;
                         vv.Remove(idd);
 
+                        foreach (var techOperation in TechOperationForm.TechOperationWorksList)
+                        {
+                            foreach (var executionWork in techOperation.executionWorks)
+                            {
+                                var staffToDelete = executionWork.Staffs.Where(s => s.IdAuto == idd.IdAuto && s.ChildId == idd.ChildId).FirstOrDefault();
+                                if (staffToDelete != null)
+                                    executionWork.Staffs.Remove(staffToDelete);
+                            }
+
+                        }
+
                         UpdateGridStaff();
+                        TechOperationForm.UpdateGrid();
                     }
                 }
             }
@@ -1298,6 +1312,17 @@ namespace TC_WinForms.WinForms.Work
                         var techCart = TechOperationForm.TehCarta.Protection_TCs;
                         techCart.Remove(idd);
 
+                        foreach (var techOperation in TechOperationForm.TechOperationWorksList)
+                        {
+                            foreach (var executionWork in techOperation.executionWorks)
+                            {
+                                var protectionToDelete = executionWork.Protections.Where(s => s.ChildId == idd.ChildId).FirstOrDefault();
+                                if (protectionToDelete != null)
+                                    executionWork.Protections.Remove(protectionToDelete);
+                            }
+
+                        }
+
                         UpdateGridLocalSZ();
                         UpdateGridAllSZ();
                         TechOperationForm.UpdateGrid();
@@ -1519,8 +1544,9 @@ namespace TC_WinForms.WinForms.Work
                 var Idd = (Component)dataGridViewComponentAll.Rows[e.RowIndex].Cells[0].Value;
 
                 var existedIdd = work.ComponentWorks.Where(c => c.componentId == Idd.Id && c.IsDeleted == true).FirstOrDefault();
-                
-                if(existedIdd != null)
+                var exustInComponent = TechOperationForm.TehCarta.Component_TCs.Where(t => t.ChildId == Idd.Id).FirstOrDefault();
+
+                if (existedIdd != null)
                 {
                     existedIdd.IsDeleted = false;
                     work.ComponentWorks.Remove(existedIdd);
@@ -1530,8 +1556,20 @@ namespace TC_WinForms.WinForms.Work
                 {
                     ComponentWork componentWork = new ComponentWork();
                     componentWork.component = Idd;
+                    componentWork.componentId = Idd.Id;
                     componentWork.Quantity = 1;
                     work.ComponentWorks.Add(componentWork);
+                }
+
+                if (exustInComponent == null)
+                {
+                    Component_TC newComponent = new Component_TC();
+                    newComponent.Parent = TechOperationForm.TehCarta;
+                    newComponent.ParentId = TechOperationForm.TehCarta.Id;
+                    newComponent.ChildId = Idd.Id;
+                    newComponent.Child = Idd;
+                    newComponent.Order = TechOperationForm.TehCarta.Tool_TCs.Count + 1;
+                    TechOperationForm.TehCarta.Component_TCs.Add(newComponent);
                 }
 
                 UpdateComponentAll();
@@ -1547,7 +1585,7 @@ namespace TC_WinForms.WinForms.Work
                 var work = (TechOperationWork)comboBoxTO2.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                TechOperationForm.MarkToDeleteComponentWork(Idd);
+                TechOperationForm.MarkToDeleteComponentWork(work, Idd);
 
                 UpdateComponentAll();
                 UpdateComponentLocal();
@@ -1802,6 +1840,7 @@ namespace TC_WinForms.WinForms.Work
 
                 var Idd = (Tool)dataGridViewInstumentAll.Rows[e.RowIndex].Cells[0].Value;
                 var existedIdd = work.ToolWorks.Where(t => t.toolId == Idd.Id && t.IsDeleted == true).FirstOrDefault();
+                var exustInInstrument = TechOperationForm.TehCarta.Tool_TCs.Where(t => t.ChildId == Idd.Id).FirstOrDefault();
 
                 if (existedIdd != null)
                 {
@@ -1813,8 +1852,20 @@ namespace TC_WinForms.WinForms.Work
                 {
                     ToolWork toolWork = new ToolWork();
                     toolWork.tool = Idd;
+                    toolWork.toolId = Idd.Id;
                     toolWork.Quantity = 1;
                     work.ToolWorks.Add(toolWork);
+                }
+
+                if(exustInInstrument == null)
+                {
+                    Tool_TC newTool = new Tool_TC();
+                    newTool.Parent = TechOperationForm.TehCarta;
+                    newTool.ParentId = TechOperationForm.TehCarta.Id;
+                    newTool.ChildId = Idd.Id;
+                    newTool.Child = Idd;
+                    newTool.Order = TechOperationForm.TehCarta.Tool_TCs.Count + 1;
+                    TechOperationForm.TehCarta.Tool_TCs.Add(newTool);
                 }
 
 
@@ -1836,7 +1887,7 @@ namespace TC_WinForms.WinForms.Work
                 }
                 var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                TechOperationForm.MarkToDeleteToolWork(Idd);
+                TechOperationForm.MarkToDeleteToolWork(work, Idd);
 
                 UpdateInstrumentAll();
                 UpdateInstrumentLocal();

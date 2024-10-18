@@ -50,7 +50,7 @@ namespace TC_WinForms.WinForms.Diagram
             InitializeComponent();
         }
 
-        public WpfMainControl(int tcId, DiagramForm _diagramForm, TcViewState tcViewState)
+        public WpfMainControl(int tcId, DiagramForm _diagramForm, TcViewState tcViewState, MyDbContext context)
         {
             InitializeComponent();
             DataContext = this;
@@ -59,85 +59,85 @@ namespace TC_WinForms.WinForms.Diagram
 
             this.tcId = tcId;
             diagramForm = _diagramForm;
-            context = new MyDbContext();
+            this.context = context;
 
             _tcViewState.ViewModeChanged += OnViewModeChanged;
         }
-        private async Task LoadData()
-        {
-            double tcLoad = 0;
-            double towLoad = 0;
-            double dtwLoad = 0;
+        //private async Task LoadData()
+        //{
+        //    double tcLoad = 0;
+        //    double towLoad = 0;
+        //    double dtwLoad = 0;
 
-            var sw = new System.Diagnostics.Stopwatch();
+        //    var sw = new System.Diagnostics.Stopwatch();
 
-            try
-            {
-                sw.Start();
+        //    try
+        //    {
+        //        sw.Start();
 
-                technologicalCard = await context.TechnologicalCards.FirstAsync(x => x.Id == tcId);
+        //        technologicalCard = await context.TechnologicalCards.FirstAsync(x => x.Id == tcId);
 
-                _tcViewState.TechnologicalCard = technologicalCard;
+        //        _tcViewState.TechnologicalCard = technologicalCard;
 
-                tcLoad = sw.Elapsed.TotalMilliseconds;
-                sw.Restart();
+        //        tcLoad = sw.Elapsed.TotalMilliseconds;
+        //        sw.Restart();
 
-                TechOperationWorksList = await context.TechOperationWorks.Where(w => w.TechnologicalCardId == tcId)
-                       .Include(i => i.techOperation)
-                       .ToListAsync();
+        //        TechOperationWorksList = await context.TechOperationWorks.Where(w => w.TechnologicalCardId == tcId)
+        //               .Include(i => i.techOperation)
+        //               .ToListAsync();
 
-                //список ID Технологических операций
-                var towIds = TechOperationWorksList.Select(t => t.Id).ToList();
+        //        //список ID Технологических операций
+        //        var towIds = TechOperationWorksList.Select(t => t.Id).ToList();
 
-                //Получаем список всех компонентов которые принадлежат карте
-                var componentWorks = await context.ComponentWorks.Where(c => towIds.Any(o => o == c.techOperationWorkId))
-                   .Include(t => t.component)
-                   .ToListAsync();
+        //        //Получаем список всех компонентов которые принадлежат карте
+        //        var componentWorks = await context.ComponentWorks.Where(c => towIds.Any(o => o == c.techOperationWorkId))
+        //           .Include(t => t.component)
+        //           .ToListAsync();
 
-                //Получаем список всех инструментов, которые принадлежат карте
-                var toolWorks = await context.ToolWorks.Where(c => towIds.Any(o => o == c.techOperationWorkId))
-                    .Include(t => t.tool)
-                    .ToListAsync();
+        //        //Получаем список всех инструментов, которые принадлежат карте
+        //        var toolWorks = await context.ToolWorks.Where(c => towIds.Any(o => o == c.techOperationWorkId))
+        //            .Include(t => t.tool)
+        //            .ToListAsync();
 
-                //Получаем список всех ExecutionWorks для технологической карты
-                var executionWorks = await
-                   context.ExecutionWorks.Where(e => towIds.Any(o => o == e.techOperationWorkId))
-                                         .Include(e => e.techTransition)
-                                         .Include(e => e.Protections)
-                                         .Include(e => e.Machines)
-                                         .Include(e => e.Staffs)
-                                         .ToListAsync();
+        //        //Получаем список всех ExecutionWorks для технологической карты
+        //        var executionWorks = await
+        //           context.ExecutionWorks.Where(e => towIds.Any(o => o == e.techOperationWorkId))
+        //                                 .Include(e => e.techTransition)
+        //                                 .Include(e => e.Protections)
+        //                                 .Include(e => e.Machines)
+        //                                 .Include(e => e.Staffs)
+        //                                 .ToListAsync();
 
-                towLoad = sw.Elapsed.TotalMilliseconds;
+        //        towLoad = sw.Elapsed.TotalMilliseconds;
                 
-                sw.Restart();
+        //        sw.Restart();
 
-                DiagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCard == technologicalCard).ToListAsync();
+        //        DiagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCard == technologicalCard).ToListAsync();
 
 
 
-                var listDiagramParalelno = await context.DiagramParalelno.Where(p => DiagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
-                                                                         .Include(ie => ie.techOperationWork)
-                                                                         .ToListAsync();
+        //        var listDiagramParalelno = await context.DiagramParalelno.Where(p => DiagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
+        //                                                                 .Include(ie => ie.techOperationWork)
+        //                                                                 .ToListAsync();
 
-                var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
-                    .ToListAsync();
+        //        var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
+        //            .ToListAsync();
 
-                var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
-                    .Include(q => q.ListDiagramShagToolsComponent)
-                    .ToListAsync();
+        //        var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
+        //            .Include(q => q.ListDiagramShagToolsComponent)
+        //            .ToListAsync();
 
-                dtwLoad = sw.Elapsed.TotalMilliseconds;
-                sw.Stop();
+        //        dtwLoad = sw.Elapsed.TotalMilliseconds;
+        //        sw.Stop();
 
-                if (Program.IsTestMode)
-                    System.Windows.Forms.MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms, DTW: {dtwLoad} ms");
-            }
-            catch (Exception ex)
-            {
-                System.Windows.Forms.MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
-            }
-        }
+        //        if (Program.IsTestMode)
+        //            System.Windows.Forms.MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms, DTW: {dtwLoad} ms");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Windows.Forms.MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
+        //    }
+        //}
         private void AddDiagramsToChildren()
         {
             AvailableTechOperationWorks.Clear();
@@ -176,11 +176,37 @@ namespace TC_WinForms.WinForms.Diagram
                 }
             }
         }
+
+        private async Task<List<DiagamToWork>> GetDTWDataAsync()
+        {
+            var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == tcId).ToListAsync();
+
+
+
+            var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
+                                                                     .Include(ie => ie.techOperationWork)
+                                                                     .ToListAsync();
+
+            var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
+                .ToListAsync();
+
+            var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
+                .Include(q => q.ListDiagramShagToolsComponent)
+                .ToListAsync();
+
+            return diagramToWorkList;
+        }
+
         private async void OnLoad(object sender, EventArgs e)
         {
             this.Visibility = Visibility.Collapsed;
+            
+            //await LoadData();
+            technologicalCard = _tcViewState.TechnologicalCard;
+            TechOperationWorksList = _tcViewState.TechOperationWorksList;
 
-            await LoadData();
+            DiagramToWorkList = await GetDTWDataAsync();
+
             AddDiagramsToChildren();
             Nomeraciya();
 
@@ -294,7 +320,7 @@ namespace TC_WinForms.WinForms.Diagram
             }
             catch (Exception)
             {
-
+                
             }
             
             try
@@ -311,6 +337,7 @@ namespace TC_WinForms.WinForms.Diagram
                 }
 
                 context.SaveChanges();
+                _tcViewState.DiagramToWorkList = DiagramToWorkList;
             }
             catch (Exception ee)
             {
