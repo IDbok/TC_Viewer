@@ -98,6 +98,9 @@ namespace TC_WinForms.WinForms.Diagram
                     diagramShagToolsComponent.Quantity = 0;
                 }
 
+                diagramShagToolsComponent.ToolComponentComment = item.Comments ?? "";
+
+
                 diagramShag.ListDiagramShagToolsComponent.Add(diagramShagToolsComponent);
             }
 
@@ -274,6 +277,7 @@ namespace TC_WinForms.WinForms.Diagram
                 {
                     existingItem.Add = true;
                     existingItem.AddText = diagramShagToolsComponent.Quantity.ToString();
+                    existingItem.Comments = diagramShagToolsComponent.ToolComponentComment ?? existingItem.Comments;
                 }
             }
 
@@ -451,13 +455,9 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 ItemDataGridShagAdd gridItem = (ItemDataGridShagAdd)(((System.Windows.Controls.TextBox)sender).DataContext);
 
-                if(gridItem.toolWork != null)
+                if (gridItem != null)
                 {
-                    gridItem.toolWork.Comments = ((System.Windows.Controls.TextBox)sender).Text;
-                }
-                else if(gridItem.componentWork != null)
-                {
-                    gridItem.componentWork.Comments = ((System.Windows.Controls.TextBox)sender).Text;
+                    gridItem.Comments = ((System.Windows.Controls.TextBox)sender).Text;
                 }
 
                 if (wpfPosledovatelnost != null)
