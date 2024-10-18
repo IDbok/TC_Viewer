@@ -58,48 +58,48 @@
             // 
             // txtType
             // 
-            txtType.Location = new Point(164, 73);
+            txtType.Location = new Point(144, 55);
             txtType.Margin = new Padding(2);
             txtType.Name = "txtType";
-            txtType.Size = new Size(440, 27);
+            txtType.Size = new Size(386, 23);
             txtType.TabIndex = 7;
             // 
             // lblType
             // 
             lblType.AutoSize = true;
             lblType.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            lblType.Location = new Point(14, 73);
+            lblType.Location = new Point(12, 55);
             lblType.Margin = new Padding(2, 0, 2, 0);
             lblType.Name = "lblType";
-            lblType.Size = new Size(141, 20);
+            lblType.Size = new Size(113, 15);
             lblType.TabIndex = 6;
             lblType.Text = "Тип (исполнение):";
             // 
             // txtName
             // 
-            txtName.Location = new Point(164, 28);
+            txtName.Location = new Point(144, 21);
             txtName.Margin = new Padding(2);
             txtName.Name = "txtName";
-            txtName.Size = new Size(301, 27);
+            txtName.Size = new Size(264, 23);
             txtName.TabIndex = 5;
             // 
             // lblName
             // 
             lblName.AutoSize = true;
             lblName.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            lblName.Location = new Point(14, 28);
+            lblName.Location = new Point(12, 21);
             lblName.Margin = new Padding(2, 0, 2, 0);
             lblName.Name = "lblName";
-            lblName.Size = new Size(122, 20);
+            lblName.Size = new Size(98, 15);
             lblName.TabIndex = 4;
             lblName.Text = "Наименование:";
             // 
             // rtxtFunctions
             // 
-            rtxtFunctions.Location = new Point(164, 118);
+            rtxtFunctions.Location = new Point(144, 88);
             rtxtFunctions.Margin = new Padding(2);
             rtxtFunctions.Name = "rtxtFunctions";
-            rtxtFunctions.Size = new Size(440, 65);
+            rtxtFunctions.Size = new Size(386, 50);
             rtxtFunctions.TabIndex = 8;
             rtxtFunctions.Text = "";
             // 
@@ -107,48 +107,48 @@
             // 
             lblFunctions.AutoSize = true;
             lblFunctions.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            lblFunctions.Location = new Point(14, 118);
+            lblFunctions.Location = new Point(12, 88);
             lblFunctions.Margin = new Padding(2, 0, 2, 0);
             lblFunctions.Name = "lblFunctions";
-            lblFunctions.Size = new Size(79, 20);
+            lblFunctions.Size = new Size(64, 15);
             lblFunctions.TabIndex = 9;
             lblFunctions.Text = "Функции:";
             // 
             // rtxtComment
             // 
-            rtxtComment.Location = new Point(164, 453);
+            rtxtComment.Location = new Point(144, 340);
             rtxtComment.Margin = new Padding(2);
             rtxtComment.Name = "rtxtComment";
-            rtxtComment.Size = new Size(440, 145);
+            rtxtComment.Size = new Size(386, 110);
             rtxtComment.TabIndex = 11;
             rtxtComment.Text = "";
             // 
             // rtxtQualification
             // 
-            rtxtQualification.Location = new Point(164, 198);
+            rtxtQualification.Location = new Point(144, 148);
             rtxtQualification.Margin = new Padding(2);
             rtxtQualification.Name = "rtxtQualification";
-            rtxtQualification.Size = new Size(440, 90);
+            rtxtQualification.Size = new Size(386, 68);
             rtxtQualification.TabIndex = 12;
             rtxtQualification.Text = "";
             // 
             // lblCombineResponsibility
             // 
             lblCombineResponsibility.AutoSize = true;
-            lblCombineResponsibility.Location = new Point(14, 343);
+            lblCombineResponsibility.Location = new Point(12, 257);
             lblCombineResponsibility.Margin = new Padding(2, 0, 2, 0);
             lblCombineResponsibility.Name = "lblCombineResponsibility";
-            lblCombineResponsibility.Size = new Size(110, 60);
+            lblCombineResponsibility.Size = new Size(86, 45);
             lblCombineResponsibility.TabIndex = 13;
             lblCombineResponsibility.Text = "Возможность \r\nсовмещения\r\nобязанностей:";
             // 
             // lblComment
             // 
             lblComment.AutoSize = true;
-            lblComment.Location = new Point(14, 453);
+            lblComment.Location = new Point(12, 340);
             lblComment.Margin = new Padding(2, 0, 2, 0);
             lblComment.Name = "lblComment";
-            lblComment.Size = new Size(110, 20);
+            lblComment.Size = new Size(87, 15);
             lblComment.TabIndex = 15;
             lblComment.Text = "Комментарии:";
             // 
@@ -156,19 +156,19 @@
             // 
             lblQualification.AutoSize = true;
             lblQualification.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            lblQualification.Location = new Point(14, 198);
+            lblQualification.Location = new Point(12, 148);
             lblQualification.Margin = new Padding(2, 0, 2, 0);
             lblQualification.Name = "lblQualification";
-            lblQualification.Size = new Size(123, 20);
+            lblQualification.Size = new Size(99, 15);
             lblQualification.TabIndex = 16;
             lblQualification.Text = "Квалификация:";
             // 
             // btnClose
             // 
-            btnClose.Location = new Point(468, 0);
+            btnClose.Location = new Point(410, 0);
             btnClose.Margin = new Padding(2);
             btnClose.Name = "btnClose";
-            btnClose.Size = new Size(136, 56);
+            btnClose.Size = new Size(119, 42);
             btnClose.TabIndex = 18;
             btnClose.Text = "Закрыть";
             btnClose.UseVisualStyleBackColor = true;
@@ -176,10 +176,10 @@
             // 
             // btnSave
             // 
-            btnSave.Location = new Point(19, 0);
+            btnSave.Location = new Point(17, 0);
             btnSave.Margin = new Padding(2);
             btnSave.Name = "btnSave";
-            btnSave.Size = new Size(136, 56);
+            btnSave.Size = new Size(119, 42);
             btnSave.TabIndex = 17;
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;
@@ -190,22 +190,22 @@
             dgvRelatedStaffs.AllowUserToAddRows = false;
             dgvRelatedStaffs.AllowUserToDeleteRows = false;
             dgvRelatedStaffs.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvRelatedStaffs.Location = new Point(164, 343);
+            dgvRelatedStaffs.Location = new Point(144, 257);
             dgvRelatedStaffs.Margin = new Padding(2);
             dgvRelatedStaffs.Name = "dgvRelatedStaffs";
             dgvRelatedStaffs.ReadOnly = true;
             dgvRelatedStaffs.RowHeadersWidth = 62;
             dgvRelatedStaffs.RowTemplate.Height = 33;
             dgvRelatedStaffs.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvRelatedStaffs.Size = new Size(334, 94);
+            dgvRelatedStaffs.Size = new Size(292, 70);
             dgvRelatedStaffs.TabIndex = 19;
             // 
             // btnAddRelatedStaff
             // 
-            btnAddRelatedStaff.Location = new Point(502, 343);
+            btnAddRelatedStaff.Location = new Point(439, 257);
             btnAddRelatedStaff.Margin = new Padding(2);
             btnAddRelatedStaff.Name = "btnAddRelatedStaff";
-            btnAddRelatedStaff.Size = new Size(102, 27);
+            btnAddRelatedStaff.Size = new Size(89, 20);
             btnAddRelatedStaff.TabIndex = 20;
             btnAddRelatedStaff.Text = "Добавить";
             btnAddRelatedStaff.UseVisualStyleBackColor = true;
@@ -213,10 +213,10 @@
             // 
             // btnDeleteRelatedStaff
             // 
-            btnDeleteRelatedStaff.Location = new Point(502, 409);
+            btnDeleteRelatedStaff.Location = new Point(439, 307);
             btnDeleteRelatedStaff.Margin = new Padding(2);
             btnDeleteRelatedStaff.Name = "btnDeleteRelatedStaff";
-            btnDeleteRelatedStaff.Size = new Size(102, 27);
+            btnDeleteRelatedStaff.Size = new Size(89, 20);
             btnDeleteRelatedStaff.TabIndex = 21;
             btnDeleteRelatedStaff.Text = "Удалить";
             btnDeleteRelatedStaff.UseVisualStyleBackColor = true;
@@ -225,10 +225,10 @@
             // cbxIsReleased
             // 
             cbxIsReleased.AutoSize = true;
-            cbxIsReleased.Location = new Point(479, 28);
+            cbxIsReleased.Location = new Point(419, 21);
             cbxIsReleased.Margin = new Padding(2);
             cbxIsReleased.Name = "cbxIsReleased";
-            cbxIsReleased.Size = new Size(125, 24);
+            cbxIsReleased.Size = new Size(101, 19);
             cbxIsReleased.TabIndex = 22;
             cbxIsReleased.Text = "Опубликован";
             cbxIsReleased.UseVisualStyleBackColor = true;
@@ -236,20 +236,20 @@
             // 
             // txtClassifierCode
             // 
-            txtClassifierCode.Location = new Point(164, 298);
+            txtClassifierCode.Location = new Point(144, 224);
             txtClassifierCode.Margin = new Padding(2);
             txtClassifierCode.Name = "txtClassifierCode";
-            txtClassifierCode.Size = new Size(440, 27);
+            txtClassifierCode.Size = new Size(386, 23);
             txtClassifierCode.TabIndex = 24;
             // 
             // lblClassifierCode
             // 
             lblClassifierCode.AutoSize = true;
             lblClassifierCode.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            lblClassifierCode.Location = new Point(14, 298);
+            lblClassifierCode.Location = new Point(12, 224);
             lblClassifierCode.Margin = new Padding(2, 0, 2, 0);
             lblClassifierCode.Name = "lblClassifierCode";
-            lblClassifierCode.Size = new Size(111, 20);
+            lblClassifierCode.Size = new Size(87, 15);
             lblClassifierCode.TabIndex = 23;
             lblClassifierCode.Text = "Код в classifier:";
             // 
@@ -259,8 +259,9 @@
             flowLayoutPanel1.Controls.Add(panel2);
             flowLayoutPanel1.Dock = DockStyle.Fill;
             flowLayoutPanel1.Location = new Point(0, 0);
+            flowLayoutPanel1.Margin = new Padding(3, 2, 3, 2);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(627, 683);
+            flowLayoutPanel1.Size = new Size(550, 518);
             flowLayoutPanel1.TabIndex = 25;
             // 
             // panel1
@@ -282,29 +283,32 @@
             panel1.Controls.Add(rtxtQualification);
             panel1.Controls.Add(lblComment);
             panel1.Controls.Add(lblCombineResponsibility);
-            panel1.Location = new Point(3, 3);
+            panel1.Location = new Point(3, 2);
+            panel1.Margin = new Padding(3, 2, 3, 2);
             panel1.Name = "panel1";
-            panel1.Size = new Size(623, 610);
+            panel1.Size = new Size(545, 458);
             panel1.TabIndex = 19;
             // 
             // panel2
             // 
             panel2.Controls.Add(btnSave);
             panel2.Controls.Add(btnClose);
-            panel2.Location = new Point(3, 619);
+            panel2.Location = new Point(3, 464);
+            panel2.Margin = new Padding(3, 2, 3, 2);
             panel2.Name = "panel2";
-            panel2.Size = new Size(623, 62);
+            panel2.Size = new Size(545, 46);
             panel2.TabIndex = 20;
             // 
             // Win7_StaffEditor
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(627, 683);
+            ClientSize = new Size(550, 518);
+            ControlBox = false;
             Controls.Add(flowLayoutPanel1);
             Margin = new Padding(2);
-            MaximumSize = new Size(645, 1000);
-            MinimumSize = new Size(645, 730);
+            MaximumSize = new Size(566, 760);
+            MinimumSize = new Size(566, 557);
             Name = "Win7_StaffEditor";
             Text = "Win_7_StaffEditor";
             Load += Win7_StaffEditor_Load;
