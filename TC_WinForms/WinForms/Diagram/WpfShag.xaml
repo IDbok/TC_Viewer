@@ -155,7 +155,8 @@
 
 
                                 <DataGrid x:Name="DataGridToolAndComponentsShow" CanUserAddRows="False" CanUserDeleteRows="False"
-          AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False">
+                                    AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False"
+                                          PreviewMouseWheel="DataGridToolAndComponentsShow_PreviewMouseWheel">
                                     <DataGrid.CellStyle>
                                         <Style TargetType="{x:Type DataGridCell}">
                                             <Setter Property="Foreground" Value="Black" />
