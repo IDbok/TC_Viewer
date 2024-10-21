@@ -79,6 +79,7 @@ namespace TC_WinForms.DataProcessing
                 .GroupBy(g => g.ParallelIndex != null ? g.GetParallelIndex() : g.Order.ToString())
                 .ToList();
 
+            //// иначе, разделяем группу на единичные элементы
             dTOWGroups = dTOWGroups.OrderBy(o => o.FirstOrDefault()!.Order).ToList();
 
             var sheet = _excelPackage.Workbook.Worksheets[article] ?? _excelPackage.Workbook.Worksheets.Add(article);
@@ -88,8 +89,6 @@ namespace TC_WinForms.DataProcessing
 
             var currentRow = 2; //стартовая строчка расположения диаграм
             _pageCount = 1;//Присваиваем значение счетчику старниц, нумерация с 1 страницы
-
-           
 
             foreach (var dTOWGroup in dTOWGroups)
             {
@@ -113,18 +112,20 @@ namespace TC_WinForms.DataProcessing
 
         private int AddTODiadramsToExcel(List<DiagamToWork> diagramsTO, int currentRow, ExcelWorksheet sheet)
         {
-            var context = new MyDbContext();
+            // var context = new MyDbContext();// Зачем тут контекст?
             _startCollumn = 1;
             _currentParallelTO = 1;
             _parallelToCount = 1;
 
             int resultRow = currentRow, workRow = currentRow;
             var toPosledovGroups = diagramsTO
-                                    .GroupBy(g => g.GetSequenceIndex() != null ? g.GetSequenceIndex() : g.ParallelIndex+"_")
+                                    .GroupBy(g => g.GetSequenceIndex() != null ? 
+                                    g.GetSequenceIndex() : g.ParallelIndex+"_")
                                     .ToList();//получение списка последовательных ТО
 
             var currentStatus = isNextTOParallel;
-            if(toPosledovGroups.Count == 1 && toPosledovGroups[0].Key.Contains("_") && toPosledovGroups[0].ToList().Count() > 1)
+            if(toPosledovGroups.Count == 1 && toPosledovGroups[0].Key.Contains("_") 
+                && toPosledovGroups[0].ToList().Count() > 1)
             {
                 isNextTOParallel = true;
                 _allParallelTO = toPosledovGroups[0].ToList().Count();
@@ -190,7 +191,8 @@ namespace TC_WinForms.DataProcessing
                     else
                         _nextPagesLastRow.Add(pageCollumn, pageRow);
 
-                    pageRow = AddParallelesToExel(diagram.ListDiagramParalelno, pageRow, techOperation.techOperation.Name, sheet);
+                    pageRow = AddParallelesToExel(diagram.ListDiagramParalelno, pageRow, 
+                        techOperation.techOperation.Name, sheet);
                     _nextPagesLastRow[pageCollumn] = pageRow;
                 }
                 else
@@ -206,7 +208,8 @@ namespace TC_WinForms.DataProcessing
                             _nextPagesLastCollumn.Add(pageCollumn, _startCollumn);
                     }
 
-                    workRow = AddParallelesToExel(diagram.ListDiagramParalelno, currentRow, techOperation.techOperation.Name, sheet);
+                    workRow = AddParallelesToExel(diagram.ListDiagramParalelno, currentRow, 
+                        techOperation.techOperation.Name, sheet);
                     resultRow = workRow > resultRow ? workRow : resultRow;
                     if (isTOListisPosledow)
                         currentRow = resultRow;
@@ -237,6 +240,10 @@ namespace TC_WinForms.DataProcessing
             isShagStatusPrinted = false;
 
             var centerCollumn = Modulo(-currentCollumn, _currentPrintWidgth) + currentCollumn - _currentPrintWidgth + 6;
+
+            // Сортировка по номеру шага
+            parallelesList = parallelesList.OrderBy(o => 
+                o.ListDiagramPosledov.FirstOrDefault()?.ListDiagramShag.FirstOrDefault()?.Nomer).ToList();
 
             foreach (DiagramParalelno parallel in parallelesList)
             {
