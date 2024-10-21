@@ -1132,7 +1132,20 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
             else
             {
-                str.Add("");
+                var prevRes = TechOperationDataGridItems.Where(t => t.Nomer == techOperationDataGridItem.Nomer - 1 && techOperationDataGridItem.Nomer - 1 != 0).FirstOrDefault();
+                if(prevRes != null)
+                {
+                    techOperationDataGridItem.TimeEtap = prevRes.Etap != "0" && prevRes.Etap != techOperationDataGridItem.Etap ? "-1" : "";
+                    if(prevRes.ItsTool || prevRes.ItsComponent)
+                    {
+                        techOperationDataGridItem.TimeEtap = prevRes.TimeEtap;
+                    }
+                    str.Add(techOperationDataGridItem.TimeEtap);
+                }
+                else
+                {
+                    str.Add("");
+                }
             }
         }
     }
