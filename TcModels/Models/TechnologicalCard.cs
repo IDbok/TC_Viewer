@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Expressions;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -7,7 +8,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models
 {
-    public class TechnologicalCard: INameable, IUpdatableEntity
+    public class TechnologicalCard: INameable, IUpdatableEntity, IValidatable, IHasUniqueConstraints<TechnologicalCard>
     {
         public enum TechnologicalCardStatus
         {
@@ -323,6 +324,18 @@ namespace TcModels.Models
             return newCard;
         }
 
+        public string[] GetRequiredProperties()
+        {
+            return new[] { nameof(Article) };
+        }
 
+        public IEnumerable<Expression<Func<TechnologicalCard, bool>>> GetUniqueConstraints()
+        {
+            // Возвращаем условия уникальности
+            return new List<Expression<Func<TechnologicalCard, bool>>>
+        {
+            u => u.Article == this.Article
+        };
+        }
     }
 }
