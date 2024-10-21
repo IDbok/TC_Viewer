@@ -102,7 +102,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 if(prevComment != item.Comments)
                 {
-                    diagramShagToolsComponent.Comment = item.Comments ?? "";
+                    diagramShagToolsComponent.Comment = item.Comments;
                 }
 
                 diagramShag.ListDiagramShagToolsComponent.Add(diagramShagToolsComponent);
