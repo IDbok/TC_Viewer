@@ -98,8 +98,12 @@ namespace TC_WinForms.WinForms.Diagram
                     diagramShagToolsComponent.Quantity = 0;
                 }
 
-                diagramShagToolsComponent.ToolComponentComment = item.Comments ?? "";
+                var prevComment = diagramShagToolsComponent.toolWork != null ? diagramShagToolsComponent.toolWork.Comments : diagramShagToolsComponent.componentWork.Comments;
 
+                if(prevComment != item.Comments)
+                {
+                    diagramShagToolsComponent.Comment = item.Comments ?? "";
+                }
 
                 diagramShag.ListDiagramShagToolsComponent.Add(diagramShagToolsComponent);
             }
@@ -277,7 +281,7 @@ namespace TC_WinForms.WinForms.Diagram
                 {
                     existingItem.Add = true;
                     existingItem.AddText = diagramShagToolsComponent.Quantity.ToString();
-                    existingItem.Comments = diagramShagToolsComponent.ToolComponentComment ?? existingItem.Comments;
+                    existingItem.Comments = diagramShagToolsComponent.Comment ?? existingItem.Comments;
                 }
             }
 
