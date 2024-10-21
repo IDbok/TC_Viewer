@@ -524,5 +524,29 @@ namespace TC_WinForms.WinForms.Diagram
             //_tcViewState.WpfMainControl.diagramForm.HasChanges = true;
         }
 
+
+        /// <summary>
+        /// Передаём событие прокрутки полученное элементом родительскому элементу.
+        /// Убираем "залипание" при прокрутке.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DataGridToolAndComponentsShow_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            // Останавливаем прокрутку самого DataGrid
+            e.Handled = true;
+
+            // Поднимаем событие вверх по визуальному дереву для прокрутки формы
+            var parent = ((DataGrid)sender).Parent as UIElement;
+            if (parent != null)
+            {
+                parent.RaiseEvent(new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+                {
+                    RoutedEvent = UIElement.MouseWheelEvent
+                });
+            }
         }
+
+
+
     }

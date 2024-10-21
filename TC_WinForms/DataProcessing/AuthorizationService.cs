@@ -28,7 +28,7 @@ public class AuthorizationService
             new User("manager", "99eUiS", null, null, User.Role.ProjectManager),
             new User("lead", "dXLPdF", null, null, User.Role.Lead),
             new User("implementer", "30yP0e", null, null, User.Role.Implementer),
-            new User("admin", "admin1", null, null, User.Role.Implementer)
+            new User("admin", "admin1", null, null, User.Role.Lead)
 
         };
 
