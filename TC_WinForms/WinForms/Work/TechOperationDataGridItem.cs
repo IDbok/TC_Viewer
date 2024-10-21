@@ -20,6 +20,7 @@ namespace TC_WinForms.WinForms.Work
 
         public string TechTransitionValue { get; set; } = "";
 
+        public TechOperationWork TechOperationWork;
 
         public string Protections { get; set; } = "";
 
