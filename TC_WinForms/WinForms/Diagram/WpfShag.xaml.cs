@@ -140,8 +140,8 @@ namespace TC_WinForms.WinForms.Diagram
 
         }
         [Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
-        public WpfShag(TechOperationWork selectedItem, 
-            WpfPosledovatelnost _wpfPosledovatelnost, 
+        public WpfShag(TechOperationWork selectedItem,
+            WpfPosledovatelnost _wpfPosledovatelnost,
             TcViewState tcViewState,
             DiagramShag _diagramShag=null)
         {
@@ -187,8 +187,8 @@ namespace TC_WinForms.WinForms.Diagram
                 catch (Exception)
                 {
 
-                }                
-                
+                }
+
 
                 try
                 {
@@ -292,7 +292,7 @@ namespace TC_WinForms.WinForms.Diagram
             DataGridToolAndComponentsAdd.ItemsSource = AllItemGrid;
             DataGridToolAndComponentsShow.ItemsSource = AllItemGrid.Where(i => i.Add).ToList();
         }
-        
+
         private BitmapImage LoadImage(byte[] imageData)
         {
             if (imageData == null || imageData.Length == 0) return null;
@@ -345,7 +345,7 @@ namespace TC_WinForms.WinForms.Diagram
                 byte[] bytes = File.ReadAllBytes(filename);
                 string base64 = Convert.ToBase64String(bytes);
                 diagramShag.ImageBase64 = base64;
-                
+
                 _diagramState.HasChanges();
             }
             catch (OutOfMemoryException)
@@ -392,7 +392,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 _diagramState.HasChanges();//wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             }
-            else 
+            else
                 return;
         }
 
@@ -449,7 +449,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             if (diagramShag != null)
             {
-                diagramShag.NameImage = TBNameImage.Text; 
+                diagramShag.NameImage = TBNameImage.Text;
                 if (wpfPosledovatelnost != null)
                 {
                     _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
@@ -516,7 +516,7 @@ namespace TC_WinForms.WinForms.Diagram
                 txtImplementerComment.IsEnabled = true;
             }
         }
-        
+
         private void btnDeleteImage_Click(object sender, RoutedEventArgs e)
         {
             diagramShag.ImageBase64 = "";
@@ -553,3 +553,4 @@ namespace TC_WinForms.WinForms.Diagram
 
 
     }
+}
