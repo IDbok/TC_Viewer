@@ -50,27 +50,28 @@ namespace TC_WinForms.WinForms
         {
             SetViewMode();
 
-            if (_tc.ExecutionSchemeImageId != null ||  (_tc.ExecutionSchemeImageId == null && _tcViewState?.TechnologicalCard.ExecutionSchemeBase64 != null))
+            if (_tc.ExecutionSchemeImageId != null ||  (_tc.ExecutionSchemeImageId == null && _tcViewState.TechnologicalCard.ExecutionSchemeBase64 != null))
             {
                 string imageBase64 = "";
 
                 if (_tcViewState?.TechnologicalCard?.ExecutionSchemeBase64 != null)
-                    imageBase64 = _tcViewState?.TechnologicalCard?.ExecutionSchemeBase64;
+                    imageBase64 = _tcViewState.TechnologicalCard.ExecutionSchemeBase64 ?? "";
                 else if(_tc.ExecutionSchemeImageId != null)
                 {
                     try
                     {
                         for(int i = 1; i <=3; i++)//проверка на загрузку изображение, повторяем 3 раза
                         {
-                            imageBase64 = await tcRepository.GetImageBase64Async((long)_tc.ExecutionSchemeImageId);
-                            _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = imageBase64;
+                            imageBase64 = await tcRepository.GetImageBase64Async((long)_tc.ExecutionSchemeImageId) ?? "";
+                            
 
                             if (i == 3 && (imageBase64 == "" || imageBase64 == null))
                                 throw new Exception("не удалось получить изображение");
                             else if (imageBase64 != null && imageBase64 != "")
                                 break;
                         }
-                        
+                        _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = imageBase64;
+
                     }
                     catch(Exception ex)
                     {

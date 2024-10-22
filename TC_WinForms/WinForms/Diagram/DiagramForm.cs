@@ -118,5 +118,9 @@ namespace TC_WinForms.WinForms.Diagram
 
         }
 
+        private async void DiagramForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            await SaveChanges();
+        }
     }
 }

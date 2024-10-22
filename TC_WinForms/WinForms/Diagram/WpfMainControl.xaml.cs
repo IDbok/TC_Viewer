@@ -140,6 +140,8 @@ namespace TC_WinForms.WinForms.Diagram
         //}
         private void AddDiagramsToChildren()
         {
+            AvailableTechOperationWorks.Clear();
+
             foreach (var tow in TechOperationWorksList)
             {
                 AvailableTechOperationWorks.Add(tow);
@@ -162,11 +164,6 @@ namespace TC_WinForms.WinForms.Diagram
                     var wpfTo = new WpfTo(this, _tcViewState, dTOWGroup.OrderBy(x => x.Order).ToList());
 
                     Children.Add(wpfTo);
-
-                    //foreach (DiagamToWork item in dTOWGroup.OrderBy(x=> x.Order).ToList())
-                    //{
-                    //    wpfTo.AddParallelTO(item);
-                    //}
                 }
                 else
                 {
@@ -180,7 +177,9 @@ namespace TC_WinForms.WinForms.Diagram
             }
         }
 
-        
+
+
+
         private async void OnLoad(object sender, EventArgs e)
         {
             this.Visibility = Visibility.Collapsed;
@@ -189,7 +188,9 @@ namespace TC_WinForms.WinForms.Diagram
             technologicalCard = _tcViewState.TechnologicalCard;
             TechOperationWorksList = _tcViewState.TechOperationWorksList;
 
+
             DiagramToWorkList = _tcViewState.DiagramToWorkList;
+
 
 
             AddDiagramsToChildren();
@@ -232,7 +233,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         }
 
-        internal void Nomeraciya() // todo : раскомментировать
+        internal void Nomeraciya()
         {
             int nomer = 1;
 
@@ -322,8 +323,11 @@ namespace TC_WinForms.WinForms.Diagram
                 }
 
                 context.SaveChanges();
+
+
                 _tcViewState.DiagramToWorkList = technologicalCard.DiagamToWork;
                 _tcViewState.TechnologicalCard.DiagamToWork = technologicalCard.DiagamToWork;
+
 
             }
             catch (Exception ee)
@@ -453,6 +457,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             Children.Remove(wpfTo);
         }
+
     }
 
     
