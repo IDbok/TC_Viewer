@@ -177,25 +177,8 @@ namespace TC_WinForms.WinForms.Diagram
             }
         }
 
-        private async Task<List<DiagamToWork>> GetDTWDataAsync()
-        {
-            var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == tcId).ToListAsync();
 
 
-
-            var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
-                                                                     .Include(ie => ie.techOperationWork)
-                                                                     .ToListAsync();
-
-            var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
-                .ToListAsync();
-
-            var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
-                .Include(q => q.ListDiagramShagToolsComponent)
-                .ToListAsync();
-
-            return diagramToWorkList;
-        }
 
         private async void OnLoad(object sender, EventArgs e)
         {
@@ -205,7 +188,10 @@ namespace TC_WinForms.WinForms.Diagram
             technologicalCard = _tcViewState.TechnologicalCard;
             TechOperationWorksList = _tcViewState.TechOperationWorksList;
 
-            DiagramToWorkList = await GetDTWDataAsync();
+
+            DiagramToWorkList = _tcViewState.DiagramToWorkList;
+
+
 
             AddDiagramsToChildren();
             Nomeraciya();
@@ -337,7 +323,12 @@ namespace TC_WinForms.WinForms.Diagram
                 }
 
                 context.SaveChanges();
-                _tcViewState.DiagramToWorkList = DiagramToWorkList;
+
+
+                _tcViewState.DiagramToWorkList = technologicalCard.DiagamToWork;
+                _tcViewState.TechnologicalCard.DiagamToWork = technologicalCard.DiagamToWork;
+
+
             }
             catch (Exception ee)
             {
@@ -403,6 +394,7 @@ namespace TC_WinForms.WinForms.Diagram
         public void DeleteFromDeletedDiagrams(DiagamToWork diagramToWork)
         {
             DeletedDiagrams.Remove(diagramToWork);
+            technologicalCard.DiagamToWork.Add(diagramToWork);
         }
 
         public List<TechOperationWork> GetAvailableTechOperationWorks()
