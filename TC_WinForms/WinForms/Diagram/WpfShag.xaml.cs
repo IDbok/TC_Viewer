@@ -415,9 +415,12 @@ namespace TC_WinForms.WinForms.Diagram
                 DataGridToolAndComponentsAdd.Visibility = Visibility.Collapsed;
                 DataGridToolAndComponentsShow.Visibility = Visibility.Visible;
 
-                var vb = AllItemGrid.Where(w=>w.Add).ToList();
-                DataGridToolAndComponentsShow.ItemsSource = vb;
-                _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                if (AllItemGrid != null && AllItemGrid.Count > 0)
+                {
+                    var vb = AllItemGrid.Where(w => w.Add).ToList();
+                    DataGridToolAndComponentsShow.ItemsSource = vb;
+                    _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                }
             }
         }
 
