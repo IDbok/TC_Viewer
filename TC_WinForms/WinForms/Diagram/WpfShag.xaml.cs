@@ -75,8 +75,50 @@ namespace TC_WinForms.WinForms.Diagram
             diagramShag.ImplementerComment = txtImplementerComment.Text;
             diagramShag.LeadComment = txtLeadComment.Text;
 
-            var allVB = AllItemGrid.Where(w => w.Add).ToList();
+            UpdateToolsComponentsList();
+
+            //var allVB = AllItemGrid.Where(w => w.Add).ToList();
+            //diagramShag.ListDiagramShagToolsComponent = new List<DiagramShagToolsComponent>();
+            //foreach (var item in allVB)
+            //{
+            //    DiagramShagToolsComponent diagramShagToolsComponent = new DiagramShagToolsComponent();
+            //    if (item.toolWork != null)
+            //    {
+            //        diagramShagToolsComponent.toolWork = item.toolWork;
+            //    }
+            //    else
+            //    {
+            //        diagramShagToolsComponent.componentWork = item.componentWork;
+            //    }
+
+            //    try
+            //    {
+            //        diagramShagToolsComponent.Quantity = double.Parse(item.AddText);
+            //    }
+            //    catch (Exception)
+            //    {
+            //        diagramShagToolsComponent.Quantity = 0;
+            //    }
+
+            //    var prevComment = diagramShagToolsComponent.toolWork != null ? diagramShagToolsComponent.toolWork.Comments : diagramShagToolsComponent.componentWork.Comments;
+
+            //    if (prevComment != item.Comments)
+            //    {
+            //        diagramShagToolsComponent.Comment = item.Comments;
+            //    }
+
+            //    diagramShag.ListDiagramShagToolsComponent.Add(diagramShagToolsComponent);
+            //}
+
+
+        }
+
+        private void UpdateToolsComponentsList()
+        {
+
             diagramShag.ListDiagramShagToolsComponent = new List<DiagramShagToolsComponent>();
+
+            var allVB = AllItemGrid.Where(w => w.Add).ToList();
             foreach (var item in allVB)
             {
                 DiagramShagToolsComponent diagramShagToolsComponent = new DiagramShagToolsComponent();
@@ -91,10 +133,18 @@ namespace TC_WinForms.WinForms.Diagram
 
                 try
                 {
-                    diagramShagToolsComponent.Quantity = double.Parse(item.AddText);
+                    if(string.IsNullOrEmpty(item.AddText))
+                    {
+                        diagramShagToolsComponent.Quantity = 0;
+                    }
+                    else
+                    {
+                        diagramShagToolsComponent.Quantity = double.Parse(item.AddText);
+                    }
                 }
-                catch (Exception)
+                catch
                 {
+                    // неверный формат данный
                     diagramShagToolsComponent.Quantity = 0;
                 }
 
@@ -107,8 +157,6 @@ namespace TC_WinForms.WinForms.Diagram
 
                 diagramShag.ListDiagramShagToolsComponent.Add(diagramShagToolsComponent);
             }
-
-
         }
 
         public void SetNomer(int nomer)
@@ -427,6 +475,9 @@ namespace TC_WinForms.WinForms.Diagram
                 {
                     var vb = AllItemGrid.Where(w => w.Add).ToList();
                     DataGridToolAndComponentsShow.ItemsSource = vb;
+
+                    UpdateToolsComponentsList();
+
                     _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
                 }
             }
