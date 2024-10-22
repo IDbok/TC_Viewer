@@ -131,6 +131,12 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
                 Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState)); // this, _tcViewState));
             }
 
+            // проверка на соотвествие diagamToWork с _diagramState.DiagamToWork
+            if(diagamToWork.Id != _diagramState.DiagramToWork.Id)
+            {
+                _diagramState.DiagramToWork = diagamToWork;
+            }
+
             foreach (DiagramParalelno diagramParalelno in this.diagamToWork.ListDiagramParalelno.OrderBy(x => x.Order))
             {
                 //ListWpfParalelno.Children.Add(new WpfParalelno(diagramParalelno.techOperationWork, _diagramState, diagramParalelno)); //this, _tcViewState, diagramParalelno));
@@ -237,7 +243,6 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
                     deletedDiagramToWork.ParallelIndex = this.diagamToWork.ParallelIndex;
 
                 this.diagamToWork = deletedDiagramToWork;
-                this.diagamToWork.techOperationWork = techOperationWork; // todo - временное решение, в идеале, понять, почему ТО пропадает из удалённой диаграммы
 
                 UpdateDiagramToWork();
                 //_wpfMainControl.technologicalCard.DiagamToWork.Add(deletedDiagramToWork);
