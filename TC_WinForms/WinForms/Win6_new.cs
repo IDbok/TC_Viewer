@@ -254,12 +254,30 @@ namespace TC_WinForms.WinForms
             return techOperationWorkList;
         }
 
-        
+        private async Task<List<DiagamToWork>> GetDTWDataAsync()
+        {
+            var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == _tcId).ToListAsync();
+
+
+            var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
+                                                                     .Include(ie => ie.techOperationWork)
+                                                                     .ToListAsync();
+
+            var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
+                .ToListAsync();
+
+            var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
+                .Include(q => q.ListDiagramShagToolsComponent)
+                .ToListAsync();
+
+            return diagramToWorkList;
+        }
 
         private async Task SetTcViewStateData()
         {
             tcViewState.TechnologicalCard = await GetTCDataAsync();
             tcViewState.TechOperationWorksList = await GetTOWDataAsync();
+            tcViewState.DiagramToWorkList = await GetDTWDataAsync();
         }
         #endregion
 
@@ -351,11 +369,11 @@ namespace TC_WinForms.WinForms
 
             if (isSwitchingFromOrToWorkStep)
             {
-                //if (!CheckForChanges()) // если false, то отменяем переключение
-                //{
-                //    this.Enabled = true;
-                //    return;
-                //}
+                if (!CheckForChanges()) // если false, то отменяем переключение
+                {
+                    this.Enabled = true;
+                    return;
+                }
 
                 // Удаляем формы из кеша для их обновления при следующем доступе
                 foreach (var formKey in _formsCache.Keys.ToList())
