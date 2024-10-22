@@ -136,7 +136,7 @@
                                         <DataGridTemplateColumn Header="Комментарии" Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBox Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_CommentTextChanged" TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                    <TextBox Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_CommentTextChanged" TextWrapping="Wrap" Background="LightGray"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
@@ -145,7 +145,7 @@
                                         <DataGridTemplateColumn Header="Кол-во добавить" Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }"/>
+                                                    <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }"  Background="LightGray"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
