@@ -136,7 +136,7 @@
                                         <DataGridTemplateColumn Header="Комментарии" Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding Path=Comments}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                    <TextBox Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_CommentTextChanged" TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
