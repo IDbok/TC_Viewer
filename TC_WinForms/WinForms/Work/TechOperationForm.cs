@@ -1132,7 +1132,24 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
             else
             {
-                str.Add("");
+                //Получаем прошлую строку для сравнения, нужно ли объединение
+                var prevStr = TechOperationDataGridItems.Where(t => t.Nomer == techOperationDataGridItem.Nomer - 1).FirstOrDefault();
+                if(prevStr != null)
+                {
+                    //Проверка является ли прошлая строка не последовательной и проверка различия с прошлым значением(чтобы не объеденять строки ТП и инструментументов которые последовательны)
+                    var isPreviousStrParallel = prevStr.Etap != "0" && techOperationDataGridItem.Etap != prevStr.Etap;
+                    
+                    if(prevStr.ItsTool || prevStr.ItsComponent)
+                        techOperationDataGridItem.TimeEtap = prevStr.TimeEtap;//Если прошлая строка инструмент или компонент - копируем её значение
+                    else
+                        techOperationDataGridItem.TimeEtap = isPreviousStrParallel ? "-1" : "";
+
+                    str.Add(techOperationDataGridItem.TimeEtap);
+                }
+                else
+                {
+                    str.Add("");
+                }
             }
         }
     }
