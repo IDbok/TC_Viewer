@@ -13,8 +13,8 @@
         <StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left"  Margin="0,0,64,0"
                          Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Button Width="50" Content="Влево" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_2"  />
-                <Button Width="50" Content="Право" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_1" />
+                <Button Width="50" Content="← Влево" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_2"  />
+                <Button Width="50" Content="→ Вправо" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="Button_Click_1" />
             </StackPanel>
             <StackPanel x:Name="ListWpfShag">
                 <local:WpfShag/>

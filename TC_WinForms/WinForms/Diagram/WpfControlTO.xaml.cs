@@ -151,9 +151,9 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
     }
 
 
-    public void ParallelButtonsVisibility(bool isVisible)
+    public void ParallelButtonsVisibility(bool isVisible) // todo: перенести для WpfToSequence
     {
-        pnlParallelButtons.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
+        // pnlParallelButtons.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)
@@ -348,16 +348,11 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
     private void ButtonDown_Click(object sender, RoutedEventArgs e)
     {
         _diagramState.WpfTo?.ChangeOrder(this, MoveDirection.Down);
-        //_wpfMainControl.Order(1, this);
-        //_wpfMainControl.diagramForm.HasChanges = true;
     }
 
     private void ButtonUp_Click(object sender, RoutedEventArgs e)
     {
         _diagramState.WpfTo?.ChangeOrder(this, MoveDirection.Up);
-
-        //_wpfMainControl.Order(2, this);
-        //_wpfMainControl.diagramForm.HasChanges = true;
     }
 
     private void btnDelete_Click(object sender, RoutedEventArgs e)

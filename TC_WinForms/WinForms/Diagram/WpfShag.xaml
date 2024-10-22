@@ -249,12 +249,13 @@
             </Border>            
         </StackPanel>
     </Border>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="14" 
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="14" 
                     Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
                     >
-            <Button Width="50" Content="Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonDown_Click" />
-            <Button Width="50" Content="Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonUp_Click"/>
-            <Button Width="75" Content="Удалить Шаг" HorizontalAlignment="Right"  Click="ButtonDelete_Click" VerticalAlignment="Top" />
+            <Button Width="50" Content="↓ Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonDown_Click" />
+            <Button Width="50" Content="↑ Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonUp_Click"/>
+            <Button Width="80" Content="Удалить Шаг" HorizontalAlignment="Right"  Click="ButtonDelete_Click" VerticalAlignment="Top" 
+                    Background="IndianRed"/>
         </StackPanel>
         
     </Grid>
