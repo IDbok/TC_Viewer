@@ -169,6 +169,7 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
         {
             var techOperationWork = (TechOperationWork)ComboBoxTO.SelectedItem;
 
+            // Если данный блок пустой
             if (diagamToWork.techOperationWork != null)
             {
                 if(diagamToWork.techOperationWork.Id == techOperationWork.Id)
@@ -236,6 +237,7 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
                     deletedDiagramToWork.ParallelIndex = this.diagamToWork.ParallelIndex;
 
                 this.diagamToWork = deletedDiagramToWork;
+                this.diagamToWork.techOperationWork = techOperationWork; // todo - временное решение, в идеале, понять, почему ТО пропадает из удалённой диаграммы
 
                 UpdateDiagramToWork();
                 //_wpfMainControl.technologicalCard.DiagamToWork.Add(deletedDiagramToWork);

@@ -65,7 +65,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         public void SaveCollection()
         {
-            if(diagramShag == null)
+            if (diagramShag == null)
             {
                 return;
             }
@@ -80,7 +80,7 @@ namespace TC_WinForms.WinForms.Diagram
             foreach (var item in allVB)
             {
                 DiagramShagToolsComponent diagramShagToolsComponent = new DiagramShagToolsComponent();
-                if(item.toolWork!=null)
+                if (item.toolWork != null)
                 {
                     diagramShagToolsComponent.toolWork = item.toolWork;
                 }
@@ -100,7 +100,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 var prevComment = diagramShagToolsComponent.toolWork != null ? diagramShagToolsComponent.toolWork.Comments : diagramShagToolsComponent.componentWork.Comments;
 
-                if(prevComment != item.Comments)
+                if (prevComment != item.Comments)
                 {
                     diagramShagToolsComponent.Comment = item.Comments;
                 }
@@ -125,7 +125,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         public WpfShag(TechOperationWork selectedItem,
             DiagramState diagramState,
-            DiagramShag _diagramShag=null) 
+            DiagramShag _diagramShag = null)
             : this(selectedItem,
                 diagramState.WpfPosledovatelnost ?? throw new ArgumentNullException(nameof(diagramState.WpfPosledovatelnost)),
                 diagramState.TcViewState, _diagramShag)
@@ -140,10 +140,10 @@ namespace TC_WinForms.WinForms.Diagram
 
         }
         [Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
-        public WpfShag(TechOperationWork selectedItem, 
-            WpfPosledovatelnost _wpfPosledovatelnost, 
+        public WpfShag(TechOperationWork selectedItem,
+            WpfPosledovatelnost _wpfPosledovatelnost,
             TcViewState tcViewState,
-            DiagramShag _diagramShag=null)
+            DiagramShag _diagramShag = null)
         {
             InitializeComponent();
 
@@ -187,8 +187,8 @@ namespace TC_WinForms.WinForms.Diagram
                 catch (Exception)
                 {
 
-                }                
-                
+                }
+
 
                 try
                 {
@@ -292,7 +292,7 @@ namespace TC_WinForms.WinForms.Diagram
             DataGridToolAndComponentsAdd.ItemsSource = AllItemGrid;
             DataGridToolAndComponentsShow.ItemsSource = AllItemGrid.Where(i => i.Add).ToList();
         }
-        
+
         private BitmapImage LoadImage(byte[] imageData)
         {
             if (imageData == null || imageData.Length == 0) return null;
@@ -313,7 +313,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void ComboBoxTeh_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(ComboBoxTeh.SelectedItem != null)
+            if (ComboBoxTeh.SelectedItem != null)
             {
                 var work = (ExecutionWork)ComboBoxTeh.SelectedItem;
 
@@ -345,7 +345,7 @@ namespace TC_WinForms.WinForms.Diagram
                 byte[] bytes = File.ReadAllBytes(filename);
                 string base64 = Convert.ToBase64String(bytes);
                 diagramShag.ImageBase64 = base64;
-                
+
                 _diagramState.HasChanges();
             }
             catch (OutOfMemoryException)
@@ -392,7 +392,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 _diagramState.HasChanges();//wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             }
-            else 
+            else
                 return;
         }
 
@@ -412,10 +412,10 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void TG_Click(object sender, RoutedEventArgs e)
         {
-            if(TG.IsChecked==true)
+            if (TG.IsChecked == true)
             {
-                DataGridToolAndComponentsAdd.Visibility= Visibility.Visible;
-                DataGridToolAndComponentsShow.Visibility= Visibility.Collapsed;
+                DataGridToolAndComponentsAdd.Visibility = Visibility.Visible;
+                DataGridToolAndComponentsShow.Visibility = Visibility.Collapsed;
                 _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             }
             else
@@ -449,7 +449,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             if (diagramShag != null)
             {
-                diagramShag.NameImage = TBNameImage.Text; 
+                diagramShag.NameImage = TBNameImage.Text;
                 if (wpfPosledovatelnost != null)
                 {
                     _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
@@ -481,7 +481,7 @@ namespace TC_WinForms.WinForms.Diagram
         }
         private void ChangeImageVisibility()
         {
-            var isImage = imageDiagram.Source != null ;
+            var isImage = imageDiagram.Source != null;
 
             imageDiagram.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
             gridImageName.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
@@ -507,7 +507,7 @@ namespace TC_WinForms.WinForms.Diagram
                 txtImplementerComment.IsReadOnly = false;
                 txtImplementerComment.IsEnabled = true;
             }
-            else if(_tcViewState.UserRole == User.Role.Implementer)
+            else if (_tcViewState.UserRole == User.Role.Implementer)
             {
                 txtLeadComment.IsReadOnly = true;
                 txtLeadComment.IsEnabled = false;
@@ -516,7 +516,7 @@ namespace TC_WinForms.WinForms.Diagram
                 txtImplementerComment.IsEnabled = true;
             }
         }
-        
+
         private void btnDeleteImage_Click(object sender, RoutedEventArgs e)
         {
             diagramShag.ImageBase64 = "";
@@ -553,3 +553,4 @@ namespace TC_WinForms.WinForms.Diagram
 
 
     }
+}
