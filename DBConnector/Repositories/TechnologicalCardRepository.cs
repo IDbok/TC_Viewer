@@ -99,7 +99,8 @@ public class TechnologicalCardRepository
 
     public async Task<string?> GetImageBase64Async(long ExecutionSchemeImageId)
     {
-        var imageBase64 = await _db.ImageStorage.Where(i => i.Id == ExecutionSchemeImageId).Select(u => u.ImageBase64).FirstOrDefaultAsync();
+        var imageBase64 = await _db.ImageStorage
+            .Where(i => i.Id == ExecutionSchemeImageId).Select(u => u.ImageBase64).FirstOrDefaultAsync();
         return imageBase64;
     }
 

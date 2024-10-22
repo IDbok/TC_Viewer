@@ -98,6 +98,13 @@ namespace TC_WinForms.WinForms.Diagram
                     diagramShagToolsComponent.Quantity = 0;
                 }
 
+                var prevComment = diagramShagToolsComponent.toolWork != null ? diagramShagToolsComponent.toolWork.Comments : diagramShagToolsComponent.componentWork.Comments;
+
+                if(prevComment != item.Comments)
+                {
+                    diagramShagToolsComponent.Comment = item.Comments;
+                }
+
                 diagramShag.ListDiagramShagToolsComponent.Add(diagramShagToolsComponent);
             }
 
@@ -274,6 +281,7 @@ namespace TC_WinForms.WinForms.Diagram
                 {
                     existingItem.Add = true;
                     existingItem.AddText = diagramShagToolsComponent.Quantity.ToString();
+                    existingItem.Comments = diagramShagToolsComponent.Comment ?? existingItem.Comments;
                 }
             }
 
@@ -284,7 +292,7 @@ namespace TC_WinForms.WinForms.Diagram
             DataGridToolAndComponentsAdd.ItemsSource = AllItemGrid;
             DataGridToolAndComponentsShow.ItemsSource = AllItemGrid.Where(i => i.Add).ToList();
         }
-
+        
         private BitmapImage LoadImage(byte[] imageData)
         {
             if (imageData == null || imageData.Length == 0) return null;
@@ -415,9 +423,12 @@ namespace TC_WinForms.WinForms.Diagram
                 DataGridToolAndComponentsAdd.Visibility = Visibility.Collapsed;
                 DataGridToolAndComponentsShow.Visibility = Visibility.Visible;
 
-                var vb = AllItemGrid.Where(w=>w.Add).ToList();
-                DataGridToolAndComponentsShow.ItemsSource = vb;
-                _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                if (AllItemGrid != null && AllItemGrid.Count > 0)
+                {
+                    var vb = AllItemGrid.Where(w => w.Add).ToList();
+                    DataGridToolAndComponentsShow.ItemsSource = vb;
+                    _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                }
             }
         }
 
@@ -445,7 +456,23 @@ namespace TC_WinForms.WinForms.Diagram
                 }
             }
         }
+        private void TextBox_CommentTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (diagramShag != null)
+            {
+                ItemDataGridShagAdd gridItem = (ItemDataGridShagAdd)(((System.Windows.Controls.TextBox)sender).DataContext);
 
+                if (gridItem != null)
+                {
+                    gridItem.Comments = ((System.Windows.Controls.TextBox)sender).Text;
+                }
+
+                if (wpfPosledovatelnost != null)
+                {
+                    _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                }
+            }
+        }
         private void btnLoadImage_Click(object sender, RoutedEventArgs e)
         {
             //ChangeImageVisibility();// true);
@@ -500,6 +527,7 @@ namespace TC_WinForms.WinForms.Diagram
             //_tcViewState.WpfMainControl.diagramForm.HasChanges = true;
         }
 
+
         /// <summary>
         /// Передаём событие прокрутки полученное элементом родительскому элементу.
         /// Убираем "залипание" при прокрутке.
@@ -523,5 +551,5 @@ namespace TC_WinForms.WinForms.Diagram
         }
 
 
+
     }
-}
