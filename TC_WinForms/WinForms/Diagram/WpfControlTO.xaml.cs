@@ -120,7 +120,7 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
             //if(!IsViewMode)
             //    ButtonAddShag.Visibility = Visibility.Visible;
 
-            _wpfMainControl.technologicalCard.DiagamToWork.Add(this.diagamToWork);
+            //_wpfMainControl.technologicalCard.DiagamToWork.Add(this.diagamToWork);
 
             //ListWpfParalelno.Children.Clear();
             Children.Clear();

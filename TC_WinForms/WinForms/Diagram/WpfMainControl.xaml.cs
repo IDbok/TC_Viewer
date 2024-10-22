@@ -420,6 +420,7 @@ namespace TC_WinForms.WinForms.Diagram
         public void DeleteFromDeletedDiagrams(DiagamToWork diagramToWork)
         {
             DeletedDiagrams.Remove(diagramToWork);
+            technologicalCard.DiagamToWork.Add(diagramToWork);
         }
 
         public List<TechOperationWork> GetAvailableTechOperationWorks()
