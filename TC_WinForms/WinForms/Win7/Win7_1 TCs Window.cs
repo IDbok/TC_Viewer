@@ -138,8 +138,6 @@ namespace TC_WinForms.WinForms
 
         async Task<bool> SaveAsync()
         {
-
-
             if (LocalCard == null)
                 LocalCard = new TechnologicalCard();
 
@@ -166,8 +164,6 @@ namespace TC_WinForms.WinForms
                     LocalCard.Status = (TechnologicalCardStatus)selectedEnumValue;
                 }
             }
-
-            // проверяем на заполненность полей
 
             try
             {
