@@ -69,13 +69,13 @@ public static class TempFileCleaner
             if (TempFiles.Contains(filePath))
             {
                 TempFiles.Remove(filePath);
-
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
             }
-            
+
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+
         }
         catch (Exception ex)
         {

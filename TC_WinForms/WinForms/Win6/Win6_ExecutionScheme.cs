@@ -174,7 +174,10 @@ namespace TC_WinForms.WinForms
 
         private void btnDeleteES_Click(object sender, EventArgs e)
         {
-            _tc.ExecutionSchemeImage?.ClearBase64Image();       
+            _tc.ExecutionSchemeImage?.ClearBase64Image(); // что делает данное поле?
+            _tc.ExecutionSchemeImage = null;
+            _tc.ExecutionSchemeBase64 = null;
+            _tc.ExecutionSchemeImageId = null;
             pictureBoxExecutionScheme.Image = null;
 
             // Удаляем временный файл
