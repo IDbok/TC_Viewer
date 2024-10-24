@@ -16,7 +16,8 @@
 
             <StackPanel Orientation="Vertical">
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left"
+                            Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Button Content="← Влево" Width="60" Margin="0 0 15 0" Click="BtnMoveLeft_Click"/>
                     <Button Content="→ Вправо" Width="60" Margin="0 0 15 0" Click="BtnMoveRight_Click"/>
                 </StackPanel>

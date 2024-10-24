@@ -14,12 +14,15 @@
         <StackPanel HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
                 <TextBlock Text="Выбрите ТО" />
+                
                 <ComboBox Name="ComboBoxTO" Width="300" Margin="30,0,0,0"
                             SelectionChanged="ComboBoxTO_SelectionChanged" 
                             PreviewMouseDown="ComboBoxTO_PreviewMouseDown" 
                             PreviewMouseWheel="ComboBoxTO_PreviewMouseWheel"
                             DropDownOpened="ComboBoxTO_DropDownOpened"
-                            DropDownClosed="ComboBoxTO_DropDownClosed"/>
+                            DropDownClosed="ComboBoxTO_DropDownClosed"
+                          IsEnabled="{Binding IsHiddenInViewMode}"
+                          />
 
                 <StackPanel Orientation="Horizontal" 
                             
