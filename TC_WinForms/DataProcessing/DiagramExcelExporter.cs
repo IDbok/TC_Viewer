@@ -242,7 +242,16 @@ namespace TC_WinForms.DataProcessing
             var centerCollumn = Modulo(-currentCollumn, _currentPrintWidgth) + currentCollumn - _currentPrintWidgth + 6;
 
             // Сортировка по номеру шага
-            parallelesList = parallelesList.OrderBy(o => 
+            foreach (DiagramParalelno parallel in parallelesList)
+            {
+                foreach (DiagramPosledov posled in parallel.ListDiagramPosledov)
+                {
+                    posled.ListDiagramShag = posled.ListDiagramShag.OrderBy(x => x.Nomer).ToList();
+                }
+                parallel.ListDiagramPosledov = parallel.ListDiagramPosledov.OrderBy(o => o.ListDiagramShag.FirstOrDefault()?.Nomer).ToList();
+            }
+
+            parallelesList = parallelesList.OrderBy(o =>
                 o.ListDiagramPosledov.FirstOrDefault()?.ListDiagramShag.FirstOrDefault()?.Nomer).ToList();
 
             foreach (DiagramParalelno parallel in parallelesList)
@@ -414,9 +423,10 @@ namespace TC_WinForms.DataProcessing
             {
                 { "№", currentColumn },
                 { "Наименование", currentColumn+1 },
-                { "Тип (исполнение)", currentColumn+4 },
-                { "Ед. Изм.", currentColumn+6 },
-                { "Кол-во", currentColumn+7 },
+                { "Тип", currentColumn+3 },
+                { "Ед. Изм.", currentColumn+4 },
+                { "Кол-во", currentColumn+5 },
+                {"Примечание", currentColumn+6},
                 {"конец", currentColumn+8 }
             };
 
@@ -432,11 +442,11 @@ namespace TC_WinForms.DataProcessing
             int currentRow = headRow + 1;
             int i = 1;
 
-            List<(dynamic tableObject, double Quantity)> tableItems = new List<(dynamic tableObject, double Quantity)>();
+            List<(dynamic tableObject, double Quantity, string Comment)> tableItems = new List<(dynamic tableObject, double Quantity, string Comment)>();
 
             foreach (var toolComponent in toolComponent_DiagramList)//упорядочивание элементов, чтобы компоненты падали вниз
             {
-                (dynamic tableObject, double Quantity) obj = GetItemFromList(toolComponent);
+                (dynamic tableObject, double Quantity, string Comment) obj = GetItemFromList(toolComponent);
                 if (toolComponent.toolWorkId != null)
                     tableItems.Insert(0, obj);
                 else
@@ -445,7 +455,7 @@ namespace TC_WinForms.DataProcessing
 
             foreach(var item in tableItems)
             {
-                if (item != (null, 0))
+                if (item != (null, 0, ""))
                 {
                     sheet.Cells[currentRow, columnNums[0]].Value = i;
 
@@ -453,17 +463,28 @@ namespace TC_WinForms.DataProcessing
                     sheet.Cells[currentRow, columnNums[2]].Value = item.tableObject.Type;
                     sheet.Cells[currentRow, columnNums[3]].Value = item.tableObject.Unit;
                     sheet.Cells[currentRow, columnNums[4]].Value = item.Quantity;
+                    sheet.Cells[currentRow, columnNums[5]].Value = item.Comment ?? "";
+
 
                     int[] cols = { columnNums[1], columnNums[2] };
                     int[] colsType = { columnNums[2], columnNums[3] };
+                    int[] colsComment = { columnNums[5], columnNums[6] };
 
                     var rowCount = GetRowsCountByData(item.tableObject.Name, sheet, cols);
                     rowCount = rowCount <= 1 ? 0 : rowCount;
-                    if(rowCount == 0)
+                    var prevRes = rowCount;
+
+                    rowCount = GetRowsCountByData(item.tableObject.Type, sheet, colsType);
+                    rowCount = rowCount <= prevRes ? prevRes : rowCount;
+                    prevRes = rowCount;
+
+                    if (item.Comment != null)
                     {
-                        rowCount = GetRowsCountByData(item.tableObject.Type, sheet, colsType);
-                        rowCount = rowCount <= 1 ? 0 : rowCount;
+                        rowCount = GetRowsCountByData(item.Comment, sheet, colsComment);
+                        rowCount = rowCount <= prevRes ? prevRes : rowCount;
                     }
+                    
+
 
                     // Форматирование ячеек
                     AddStyleAlignment(currentRow, columnNums, sheet);
@@ -471,18 +492,20 @@ namespace TC_WinForms.DataProcessing
                     // Включаем перенос слов в ячейке
                     sheet.Cells[currentRow, columnNums[1]].Style.WrapText = true;
                     sheet.Cells[currentRow, columnNums[2]].Style.WrapText = true;
+                    sheet.Cells[currentRow, columnNums[5]].Style.WrapText = true;
+
 
                     sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                     // Объединение ячеек между столбцами
                     _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums, rowCount);
 
-                    sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[4]].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[5]].Style.Fill.PatternType = ExcelFillStyle.Solid;
 
                     if (item.tableObject.GetType().Name == "Tool")//Окраживание ячеек в зависимоти от типа
-                        sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[4]].Style.Fill.BackgroundColor.SetColor(Color.Aquamarine);
+                        sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[5]].Style.Fill.BackgroundColor.SetColor(Color.Aquamarine);
                     else
-                        sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[4]].Style.Fill.BackgroundColor.SetColor(Color.Salmon);
+                        sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[5]].Style.Fill.BackgroundColor.SetColor(Color.Salmon);
 
 
                     // Переход к следующей строке
@@ -579,7 +602,7 @@ namespace TC_WinForms.DataProcessing
         {
             var collumnsWidth = (collumnNums[collumnNums.Length - 1] - collumnNums[0]) * sheet.Column(collumnNums[collumnNums.Length - 1]).Width;
             var rowCount = data.Length / collumnsWidth;
-            rowCount = rowCount < 1.15d ? Math.Floor(rowCount): Math.Ceiling(rowCount);
+            rowCount = rowCount <= 0.85 ? Math.Floor(rowCount): Math.Ceiling(rowCount);
             return (int)rowCount;
         }
         private int AddTableToolNumber(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn)
@@ -591,24 +614,24 @@ namespace TC_WinForms.DataProcessing
 
             return headRow + 2;
         }
-        private (dynamic, double) GetItemFromList(DiagramShagToolsComponent item)
+        private (dynamic, double, string) GetItemFromList(DiagramShagToolsComponent item)
         {
             var context = new MyDbContext();
             if (item.toolWorkId != null)
             {
                 var toolWorksObj = context.ToolWorks.Where(t => t.Id == item.toolWorkId).FirstOrDefault();
                 var tool = context.Tools.Where(t => t.Id == toolWorksObj.toolId).FirstOrDefault();
-                (dynamic tableObject, double Quantity) tableItem = (tool, item.Quantity);
+                (dynamic tableObject, double Quantity, string Comment) tableItem = (tool, item.Quantity, item.Comment);
                 return tableItem;
             }
             else if (item.componentWorkId != null)
             {
                 var componentWorksObj = context.ComponentWorks.Where(t => t.Id == item.componentWorkId).FirstOrDefault();
                 var component = context.Components.Where(t => t.Id == componentWorksObj.componentId).FirstOrDefault();
-                (dynamic tableObject, double Quantity) tableItem = (component, item.Quantity);
+                (dynamic tableObject, double Quantity, string Comment) tableItem = (component, item.Quantity, item.Comment);
                 return tableItem;
             }
-            return (null, 0);
+            return (null, 0, "");
         }
         private int AddImageNameNum(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn)
         {
