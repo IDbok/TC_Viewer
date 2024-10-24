@@ -341,7 +341,21 @@ namespace TC_WinForms.WinForms
             {
                 var result = MessageBox.Show("Вы хотите сохранить изменения?", "Сохранение изменений",
                     MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                if (result == DialogResult.Yes)
+
+                if (result == DialogResult.Yes && tcViewState.IsViewMode)
+                {
+                    var noSaveSwitch = MessageBox.Show("В режиме просмотра Технологической карты нельзя сохранять изменения! Для того, чтобы сохраниться, перейдите в режим редактирования карты. Продолжить без сохранения изменений?"
+                                                        , "Нельзя сохранить изменения", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    if(noSaveSwitch == DialogResult.Yes)
+                    {
+                        return true;
+                    }
+                    else if (noSaveSwitch == DialogResult.No)
+                    {
+                        return false;
+                    }
+                }
+                else if (result == DialogResult.Yes)
                 {
                     foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
                     {
@@ -455,6 +469,12 @@ namespace TC_WinForms.WinForms
         private void toolStripButton4_Click(object sender, EventArgs e) => SaveAllChanges();
         private void SaveAllChanges()
         {
+            if (tcViewState.IsViewMode)
+            {
+                MessageBox.Show("В режиме просмотра Технологической карты нельзя сохранять изменения! Для того, чтобы сохраниться, перейдите в режим редактирования карты.", "Нельзя сохранить изменения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             foreach (var form in _formsCache.Values)
             {
                 // is form is ISaveEventForm
@@ -513,7 +533,13 @@ namespace TC_WinForms.WinForms
                 var result = MessageBox.Show("Перед выпуском карты необходимо сохранить изменения.", "Сохранение изменений",
                                              MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                if (result == DialogResult.Yes)
+                if (result == DialogResult.Yes && tcViewState.IsViewMode)
+                {
+                    MessageBox.Show("В режиме просмотра Технологической карты нельзя сохранять изменения! Для того, чтобы сохраниться, перейдите в режим редактирования карты."
+                                                        , "Нельзя сохранить изменения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+                else if (result == DialogResult.Yes)
                 {
                     SaveAllChanges();
                     return true;
