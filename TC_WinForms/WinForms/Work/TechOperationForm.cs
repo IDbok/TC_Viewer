@@ -841,6 +841,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
             else
             {
+                if (parallelGroups.Count == 0)
+                {
+                    parallelGroups.Push((GroupType.Single,
+                                new List<TechOperationDataGridItem>(),
+                                new List<TechOperationDataGridItem> { item }));
+                }
+
                 parallelGroups.Peek().Item3.Add(item);
             }
 
