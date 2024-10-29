@@ -633,6 +633,8 @@ namespace TC_WinForms.WinForms
                 displayedObject.Manufacturer = modelObject.Manufacturer;
                 displayedObject.Links = modelObject.Links;
                 displayedObject.ClassifierCode = modelObject.ClassifierCode;
+                displayedObject.IsReleased = modelObject.IsReleased;
+
                 if (displayedObject is ICategoryable objectWithCategory && modelObject is ICategoryable modelWithCategory)
                 {
                     objectWithCategory.Categoty = modelWithCategory.Categoty;
