@@ -320,6 +320,27 @@ namespace TC_WinForms.DataProcessing
 
                     if (tcsToDelete.Any())
                     {
+                        if(typeof(T) == typeof(Tool))
+                        {
+                            var toolToDelete = tcsToDelete.Cast<Tool>().ToList();
+                            var shagToolComp = db.DiagramShagToolsComponent.
+                                Include(d => d.toolWork).ThenInclude(tc => tc.tool)
+                                .Where(d => toolToDelete.Contains( d.toolWork.tool)).ToList();
+
+                            if (shagToolComp.Count > 0)
+                                db.DiagramShagToolsComponent.RemoveRange(shagToolComp);
+                        }
+                        else if(typeof(T) == typeof(Component))
+                        {
+                            var componentToDelete = tcsToDelete.Cast<Component>().ToList();
+                            var shagToolComp = db.DiagramShagToolsComponent.
+                                Include(d => d.componentWork).ThenInclude(tc => tc.component)
+                                .Where(d => componentToDelete.Contains(d.componentWork.component)).ToList();
+
+                            if (shagToolComp.Count > 0)
+                                db.DiagramShagToolsComponent.RemoveRange(shagToolComp);
+                        }
+
                         db.Set<T>().RemoveRange(tcsToDelete);
 
                         await db.SaveChangesAsync();
