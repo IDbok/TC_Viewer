@@ -320,6 +320,15 @@ namespace TC_WinForms.DataProcessing
 
                     if (tcsToDelete.Any())
                     {
+                        if(typeof(T) == typeof(TechTransition))
+                        {
+                            var TTToDele = tcsToDelete.Cast<TechTransition>().ToList();
+                            var executionWorkToDelete = db.ExecutionWorks.Include(t => t.techTransition).Where(e => TTToDele.Contains(e.techTransition)).ToList();
+
+                            if (executionWorkToDelete.Count > 0)
+                                db.ExecutionWorks.RemoveRange(executionWorkToDelete);
+                        }
+
                         db.Set<T>().RemoveRange(tcsToDelete);
 
                         await db.SaveChangesAsync();
