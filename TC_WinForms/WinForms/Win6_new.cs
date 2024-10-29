@@ -178,6 +178,7 @@ namespace TC_WinForms.WinForms
             SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
 
             updateToolStripMenuItem.Text = tcViewState.IsViewMode ? "Редактировать" : "Просмотр";
+            actionToolStripMenuItem.Visible = !tcViewState.IsViewMode;
 
             //btnInformation.Visible = !_isViewMode;
 
@@ -337,30 +338,21 @@ namespace TC_WinForms.WinForms
                 }
             }
 
-            if (hasUnsavedChanges)
+
+            if (hasUnsavedChanges && tcViewState.IsViewMode)
+            {
+                //пропуск сохранения если находимся в режиме просмотра
+            }
+            else if (hasUnsavedChanges)
             {
                 var result = MessageBox.Show("Вы хотите сохранить изменения?", "Сохранение изменений",
                     MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
-                if (result == DialogResult.Yes && tcViewState.IsViewMode)
-                {
-                    var noSaveSwitch = MessageBox.Show("В режиме просмотра Технологической карты нельзя сохранять изменения! Для того, чтобы сохраниться, перейдите в режим редактирования карты. Продолжить без сохранения изменений?"
-                                                        , "Нельзя сохранить изменения", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                    if(noSaveSwitch == DialogResult.Yes)
-                    {
-                        return true;
-                    }
-                    else if (noSaveSwitch == DialogResult.No)
-                    {
-                        return false;
-                    }
-                }
-                else if (result == DialogResult.Yes)
+                if (result == DialogResult.Yes)
                 {
                     foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
                     {
                         fm.SaveChanges();
-
                     }
                     return true;
                 }
@@ -471,7 +463,6 @@ namespace TC_WinForms.WinForms
         {
             if (tcViewState.IsViewMode)
             {
-                MessageBox.Show("В режиме просмотра Технологической карты нельзя сохранять изменения! Для того, чтобы сохраниться, перейдите в режим редактирования карты.", "Нельзя сохранить изменения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -495,6 +486,12 @@ namespace TC_WinForms.WinForms
 
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (tcViewState.IsViewMode == false)
+            {
+                if (!CheckForChanges())
+                    return;
+            }
+
             tcViewState.IsViewMode = !tcViewState.IsViewMode;
 
             SetViewMode();
@@ -533,13 +530,7 @@ namespace TC_WinForms.WinForms
                 var result = MessageBox.Show("Перед выпуском карты необходимо сохранить изменения.", "Сохранение изменений",
                                              MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                if (result == DialogResult.Yes && tcViewState.IsViewMode)
-                {
-                    MessageBox.Show("В режиме просмотра Технологической карты нельзя сохранять изменения! Для того, чтобы сохраниться, перейдите в режим редактирования карты."
-                                                        , "Нельзя сохранить изменения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return false;
-                }
-                else if (result == DialogResult.Yes)
+                if (result == DialogResult.Yes)
                 {
                     SaveAllChanges();
                     return true;
