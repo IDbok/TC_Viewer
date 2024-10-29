@@ -953,7 +953,7 @@ namespace TC_WinForms.DataProcessing
             {
                 using (var context = new MyDbContext())
                 {
-                    var relatedItems = context.DiagramShagToolsComponent.Where(s => s.componentWorkId == itemId || s.toolWorkId == itemId).ToList();
+                    var relatedItems = context.DiagramShagToolsComponent.Where(s => (s.componentWorkId == itemId && s.toolWorkId == null) || (s.toolWorkId == itemId && s.componentWorkId == null)).ToList();
                     foreach (var item in relatedItems)
                     {
                         context.Remove(item);

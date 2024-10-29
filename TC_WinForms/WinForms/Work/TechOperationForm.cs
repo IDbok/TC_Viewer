@@ -1485,8 +1485,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         if (vb != null)
         {
             vb.Delete = true;
+            }
         }
-    }
 
     public void MarkToDeleteToolWork(ToolWork tool)
     {
@@ -1555,6 +1555,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         List<TechOperationWork> AllDele = TechOperationWorksList.Where(w => w.Delete == true).ToList();
         foreach (TechOperationWork techOperationWork in AllDele)
         {
+            foreach (ToolWork delTool in techOperationWork.ToolWorks)
+            {
+                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id);
+            }
+
+            foreach (ComponentWork delComp in techOperationWork.ComponentWorks)
+            {
+                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id);
+            }
+
             TechOperationWorksList.Remove(techOperationWork);
             if (techOperationWork.NewItem == false)
             {
