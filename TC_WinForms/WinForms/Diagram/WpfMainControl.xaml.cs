@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using TcDbConnector;
 using TcModels.Models;
@@ -161,20 +162,39 @@ namespace TC_WinForms.WinForms.Diagram
 
                 if (!isNull)
                 {
-                    var wpfTo = new WpfTo(this, _tcViewState, dTOWGroup.OrderBy(x => x.Order).ToList());
+                    AddDiagramsToChildren(dTOWGroup.OrderBy(x => x.Order).ToList());
+                    //var wpfTo = new WpfTo(this, _tcViewState, dTOWGroup.OrderBy(x => x.Order).ToList());
 
-                    Children.Add(wpfTo);
+                    //Children.Add(wpfTo);
                 }
                 else
                 {
                     foreach (DiagamToWork item in dTOWGroup.ToList())
                     {
-                        var wpfTo = new WpfTo(this, _tcViewState, item);
+                        AddDiagramsToChildren(item);
+                        //var wpfTo = new WpfTo(this, _tcViewState, item);
 
-                        Children.Add(wpfTo);
+                        //Children.Add(wpfTo);
                     }
                 }
             }
+        }
+        public void AddDiagramsToChildren(List<DiagamToWork> diagamToWorks, int? indexPosition = null)
+        {
+            var wpfTo = new WpfTo(this, _tcViewState, diagamToWorks);
+
+            if (indexPosition != null)
+            {
+                Children.Insert(indexPosition.Value, wpfTo);
+            }
+            else
+            {
+                Children.Add(wpfTo);
+            }
+        }
+        public void AddDiagramsToChildren(DiagamToWork diagamToWork, int? indexPosition = null)
+        {
+            AddDiagramsToChildren(new List<DiagamToWork> { diagamToWork }, indexPosition);
         }
 
 
@@ -386,6 +406,30 @@ namespace TC_WinForms.WinForms.Diagram
                 }
                 return null;
             }
+        }
+        public void ChangeOrder(WpfTo wpfTo, MoveDirection direction)
+        {
+
+            var index = Children.IndexOf(wpfTo);
+
+            switch (direction)
+            {
+                case MoveDirection.Up:
+                    if (index > 0)
+                    {
+                        Children.Move(index, index - 1);
+                    }
+                    break;
+
+                case MoveDirection.Down:
+                    if (index < Children.Count - 1)
+                    {
+                        Children.Move(index, index + 1);
+                    }
+                    break;
+            }
+
+            Nomeraciya();
         }
         public DiagamToWork? CheckInDeletedDiagrams(TechOperationWork techOperationWork)
         {

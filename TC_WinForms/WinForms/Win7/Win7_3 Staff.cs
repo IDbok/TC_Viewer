@@ -206,27 +206,31 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
         //    // ширина столбцов по содержанию
-        var autosizeColumn = new List<string>
-        {
-            nameof(DisplayedStaff.Id),
-            //nameof(DisplayedStaff.Name),
-            //nameof(DisplayedStaff.Type),
-            //nameof(DisplayedStaff.Functions),
-            //nameof(DisplayedStaff.CombineResponsibility),
-            //nameof(DisplayedStaff.Qualification),
-            //nameof(DisplayedStaff.Comment),
-        };
-        foreach (var column in autosizeColumn)
-        {
-            dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-        }
 
-        dgvMain.Columns[nameof(DisplayedStaff.Name)].Width = 200;
-        dgvMain.Columns[nameof(DisplayedStaff.ClassifierCode)].Width = 150;
-        dgvMain.Columns[nameof(DisplayedStaff.Type)].Width = 200;
+        //var autosizeColumn = new List<string>
+        //{
+        //    nameof(DisplayedStaff.Id),
+        //    nameof(DisplayedStaff.Name),
+        //    nameof(DisplayedStaff.Type),
+        //    nameof(DisplayedStaff.Functions),
+        //    nameof(DisplayedStaff.CombineResponsibility),
+        //    nameof(DisplayedStaff.Qualification),
+        //    nameof(DisplayedStaff.Comment),
+        //};
+        //foreach (var column in autosizeColumn)
+        //{
+        //    dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+        //}
+
+        //dgvMain.Columns[nameof(DisplayedStaff.Name)].Width = 200;
+        //dgvMain.Columns[nameof(DisplayedStaff.ClassifierCode)].Width = 150;
+        //dgvMain.Columns[nameof(DisplayedStaff.Type)].Width = 200;
         //dgvMain.Columns[nameof(DisplayedStaff.Functions)].Width = 290;
-        dgvMain.Columns[nameof(DisplayedStaff.CombineResponsibility)].Width = 290;
-        dgvMain.Columns[nameof(DisplayedStaff.Qualification)].Width = 290;
+        //dgvMain.Columns[nameof(DisplayedStaff.CombineResponsibility)].Width = 290;
+
+        dgvMain.Columns[nameof(DisplayedStaff.Qualification)].Width = 200;
+        dgvMain.Columns[nameof(DisplayedStaff.Comment)].Width = 290;
+
 
     }
 

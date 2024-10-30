@@ -9,38 +9,51 @@
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
-    <Grid>
-        <StackPanel Orientation="Vertical">
-            <d:StackPanel HorizontalAlignment="Left">
-                <local:WpfControlTO 
-        VerticalAlignment="Top" HorizontalAlignment="Left"/>
-            </d:StackPanel>
-            <ItemsControl x:Name="ListTOSequence"
-                          ItemsSource="{Binding Children,
-                RelativeSource={RelativeSource AncestorType=UserControl}}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Vertical" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+    <Border BorderThickness="2" BorderBrush="Black"  Margin="5" >
+        <Grid>
+            
+            
 
-            <!--<StackPanel x:Name="ListTOSequence" 
-                Orientation="Vertical"
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Top"
-                Visibility="Visible" >
+            <StackPanel Orientation="Vertical">
 
-                <local:WpfControlTO VerticalAlignment="Top" HorizontalAlignment="Left"/>
-            </StackPanel>-->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left"
+                            Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Button Content="← Влево" Width="60" Margin="0 0 15 0" Click="BtnMoveLeft_Click"/>
+                    <Button Content="→ Вправо" Width="60" Margin="0 0 15 0" Click="BtnMoveRight_Click"/>
+                </StackPanel>
+                
+                <d:StackPanel HorizontalAlignment="Left">
+                    <local:WpfControlTO 
+            VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                </d:StackPanel>
 
-            <Button Name="btnAddTOSequence"
-                Click="btnAddTOSequence_Click"
-                Content="Добавить ТО последовательно" 
-                HorizontalAlignment="Left" VerticalAlignment="Top"
-                 Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}" 
-                Margin="270,0,0,0"/>
-        </StackPanel>
+                <ItemsControl x:Name="ListTOSequence"
+                                ItemsSource="{Binding Children,
+                    RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
 
-    </Grid>
+                <!--<StackPanel x:Name="ListTOSequence" 
+                    Orientation="Vertical"
+                    HorizontalAlignment="Left" 
+                    VerticalAlignment="Top"
+                    Visibility="Visible" >
+
+                    <local:WpfControlTO VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                </StackPanel>-->
+
+                <Button Name="btnAddTOSequence"
+                    Click="btnAddTOSequence_Click"
+                    Content="Добавить ТО последовательно" 
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}" 
+                    Margin="270,0,0,0"/>
+            </StackPanel>
+
+        </Grid>
+    </Border>
 </UserControl>

@@ -65,7 +65,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         public void SaveCollection()
         {
-            if(diagramShag == null)
+            if (diagramShag == null)
             {
                 return;
             }
@@ -75,12 +75,54 @@ namespace TC_WinForms.WinForms.Diagram
             diagramShag.ImplementerComment = txtImplementerComment.Text;
             diagramShag.LeadComment = txtLeadComment.Text;
 
-            var allVB = AllItemGrid.Where(w => w.Add).ToList();
+            UpdateToolsComponentsList();
+
+            //var allVB = AllItemGrid.Where(w => w.Add).ToList();
+            //diagramShag.ListDiagramShagToolsComponent = new List<DiagramShagToolsComponent>();
+            //foreach (var item in allVB)
+            //{
+            //    DiagramShagToolsComponent diagramShagToolsComponent = new DiagramShagToolsComponent();
+            //    if (item.toolWork != null)
+            //    {
+            //        diagramShagToolsComponent.toolWork = item.toolWork;
+            //    }
+            //    else
+            //    {
+            //        diagramShagToolsComponent.componentWork = item.componentWork;
+            //    }
+
+            //    try
+            //    {
+            //        diagramShagToolsComponent.Quantity = double.Parse(item.AddText);
+            //    }
+            //    catch (Exception)
+            //    {
+            //        diagramShagToolsComponent.Quantity = 0;
+            //    }
+
+            //    var prevComment = diagramShagToolsComponent.toolWork != null ? diagramShagToolsComponent.toolWork.Comments : diagramShagToolsComponent.componentWork.Comments;
+
+            //    if (prevComment != item.Comments)
+            //    {
+            //        diagramShagToolsComponent.Comment = item.Comments;
+            //    }
+
+            //    diagramShag.ListDiagramShagToolsComponent.Add(diagramShagToolsComponent);
+            //}
+
+
+        }
+
+        private void UpdateToolsComponentsList()
+        {
+
             diagramShag.ListDiagramShagToolsComponent = new List<DiagramShagToolsComponent>();
+
+            var allVB = AllItemGrid.Where(w => w.Add).ToList();
             foreach (var item in allVB)
             {
                 DiagramShagToolsComponent diagramShagToolsComponent = new DiagramShagToolsComponent();
-                if(item.toolWork!=null)
+                if (item.toolWork != null)
                 {
                     diagramShagToolsComponent.toolWork = item.toolWork;
                 }
@@ -91,17 +133,30 @@ namespace TC_WinForms.WinForms.Diagram
 
                 try
                 {
-                    diagramShagToolsComponent.Quantity = double.Parse(item.AddText);
+                    if(string.IsNullOrEmpty(item.AddText))
+                    {
+                        diagramShagToolsComponent.Quantity = 0;
+                    }
+                    else
+                    {
+                        diagramShagToolsComponent.Quantity = double.Parse(item.AddText);
+                    }
                 }
-                catch (Exception)
+                catch
                 {
+                    // неверный формат данный
                     diagramShagToolsComponent.Quantity = 0;
+                }
+
+                var prevComment = diagramShagToolsComponent.toolWork != null ? diagramShagToolsComponent.toolWork.Comments : diagramShagToolsComponent.componentWork.Comments;
+
+                if (prevComment != item.Comments)
+                {
+                    diagramShagToolsComponent.Comment = item.Comments;
                 }
 
                 diagramShag.ListDiagramShagToolsComponent.Add(diagramShagToolsComponent);
             }
-
-
         }
 
         public void SetNomer(int nomer)
@@ -118,7 +173,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         public WpfShag(TechOperationWork selectedItem,
             DiagramState diagramState,
-            DiagramShag _diagramShag=null) 
+            DiagramShag _diagramShag = null)
             : this(selectedItem,
                 diagramState.WpfPosledovatelnost ?? throw new ArgumentNullException(nameof(diagramState.WpfPosledovatelnost)),
                 diagramState.TcViewState, _diagramShag)
@@ -133,10 +188,10 @@ namespace TC_WinForms.WinForms.Diagram
 
         }
         [Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
-        public WpfShag(TechOperationWork selectedItem, 
-            WpfPosledovatelnost _wpfPosledovatelnost, 
+        public WpfShag(TechOperationWork selectedItem,
+            WpfPosledovatelnost _wpfPosledovatelnost,
             TcViewState tcViewState,
-            DiagramShag _diagramShag=null)
+            DiagramShag _diagramShag = null)
         {
             InitializeComponent();
 
@@ -180,8 +235,8 @@ namespace TC_WinForms.WinForms.Diagram
                 catch (Exception)
                 {
 
-                }                
-                
+                }
+
 
                 try
                 {
@@ -274,6 +329,7 @@ namespace TC_WinForms.WinForms.Diagram
                 {
                     existingItem.Add = true;
                     existingItem.AddText = diagramShagToolsComponent.Quantity.ToString();
+                    existingItem.Comments = diagramShagToolsComponent.Comment ?? existingItem.Comments;
                 }
             }
 
@@ -305,7 +361,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void ComboBoxTeh_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(ComboBoxTeh.SelectedItem != null)
+            if (ComboBoxTeh.SelectedItem != null)
             {
                 var work = (ExecutionWork)ComboBoxTeh.SelectedItem;
 
@@ -337,7 +393,7 @@ namespace TC_WinForms.WinForms.Diagram
                 byte[] bytes = File.ReadAllBytes(filename);
                 string base64 = Convert.ToBase64String(bytes);
                 diagramShag.ImageBase64 = base64;
-                
+
                 _diagramState.HasChanges();
             }
             catch (OutOfMemoryException)
@@ -384,7 +440,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 _diagramState.HasChanges();//wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             }
-            else 
+            else
                 return;
         }
 
@@ -404,10 +460,10 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void TG_Click(object sender, RoutedEventArgs e)
         {
-            if(TG.IsChecked==true)
+            if (TG.IsChecked == true)
             {
-                DataGridToolAndComponentsAdd.Visibility= Visibility.Visible;
-                DataGridToolAndComponentsShow.Visibility= Visibility.Collapsed;
+                DataGridToolAndComponentsAdd.Visibility = Visibility.Visible;
+                DataGridToolAndComponentsShow.Visibility = Visibility.Collapsed;
                 _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
             }
             else
@@ -415,9 +471,15 @@ namespace TC_WinForms.WinForms.Diagram
                 DataGridToolAndComponentsAdd.Visibility = Visibility.Collapsed;
                 DataGridToolAndComponentsShow.Visibility = Visibility.Visible;
 
-                var vb = AllItemGrid.Where(w=>w.Add).ToList();
-                DataGridToolAndComponentsShow.ItemsSource = vb;
-                _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                if (AllItemGrid != null && AllItemGrid.Count > 0)
+                {
+                    var vb = AllItemGrid.Where(w => w.Add).ToList();
+                    DataGridToolAndComponentsShow.ItemsSource = vb;
+
+                    UpdateToolsComponentsList();
+
+                    _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                }
             }
         }
 
@@ -438,14 +500,30 @@ namespace TC_WinForms.WinForms.Diagram
         {
             if (diagramShag != null)
             {
-                diagramShag.NameImage = TBNameImage.Text; 
+                diagramShag.NameImage = TBNameImage.Text;
                 if (wpfPosledovatelnost != null)
                 {
                     _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
                 }
             }
         }
+        private void TextBox_CommentTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (diagramShag != null)
+            {
+                ItemDataGridShagAdd gridItem = (ItemDataGridShagAdd)(((System.Windows.Controls.TextBox)sender).DataContext);
 
+                if (gridItem != null)
+                {
+                    gridItem.Comments = ((System.Windows.Controls.TextBox)sender).Text;
+                }
+
+                if (wpfPosledovatelnost != null)
+                {
+                    _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+                }
+            }
+        }
         private void btnLoadImage_Click(object sender, RoutedEventArgs e)
         {
             //ChangeImageVisibility();// true);
@@ -454,7 +532,7 @@ namespace TC_WinForms.WinForms.Diagram
         }
         private void ChangeImageVisibility()
         {
-            var isImage = imageDiagram.Source != null ;
+            var isImage = imageDiagram.Source != null;
 
             imageDiagram.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
             gridImageName.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
@@ -480,7 +558,7 @@ namespace TC_WinForms.WinForms.Diagram
                 txtImplementerComment.IsReadOnly = false;
                 txtImplementerComment.IsEnabled = true;
             }
-            else if(_tcViewState.UserRole == User.Role.Implementer)
+            else if (_tcViewState.UserRole == User.Role.Implementer)
             {
                 txtLeadComment.IsReadOnly = true;
                 txtLeadComment.IsEnabled = false;
@@ -489,7 +567,7 @@ namespace TC_WinForms.WinForms.Diagram
                 txtImplementerComment.IsEnabled = true;
             }
         }
-        
+
         private void btnDeleteImage_Click(object sender, RoutedEventArgs e)
         {
             diagramShag.ImageBase64 = "";
@@ -499,6 +577,7 @@ namespace TC_WinForms.WinForms.Diagram
             _diagramState.HasChanges();
             //_tcViewState.WpfMainControl.diagramForm.HasChanges = true;
         }
+
 
         /// <summary>
         /// Передаём событие прокрутки полученное элементом родительскому элементу.
@@ -521,6 +600,7 @@ namespace TC_WinForms.WinForms.Diagram
                 });
             }
         }
+
 
 
     }

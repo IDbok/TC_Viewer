@@ -452,7 +452,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         {
             var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
             var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
+            var itsTool = TechOperationDataGridItems[e.RowIndex].ItsTool;
+            var ItsComponent = TechOperationDataGridItems[e.RowIndex].ItsComponent;
+            
             if (idd != null)
             {
                 if (gg == idd.Comments) return;
@@ -461,6 +463,26 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 HasChanges = true;
                 if(_editForm?.IsDisposed == false)
                     _editForm.UpdateGridLocalTP();
+            }
+            else if (itsTool || ItsComponent)
+            {
+                var techWork = TechOperationDataGridItems[e.RowIndex].TechOperationWork;
+                var toolComponentName = (string)dgvMain.Rows[e.RowIndex].Cells[4].Value;
+                     
+                if (itsTool)
+                {
+                    var editedTool = techWork.ToolWorks.Where(t => toolComponentName.Contains(t.tool.Name)).FirstOrDefault();
+                    editedTool.Comments = gg;
+                }
+                else
+                {
+                    var editedComp = techWork.ComponentWorks.Where(t => toolComponentName.Contains(t.component.Name)).FirstOrDefault();
+                    editedComp.Comments = gg;
+                }
+
+                HasChanges = true;
+                if (_editForm?.IsDisposed == false)
+                    _editForm.UpdateInstrumentLocal();
             }
         }
     }
@@ -686,7 +708,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                     TechTransition = $"{toolWork.tool.Name}   {toolWork.tool.Type}    {toolWork.tool.Unit}",
                     TechTransitionValue = toolWork.Quantity.ToString(),
                     ItsTool = true,
-                    Comments = toolWork.Comments ?? ""
+                    Comments = toolWork.Comments ?? "",
+                    TechOperationWork = techOperationWork
                 });
                 nomer++;
             }
@@ -701,7 +724,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                     TechTransition = $"{componentWork.component.Name}   {componentWork.component.Type}    {componentWork.component.Unit}",
                     TechTransitionValue = componentWork.Quantity.ToString(),
                     ItsComponent = true,
-                    Comments = componentWork.Comments ?? ""
+                    Comments = componentWork.Comments ?? "",
+                    TechOperationWork = techOperationWork
                 });
                 nomer++;
             }
@@ -819,6 +843,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
             else
             {
+                if (parallelGroups.Count == 0)
+                {
+                    parallelGroups.Push((GroupType.Single,
+                                new List<TechOperationDataGridItem>(),
+                                new List<TechOperationDataGridItem> { item }));
+                }
+
                 parallelGroups.Peek().Item3.Add(item);
             }
 
@@ -1110,7 +1141,24 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
             else
             {
-                str.Add("");
+                //Получаем прошлую строку для сравнения, нужно ли объединение
+                var prevStr = TechOperationDataGridItems.Where(t => t.Nomer == techOperationDataGridItem.Nomer - 1).FirstOrDefault();
+                if(prevStr != null)
+                {
+                    //Проверка является ли прошлая строка не последовательной и проверка различия с прошлым значением(чтобы не объеденять строки ТП и инструментументов которые последовательны)
+                    var isPreviousStrParallel = prevStr.Etap != "0" && techOperationDataGridItem.Etap != prevStr.Etap;
+                    
+                    if(prevStr.ItsTool || prevStr.ItsComponent)
+                        techOperationDataGridItem.TimeEtap = prevStr.TimeEtap;//Если прошлая строка инструмент или компонент - копируем её значение
+                    else
+                        techOperationDataGridItem.TimeEtap = isPreviousStrParallel ? "-1" : "";
+
+                    str.Add(techOperationDataGridItem.TimeEtap);
+                }
+                else
+                {
+                    str.Add("");
+                }
             }
         }
     }
@@ -1192,7 +1240,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         if (!_tcViewState.IsViewMode)
         {
             var executionWork = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
-
+            
             if (executionWork != null)
             {
                 if ((e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
@@ -1230,6 +1278,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 else
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                }
+            }
+            else if (TechOperationDataGridItems[e.RowIndex].ItsTool || TechOperationDataGridItems[e.RowIndex].ItsComponent)
+            {
+                if(e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
+                {
+                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
             }
         }

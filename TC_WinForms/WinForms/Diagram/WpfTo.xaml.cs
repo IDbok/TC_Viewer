@@ -173,7 +173,7 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
     public void ChangeOrder(WpfControlTO wpfControlTO, MoveDirection direction)
     {
 
-        // поиск объекта wpfToSequence в котором находится wpfControlTO
+        // Поиск WpfToSequence, содержащего wpfControlTO
         var wpfToSequence = Children.FirstOrDefault(x => x.Children.Contains(wpfControlTO));
 
         if (wpfToSequence == null)
@@ -201,25 +201,50 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
 
             case MoveDirection.Up:
                 wpfToSequence.ChangeOrder(wpfControlTO, MoveDirection.Up);
-                //_wpfMainControl.Order(2, wpfControlTO);
+                ////todo - перемещение вверх вне последовательности и данной WpfTo
+
+                //// Получаем индекс wpfControlTO в текущей последовательности
+                //int controlIndex = wpfToSequence.Children.IndexOf(wpfControlTO);
+                //// Если индекс больше 0, то перемещаем вверх внутри последовательности
+                //if (controlIndex > 0)
+                //{
+                //    wpfToSequence.ChangeOrder(wpfControlTO, direction);
+                //}
+                //// если этот индекс 0, то 
+                //else
+                //{
+                //    if (wpfToSequence.Children.Count == 1)
+                //    {
+                //        var indexWpfTo = _wpfMainControl.Children.IndexOf(this);
+                //        if (indexWpfTo > 0)
+                //            _wpfMainControl.Children.Move(indexWpfTo, indexWpfTo - 1);
+                //    }
+                //    else
+                //    {
+                //        // удаляем ТО из текущей последовательности
+                //        wpfToSequence.Children.Remove(wpfControlTO);
+
+                //        // добавление в WpfMainControl новой объект WpfTo с этим ТО выше текущего
+                //        // определить положение текущего объекта в списке WpfTo
+                //        var indexWpfTo = _wpfMainControl.Children.IndexOf(this);
+                //        if(indexWpfTo > 0)
+                //            _wpfMainControl.AddDiagramsToChildren(wpfControlTO.diagamToWork, indexWpfTo);
+                //    }
+
+                //}
+                //// если этот индекс 0, то проверяем индекс родителя в списке последовательностей в данной WpfTo
+
+                //// если этот индекс 0, то вставляем перед текущей WpfTo в WpfMainControl
+                //// если нет, то содаём новую WpfToSequence и вставляем перед текущей в WpfTo
+                //// если индекс не 0, просто переместить вверх
+                ////wpfToSequence.ChangeOrder(wpfControlTO, MoveDirection.Up); 
+                ////_wpfMainControl.Order(2, wpfControlTO);
                 break;
 
             case MoveDirection.Down:
                 wpfToSequence.ChangeOrder(wpfControlTO, MoveDirection.Down);
-                //_wpfMainControl.Order(1, wpfControlTO);
                 break;
-
-                //case MoveDirection.Up:
         }
-
-
-        //ListTOParalelno.Children.Clear();
-        //Children.Clear();
-        //foreach (var child in Children)
-        //{
-        //    //ListTOParalelno.Children.Add(child);
-        //    Children.Add(child);
-        //}
 
         _wpfMainControl.Nomeraciya();
     }
@@ -243,4 +268,13 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
         }
     }
 
+    private void BtnMoveDown_Click(object sender, RoutedEventArgs e)
+    {
+        _wpfMainControl.ChangeOrder(this,MoveDirection.Down);
+    }
+
+    private void BtnMoveUp_Click(object sender, RoutedEventArgs e)
+    {
+        _wpfMainControl.ChangeOrder(this, MoveDirection.Up);
+    }
 }

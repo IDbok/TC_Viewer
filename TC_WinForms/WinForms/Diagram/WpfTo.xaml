@@ -12,36 +12,47 @@
     
     <Grid>
         <Border BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" VerticalAlignment="Center"  Margin="5">
-            <StackPanel Orientation="Horizontal">
-                <d:StackPanel HorizontalAlignment="Left">
-                    <local:WpfControlTO 
-                        VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                </d:StackPanel>
+            <StackPanel Orientation="Vertical">
                 
-                <!-- слева добавить кнопки, которые отвечают за перенос 
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left"
+                            Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Button Content="↓ Вниз" Width="60" Margin="15 0 0 0" Click="BtnMoveDown_Click"/>
+                    <Button Content="↑ Вверх" Width="60" Margin="15 0 0 0" Click="BtnMoveUp_Click"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal">
+
+                    <d:StackPanel HorizontalAlignment="Left">
+                        <local:WpfControlTO 
+                        VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                    </d:StackPanel>
+
+                    <!-- слева добавить кнопки, которые отвечают за перенос 
                 всего блока параллельных ТО вверх и вниз-->
 
-                <ItemsControl x:Name="ListTOParalelno"
+                    <ItemsControl x:Name="ListTOParalelno"
                   ItemsSource="{Binding Children, 
                     RelativeSource={RelativeSource AncestorType=UserControl}}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
 
-                <Button Name="btnAddTOParallel"
+                    <Button Name="btnAddTOParallel"
                     Click="btnAddTOParallel_Click"
                     Content="Добавить ТО параллельно" 
                     HorizontalAlignment="Right" VerticalAlignment="Top"
                     Margin="15,0,0,0"
                     Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
                         >
-                    <Button.LayoutTransform>
-                        <RotateTransform Angle="-90"/>
-                    </Button.LayoutTransform>
-                </Button>
+                        <Button.LayoutTransform>
+                            <RotateTransform Angle="-90"/>
+                        </Button.LayoutTransform>
+                    </Button>
+                </StackPanel>
+
             </StackPanel>
         </Border>
     </Grid>

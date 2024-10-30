@@ -13,6 +13,7 @@ namespace TC_WinForms.WinForms.Diagram
     {
         bool _add;
         string _AddText;
+        string _Comments;
         public bool Add
         {
             get { return _add; }
@@ -32,7 +33,15 @@ namespace TC_WinForms.WinForms.Diagram
         public string Type { get; set; }
         public string Unit { get; set; }
         public string Count { get; set; }
-        public string Comments { get; set; }
+        public string Comments 
+        {
+            get { return _Comments; }
+            set
+            {
+                _Comments = value;
+                OnPropertyChanged("_Comments");
+            }
+        }
         public string AddText
         {
             get { return _AddText; }

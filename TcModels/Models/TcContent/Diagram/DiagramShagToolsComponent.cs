@@ -20,5 +20,7 @@ namespace TcModels.Models.TcContent
 
         public DiagramShag DiagramShag { get; set; }
         public int DiagramShagId { get; set; }
+        public string? Comment { get; set; } // todo: добавить в БД
+
     }
 }

@@ -179,25 +179,26 @@ public partial class WpfToSequence : System.Windows.Controls.UserControl, INotif
     public void ChangeOrder(WpfControlTO wpfControlTO, MoveDirection direction)
     {
         var hasChanges = false;
+
+        // Получаем индекс wpfControlTO в текущей последовательности
+        int controlIndex = Children.IndexOf(wpfControlTO);
+
         switch (direction)
         {
             case MoveDirection.Up:
-                if (Children.IndexOf(wpfControlTO) > 0)
+                if (controlIndex > 0)
                 {
-                    var index = Children.IndexOf(wpfControlTO);
-                    Children.Remove(wpfControlTO);
-                    Children.Insert(index - 1, wpfControlTO);
+                    Children.Move(controlIndex, controlIndex - 1);
 
                     hasChanges = true;
                 }
                 break;
 
             case MoveDirection.Down:
-                if (Children.IndexOf(wpfControlTO) < Children.Count - 1)
+                if (controlIndex < Children.Count - 1)
                 {
-                    var index = Children.IndexOf(wpfControlTO);
-                    Children.Remove(wpfControlTO);
-                    Children.Insert(index + 1, wpfControlTO);
+
+                    Children.Move(controlIndex, controlIndex + 1);
 
                     hasChanges = true;
                 }
@@ -224,5 +225,19 @@ public partial class WpfToSequence : System.Windows.Controls.UserControl, INotif
     public int? GetSequenceIndexAsInt() 
     {         
         return int.TryParse(sequenceIndex, out var result) ? result : null;
+    }
+
+    private void BtnMoveLeft_Click(object sender, RoutedEventArgs e)
+    {
+        var item = Children[0];
+        if (item != null)
+            _diagramState.WpfTo?.ChangeOrder(item, MoveDirection.Left);
+    }
+    private void BtnMoveRight_Click(object sender, RoutedEventArgs e)
+    {
+        var item = Children[0];
+        if (item != null)
+            _diagramState.WpfTo?.ChangeOrder(item, MoveDirection.Right);
+        
     }
 }

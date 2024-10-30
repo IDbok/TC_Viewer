@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.IO;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Interfaces;
-using TC_WinForms.WinForms.Work;
-using TcDbConnector;
 using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -30,11 +20,11 @@ namespace TC_WinForms.WinForms
 
         public bool CloseFormsNoSave { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public Win6_ExecutionScheme(TechnologicalCard tc, TcViewState tcViewState, bool viewerMode = false)
+        public Win6_ExecutionScheme(TcViewState tcViewState, bool viewerMode = false)
         {
-            _tc = tc;
-
             _tcViewState = tcViewState;
+            _tc = tcViewState.TechnologicalCard!;
+
             //_isViewMode = viewerMode;
 
             InitializeComponent();
@@ -50,19 +40,30 @@ namespace TC_WinForms.WinForms
         {
             SetViewMode();
 
-            if (_tc.ExecutionSchemeImageId != null ||  (_tc.ExecutionSchemeImageId == null && _tcViewState.TechnologicalCard.ExecutionSchemeBase64 != null))
+            // проверка нет ли во временных данных изображения
+            var image = ImageHelper.LoadImageFromTempFileAsBase64(_tc.Id);
+            if (!string.IsNullOrEmpty(image))
+            {
+                DisplayImage(image, pictureBoxExecutionScheme);
+                return;
+            }
+
+            if (_tc.ExecutionSchemeImageId != null || 
+                (_tc.ExecutionSchemeImageId == null 
+                && _tcViewState.TechnologicalCard!.ExecutionSchemeBase64 != null))
             {
                 string imageBase64 = "";
 
-                if (_tcViewState?.TechnologicalCard?.ExecutionSchemeBase64 != null)
-                    imageBase64 = _tcViewState.TechnologicalCard.ExecutionSchemeBase64 ?? "";
+                if (_tc.ExecutionSchemeBase64 != null)
+                    imageBase64 = _tc.ExecutionSchemeBase64 ?? "";
                 else if(_tc.ExecutionSchemeImageId != null)
                 {
                     try
                     {
                         for(int i = 1; i <=3; i++)//проверка на загрузку изображение, повторяем 3 раза
                         {
-                            imageBase64 = await tcRepository.GetImageBase64Async((long)_tc.ExecutionSchemeImageId) ?? "";
+                            imageBase64 = 
+                                await tcRepository.GetImageBase64Async((long)_tc.ExecutionSchemeImageId) ?? "";
                             
 
                             if (i == 3 && (imageBase64 == "" || imageBase64 == null))
@@ -70,7 +71,7 @@ namespace TC_WinForms.WinForms
                             else if (imageBase64 != null && imageBase64 != "")
                                 break;
                         }
-                        _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = imageBase64;
+                        _tc.ExecutionSchemeBase64 = imageBase64;
 
                     }
                     catch(Exception ex)
@@ -80,14 +81,15 @@ namespace TC_WinForms.WinForms
                     }
                 }
 
-                if (imageBase64 != null)
+                if (!string.IsNullOrEmpty(imageBase64))
                 {
+                    // Сохраняем изображение во временный файл
+                    ImageHelper.SaveImageToTempFile(imageBase64, _tc.Id);
+
                     DisplayImage(imageBase64, pictureBoxExecutionScheme);
                     //DisplayImage(_tc.ExecutionSchemeBase64, pictureBoxExecutionScheme);
                 }
             }
-
-
 
         }
         
@@ -97,22 +99,10 @@ namespace TC_WinForms.WinForms
         }
         public void SetViewMode(bool? isViewMode = false)
         {
-            //if (isViewMode != null)
-            //{
-            //    _isViewMode = (bool)isViewMode;
-            //}
-
             btnUploadExecutionScheme.Visible = !_tcViewState.IsViewMode;
             btnDeleteES.Visible = !_tcViewState.IsViewMode;
         }
-        void DisplayImage(byte[] imageBytes, PictureBox pictureBox)
-        {
-            using (var ms = new MemoryStream(imageBytes))
-            {
-                pictureBox.Image = Image.FromStream(ms);
-                pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
-            }
-        }
+        
         void DisplayImage(string base64String, PictureBox pictureBox)
         {
             byte[] imageBytes = Convert.FromBase64String(base64String);
@@ -146,10 +136,12 @@ namespace TC_WinForms.WinForms
                     {
                         _tc.ExecutionSchemeImage.Id = (long)_tc.ExecutionSchemeImageId;
                     }
-                    //_tc.ExecutionSchemeBase64 = base64Image;
-                    DisplayImage(_tc.ExecutionSchemeImage.ImageBase64, pictureBoxExecutionScheme);
 
-                    _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = _tc.ExecutionSchemeImage.ImageBase64;
+                    // Сохраняем изображение во временный файл
+                    ImageHelper.SaveImageToTempFile(base64Image, _tc.Id);
+
+                    DisplayImage(_tc.ExecutionSchemeImage.ImageBase64, pictureBoxExecutionScheme);
+                    _tc.ExecutionSchemeBase64 = base64Image;
 
                     HasChanges = true;
                 }
@@ -169,21 +161,27 @@ namespace TC_WinForms.WinForms
                 if (_tc.ExecutionSchemeImage?.ImageBase64 != null)
                 {
                     await dbCon.UpdateTcExecutionScheme(_tc.Id, _tc.ExecutionSchemeImage.ImageBase64);
-                    _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = _tc.ExecutionSchemeImage.ImageBase64;
+                    _tc.ExecutionSchemeBase64 = _tc.ExecutionSchemeImage.ImageBase64;
 
                 }
                 else
                 {
                     await dbCon.DeleteTcExecutionScheme(_tc.Id);
-                    _tcViewState.TechnologicalCard.ExecutionSchemeBase64 = null;
+                    _tc.ExecutionSchemeBase64 = null;
                 }
             }
         }
 
         private void btnDeleteES_Click(object sender, EventArgs e)
         {
-            _tc.ExecutionSchemeImage?.ClearBase64Image();       
+            _tc.ExecutionSchemeImage?.ClearBase64Image(); // что делает данное поле?
+            _tc.ExecutionSchemeImage = null;
+            _tc.ExecutionSchemeBase64 = null;
+            _tc.ExecutionSchemeImageId = null;
             pictureBoxExecutionScheme.Image = null;
+
+            // Удаляем временный файл
+            TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
 
             HasChanges = true;
         }

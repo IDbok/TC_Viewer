@@ -1298,6 +1298,13 @@ namespace TC_WinForms.DataProcessing
             tc.Status = newStatus;
         }
 
+        /// <summary>
+        /// Заменяет рисунок ханящийся в БД, если он не совпадает с текущим newES.
+        /// Либо создаёт новую сущность ImageStorage и связывает её с ТК
+        /// </summary>
+        /// <param name="tcId"></param>
+        /// <param name="newES">изображение в формате Base64</param>
+        /// <returns></returns>
         public async Task UpdateTcExecutionScheme(int tcId, string newES)
         {
             try
@@ -1312,7 +1319,8 @@ namespace TC_WinForms.DataProcessing
                     {
                         if (tcToUpdate.ExecutionSchemeImageId != null)
                         {
-                            var img = db.ImageStorage.Where(i => i.Id == tcToUpdate.ExecutionSchemeImageId).FirstOrDefault();
+                            var img = db.ImageStorage.Where(i => i.Id == tcToUpdate.ExecutionSchemeImageId)
+                                .FirstOrDefault();
                             if (img != null && img.ImageBase64 != newES)
                             {
                                 img.ImageBase64 = newES;
