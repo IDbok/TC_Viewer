@@ -124,6 +124,8 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
     public void AddNewObjects(List<Staff> newObjs)
     {
+        dgvMain.ClearSelection();
+
         foreach (var obj in newObjs)
         {
             var newStaffTC = CreateNewObject(obj, _bindingList.Count + 1);
@@ -133,6 +135,10 @@ public partial class Win6_Staff : Form, ISaveEventForm, IViewModeable
 
             _newObjects.Add(displayedStaffTC);
         }
+
+        for (int i = dgvMain.RowCount - newObjs.Count; i < dgvMain.RowCount; i++)
+            dgvMain.Rows[i].Selected = true;
+
         dgvMain.Refresh();
     }
 

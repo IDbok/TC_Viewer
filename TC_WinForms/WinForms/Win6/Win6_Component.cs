@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.DirectoryServices.ActiveDirectory;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
@@ -125,6 +126,8 @@ namespace TC_WinForms.WinForms
         }
         public void AddNewObjects(List<Component> newObjs)
         {
+            dgvMain.ClearSelection();
+
             foreach (var obj in newObjs)
             {
                 var newObj_TC = CreateNewObject(obj, _bindingList.Count + 1);
@@ -134,6 +137,10 @@ namespace TC_WinForms.WinForms
 
                 _newObjects.Add(displayedObj_TC);
             }
+
+            for(int i = dgvMain.RowCount - newObjs.Count; i < dgvMain.RowCount; i++)
+                dgvMain.Rows[i].Selected = true;
+
             dgvMain.Refresh();
         }
 

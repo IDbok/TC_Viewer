@@ -120,6 +120,8 @@ namespace TC_WinForms.WinForms
         }
         public void AddNewObjects(List<Protection> newObjs)
         {
+            dgvMain.ClearSelection();
+
             foreach (var obj in newObjs)
             {
                 var newObj_TC = CreateNewObject(obj, _bindingList.Count + 1);
@@ -129,6 +131,10 @@ namespace TC_WinForms.WinForms
 
                 _newObjects.Add(displayedObj_TC);
             }
+
+            for (int i = dgvMain.RowCount - newObjs.Count; i < dgvMain.RowCount; i++)
+                dgvMain.Rows[i].Selected = true;
+
             dgvMain.Refresh();
         }
 
