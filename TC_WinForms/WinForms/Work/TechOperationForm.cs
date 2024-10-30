@@ -1557,12 +1557,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         {
             foreach (ToolWork delTool in techOperationWork.ToolWorks)
             {
-                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id);
+                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
             }
 
             foreach (ComponentWork delComp in techOperationWork.ComponentWorks)
             {
-                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id);
+                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
             }
 
             TechOperationWorksList.Remove(techOperationWork);
@@ -1594,7 +1594,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             foreach (ToolWork delTool in delTools)
             {
-                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id);
+                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
                 techOperationWork.ToolWorks.Remove(delTool);
             }
 
@@ -1616,7 +1616,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             foreach (var delComp in delComponents)
             {
-                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id);
+                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
                 techOperationWork.ComponentWorks.Remove(delComp);
             }
 
