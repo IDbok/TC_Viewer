@@ -144,7 +144,7 @@
             // lblTimeUnit
             // 
             lblTimeUnit.AutoSize = true;
-            lblTimeUnit.Location = new Point(363, 156);
+            lblTimeUnit.Location = new Point(368, 156);
             lblTimeUnit.Name = "lblTimeUnit";
             lblTimeUnit.Size = new Size(54, 25);
             lblTimeUnit.TabIndex = 18;
