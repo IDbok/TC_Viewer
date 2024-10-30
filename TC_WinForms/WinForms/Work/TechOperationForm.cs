@@ -479,8 +479,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 }
 
                 HasChanges = true;
-                if (_editForm?.IsDisposed == false)
+                if (_editForm?.IsDisposed == false && itsTool)
                     _editForm.UpdateInstrumentLocal();
+                else if (_editForm?.IsDisposed == false && ItsComponent)
+                    _editForm.UpdateComponentLocal();
             }
         }
     }
