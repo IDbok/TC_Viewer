@@ -1,6 +1,7 @@
 ﻿using ExcelParsing.DataProcessing;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TcDbConnector;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -21,7 +22,7 @@ namespace TC_WinForms.WinForms
         private TechnologicalCard LocalCard = null;
 
         public delegate Task PostSaveAction<TModel>(TModel modelObject) where TModel : TechnologicalCard;
-        public PostSaveAction<TechnologicalCard> AfterSave { get; set; }
+        public PostSaveAction<TechnologicalCard>? AfterSave { get; set; }
 
         public Win7_1_TCs_Window(int? tcId = null, bool win6Format = false, User.Role role = User.Role.Lead)
         {
@@ -138,8 +139,6 @@ namespace TC_WinForms.WinForms
 
         async Task<bool> SaveAsync()
         {
-
-
             if (LocalCard == null)
                 LocalCard = new TechnologicalCard();
 
@@ -167,7 +166,14 @@ namespace TC_WinForms.WinForms
                 }
             }
 
-            // проверяем на заполненность полей
+            // проверка полей на уникальность
+
+            var uniqueFieldChecker = new UniqueFieldChecker<TechnologicalCard>(context);
+            if (!await uniqueFieldChecker.IsUniqueAsync(LocalCard))
+            {
+                MessageBox.Show("Такая технологическая карта уже существует");
+                return false;
+            }
 
             try
             {
@@ -187,10 +193,11 @@ namespace TC_WinForms.WinForms
         }
 
 
-        private async void button2_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             if (NoEmptiness())
             {
+
                 if (await SaveAsync())
                 {
                     this.BringToFront();

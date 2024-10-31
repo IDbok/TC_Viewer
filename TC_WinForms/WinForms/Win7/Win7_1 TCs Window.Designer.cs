@@ -255,7 +255,7 @@
             btnSave.TabIndex = 23;
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;
-            btnSave.Click += button2_Click;
+            btnSave.Click += btnSave_Click;
             // 
             // btnExportExcel
             // 

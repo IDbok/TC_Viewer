@@ -326,16 +326,22 @@ namespace TcModels.Models
 
         public string[] GetRequiredProperties()
         {
-            return new[] { nameof(Article) };
+            return new[] { 
+
+                nameof(Article), 
+                nameof(Type), 
+                nameof(NetworkVoltage) 
+
+            };
         }
 
         public IEnumerable<Expression<Func<TechnologicalCard, bool>>> GetUniqueConstraints()
         {
             // Возвращаем условия уникальности
             return new List<Expression<Func<TechnologicalCard, bool>>>
-        {
-            u => u.Article == this.Article
-        };
+            {
+                u => u.Article == this.Article
+            };
         }
     }
 }
