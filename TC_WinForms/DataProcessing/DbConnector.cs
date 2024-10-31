@@ -947,13 +947,14 @@ namespace TC_WinForms.DataProcessing
             }
         }
 
-        public void DeleteRelatedToolComponentDiagram(int itemId)
+        //todo: настроить каскадное удаление, данный метод является заплаткой, удалить его
+        public void DeleteRelatedToolComponentDiagram(int itemId, bool itsTool)//проверка является ли удаляемый объект инструментом, если нет - он компонент
         {
             try
             {
                 using (var context = new MyDbContext())
                 {
-                    var relatedItems = context.DiagramShagToolsComponent.Where(s => s.componentWorkId == itemId || s.toolWorkId == itemId).ToList();
+                    var relatedItems = context.DiagramShagToolsComponent.Where(s => (s.componentWorkId == itemId && !itsTool) || (s.toolWorkId == itemId && itsTool)).ToList(); //Добавлено булево условие чтобы случайно не удалить инструмент при удалении компонента, если совпадает значение id и наоборот
                     foreach (var item in relatedItems)
                     {
                         context.Remove(item);
