@@ -841,6 +841,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
             else
             {
+                if (parallelGroups.Count == 0)
+                {
+                    parallelGroups.Push((GroupType.Single,
+                                new List<TechOperationDataGridItem>(),
+                                new List<TechOperationDataGridItem> { item }));
+                }
+
                 parallelGroups.Peek().Item3.Add(item);
             }
 
@@ -1485,8 +1492,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         if (vb != null)
         {
             vb.Delete = true;
+            }
         }
-    }
 
     public void MarkToDeleteToolWork(ToolWork tool)
     {
@@ -1555,6 +1562,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         List<TechOperationWork> AllDele = TechOperationWorksList.Where(w => w.Delete == true).ToList();
         foreach (TechOperationWork techOperationWork in AllDele)
         {
+            foreach (ToolWork delTool in techOperationWork.ToolWorks)
+            {
+                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
+            }
+
+            foreach (ComponentWork delComp in techOperationWork.ComponentWorks)
+            {
+                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
+            }
+
             TechOperationWorksList.Remove(techOperationWork);
             if (techOperationWork.NewItem == false)
             {
@@ -1584,7 +1601,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             foreach (ToolWork delTool in delTools)
             {
-                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id);
+                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
                 techOperationWork.ToolWorks.Remove(delTool);
             }
 
@@ -1606,7 +1623,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             foreach (var delComp in delComponents)
             {
-                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id);
+                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
                 techOperationWork.ComponentWorks.Remove(delComp);
             }
 

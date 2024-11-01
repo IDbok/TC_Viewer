@@ -778,6 +778,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
             displayedObject.Manufacturer = modelObject.Manufacturer;
             displayedObject.Links = modelObject.Links;
             displayedObject.ClassifierCode = modelObject.ClassifierCode;
+            displayedObject.IsReleased = modelObject.IsReleased;
 
             if (displayedObject is ICategoryable objectWithCategory && modelObject is ICategoryable modelWithCategory)
             {
