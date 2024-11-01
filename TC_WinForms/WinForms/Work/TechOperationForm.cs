@@ -1497,6 +1497,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         {
             vb.Delete = true;
             TechOperationWorksList.Remove(vb);
+
+            var deletedDTW = _tcViewState.DiagramToWorkList.Where(d => d.techOperationWork == TechOperat).FirstOrDefault();
+            if (deletedDTW != null)
+                _tcViewState.DiagramToWorkList.Remove(deletedDTW);
+
             context.Remove(vb);
         }
     }
