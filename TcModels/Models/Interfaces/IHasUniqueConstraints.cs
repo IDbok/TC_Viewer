@@ -1,9 +1,10 @@
-﻿using System.Linq.Expressions;
+﻿using TcModels.Models.Helpers;
 
 namespace TcModels.Models.Interfaces;
 
 public interface IHasUniqueConstraints<T>
 {
-    IEnumerable<Expression<Func<T, bool>>> GetUniqueConstraints();
+    IEnumerable<UniqueConstraint<T>> GetUniqueConstraints();
 }
+
 

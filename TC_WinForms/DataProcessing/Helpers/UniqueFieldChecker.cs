@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using TcDbConnector;
+using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.DataProcessing.Helpers;
@@ -8,11 +9,11 @@ namespace TC_WinForms.DataProcessing.Helpers;
 public class UniqueFieldChecker<T> 
     where T : class, IHasUniqueConstraints<T>
 {
-    private readonly MyDbContext _context;
+    //private readonly MyDbContext _context;
 
-    public UniqueFieldChecker(MyDbContext context)
+    public UniqueFieldChecker(/*MyDbContext? context = null*/)
     {
-        _context = context;
+
     }
 
     /// <summary>
@@ -20,55 +21,56 @@ public class UniqueFieldChecker<T>
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public async Task<bool> IsUniqueAsync(T entity)
+    public async Task<UniqueCheckResult> IsUniqueAsync(T entity)
     {
-        // Получаем все условия уникальности
-        var constraints = entity.GetUniqueConstraints();
-
-        // Проверяем, реализует ли объект интерфейс IIdentifiable
-        int? existingId = (entity is IIdentifiable identifiableEntity) ? identifiableEntity.Id : (int?)null;
-
-        // Проверяем каждое условие, исключая объект с таким же Id (если указан)
-        foreach (var constraint in constraints)
+        using (var context = new MyDbContext())
         {
-            var query = _context.Set<T>().Where(constraint);
+            var result = new UniqueCheckResult();
 
-            if (existingId.HasValue)
+            // Получаем все условия уникальности
+            var constraints = entity.GetUniqueConstraints();
+
+            // Проверяем, реализует ли объект интерфейс IIdentifiable
+            int? existingId = (entity is IIdentifiable identifiableEntity) ? identifiableEntity.Id : (int?)null;
+
+            // Проверяем каждое условие, исключая объект с таким же Id (если указан)
+            foreach (var uniqueConstraint in constraints)
             {
-                query = query.Where(e => (e as IIdentifiable)!.Id != existingId.Value);
+                var query = context.Set<T>().Where(uniqueConstraint.Constraint);
+
+                if (existingId.HasValue && existingId != 0)
+                {
+                    query = query.Where(e => (e as IIdentifiable)!.Id != existingId.Value);
+                }
+
+                if (await query.AnyAsync())
+                {
+                    // Добавляем сообщение об ошибке, если ограничение не выполнено
+                    result.FailedConstraints.Add(uniqueConstraint.ErrorMessage);
+                }
             }
 
-            if (await query.AnyAsync())
-            {
-                // Если хотя бы одно условие не выполнено, возвращаем false
-                return false;
-            }
-
-            //var combinedConstraint = constraint;
-
-            //// Если Id указан, изключаем сравнение с объектом с таким же Id
-            //if (existingId.HasValue)
-            //{
-            //    // Объединяем текущее условие уникальности с проверкой на исключение Id
-            //    var parameter = Expression.Parameter(typeof(T));
-            //    var idProperty = Expression.Property(parameter, "Id");
-            //    var idComparison = Expression.NotEqual(idProperty, Expression.Constant(existingId.Value));
-
-            //    // Создаем комбинированное условие
-            //    combinedConstraint = Expression.Lambda<Func<T, bool>>(
-            //        Expression.AndAlso(constraint.Body, idComparison),
-            //        constraint.Parameters[0]
-            //    );
-            //}
-
-            //if (await _context.Set<T>().AnyAsync(combinedConstraint))
-            //{
-            //    // Если хотя бы одно условие не выполнено, возвращаем false
-            //    return false;
-            //}
+            // Все условия уникальности выполнены
+            return result;
         }
 
-        // Все условия уникальности выполнены
+        
+    }
+
+    public static async Task<bool> IsPropertiesUnique(T obj)
+    {
+        var uniqueFieldChecker = new UniqueFieldChecker<T>();
+        var result = await uniqueFieldChecker.IsUniqueAsync(obj);
+        if (!result.IsUnique)
+        {
+            string message = string.Join("\n", result.FailedConstraints);
+
+            // Сообщение об ошибки
+            MessageBox.Show(message, "Ошибка при сохранении", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            return false;
+        }
+
         return true;
     }
 }

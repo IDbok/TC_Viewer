@@ -2,12 +2,13 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
+using Component = TcModels.Models.TcContent.Component;
 
 namespace TC_WinForms.WinForms
 {
@@ -145,7 +146,7 @@ namespace TC_WinForms.WinForms
         }
         private void SetImageLoading()
         {
-            if (_editingObj is TcModels.Models.TcContent.Component component)
+            if (_editingObj is Component component)
             {
                 //var width = this.Size.Width;
                 //var height = this.Size.Height;
@@ -186,7 +187,7 @@ namespace TC_WinForms.WinForms
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    if (_editingObj is TcModels.Models.TcContent.Component component)
+                    if (_editingObj is Component component)
                     {
                         component.Image = File.ReadAllBytes(openFileDialog.FileName);
 
@@ -229,7 +230,7 @@ namespace TC_WinForms.WinForms
                     "кг",
                 };
             }
-            else if (_editingObj is TcModels.Models.TcContent.Component component)
+            else if (_editingObj is Component component)
             {
                 units = new List<string> //шт.,м,компл.,кг,л,уп.,м3,,м?,лист,балл.,рул.,мл,г
                 {
@@ -269,7 +270,7 @@ namespace TC_WinForms.WinForms
                     "AuxEquip",
                 };
             }
-            else if (_editingObj is TcModels.Models.TcContent.Component)
+            else if (_editingObj is Component)
             {
                 categories = new List<string> // StandComp,StandDet,Material,OHLDet,OHLUnit,AuxMat,SubKit,SubMount,OHLProduct,OHLMount,OHLKit,SubUnit,SubDet
                 {
@@ -426,10 +427,17 @@ namespace TC_WinForms.WinForms
                 return;
             }
 
+            
+
             var dbConnector = new DbConnector();
             if (_editingObj is Machine machine)
             {
                 var obj = machine;
+
+                // проверка полей на уникальность
+                if (!await UniqueFieldChecker<Machine>.IsPropertiesUnique(obj))
+                    return;
+
                 if (_isNewObject)
                 {
                     await dbConnector.AddObjectAsync(obj);
@@ -442,6 +450,11 @@ namespace TC_WinForms.WinForms
             else if (_editingObj is Protection protection)
             {
                 var obj = protection;
+
+                // проверка полей на уникальность
+                if (!await UniqueFieldChecker<Protection>.IsPropertiesUnique(obj))
+                    return;
+
                 if (_isNewObject)
                 {
                     await dbConnector.AddObjectAsync(obj);
@@ -454,6 +467,11 @@ namespace TC_WinForms.WinForms
             else if (_editingObj is Tool tool)
             {
                 var obj = tool;
+
+                // проверка полей на уникальность
+                if (!await UniqueFieldChecker<Tool>.IsPropertiesUnique(obj))
+                    return;
+
                 if (_isNewObject)
                 {
                     await dbConnector.AddObjectAsync(obj);
@@ -463,9 +481,14 @@ namespace TC_WinForms.WinForms
                     await dbConnector.UpdateObjectsAsync(obj);
                 }
             }
-            else if (_editingObj is TcModels.Models.TcContent.Component component)
+            else if (_editingObj is Component component)
             {
                 var obj = component;
+
+                // проверка полей на уникальность
+                if (!await UniqueFieldChecker<Component>.IsPropertiesUnique(obj))
+                    return;
+
                 if (_isNewObject)
                 {
                     await dbConnector.AddObjectAsync(obj);
@@ -475,11 +498,11 @@ namespace TC_WinForms.WinForms
                     await dbConnector.UpdateObjectsAsync(obj);
                 }
 
-                if(_imageChanged)
+                if (_imageChanged)
                 {
                     await dbConnector.UpdateObjectImageAsync(obj);
                 }
-                
+
             }
             else
             {
@@ -493,6 +516,8 @@ namespace TC_WinForms.WinForms
 
             this.Close();
         }
+
+        
 
         private void btnClose_Click(object sender, EventArgs e)
         {

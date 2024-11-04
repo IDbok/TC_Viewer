@@ -2,6 +2,7 @@
 using System.DirectoryServices.ActiveDirectory;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -100,6 +101,10 @@ public partial class Win7_StaffEditor : Form
                 "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
+
+        // проверка полей на уникальность
+        if (!await UniqueFieldChecker<Staff>.IsPropertiesUnique(_editingObj))
+            return;
 
         var dbConnector = new DbConnector();
 

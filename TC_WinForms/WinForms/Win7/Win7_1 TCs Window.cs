@@ -167,13 +167,8 @@ namespace TC_WinForms.WinForms
             }
 
             // проверка полей на уникальность
-
-            var uniqueFieldChecker = new UniqueFieldChecker<TechnologicalCard>(context);
-            if (!await uniqueFieldChecker.IsUniqueAsync(LocalCard))
-            {
-                MessageBox.Show("Такая технологическая карта уже существует");
+            if ( !await UniqueFieldChecker<TechnologicalCard>.IsPropertiesUnique(LocalCard))
                 return false;
-            }
 
             try
             {

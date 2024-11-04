@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
+using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -335,13 +336,18 @@ namespace TcModels.Models
             };
         }
 
-        public IEnumerable<Expression<Func<TechnologicalCard, bool>>> GetUniqueConstraints()
+        public IEnumerable<UniqueConstraint<TechnologicalCard>> GetUniqueConstraints()
         {
             // Возвращаем условия уникальности
-            return new List<Expression<Func<TechnologicalCard, bool>>>
-            {
-                u => u.Article == this.Article
-            };
+            yield return new UniqueConstraint<TechnologicalCard>(
+                x => x.Article == this.Article,
+                "Поле 'Артикул' должно быть уникальным."
+            );
+
+            //yield return new UniqueConstraint<TechnologicalCard>(
+            //    x => x.Type == this.Type,
+            //    "Поле 'Тип' должно быть уникальным."
+            //);
         }
     }
 }
