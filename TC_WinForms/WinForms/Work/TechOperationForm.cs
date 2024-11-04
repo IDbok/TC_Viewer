@@ -478,9 +478,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                     editedComp.Comments = gg;
                 }
 
+                var isEditFormActive = _editForm?.IsDisposed == false;
                 HasChanges = true;
-                if (_editForm?.IsDisposed == false)
+
+                if (isEditFormActive && itsTool)
                     _editForm.UpdateInstrumentLocal();
+                else if (isEditFormActive && ItsComponent)
+                    _editForm.UpdateComponentLocal();
             }
         }
     }
