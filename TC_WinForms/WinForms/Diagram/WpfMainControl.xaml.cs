@@ -307,6 +307,43 @@ namespace TC_WinForms.WinForms.Diagram
             }   
         }
 
+        public void SaveOnDispose()//здесь не применяется операция сохранения в контексте, используется для сохранения изменений в диаграмме(добавления, перемещения и т.п.)
+        {
+            Nomeraciya();
+            try
+            {
+                foreach (WpfTo wpfToItem in Children)
+                    foreach (var wpfToSq in wpfToItem.Children)
+                        foreach (var wpfControlToItem in wpfToSq.Children)
+                            foreach (WpfParalelno item2 in wpfControlToItem.Children)
+                                foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
+                                    foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                                    {
+                                        item4.SaveCollection();
+                                    }
+
+                diagramForm.HasChanges = false;
+
+                foreach (DiagamToWork item in DeletedDiagrams)
+                {
+                    item.techOperationWork = null;
+                }
+
+                var bbn = context.DiagamToWork.Where(w => w.techOperationWork == null).ToList();
+                foreach (DiagamToWork item in bbn)
+                {
+                    context.DiagamToWork.Remove(item);
+                }
+
+                _tcViewState.DiagramToWorkList = technologicalCard.DiagamToWork;
+                _tcViewState.TechnologicalCard.DiagamToWork = technologicalCard.DiagamToWork;
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
         public void Save()
         {
             Nomeraciya();
