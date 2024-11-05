@@ -1,11 +1,13 @@
 ﻿
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.DirectoryServices.ActiveDirectory;
 using System.Reflection.Metadata;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -30,22 +32,18 @@ namespace TC_WinForms.WinForms
         public bool _isDataLoaded = false;
         //public bool CloseFormsNoSave { get; set; } = false;
 
-        private int currentPageIndex = 0;
-        private readonly int _pageSize = 50;
-        private int totalPageCount;
-
         private bool isFiltered = false;
 
         public string setSearch { get => txtSearch.Text;}
         private List<DisplayedTechnologicalCard> _filteredList;
-        private int filteredPageIndex = 0;
-        private int totalFilteredPageCount;
+
+        PaginationControlService<DisplayedTechnologicalCard> paginationService;
 
         public event EventHandler<PageInfoEventArgs> PageInfoChanged;
-
-        public void RaisePageInfoChanged(PageInfoEventArgs e)
+        public PageInfoEventArgs? PageInfo { get; set; }
+        public void RaisePageInfoChanged()
         {
-            PageInfoChanged?.Invoke(this, e);
+            PageInfoChanged?.Invoke(this, PageInfo);
         }
 
         public Win7_1_TCs(User.Role accessLevel)
@@ -55,7 +53,7 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
             AccessInitialization();
 
-
+            
         }
         private void AccessInitialization()
         {
@@ -126,42 +124,33 @@ namespace TC_WinForms.WinForms
             {
                 _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
                     .Select(tc => new DisplayedTechnologicalCard(tc))
-                    .Where(tc => tc.Status == TechnologicalCardStatus.Approved).ToList());
+                    .Where(tc => tc.Status == TechnologicalCardStatus.Approved).OrderBy(tc => tc.Article).ToList());
             }
             else
             {
                 _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
-                    .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
+                    .Select(tc => new DisplayedTechnologicalCard(tc)).OrderBy(tc => tc.Article).ToList());
             }
-            totalPageCount = (int)Math.Ceiling(_displayedTechnologicalCards.Count / (double)_pageSize);
+
+            paginationService = new PaginationControlService<DisplayedTechnologicalCard>(50);
+            paginationService.AllObjects = _displayedTechnologicalCards;
+
             UpdateDisplayedData();
         }
         private void UpdateDisplayedData()
         {
             // Расчет отображаемых записей
-            var displayedData = isFiltered ? _filteredList : _displayedTechnologicalCards;
-            int totalRecords = displayedData.Count;
-            int startRecord = isFiltered ? filteredPageIndex * _pageSize + 1 : currentPageIndex * _pageSize + 1;
-            // Обеспечиваем, что endRecord не превышает общее количество записей
-            int endRecord = Math.Min(startRecord + _pageSize - 1, totalRecords);
+            var pageData = paginationService.GetPageData();
 
-            int skipedItems = isFiltered ? filteredPageIndex * _pageSize : currentPageIndex * _pageSize;
-
-            // Обновляем данные
-            var pageData = displayedData.OrderBy(tc => tc.Article).Skip(skipedItems).Take(_pageSize).ToList();
+            pageData = pageData.OrderBy(tc => tc.Article).ToList();
             _bindingList = new BindingList<DisplayedTechnologicalCard>(pageData);
             dgvMain.DataSource = _bindingList;//.OrderBy(tc => tc.Article);
 
             // Подготовка данных для события
-            PageInfoEventArgs pageInfoEventArgs = new PageInfoEventArgs
-            {
-                StartRecord = startRecord,
-                EndRecord = endRecord,
-                TotalRecords = totalRecords
-            };
+            PageInfo = paginationService.pageInfo;
 
             // Вызов события с подготовленными данными
-            RaisePageInfoChanged(pageInfoEventArgs);
+            RaisePageInfoChanged();
         }
 
 
@@ -856,7 +845,7 @@ namespace TC_WinForms.WinForms
                     (string.IsNullOrWhiteSpace(networkVoltageFilter) && string.IsNullOrWhiteSpace(typeFilter))))
                 {
                     isFiltered = false;
-                    filteredPageIndex = 0;
+                    paginationService.AllObjects = _displayedTechnologicalCards;
 
                     UpdateDisplayedData();
                     //dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
@@ -865,7 +854,6 @@ namespace TC_WinForms.WinForms
                 {
 
                     isFiltered = true;
-                    filteredPageIndex = 0;
 
                     var filteredList = _displayedTechnologicalCards.Where(card =>
                         (searchText == ""
@@ -887,8 +875,7 @@ namespace TC_WinForms.WinForms
                         (typeFilter == "Все" || card.Type.ToString() == typeFilter)
                         ).ToList();
 
-                    totalFilteredPageCount = (int)Math.Ceiling(filteredList.Count / (double)_pageSize);
-                    _filteredList = filteredList;
+                    paginationService.AllObjects = filteredList;
 
                     UpdateDisplayedData();
                 }
@@ -1010,42 +997,15 @@ namespace TC_WinForms.WinForms
 
         public void GoToNextPage()
         {
-            if (isFiltered)
-            {
-                if (filteredPageIndex < totalFilteredPageCount - 1)
-                {
-                    filteredPageIndex++;
-                    UpdateDisplayedData();
-                }
-            }
-            else
-            {
-                if (currentPageIndex < totalPageCount - 1)
-                {
-                    currentPageIndex++;
-                    UpdateDisplayedData();
-                }
-            }
+            paginationService.GoToNextPage();
+            UpdateDisplayedData();
         }
 
         public void GoToPreviousPage()
         {
-            if (isFiltered)
-            {
-                if (filteredPageIndex > 0)
-                {
-                    filteredPageIndex--;
-                    UpdateDisplayedData();
-                }
-            }
-            else
-            {
-                if (currentPageIndex > 0)
-                {
-                    currentPageIndex--;
-                    UpdateDisplayedData();
-                }
-            }
+            paginationService.GoToPreviousPage();
+            UpdateDisplayedData();
+            
         }
 
     }

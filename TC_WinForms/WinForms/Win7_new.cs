@@ -131,20 +131,25 @@ namespace TC_WinForms.WinForms
                 form.FormBorderStyle = FormBorderStyle.None;
                 form.Dock = DockStyle.Fill;
 
+                if (form is IPaginationControl paginationForm)
+                {
+                    SubscribeToPageInfoChanged(paginationForm);
+                    pnlPageControls.Visible = true;
+                }
+                else { pnlPageControls.Visible = false; }
+
                 var loadDataTask = (form as ILoadDataAsyncForm)?.LoadDataAsync();
                 if (loadDataTask != null)
                 {
                     await loadDataTask; //.ConfigureAwait(false);
                 }
             }
-
-            if (form is IPaginationControl paginationForm)
+            else if(form is IPaginationControl existedPaginationForm)
             {
-                SubscribeToPageInfoChanged(paginationForm);
-                pnlPageControls.Visible = true;
+                if (existedPaginationForm.PageInfo != null)
+                    existedPaginationForm.RaisePageInfoChanged();
             }
-            else { pnlPageControls.Visible = false; }
-
+            
             return form;
         }
         private void AddFormToPanel(WinNumber winNumber)
