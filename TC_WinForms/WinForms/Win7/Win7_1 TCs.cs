@@ -1,11 +1,13 @@
 ﻿
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.DirectoryServices.ActiveDirectory;
 using System.Reflection.Metadata;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -20,6 +22,7 @@ namespace TC_WinForms.WinForms
         private DbConnector dbCon = new DbConnector();
         private List<DisplayedTechnologicalCard> _displayedTechnologicalCards;
         private BindingList<DisplayedTechnologicalCard> _bindingList;
+        IPagination? paginationServive;
 
         private List<DisplayedTechnologicalCard> _changedObjects = new List<DisplayedTechnologicalCard>();
         private List<DisplayedTechnologicalCard> _newObjects = new List<DisplayedTechnologicalCard>();
@@ -31,7 +34,6 @@ namespace TC_WinForms.WinForms
         //public bool CloseFormsNoSave { get; set; } = false;
 
         private int currentPageIndex = 0;
-        private readonly int _pageSize = 50;
         private int totalPageCount;
 
         private bool isFiltered = false;
@@ -54,8 +56,13 @@ namespace TC_WinForms.WinForms
 
             InitializeComponent();
             AccessInitialization();
+            var services = new ServiceCollection()
+                            .AddTransient<IPagination, PaginationControlService>();
 
+            using var serviceProvider = services.BuildServiceProvider();
+            // получаем сервис ILogService
 
+            paginationServive = serviceProvider.GetService<IPagination>();
         }
         private void AccessInitialization()
         {
@@ -133,32 +140,26 @@ namespace TC_WinForms.WinForms
                 _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
                     .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
             }
-            totalPageCount = (int)Math.Ceiling(_displayedTechnologicalCards.Count / (double)_pageSize);
+            totalPageCount = (int)Math.Ceiling(_displayedTechnologicalCards.Count / (double)paginationServive._pageSize);
             UpdateDisplayedData();
         }
         private void UpdateDisplayedData()
         {
             // Расчет отображаемых записей
             var displayedData = isFiltered ? _filteredList : _displayedTechnologicalCards;
-            int totalRecords = displayedData.Count;
-            int startRecord = isFiltered ? filteredPageIndex * _pageSize + 1 : currentPageIndex * _pageSize + 1;
-            // Обеспечиваем, что endRecord не превышает общее количество записей
-            int endRecord = Math.Min(startRecord + _pageSize - 1, totalRecords);
+            var displayedDataIds = displayedData.OrderBy(s => s.Article).Select(d => d.Id).ToList();
 
-            int skipedItems = isFiltered ? filteredPageIndex * _pageSize : currentPageIndex * _pageSize;
+            paginationServive.displayedData = displayedDataIds;
 
-            // Обновляем данные
-            var pageData = displayedData.OrderBy(tc => tc.Article).Skip(skipedItems).Take(_pageSize).ToList();
+            displayedDataIds = paginationServive.UpdateDisplayedData();
+
+            //// Обновляем данные
+            var pageData = displayedData.Where(tc => displayedDataIds.Contains(tc.Id)).OrderBy(tc => tc.Article).ToList();
             _bindingList = new BindingList<DisplayedTechnologicalCard>(pageData);
             dgvMain.DataSource = _bindingList;//.OrderBy(tc => tc.Article);
 
             // Подготовка данных для события
-            PageInfoEventArgs pageInfoEventArgs = new PageInfoEventArgs
-            {
-                StartRecord = startRecord,
-                EndRecord = endRecord,
-                TotalRecords = totalRecords
-            };
+            PageInfoEventArgs pageInfoEventArgs = paginationServive.PageInfoChanged;
 
             // Вызов события с подготовленными данными
             RaisePageInfoChanged(pageInfoEventArgs);
@@ -887,7 +888,7 @@ namespace TC_WinForms.WinForms
                         (typeFilter == "Все" || card.Type.ToString() == typeFilter)
                         ).ToList();
 
-                    totalFilteredPageCount = (int)Math.Ceiling(filteredList.Count / (double)_pageSize);
+                    totalFilteredPageCount = (int)Math.Ceiling(filteredList.Count / (double)paginationServive._pageSize);
                     _filteredList = filteredList;
 
                     UpdateDisplayedData();
@@ -1015,6 +1016,7 @@ namespace TC_WinForms.WinForms
                 if (filteredPageIndex < totalFilteredPageCount - 1)
                 {
                     filteredPageIndex++;
+                    paginationServive.pageIndex = filteredPageIndex;
                     UpdateDisplayedData();
                 }
             }
@@ -1023,6 +1025,7 @@ namespace TC_WinForms.WinForms
                 if (currentPageIndex < totalPageCount - 1)
                 {
                     currentPageIndex++;
+                    paginationServive.pageIndex = currentPageIndex;
                     UpdateDisplayedData();
                 }
             }
@@ -1035,6 +1038,7 @@ namespace TC_WinForms.WinForms
                 if (filteredPageIndex > 0)
                 {
                     filteredPageIndex--;
+                    paginationServive.pageIndex = filteredPageIndex;
                     UpdateDisplayedData();
                 }
             }
@@ -1043,6 +1047,7 @@ namespace TC_WinForms.WinForms
                 if (currentPageIndex > 0)
                 {
                     currentPageIndex--;
+                    paginationServive.pageIndex = currentPageIndex;
                     UpdateDisplayedData();
                 }
             }

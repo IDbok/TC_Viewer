@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -12,7 +14,7 @@ using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms;
 
-public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
+public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl //, ISaveEventForm
 {
     private readonly User.Role _accessLevel;
 
@@ -31,9 +33,17 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
     public readonly bool _newItemCreateActive;
     private readonly int? _tcId;
 
+    private int currentPageIndex = 0;
+    private int totalPageCount;
+
     public bool _isDataLoaded = false;
 
     private bool _isFiltered = false;
+    private int filteredPageIndex = 0;
+    private int totalFilteredPageCount;
+
+    public event EventHandler<PageInfoEventArgs> PageInfoChanged;
+    IPagination? paginationServive;
 
     public Win7_6_Tool(User.Role accessLevel)
     {
@@ -41,6 +51,14 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
         InitializeComponent();
         AccessInitialization();
+
+        var services = new ServiceCollection()
+                            .AddTransient<IPagination, PaginationControlService>();
+
+        using var serviceProvider = services.BuildServiceProvider();
+        // получаем сервис ILogService
+
+        paginationServive = serviceProvider.GetService<IPagination>();
 
     }
     public Win7_6_Tool(bool activateNewItemCreate = false, int? createdTCId = null, bool isUpdateMode = false) // this constructor is for adding form in TC editer
@@ -54,6 +72,14 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
         InitializeComponent();
 
         _selectionService = new SelectionService<DisplayedTool>(dgvMain, _displayedObjects);
+
+        var services = new ServiceCollection()
+                            .AddTransient<IPagination, PaginationControlService>();
+
+        using var serviceProvider = services.BuildServiceProvider();
+        // получаем сервис ILogService
+
+        paginationServive = serviceProvider.GetService<IPagination>();
 
     }
     private async void Win7_6_Tool_Load(object sender, EventArgs e)
@@ -108,6 +134,9 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
         FilteringObjects();
 
         _isDataLoaded = true;
+
+        totalPageCount = (int)Math.Ceiling(_displayedObjects.Count / (double)paginationServive._pageSize);
+        UpdateDisplayedData();
     }
 
     private void AccessInitialization()
@@ -139,7 +168,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
     private void btnAddNewObj_Click(object sender, EventArgs e)
     {
-        var objEditor = new Win7_LinkObjectEditor(new Tool() { CreatedTCId = _tcId}, isNewObject: true, accessLevel: _accessLevel);
+        var objEditor = new Win7_LinkObjectEditor(new Tool() { CreatedTCId = _tcId }, isNewObject: true, accessLevel: _accessLevel);
 
         objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Tool, DisplayedTool>(createdObj as Tool);
 
@@ -155,7 +184,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
     }
     /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
-    
+
     private Tool CreateNewObject(DisplayedTool dObj)
     {
         return new Tool
@@ -377,7 +406,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
             Links = obj.Links;
             Categoty = obj.Categoty;
             ClassifierCode = obj.ClassifierCode;
-            
+
             IsReleased = obj.IsReleased;
             CreatedTCId = obj.CreatedTCId;
         }
@@ -565,12 +594,19 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
                 // Возвращаем исходный список, если строка поиска пуста
                 _bindingList = new BindingList<DisplayedTool>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 _isFiltered = false;
+                filteredPageIndex = 0;
+
+                UpdateDisplayedData();
             }
             else
             {
 
                 _bindingList = FilteredBindingList(searchText);//new BindingList<DisplayedTool>(filteredList);
                 _isFiltered = true;
+                filteredPageIndex = 0;
+
+                totalFilteredPageCount = (int)Math.Ceiling(_bindingList.Count / (double)paginationServive._pageSize);
+                UpdateDisplayedData();
             }
             dgvMain.DataSource = _bindingList;
 
@@ -603,7 +639,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
                     ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter))
                         || obj.Categoty?.ToString() == categoryFilter) &&
 
-                    (obj.IsReleased == !cbxShowUnReleased.Checked) 
+                    (obj.IsReleased == !cbxShowUnReleased.Checked)
                     //&&
                     //(!_isAddingForm ||
                     //    (!cbxShowUnReleased.Checked ||
@@ -662,7 +698,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
             }
 
             displayedObject.IsReleased = modelObject.IsReleased;
-            
+
             FilteringObjects();
         }
     }
@@ -693,7 +729,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
             // добавляем в список всех объектов новый объект
             _displayedObjects.Insert(0, displayedObject);
             FilteringObjects();
-            
+
         }
     }
 
@@ -724,5 +760,76 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
     private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)
     {
         FilteringObjects();
+    }
+
+    public void GoToNextPage()
+    {
+        if (_isFiltered)
+        {
+            if (filteredPageIndex < totalFilteredPageCount - 1)
+            {
+                filteredPageIndex++;
+                paginationServive.pageIndex = filteredPageIndex;
+                UpdateDisplayedData();
+            }
+        }
+        else
+        {
+            if (currentPageIndex < totalPageCount - 1)
+            {
+                currentPageIndex++;
+                paginationServive.pageIndex = currentPageIndex;
+                UpdateDisplayedData();
+            }
+        }
+    }
+
+    public void GoToPreviousPage()
+    {
+        if (_isFiltered)
+        {
+            if (filteredPageIndex > 0)
+            {
+                filteredPageIndex--;
+                paginationServive.pageIndex = filteredPageIndex;
+                UpdateDisplayedData();
+            }
+        }
+        else
+        {
+            if (currentPageIndex > 0)
+            {
+                currentPageIndex--;
+                paginationServive.pageIndex = currentPageIndex;
+                UpdateDisplayedData();
+            }
+        }
+    }
+
+    private void UpdateDisplayedData()
+    {
+        var displayedData = _isFiltered ? _bindingList : new BindingList<DisplayedTool>(_displayedObjects);
+
+        var displayedDataIds = displayedData.OrderBy(s => s.Name).Select(d => d.Id).ToList();
+
+        paginationServive.displayedData = displayedDataIds;
+
+        displayedDataIds = paginationServive.UpdateDisplayedData();
+
+        //// Обновляем данные
+        var pageData = displayedData.Where(tc => displayedDataIds.Contains(tc.Id)).OrderBy(tc => tc.Name).ToList();
+        _bindingList = new BindingList<DisplayedTool>(pageData);
+        dgvMain.DataSource = _bindingList;//.OrderBy(tc => tc.Article);
+
+        // Подготовка данных для события
+        PageInfoEventArgs pageInfoEventArgs = paginationServive.PageInfoChanged;
+
+        // Вызов события с подготовленными данными
+        RaisePageInfoChanged(pageInfoEventArgs);
+    }
+
+    public void RaisePageInfoChanged(PageInfoEventArgs e)
+    {
+        PageInfoChanged?.Invoke(this, e);
     }
 }
