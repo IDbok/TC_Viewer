@@ -5,6 +5,7 @@ using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.Work;
 using TC_WinForms.DataProcessing;
 using Microsoft.EntityFrameworkCore;
+using TC_WinForms.DataProcessing.Helpers;
 
 namespace TC_WinForms.WinForms;
 
@@ -247,10 +248,14 @@ public partial class Win7_TechOperation_Window : Form
 
     }
 
-    private void button1_Click(object sender, EventArgs e)
+    private async void button1_Click(object sender, EventArgs e)
     {
         try
         {
+            // проверка полей на уникальность
+            if (!await UniqueFieldChecker<TechOperation>.IsPropertiesUnique(techOperation))
+                return;
+
             context.SaveChanges();
 
             if (_isTcEditingForm)
