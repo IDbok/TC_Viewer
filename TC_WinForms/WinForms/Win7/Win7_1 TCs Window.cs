@@ -18,7 +18,7 @@ namespace TC_WinForms.WinForms
         private DbConnector dbCon = new DbConnector();
 
         private List<object> AllEllement = new List<object>();
-        private TechnologicalCard OriginCard;
+        private TechnologicalCard OriginCard = null!;
 
         private TechnologicalCard LocalCard = new();
 
@@ -255,30 +255,30 @@ namespace TC_WinForms.WinForms
 
         }
 
-        private bool FieldsIsNotEmpty()
-        {
-            if (txtName.Text != "" ||
-                    txtArticle.Text != "" ||
-                    cbxType.Text != "" ||
-                    cbxNetworkVoltage.Text != "" ||
-                    txtTechProcessType.Text != "" ||
-                    txtTechProcess.Text != "" ||
-                    txtParametr.Text != "" ||
-                    txtFinalProduct.Text != "" ||
-                    txtApplicability.Text != "" ||
-                    txtNote.Text != "" ||
-                    chbxIsCompleted.Checked)
-                return true;
-            else
-                return false;
-        }
+        //private bool FieldsIsNotEmpty()
+        //{
+        //    if (txtName.Text != "" ||
+        //            txtArticle.Text != "" ||
+        //            cbxType.Text != "" ||
+        //            cbxNetworkVoltage.Text != "" ||
+        //            txtTechProcessType.Text != "" ||
+        //            txtTechProcess.Text != "" ||
+        //            txtParametr.Text != "" ||
+        //            txtFinalProduct.Text != "" ||
+        //            txtApplicability.Text != "" ||
+        //            txtNote.Text != "" ||
+        //            chbxIsCompleted.Checked)
+        //        return true;
+        //    else
+        //        return false;
+        //}
         private bool HasChanges()
         {
-            if (OriginCard == null)
-            {
-                return FieldsIsNotEmpty();
+            //if (OriginCard == null)
+            //{
+            //    return FieldsIsNotEmpty();
 
-            }
+            //}
 
             bool hasChanges = false;
 
