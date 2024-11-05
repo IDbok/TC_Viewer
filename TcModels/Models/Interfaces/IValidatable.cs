@@ -1,6 +1,7 @@
 ﻿namespace TcModels.Models.Interfaces;
 
 public interface IValidatable
-{
-    string[] GetRequiredProperties();
+{ 
+    // Метод для получения имен обязательных свойств
+    string[] GetRequiredProperties(); 
 }
