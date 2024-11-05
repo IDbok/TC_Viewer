@@ -320,6 +320,27 @@ namespace TC_WinForms.DataProcessing
 
                     if (tcsToDelete.Any())
                     {
+                        if(typeof(T) == typeof(Tool))
+                        {
+                            var toolToDelete = tcsToDelete.Cast<Tool>().ToList();
+                            var shagToolComp = db.DiagramShagToolsComponent.
+                                Include(d => d.toolWork).ThenInclude(tc => tc.tool)
+                                .Where(d => toolToDelete.Contains( d.toolWork.tool)).ToList();
+
+                            if (shagToolComp.Count > 0)
+                                db.DiagramShagToolsComponent.RemoveRange(shagToolComp);
+                        }
+                        else if(typeof(T) == typeof(Component))
+                        {
+                            var componentToDelete = tcsToDelete.Cast<Component>().ToList();
+                            var shagToolComp = db.DiagramShagToolsComponent.
+                                Include(d => d.componentWork).ThenInclude(tc => tc.component)
+                                .Where(d => componentToDelete.Contains(d.componentWork.component)).ToList();
+
+                            if (shagToolComp.Count > 0)
+                                db.DiagramShagToolsComponent.RemoveRange(shagToolComp);
+                        }
+
                         db.Set<T>().RemoveRange(tcsToDelete);
 
                         await db.SaveChangesAsync();
@@ -947,13 +968,14 @@ namespace TC_WinForms.DataProcessing
             }
         }
 
-        public void DeleteRelatedToolComponentDiagram(int itemId)
+        //todo: настроить каскадное удаление, данный метод является заплаткой, удалить его
+        public void DeleteRelatedToolComponentDiagram(int itemId, bool itsTool)//проверка является ли удаляемый объект инструментом, если нет - он компонент
         {
             try
             {
                 using (var context = new MyDbContext())
                 {
-                    var relatedItems = context.DiagramShagToolsComponent.Where(s => s.componentWorkId == itemId || s.toolWorkId == itemId).ToList();
+                    var relatedItems = context.DiagramShagToolsComponent.Where(s => (s.componentWorkId == itemId && !itsTool) || (s.toolWorkId == itemId && itsTool)).ToList(); //Добавлено булево условие чтобы случайно не удалить инструмент при удалении компонента, если совпадает значение id и наоборот
                     foreach (var item in relatedItems)
                     {
                         context.Remove(item);

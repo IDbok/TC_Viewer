@@ -169,7 +169,7 @@ namespace TC_WinForms.WinForms
             // проверка полей на уникальность
             if ( !await UniqueFieldChecker<TechnologicalCard>.IsPropertiesUnique(LocalCard))
                 return false;
-
+			
             try
             {
                 await dbCon.AddOrUpdateTCAsync(LocalCard);

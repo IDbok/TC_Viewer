@@ -14,28 +14,37 @@
         <StackPanel HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
                 <TextBlock Text="Выбрите ТО" />
-                    <ComboBox Name="ComboBoxTO" Width="300" Margin="30,0,0,0"
-                              SelectionChanged="ComboBoxTO_SelectionChanged" 
-                              PreviewMouseDown="ComboBoxTO_PreviewMouseDown" 
-                              PreviewMouseWheel="ComboBoxTO_PreviewMouseWheel"
-                              DropDownOpened="ComboBoxTO_DropDownOpened"
-                              DropDownClosed="ComboBoxTO_DropDownClosed"/>
-                    <StackPanel Orientation="Horizontal" 
-                                Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                        
-                        <Button Width="50" Content="Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
-                                Click="ButtonDown_Click"  />
-                        <Button Width="50" Content="Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
-                                Click="ButtonUp_Click" />
-                        <StackPanel x:Name="pnlParallelButtons" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="Collapsed" >
-                            <Button Width="50" Content="Влево" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
-                                Click="btnMoveLeft_Click"  />
-                            <Button Width="50" Content="Вправо" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
-                                Click="btnMoveRight_Click" />
-                        </StackPanel>
-                        <Button Width="50" Content="Удалить" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="btnDelete_Click" />
-                    </StackPanel>
                 
+                <ComboBox Name="ComboBoxTO" Width="300" Margin="30,0,0,0"
+                            SelectionChanged="ComboBoxTO_SelectionChanged" 
+                            PreviewMouseDown="ComboBoxTO_PreviewMouseDown" 
+                            PreviewMouseWheel="ComboBoxTO_PreviewMouseWheel"
+                            DropDownOpened="ComboBoxTO_DropDownOpened"
+                            DropDownClosed="ComboBoxTO_DropDownClosed"
+                          IsEnabled="{Binding IsHiddenInViewMode}"
+                          />
+
+                <StackPanel Orientation="Horizontal" 
+                            
+                            Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                    <Button Width="50" Content="↓ Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
+                                Click="ButtonDown_Click"  />
+                    <Button Width="50" Content="↑ Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
+                                Click="ButtonUp_Click" />
+
+                    <!--<StackPanel x:Name="pnlParallelButtons" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="Collapsed" >
+                        <Button Width="50" Content="Влево" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
+                            Click="btnMoveLeft_Click"  />
+                        <Button Width="50" Content="Вправо" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" 
+                            Click="btnMoveRight_Click" />
+                    </StackPanel>-->
+
+                    <Button Width="75"  Content=" Удалить ТО" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,10,0" Click="btnDelete_Click" 
+                            Background="IndianRed"/>
+                    
+                </StackPanel>
+
             </StackPanel>
             
             <d:StackPanel  HorizontalAlignment="Center" Visibility="Visible" >

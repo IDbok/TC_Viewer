@@ -9,7 +9,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models
 {
-    public class TechnologicalCard: INameable, IUpdatableEntity, IValidatable, IHasUniqueConstraints<TechnologicalCard>
+    public class TechnologicalCard: INameable, IUpdatableEntity, IValidatable, IHasUniqueConstraints<Tool>
     {
         public enum TechnologicalCardStatus
         {

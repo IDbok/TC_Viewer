@@ -478,9 +478,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                     editedComp.Comments = gg;
                 }
 
+                var isEditFormActive = _editForm?.IsDisposed == false;
                 HasChanges = true;
-                if (_editForm?.IsDisposed == false)
+
+                if (isEditFormActive && itsTool)
                     _editForm.UpdateInstrumentLocal();
+                else if (isEditFormActive && ItsComponent)
+                    _editForm.UpdateComponentLocal();
             }
         }
     }
@@ -841,6 +845,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
             else
             {
+                if (parallelGroups.Count == 0)
+                {
+                    parallelGroups.Push((GroupType.Single,
+                                new List<TechOperationDataGridItem>(),
+                                new List<TechOperationDataGridItem> { item }));
+                }
+
                 parallelGroups.Peek().Item3.Add(item);
             }
 
@@ -1132,7 +1143,24 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
             else
             {
-                str.Add("");
+                //Получаем прошлую строку для сравнения, нужно ли объединение
+                var prevStr = TechOperationDataGridItems.Where(t => t.Nomer == techOperationDataGridItem.Nomer - 1).FirstOrDefault();
+                if(prevStr != null)
+                {
+                    //Проверка является ли прошлая строка не последовательной и проверка различия с прошлым значением(чтобы не объеденять строки ТП и инструментументов которые последовательны)
+                    var isPreviousStrParallel = prevStr.Etap != "0" && techOperationDataGridItem.Etap != prevStr.Etap;
+                    
+                    if(prevStr.ItsTool || prevStr.ItsComponent)
+                        techOperationDataGridItem.TimeEtap = prevStr.TimeEtap;//Если прошлая строка инструмент или компонент - копируем её значение
+                    else
+                        techOperationDataGridItem.TimeEtap = isPreviousStrParallel ? "-1" : "";
+
+                    str.Add(techOperationDataGridItem.TimeEtap);
+                }
+                else
+                {
+                    str.Add("");
+                }
             }
         }
     }
@@ -1468,21 +1496,21 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         if (vb != null)
         {
             vb.Delete = true;
+            }
         }
-    }
 
-    public void MarkToDeleteToolWork(ToolWork tool)
+    public void MarkToDeleteToolWork(TechOperationWork work, ToolWork tool)
     {
-        var vb = context.ToolWorks.SingleOrDefault(s => s == tool);
+        var vb = work.ToolWorks.SingleOrDefault(s => s == tool);
         if (vb != null)
         {
             vb.IsDeleted = true;
         }
     }
 
-    public void MarkToDeleteComponentWork(ComponentWork comp)
+    public void MarkToDeleteComponentWork(TechOperationWork work, ComponentWork comp)
     {
-        var vb = context.ComponentWorks.SingleOrDefault(s => s == comp);
+        var vb = work.ComponentWorks.SingleOrDefault(s => s == comp);
         if (vb != null)
         {
             vb.IsDeleted = true;
@@ -1538,6 +1566,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         List<TechOperationWork> AllDele = TechOperationWorksList.Where(w => w.Delete == true).ToList();
         foreach (TechOperationWork techOperationWork in AllDele)
         {
+            foreach (ToolWork delTool in techOperationWork.ToolWorks)
+            {
+                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
+            }
+
+            foreach (ComponentWork delComp in techOperationWork.ComponentWorks)
+            {
+                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
+            }
+
             TechOperationWorksList.Remove(techOperationWork);
             if (techOperationWork.NewItem == false)
             {
@@ -1567,7 +1605,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             foreach (ToolWork delTool in delTools)
             {
-                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id);
+                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
                 techOperationWork.ToolWorks.Remove(delTool);
             }
 
@@ -1589,7 +1627,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             foreach (var delComp in delComponents)
             {
-                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id);
+                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
                 techOperationWork.ComponentWorks.Remove(delComp);
             }
 

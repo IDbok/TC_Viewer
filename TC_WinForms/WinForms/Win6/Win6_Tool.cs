@@ -58,10 +58,12 @@ namespace TC_WinForms.WinForms
             // make columns editable
             dgvMain.Columns[nameof(DisplayedTool_TC.Order)].ReadOnly = _tcViewState.IsViewMode;
             dgvMain.Columns[nameof(DisplayedTool_TC.Quantity)].ReadOnly = _tcViewState.IsViewMode;
+            dgvMain.Columns[nameof(DisplayedTool_TC.Note)].ReadOnly = _tcViewState.IsViewMode;
 
 
             dgvMain.Columns[nameof(DisplayedTool_TC.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
             dgvMain.Columns[nameof(DisplayedTool_TC.Quantity)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+            dgvMain.Columns[nameof(DisplayedTool_TC.Note)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 
             // update form
             dgvMain.Refresh();
@@ -188,6 +190,7 @@ namespace TC_WinForms.WinForms
             {
                 nameof(DisplayedTool_TC.Order),
                 nameof(DisplayedTool_TC.Quantity),
+                nameof(DisplayedTool_TC.Note),
             };
             foreach (var column in changeableColumn)
             {
@@ -361,7 +364,7 @@ namespace TC_WinForms.WinForms
                     //nameof(ClassifierCode),
 
                     nameof(Quantity),
-                    //nameof(Note),
+                    nameof(Note),
 
                     nameof(ChildId),
 
@@ -411,6 +414,7 @@ namespace TC_WinForms.WinForms
                 Manufacturer = obj.Child.Manufacturer;
                 Categoty = obj.Child.Categoty;
                 ClassifierCode = obj.Child.ClassifierCode;
+                Note = obj.Note;
 
                 IsReleased = obj.Child.IsReleased;
 

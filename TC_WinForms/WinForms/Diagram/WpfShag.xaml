@@ -136,7 +136,7 @@
                                         <DataGridTemplateColumn Header="Комментарии" Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding Path=Comments}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
+                                                    <TextBox Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_CommentTextChanged" TextWrapping="Wrap" Background="LightGray"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
@@ -145,7 +145,7 @@
                                         <DataGridTemplateColumn Header="Кол-во добавить" Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }"/>
+                                                    <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }"  Background="LightGray"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
@@ -249,12 +249,13 @@
             </Border>            
         </StackPanel>
     </Border>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="14" 
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="14" 
                     Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
                     >
-            <Button Width="50" Content="Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonDown_Click" />
-            <Button Width="50" Content="Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonUp_Click"/>
-            <Button Width="75" Content="Удалить Шаг" HorizontalAlignment="Right"  Click="ButtonDelete_Click" VerticalAlignment="Top" />
+            <Button Width="50" Content="↓ Вниз" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonDown_Click" />
+            <Button Width="50" Content="↑ Вверх" HorizontalAlignment="Right"   VerticalAlignment="Top" Margin="0,0,10,0" Click="ButtonUp_Click"/>
+            <Button Width="80" Content="Удалить Шаг" HorizontalAlignment="Right"  Click="ButtonDelete_Click" VerticalAlignment="Top" 
+                    Background="IndianRed"/>
         </StackPanel>
         
     </Grid>

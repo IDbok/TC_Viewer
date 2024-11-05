@@ -120,7 +120,7 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
             //if(!IsViewMode)
             //    ButtonAddShag.Visibility = Visibility.Visible;
 
-            _wpfMainControl.technologicalCard.DiagamToWork.Add(this.diagamToWork);
+            //_wpfMainControl.technologicalCard.DiagamToWork.Add(this.diagamToWork);
 
             //ListWpfParalelno.Children.Clear();
             Children.Clear();
@@ -129,6 +129,12 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
             {
                 //ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState)); // this, _tcViewState));
                 Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState)); // this, _tcViewState));
+            }
+
+            // проверка на соотвествие diagamToWork с _diagramState.DiagamToWork
+            if(diagamToWork.Id != _diagramState.DiagramToWork.Id)
+            {
+                _diagramState.DiagramToWork = diagamToWork;
             }
 
             foreach (DiagramParalelno diagramParalelno in this.diagamToWork.ListDiagramParalelno.OrderBy(x => x.Order))
@@ -145,9 +151,9 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
     }
 
 
-    public void ParallelButtonsVisibility(bool isVisible)
+    public void ParallelButtonsVisibility(bool isVisible) // todo: перенести для WpfToSequence
     {
-        pnlParallelButtons.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
+        // pnlParallelButtons.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)
@@ -169,6 +175,7 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
         {
             var techOperationWork = (TechOperationWork)ComboBoxTO.SelectedItem;
 
+            // Если данный блок пустой
             if (diagamToWork.techOperationWork != null)
             {
                 if(diagamToWork.techOperationWork.Id == techOperationWork.Id)
@@ -341,16 +348,11 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
     private void ButtonDown_Click(object sender, RoutedEventArgs e)
     {
         _diagramState.WpfTo?.ChangeOrder(this, MoveDirection.Down);
-        //_wpfMainControl.Order(1, this);
-        //_wpfMainControl.diagramForm.HasChanges = true;
     }
 
     private void ButtonUp_Click(object sender, RoutedEventArgs e)
     {
         _diagramState.WpfTo?.ChangeOrder(this, MoveDirection.Up);
-
-        //_wpfMainControl.Order(2, this);
-        //_wpfMainControl.diagramForm.HasChanges = true;
     }
 
     private void btnDelete_Click(object sender, RoutedEventArgs e)

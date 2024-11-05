@@ -1,4 +1,5 @@
-﻿using static TC_WinForms.DataProcessing.AuthorizationService;
+﻿using System.IO;
+using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TC_WinForms.DataProcessing.AuthorizationService.User;
 
 namespace TC_WinForms.DataProcessing;
@@ -35,6 +36,12 @@ public static class ApplicationInfoService
                 message += "Права доступа: " + userRole + "\n";
             }
 
+        string tempPath = Path.GetTempPath();
+        if (!string.IsNullOrEmpty(tempPath))
+        {
+            message += "Путь к временным файлам: " + tempPath + "\n";
+        }
+
         message += "\n";
         message += "Разработчик: ООО \"Таврида Электрик\"";
 
@@ -42,7 +49,7 @@ public static class ApplicationInfoService
     }
     public static string GetApplicationVersion()
     {
-        return "1.5.10.2";
+        return "1.6.2"; // 1.6 - тк было изменение в структуре БД и ПО больше не совместимо с предыдущими версиями БД
     }
 
     public static string GetApplicationName()

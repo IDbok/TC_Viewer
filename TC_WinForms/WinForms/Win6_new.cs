@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Diagram;
 using TC_WinForms.WinForms.Work;
@@ -79,7 +80,13 @@ namespace TC_WinForms.WinForms
 
             SetViewMode();
 
-            FormClosed += (s,e) => Dispose();
+            FormClosed += (s,e) => ThisFormClosed();
+        }
+        private void ThisFormClosed()
+        {
+            TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
+
+            Dispose();
         }
         private void AccessInitialization()
         {
