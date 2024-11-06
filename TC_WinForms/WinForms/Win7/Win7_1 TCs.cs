@@ -133,7 +133,7 @@ namespace TC_WinForms.WinForms
             }
 
             paginationService = new PaginationControlService<DisplayedTechnologicalCard>(50);
-            paginationService.AllObjects = _displayedTechnologicalCards;
+            paginationService.SetAllObjectList(_displayedTechnologicalCards);
 
             UpdateDisplayedData();
         }
@@ -142,12 +142,11 @@ namespace TC_WinForms.WinForms
             // Расчет отображаемых записей
             var pageData = paginationService.GetPageData();
 
-            pageData = pageData.OrderBy(tc => tc.Article).ToList();
             _bindingList = new BindingList<DisplayedTechnologicalCard>(pageData);
             dgvMain.DataSource = _bindingList;//.OrderBy(tc => tc.Article);
 
             // Подготовка данных для события
-            PageInfo = paginationService.pageInfo;
+            PageInfo = paginationService.GetPageInfo();
 
             // Вызов события с подготовленными данными
             RaisePageInfoChanged();
@@ -845,7 +844,7 @@ namespace TC_WinForms.WinForms
                     (string.IsNullOrWhiteSpace(networkVoltageFilter) && string.IsNullOrWhiteSpace(typeFilter))))
                 {
                     isFiltered = false;
-                    paginationService.AllObjects = _displayedTechnologicalCards;
+                    paginationService.SetAllObjectList(_displayedTechnologicalCards);
 
                     UpdateDisplayedData();
                     //dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
@@ -875,7 +874,7 @@ namespace TC_WinForms.WinForms
                         (typeFilter == "Все" || card.Type.ToString() == typeFilter)
                         ).ToList();
 
-                    paginationService.AllObjects = filteredList;
+                    paginationService.SetAllObjectList(filteredList);
 
                     UpdateDisplayedData();
                 }

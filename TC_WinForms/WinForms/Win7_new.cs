@@ -147,9 +147,16 @@ namespace TC_WinForms.WinForms
             else if(form is IPaginationControl existedPaginationForm)
             {
                 if (existedPaginationForm.PageInfo != null)
+                {
                     existedPaginationForm.RaisePageInfoChanged();
+                    pnlPageControls.Visible = true;
+                }
             }
-            
+            else
+            {
+                pnlPageControls.Visible = false;
+            }
+
             return form;
         }
         private void AddFormToPanel(WinNumber winNumber)

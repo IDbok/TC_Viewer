@@ -142,7 +142,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         }
 
         paginationService = new PaginationControlService<DisplayedComponent>(50);
-        paginationService.AllObjects = _displayedObjects.OrderBy(c => c.Name).ToList();
+        paginationService.SetAllObjectList(_displayedObjects.OrderBy(c => c.Name).ToList());
 
         FilteringObjects();
 
@@ -154,12 +154,11 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         // Расчет отображаемых записей
         var pageData = paginationService.GetPageData();
 
-        pageData = pageData.OrderBy(tc => tc.Name).ToList();
         _bindingList = new BindingList<DisplayedComponent>(pageData);
         dgvMain.DataSource = _bindingList;
 
         // Подготовка данных для события
-        PageInfo = paginationService.pageInfo;
+        PageInfo = paginationService.GetPageInfo();
 
         // Вызов события с подготовленными данными
         RaisePageInfoChanged();
@@ -687,7 +686,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
                 _bindingList = new BindingList<DisplayedComponent>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 _isFiltered = false;
 
-                paginationService.AllObjects = _displayedObjects;
+                paginationService.SetAllObjectList(_displayedObjects);
                 UpdateDisplayedData();
             }
             else
@@ -695,7 +694,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
                 _bindingList = FilteredBindingList(searchText);
                 _isFiltered = true;
 
-                paginationService.AllObjects = _bindingList.ToList();
+                paginationService.SetAllObjectList(_bindingList.ToList());
                 UpdateDisplayedData();
 
             }

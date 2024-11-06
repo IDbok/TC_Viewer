@@ -13,9 +13,9 @@ namespace TC_WinForms.Services
         /// <summary>
         /// Список всех объектов, которые будут выведены на страницах
         /// </summary>
-        public List<T> AllObjects
+        private List<T> AllObjects
         { 
-            private get => _allObjects;
+            get => _allObjects;
             set
             {
                 _allObjects = value;
@@ -23,6 +23,12 @@ namespace TC_WinForms.Services
                 _currentPageIndex = 0;
             }
         }
+
+        public void SetAllObjectList(List<T> newAllObjectList)
+        {
+            AllObjects = newAllObjectList;
+        }
+
         /// <summary>
         /// Максимальное количество страниц
         /// </summary>
@@ -32,19 +38,19 @@ namespace TC_WinForms.Services
         /// <summary>
         /// Номер текущей активной страницы
         /// </summary>
-        public int CurrentPageIndex 
+        private int CurrentPageIndex 
         { 
             get => _currentPageIndex; 
-            private set
+            set
+                {
+                    if(value != null)
                     {
-                        if(value != null)
-                        {
-                            if((_currentPageIndex < _totalCountPages - 1 && value > _currentPageIndex) 
-                                || (_currentPageIndex > 0 && value < _currentPageIndex))
-                                _currentPageIndex = value;
+                        if((_currentPageIndex < _totalCountPages - 1 && value > _currentPageIndex) 
+                            || (_currentPageIndex > 0 && value < _currentPageIndex))
+                            _currentPageIndex = value;
 
-                        }
                     }
+                }
         } 
 
         public PaginationControlService() { }
@@ -110,6 +116,9 @@ namespace TC_WinForms.Services
         ///     место конца вывода записей,
         ///     oбщее количество записей
         /// </summary>
-        public PageInfoEventArgs pageInfo { get; private set; }
+        private PageInfoEventArgs pageInfo { get; set; }
+
+        public PageInfoEventArgs GetPageInfo() => pageInfo;
+
     }
 }
