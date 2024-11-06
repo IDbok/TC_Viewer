@@ -361,7 +361,7 @@ namespace TC_WinForms.DataProcessing
                         }
 
 
-                        //db.Set<T>().RemoveRange(tcsToDelete);
+                        db.Set<T>().RemoveRange(tcsToDelete);
 
                         await db.SaveChangesAsync();
                     }
