@@ -7,88 +7,70 @@ namespace TC_WinForms.Services
         /// <summary>
         /// Максимальное количество объектов на одной странице
         /// </summary>
-        private readonly int CountOfObjectsOnPage;
+        private readonly int _rowsPerPage;
 
-        private List<T> _allObjects;
         /// <summary>
         /// Список всех объектов, которые будут выведены на страницах
         /// </summary>
-        private List<T> AllObjects
-        { 
-            get => _allObjects;
-            set
-            {
-                _allObjects = value;
-                CountTotalPages();
-                _currentPageIndex = 0;
-            }
-        }
-
-        public void SetAllObjectList(List<T> newAllObjectList)
-        {
-            AllObjects = newAllObjectList;
-        }
-
+        private List<T> _allObjects;
+        
+        
         /// <summary>
         /// Максимальное количество страниц
         /// </summary>
-        private int _totalCountPages;
-        
-        private int _currentPageIndex;
+        private int _pageCount;
+
         /// <summary>
         /// Номер текущей активной страницы
         /// </summary>
-        private int CurrentPageIndex 
-        { 
-            get => _currentPageIndex; 
-            set
-                {
-                    if(value != null)
-                    {
-                        if((_currentPageIndex < _totalCountPages - 1 && value > _currentPageIndex) 
-                            || (_currentPageIndex > 0 && value < _currentPageIndex))
-                            _currentPageIndex = value;
-
-                    }
-                }
-        } 
+        private int _currentPageIndex;
 
         public PaginationControlService() { }
         public PaginationControlService(int countOfObjectsOnPage)
         {
-            this.CountOfObjectsOnPage = countOfObjectsOnPage;
+            this._rowsPerPage = countOfObjectsOnPage;
         }
         /// <summary>
         /// Расчитывает количество всех страниц для текущего количества всех объектов
         /// </summary>
         private void CountTotalPages()
         {
-            _totalCountPages = (int)Math.Ceiling(_allObjects.Count / (double)CountOfObjectsOnPage);
+            _pageCount = (int)Math.Ceiling(_allObjects.Count / (double)_rowsPerPage);
         }
         /// <summary>
         /// Увеличивает значение текущей активной страницы на 1
         /// </summary>
         public void GoToNextPage()
         {
-            CurrentPageIndex++;
+            if (_currentPageIndex < _pageCount - 1)
+                _currentPageIndex++;
         }
         /// <summary>
         /// Уменьшает значение текущей активной страницы на 1
         /// </summary>
         public void GoToPreviousPage()
         {
-            CurrentPageIndex--;
+            if(_currentPageIndex > 0)
+                _currentPageIndex--;
         }
+
+        public void SetAllObjectList(List<T> newAllObjectList)
+        {
+            _allObjects = newAllObjectList;
+            CountTotalPages();
+            _currentPageIndex = 0;
+        }
+
         /// <summary>
         /// Обновляет информацию о выводимых на страннице объектах
         /// </summary>
         private void UpdatePageInformation()
         {
             //Получаем данные об общем количестве записей и с какой записи выводится информация
-            int totalRecords = AllObjects.Count;
-            int startRecord = CurrentPageIndex * CountOfObjectsOnPage + 1;
+            int totalRecords = _allObjects.Count;
+            int startRecord = _currentPageIndex * _rowsPerPage + 1;
             // Обеспечиваем, что endRecord не превышает общее количество записей
-            int endRecord = Math.Min(startRecord + CountOfObjectsOnPage - 1, totalRecords);
+            int endRecord = Math.Min(startRecord + _rowsPerPage - 1, totalRecords);
 
             pageInfo = new PageInfoEventArgs
             {
@@ -104,9 +86,8 @@ namespace TC_WinForms.Services
         /// <returns>Список объектов, которые будут выводиться на активной странице</returns>
         public List<T>? GetPageData()
         {
-            int skipedItems = CurrentPageIndex * CountOfObjectsOnPage;
-            var displayedPageData = AllObjects.Skip(skipedItems).Take(CountOfObjectsOnPage).ToList();
-            UpdatePageInformation();
+            int skipedItems = _currentPageIndex * _rowsPerPage;
+            var displayedPageData = _allObjects.Skip(skipedItems).Take(_rowsPerPage).ToList();
 
             return displayedPageData;
         }
@@ -118,7 +99,15 @@ namespace TC_WinForms.Services
         /// </summary>
         private PageInfoEventArgs pageInfo { get; set; }
 
-        public PageInfoEventArgs GetPageInfo() => pageInfo;
+        /// <summary>
+        /// Обновляет и возвращает информацию о текущей странице
+        /// </summary>
+        /// <returns>PageInfoEventArgs, содержащее в себе актуальную информацию о текущей старнице</returns>
+        public PageInfoEventArgs GetPageInfo()
+        {
+            UpdatePageInformation();
+            return pageInfo;
+        } 
 
     }
 }

@@ -140,9 +140,8 @@ namespace TC_WinForms.WinForms
         private void UpdateDisplayedData()
         {
             // Расчет отображаемых записей
-            var pageData = paginationService.GetPageData();
 
-            _bindingList = new BindingList<DisplayedTechnologicalCard>(pageData);
+            _bindingList = new BindingList<DisplayedTechnologicalCard>(paginationService.GetPageData());
             dgvMain.DataSource = _bindingList;//.OrderBy(tc => tc.Article);
 
             // Подготовка данных для события
@@ -846,7 +845,6 @@ namespace TC_WinForms.WinForms
                     isFiltered = false;
                     paginationService.SetAllObjectList(_displayedTechnologicalCards);
 
-                    UpdateDisplayedData();
                     //dgvMain.DataSource = _bindingList; // Возвращаем исходный список, если строка поиска пуста
                 }
                 else
@@ -876,8 +874,10 @@ namespace TC_WinForms.WinForms
 
                     paginationService.SetAllObjectList(filteredList);
 
-                    UpdateDisplayedData();
                 }
+
+                UpdateDisplayedData();
+
             }
             catch (Exception e)
             {

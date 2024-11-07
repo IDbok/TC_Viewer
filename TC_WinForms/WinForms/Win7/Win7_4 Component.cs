@@ -152,9 +152,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
     private void UpdateDisplayedData()
     {
         // Расчет отображаемых записей
-        var pageData = paginationService.GetPageData();
 
-        _bindingList = new BindingList<DisplayedComponent>(pageData);
+        _bindingList = new BindingList<DisplayedComponent>(paginationService.GetPageData());
         dgvMain.DataSource = _bindingList;
 
         // Подготовка данных для события
@@ -687,7 +686,6 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
                 _isFiltered = false;
 
                 paginationService.SetAllObjectList(_displayedObjects);
-                UpdateDisplayedData();
             }
             else
             {
@@ -695,10 +693,12 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
                 _isFiltered = true;
 
                 paginationService.SetAllObjectList(_bindingList.ToList());
-                UpdateDisplayedData();
 
             }
             //dgvMain.DataSource = _bindingList;
+
+             UpdateDisplayedData();
+
 
             // Восстанавливаем выделенные объекты
             if (_isAddingForm)
