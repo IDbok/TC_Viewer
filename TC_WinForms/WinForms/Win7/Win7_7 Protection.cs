@@ -3,6 +3,8 @@ using System.Data;
 using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -11,7 +13,7 @@ using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_7_Protection : Form//, ISaveEventForm
+    public partial class Win7_7_Protection : Form, IPaginationControl//, ISaveEventForm
     {
         private readonly User.Role _accessLevel;
 
@@ -30,6 +32,10 @@ namespace TC_WinForms.WinForms
         private readonly int? _tcId;
 
         private bool _isFiltered = false;
+
+        PaginationControlService<DisplayedProtection> paginationService;
+        public event EventHandler<PageInfoEventArgs> PageInfoChanged;
+        public PageInfoEventArgs? PageInfo { get; set; }
 
         public Win7_7_Protection(User.Role accessLevel)
         {
@@ -97,6 +103,8 @@ namespace TC_WinForms.WinForms
             foreach (var obj in displayedObjs)
                 _displayedObjects.Add(obj);
 
+            paginationService = new PaginationControlService<DisplayedProtection>(30, _displayedObjects.OrderBy(c => c.Name).ToList());
+
             FilteringObjects();
             //_bindingList = new BindingList<DisplayedProtection>(_displayedObjects);
             ////_bindingList.ListChanged += BindingList_ListChanged;
@@ -106,6 +114,21 @@ namespace TC_WinForms.WinForms
 
             SetDGVColumnsSettings();
         }
+
+        private void UpdateDisplayedData()
+        {
+            // Расчет отображаемых записей
+
+            _bindingList = new BindingList<DisplayedProtection>(paginationService.GetPageData());
+            dgvMain.DataSource = _bindingList;
+
+            // Подготовка данных для события
+            PageInfo = paginationService.GetPageInfo();
+
+            // Вызов события с подготовленными данными
+            RaisePageInfoChanged();
+        }
+
         private async void Win7_7_Protection_FormClosing(object sender, FormClosingEventArgs e)
         {
 
@@ -527,7 +550,9 @@ namespace TC_WinForms.WinForms
                     _bindingList = FilteredBindingList(searchText);
                     _isFiltered = true;
                 }
-                dgvMain.DataSource = _bindingList;
+                //dgvMain.DataSource = _bindingList;
+                paginationService.SetAllObjectList(_bindingList.ToList());
+                UpdateDisplayedData();
 
                 // Восстанавливаем выделенные объекты
                 if (_isAddingForm)
@@ -667,6 +692,22 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
+        }
+        public void GoToNextPage()
+        {
+            paginationService.GoToNextPage();
+            UpdateDisplayedData();
+        }
+
+        public void GoToPreviousPage()
+        {
+            paginationService.GoToPreviousPage();
+            UpdateDisplayedData();
+        }
+
+        public void RaisePageInfoChanged()
+        {
+            PageInfoChanged?.Invoke(this, PageInfo);
         }
 
         private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)

@@ -26,9 +26,12 @@ namespace TC_WinForms.Services
         private int _currentPageIndex;
 
         public PaginationControlService() { }
-        public PaginationControlService(int countOfObjectsOnPage)
+        public PaginationControlService(int rowsPerPage, List<T> allObjects)
         {
-            this._rowsPerPage = countOfObjectsOnPage;
+            _rowsPerPage = rowsPerPage;
+            _allObjects = allObjects;
+            _currentPageIndex = 0;
+            CountTotalPages();
         }
         /// <summary>
         /// Расчитывает количество всех страниц для текущего количества всех объектов
@@ -87,9 +90,8 @@ namespace TC_WinForms.Services
         public List<T>? GetPageData()
         {
             int skipedItems = _currentPageIndex * _rowsPerPage;
-            var displayedPageData = _allObjects.Skip(skipedItems).Take(_rowsPerPage).ToList();
 
-            return displayedPageData;
+            return _allObjects.Skip(skipedItems).Take(_rowsPerPage).ToList();
         }
         /// <summary>
         /// Информация о странице: 

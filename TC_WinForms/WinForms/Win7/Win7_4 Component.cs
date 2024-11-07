@@ -141,8 +141,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
             _displayedObjects.Add(obj);
         }
 
-        paginationService = new PaginationControlService<DisplayedComponent>(50);
-        paginationService.SetAllObjectList(_displayedObjects.OrderBy(c => c.Name).ToList());
+        paginationService = new PaginationControlService<DisplayedComponent>(50, _displayedObjects.OrderBy(c => c.Name).ToList());
 
         FilteringObjects();
 
@@ -294,7 +293,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
 
     private void SetupCategoryComboBox()
     {
-        var types = _bindingList.Select(obj => obj.Categoty).Distinct().ToList();
+        var types = _displayedObjects.Select(obj => obj.Categoty).Distinct().ToList();
         types.Sort();
 
         cbxCategoryFilter.Items.Add("Все");
@@ -685,19 +684,18 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
                 _bindingList = new BindingList<DisplayedComponent>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 _isFiltered = false;
 
-                paginationService.SetAllObjectList(_displayedObjects);
             }
             else
             {
                 _bindingList = FilteredBindingList(searchText);
                 _isFiltered = true;
 
-                paginationService.SetAllObjectList(_bindingList.ToList());
 
             }
             //dgvMain.DataSource = _bindingList;
 
-             UpdateDisplayedData();
+            paginationService.SetAllObjectList(_bindingList.ToList());
+            UpdateDisplayedData();
 
 
             // Восстанавливаем выделенные объекты

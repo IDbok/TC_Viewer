@@ -6,6 +6,7 @@ using System.Linq;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
@@ -13,7 +14,7 @@ using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms;
 
-public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
+public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
 {
     private readonly User.Role _accessLevel;
 
@@ -35,6 +36,10 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
     public bool isDataLoaded = false;
 
     private bool isFiltered = false;
+
+    PaginationControlService<DisplayedStaff> paginationService;
+    public event EventHandler<PageInfoEventArgs> PageInfoChanged;
+    public PageInfoEventArgs? PageInfo { get; set; }
 
     //private List<int> _selectedIds = new List<int>();
 
@@ -135,10 +140,26 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
             _displayedObjects.Add(obj);
         }
 
+        paginationService = new PaginationControlService<DisplayedStaff>(15, _displayedObjects.OrderBy(c => c.Name).ToList());
+
         FilteringObjects();
 
         isDataLoaded = true;
     }
+    private void UpdateDisplayedData()
+    {
+        // Расчет отображаемых записей
+
+        _bindingList = new BindingList<DisplayedStaff>(paginationService.GetPageData());
+        dgvMain.DataSource = _bindingList;
+
+        // Подготовка данных для события
+        PageInfo = paginationService.GetPageInfo();
+
+        // Вызов события с подготовленными данными
+        RaisePageInfoChanged();
+    }
+
     private void AccessInitialization()
     {
         var controlAccess = new Dictionary<User.Role, Action>
@@ -510,6 +531,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
             {
                 _bindingList = new BindingList<DisplayedStaff>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 isFiltered = false;
+
             }
             else
             {
@@ -525,9 +547,13 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
 
                 _bindingList = new BindingList<DisplayedStaff>(filteredList);
                 isFiltered = true;
+
             }
 
-            dgvMain.DataSource = _bindingList;
+            paginationService.SetAllObjectList(_bindingList.ToList());
+            UpdateDisplayedData();
+
+            //dgvMain.DataSource = _bindingList;
 
             DisplayedEntityHelper.SetupDataGridView<DisplayedStaff>(dgvMain);
 
@@ -618,5 +644,21 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm//, ISaveEventForm
         FilteringObjects();
     }
 
+    public void GoToNextPage()
+    {
+        paginationService.GoToNextPage();
+        UpdateDisplayedData();
+    }
+
+    public void GoToPreviousPage()
+    {
+        paginationService.GoToPreviousPage();
+        UpdateDisplayedData();
+    }
+
+    public void RaisePageInfoChanged()
+    {
+        PageInfoChanged?.Invoke(this, PageInfo);
+    }
 
 }

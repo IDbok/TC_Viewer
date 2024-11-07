@@ -4,6 +4,7 @@ using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -12,7 +13,7 @@ using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms;
 
-public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
+public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl //, ISaveEventForm
 {
     private readonly User.Role _accessLevel;
 
@@ -34,6 +35,10 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
     public bool _isDataLoaded = false;
 
     private bool _isFiltered = false;
+
+    PaginationControlService<DisplayedTool> paginationService;
+    public event EventHandler<PageInfoEventArgs> PageInfoChanged;
+    public PageInfoEventArgs? PageInfo { get; set; }
 
     public Win7_6_Tool(User.Role accessLevel)
     {
@@ -105,11 +110,26 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
         foreach (var obj in displayedObjs)
             _displayedObjects.Add(obj);
 
+        paginationService = new PaginationControlService<DisplayedTool>(50, _displayedObjects.OrderBy(c => c.Name).ToList());
+
         FilteringObjects();
 
         _isDataLoaded = true;
     }
 
+    private void UpdateDisplayedData()
+    {
+        // Расчет отображаемых записей
+
+        _bindingList = new BindingList<DisplayedTool>(paginationService.GetPageData());
+        dgvMain.DataSource = _bindingList;
+
+        // Подготовка данных для события
+        PageInfo = paginationService.GetPageInfo();
+
+        // Вызов события с подготовленными данными
+        RaisePageInfoChanged();
+    }
     private void AccessInitialization()
     {
         var controlAccess = new Dictionary<User.Role, Action>
@@ -214,7 +234,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
 
     private void SetupCategoryComboBox()
     {
-        var types = _bindingList.Select(obj => obj.Categoty).Distinct().ToList();
+        var types = _displayedObjects.Select(obj => obj.Categoty).Distinct().ToList();
         types.Sort();
 
         cbxCategoryFilter.Items.Add("Все");
@@ -572,7 +592,10 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
                 _bindingList = FilteredBindingList(searchText);//new BindingList<DisplayedTool>(filteredList);
                 _isFiltered = true;
             }
-            dgvMain.DataSource = _bindingList;
+            //dgvMain.DataSource = _bindingList;
+
+            paginationService.SetAllObjectList(_bindingList.ToList());
+            UpdateDisplayedData();
 
             DisplayedEntityHelper.SetupDataGridView<DisplayedTool>(dgvMain);
 
@@ -719,6 +742,23 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm //, ISaveEventForm
                 }
             }
         }
+    }
+
+    public void GoToNextPage()
+    {
+        paginationService.GoToNextPage();
+        UpdateDisplayedData();
+    }
+
+    public void GoToPreviousPage()
+    {
+        paginationService.GoToPreviousPage();
+        UpdateDisplayedData();
+    }
+
+    public void RaisePageInfoChanged()
+    {
+        PageInfoChanged?.Invoke(this, PageInfo);
     }
 
     private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)

@@ -132,8 +132,7 @@ namespace TC_WinForms.WinForms
                     .Select(tc => new DisplayedTechnologicalCard(tc)).OrderBy(tc => tc.Article).ToList());
             }
 
-            paginationService = new PaginationControlService<DisplayedTechnologicalCard>(50);
-            paginationService.SetAllObjectList(_displayedTechnologicalCards);
+            paginationService = new PaginationControlService<DisplayedTechnologicalCard>(50, _displayedTechnologicalCards);
 
             UpdateDisplayedData();
         }
