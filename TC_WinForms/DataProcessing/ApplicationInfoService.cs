@@ -49,7 +49,7 @@ public static class ApplicationInfoService
     }
     public static string GetApplicationVersion()
     {
-        return "1.6.2"; // 1.6 - тк было изменение в структуре БД и ПО больше не совместимо с предыдущими версиями БД
+        return "1.6.2_debugLR"; // 1.6 - тк было изменение в структуре БД и ПО больше не совместимо с предыдущими версиями БД
     }
 
     public static string GetApplicationName()
