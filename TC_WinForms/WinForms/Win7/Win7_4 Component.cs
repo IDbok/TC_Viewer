@@ -133,15 +133,10 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
     }
     public async Task LoadDataAsync()
     {
-        var displayedObj = await Task.Run(() => DataService.GetComponents() //dbCon.GetObjectList<Component>(includeLinks: true)
-            .Select(obj => new DisplayedComponent(obj)).ToList());
+        _displayedObjects = await Task.Run(() => DataService.GetComponents() //dbCon.GetObjectList<Component>(includeLinks: true)
+            .Select(obj => new DisplayedComponent(obj)).OrderBy(c => c.Name).ToList());
 
-        foreach(var obj in displayedObj)
-        {
-            _displayedObjects.Add(obj);
-        }
-
-        paginationService = new PaginationControlService<DisplayedComponent>(50, _displayedObjects.OrderBy(c => c.Name).ToList());
+        paginationService = new PaginationControlService<DisplayedComponent>(50, _displayedObjects);
 
         FilteringObjects();
 
@@ -678,23 +673,24 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         {
             var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
             var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
+            var displayedComponentList = new BindingList<DisplayedComponent>();
 
             if (string.IsNullOrWhiteSpace(searchText) && (categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter)) && !cbxShowUnReleased.Checked)
             {
-                _bindingList = new BindingList<DisplayedComponent>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
+                displayedComponentList = new BindingList<DisplayedComponent>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 _isFiltered = false;
 
             }
             else
             {
-                _bindingList = FilteredBindingList(searchText);
+                displayedComponentList = FilteredBindingList(searchText);
                 _isFiltered = true;
 
 
             }
             //dgvMain.DataSource = _bindingList;
 
-            paginationService.SetAllObjectList(_bindingList.ToList());
+            paginationService.SetAllObjectList(displayedComponentList.ToList());
             UpdateDisplayedData();
 
 

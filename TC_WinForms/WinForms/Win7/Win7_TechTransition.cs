@@ -91,7 +91,7 @@ namespace TC_WinForms.WinForms
                 .ThenBy(obj => obj.Name)
                 .ToList());
 
-            paginationService = new PaginationControlService<DisplayedTechTransition>(30, _displayedObjects.OrderBy(c => c.Name).ToList());
+            paginationService = new PaginationControlService<DisplayedTechTransition>(30, _displayedObjects);
 
             FilteringObjects();
             //_bindingList = new BindingList<DisplayedTechTransition>(_displayedObjects);
@@ -536,18 +536,19 @@ namespace TC_WinForms.WinForms
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
                 var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
+                var displayedTechTransitionList = new BindingList<DisplayedTechTransition>();
 
                 if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все" && !cbxShowUnReleased.Checked)
                 {
-                    _bindingList = new BindingList<DisplayedTechTransition>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList()); // Возвращаем исходный список, если строка поиска пуста
+                    displayedTechTransitionList = new BindingList<DisplayedTechTransition>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList()); // Возвращаем исходный список, если строка поиска пуста
                 }
                 else
                 {
-                    _bindingList = FilteredBindingList(searchText, categoryFilter);
+                    displayedTechTransitionList = FilteredBindingList(searchText, categoryFilter);
                 }
                 //dgvMain.DataSource = _bindingList;
 
-                paginationService.SetAllObjectList(_bindingList.ToList());
+                paginationService.SetAllObjectList(displayedTechTransitionList.ToList());
                 UpdateDisplayedData();
 
             }

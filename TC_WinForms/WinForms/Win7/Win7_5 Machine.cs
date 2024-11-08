@@ -103,13 +103,9 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
     public async Task LoadDataAsync()
     {
 
-        var displayedObj = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
-            .Select(obj => new DisplayedMachine(obj)).ToList());
+        _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
+            .Select(obj => new DisplayedMachine(obj)).OrderBy(c => c.Name).ToList());
 
-        foreach(var obj in displayedObj)
-        {
-            _displayedObjects.Add(obj);
-        }
         paginationService = new PaginationControlService<DisplayedMachine>(30, _displayedObjects.OrderBy(c => c.Name).ToList());
 
         FilteringObjects();
@@ -567,19 +563,20 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
         try
         {
             var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+            var displayedMachineList = new BindingList<DisplayedMachine>();
 
             if (string.IsNullOrWhiteSpace(searchText) && !cbxShowUnReleased.Checked)
             {
-                _bindingList = new BindingList<DisplayedMachine>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
+                displayedMachineList = new BindingList<DisplayedMachine>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 _isFiltered = false;
             }
             else
             {
-                _bindingList = FilteredBindingList(searchText);
+                displayedMachineList = FilteredBindingList(searchText);
                 _isFiltered = true;
             }
 
-            paginationService.SetAllObjectList(_bindingList.ToList());
+            paginationService.SetAllObjectList(displayedMachineList.ToList());
             UpdateDisplayedData();
 
             if (_isAddingForm)

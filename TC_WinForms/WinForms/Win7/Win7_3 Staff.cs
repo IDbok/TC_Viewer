@@ -132,15 +132,10 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
     }
     public async Task LoadDataAsync()
     {
-        var displayedList = await Task.Run(() => dbCon.GetObjectList<Staff>(includeRelatedStaffs: true) //.Where(obj => obj.IsReleased == true)
-            .Select(obj => new DisplayedStaff(obj)).ToList());
+        _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Staff>(includeRelatedStaffs: true) //.Where(obj => obj.IsReleased == true)
+            .Select(obj => new DisplayedStaff(obj)).OrderBy(c => c.Name).ToList());
 
-        foreach (var obj in displayedList)
-        {
-            _displayedObjects.Add(obj);
-        }
-
-        paginationService = new PaginationControlService<DisplayedStaff>(15, _displayedObjects.OrderBy(c => c.Name).ToList());
+        paginationService = new PaginationControlService<DisplayedStaff>(15, _displayedObjects);
 
         FilteringObjects();
 
@@ -526,10 +521,11 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
         try
         {
             var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+            var displayedStaffList = new BindingList<DisplayedStaff>();
 
             if (string.IsNullOrWhiteSpace(searchText) && !cbxShowUnReleased.Checked)
             {
-                _bindingList = new BindingList<DisplayedStaff>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
+                displayedStaffList = new BindingList<DisplayedStaff>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 isFiltered = false;
 
             }
@@ -545,12 +541,12 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
                         (obj.IsReleased == !cbxShowUnReleased.Checked)
                         ).ToList();
 
-                _bindingList = new BindingList<DisplayedStaff>(filteredList);
+                displayedStaffList = new BindingList<DisplayedStaff>(filteredList);
                 isFiltered = true;
 
             }
 
-            paginationService.SetAllObjectList(_bindingList.ToList());
+            paginationService.SetAllObjectList(displayedStaffList.ToList());
             UpdateDisplayedData();
 
             //dgvMain.DataSource = _bindingList;

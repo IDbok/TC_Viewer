@@ -35,7 +35,6 @@ namespace TC_WinForms.WinForms
         private bool isFiltered = false;
 
         public string setSearch { get => txtSearch.Text;}
-        private List<DisplayedTechnologicalCard> _filteredList;
 
         PaginationControlService<DisplayedTechnologicalCard> paginationService;
 

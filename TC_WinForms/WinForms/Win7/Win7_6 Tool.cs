@@ -104,13 +104,10 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
 
     public async Task LoadDataAsync()
     {
-        var displayedObjs = await Task.Run(() => dbCon.GetObjectList<Tool>(includeLinks: true)
-            .Select(obj => new DisplayedTool(obj)).ToList());
+        _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Tool>(includeLinks: true)
+            .Select(obj => new DisplayedTool(obj)).OrderBy(c => c.Name).ToList());
 
-        foreach (var obj in displayedObjs)
-            _displayedObjects.Add(obj);
-
-        paginationService = new PaginationControlService<DisplayedTool>(50, _displayedObjects.OrderBy(c => c.Name).ToList());
+        paginationService = new PaginationControlService<DisplayedTool>(50, _displayedObjects);
 
         FilteringObjects();
 
@@ -579,22 +576,23 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
         {
             var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
             var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
+            var displayedToolList = new BindingList<DisplayedTool>();
 
             if (string.IsNullOrWhiteSpace(searchText) && (categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter)) && !cbxShowUnReleased.Checked)
             {
                 // Возвращаем исходный список, если строка поиска пуста
-                _bindingList = new BindingList<DisplayedTool>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
+                displayedToolList = new BindingList<DisplayedTool>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 _isFiltered = false;
             }
             else
             {
 
-                _bindingList = FilteredBindingList(searchText);//new BindingList<DisplayedTool>(filteredList);
+                displayedToolList = FilteredBindingList(searchText);//new BindingList<DisplayedTool>(filteredList);
                 _isFiltered = true;
             }
             //dgvMain.DataSource = _bindingList;
 
-            paginationService.SetAllObjectList(_bindingList.ToList());
+            paginationService.SetAllObjectList(displayedToolList.ToList());
             UpdateDisplayedData();
 
             DisplayedEntityHelper.SetupDataGridView<DisplayedTool>(dgvMain);

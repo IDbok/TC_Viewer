@@ -97,13 +97,10 @@ namespace TC_WinForms.WinForms
         }
         private async Task LoadObjects()
         {
-            var displayedObjs = await Task.Run(() => dbCon.GetObjectList<Protection>(includeLinks: true)
-                .Select(obj => new DisplayedProtection(obj)).ToList());
+            _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Protection>(includeLinks: true)
+                .Select(obj => new DisplayedProtection(obj)).OrderBy(c => c.Name).ToList());
 
-            foreach (var obj in displayedObjs)
-                _displayedObjects.Add(obj);
-
-            paginationService = new PaginationControlService<DisplayedProtection>(30, _displayedObjects.OrderBy(c => c.Name).ToList());
+            paginationService = new PaginationControlService<DisplayedProtection>(30, _displayedObjects);
 
             FilteringObjects();
             //_bindingList = new BindingList<DisplayedProtection>(_displayedObjects);
@@ -538,20 +535,21 @@ namespace TC_WinForms.WinForms
             try
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+                var displayedProtectionList = new BindingList<DisplayedProtection>();
 
                 if (string.IsNullOrWhiteSpace(searchText) && !cbxShowUnReleased.Checked)
                 {
                     // Возвращаем исходный список, если строка поиска пуста
-                    _bindingList = new BindingList<DisplayedProtection>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
+                    displayedProtectionList = new BindingList<DisplayedProtection>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                     _isFiltered = false;
                 }
                 else
                 {
-                    _bindingList = FilteredBindingList(searchText);
+                    displayedProtectionList = FilteredBindingList(searchText);
                     _isFiltered = true;
                 }
                 //dgvMain.DataSource = _bindingList;
-                paginationService.SetAllObjectList(_bindingList.ToList());
+                paginationService.SetAllObjectList(displayedProtectionList.ToList());
                 UpdateDisplayedData();
 
                 // Восстанавливаем выделенные объекты
