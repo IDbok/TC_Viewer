@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.DirectoryServices.ActiveDirectory;
+using System.Reflection;
 using System.Reflection.Metadata;
+using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
@@ -52,7 +54,7 @@ namespace TC_WinForms.WinForms
             InitializeComponent();
             AccessInitialization();
 
-            
+            dgvMain.DoubleBuffered(true);
         }
         private void AccessInitialization()
         {
@@ -60,8 +62,8 @@ namespace TC_WinForms.WinForms
             {
                 [User.Role.Lead] = () => { },
 
-                [User.Role.Implementer] = () => 
-                { 
+                [User.Role.Implementer] = () =>
+                {
                     HideAllButtonsExcept(new List<System.Windows.Forms.Button> { btnViewMode });
                     btnViewMode.Location = btnDeleteTC.Location;
                 },
@@ -114,6 +116,7 @@ namespace TC_WinForms.WinForms
             //dgvMain.RowPrePaint += dgvMain_RowPrePaint;
             dgvMain.RowPostPaint += dgvMain_RowPostPaint;
 
+            ResizeRows();
             dgvMain.Visible = true;
             this.Enabled = true;
         }
@@ -141,7 +144,7 @@ namespace TC_WinForms.WinForms
 
             _bindingList = new BindingList<DisplayedTechnologicalCard>(paginationService.GetPageData());
             dgvMain.DataSource = _bindingList;//.OrderBy(tc => tc.Article);
-
+            ResizeRows();
             // Подготовка данных для события
             PageInfo = paginationService.GetPageInfo();
 
@@ -149,7 +152,24 @@ namespace TC_WinForms.WinForms
             RaisePageInfoChanged();
         }
 
+        private void ResizeRows()
+        {
+            foreach (DataGridViewRow row in dgvMain.Rows)
 
+            {
+                DataGridViewRow dataGridViewRow = dgvMain.Rows.SharedRow(row.Index);
+                int minimumHeight = 20;
+
+                int preferredThickness = row.GetPreferredHeight(row.Index, DataGridViewAutoSizeRowMode.AllCells, true);
+
+                if (preferredThickness < minimumHeight)
+                {
+                    preferredThickness = minimumHeight;
+                }
+
+                row.Height = preferredThickness;
+            }
+        }
 
         /////////////////////////////// btnNavigation events /////////////////////////////////////////////////////////////////
 
@@ -161,7 +181,7 @@ namespace TC_WinForms.WinForms
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
                 if (id != 0)
                 {
-                    var win6 = new Win6_new(id,role: _accessLevel, viewMode:true);
+                    var win6 = new Win6_new(id, role: _accessLevel, viewMode: true);
                     win6.Show();
                 }
                 else
@@ -365,7 +385,7 @@ namespace TC_WinForms.WinForms
         {
             // автоподбор ширины столбцов под ширину таблицы
             dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            //dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.RowHeadersWidth = 25;
 
@@ -425,7 +445,7 @@ namespace TC_WinForms.WinForms
                 MessageBox.Show("Выберите одну карту для редактирования.");
             }
         }
-        
+
         //private void OpenTechnologicalCardEditor(int tcId)
         //{
         //    var editorForm = new Win6_new(tcId);
@@ -906,7 +926,7 @@ namespace TC_WinForms.WinForms
                 displayedObject.IsCompleted = modelObject.IsCompleted;
                 displayedObject.Status = modelObject.Status;
                 displayedObject.Description = modelObject.Description;
-                
+
                 dgvMain.Refresh();
 
                 FilterTechnologicalCards();
@@ -1005,5 +1025,19 @@ namespace TC_WinForms.WinForms
             
         }
 
+        private void Win7_1_TCs_SizeChanged(object sender, EventArgs e)
+        {
+            ResizeRows();
+        }
+    }
+
+    public static class ExtensionMethods
+    {
+        public static void DoubleBuffered(this DataGridView dgv, bool setting)
+        {
+            Type dgvType = dgv.GetType();
+            PropertyInfo pi = dgvType.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+            pi.SetValue(dgv, setting, null);
+        }
     }
 }
