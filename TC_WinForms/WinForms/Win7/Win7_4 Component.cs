@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -8,6 +9,7 @@ using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -16,7 +18,7 @@ using Component = TcModels.Models.TcContent.Component;
 
 namespace TC_WinForms.WinForms;
 
-public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventForm
+public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
 {
     private readonly User.Role _accessLevel;
 
@@ -37,9 +39,15 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
     public bool _isDataLoaded = false;
 
+    PaginationControlService<DisplayedComponent> paginationService;
+
     private bool _isFiltered = false;
     private DataGridViewCellEventArgs lastCellEvent;
     private DataGridViewCellEventArgs currentCellEvent;
+
+    public event EventHandler<PageInfoEventArgs> PageInfoChanged;
+    public PageInfoEventArgs? PageInfo { get; set; }
+
     //private ToolTip toolTip;
     //private List<int> _selectedIds = new List<int>();
     public Win7_4_Component(User.Role accessLevel)
@@ -125,17 +133,28 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
     }
     public async Task LoadDataAsync()
     {
-        var displayedObj = await Task.Run(() => DataService.GetComponents() //dbCon.GetObjectList<Component>(includeLinks: true)
-            .Select(obj => new DisplayedComponent(obj)).ToList());
+        _displayedObjects = await Task.Run(() => DataService.GetComponents() //dbCon.GetObjectList<Component>(includeLinks: true)
+            .Select(obj => new DisplayedComponent(obj)).OrderBy(c => c.Name).ToList());
 
-        foreach(var obj in displayedObj)
-        {
-            _displayedObjects.Add(obj);
-        }
+        paginationService = new PaginationControlService<DisplayedComponent>(50, _displayedObjects);
 
         FilteringObjects();
 
         _isDataLoaded = true;
+    }
+
+    private void UpdateDisplayedData()
+    {
+        // Расчет отображаемых записей
+
+        _bindingList = new BindingList<DisplayedComponent>(paginationService.GetPageData());
+        dgvMain.DataSource = _bindingList;
+
+        // Подготовка данных для события
+        PageInfo = paginationService.GetPageInfo();
+
+        // Вызов события с подготовленными данными
+        RaisePageInfoChanged();
     }
     private void AccessInitialization()
     {
@@ -269,7 +288,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
 
     private void SetupCategoryComboBox()
     {
-        var types = _bindingList.Select(obj => obj.Categoty).Distinct().ToList();
+        var types = _displayedObjects.Select(obj => obj.Categoty).Distinct().ToList();
         types.Sort();
 
         cbxCategoryFilter.Items.Add("Все");
@@ -654,20 +673,26 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         {
             var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
             var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
+            var displayedComponentList = new BindingList<DisplayedComponent>();
 
             if (string.IsNullOrWhiteSpace(searchText) && (categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter)) && !cbxShowUnReleased.Checked)
             {
-                _bindingList = new BindingList<DisplayedComponent>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
+                displayedComponentList = new BindingList<DisplayedComponent>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 _isFiltered = false;
+
             }
             else
             {
-                _bindingList = FilteredBindingList(searchText);
+                displayedComponentList = FilteredBindingList(searchText);
                 _isFiltered = true;
 
-                
+
             }
-            dgvMain.DataSource = _bindingList;
+            //dgvMain.DataSource = _bindingList;
+
+            paginationService.SetAllObjectList(displayedComponentList.ToList());
+            UpdateDisplayedData();
+
 
             // Восстанавливаем выделенные объекты
             if (_isAddingForm)
@@ -907,5 +932,22 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm//, ISaveEventFo
         {
             e.ToolTipSize = new Size(200, 200); // Размер всплывающего окна
         }
+    }
+
+    public void GoToNextPage()
+    {
+        paginationService.GoToNextPage();
+        UpdateDisplayedData();
+    }
+
+    public void GoToPreviousPage()
+    {
+        paginationService.GoToPreviousPage();
+        UpdateDisplayedData();
+    }
+
+    public void RaisePageInfoChanged()
+    {
+        PageInfoChanged?.Invoke(this, PageInfo);
     }
 }

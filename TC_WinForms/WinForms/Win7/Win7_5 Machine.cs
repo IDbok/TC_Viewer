@@ -4,6 +4,7 @@ using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -12,7 +13,7 @@ using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms;
 
-public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
+public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
 {
     private readonly User.Role _accessLevel;
 
@@ -34,6 +35,10 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
 
     public bool _isDataLoaded = false;
     private bool _isFiltered = false;
+
+    PaginationControlService<DisplayedMachine> paginationService;
+    public event EventHandler<PageInfoEventArgs> PageInfoChanged;
+    public PageInfoEventArgs? PageInfo { get; set; }
 
     public Win7_5_Machine(User.Role accessLevel)
     {
@@ -98,19 +103,29 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
     public async Task LoadDataAsync()
     {
 
-        var displayedObj = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
-            .Select(obj => new DisplayedMachine(obj)).ToList());
+        _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
+            .Select(obj => new DisplayedMachine(obj)).OrderBy(c => c.Name).ToList());
 
-        foreach(var obj in displayedObj)
-        {
-            _displayedObjects.Add(obj);
-        }
+        paginationService = new PaginationControlService<DisplayedMachine>(30, _displayedObjects.OrderBy(c => c.Name).ToList());
 
         FilteringObjects();
 
         _isDataLoaded = true;
     }
 
+    private void UpdateDisplayedData()
+    {
+        // Расчет отображаемых записей
+
+        _bindingList = new BindingList<DisplayedMachine>(paginationService.GetPageData());
+        dgvMain.DataSource = _bindingList;
+
+        // Подготовка данных для события
+        PageInfo = paginationService.GetPageInfo();
+
+        // Вызов события с подготовленными данными
+        RaisePageInfoChanged();
+    }
     private void AccessInitialization()
     {
         var controlAccess = new Dictionary<User.Role, Action>
@@ -548,18 +563,21 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
         try
         {
             var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
+            var displayedMachineList = new BindingList<DisplayedMachine>();
 
             if (string.IsNullOrWhiteSpace(searchText) && !cbxShowUnReleased.Checked)
             {
-                _bindingList = new BindingList<DisplayedMachine>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
+                displayedMachineList = new BindingList<DisplayedMachine>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList());
                 _isFiltered = false;
             }
             else
             {
-                _bindingList = FilteredBindingList(searchText);
+                displayedMachineList = FilteredBindingList(searchText);
                 _isFiltered = true;
             }
-            dgvMain.DataSource = _bindingList;
+
+            paginationService.SetAllObjectList(displayedMachineList.ToList());
+            UpdateDisplayedData();
 
             if (_isAddingForm)
                 _selectionService.RestoreSelectedIds();
@@ -676,5 +694,22 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm//, ISaveEventForm
     private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)
     {
         FilteringObjects();
+    }
+
+    public void GoToNextPage()
+    {
+        paginationService.GoToNextPage();
+        UpdateDisplayedData();
+    }
+
+    public void GoToPreviousPage()
+    {
+        paginationService.GoToPreviousPage();
+        UpdateDisplayedData();
+    }
+
+    public void RaisePageInfoChanged()
+    {
+        PageInfoChanged?.Invoke(this, PageInfo);
     }
 }

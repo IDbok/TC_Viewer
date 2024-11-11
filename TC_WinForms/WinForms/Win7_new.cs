@@ -160,32 +160,31 @@ namespace TC_WinForms.WinForms
                     form.FormBorderStyle = FormBorderStyle.None;
                     form.Dock = DockStyle.Fill;
 
-                    Log.Information("Создана форма {WinNumber}", winNumber);
-
-                    var loadDataTask = (form as ILoadDataAsyncForm)?.LoadDataAsync();
-                    if (loadDataTask != null)
-                    {
-                        await loadDataTask; //.ConfigureAwait(false);
-                        Log.Information("Данные формы {WinNumber} загружены успешно", winNumber);
-                    }
-                }
-                catch (Exception ex)
+                if (form is IPaginationControl paginationForm)
                 {
-                    Log.Error("Ошибка при загрузке формы {WinNumber}: {ExceptionMessage}", winNumber, ex.Message);
-                    throw;
+                    SubscribeToPageInfoChanged(paginationForm);
+                    pnlPageControls.Visible = true;
+                }
+                else { pnlPageControls.Visible = false; }
+
+                var loadDataTask = (form as ILoadDataAsyncForm)?.LoadDataAsync();
+                if (loadDataTask != null)
+                {
+                    await loadDataTask; //.ConfigureAwait(false);
                 }
             }
-
-            stopwatch.Stop();
-            Log.Information("Форма {WinNumber} загружена за {ElapsedMilliseconds} мс", winNumber, stopwatch.ElapsedMilliseconds);
-
-
-            if (form is IPaginationControl paginationForm)
+            else if(form is IPaginationControl existedPaginationForm)
             {
-                SubscribeToPageInfoChanged(paginationForm);
-                pnlPageControls.Visible = true;
+                if (existedPaginationForm.PageInfo != null)
+                {
+                    existedPaginationForm.RaisePageInfoChanged();
+                    pnlPageControls.Visible = true;
+                }
             }
-            else { pnlPageControls.Visible = false; }
+            else
+            {
+                pnlPageControls.Visible = false;
+            }
 
             return form;
         }
