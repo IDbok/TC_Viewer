@@ -1,10 +1,13 @@
-﻿using TcModels.Models.Interfaces;
+﻿using TcModels.Models.Helpers;
+using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Tool : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable, ILinkable, IReleasable //5. Требования к инструментам и приспособлениям
+    //5. Требования к инструментам и приспособлениям
+    public class Tool : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable, ILinkable, IReleasable,
+        IValidatable, IHasUniqueConstraints<Tool>
     {
         static private EModelType modelType = EModelType.Tool;
         public EModelType ModelType { get { return modelType; } }
@@ -110,6 +113,40 @@ namespace TcModels.Models.TcContent
                     // обновить поля ссылки
                     Links.Find(l => l.Id == link.Id)!.ApplyUpdates(link);
                 }
+            }
+        }
+
+        public string[] GetRequiredProperties()
+        {
+            return new[] {
+
+                nameof(Name),
+                nameof(Type),
+            };
+        }
+
+        public IEnumerable<UniqueConstraint<Tool>> GetUniqueConstraints()
+        {
+            // Возвращаем условия уникальности
+            yield return new UniqueConstraint<Tool>(
+                x => x.Name == this.Name && x.Type == this.Type,
+                "Комбинация полей 'Наименование' и 'Тип' должна быть уникальной."
+            );
+
+            if (!string.IsNullOrEmpty(this.ClassifierCode))
+            {
+                yield return new UniqueConstraint<Tool>(
+                    x => x.ClassifierCode == this.ClassifierCode,
+                    "Поле 'Код в classifier' должно быть уникальным."
+                );
+            }
+
+            if (!string.IsNullOrEmpty(this.Description))
+            {
+                yield return new UniqueConstraint<Tool>(
+                    x => x.Description == this.Description,
+                    "Поле 'Описание' должно быть уникальным."
+                );
             }
         }
     }

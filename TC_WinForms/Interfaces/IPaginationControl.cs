@@ -14,7 +14,9 @@ namespace TC_WinForms.Interfaces
         event EventHandler<PageInfoEventArgs> PageInfoChanged;
 
         // Метод для вызова события, передающего информацию о странице.
-        void RaisePageInfoChanged(PageInfoEventArgs e);
+        void RaisePageInfoChanged();
+
+        public PageInfoEventArgs? PageInfo { get; set; }
     }
 
     public class PageInfoEventArgs : EventArgs

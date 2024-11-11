@@ -2,6 +2,8 @@
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TcDbConnector;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -10,7 +12,7 @@ using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_TechOperation : Form, ISaveEventForm
+    public partial class Win7_TechOperation : Form, ISaveEventForm, IPaginationControl
     {
         private readonly User.Role _accessLevel;
 
@@ -28,6 +30,11 @@ namespace TC_WinForms.WinForms
         private bool isAddingForm = false;
         private Button btnAddSelected;
         private Button btnCancel;
+
+        PaginationControlService<DisplayedTechOperation> paginationService;
+        public event EventHandler<PageInfoEventArgs> PageInfoChanged;
+        public PageInfoEventArgs? PageInfo { get; set; }
+
         public bool CloseFormsNoSave { get; set; } = false;
         public void SetAsAddingForm()
         {
@@ -82,6 +89,8 @@ namespace TC_WinForms.WinForms
                 .OrderBy(obj => obj.Name)
                 .ToList());
 
+            paginationService = new PaginationControlService<DisplayedTechOperation>(50, _displayedObjects);
+
             FilteringObjects();
 
             //var tcList = await Task.Run(() => dbCon.GetObjectList<TechOperation>()
@@ -94,6 +103,21 @@ namespace TC_WinForms.WinForms
 
             SetDGVColumnsSettings();
         }
+
+        private void UpdateDisplayedData()
+        {
+            // Расчет отображаемых записей
+
+            _bindingList = new BindingList<DisplayedTechOperation>(paginationService.GetPageData());
+            dgvMain.DataSource = _bindingList;
+
+            // Подготовка данных для события
+            PageInfo = paginationService.GetPageInfo();
+
+            // Вызов события с подготовленными данными
+            RaisePageInfoChanged();
+        }
+
         private async void Win7_TechOperation_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (CloseFormsNoSave)
@@ -482,16 +506,20 @@ namespace TC_WinForms.WinForms
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
                 var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
+                var displayedTechOperationList = new BindingList<DisplayedTechOperation>();
 
                 if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все" && !cbxShowUnReleased.Checked)
                 {
-                    _bindingList = new BindingList<DisplayedTechOperation>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList()); ; // Возвращаем исходный список, если строка поиска пуста
+                    displayedTechOperationList = new BindingList<DisplayedTechOperation>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList()); ; // Возвращаем исходный список, если строка поиска пуста
                 }
                 else
                 {
-                    _bindingList = FilteredBindingList(searchText, categoryFilter);//new BindingList<DisplayedProtection>(filteredList);
+                    displayedTechOperationList = FilteredBindingList(searchText, categoryFilter);//new BindingList<DisplayedProtection>(filteredList);
                 }
-                dgvMain.DataSource = _bindingList;
+                //dgvMain.DataSource = _bindingList;
+
+                paginationService.SetAllObjectList(displayedTechOperationList.ToList());
+                UpdateDisplayedData();
             }
             catch (Exception e)
             {
@@ -532,7 +560,7 @@ namespace TC_WinForms.WinForms
         private void SetupCategoryComboBox()
         {
             // Set unique categories to combobox from binding list
-            var categories = _bindingList.Select(obj => obj.Category).Distinct().ToList();
+            var categories = _displayedObjects.Select(obj => obj).Distinct().ToList();
 
             cbxCategoryFilter.Items.Add("Все");
             cbxCategoryFilter.Items.Add("ТО");
@@ -541,6 +569,23 @@ namespace TC_WinForms.WinForms
             cbxCategoryFilter.SelectedIndex = 0;
 
             cbxCategoryFilter.DropDownWidth = cbxCategoryFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxCategoryFilter.Font).Width) + 20;
+        }
+
+        public void GoToNextPage()
+        {
+            paginationService.GoToNextPage();
+            UpdateDisplayedData();
+        }
+
+        public void GoToPreviousPage()
+        {
+            paginationService.GoToPreviousPage();
+            UpdateDisplayedData();
+        }
+
+        public void RaisePageInfoChanged()
+        {
+            PageInfoChanged?.Invoke(this, PageInfo);
         }
 
         private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)

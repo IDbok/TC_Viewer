@@ -478,9 +478,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                     editedComp.Comments = gg;
                 }
 
+                var isEditFormActive = _editForm?.IsDisposed == false;
                 HasChanges = true;
-                if (_editForm?.IsDisposed == false)
+
+                if (isEditFormActive && itsTool)
                     _editForm.UpdateInstrumentLocal();
+                else if (isEditFormActive && ItsComponent)
+                    _editForm.UpdateComponentLocal();
             }
         }
     }
@@ -1495,18 +1499,18 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
         }
 
-    public void MarkToDeleteToolWork(ToolWork tool)
+    public void MarkToDeleteToolWork(TechOperationWork work, ToolWork tool)
     {
-        var vb = context.ToolWorks.SingleOrDefault(s => s == tool);
+        var vb = work.ToolWorks.SingleOrDefault(s => s == tool);
         if (vb != null)
         {
             vb.IsDeleted = true;
         }
     }
 
-    public void MarkToDeleteComponentWork(ComponentWork comp)
+    public void MarkToDeleteComponentWork(TechOperationWork work, ComponentWork comp)
     {
-        var vb = context.ComponentWorks.SingleOrDefault(s => s == comp);
+        var vb = work.ComponentWorks.SingleOrDefault(s => s == comp);
         if (vb != null)
         {
             vb.IsDeleted = true;

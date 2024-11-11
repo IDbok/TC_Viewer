@@ -1,6 +1,7 @@
 ﻿using ExcelParsing.DataProcessing;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TcDbConnector;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -17,11 +18,12 @@ namespace TC_WinForms.WinForms
         private DbConnector dbCon = new DbConnector();
 
         private List<object> AllEllement = new List<object>();
+        private TechnologicalCard OriginCard = null!;
 
-        private TechnologicalCard LocalCard = null;
+        private TechnologicalCard LocalCard = new();
 
         public delegate Task PostSaveAction<TModel>(TModel modelObject) where TModel : TechnologicalCard;
-        public PostSaveAction<TechnologicalCard> AfterSave { get; set; }
+        public PostSaveAction<TechnologicalCard>? AfterSave { get; set; }
 
         public Win7_1_TCs_Window(int? tcId = null, bool win6Format = false, User.Role role = User.Role.Lead)
         {
@@ -42,12 +44,24 @@ namespace TC_WinForms.WinForms
 
             if (tcId != null)
             {
-                LocalCard = context.TechnologicalCards.FirstOrDefault(s => s.Id == tcId);
-                load(LocalCard);
-                this.Text = "Редактирование технологической карты";
+                OriginCard = context.TechnologicalCards.FirstOrDefault(s => s.Id == tcId);
+                if(OriginCard != null)
+                {
+                    LocalCard.Id = OriginCard.Id;
+                    LocalCard.ApplyUpdates(OriginCard);
+                    load(LocalCard);
+                    this.Text = "Редактирование технологической карты";
+                }
+                else
+                {
+                    MessageBox.Show("Технологическая карта не найдена");
+                    this.Close();
+                }
             }
             else
             {
+                OriginCard = new TechnologicalCard();
+
                 btnSaveAndOpen.Text = "Сохранить и открыть";
                 this.Text = "Создание новой технологической карты";
             }
@@ -138,8 +152,8 @@ namespace TC_WinForms.WinForms
 
         async Task<bool> SaveAsync()
         {
-            if (LocalCard == null)
-                LocalCard = new TechnologicalCard();
+            //if (LocalCard == null)
+            //    LocalCard = new TechnologicalCard();
 
             LocalCard.Name = txtName.Text;
             LocalCard.Article = txtArticle.Text;
@@ -165,13 +179,19 @@ namespace TC_WinForms.WinForms
                 }
             }
 
+            // проверка полей на уникальность
+            if ( !await UniqueFieldChecker<TechnologicalCard>.IsPropertiesUnique(LocalCard))
+                return false;
+			
+            OriginCard.ApplyUpdates(LocalCard);
+
             try
             {
-                await dbCon.AddOrUpdateTCAsync(LocalCard);
+                await dbCon.AddOrUpdateTCAsync(OriginCard);
 
                 if (AfterSave != null)
                 {
-                    await AfterSave(LocalCard);
+                    await AfterSave(OriginCard);
                 }
                 return true;
             }
@@ -183,10 +203,11 @@ namespace TC_WinForms.WinForms
         }
 
 
-        private async void button2_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             if (NoEmptiness())
             {
+
                 if (await SaveAsync())
                 {
                     this.BringToFront();
@@ -205,7 +226,7 @@ namespace TC_WinForms.WinForms
                         return;
                 }
 
-                var nn = LocalCard.Id;
+                var nn = OriginCard.Id;
                 var editorForm = new Win6_new(nn, role: _accessLevel);
                 this.Close();
                 editorForm.Show();
@@ -230,90 +251,49 @@ namespace TC_WinForms.WinForms
 
             var tcExporter = new ExExportTC();
 
-            await tcExporter.SaveTCtoExcelFile(LocalCard.Article, LocalCard.Id);
+            await tcExporter.SaveTCtoExcelFile(OriginCard.Article, OriginCard.Id);
 
         }
-        //public async Task SaveTCtoExcelFile()
+
+        //private bool FieldsIsNotEmpty()
         //{
-        //    try
-        //    {
-        //        using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-        //        {
-        //            // Настройка диалога сохранения файла
-        //            saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
-        //            saveFileDialog.FilterIndex = 1;
-        //            saveFileDialog.RestoreDirectory = true;
-
-        //            saveFileDialog.FileName = LocalCard.Article;
-
-        //            // Показ диалога пользователю и проверка, что он нажал кнопку "Сохранить"
-        //            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-        //            {
-        //                try
-        //                {
-        //                    var tc = await dbCon.GetTechnologicalCardToExportAsync(LocalCard.Id);
-        //                    if (tc == null)
-        //                    {
-        //                        MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //                        return;
-        //                    }
-        //                    var excelExporter = new TCExcelExporter();
-        //                    excelExporter.ExportTCtoFile(saveFileDialog.FileName, tc);
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    MessageBox.Show("Произошла ошибка при загрузке данных: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //                }
-
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show("Произошла ошибка при сохранении файла: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-
+        //    if (txtName.Text != "" ||
+        //            txtArticle.Text != "" ||
+        //            cbxType.Text != "" ||
+        //            cbxNetworkVoltage.Text != "" ||
+        //            txtTechProcessType.Text != "" ||
+        //            txtTechProcess.Text != "" ||
+        //            txtParametr.Text != "" ||
+        //            txtFinalProduct.Text != "" ||
+        //            txtApplicability.Text != "" ||
+        //            txtNote.Text != "" ||
+        //            chbxIsCompleted.Checked)
+        //        return true;
+        //    else
+        //        return false;
         //}
-
-        private bool FieldsIsNotEmpty()
-        {
-            if (txtName.Text != "" ||
-                    txtArticle.Text != "" ||
-                    cbxType.Text != "" ||
-                    cbxNetworkVoltage.Text != "" ||
-                    txtTechProcessType.Text != "" ||
-                    txtTechProcess.Text != "" ||
-                    txtParametr.Text != "" ||
-                    txtFinalProduct.Text != "" ||
-                    txtApplicability.Text != "" ||
-                    txtNote.Text != "" ||
-                    chbxIsCompleted.Checked)
-                return true;
-            else
-                return false;
-        }
         private bool HasChanges()
         {
-            if (LocalCard == null)
-            {
-                return FieldsIsNotEmpty();
+            //if (OriginCard == null)
+            //{
+            //    return FieldsIsNotEmpty();
 
-            }
+            //}
 
             bool hasChanges = false;
 
-            hasChanges |= LocalCard.Name != txtName.Text;
-            hasChanges |= LocalCard.Article != txtArticle.Text;
-            hasChanges |= LocalCard.Type != cbxType.Text;
-            hasChanges |= LocalCard.NetworkVoltage.ToString() != cbxNetworkVoltage.Text;
-            hasChanges |= LocalCard.TechnologicalProcessType != txtTechProcessType.Text;
-            hasChanges |= LocalCard.TechnologicalProcessName != txtTechProcess.Text;
-            hasChanges |= LocalCard.Parameter != txtParametr.Text;
-            hasChanges |= LocalCard.FinalProduct != txtFinalProduct.Text;
-            hasChanges |= LocalCard.Applicability != txtApplicability.Text;
-            hasChanges |= LocalCard.Note != txtNote.Text;
-            hasChanges |= LocalCard.IsCompleted != chbxIsCompleted.Checked;
-            hasChanges |= LocalCard.Status.GetDescription() != cbxStatus.SelectedItem.ToString();
+            hasChanges |= OriginCard.Name != txtName.Text;
+            hasChanges |= OriginCard.Article != txtArticle.Text;
+            hasChanges |= OriginCard.Type != cbxType.Text;
+            hasChanges |= OriginCard.NetworkVoltage.ToString() != cbxNetworkVoltage.Text;
+            hasChanges |= OriginCard.TechnologicalProcessType != txtTechProcessType.Text;
+            hasChanges |= OriginCard.TechnologicalProcessName != txtTechProcess.Text;
+            hasChanges |= OriginCard.Parameter != txtParametr.Text;
+            hasChanges |= OriginCard.FinalProduct != txtFinalProduct.Text;
+            hasChanges |= OriginCard.Applicability != txtApplicability.Text;
+            hasChanges |= OriginCard.Note != txtNote.Text;
+            hasChanges |= OriginCard.IsCompleted != chbxIsCompleted.Checked;
+            hasChanges |= OriginCard.Status.GetDescription() != cbxStatus.SelectedItem.ToString();
 
             return hasChanges;
         }

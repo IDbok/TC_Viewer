@@ -8,7 +8,6 @@ namespace TcModels.Models.Interfaces
 {
     public interface INameable: IIdentifiable
     {
-        int Id { get; set; }
         string Name { get; set; }
     }
 }

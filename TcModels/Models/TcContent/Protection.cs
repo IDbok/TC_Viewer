@@ -1,10 +1,14 @@
-﻿using TcModels.Models.Interfaces;
+﻿using System.Xml.Linq;
+using TcModels.Models.Helpers;
+using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Protection : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable, IReleasable//4. Требования к средствам защиты
+    //4. Требования к средствам защиты
+    public class Protection : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable, IReleasable,
+        IValidatable, IHasUniqueConstraints<Protection>
     {
 
         public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
@@ -110,5 +114,41 @@ namespace TcModels.Models.TcContent
                 }
             }
         }
+
+        public string[] GetRequiredProperties()
+        {
+            return new[] {
+
+                nameof(Name),
+                nameof(Type),
+            };
+        }
+
+        public IEnumerable<UniqueConstraint<Protection>> GetUniqueConstraints()
+        {
+            // Возвращаем условия уникальности
+            yield return new UniqueConstraint<Protection>(
+                x => x.Name == this.Name && x.Type == this.Type,
+                "Комбинация полей 'Наименование' и 'Тип' должна быть уникальной."
+            );
+
+            if (!string.IsNullOrEmpty(this.ClassifierCode))
+            {
+                yield return new UniqueConstraint<Protection>(
+                    x => x.ClassifierCode == this.ClassifierCode,
+                    "Поле 'Код в classifier' должно быть уникальным."
+                );
+            }
+
+            if (!string.IsNullOrEmpty(this.Description))
+            {
+                yield return new UniqueConstraint<Protection>(
+                    x => x.Description == this.Description,
+                    "Поле 'Описание' должно быть уникальным."
+                );
+            }
+        }
     }
+    
+    
 }

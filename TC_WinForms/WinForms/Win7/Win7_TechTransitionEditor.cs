@@ -1,6 +1,7 @@
 ﻿
 using System.Reflection;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms;
@@ -107,6 +108,10 @@ public partial class Win7_TechTransitionEditor : Form
                 "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
+
+        // проверка полей на уникальность
+        if (!await UniqueFieldChecker<TechTransition>.IsPropertiesUnique(_editingObj))
+            return;
 
         var dbConnector = new DbConnector();
         

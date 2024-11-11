@@ -1547,7 +1547,7 @@ namespace TC_WinForms.WinForms.Work
                 var work = (TechOperationWork)comboBoxTO2.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                TechOperationForm.MarkToDeleteComponentWork(Idd);
+                TechOperationForm.MarkToDeleteComponentWork(work ,Idd);
 
                 UpdateComponentAll();
                 UpdateComponentLocal();
@@ -1836,7 +1836,7 @@ namespace TC_WinForms.WinForms.Work
                 }
                 var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                TechOperationForm.MarkToDeleteToolWork(Idd);
+                TechOperationForm.MarkToDeleteToolWork(work, Idd);
 
                 UpdateInstrumentAll();
                 UpdateInstrumentLocal();

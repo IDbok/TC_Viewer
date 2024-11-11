@@ -3,13 +3,15 @@ using System.Data;
 using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_TechTransition : Form//, ISaveEventForm
+    public partial class Win7_TechTransition : Form, IPaginationControl//, ISaveEventForm
     {
 
         private readonly User.Role _accessLevel;
@@ -32,6 +34,10 @@ namespace TC_WinForms.WinForms
         public bool CloseFormsNoSave { get; set; } = false;
 
         private bool _isFiltered = false;
+
+        PaginationControlService<DisplayedTechTransition> paginationService;
+        public event EventHandler<PageInfoEventArgs> PageInfoChanged;
+        public PageInfoEventArgs? PageInfo { get; set; }
 
         public void SetAsAddingForm()
         {
@@ -85,6 +91,8 @@ namespace TC_WinForms.WinForms
                 .ThenBy(obj => obj.Name)
                 .ToList());
 
+            paginationService = new PaginationControlService<DisplayedTechTransition>(30, _displayedObjects);
+
             FilteringObjects();
             //_bindingList = new BindingList<DisplayedTechTransition>(_displayedObjects);
             ////_bindingList.ListChanged += BindingList_ListChanged;
@@ -94,6 +102,21 @@ namespace TC_WinForms.WinForms
 
             SetDGVColumnsSettings();
         }
+
+        private void UpdateDisplayedData()
+        {
+            // Расчет отображаемых записей
+
+            _bindingList = new BindingList<DisplayedTechTransition>(paginationService.GetPageData());
+            dgvMain.DataSource = _bindingList;
+
+            // Подготовка данных для события
+            PageInfo = paginationService.GetPageInfo();
+
+            // Вызов события с подготовленными данными
+            RaisePageInfoChanged();
+        }
+
         private async void Win7_TechTransition_FormClosing(object sender, FormClosingEventArgs e)
         {
             //if (CloseFormsNoSave)
@@ -513,16 +536,21 @@ namespace TC_WinForms.WinForms
             {
                 var searchText = txtSearch.Text == "Поиск" ? "" : txtSearch.Text;
                 var categoryFilter = cbxCategoryFilter.SelectedItem?.ToString();
+                var displayedTechTransitionList = new BindingList<DisplayedTechTransition>();
 
                 if (string.IsNullOrWhiteSpace(searchText) && categoryFilter == "Все" && !cbxShowUnReleased.Checked)
                 {
-                    _bindingList = new BindingList<DisplayedTechTransition>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList()); // Возвращаем исходный список, если строка поиска пуста
+                    displayedTechTransitionList = new BindingList<DisplayedTechTransition>(_displayedObjects.Where(obj => obj.IsReleased == true).ToList()); // Возвращаем исходный список, если строка поиска пуста
                 }
                 else
                 {
-                    _bindingList = FilteredBindingList(searchText, categoryFilter);
+                    displayedTechTransitionList = FilteredBindingList(searchText, categoryFilter);
                 }
-                dgvMain.DataSource = _bindingList;
+                //dgvMain.DataSource = _bindingList;
+
+                paginationService.SetAllObjectList(displayedTechTransitionList.ToList());
+                UpdateDisplayedData();
+
             }
             catch (Exception e)
             {
@@ -557,7 +585,7 @@ namespace TC_WinForms.WinForms
         private void SetupCategoryComboBox()
         {
             // Set unique categories to combobox from binding list
-            var categories = _bindingList.Select(obj => obj.Category).Distinct().ToList();
+            var categories = _displayedObjects.Select(obj => obj.Category).Distinct().ToList();
             categories.Sort();
 
             cbxCategoryFilter.Items.Add("Все");
@@ -639,7 +667,22 @@ namespace TC_WinForms.WinForms
 
             }
         }
+        public void GoToNextPage()
+        {
+            paginationService.GoToNextPage();
+            UpdateDisplayedData();
+        }
 
+        public void GoToPreviousPage()
+        {
+            paginationService.GoToPreviousPage();
+            UpdateDisplayedData();
+        }
+
+        public void RaisePageInfoChanged()
+        {
+            PageInfoChanged?.Invoke(this, PageInfo);
+        }
         private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)
         {
             FilteringObjects();

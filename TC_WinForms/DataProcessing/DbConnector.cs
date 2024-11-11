@@ -318,28 +318,48 @@ namespace TC_WinForms.DataProcessing
                                               .Where(tc => objIds.Contains(tc.Id))
                                               .ToListAsync();
 
+                    var deletedType = typeof(T);
+
                     if (tcsToDelete.Any())
                     {
-                        if(typeof(T) == typeof(Tool))
+                        switch (deletedType)
                         {
-                            var toolToDelete = tcsToDelete.Cast<Tool>().ToList();
-                            var shagToolComp = db.DiagramShagToolsComponent.
-                                Include(d => d.toolWork).ThenInclude(tc => tc.tool)
-                                .Where(d => toolToDelete.Contains( d.toolWork.tool)).ToList();
+                            case Type t when t == typeof(TechTransition):
+                            {
+                                var TTToDele = tcsToDelete.Cast<TechTransition>().ToList();
+                                var executionWorkToDelete = db.ExecutionWorks.Include(t => t.techTransition).Where(e => TTToDele.Contains(e.techTransition)).ToList();
 
-                            if (shagToolComp.Count > 0)
-                                db.DiagramShagToolsComponent.RemoveRange(shagToolComp);
-                        }
-                        else if(typeof(T) == typeof(Component))
-                        {
-                            var componentToDelete = tcsToDelete.Cast<Component>().ToList();
-                            var shagToolComp = db.DiagramShagToolsComponent.
-                                Include(d => d.componentWork).ThenInclude(tc => tc.component)
-                                .Where(d => componentToDelete.Contains(d.componentWork.component)).ToList();
+                                if (executionWorkToDelete.Count > 0)
+                                    db.ExecutionWorks.RemoveRange(executionWorkToDelete);
 
-                            if (shagToolComp.Count > 0)
-                                db.DiagramShagToolsComponent.RemoveRange(shagToolComp);
+                                break;
+                            }
+                            case Type t when t == typeof(Component):
+                            {
+                                var componentToDelete = tcsToDelete.Cast<Component>().ToList();
+                                var shagToolComp = db.DiagramShagToolsComponent.
+                                    Include(d => d.componentWork).ThenInclude(tc => tc.component)
+                                    .Where(d => componentToDelete.Contains(d.componentWork.component)).ToList();
+
+                                if (shagToolComp.Count > 0)
+                                    db.DiagramShagToolsComponent.RemoveRange(shagToolComp);
+
+                                break;
+                            }
+                            case Type t when t == typeof(Tool):
+                            {
+                                var toolToDelete = tcsToDelete.Cast<Tool>().ToList();
+                                var shagToolComp = db.DiagramShagToolsComponent.
+                                    Include(d => d.toolWork).ThenInclude(tc => tc.tool)
+                                    .Where(d => toolToDelete.Contains(d.toolWork.tool)).ToList();
+
+                                if (shagToolComp.Count > 0)
+                                    db.DiagramShagToolsComponent.RemoveRange(shagToolComp);
+
+                                break;
+                            }
                         }
+
 
                         db.Set<T>().RemoveRange(tcsToDelete);
 

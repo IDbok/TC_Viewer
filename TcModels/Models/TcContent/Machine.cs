@@ -1,10 +1,13 @@
-﻿using TcModels.Models.Interfaces;
+﻿using TcModels.Models.Helpers;
+using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Machine : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable, IReleasable  //3. Требования к механизмам
+    //3. Требования к механизмам
+    public class Machine : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable, IReleasable,
+        IValidatable, IHasUniqueConstraints<Machine>
     {
         static EModelType modelType = EModelType.Machine;
         public EModelType ModelType { get => modelType; }
@@ -106,6 +109,40 @@ namespace TcModels.Models.TcContent
                     // обновить поля ссылки
                     Links.Find(l => l.Id == link.Id)!.ApplyUpdates(link);
                 }
+            }
+        }
+
+        public string[] GetRequiredProperties()
+        {
+            return new[] {
+
+                nameof(Name),
+                nameof(Type),
+            };
+        }
+
+        public IEnumerable<UniqueConstraint<Machine>> GetUniqueConstraints()
+        {
+            // Возвращаем условия уникальности
+            yield return new UniqueConstraint<Machine>(
+                x => x.Name == this.Name && x.Type == this.Type,
+                "Комбинация полей 'Наименование' и 'Тип' должна быть уникальной."
+            );
+
+            if (!string.IsNullOrEmpty(this.ClassifierCode))
+            {
+                yield return new UniqueConstraint<Machine>(
+                    x => x.ClassifierCode == this.ClassifierCode,
+                    "Поле 'Код в classifier' должно быть уникальным."
+                );
+            }
+
+            if (!string.IsNullOrEmpty(this.Description))
+            {
+                yield return new UniqueConstraint<Machine>(
+                    x => x.Description == this.Description,
+                    "Поле 'Описание' должно быть уникальным."
+                );
             }
         }
 
