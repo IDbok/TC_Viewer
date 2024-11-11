@@ -2,6 +2,7 @@
 using System.Data;
 using System.Diagnostics;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
@@ -56,6 +57,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
         _isUpdateItemMode = isUpdateMode; // add to UpdateMode
         _newItemCreateActive = activateNewItemCreate;
         _tcId = createdTCId;
+        dgvMain.DoubleBuffered(true);
         InitializeComponent();
 
         _selectionService = new SelectionService<DisplayedTool>(dgvMain, _displayedObjects);
@@ -120,6 +122,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
 
         _bindingList = new BindingList<DisplayedTool>(paginationService.GetPageData());
         dgvMain.DataSource = _bindingList;
+        dgvMain.ResizeRows(20);
 
         // Подготовка данных для события
         PageInfo = paginationService.GetPageInfo();
@@ -156,7 +159,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
 
     private void btnAddNewObj_Click(object sender, EventArgs e)
     {
-        var objEditor = new Win7_LinkObjectEditor(new Tool() { CreatedTCId = _tcId}, isNewObject: true, accessLevel: _accessLevel);
+        var objEditor = new Win7_LinkObjectEditor(new Tool() { CreatedTCId = _tcId }, isNewObject: true, accessLevel: _accessLevel);
 
         objEditor.AfterSave = async (createdObj) => AddNewObjectInDataGridView<Tool, DisplayedTool>(createdObj as Tool);
 
@@ -172,7 +175,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
 
     }
     /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
-    
+
     private Tool CreateNewObject(DisplayedTool dObj)
     {
         return new Tool
@@ -201,7 +204,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
 
         // автоподбор ширины столбцов под ширину таблицы
         dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+        //dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
         dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvMain.RowHeadersWidth = 25;
 
@@ -394,7 +397,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
             Links = obj.Links;
             Categoty = obj.Categoty;
             ClassifierCode = obj.ClassifierCode;
-            
+
             IsReleased = obj.IsReleased;
             CreatedTCId = obj.CreatedTCId;
         }
@@ -624,7 +627,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
                     ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter))
                         || obj.Categoty?.ToString() == categoryFilter) &&
 
-                    (obj.IsReleased == !cbxShowUnReleased.Checked) 
+                    (obj.IsReleased == !cbxShowUnReleased.Checked)
                     //&&
                     //(!_isAddingForm ||
                     //    (!cbxShowUnReleased.Checked ||
@@ -683,7 +686,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
             }
 
             displayedObject.IsReleased = modelObject.IsReleased;
-            
+
             FilteringObjects();
         }
     }
@@ -714,7 +717,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
             // добавляем в список всех объектов новый объект
             _displayedObjects.Insert(0, displayedObject);
             FilteringObjects();
-            
+
         }
     }
 
@@ -762,5 +765,10 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
     private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)
     {
         FilteringObjects();
+    }
+
+    private void Win7_6_Tool_SizeChanged(object sender, EventArgs e)
+    {
+        dgvMain.ResizeRows(20);
     }
 }

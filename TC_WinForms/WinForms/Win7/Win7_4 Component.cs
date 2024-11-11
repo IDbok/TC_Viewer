@@ -7,6 +7,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
@@ -68,6 +69,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         _tcId = createdTCId;
         _newItemCreateActive = activateNewItemCreate;
         _isUpdateItemMode = isUpdateMode;// add to UpdateMode
+        dgvMain.DoubleBuffered(true);
 
         InitializeComponent();
 
@@ -118,7 +120,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
                 btnAddNewObj.Text = "Создать новый объект";
             }
             //////////////////////////////////////////////////////////////////////////////////////////
-            
+
             if(_isUpdateItemMode)// add to UpdateMode
             {
                 btnAddSelected.Text = "Обновить";
@@ -149,6 +151,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
 
         _bindingList = new BindingList<DisplayedComponent>(paginationService.GetPageData());
         dgvMain.DataSource = _bindingList;
+        dgvMain.ResizeRows(20);
 
         // Подготовка данных для события
         PageInfo = paginationService.GetPageInfo();
@@ -233,7 +236,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         dgvMain.RowHeadersWidth = 25;
 
 
-        dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders; //None;
+        //dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders; //None;
         dgvMain.RowTemplate.Height = 200;
 
         //// автоперенос в ячейках
@@ -326,7 +329,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         {
             AddSelectedItems();
         }
-        
+
     }
     void BtnCancel_Click(object sender, EventArgs e)
     {
@@ -346,7 +349,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
 
         // find opened form
         var tcEditor = Application.OpenForms.OfType<Win6_Component>().FirstOrDefault();
-        
+
         tcEditor.UpdateSelectedObject(CreateNewObject(selectedObjs[0]));
 
         // close form
@@ -721,7 +724,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
                     ((categoryFilter == "Все" || string.IsNullOrWhiteSpace(categoryFilter))
                             || obj.Categoty?.ToString() == categoryFilter) &&
 
-                    (obj.IsReleased == !cbxShowUnReleased.Checked) 
+                    (obj.IsReleased == !cbxShowUnReleased.Checked)
                     //&& (!_isAddingForm ||
                     //    (!cbxShowUnReleased.Checked ||
                     //    (cbxShowUnReleased.Checked
@@ -873,8 +876,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
     //            var image = Image.FromStream(new MemoryStream(displayedComponent.Image));
     //            toolTip.Tag = image;
     //            toolTip.Show(" ", dgvMain, dgvMain.PointToClient(Cursor.Position));
-                
-               
+
+
     //        }
     //    }
     //}
@@ -949,5 +952,10 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
     public void RaisePageInfoChanged()
     {
         PageInfoChanged?.Invoke(this, PageInfo);
+    }
+
+    private void Win7_4_Component_SizeChanged(object sender, EventArgs e)
+    {
+        dgvMain.ResizeRows(20);
     }
 }
