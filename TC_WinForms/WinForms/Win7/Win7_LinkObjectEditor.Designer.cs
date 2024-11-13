@@ -264,7 +264,7 @@
             // 
             cbxCategory.FormattingEnabled = true;
             cbxCategory.Location = new Point(223, 210);
-            cbxCategory.Name = "cbxCategory";
+            cbxCategory.Name = "cbxCategoty";
             cbxCategory.Size = new Size(317, 33);
             cbxCategory.TabIndex = 23;
             // 

@@ -101,7 +101,7 @@
             // txtTime
             // 
             txtTime.Location = new Point(220, 150);
-            txtTime.Name = "txtTime";
+            txtTime.Name = "txtTimeExecution";
             txtTime.Size = new Size(144, 31);
             txtTime.TabIndex = 14;
             // 
@@ -118,7 +118,7 @@
             // rtxtNameComment
             // 
             rtxtNameComment.Location = new Point(220, 210);
-            rtxtNameComment.Name = "rtxtNameComment";
+            rtxtNameComment.Name = "rtxtNmComment";
             rtxtNameComment.Size = new Size(530, 110);
             rtxtNameComment.TabIndex = 15;
             rtxtNameComment.Text = "";

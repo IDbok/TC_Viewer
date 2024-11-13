@@ -6,6 +6,7 @@ using TcModels.Models.TcContent.Work;
 using TC_WinForms.DataProcessing;
 using Microsoft.EntityFrameworkCore;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 
 namespace TC_WinForms.WinForms;
 
@@ -14,6 +15,7 @@ public partial class Win7_TechOperation_Window : Form
     MyDbContext context;
 
     TechOperation techOperation;
+    private CheckRequiredFieldsService<TechOperation> _checkRequiredFieldsService = new CheckRequiredFieldsService<TechOperation>();
 
     public delegate Task PostSaveActionTO(TechOperation modelObject);
     public PostSaveActionTO? AfterSave { get; set; }
@@ -70,6 +72,8 @@ public partial class Win7_TechOperation_Window : Form
             button1.Text = "Добавить";
         }
 
+        _checkRequiredFieldsService.SetRequiredFieldsList(techOperation, panel1);
+        _checkRequiredFieldsService.SetRequiredPropertiesList(techOperation);
         //  var bb = context.ChangeTracker.Entries().Count();
 
     }
@@ -252,24 +256,34 @@ public partial class Win7_TechOperation_Window : Form
     {
         try
         {
-            // проверка полей на уникальность
-            if (!await UniqueFieldChecker<TechOperation>.IsPropertiesUnique(techOperation))
-                return;
-
-            context.SaveChanges();
-
-            if (_isTcEditingForm)
+            var emptyFieldsList = _checkRequiredFieldsService.ReturnEmptyFieldsName();
+            if (emptyFieldsList.Count == 0)
             {
-                AfterSave?.Invoke(techOperation);
-                Close();
+                // проверка полей на уникальность
+                if (!await UniqueFieldChecker<TechOperation>.IsPropertiesUnique(techOperation))
+                    return;
+
+                context.SaveChanges();
+
+                if (_isTcEditingForm)
+                {
+                    AfterSave?.Invoke(techOperation);
+                    Close();
+                }
+                else
+                {
+                    StaticWinForms.Win7_new.UpdateTO();
+                    MessageBox.Show("Данные сохранены");
+
+                }
             }
             else
             {
-                StaticWinForms.Win7_new.UpdateTO();
-                MessageBox.Show("Данные сохранены");
-
+                string fields = string.Join(", ", emptyFieldsList);
+                MessageBox.Show("Для сохранения объекта необходимо заполнить обязательные поля:\n" + fields,
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
-
         }
         catch (Exception ee)
         {
@@ -295,6 +309,9 @@ public partial class Win7_TechOperation_Window : Form
     private void textBox1_TextChanged(object sender, EventArgs e)
     {
         techOperation.Name = textBox1.Text;
+        var field = (Control)sender;
+        if (field.BackColor != SystemColors.Window && !string.IsNullOrEmpty(field.Text))
+            field.BackColor = SystemColors.Window;
     }
 
     private void checkBox1_CheckedChanged(object sender, EventArgs e)

@@ -9,7 +9,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models
 {
-    public class TechnologicalCard: INameable, IUpdatableEntity, IValidatable, IHasUniqueConstraints<TechnologicalCard>
+    public class TechnologicalCard: INameable, IUpdatableEntity, IValidatable, IHasUniqueConstraints<TechnologicalCard>, IRequiredProperties
     {
         public enum TechnologicalCardStatus
         {
@@ -31,8 +31,31 @@ namespace TcModels.Models
             [Description("Заполнена")] //ТК заполнена (таблицы 1-6) и готова к проверке руководителя
             Completed
         }
+        public List<string> GetPropertiesRequired { get; } = new List<string>
+        {
+                { nameof(Article) },
+                { nameof(Type) },
+                { nameof(NetworkVoltage)},
+        };
 
-        public static Dictionary<string, string> GetPropertiesNames()
+        public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
+        {
+            { nameof(Id), "ID" },
+            { nameof(Article), "Артикул" },
+            { nameof(Version), "Версия" },
+            { nameof(Name), "Название" },
+            { nameof(Type), "Тип карты" },
+            { nameof(NetworkVoltage), "Сеть, кВ" },
+            { nameof(TechnologicalProcessType), "Тип тех. процесса" },
+            { nameof(TechnologicalProcessName), "Тех. процесс" },
+            { nameof(Parameter), "Параметр" },
+            { nameof(FinalProduct), "Конечный продукт" },
+            { nameof(Applicability), "Применимость техкарты" },
+            { nameof(Note), "Примечания" },
+            { nameof(IsCompleted), "Наличие" }
+        };
+
+        public static Dictionary<string, string> s_GetPropertiesNames()
         {
             return new Dictionary<string, string>
             {

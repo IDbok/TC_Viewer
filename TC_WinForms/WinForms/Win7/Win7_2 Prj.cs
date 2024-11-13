@@ -59,7 +59,7 @@ namespace TC_WinForms.WinForms
             dgvMain.DataSource = bindingList;
 
             // set columns names
-            WinProcessing.SetTableHeadersNames(TechnologicalCard.GetPropertiesNames(), dgvMain);
+            WinProcessing.SetTableHeadersNames(TechnologicalCard.s_GetPropertiesNames(), dgvMain);
 
             // set columns order and visibility
             WinProcessing.SetTableColumnsOrder(TechnologicalCard.GetPropertiesOrder(), dgvMain);

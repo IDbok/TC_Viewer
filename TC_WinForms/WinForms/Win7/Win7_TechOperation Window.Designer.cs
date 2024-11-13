@@ -216,7 +216,7 @@
             // 
             textBox1.Location = new Point(142, 15);
             textBox1.Margin = new Padding(4, 4, 4, 4);
-            textBox1.Name = "textBox1";
+            textBox1.Name = "txtName";
             textBox1.Size = new Size(559, 31);
             textBox1.TabIndex = 1;
             textBox1.TextChanged += textBox1_TextChanged;

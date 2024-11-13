@@ -1,4 +1,5 @@
 ﻿
+using System.Reflection.Metadata;
 using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent.Work;
@@ -6,7 +7,7 @@ using TcModels.Models.TcContent.Work;
 namespace TcModels.Models.TcContent
 {
     public class TechTransition: IIdentifiable, IUpdatableEntity, IReleasable
-        ,IValidatable, IHasUniqueConstraints<TechTransition>
+        ,IValidatable, IHasUniqueConstraints<TechTransition>, IRequiredProperties
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -22,7 +23,22 @@ namespace TcModels.Models.TcContent
 
         public bool IsReleased { get; set; } = false;
         public int? CreatedTCId { get; set; } = null;
-                
+        public List<string> GetPropertiesRequired { get; } = new List<string>
+        {
+                { nameof(Name) },
+                { nameof(Category) },
+                { nameof(TimeExecution)}
+        };
+        public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
+        {
+            { nameof(Id), "ID" },
+            { nameof(Name), "Название" },
+            { nameof(TimeExecution), "Время выполнения" },
+            { nameof(Category), "Категория" },
+            { nameof(TimeExecutionChecked), "Время выполнения проверено" },
+            { nameof(CommentName), "Комментарий к наименованию" },
+            { nameof(CommentTimeExecution), "Комментарий к времени выполнения" }
+        };
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is TechTransition sourceObject)

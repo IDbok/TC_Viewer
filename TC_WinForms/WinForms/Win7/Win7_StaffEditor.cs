@@ -3,6 +3,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -18,12 +19,12 @@ public partial class Win7_StaffEditor : Form
     Staff _editingObj;
 
     List<string> requiredPropertiesNames = new List<string>();
-
+    private CheckRequiredFieldsService<Staff> _staffService = new CheckRequiredFieldsService<Staff>();
     //public delegate Task PostSaveAction();
     public delegate Task PostSaveAction(Staff modelObject);
     public PostSaveAction? AfterSave { get; set; }
 
-    private bool _isNewObject = false;
+private bool _isNewObject = false;
     public Win7_StaffEditor(Staff obj, bool isNewObject = false, User.Role accessLevel = User.Role.Lead) // todo: Сделать видимость не выпущенных объектов только для администратора или из карт в которых они были созданы
     {
         _accessLevel = accessLevel;
@@ -31,9 +32,25 @@ public partial class Win7_StaffEditor : Form
         _editingObj = obj;
         _isNewObject = isNewObject;
 
-
         InitializeComponent();
+
+        _staffService.SetRequiredFieldsList(_editingObj, panel1);
+        _staffService.SetRequiredPropertiesList(_editingObj);
+
+        txtName.TextChanged += Txt_TextChanged;
+        txtType.TextChanged += Txt_TextChanged;
+        rtxtFunctions.TextChanged += Txt_TextChanged;
+        rtxtQualification.TextChanged += Txt_TextChanged;
+
     }
+
+    private void Txt_TextChanged(object? sender, EventArgs e)
+    {
+        var field = (Control)sender;
+        if (field.BackColor != SystemColors.Window && !string.IsNullOrEmpty(field.Text))
+            field.BackColor = SystemColors.Window;
+    }
+
     private void Win7_StaffEditor_Load(object sender, EventArgs e)
     {
         SetDGVDataSources();
@@ -94,9 +111,11 @@ public partial class Win7_StaffEditor : Form
         _editingObj.ClassifierCode = txtClassifierCode.Text;
 
         // проверка _editingObj на то, что все необходимые заполнены
-        if (!AreRequiredPropertiesFilled())
+        var emptyFields = _staffService.ReturnEmptyFieldsName();
+
+        if (emptyFields.Count != 0)
         {
-            string fields = string.Join(", ", requiredPropertiesNames);
+            string fields = string.Join(", ", emptyFields);
             MessageBox.Show("Для сохранения объекта необходимо заполнить обязательные поля:\n" + fields,
                 "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
@@ -185,39 +204,6 @@ public partial class Win7_StaffEditor : Form
 
 
         return hasChanges;
-    }
-
-    public bool AreRequiredPropertiesFilled() // todo: добавить подцветку обязательных полей
-    {
-        Type modelType = _editingObj.GetType();
-
-        List<string> requiredProperties;// = modelType.GetMethod("GetPropertiesRequired")
-                                        //.Invoke(null, null) as List<string>;
-
-        if (_editingObj is IRequiredProperties rp)
-        {
-            requiredProperties = rp.GetPropertiesRequired;
-            requiredPropertiesNames = rp.GetPropertiesNames.Where(x => requiredProperties.Contains(x.Key))
-                .Select(x => x.Value).ToList();
-        }
-        else return false;
-
-        foreach (string propertyName in requiredProperties)
-        {
-            PropertyInfo property = modelType.GetProperty(propertyName);
-            if (property == null)
-            {
-                throw new ArgumentException($"Property {propertyName} not found in {modelType.Name}");
-            }
-
-            object value = property.GetValue(_editingObj);
-            if (value == null || (value is string str && string.IsNullOrWhiteSpace(str)))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private void btnAddRelatedStaff_Click(object sender, EventArgs e)

@@ -100,7 +100,7 @@
             // txtTechProcessType
             // 
             txtTechProcessType.Location = new Point(214, 181);
-            txtTechProcessType.Name = "txtTechProcessType";
+            txtTechProcessType.Name = "txtTechProcessClass";
             txtTechProcessType.Size = new Size(503, 27);
             txtTechProcessType.TabIndex = 5;
             txtTechProcessType.TextChanged += textBox1_TextChanged;
