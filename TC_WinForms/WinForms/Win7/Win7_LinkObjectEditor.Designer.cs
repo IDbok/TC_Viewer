@@ -136,7 +136,7 @@
             cbxUnit.Location = new Point(223, 150);
             cbxUnit.Name = "cbxUnit";
             cbxUnit.Size = new Size(218, 33);
-            cbxUnit.TabIndex = 8;
+            cbxUnit.TabIndex = 4;
             // 
             // rtxtDescription
             // 
@@ -157,7 +157,7 @@
             dgvLinks.RowHeadersWidth = 62;
             dgvLinks.RowTemplate.Height = 33;
             dgvLinks.Size = new Size(534, 190);
-            dgvLinks.TabIndex = 10;
+            dgvLinks.TabIndex = 11;
             // 
             // lblLinks
             // 
@@ -173,7 +173,7 @@
             btnSave.Location = new Point(30, 827);
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(173, 67);
-            btnSave.TabIndex = 12;
+            btnSave.TabIndex = 15;
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Click;
@@ -183,7 +183,7 @@
             btnClose.Location = new Point(586, 827);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(173, 67);
-            btnClose.TabIndex = 13;
+            btnClose.TabIndex = 17;
             btnClose.Text = "Закрыть";
             btnClose.UseVisualStyleBackColor = true;
             btnClose.Click += btnClose_Click;
@@ -193,7 +193,7 @@
             txtPrice.Location = new Point(223, 320);
             txtPrice.Name = "txtPrice";
             txtPrice.Size = new Size(198, 31);
-            txtPrice.TabIndex = 15;
+            txtPrice.TabIndex = 7;
             // 
             // lblPrice
             // 
@@ -218,7 +218,7 @@
             btnAddLink.Location = new Point(30, 677);
             btnAddLink.Name = "btnAddLink";
             btnAddLink.Size = new Size(170, 40);
-            btnAddLink.TabIndex = 17;
+            btnAddLink.TabIndex = 12;
             btnAddLink.Text = "Добавить";
             btnAddLink.UseVisualStyleBackColor = true;
             btnAddLink.Click += btnAddLink_Click;
@@ -228,7 +228,7 @@
             btnDeleteLink.Location = new Point(30, 770);
             btnDeleteLink.Name = "btnDeleteLink";
             btnDeleteLink.Size = new Size(170, 40);
-            btnDeleteLink.TabIndex = 18;
+            btnDeleteLink.TabIndex = 14;
             btnDeleteLink.Text = "Удалить";
             btnDeleteLink.UseVisualStyleBackColor = true;
             btnDeleteLink.Click += btnDeleteLink_Click;
@@ -238,7 +238,7 @@
             btnEditLink.Location = new Point(30, 723);
             btnEditLink.Name = "btnEditLink";
             btnEditLink.Size = new Size(170, 40);
-            btnEditLink.TabIndex = 19;
+            btnEditLink.TabIndex = 13;
             btnEditLink.Text = "Изменить";
             btnEditLink.UseVisualStyleBackColor = true;
             btnEditLink.Click += btnEditLink_Click;
@@ -248,7 +248,7 @@
             rtxtManufacturer.Location = new Point(223, 500);
             rtxtManufacturer.Name = "rtxtManufacturer";
             rtxtManufacturer.Size = new Size(535, 91);
-            rtxtManufacturer.TabIndex = 21;
+            rtxtManufacturer.TabIndex = 10;
             rtxtManufacturer.Text = "";
             // 
             // lblManufacturer
@@ -266,7 +266,7 @@
             cbxCategory.Location = new Point(223, 210);
             cbxCategory.Name = "cbxCategory";
             cbxCategory.Size = new Size(317, 33);
-            cbxCategory.TabIndex = 23;
+            cbxCategory.TabIndex = 5;
             // 
             // lblCategory
             // 
@@ -283,7 +283,7 @@
             cbxIsReleased.Location = new Point(574, 28);
             cbxIsReleased.Name = "cbxIsReleased";
             cbxIsReleased.Size = new Size(149, 29);
-            cbxIsReleased.TabIndex = 24;
+            cbxIsReleased.TabIndex = 2;
             cbxIsReleased.Text = "Опубликован";
             cbxIsReleased.UseVisualStyleBackColor = true;
             cbxIsReleased.CheckedChanged += cbxIsReleased_CheckedChanged;
@@ -317,7 +317,7 @@
             btnLoadImage.Margin = new Padding(4, 3, 4, 3);
             btnLoadImage.Name = "btnLoadImage";
             btnLoadImage.Size = new Size(207, 37);
-            btnLoadImage.TabIndex = 26;
+            btnLoadImage.TabIndex = 8;
             btnLoadImage.Text = "загрузить рисунок";
             btnLoadImage.UseVisualStyleBackColor = true;
             // 

@@ -68,7 +68,7 @@
             cbxCategory.Location = new Point(220, 90);
             cbxCategory.Name = "cbxCategory";
             cbxCategory.Size = new Size(375, 33);
-            cbxCategory.TabIndex = 8;
+            cbxCategory.TabIndex = 9;
             // 
             // lblCategory
             // 
@@ -103,7 +103,7 @@
             txtTime.Location = new Point(220, 150);
             txtTime.Name = "txtTime";
             txtTime.Size = new Size(144, 31);
-            txtTime.TabIndex = 14;
+            txtTime.TabIndex = 10;
             // 
             // lblTime
             // 
@@ -120,7 +120,7 @@
             rtxtNameComment.Location = new Point(220, 210);
             rtxtNameComment.Name = "rtxtNameComment";
             rtxtNameComment.Size = new Size(530, 110);
-            rtxtNameComment.TabIndex = 15;
+            rtxtNameComment.TabIndex = 12;
             rtxtNameComment.Text = "";
             // 
             // rtxtTimeComment
@@ -128,7 +128,7 @@
             rtxtTimeComment.Location = new Point(220, 340);
             rtxtTimeComment.Name = "rtxtTimeComment";
             rtxtTimeComment.Size = new Size(530, 110);
-            rtxtTimeComment.TabIndex = 16;
+            rtxtTimeComment.TabIndex = 13;
             rtxtTimeComment.Text = "";
             // 
             // cbxTimeCheck
@@ -137,7 +137,7 @@
             cbxTimeCheck.Location = new Point(446, 152);
             cbxTimeCheck.Name = "cbxTimeCheck";
             cbxTimeCheck.Size = new Size(130, 29);
-            cbxTimeCheck.TabIndex = 17;
+            cbxTimeCheck.TabIndex = 11;
             cbxTimeCheck.Text = "проверено";
             cbxTimeCheck.UseVisualStyleBackColor = true;
             // 
@@ -155,7 +155,7 @@
             btnClose.Location = new Point(580, 461);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(170, 70);
-            btnClose.TabIndex = 19;
+            btnClose.TabIndex = 15;
             btnClose.Text = "Закрыть";
             btnClose.UseVisualStyleBackColor = true;
             btnClose.Click += btnClose_Click;
@@ -165,7 +165,7 @@
             btnSave.Location = new Point(30, 461);
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(170, 70);
-            btnSave.TabIndex = 20;
+            btnSave.TabIndex = 14;
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Click;
@@ -176,7 +176,7 @@
             cbxIsReleased.Location = new Point(601, 32);
             cbxIsReleased.Name = "cbxIsReleased";
             cbxIsReleased.Size = new Size(149, 29);
-            cbxIsReleased.TabIndex = 25;
+            cbxIsReleased.TabIndex = 8;
             cbxIsReleased.Text = "Опубликован";
             cbxIsReleased.UseVisualStyleBackColor = true;
             // 
