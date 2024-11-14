@@ -120,7 +120,7 @@
             rtxtComment.Margin = new Padding(2);
             rtxtComment.Name = "rtxtComment";
             rtxtComment.Size = new Size(386, 110);
-            rtxtComment.TabIndex = 11;
+            rtxtComment.TabIndex = 14;
             rtxtComment.Text = "";
             // 
             // rtxtQualification
@@ -129,7 +129,7 @@
             rtxtQualification.Margin = new Padding(2);
             rtxtQualification.Name = "rtxtQualification";
             rtxtQualification.Size = new Size(386, 68);
-            rtxtQualification.TabIndex = 12;
+            rtxtQualification.TabIndex = 9;
             rtxtQualification.Text = "";
             // 
             // lblCombineResponsibility
@@ -198,7 +198,7 @@
             dgvRelatedStaffs.RowTemplate.Height = 33;
             dgvRelatedStaffs.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvRelatedStaffs.Size = new Size(292, 70);
-            dgvRelatedStaffs.TabIndex = 19;
+            dgvRelatedStaffs.TabIndex = 11;
             // 
             // btnAddRelatedStaff
             // 
@@ -206,7 +206,7 @@
             btnAddRelatedStaff.Margin = new Padding(2);
             btnAddRelatedStaff.Name = "btnAddRelatedStaff";
             btnAddRelatedStaff.Size = new Size(89, 20);
-            btnAddRelatedStaff.TabIndex = 20;
+            btnAddRelatedStaff.TabIndex = 12;
             btnAddRelatedStaff.Text = "Добавить";
             btnAddRelatedStaff.UseVisualStyleBackColor = true;
             btnAddRelatedStaff.Click += btnAddRelatedStaff_Click;
@@ -217,7 +217,7 @@
             btnDeleteRelatedStaff.Margin = new Padding(2);
             btnDeleteRelatedStaff.Name = "btnDeleteRelatedStaff";
             btnDeleteRelatedStaff.Size = new Size(89, 20);
-            btnDeleteRelatedStaff.TabIndex = 21;
+            btnDeleteRelatedStaff.TabIndex = 13;
             btnDeleteRelatedStaff.Text = "Удалить";
             btnDeleteRelatedStaff.UseVisualStyleBackColor = true;
             btnDeleteRelatedStaff.Click += btnDeleteRelatedStaff_Click;
@@ -229,7 +229,7 @@
             cbxIsReleased.Margin = new Padding(2);
             cbxIsReleased.Name = "cbxIsReleased";
             cbxIsReleased.Size = new Size(101, 19);
-            cbxIsReleased.TabIndex = 22;
+            cbxIsReleased.TabIndex = 6;
             cbxIsReleased.Text = "Опубликован";
             cbxIsReleased.UseVisualStyleBackColor = true;
             cbxIsReleased.CheckedChanged += cbxIsReleased_CheckedChanged;
@@ -240,7 +240,7 @@
             txtClassifierCode.Margin = new Padding(2);
             txtClassifierCode.Name = "txtClassifierCode";
             txtClassifierCode.Size = new Size(386, 23);
-            txtClassifierCode.TabIndex = 24;
+            txtClassifierCode.TabIndex = 10;
             // 
             // lblClassifierCode
             // 
@@ -261,7 +261,7 @@
             flowLayoutPanel1.Location = new Point(0, 0);
             flowLayoutPanel1.Margin = new Padding(3, 2, 3, 2);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(550, 518);
+            flowLayoutPanel1.Size = new Size(550, 541);
             flowLayoutPanel1.TabIndex = 25;
             // 
             // panel1
@@ -303,7 +303,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(550, 518);
+            ClientSize = new Size(550, 541);
             ControlBox = false;
             Controls.Add(flowLayoutPanel1);
             Margin = new Padding(2);
