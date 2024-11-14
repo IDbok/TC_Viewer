@@ -16,7 +16,7 @@ namespace TC_WinForms.WinForms
     public partial class Win7_TechOperation : Form, ISaveEventForm, IPaginationControl
     {
         private readonly User.Role _accessLevel;
-
+        private readonly int _minRowHeight = 20;
         private DbConnector dbCon = new DbConnector();
 
         private List<DisplayedTechOperation> _displayedObjects;
@@ -112,7 +112,7 @@ namespace TC_WinForms.WinForms
 
             _bindingList = new BindingList<DisplayedTechOperation>(paginationService.GetPageData());
             dgvMain.DataSource = _bindingList;
-            dgvMain.ResizeRows(20);
+            dgvMain.ResizeRows(_minRowHeight);
 
             // Подготовка данных для события
             PageInfo = paginationService.GetPageInfo();
@@ -598,7 +598,7 @@ namespace TC_WinForms.WinForms
 
         private void Win7_TechOperation_SizeChanged(object sender, EventArgs e)
         {
-            dgvMain.ResizeRows(20);
+            dgvMain.ResizeRows(_minRowHeight);
         }
     }
 }

@@ -21,6 +21,7 @@ namespace TC_WinForms.WinForms
     public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
     {
         private readonly User.Role _accessLevel;
+        private readonly int _minRowHeight = 20;
 
         private DbConnector dbCon = new DbConnector();
         private List<DisplayedTechnologicalCard> _displayedTechnologicalCards;
@@ -117,7 +118,7 @@ namespace TC_WinForms.WinForms
             //dgvMain.RowPrePaint += dgvMain_RowPrePaint;
             dgvMain.RowPostPaint += dgvMain_RowPostPaint;
 
-            dgvMain.ResizeRows(20);
+            dgvMain.ResizeRows(_minRowHeight);
             dgvMain.Visible = true;
             this.Enabled = true;
         }
@@ -1009,7 +1010,7 @@ namespace TC_WinForms.WinForms
 
         private void Win7_1_TCs_SizeChanged(object sender, EventArgs e)
         {
-            dgvMain.ResizeRows(20);
+            dgvMain.ResizeRows(_minRowHeight);
         }
     }
 

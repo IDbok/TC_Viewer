@@ -17,7 +17,7 @@ namespace TC_WinForms.WinForms
     public partial class Win7_7_Protection : Form, IPaginationControl//, ISaveEventForm
     {
         private readonly User.Role _accessLevel;
-
+        private readonly int _minRowHeight = 20;
         private SelectionService<DisplayedProtection> _selectionService;
 
         private DbConnector dbCon = new DbConnector();
@@ -120,7 +120,7 @@ namespace TC_WinForms.WinForms
 
             _bindingList = new BindingList<DisplayedProtection>(paginationService.GetPageData());
             dgvMain.DataSource = _bindingList;
-            dgvMain.ResizeRows(20);
+            dgvMain.ResizeRows(_minRowHeight);
 
             // Подготовка данных для события
             PageInfo = paginationService.GetPageInfo();
@@ -718,7 +718,7 @@ namespace TC_WinForms.WinForms
 
         private void Win7_7_Protection_SizeChanged(object sender, EventArgs e)
         {
-            dgvMain.ResizeRows(20);
+            dgvMain.ResizeRows(_minRowHeight);
         }
     }
 }

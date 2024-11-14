@@ -16,7 +16,7 @@ namespace TC_WinForms.WinForms
     {
 
         private readonly User.Role _accessLevel;
-
+        private readonly int _minRowHeight = 20;
         private DbConnector dbCon = new DbConnector();
 
 
@@ -112,7 +112,7 @@ namespace TC_WinForms.WinForms
 
             _bindingList = new BindingList<DisplayedTechTransition>(paginationService.GetPageData());
             dgvMain.DataSource = _bindingList;
-            dgvMain.ResizeRows(20);
+            dgvMain.ResizeRows(_minRowHeight);
 
             // Подготовка данных для события
             PageInfo = paginationService.GetPageInfo();
@@ -694,7 +694,7 @@ namespace TC_WinForms.WinForms
 
         private void Win7_TechTransition_SizeChanged(object sender, EventArgs e)
         {
-            dgvMain.ResizeRows(20);
+            dgvMain.ResizeRows(_minRowHeight);
         }
     }
 }

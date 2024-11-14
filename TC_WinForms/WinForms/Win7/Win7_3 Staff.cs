@@ -18,7 +18,7 @@ namespace TC_WinForms.WinForms;
 public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
 {
     private readonly User.Role _accessLevel;
-
+    private readonly int _minRowHeight = 20;
     private DbConnector dbCon = new DbConnector();
 
     private SelectionService<DisplayedStaff> _selectionService;
@@ -148,7 +148,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
 
         _bindingList = new BindingList<DisplayedStaff>(paginationService.GetPageData());
         dgvMain.DataSource = _bindingList;
-        dgvMain.ResizeRows(20);
+        dgvMain.ResizeRows(_minRowHeight);
 
         // Подготовка данных для события
         PageInfo = paginationService.GetPageInfo();
@@ -661,6 +661,6 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
 
     private void Win7_3_Staff_SizeChanged(object sender, EventArgs e)
     {
-        dgvMain.ResizeRows(20);
+        dgvMain.ResizeRows(_minRowHeight);
     }
 }
