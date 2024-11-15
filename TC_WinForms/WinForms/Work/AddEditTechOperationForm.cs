@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 //using NCalc;
 using System.Data;
+using System.Linq.Expressions;
 using System.Windows.Forms;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
@@ -103,6 +104,9 @@ namespace TC_WinForms.WinForms.Work
             PoiskPersonal.TextChanged += TextBoxPersonalPoisk_TextChanged;
 
             comboBoxTPCategoriya.SelectedIndexChanged += ComboBoxTPCategoriya_SelectedIndexChanged;
+            comboBoxTO.SelectedIndexChanged += ComboBoxTO_SelectedIndexChanged;
+            comboBoxTT.SelectedIndexChanged += ComboBoxTT_SelectedIndexChanged;
+
 
             var Even = new DGVEvents();
             Even.EventsObj = this;
@@ -118,6 +122,63 @@ namespace TC_WinForms.WinForms.Work
 
             UpdateTO();
             UpdateLocalTO();
+
+
+        }
+
+        private void ComboBoxTT_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            switch (tabControl1.SelectedTab.Name)
+            {
+                case "tabPageStaff":
+                    UpdateGridStaff();
+                    UpdateGridStaffAll();
+                    break;
+                case "tabPageProtection":
+                    UpdateGridLocalSZ();
+                    UpdateGridAllSZ();
+                    break;
+            }
+        }
+
+        private void ComboBoxTO_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            switch (tabControl1.SelectedTab.Name)
+            {
+                case "tabPageTO":
+                    UpdateLocalTO();
+                    UpdateGridAllTP();
+                    break;
+                case "tabPageTP":
+                    UpdateGridLocalTP();
+                    UpdateGridAllTP();
+                    break;
+                case "tabPageStaff":
+                    UpdateComboBoxTT();
+                    UpdateGridStaff();
+                    UpdateGridStaffAll();
+                    break;
+                case "tabPageComponent":
+                    UpdateComponentLocal();
+                    UpdateComponentAll();
+                    break;
+                case "tabPageTool":
+                    UpdateInstrumentLocal();
+                    UpdateInstrumentAll();
+                    break;
+                case "tabPageProtection":
+                    UpdateComboBoxTT();
+                    UpdateGridLocalSZ();
+                    UpdateGridAllSZ();
+                    break;
+                case "tabPageStage":
+                    dataGridViewEtapUpdate();
+                    dataGridViewMehaUpdate();
+                    break;
+                case "tabPageRepeat":
+                    UpdatePovtor();
+                    break;
+            }
 
 
         }
@@ -253,8 +314,6 @@ namespace TC_WinForms.WinForms.Work
 
             List<TechOperationWork> list2 = new List<TechOperationWork>(list);
             comboBoxTO.DataSource = list2;
-            comboBoxTO2.DataSource = list2;
-            comboBoxTO3.DataSource = list2;
 
             if (offScroll > 0 && offScroll < dataGridViewTO.Rows.Count)
                 dataGridViewTO.FirstDisplayedScrollingRowIndex = offScroll;
@@ -274,13 +333,6 @@ namespace TC_WinForms.WinForms.Work
                 techOperationWork.GetSequenceGroupIndex().ToString() ?? ""
             };
             dataGridViewTO.Rows.Add(row.ToArray());
-        }
-
-        private void comboBoxTO_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //var work = (TechOperationWork)comboBoxTO.SelectedItem;
-            UpdateGridAllTP();
-            UpdateGridLocalTP();
         }
 
         private void DataGridViewTO_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
@@ -768,13 +820,11 @@ namespace TC_WinForms.WinForms.Work
 
             if (listExecutionWork.Count == 0)
             {
-                comboBoxStaff.DataSource = null;
-                comboBoxSZ.DataSource = null;
+                comboBoxTT.DataSource = null;
             }
             else
             {
-                comboBoxStaff.DataSource = listExecutionWork;
-                comboBoxSZ.DataSource = listExecutionWork;
+                comboBoxTT.DataSource = listExecutionWork;
             }
 
             try
@@ -808,7 +858,7 @@ namespace TC_WinForms.WinForms.Work
 
 
             var AllStaff = TechOperationForm.TehCarta.Staff_TCs.ToList();
-            var ExecutionWorkBox = (ExecutionWork)comboBoxStaff.SelectedItem;
+            var ExecutionWorkBox = (ExecutionWork)comboBoxTT.SelectedItem;
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
@@ -850,7 +900,7 @@ namespace TC_WinForms.WinForms.Work
             {
                 var staff_TC = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
                 var symbol = staff_TC.Symbol;
-                var EW = (ExecutionWork)comboBoxSZ.SelectedItem;
+                var EW = (ExecutionWork)comboBoxTT.SelectedItem;
                 if (EW != null)
                 {
                     var staffs = EW.Staffs.Where(w => w.Symbol == symbol).ToList();
@@ -928,18 +978,12 @@ namespace TC_WinForms.WinForms.Work
         }
 
 
-        private void comboBoxStaff_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            UpdateGridStaff();
-            UpdateGridStaffAll();
-        }
-
 
 
         public void UpdateGridStaff()
         {
             var offScroll = dataGridViewStaff.FirstDisplayedScrollingRowIndex;
-            var ExecutionWorkBox = (ExecutionWork)comboBoxStaff.SelectedItem;
+            var ExecutionWorkBox = (ExecutionWork)comboBoxTT.SelectedItem;
             dataGridViewStaff.Rows.Clear();
             if (ExecutionWorkBox == null)
             {
@@ -1013,7 +1057,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateGridStaffAll()
         {
-            var ExecutionWorkBox = (ExecutionWork)comboBoxStaff.SelectedItem;
+            var ExecutionWorkBox = (ExecutionWork)comboBoxTT.SelectedItem;
 
             var context = TechOperationForm.context;
             AllStaff = context.Staffs.ToList();
@@ -1057,11 +1101,6 @@ namespace TC_WinForms.WinForms.Work
 
         #region средства защиты
 
-        private void comboBoxSZ_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            UpdateGridAllSZ();
-            UpdateGridLocalSZ();
-        }
         private void DataGridViewSZ_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
             dataGridViewLocalSZ.CommitEdit(DataGridViewDataErrorContexts.Commit);
@@ -1072,12 +1111,12 @@ namespace TC_WinForms.WinForms.Work
             bool updateTO = false;
 
             var allSZ = TechOperationForm.TehCarta.Protection_TCs.ToList();
-            var ExecutionWorkBox = (ExecutionWork)comboBoxSZ.SelectedItem;
+            var ExecutionWorkBox = (ExecutionWork)comboBoxTT.SelectedItem;
             var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
-            var workF = (ExecutionWork)comboBoxSZ.SelectedItem;
+            var workF = (ExecutionWork)comboBoxTT.SelectedItem;
 
             foreach (DataGridViewRow? row in dataGridViewLocalSZ.Rows)
             {
@@ -1118,7 +1157,7 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewAllSZ.FirstDisplayedScrollingRowIndex;
             dataGridViewAllSZ.Rows.Clear();
 
-            var work = (ExecutionWork)comboBoxSZ.SelectedItem;
+            var work = (ExecutionWork)comboBoxTT.SelectedItem;
 
             if (work == null)
             {
@@ -1209,7 +1248,7 @@ namespace TC_WinForms.WinForms.Work
         public void UpdateGridLocalSZ()
         {
             var offScroll = dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex;
-            var ExecutionWorkBox = (ExecutionWork)comboBoxSZ.SelectedItem;
+            var ExecutionWorkBox = (ExecutionWork)comboBoxTT.SelectedItem;
             dataGridViewLocalSZ.Rows.Clear();
             if (ExecutionWorkBox == null)
             {
@@ -1253,7 +1292,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (ExecutionWork)comboBoxSZ.SelectedItem;
+                var work = (ExecutionWork)comboBoxTT.SelectedItem;
                 var Idd = (Protection)dataGridViewAllSZ.Rows[e.RowIndex].Cells[0].Value;
 
                 var tehCardProtections = TechOperationForm.TehCarta.Protection_TCs;
@@ -1330,7 +1369,7 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewComponentAll.FirstDisplayedScrollingRowIndex;
             dataGridViewComponentAll.Rows.Clear();
 
-            var work = (TechOperationWork)comboBoxTO2.SelectedItem;
+            var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
             if (work == null)
             {
@@ -1468,7 +1507,7 @@ namespace TC_WinForms.WinForms.Work
         {
             var offScroll = dataGridViewComponentLocal.FirstDisplayedScrollingRowIndex;
             dataGridViewComponentLocal.Rows.Clear();
-            var work = (TechOperationWork)comboBoxTO2.SelectedItem;
+            var work = (TechOperationWork)comboBoxTO.SelectedItem;
             if (work == null)
             {
                 return;
@@ -1503,24 +1542,16 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
-
-        private void comboBoxTO2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            UpdateComponentAll();
-            UpdateComponentLocal();
-        }
-
-
         private void DataGridViewComponentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (TechOperationWork)comboBoxTO2.SelectedItem;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (Component)dataGridViewComponentAll.Rows[e.RowIndex].Cells[0].Value;
 
                 var existedIdd = work.ComponentWorks.Where(c => c.componentId == Idd.Id && c.IsDeleted == true).FirstOrDefault();
-                
-                if(existedIdd != null)
+
+                if (existedIdd != null)
                 {
                     existedIdd.IsDeleted = false;
                     work.ComponentWorks.Remove(existedIdd);
@@ -1544,10 +1575,10 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (TechOperationWork)comboBoxTO2.SelectedItem;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
 
-                TechOperationForm.MarkToDeleteComponentWork(work ,Idd);
+                TechOperationForm.MarkToDeleteComponentWork(work, Idd);
 
                 UpdateComponentAll();
                 UpdateComponentLocal();
@@ -1555,12 +1586,11 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
-
         private void DataGridViewComponentLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 5)
             {
-                var work = (TechOperationWork)comboBoxTO2.SelectedItem;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
                 var value = (object)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[5].Value;
 
@@ -1585,7 +1615,7 @@ namespace TC_WinForms.WinForms.Work
 
             if (e.ColumnIndex == 6)
             {
-                var work = (TechOperationWork)comboBoxTO2.SelectedItem;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
                 var value = (string)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[6].Value;
 
@@ -1602,7 +1632,7 @@ namespace TC_WinForms.WinForms.Work
         {
             var offScroll = dataGridViewInstrumentLocal.FirstDisplayedScrollingRowIndex;
             dataGridViewInstrumentLocal.Rows.Clear();
-            var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+            var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
             if (work == null)
             {
@@ -1650,7 +1680,7 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewInstumentAll.FirstDisplayedScrollingRowIndex;
             dataGridViewInstumentAll.Rows.Clear();
 
-            var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+            var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
             if (work == null)
             {
@@ -1781,19 +1811,11 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
-
-        private void comboBoxTO3_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            UpdateInstrumentAll();
-            UpdateInstrumentLocal();
-        }
-
-
         private void DataGridViewInstumentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
                 if (work == null)
                 {
@@ -1829,7 +1851,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 if (work == null)
                 {
                     return;
@@ -1849,7 +1871,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 5)
             {
-                var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 if (work == null)
                 {
                     return;
@@ -1879,7 +1901,7 @@ namespace TC_WinForms.WinForms.Work
 
             if (e.ColumnIndex == 6)
             {
-                var work = (TechOperationWork)comboBoxTO3.SelectedItem;
+                var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 if (work == null)
                 {
                     return;
@@ -2455,98 +2477,63 @@ namespace TC_WinForms.WinForms.Work
         }
 
         #endregion
+        private void UpdateComboBoxTT()
+        {
+            var work = (TechOperationWork)comboBoxTO.SelectedItem;
+
+            var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work)
+                .executionWorks.Where(w => w.Delete == false)
+                .OrderBy(o => o.Order).ToList();
+
+            var listExecutionWork = new List<ExecutionWork>(LocalTPs);
+            if (listExecutionWork.Count != 0)
+                comboBoxTT.DataSource = listExecutionWork;
+            else
+                comboBoxTT.DataSource = null;
+        }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (tabControl1.SelectedTab.Name == "tabPageTP")
-            {
-                var select = dataGridViewTO.SelectedRows;
-                if (select.Count > 0)
-                {
-                    var id = (TechOperationWork)select[0].Cells[0].Value;
+            if (tabControl1.SelectedTab.Name != "tabPageStaff" && tabControl1.SelectedTab.Name != "tabPageProtection")
+                comboBoxTT.Visible = false;
 
-                    foreach (TechOperationWork item in comboBoxTO.Items)
-                    {
-                        if (item == id)
-                        {
-                            comboBoxTO.SelectedItem = item;
-                        }
-                    }
-                }
-            } else
-            if (tabControl1.SelectedTab.Name == "tabPageStaff")
+            switch (tabControl1.SelectedTab.Name)
             {
-                var select = dataGridViewTPLocal.SelectedRows;
-                if (select.Count > 0)
-                {
-                    var id = (Guid)select[0].Cells[0].Value;
-
-                    foreach (ExecutionWork item in comboBoxStaff.Items)
-                    {
-                        if (item.IdGuid == id)
-                        {
-                            comboBoxStaff.SelectedItem = item;
-                        }
-                    }
-                }
-                UpdateGridStaff();
-            } else
-            if (tabControl1.SelectedTab.Name == "tabPageComponent")
-            {
-                var select = dataGridViewTO.SelectedRows;
-                if (select.Count > 0)
-                {
-                    var id = (TechOperationWork)select[0].Cells[0].Value;
-
-                    foreach (TechOperationWork item in comboBoxTO2.Items)
-                    {
-                        if (item == id)
-                        {
-                            comboBoxTO2.SelectedItem = item;
-                        }
-                    }
-                }
-            } else
-            if (tabControl1.SelectedTab.Name == "tabPageTool")
-            {
-                var select = dataGridViewTO.SelectedRows;
-                if (select.Count > 0)
-                {
-                    var id = (TechOperationWork)select[0].Cells[0].Value;
-
-                    foreach (TechOperationWork item in comboBoxTO3.Items)
-                    {
-                        if (item == id)
-                        {
-                            comboBoxTO3.SelectedItem = item;
-                        }
-                    }
-                }
-            } else      
-            if (tabControl1.SelectedTab.Name == "tabPageProtection")
-            {
-                var select = dataGridViewTPLocal.SelectedRows;
-                if (select.Count > 0)
-                {
-                    var id = (Guid)select[0].Cells[0].Value;
-
-                    foreach (ExecutionWork item in comboBoxSZ.Items)
-                    {
-                        if (item.IdGuid == id)
-                        {
-                            comboBoxSZ.SelectedItem = item;
-                        }
-                    }
-                }
-            } else
-            if (tabControl1.SelectedTab.Name == "tabPageStage")
-            {
-                dataGridViewEtapUpdate();
-                dataGridViewMehaUpdate();
-            } else
-            if (tabControl1.SelectedTab.Name == "tabPageRepeat")
-            {
-                UpdatePovtor();
+                case "tabPageTO":
+                    UpdateLocalTO();
+                    UpdateGridAllTP();
+                    break;
+                case "tabPageTP":
+                    UpdateGridLocalTP();
+                    UpdateGridAllTP();
+                    break;
+                case "tabPageStaff":
+                    UpdateComboBoxTT();
+                    UpdateGridStaff();
+                    UpdateGridStaffAll();
+                    comboBoxTT.Visible = true;
+                    break;
+                case "tabPageComponent":
+                    UpdateComponentLocal();
+                    UpdateComponentAll();
+                    break;
+                case "tabPageTool":
+                    UpdateInstrumentLocal();
+                    UpdateInstrumentAll();
+                    break;
+                case "tabPageProtection":
+                    UpdateComboBoxTT();
+                    UpdateGridLocalSZ();
+                    UpdateGridAllSZ();
+                    comboBoxTT.Visible = true;
+                    break;
+                case "tabPageStage":
+                    dataGridViewEtapUpdate();
+                    dataGridViewMehaUpdate();
+                    break;
+                case "tabPageRepeat":
+                    UpdatePovtor();
+                    break;
             }
         }
 
