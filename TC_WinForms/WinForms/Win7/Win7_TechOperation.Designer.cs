@@ -197,6 +197,7 @@
             Text = "Win7_TechOperation";
             FormClosing += Win7_TechOperation_FormClosing;
             Load += Win7_TechOperation_Load;
+            SizeChanged += Win7_TechOperation_SizeChanged;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);

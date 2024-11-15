@@ -198,6 +198,7 @@
             Text = "Win8_TechTransition";
             FormClosing += Win7_TechTransition_FormClosing;
             Load += Win7_TechTransition_Load;
+            SizeChanged += Win7_TechTransition_SizeChanged;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);
