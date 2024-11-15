@@ -187,6 +187,7 @@ namespace TC_WinForms.WinForms
             SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
 
             updateToolStripMenuItem.Text = tcViewState.IsViewMode ? "Редактировать" : "Просмотр";
+            actionToolStripMenuItem.Visible = !tcViewState.IsViewMode;
 
             foreach (var form in _formsCache.Values)
             {
@@ -330,6 +331,10 @@ namespace TC_WinForms.WinForms
 
         private bool CheckForChanges()
         {
+            if (tcViewState.IsViewMode) //если находимся в режиме просмотра - выходим из метода без сохранения
+            {
+                return true;
+            }
 
             if (_accessLevel == User.Role.User || _accessLevel == User.Role.ProjectManager)
             // todo: заменить этот "костыль" на невозможность внесения изменений другими ролями
@@ -349,16 +354,17 @@ namespace TC_WinForms.WinForms
                 }
             }
 
+
             if (hasUnsavedChanges)
             {
                 var result = MessageBox.Show("Вы хотите сохранить изменения?", "Сохранение изменений",
                     MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
                 if (result == DialogResult.Yes)
                 {
                     foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
                     {
                         fm.SaveChanges();
-
                     }
                     return true;
                 }
@@ -467,6 +473,11 @@ namespace TC_WinForms.WinForms
         private void toolStripButton4_Click(object sender, EventArgs e) => SaveAllChanges();
         private void SaveAllChanges()
         {
+            if (tcViewState.IsViewMode)
+            {
+                return;
+            }
+
             foreach (var form in _formsCache.Values)
             {
                 // is form is ISaveEventForm
@@ -487,6 +498,12 @@ namespace TC_WinForms.WinForms
 
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (tcViewState.IsViewMode == false)
+            {
+                if (!CheckForChanges())
+                    return;
+            }
+
             tcViewState.IsViewMode = !tcViewState.IsViewMode;
 
             SetViewMode();
