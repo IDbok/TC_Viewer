@@ -2,7 +2,6 @@
 using System.Data;
 using System.Diagnostics;
 using TC_WinForms.DataProcessing;
-using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
@@ -17,7 +16,7 @@ namespace TC_WinForms.WinForms;
 public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
 {
     private readonly User.Role _accessLevel;
-    private readonly int _minRowHeight = 20;
+
     private SelectionService<DisplayedMachine> _selectionService;
 
     private DbConnector dbCon = new DbConnector();
@@ -57,7 +56,6 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
         _isUpdateItemMode = isUpdateMode; // add to UpdateMode
         _tcId = createdTCId;
         _newItemCreateActive = activateNewItemCreate;
-        dgvMain.DoubleBuffered(true);
 
         InitializeComponent();
         _selectionService = new SelectionService<DisplayedMachine>(dgvMain, _displayedObjects);
@@ -121,7 +119,6 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
 
         _bindingList = new BindingList<DisplayedMachine>(paginationService.GetPageData());
         dgvMain.DataSource = _bindingList;
-        dgvMain.ResizeRows(_minRowHeight);
 
         // Подготовка данных для события
         PageInfo = paginationService.GetPageInfo();
@@ -200,7 +197,7 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
             _bindingList, _isFiltered ? _displayedObjects : null);
     }
     /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
-
+    
     private Machine CreateNewObject(DisplayedMachine dObj)
     {
         return new Machine
@@ -227,7 +224,7 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
     {
         // автоподбор ширины столбцов под ширину таблицы
         dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        //dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+        dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
         dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvMain.RowHeadersWidth = 25;
 
@@ -603,7 +600,7 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
                         //(obj.Categoty?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
                         (obj.ClassifierCode?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
                     ) &&
-                    (obj.IsReleased == !cbxShowUnReleased.Checked)
+                    (obj.IsReleased == !cbxShowUnReleased.Checked) 
                     //&&
                     //(!_isAddingForm ||
                     //    (!cbxShowUnReleased.Checked ||
@@ -692,7 +689,7 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
             FilteringObjects();
         }
 
-
+        
     }
     private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)
     {
@@ -714,10 +711,5 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
     public void RaisePageInfoChanged()
     {
         PageInfoChanged?.Invoke(this, PageInfo);
-    }
-
-    private void Win7_5_Machine_SizeChanged(object sender, EventArgs e)
-    {
-        dgvMain.ResizeRows(_minRowHeight);
     }
 }

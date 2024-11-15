@@ -211,7 +211,6 @@
             Name = "Win7_6_Tool";
             Text = "Win7_6_Tool";
             Load += Win7_6_Tool_Load;
-            SizeChanged += Win7_6_Tool_SizeChanged;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);

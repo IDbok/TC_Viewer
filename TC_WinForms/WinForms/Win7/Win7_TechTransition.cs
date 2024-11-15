@@ -2,7 +2,6 @@
 using System.Data;
 using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
-using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
@@ -16,7 +15,7 @@ namespace TC_WinForms.WinForms
     {
 
         private readonly User.Role _accessLevel;
-        private readonly int _minRowHeight = 20;
+
         private DbConnector dbCon = new DbConnector();
 
 
@@ -50,8 +49,6 @@ namespace TC_WinForms.WinForms
 
             InitializeComponent();
             AccessInitialization();
-            dgvMain.DoubleBuffered(true);
-
         }
         public Win7_TechTransition()
         {
@@ -112,7 +109,6 @@ namespace TC_WinForms.WinForms
 
             _bindingList = new BindingList<DisplayedTechTransition>(paginationService.GetPageData());
             dgvMain.DataSource = _bindingList;
-            dgvMain.ResizeRows(_minRowHeight);
 
             // Подготовка данных для события
             PageInfo = paginationService.GetPageInfo();
@@ -271,7 +267,7 @@ namespace TC_WinForms.WinForms
         {
             // автоподбор ширины столбцов под ширину таблицы
             dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            //dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.RowHeadersWidth = 25;
 
@@ -568,7 +564,7 @@ namespace TC_WinForms.WinForms
                         (searchText == ""
                         ||
                             (obj.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                            (obj.Category?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                            (obj.Category?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) 
                         )
                         &&
                         (categoryFilter == "Все" || obj.Category?.ToString() == categoryFilter) &&
@@ -690,11 +686,6 @@ namespace TC_WinForms.WinForms
         private void cbxShowUnReleased_CheckedChanged(object sender, EventArgs e)
         {
             FilteringObjects();
-        }
-
-        private void Win7_TechTransition_SizeChanged(object sender, EventArgs e)
-        {
-            dgvMain.ResizeRows(_minRowHeight);
         }
     }
 }

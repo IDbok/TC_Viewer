@@ -187,7 +187,6 @@
             Name = "Win7_5_Machine";
             Text = "Win7_5_Machine";
             Load += Win7_5_Machine_Load;
-            SizeChanged += Win7_5_Machine_SizeChanged;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);
