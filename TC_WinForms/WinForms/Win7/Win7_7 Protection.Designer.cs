@@ -188,7 +188,6 @@
             Text = "Win7_7_Protection";
             FormClosing += Win7_7_Protection_FormClosing;
             Load += Win7_7_Protection_Load;
-            SizeChanged += Win7_7_Protection_SizeChanged;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);
