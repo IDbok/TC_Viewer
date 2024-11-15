@@ -29,7 +29,8 @@ namespace TC_WinForms.WinForms
 
         public Win7_new(User.Role accessLevel)
         {
-            Log.Information("Win7_new constructor");
+            Log.Information("Инициализация окна Win7_new");
+
 
             StaticWinForms.Win7_new = this;
 
@@ -49,8 +50,14 @@ namespace TC_WinForms.WinForms
 
         private async void Win7_new_Load(object sender, EventArgs e)
         {
+            Log.Information("Загрузка формы для окна {CurrentWinNumber}", _currentWinNumber);
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
             if (_currentWinNumber != null)
                 await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
+
+            stopwatch.Stop();
+            Log.Information("Форма для {CurrentWinNumber} загружена за {ElapsedMilliseconds} мс", _currentWinNumber, stopwatch.ElapsedMilliseconds);
 
         }
         private void AccessInitialization()
@@ -107,39 +114,71 @@ namespace TC_WinForms.WinForms
         }
         private async Task LoadFormInPanel(WinNumber winNumber)
         {
+            Log.Information("Загрузка формы {WinNumber} в панель", winNumber);
+
             SetLoadingState(true);
 
             // выделение нажатой кнопки
             UpdateButtonsState(winNumber);
 
-            var form = await LoadForm(winNumber);
+            try
+            {
+                var form = await LoadForm(winNumber);
 
-            pnlDataViewer.Controls.Clear();
-            pnlDataViewer.Controls.Add(form);
+                pnlDataViewer.Controls.Clear();
+                pnlDataViewer.Controls.Add(form);
 
-            form.Show();
+                form.Show();
 
-            _currentWinNumber = winNumber;
-            form.BringToFront();
 
-            SetLoadingState(false);
+                Log.Information("Форма {WinNumber} успешно добавлена в панель", winNumber);
+
+                _currentWinNumber = winNumber;
+                form.BringToFront();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Ошибка при добавлении формы {WinNumber} в панель: {ExceptionMessage}", winNumber, ex.Message);
+            }
+            finally
+            {
+                SetLoadingState(false);
+            }
         }
         private async Task<Form> LoadForm(WinNumber winNumber)
         {
+            Log.Information("Начало загрузки формы {WinNumber}", winNumber);
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
             if (!_forms.TryGetValue(winNumber, out var form))
             {
-                form = CreateForm(winNumber);
-                _forms[winNumber] = form;
-                form.TopLevel = false;
-                form.FormBorderStyle = FormBorderStyle.None;
-                form.Dock = DockStyle.Fill;
-
-                var loadDataTask = (form as ILoadDataAsyncForm)?.LoadDataAsync();
-                if (loadDataTask != null)
+                try
                 {
-                    await loadDataTask; //.ConfigureAwait(false);
+                    form = CreateForm(winNumber);
+                    _forms[winNumber] = form;
+                    form.TopLevel = false;
+                    form.FormBorderStyle = FormBorderStyle.None;
+                    form.Dock = DockStyle.Fill;
+
+                    Log.Information("Создана форма {WinNumber}", winNumber);
+
+                    var loadDataTask = (form as ILoadDataAsyncForm)?.LoadDataAsync();
+                    if (loadDataTask != null)
+                    {
+                        await loadDataTask; //.ConfigureAwait(false);
+                        Log.Information("Данные формы {WinNumber} загружены успешно", winNumber);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Ошибка при загрузке формы {WinNumber}: {ExceptionMessage}", winNumber, ex.Message);
+                    throw;
                 }
             }
+
+            stopwatch.Stop();
+            Log.Information("Форма {WinNumber} загружена за {ElapsedMilliseconds} мс", winNumber, stopwatch.ElapsedMilliseconds);
+
 
             if (form is IPaginationControl paginationForm)
             {
@@ -184,6 +223,8 @@ namespace TC_WinForms.WinForms
         }
         private Form CreateForm(WinNumber winNumber)
         {
+            Log.Debug("Создание формы для {WinNumber}", winNumber);
+
             switch (winNumber)
             {
                 case WinNumber.TC:
@@ -207,6 +248,7 @@ namespace TC_WinForms.WinForms
                 case WinNumber.Project:
                     return new Win7_Process(_accessLevel);
                 default:
+                    Log.Warning("Неизвестный тип формы: {WinNumber}", winNumber);
                     return null;
             }
         }

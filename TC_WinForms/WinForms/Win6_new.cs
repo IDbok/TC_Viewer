@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using Serilog;
+using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
@@ -65,6 +66,10 @@ namespace TC_WinForms.WinForms
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
+            Log.Information("Win6_new constructor. Loading Tc.Id = {tcId}, ViewMode = {viewMode}",tcId, viewMode);
+#if true
+
+#endif
             tcViewState = new TcViewState(role);
             tcViewState.IsViewMode = viewMode;
 
@@ -84,6 +89,8 @@ namespace TC_WinForms.WinForms
         }
         private void ThisFormClosed()
         {
+            Log.Information("Win6_new form closed. Tc.Id = {tcId}", _tcId);
+
             TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
 
             Dispose();
@@ -173,16 +180,13 @@ namespace TC_WinForms.WinForms
             if (isViewMode != null)
             {
                 tcViewState.IsViewMode = (bool)isViewMode;
+
+                Log.Information("SetViewMode. Tc.Id = {tcId}, new ViewMode = {isViewMode}", _tcId, isViewMode);
             }
 
             SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
 
             updateToolStripMenuItem.Text = tcViewState.IsViewMode ? "Редактировать" : "Просмотр";
-
-            //btnInformation.Visible = !_isViewMode;
-
-            //if (_isViewMode)
-            //    CheckForChanges();
 
             foreach (var form in _formsCache.Values)
             {
@@ -206,13 +210,18 @@ namespace TC_WinForms.WinForms
                 SetTCStatusAccess();
 
                 UpdateFormTitle();
+
+                Log.Information("Win6_new form loaded. Tc.Id = {tcId}, Tc.Name = {TcName}", _tcId, _tc.Name);
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "Error loading TC. Tc.Id = {tcId}", _tcId);
+
                 MessageBox.Show(ex.Message);
                 this.Close();
             }
 
+            // todo: кажется, данный цикл можно убрать. но для начала, можно проверить логи
             // повторить загрузку 3 раза, в случае ошибки закрыть форму
             for (int i = 0; i < 3; i++)
             {
@@ -223,10 +232,13 @@ namespace TC_WinForms.WinForms
                 }
                 catch (Exception ex)
                 {
+                    Log.Error(ex, "Error loading form. Tc.Id = {tcId}, FormType = {formType}. Attempt: {tryNumber}", _tcId, EModelType.WorkStep, i+1);
+
                     if (i == 2)
                     {
                         MessageBox.Show("Ошибка загрузки формы: " + ex.Message);
                         this.Close();
+                        Log.Error("Form closed. Tc.Id = {tcId}, FormType = {formType}.", _tcId, EModelType.WorkStep);
                     }
                 }
             }

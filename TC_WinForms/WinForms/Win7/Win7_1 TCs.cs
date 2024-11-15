@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Serilog;
 using System.ComponentModel;
 using System.DirectoryServices.ActiveDirectory;
 using System.Reflection.Metadata;
@@ -50,6 +51,8 @@ namespace TC_WinForms.WinForms
 
         public Win7_1_TCs(User.Role accessLevel)
         {
+            Log.Information("Инициализация окна Win7_1_TCs для роли {AccessLevel}", accessLevel);
+
             _accessLevel = accessLevel;
 
             InitializeComponent();
@@ -94,47 +97,76 @@ namespace TC_WinForms.WinForms
         }
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
+            Log.Information("Загрузка формы Win7_1_TCs");
+
             this.Enabled = false;
             dgvMain.Visible = false;
 
             progressBar.Visible = true;
 
-            if (!_isDataLoaded)
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            try
             {
-                await LoadDataAsync();
+                if (!_isDataLoaded)
+                {
+                    Log.Information("Начало загрузки данных из базы");
+                    await LoadDataAsync();
+                    Log.Information("Данные успешно загружены");
+                }
             }
+            catch (Exception ex)
+            {
+                Log.Error("Ошибка при загрузке данных: {ExceptionMessage}", ex.Message);
+                MessageBox.Show("Ошибка загрузки данных: " + ex.Message);
+            }
+            finally
+            {
+                stopwatch.Stop();
+                Log.Information("Данные загружены за {ElapsedMilliseconds} мс", stopwatch.ElapsedMilliseconds);
 
-            SetDGVColumnsSettings();
-            DisplayedEntityHelper.SetupDataGridView<DisplayedTechnologicalCard>(dgvMain);
+                progressBar.Visible = false;
+                _isDataLoaded = true;
 
-            SetupNetworkVoltageComboBox();
-            SetupTypeComboBox();
+                SetDGVColumnsSettings();
+                DisplayedEntityHelper.SetupDataGridView<DisplayedTechnologicalCard>(dgvMain);
 
-            progressBar.Visible = false;
-            _isDataLoaded = true;
+                SetupNetworkVoltageComboBox();
+                SetupTypeComboBox();
 
-            //dgvMain.CellFormatting += dgvMain_CellFormatting;
-            //dgvMain.RowPrePaint += dgvMain_RowPrePaint;
-            dgvMain.RowPostPaint += dgvMain_RowPostPaint;
+                dgvMain.RowPostPaint += dgvMain_RowPostPaint;
 
-            dgvMain.Visible = true;
-            this.Enabled = true;
+                dgvMain.Visible = true;
+                this.Enabled = true;
+            }
         }
         public async Task LoadDataAsync()
         {
-            if (_accessLevel == User.Role.ProjectManager || _accessLevel == User.Role.User)
+            Log.Information("Начало асинхронной загрузки данных для Win7_1_TCs");
+
+            try
             {
-                _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
-                    .Select(tc => new DisplayedTechnologicalCard(tc))
-                    .Where(tc => tc.Status == TechnologicalCardStatus.Approved).ToList());
+                if (_accessLevel == User.Role.ProjectManager || _accessLevel == User.Role.User)
+                {
+                    _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
+                        .Select(tc => new DisplayedTechnologicalCard(tc))
+                        .Where(tc => tc.Status == TechnologicalCardStatus.Approved).ToList());
+                }
+                else
+                {
+                    _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
+                        .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
+                }
+                totalPageCount = (int)Math.Ceiling(_displayedTechnologicalCards.Count / (double)_pageSize);
+                UpdateDisplayedData();
             }
-            else
+            catch (Exception e)
             {
-                _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
-                    .Select(tc => new DisplayedTechnologicalCard(tc)).ToList());
+                Log.Error("Ошибка при загрузке данных: {ExceptionMessage}", e.Message);
+                MessageBox.Show("Ошибка загрузки данных: " + e.Message);
             }
-            totalPageCount = (int)Math.Ceiling(_displayedTechnologicalCards.Count / (double)_pageSize);
-            UpdateDisplayedData();
+
+
         }
         private void UpdateDisplayedData()
         {
@@ -218,37 +250,6 @@ namespace TC_WinForms.WinForms
                 _bindingList, isFiltered ? _displayedTechnologicalCards : null);
         }
 
-        //private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        //{
-        //    if (dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedTechnologicalCard.Status))
-        //    {
-        //        if (e.Value != null && Enum.TryParse(typeof(TechnologicalCardStatus), e.Value.ToString(), out var status))
-        //        {
-        //            switch ((TechnologicalCardStatus)status!)
-        //            {
-        //                case TechnologicalCardStatus.Created:
-        //                    e.CellStyle.BackColor = Color.LightGray;
-        //                    break;
-        //                case TechnologicalCardStatus.Draft:
-        //                    e.CellStyle.BackColor = Color.Yellow;
-        //                    break;
-        //                case TechnologicalCardStatus.Remarked:
-        //                    e.CellStyle.BackColor = Color.Orange;
-        //                    break;
-        //                case TechnologicalCardStatus.Approved:
-        //                    e.CellStyle.BackColor = Color.LightGreen;
-        //                    break;
-        //                case TechnologicalCardStatus.Rejected:
-        //                    e.CellStyle.BackColor = Color.LightCoral;
-        //                    break;
-        //                case TechnologicalCardStatus.Completed:
-        //                    e.CellStyle.BackColor = Color.Red;
-        //                    break;
-        //            }
-        //            e.Value = ""; // Устанавливаем текст ячейки в пустую строку
-        //        }
-        //    }
-        //}
         private void dgvMain_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
             var row = dgvMain.Rows[e.RowIndex];
@@ -298,81 +299,7 @@ namespace TC_WinForms.WinForms
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;
-        //public async Task SaveChanges()
-        //{
-        //    // stop editing cell
-        //    dgvMain.EndEdit();
-        //    // todo- check if in added tech card fulfilled all required fields
-        //    if (!HasChanges)
-        //    {
-        //        return;
-        //    }
-        //    if (_newObjects.Count > 0)
-        //    {
-        //        await SaveNewTechnologicalCards();
-        //    }
-        //    if (_changedObjects.Count > 0)
-        //    {
-        //        await SaveChangedTechnologicalCards();
-        //    }
-        //    if (_deletedObjects.Count > 0)
-        //    {
-        //        await DeleteDeletedTechnologicalCards();
-        //    }
-        //    dgvMain.Refresh();
-        //    // todo - add ids from db to new cards
-        //    // todo - change id in all new cards 
-        //}
-        //private async Task SaveNewTechnologicalCards()
-        //{
-        //    var newTcs = _newObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-
-        //    await dbCon.AddObjectAsync(newTcs);
-        //    // set new ids to new cards matched them by Articles
-        //    foreach (var newCard in _newObjects)
-        //    {
-        //        var newId = newTcs.Where(s => s.Article == newCard.Article).FirstOrDefault().Id;
-        //        newCard.Id = newId;
-        //    }
-
-        //    //MessageBox.Show("Новые карты сохранены.");
-        //    _newObjects.Clear();
-        //}
-        //private async Task SaveChangedTechnologicalCards()
-        //{
-        //    var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-
-        //    await dbCon.UpdateObjectsListAsync(changedTcs);
-        //    //MessageBox.Show("Изменения сохранены.");
-        //    _changedObjects.Clear();
-        //}
-
-
-        //private TechnologicalCard CreateNewObject(DisplayedTechnologicalCard dtc)
-        //{
-        //    return new TechnologicalCard
-        //    {
-        //        Id = dtc.Id,
-        //        Article = dtc.Article,
-        //        Name = dtc.Name,
-        //        Description = dtc.Description,
-        //        Version = dtc.Version,
-        //        Type = dtc.Type,
-        //        NetworkVoltage = dtc.NetworkVoltage,
-        //        TechnologicalProcessType = dtc.TechnologicalProcessType,
-        //        TechnologicalProcessName = dtc.TechnologicalProcessName,
-        //        TechnologicalProcessNumber = dtc.TechnologicalProcessNumber,
-        //        Parameter = dtc.Parameter,
-        //        FinalProduct = dtc.FinalProduct,
-        //        Applicability = dtc.Applicability,
-        //        Note = dtc.Note,
-        //        DamageType = dtc.DamageType,
-        //        RepairType = dtc.RepairType,
-        //        IsCompleted = dtc.IsCompleted
-
-        //    };
-        //}
+        
 
         ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
 
@@ -441,11 +368,6 @@ namespace TC_WinForms.WinForms
             }
         }
         
-        //private void OpenTechnologicalCardEditor(int tcId)
-        //{
-        //    var editorForm = new Win6_new(tcId);
-        //    editorForm.Show();
-        //}
         private void DeleteSelected()
         {
             if (dgvMain.SelectedRows.Count > 0)
