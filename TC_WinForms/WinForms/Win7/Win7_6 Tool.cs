@@ -57,8 +57,8 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
         _isUpdateItemMode = isUpdateMode; // add to UpdateMode
         _newItemCreateActive = activateNewItemCreate;
         _tcId = createdTCId;
-        dgvMain.DoubleBuffered(true);
         InitializeComponent();
+        dgvMain.DoubleBuffered(true);
 
         _selectionService = new SelectionService<DisplayedTool>(dgvMain, _displayedObjects);
 
@@ -99,6 +99,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
             SetAddingFormEvents();
         }
 
+        dgvMain.ResizeRows(_minRowHeight);
         dgvMain.Visible = true;
         this.Enabled = true;
         //progressBar.Visible = false;
@@ -109,7 +110,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
         _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Tool>(includeLinks: true)
             .Select(obj => new DisplayedTool(obj)).OrderBy(c => c.Name).ToList());
 
-        paginationService = new PaginationControlService<DisplayedTool>(50, _displayedObjects);
+        paginationService = new PaginationControlService<DisplayedTool>(30, _displayedObjects);
 
         FilteringObjects();
 

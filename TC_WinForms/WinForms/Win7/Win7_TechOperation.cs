@@ -44,10 +44,11 @@ namespace TC_WinForms.WinForms
         public Win7_TechOperation(User.Role accessLevel)
         {
             _accessLevel = accessLevel;
-            dgvMain.DoubleBuffered(true);
 
             InitializeComponent();
             AccessInitialization();
+            dgvMain.DoubleBuffered(true);
+
         }
         public Win7_TechOperation()
         {
@@ -82,6 +83,8 @@ namespace TC_WinForms.WinForms
             }
 
             SetupCategoryComboBox();
+            dgvMain.ResizeRows(_minRowHeight);
+
         }
         private async Task LoadObjects()
         {

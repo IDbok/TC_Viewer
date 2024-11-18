@@ -54,9 +54,9 @@ namespace TC_WinForms.WinForms
             _isUpdateItemMode = isUpdateMode; // add to UpdateMode
             _newItemCreateActive = activateNewItemCreate;
             _tcId = createdTCId;
-            dgvMain.DoubleBuffered(true);
 
             InitializeComponent();
+            dgvMain.DoubleBuffered(true);
 
             _selectionService = new SelectionService<DisplayedProtection>(dgvMain, _displayedObjects);
         }
@@ -91,7 +91,7 @@ namespace TC_WinForms.WinForms
                 }
                 SetAddingFormEvents();
             }
-
+            dgvMain.ResizeRows(_minRowHeight);
             dgvMain.Visible = true;
             this.Enabled = true;
             //progressBar.Visible = false;

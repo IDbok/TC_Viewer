@@ -57,9 +57,9 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
         _isUpdateItemMode = isUpdateMode; // add to UpdateMode
         _tcId = createdTCId;
         _newItemCreateActive = activateNewItemCreate;
-        dgvMain.DoubleBuffered(true);
 
         InitializeComponent();
+        dgvMain.DoubleBuffered(true);
         _selectionService = new SelectionService<DisplayedMachine>(dgvMain, _displayedObjects);
     }
 
@@ -97,7 +97,7 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
             }
             SetAddingFormEvents();
         }
-
+        dgvMain.ResizeRows(_minRowHeight);
         dgvMain.Visible = true;
         this.Enabled = true;
         //progressBar.Visible = false;

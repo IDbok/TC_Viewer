@@ -119,6 +119,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
             SetAddingFormEvents();
 
         }
+        dgvMain.ResizeRows(_minRowHeight);
 
         dgvMain.Visible = true;
         this.Enabled = true;

@@ -128,6 +128,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
 
             SetAddingFormEvents();
         }
+        dgvMain.ResizeRows(_minRowHeight);
 
         dgvMain.Visible = true;
         this.Enabled = true;
@@ -138,7 +139,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         _displayedObjects = await Task.Run(() => DataService.GetComponents() //dbCon.GetObjectList<Component>(includeLinks: true)
             .Select(obj => new DisplayedComponent(obj)).OrderBy(c => c.Name).ToList());
 
-        paginationService = new PaginationControlService<DisplayedComponent>(50, _displayedObjects);
+        paginationService = new PaginationControlService<DisplayedComponent>(30, _displayedObjects);
 
         FilteringObjects();
 

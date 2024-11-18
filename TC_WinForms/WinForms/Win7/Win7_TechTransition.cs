@@ -85,6 +85,8 @@ namespace TC_WinForms.WinForms
             }
 
             SetupCategoryComboBox();
+            dgvMain.ResizeRows(_minRowHeight);
+
         }
         private async Task LoadObjects()
         {
