@@ -1,7 +1,9 @@
 ﻿
 using System.Reflection;
+using System.Xml.Linq;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms;
@@ -13,6 +15,7 @@ public partial class Win7_TechTransitionEditor : Form
     public delegate Task PostSaveActionTP(TechTransition modelObject);
     public PostSaveActionTP AfterSave { get; set; }
     private bool _isNewObject = false;
+    private CheckRequiredFieldsService<TechTransition> _checkRequiredFieldsService = new CheckRequiredFieldsService<TechTransition>();
 
     List<string> _requiredProperties = new List<string>()
         {
@@ -29,7 +32,22 @@ public partial class Win7_TechTransitionEditor : Form
         _editingObj = (TechTransition)obj;
         _isNewObject = isNewObject;
         InitializeComponent();
+
+        txtName.TextChanged += Control_TextChanged;
+        cbxCategory.TextChanged += Control_TextChanged;
+        txtTime.TextChanged += Control_TextChanged;
+
+        _checkRequiredFieldsService.SetRequiredFieldsList(_editingObj, this);
+        _checkRequiredFieldsService.SetRequiredPropertiesList(_editingObj);
     }
+
+    private void Control_TextChanged(object? sender, EventArgs e)
+    {
+        var field = (Control)sender;
+        if (field.BackColor != SystemColors.Window && !string.IsNullOrEmpty(field.Text))
+            field.BackColor = SystemColors.Window;
+    }
+
     private void Win7_TechTransitionEditor_Load(object sender, EventArgs e)
     {
         SetCbxCategory();
@@ -100,10 +118,11 @@ public partial class Win7_TechTransitionEditor : Form
         _editingObj.IsReleased = cbxIsReleased.Checked;
 
 
-        // проверка _editingObj на то, что все необходимые заполнены
-        if (!AreRequiredPropertiesFilled())
+        var emptyFields =_checkRequiredFieldsService.ReturnEmptyFieldsName();
+
+        if (emptyFields.Count != 0)
         {
-            string fields = string.Join(", ", _requiredProperties);
+            string fields = string.Join(", ", emptyFields);
             MessageBox.Show("Для сохранения объекта необходимо заполнить обязательные поля:\n" + fields,
                 "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;

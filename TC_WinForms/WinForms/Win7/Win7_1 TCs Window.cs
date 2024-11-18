@@ -2,8 +2,10 @@
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 using TcDbConnector;
 using TcModels.Models;
+using TcModels.Models.Interfaces;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
 using ComboBox = System.Windows.Forms.ComboBox;
@@ -24,6 +26,7 @@ namespace TC_WinForms.WinForms
 
         public delegate Task PostSaveAction<TModel>(TModel modelObject) where TModel : TechnologicalCard;
         public PostSaveAction<TechnologicalCard>? AfterSave { get; set; }
+        private CheckRequiredFieldsService<TechnologicalCard> _checkRequiredFieldsService = new CheckRequiredFieldsService<TechnologicalCard>();
 
         public Win7_1_TCs_Window(int? tcId = null, bool win6Format = false, User.Role role = User.Role.Lead)
         {
@@ -80,6 +83,9 @@ namespace TC_WinForms.WinForms
                 cbxStatus.Visible = true;
                 lblStatus.Visible = true;
             }
+
+            _checkRequiredFieldsService.SetRequiredFieldsList(LocalCard, panel1);
+            _checkRequiredFieldsService.SetRequiredPropertiesList(LocalCard);
         }
 
 
@@ -120,34 +126,34 @@ namespace TC_WinForms.WinForms
             comboBox.Tag = enumValues;
         }
 
-        bool NoEmptiness()
-        {
-            bool ValueRet = true;
+        //bool NoEmptiness()
+        //{
+        //    bool ValueRet = true;
 
-            foreach (object obj in AllEllement)
-            {
-                if (obj is TextBox)
-                {
-                    var tb = (TextBox)obj;
-                    if (tb.Text == "")
-                    {
-                        tb.BackColor = Color.Red;
-                        ValueRet = false;
-                    }
-                }
+        //    foreach (object obj in AllEllement)
+        //    {
+        //        if (obj is TextBox)
+        //        {
+        //            var tb = (TextBox)obj;
+        //            if (tb.Text == "")
+        //            {
+        //                tb.BackColor = Color.Red;
+        //                ValueRet = false;
+        //            }
+        //        }
 
-                if (obj is ComboBox)
-                {
-                    var cb = (ComboBox)obj;
-                    if (cb.SelectedIndex == -1)
-                    {
-                        cb.BackColor = Color.Red;
-                        ValueRet = false;
-                    }
-                }
-            }
-            return ValueRet;
-        }
+        //        if (obj is ComboBox)
+        //        {
+        //            var cb = (ComboBox)obj;
+        //            if (cb.SelectedIndex == -1)
+        //            {
+        //                cb.BackColor = Color.Red;
+        //                ValueRet = false;
+        //            }
+        //        }
+        //    }
+        //    return ValueRet;
+        //}
 
 
         async Task<bool> SaveAsync()
@@ -205,7 +211,8 @@ namespace TC_WinForms.WinForms
 
         private async void btnSave_Click(object sender, EventArgs e)
         {
-            if (NoEmptiness())
+            var emptyFieldList = _checkRequiredFieldsService.ReturnEmptyFieldsName();
+            if (emptyFieldList.Count == 0)
             {
 
                 if (await SaveAsync())
@@ -214,11 +221,19 @@ namespace TC_WinForms.WinForms
                     MessageBox.Show("Сохранено!");
                 }
             }
+            else
+            {
+                string fields = string.Join(", ", emptyFieldList);
+                MessageBox.Show("Для сохранения объекта необходимо заполнить обязательные поля:\n" + fields,
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
         }
 
         private async void btnSaveAndOpen_Click(object sender, EventArgs e)
         {
-            if (NoEmptiness())
+            var emptyFieldList = _checkRequiredFieldsService.ReturnEmptyFieldsName();
+            if (emptyFieldList.Count == 0)
             {
                 if (HasChanges())
                 {
@@ -230,6 +245,13 @@ namespace TC_WinForms.WinForms
                 var editorForm = new Win6_new(nn, role: _accessLevel);
                 this.Close();
                 editorForm.Show();
+            }
+            else
+            {
+                string fields = string.Join(", ", emptyFieldList);
+                MessageBox.Show("Для сохранения объекта необходимо заполнить обязательные поля:\n" + fields,
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
         }
 

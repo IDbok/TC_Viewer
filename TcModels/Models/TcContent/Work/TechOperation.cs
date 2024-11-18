@@ -7,7 +7,7 @@ using TcModels.Models.TcContent.Work;
 namespace TcModels.Models.TcContent
 {
     public class TechOperation: IIdentifiable, IUpdatableEntity, IReleasable
-        , IValidatable, IHasUniqueConstraints<TechOperation>
+        , IValidatable, IHasUniqueConstraints<TechOperation>, IRequiredProperties
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
@@ -21,6 +21,16 @@ namespace TcModels.Models.TcContent
         public bool IsReleased { get; set; } = false;
         public int? CreatedTCId { get; set; } = null;
 
+        public List<string> GetPropertiesRequired { get; } = new List<string>
+        {
+                { nameof(Name) },
+        };
+
+        public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
+        {
+            { nameof(Name), "Название"},
+            { nameof(Category), "Категория"},
+        };
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is TechOperation sourceObject)

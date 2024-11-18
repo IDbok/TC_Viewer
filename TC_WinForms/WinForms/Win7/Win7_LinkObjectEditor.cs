@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -19,7 +20,7 @@ namespace TC_WinForms.WinForms
         IModelStructure _editingObj;
         List<LinkEntety> _newLinks = new List<LinkEntety>();
         BindingList<LinkEntety> _links = new BindingList<LinkEntety>();
-
+        CheckRequiredFieldsService<IRequiredProperties> checkRequiredFieldsService = new CheckRequiredFieldsService<IRequiredProperties>();
         List<string> requiredPropertiesNames = new List<string>();
 
         //public delegate Task PostSaveAction();
@@ -39,6 +40,12 @@ namespace TC_WinForms.WinForms
             _editingObj = (IModelStructure)obj;
             _isNewObject = isNewObject;
             InitializeComponent();
+
+            if(obj is IRequiredProperties rp)
+            {
+                checkRequiredFieldsService.SetRequiredFieldsList(rp, this);
+                checkRequiredFieldsService.SetRequiredPropertiesList(rp);
+            }
         }
        
         private void Win7_LinkObjectEditor_Load(object sender, EventArgs e)
@@ -418,10 +425,11 @@ namespace TC_WinForms.WinForms
                 categoryable.Categoty = cbxCategory.Text;
             }
 
+            var emptyFields = checkRequiredFieldsService.ReturnEmptyFieldsName();
             // проверка _editingObj на то, что все необходимые заполнены
-            if (!AreRequiredPropertiesFilled())
+            if (emptyFields.Count != 0)
             {
-                string fields = string.Join(", ", requiredPropertiesNames);
+                string fields = string.Join(", ", emptyFields);
                 MessageBox.Show("Для сохранения объекта необходимо заполнить обязательные поля:\n" + fields,
                     "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -643,6 +651,7 @@ namespace TC_WinForms.WinForms
 
         private void SubscribeToChanges()
         {
+            txtName.TextChanged += ComponentChanged;
             txtClassifierCode.TextChanged += ComponentChanged;
             txtType.TextChanged += ComponentChanged;
             txtPrice.TextChanged += ComponentChanged;
@@ -653,14 +662,9 @@ namespace TC_WinForms.WinForms
 
         private void ComponentChanged(object sender, EventArgs e)
         {
-            //if (HasChanges())
-            //{
-            //    btnSaveAndOpen.Text = "Сохранить и открыть";
-            //}
-            //else
-            //{
-            //    btnSaveAndOpen.Text = "Открыть";
-            //}
+            var field = (Control)sender;
+            if (field.BackColor != SystemColors.Window && !string.IsNullOrEmpty(field.Text))
+                field.BackColor = SystemColors.Window;
         }
         private bool HasChanges()
         {
@@ -682,38 +686,38 @@ namespace TC_WinForms.WinForms
 
             return hasChanges;
         }
-        public bool AreRequiredPropertiesFilled() // todo: добавить подцветку обязательных полей
-        {
-            Type modelType = _editingObj.GetType();
+        //public bool AreRequiredPropertiesFilled() // todo: добавить подцветку обязательных полей
+        //{
+        //    Type modelType = _editingObj.GetType();
 
-            List<string> requiredProperties;// = modelType.GetMethod("GetPropertiesRequired")
-                                            //.Invoke(null, null) as List<string>;
+        //    List<string> requiredProperties;// = modelType.GetMethod("GetPropertiesRequired")
+        //                                    //.Invoke(null, null) as List<string>;
 
-            if (_editingObj is IRequiredProperties rp)
-            {
-                requiredProperties = rp.GetPropertiesRequired;
-                requiredPropertiesNames = rp.GetPropertiesNames.Where(x => requiredProperties.Contains(x.Key))
-                    .Select(x => x.Value).ToList();
-            }
-            else return false;
+        //    if (_editingObj is IRequiredProperties rp)
+        //    {
+        //        requiredProperties = rp.GetPropertiesRequired;
+        //        requiredPropertiesNames = rp.GetPropertiesNames.Where(x => requiredProperties.Contains(x.Key))
+        //            .Select(x => x.Value).ToList();
+        //    }
+        //    else return false;
 
-            foreach (string propertyName in requiredProperties)
-            {
-                PropertyInfo property = modelType.GetProperty(propertyName);
-                if (property == null)
-                {
-                    throw new ArgumentException($"Property {propertyName} not found in {modelType.Name}");
-                }
+        //    foreach (string propertyName in requiredProperties)
+        //    {
+        //        PropertyInfo property = modelType.GetProperty(propertyName);
+        //        if (property == null)
+        //        {
+        //            throw new ArgumentException($"Property {propertyName} not found in {modelType.Name}");
+        //        }
 
-                object value = property.GetValue(_editingObj);
-                if (value == null || (value is string str && string.IsNullOrWhiteSpace(str)))
-                {
-                    return false;
-                }
-            }
+        //        object value = property.GetValue(_editingObj);
+        //        if (value == null || (value is string str && string.IsNullOrWhiteSpace(str)))
+        //        {
+        //            return false;
+        //        }
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
 
         private void cbxIsReleased_CheckedChanged(object sender, EventArgs e)
         {
