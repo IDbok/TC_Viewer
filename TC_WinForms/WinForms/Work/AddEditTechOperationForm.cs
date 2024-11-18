@@ -147,36 +147,25 @@ namespace TC_WinForms.WinForms.Work
             {
                 case "tabPageTO":
                     UpdateLocalTO();
-                    UpdateGridAllTP();
                     break;
                 case "tabPageTP":
                     UpdateGridLocalTP();
-                    UpdateGridAllTP();
                     break;
                 case "tabPageStaff":
                     UpdateComboBoxTT();
-                    UpdateGridStaff();
-                    UpdateGridStaffAll();
                     break;
                 case "tabPageComponent":
                     UpdateComponentLocal();
-                    UpdateComponentAll();
+                    UpdateComponentAll();//чтобы обновлялся список добавленных в ТО компонентов
                     break;
                 case "tabPageTool":
                     UpdateInstrumentLocal();
-                    UpdateInstrumentAll();
+                    UpdateInstrumentAll();//чтобы обновлялся список добавленных в ТО инструментов
                     break;
                 case "tabPageProtection":
                     UpdateComboBoxTT();
                     UpdateGridLocalSZ();
-                    UpdateGridAllSZ();
-                    break;
-                case "tabPageStage":
-                    dataGridViewEtapUpdate();
-                    dataGridViewMehaUpdate();
-                    break;
-                case "tabPageRepeat":
-                    UpdatePovtor();
+                    UpdateGridAllSZ();//чтобы обновлялся список добавленных в ТО СЗ
                     break;
             }
 
@@ -2494,45 +2483,57 @@ namespace TC_WinForms.WinForms.Work
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (tabControl1.SelectedTab.Name != "tabPageStaff" && tabControl1.SelectedTab.Name != "tabPageProtection")
-                comboBoxTT.Visible = false;
 
             switch (tabControl1.SelectedTab.Name)
             {
                 case "tabPageTO":
                     UpdateLocalTO();
                     UpdateGridAllTP();
+                    comboBoxTO.Visible = true;
+                    comboBoxTT.Visible = false;
                     break;
                 case "tabPageTP":
                     UpdateGridLocalTP();
                     UpdateGridAllTP();
+                    comboBoxTO.Visible = true;
+                    comboBoxTT.Visible = false;
                     break;
                 case "tabPageStaff":
                     UpdateComboBoxTT();
                     UpdateGridStaff();
                     UpdateGridStaffAll();
+                    comboBoxTO.Visible = true;
                     comboBoxTT.Visible = true;
                     break;
                 case "tabPageComponent":
                     UpdateComponentLocal();
                     UpdateComponentAll();
+                    comboBoxTO.Visible = true;
+                    comboBoxTT.Visible = false;
                     break;
                 case "tabPageTool":
                     UpdateInstrumentLocal();
                     UpdateInstrumentAll();
+                    comboBoxTO.Visible = true;
+                    comboBoxTT.Visible = false;
                     break;
                 case "tabPageProtection":
                     UpdateComboBoxTT();
                     UpdateGridLocalSZ();
                     UpdateGridAllSZ();
+                    comboBoxTO.Visible = true;
                     comboBoxTT.Visible = true;
                     break;
                 case "tabPageStage":
                     dataGridViewEtapUpdate();
                     dataGridViewMehaUpdate();
+                    comboBoxTO.Visible = false;
+                    comboBoxTT.Visible = false;
                     break;
                 case "tabPageRepeat":
                     UpdatePovtor();
+                    comboBoxTO.Visible = false;
+                    comboBoxTT.Visible = false;
                     break;
             }
         }
