@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Serilog;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
@@ -28,6 +29,8 @@ namespace TC_WinForms.WinForms
 
         public Win7_new(User.Role accessLevel)
         {
+            Log.Information("Win7_new constructor");
+
             StaticWinForms.Win7_new = this;
 
             _accessLevel = accessLevel;

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Serilog;
 
 
 namespace TC_WinForms.DataProcessing;
@@ -47,15 +48,20 @@ public class AuthorizationService
             if (Passwords.TryGetValue(login.ToLower(), out var storedPassword) && storedPassword == password)
             {
                 var user = Users[login.ToLower()];
+                var userRole = user.UserRole();
                 if (user != null)
                 {
                     CurrentUser = user;
 
-                    if (user.UserRole() == User.Role.Admin)
+                    if (userRole == User.Role.Admin)
                     {
                         Program.IsTestMode = true;
                     }
                 }
+
+                Log.Information("Пользователь {UserName} успешно авторизован с ролью {UserRole}", 
+                    user.Name(), userRole);
+
                 return new Author
                 {
                     Name = user.Name(),
@@ -64,6 +70,7 @@ public class AuthorizationService
                     AccessLevel = user.AccessLevel()
                 };
             }
+            Log.Error("Ошибка при авторизации пользователя {login}", login);
             throw new UnauthorizedAccessException("Ошибка при авторизации пользователя.");
         }
     }
