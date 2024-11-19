@@ -632,7 +632,7 @@ namespace TC_WinForms.WinForms
 
                 foreach (ToolWork delTool in delTools)
                 {
-                    dbCon.DeleteRelatedToolComponentDiagram(delTool.Id);
+                    dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
                     techOperationWork.ToolWorks.Remove(delTool);
                 }
 
@@ -654,7 +654,7 @@ namespace TC_WinForms.WinForms
 
                 foreach (var delComp in delComponents)
                 {
-                    dbCon.DeleteRelatedToolComponentDiagram(delComp.Id);
+                    dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
                     techOperationWork.ComponentWorks.Remove(delComp);
                 }
 

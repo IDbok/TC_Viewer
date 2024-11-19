@@ -1533,6 +1533,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         if (vb != null)
         {
             vb.IsDeleted = true;
+            work.ComponentWorks.Remove(vb);
 
             var relatedItems = context.DiagramShagToolsComponent.Where(s => s.componentWorkId == vb.Id).ToList();
             foreach (var item in relatedItems)
