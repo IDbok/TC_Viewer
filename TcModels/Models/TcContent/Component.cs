@@ -1,10 +1,13 @@
-﻿using TcModels.Models.Interfaces;
+﻿using TcModels.Models.Helpers;
+using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class Component : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable, ILinkable, IReleasable //2. Требования к материалам и комплектующим
+    //2. Требования к материалам и комплектующим
+    public class Component : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ICategoryable, ILinkable, IReleasable,
+        IValidatable, IHasUniqueConstraints<Component>
     {
         static EModelType modelType = EModelType.Component;
         public static EModelType ModelType { get => modelType; }
@@ -124,5 +127,38 @@ namespace TcModels.Models.TcContent
             return $"{Id}. {Name} {Type} {Price}/{Unit}";
         }
 
+        public string[] GetRequiredProperties()
+        {
+            return new[] {
+
+                nameof(Name),
+                nameof(Type),
+            };
+        }
+
+        public IEnumerable<UniqueConstraint<Component>> GetUniqueConstraints()
+        {
+            // Возвращаем условия уникальности
+            yield return new UniqueConstraint<Component>(
+                x => x.Name == this.Name && x.Type == this.Type,
+                "Комбинация полей 'Наименование' и 'Тип' должна быть уникальной."
+            );
+
+            if (!string.IsNullOrEmpty(this.ClassifierCode))
+            {
+                yield return new UniqueConstraint<Component>(
+                    x => x.ClassifierCode == this.ClassifierCode,
+                    "Поле 'Код в classifier' должно быть уникальным."
+                );
+            }
+
+            if (!string.IsNullOrEmpty(this.Description))
+            {
+                yield return new UniqueConstraint<Component>(
+                    x => x.Description == this.Description,
+                    "Поле 'Описание' должно быть уникальным."
+                );
+            }
+        }
     }
 }

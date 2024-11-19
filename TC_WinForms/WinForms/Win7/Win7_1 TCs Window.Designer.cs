@@ -255,7 +255,7 @@
             btnSave.TabIndex = 23;
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;
-            btnSave.Click += button2_Click;
+            btnSave.Click += btnSave_Click;
             // 
             // btnExportExcel
             // 
@@ -290,7 +290,7 @@
             cbxStatus.Location = new Point(214, 451);
             cbxStatus.Name = "cbxStatus";
             cbxStatus.Size = new Size(256, 28);
-            cbxStatus.TabIndex = 26;
+            cbxStatus.TabIndex = 11;
             cbxStatus.Visible = false;
             // 
             // lblStatus

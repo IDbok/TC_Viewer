@@ -1,10 +1,12 @@
 ﻿
+using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
     public class TechTransition: IIdentifiable, IUpdatableEntity, IReleasable
+        ,IValidatable, IHasUniqueConstraints<TechTransition>
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -34,6 +36,22 @@ namespace TcModels.Models.TcContent
                 ExecutionWorks = sourceObject.ExecutionWorks;
                 IsReleased = sourceObject.IsReleased;
             }
+        }
+        public string[] GetRequiredProperties()
+        {
+            return new[] {
+
+                nameof(Name),
+            };
+        }
+
+        public IEnumerable<UniqueConstraint<TechTransition>> GetUniqueConstraints()
+        {
+            // Возвращаем условия уникальности
+            yield return new UniqueConstraint<TechTransition>(
+                x => x.Name == this.Name,
+                "Поле 'Наименование' должно быть уникальным."
+            );
         }
     }
 }

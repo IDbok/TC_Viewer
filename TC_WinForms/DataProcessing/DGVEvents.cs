@@ -106,7 +106,12 @@ namespace TC_WinForms.DataProcessing
             //dataGridView.Rows.Insert(rowIndexTo, newRow);
             //dataGridView.Rows.Remove(draggingRow);
 
-            DGVProcessing.ReorderRows(draggingRow, rowIndexTo + 1, dataGridView);
+            if(draggingRow.Index < rowIndexTo)//Если строка перемещается вниз, то не прибавляем дополнительный шаг
+            {
+                DGVProcessing.ReorderRows(draggingRow, rowIndexTo, dataGridView);
+            }
+            else
+                DGVProcessing.ReorderRows(draggingRow, rowIndexTo + 1, dataGridView);
 
             dragging = false;
 
