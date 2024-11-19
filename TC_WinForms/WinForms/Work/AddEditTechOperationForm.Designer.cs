@@ -28,6 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            panel3 = new Panel();
+            comboBoxTO = new ComboBox();
+            comboBoxTT = new ComboBox();
             tableLayoutPanel1 = new TableLayoutPanel();
             dataGridViewAllTO = new DataGridView();
             Id = new DataGridViewTextBoxColumn();
@@ -59,7 +62,6 @@
             dataGridViewTextBoxColumn23 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn24 = new DataGridViewTextBoxColumn();
             Column20 = new DataGridViewTextBoxColumn();
-            comboBoxTO3 = new ComboBox();
             dataGridViewInstumentAll = new DataGridView();
             dataGridViewTextBoxColumn15 = new DataGridViewTextBoxColumn();
             dataGridViewButtonColumn3 = new DataGridViewButtonColumn();
@@ -89,7 +91,6 @@
             Column4 = new DataGridViewTextBoxColumn();
             Column5 = new DataGridViewTextBoxColumn();
             Column26 = new DataGridViewTextBoxColumn();
-            comboBoxTO2 = new ComboBox();
             tableLayoutPanel13 = new TableLayoutPanel();
             groupBox8 = new GroupBox();
             textBoxPoiskComponent = new TextBox();
@@ -107,7 +108,6 @@
             Comment = new DataGridViewTextBoxColumn();
             PictureName = new DataGridViewTextBoxColumn();
             Order1 = new DataGridViewTextBoxColumn();
-            comboBoxTO = new ComboBox();
             panel1 = new Panel();
             btnCreateNewTP = new Button();
             groupBox10 = new GroupBox();
@@ -149,7 +149,6 @@
             Column15 = new DataGridViewTextBoxColumn();
             Column16 = new DataGridViewTextBoxColumn();
             Column17 = new DataGridViewTextBoxColumn();
-            comboBoxStaff = new ComboBox();
             tabPageProtection = new TabPage();
             tableLayoutPanel8 = new TableLayoutPanel();
             groupBox6 = new GroupBox();
@@ -167,7 +166,6 @@
             Column19 = new DataGridViewCheckBoxColumn();
             dataGridViewTextBoxColumn35 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn36 = new DataGridViewTextBoxColumn();
-            comboBoxSZ = new ComboBox();
             tabPageStage = new TabPage();
             tableLayoutPanel9 = new TableLayoutPanel();
             groupBox7 = new GroupBox();
@@ -243,6 +241,9 @@
             dataGridViewTextBoxColumn63 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn64 = new DataGridViewTextBoxColumn();
             tabPage10 = new TabPage();
+            panel3.SuspendLayout();
+            comboBoxTO.SuspendLayout();
+            comboBoxTT.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTO).BeginInit();
@@ -305,6 +306,33 @@
             ((System.ComponentModel.ISupportInitialize)dataGridView5).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView6).BeginInit();
             SuspendLayout();
+            // 
+            // panel3
+            // 
+            panel3.Location = new Point(0, 0);
+            panel3.Controls.Add(comboBoxTO);
+            panel3.Controls.Add(comboBoxTT);
+            panel3.Name = "panel3";
+            panel3.Dock = DockStyle.Top;
+            panel3.Size = new Size(1906, 70);
+            panel3.TabIndex = 2;
+            // 
+            // comboBoxTO
+            // 
+            comboBoxTO.FormattingEnabled = true;
+            comboBoxTO.Location = new Point(20, 10);
+            comboBoxTO.Margin = new Padding(5, 4, 5, 4);
+            comboBoxTO.Name = "comboBoxTO";
+            comboBoxTO.Size = new Size(600, 38);
+            // 
+            // comboBoxTT
+            // 
+            comboBoxTT.FormattingEnabled = true;
+            comboBoxTT.Location = new Point(650, 10);
+            comboBoxTT.Margin = new Padding(5, 4, 5, 4);
+            comboBoxTT.Name = "comboBoxTT";
+            comboBoxTT.Size = new Size(600, 38);
+            comboBoxTT.Visible = false;
             // 
             // tableLayoutPanel1
             // 
@@ -465,10 +493,10 @@
             // 
             // btnToChange
             // 
-            btnToChange.Location = new Point(885, 44);
+            btnToChange.Location = new Point(885, 42);
             btnToChange.Margin = new Padding(3, 4, 3, 4);
             btnToChange.Name = "btnToChange";
-            btnToChange.Size = new Size(302, 38);
+            btnToChange.Size = new Size(302, 42);
             btnToChange.TabIndex = 0;
             btnToChange.Text = "Заменить операцию";
             btnToChange.Click += btnToChange_Click;
@@ -518,7 +546,7 @@
             tabControl1.Margin = new Padding(5, 4, 5, 4);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1906, 1044);
+            tabControl1.Size = new Size(1906, 984);
             tabControl1.TabIndex = 1;
             tabControl1.SelectedIndexChanged += tabControl1_SelectedIndexChanged;
             // 
@@ -550,19 +578,17 @@
             tableLayoutPanel6.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel6.ColumnCount = 1;
             tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel6.Controls.Add(dataGridViewInstrumentLocal, 0, 1);
-            tableLayoutPanel6.Controls.Add(comboBoxTO3, 0, 0);
-            tableLayoutPanel6.Controls.Add(dataGridViewInstumentAll, 0, 3);
-            tableLayoutPanel6.Controls.Add(tableLayoutPanel12, 0, 2);
-            tableLayoutPanel6.Location = new Point(5, 4);
-            tableLayoutPanel6.Margin = new Padding(5, 4, 5, 4);
+            tableLayoutPanel6.Controls.Add(dataGridViewInstrumentLocal, 0, 0);
+            tableLayoutPanel6.Controls.Add(dataGridViewInstumentAll, 0, 2);
+            tableLayoutPanel6.Controls.Add(tableLayoutPanel12, 0, 1);
+            tableLayoutPanel6.Location = new Point(3, 2);
+            tableLayoutPanel6.Margin = new Padding(3, 2, 3, 2);
             tableLayoutPanel6.Name = "tableLayoutPanel6";
-            tableLayoutPanel6.RowCount = 4;
-            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
+            tableLayoutPanel6.RowCount = 3;
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 106F));
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
-            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel6.Size = new Size(1889, 986);
             tableLayoutPanel6.TabIndex = 3;
             // 
@@ -640,16 +666,6 @@
             Column20.HeaderText = "Комментарии";
             Column20.MinimumWidth = 6;
             Column20.Name = "Column20";
-            // 
-            // comboBoxTO3
-            // 
-            comboBoxTO3.FormattingEnabled = true;
-            comboBoxTO3.Location = new Point(5, 4);
-            comboBoxTO3.Margin = new Padding(5, 4, 5, 4);
-            comboBoxTO3.Name = "comboBoxTO3";
-            comboBoxTO3.Size = new Size(602, 38);
-            comboBoxTO3.TabIndex = 2;
-            comboBoxTO3.SelectedIndexChanged += comboBoxTO3_SelectedIndexChanged;
             // 
             // dataGridViewInstumentAll
             // 
@@ -787,18 +803,17 @@
             tableLayoutPanel5.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel5.ColumnCount = 1;
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel5.Controls.Add(dataGridViewComponentAll, 0, 3);
-            tableLayoutPanel5.Controls.Add(dataGridViewComponentLocal, 0, 1);
-            tableLayoutPanel5.Controls.Add(comboBoxTO2, 0, 0);
-            tableLayoutPanel5.Controls.Add(tableLayoutPanel13, 0, 2);
-            tableLayoutPanel5.Location = new Point(5, 4);
-            tableLayoutPanel5.Margin = new Padding(5, 4, 5, 4);
+            tableLayoutPanel5.Controls.Add(dataGridViewComponentAll, 0, 2);
+            tableLayoutPanel5.Controls.Add(dataGridViewComponentLocal, 0, 0);
+            tableLayoutPanel5.Controls.Add(tableLayoutPanel13, 0, 1);
+            tableLayoutPanel5.Location = new Point(3, 2);
+            tableLayoutPanel5.Margin = new Padding(3,2,3,2);
             tableLayoutPanel5.Name = "tableLayoutPanel5";
-            tableLayoutPanel5.RowCount = 4;
-            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
+            tableLayoutPanel5.RowCount = 3;
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 106F));
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel5.Size = new Size(1879, 982);
             tableLayoutPanel5.TabIndex = 2;
             // 
@@ -941,16 +956,6 @@
             Column26.MinimumWidth = 6;
             Column26.Name = "Column26";
             // 
-            // comboBoxTO2
-            // 
-            comboBoxTO2.FormattingEnabled = true;
-            comboBoxTO2.Location = new Point(5, 4);
-            comboBoxTO2.Margin = new Padding(5, 4, 5, 4);
-            comboBoxTO2.Name = "comboBoxTO2";
-            comboBoxTO2.Size = new Size(602, 38);
-            comboBoxTO2.TabIndex = 2;
-            comboBoxTO2.SelectedIndexChanged += comboBoxTO2_SelectedIndexChanged;
-            // 
             // tableLayoutPanel13
             // 
             tableLayoutPanel13.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -1025,19 +1030,17 @@
             tableLayoutPanel3.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel3.ColumnCount = 1;
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel3.Controls.Add(dataGridViewTPLocal, 0, 1);
-            tableLayoutPanel3.Controls.Add(comboBoxTO, 0, 0);
-            tableLayoutPanel3.Controls.Add(panel1, 0, 2);
-            tableLayoutPanel3.Controls.Add(splitContainer1, 0, 3);
-            tableLayoutPanel3.Location = new Point(5, 4);
-            tableLayoutPanel3.Margin = new Padding(5, 4, 5, 4);
+            tableLayoutPanel3.Controls.Add(dataGridViewTPLocal, 0, 0);
+            tableLayoutPanel3.Controls.Add(panel1, 0, 1);
+            tableLayoutPanel3.Controls.Add(splitContainer1, 0, 2);
+            tableLayoutPanel3.Location = new Point(3,2);
+            tableLayoutPanel3.Margin = new Padding(3,2,3,2);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
-            tableLayoutPanel3.RowCount = 4;
-            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
+            tableLayoutPanel3.RowCount = 3;
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 106F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
-            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel3.Size = new Size(1884, 976);
             tableLayoutPanel3.TabIndex = 1;
             // 
@@ -1124,16 +1127,6 @@
             Order1.MinimumWidth = 6;
             Order1.Name = "Order1";
             Order1.Visible = false;
-            // 
-            // comboBoxTO
-            // 
-            comboBoxTO.FormattingEnabled = true;
-            comboBoxTO.Location = new Point(5, 4);
-            comboBoxTO.Margin = new Padding(5, 4, 5, 4);
-            comboBoxTO.Name = "comboBoxTO";
-            comboBoxTO.Size = new Size(609, 38);
-            comboBoxTO.TabIndex = 2;
-            comboBoxTO.SelectedIndexChanged += comboBoxTO_SelectedIndexChanged;
             // 
             // panel1
             // 
@@ -1351,18 +1344,17 @@
             tableLayoutPanel4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel4.ColumnCount = 1;
             tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel4.Controls.Add(groupBox4, 0, 2);
-            tableLayoutPanel4.Controls.Add(dataGridViewStaffAll, 0, 3);
-            tableLayoutPanel4.Controls.Add(dataGridViewStaff, 0, 1);
-            tableLayoutPanel4.Controls.Add(comboBoxStaff, 0, 0);
-            tableLayoutPanel4.Location = new Point(0, 2);
-            tableLayoutPanel4.Margin = new Padding(5, 4, 5, 4);
+            tableLayoutPanel4.Controls.Add(groupBox4, 0, 1);
+            tableLayoutPanel4.Controls.Add(dataGridViewStaffAll, 0, 2);
+            tableLayoutPanel4.Controls.Add(dataGridViewStaff, 0, 0);
+            tableLayoutPanel4.Location = new Point(3, 2);
+            tableLayoutPanel4.Margin = new Padding(3,2,3,2);
             tableLayoutPanel4.Name = "tableLayoutPanel4";
-            tableLayoutPanel4.RowCount = 4;
-            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 74F));
-            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 60F));
+            tableLayoutPanel4.RowCount = 3;
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 106F));
-            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 40F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel4.Size = new Size(1889, 984);
             tableLayoutPanel4.TabIndex = 0;
             // 
@@ -1559,16 +1551,6 @@
             Column17.ReadOnly = true;
             Column17.Width = 125;
             // 
-            // comboBoxStaff
-            // 
-            comboBoxStaff.FormattingEnabled = true;
-            comboBoxStaff.Location = new Point(46, 14);
-            comboBoxStaff.Margin = new Padding(46, 14, 5, 4);
-            comboBoxStaff.Name = "comboBoxStaff";
-            comboBoxStaff.Size = new Size(669, 38);
-            comboBoxStaff.TabIndex = 3;
-            comboBoxStaff.SelectedIndexChanged += comboBoxStaff_SelectedIndexChanged;
-            // 
             // tabPageProtection
             // 
             tabPageProtection.Controls.Add(tableLayoutPanel8);
@@ -1586,18 +1568,17 @@
             tableLayoutPanel8.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel8.ColumnCount = 1;
             tableLayoutPanel8.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel8.Controls.Add(groupBox6, 0, 2);
-            tableLayoutPanel8.Controls.Add(dataGridViewAllSZ, 0, 3);
-            tableLayoutPanel8.Controls.Add(dataGridViewLocalSZ, 0, 1);
-            tableLayoutPanel8.Controls.Add(comboBoxSZ, 0, 0);
-            tableLayoutPanel8.Location = new Point(5, 4);
-            tableLayoutPanel8.Margin = new Padding(5, 4, 5, 4);
+            tableLayoutPanel8.Controls.Add(groupBox6, 0, 1);
+            tableLayoutPanel8.Controls.Add(dataGridViewAllSZ, 0, 2);
+            tableLayoutPanel8.Controls.Add(dataGridViewLocalSZ, 0, 0);
+            tableLayoutPanel8.Location = new Point(3,2);
+            tableLayoutPanel8.Margin = new Padding(3,2,3,2);
             tableLayoutPanel8.Name = "tableLayoutPanel8";
-            tableLayoutPanel8.RowCount = 4;
-            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
-            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 57.4468079F));
+            tableLayoutPanel8.RowCount = 3;
+            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 55.55556F));
             tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Absolute, 106F));
-            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 42.55319F));
+            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
+            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel8.Size = new Size(1879, 976);
             tableLayoutPanel8.TabIndex = 2;
             // 
@@ -1742,16 +1723,6 @@
             dataGridViewTextBoxColumn36.HeaderText = "Тип (Исполнение)";
             dataGridViewTextBoxColumn36.MinimumWidth = 6;
             dataGridViewTextBoxColumn36.Name = "dataGridViewTextBoxColumn36";
-            // 
-            // comboBoxSZ
-            // 
-            comboBoxSZ.FormattingEnabled = true;
-            comboBoxSZ.Location = new Point(5, 4);
-            comboBoxSZ.Margin = new Padding(5, 4, 5, 4);
-            comboBoxSZ.Name = "comboBoxSZ";
-            comboBoxSZ.Size = new Size(609, 38);
-            comboBoxSZ.TabIndex = 2;
-            comboBoxSZ.SelectedIndexChanged += comboBoxSZ_SelectedIndexChanged;
             // 
             // tabPageStage
             // 
@@ -2479,13 +2450,15 @@
             // 
             AutoScaleDimensions = new SizeF(12F, 30F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1906, 1044);
+            ClientSize = new Size(1906, 1544);
             Controls.Add(tabControl1);
+            Controls.Add(panel3);
             FormBorderStyle = FormBorderStyle.SizableToolWindow;
             Margin = new Padding(5, 4, 5, 4);
             Name = "AddEditTechOperationForm";
             Text = "AddEditTechOperationForm";
             FormClosed += AddEditTechOperationForm_FormClosed;
+            panel3.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridViewAllTO).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewTO).EndInit();
@@ -2559,7 +2532,9 @@
         }
 
         #endregion
-
+        private Panel panel3;
+        private ComboBox comboBoxTO;
+        private ComboBox comboBoxTT;
         private TableLayoutPanel tableLayoutPanel1;
         private DataGridView dataGridViewAllTO;
         private TabControl tabControl1;
@@ -2579,11 +2554,9 @@
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private TabControl tabControl2;
-        private ComboBox comboBoxTO;
         private TabPage tabPageStaff;
         private TableLayoutPanel tableLayoutPanel4;
         private DataGridView dataGridViewStaff;
-        private ComboBox comboBoxStaff;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
         private DataGridViewButtonColumn dataGridViewCheckBoxColumn2;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
@@ -2592,7 +2565,6 @@
         private TableLayoutPanel tableLayoutPanel5;
         private DataGridView dataGridViewComponentAll;
         private DataGridView dataGridViewComponentLocal;
-        private ComboBox comboBoxTO2;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn9;
         private DataGridViewButtonColumn dataGridViewButtonColumn1;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn10;
@@ -2609,7 +2581,6 @@
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn18;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn19;
         private DataGridView dataGridViewInstrumentLocal;
-        private ComboBox comboBoxTO3;
         private GroupBox groupBox1;
         private TextBox textBoxPoiskInstrument;
         private TabPage tabPageProtection;
@@ -2620,7 +2591,6 @@
         private DataGridViewButtonColumn dataGridViewButtonColumn8;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn35;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn36;
-        private ComboBox comboBoxSZ;
         private DataGridView dataGridView3;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn25;
         private DataGridViewButtonColumn dataGridViewButtonColumn5;

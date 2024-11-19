@@ -167,6 +167,13 @@ namespace TC_WinForms.WinForms
                 }
                 else { pnlPageControls.Visible = false; }
 
+                if (form is IPaginationControl paginationForm)
+                {
+                    SubscribeToPageInfoChanged(paginationForm);
+                    pnlPageControls.Visible = true;
+                }
+                else { pnlPageControls.Visible = false; }
+
                 var loadDataTask = (form as ILoadDataAsyncForm)?.LoadDataAsync();
                 if (loadDataTask != null)
                 {
