@@ -19,9 +19,10 @@ namespace TC_WinForms.WinForms.Work
         private List<TechOperation> allTO;
         private List<TechTransition> allTP;
         private List<Staff> AllStaff;
-        private List<ExecutionWork> listExecutionWork;
+        //private List<ExecutionWork> listExecutionWork; // не используется
 
         private TechOperationWork SelectedTO => (TechOperationWork)comboBoxTO.SelectedItem;
+        private ExecutionWork SelectedTP => (ExecutionWork)comboBoxTT.SelectedItem;
 
         public AddEditTechOperationForm()
         {
@@ -44,6 +45,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewTO.CellValidating += CellValidating;
             dataGridViewTO.CellEndEdit += DataGridViewTO_CellEndEdit;
             dataGridViewTO.CellFormatting += DataGridViewTO_CellFormatting;
+            dataGridViewTO.SelectionChanged += DataGridViewTO_SelectionChanged; // если комбобокс не отображать, то не нужное событие
 
             //dataGridViewTPAll.CellContentClick += DataGridViewTPAll_CellContentClick;
             dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
@@ -118,7 +120,8 @@ namespace TC_WinForms.WinForms.Work
             Even.Table = 2;
             Even.AddGragDropEvents(dataGridViewTPLocal);
 
-
+            // todo: добавить перезаполение combobox c ТО и ТП,
+            // после изменения позиций ТО и ТП в таблицах
 
             UpdateTO();
             UpdateLocalTO();
@@ -146,10 +149,10 @@ namespace TC_WinForms.WinForms.Work
             switch (tabControl1.SelectedTab.Name)
             {
                 case "tabPageTO":
-                    UpdateLocalTO();
+                    // UpdateLocalTO(); // обновление произойдет в момент перехода на вкладку tabPageTP
                     break;
                 case "tabPageTP":
-                    UpdateGridLocalTP();
+                    UpdateLocalTP(); 
                     break;
                 case "tabPageStaff":
                     UpdateComboBoxTT();
@@ -246,7 +249,7 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewAllTO.FirstDisplayedScrollingRowIndex;
 
             //DataGridViewRow currentRow = dataGridViewAllTO.CurrentRow;
-            int currentRowIndex = dataGridViewAllTO.CurrentRow?.Index ?? 0;
+            // int currentRowIndex = dataGridViewAllTO.CurrentRow?.Index ?? 0; // не используется
 
             dataGridViewAllTO.Rows.Clear();
 
@@ -288,6 +291,10 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateLocalTO()
         {
+            // Сохранение текущего выделения
+            var selectedTO = SelectedTO;
+            //var selectedRowIndex = dataGridViewTO.CurrentRow?.Index ?? -1;
+
             var offScroll = dataGridViewTO.FirstDisplayedScrollingRowIndex;
             dataGridViewTO.Rows.Clear();
 
@@ -301,12 +308,28 @@ namespace TC_WinForms.WinForms.Work
                 AddTechOperationToGridLocalTO(techOperationWork);
             }
 
-            List<TechOperationWork> list2 = new List<TechOperationWork>(list);
-            comboBoxTO.DataSource = list2;
+
+            //List<TechOperationWork> list2 = new List<TechOperationWork>(list);
+            //comboBoxTO.DataSource = list2;
 
             if (offScroll > 0 && offScroll < dataGridViewTO.Rows.Count)
                 dataGridViewTO.FirstDisplayedScrollingRowIndex = offScroll;
 
+            // Выделить строку соотвествующую активному ТО из комбобокс
+            if (selectedTO != null)
+            {
+                var selectedRowIndex = dataGridViewTO.Rows.Cast<DataGridViewRow>()
+                    .Select(r => r.Cells[0].Value)
+                    .ToList()
+                    .IndexOf(selectedTO);
+
+                if (selectedRowIndex >= 0 && selectedRowIndex < dataGridViewTO.Rows.Count)
+                {
+                    dataGridViewTO.Rows[selectedRowIndex].Selected = true;
+                }
+            }
+
+            UpdateComboBoxTO();
         }
         private void AddTechOperationToGridLocalTO(TechOperationWork techOperationWork)
         {
@@ -400,11 +423,13 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
+            var work = SelectedTO;
+
             if (e.ColumnIndex == 6)
             {
                 var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                //var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 // TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == idd).
                 var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
                 if (wor != null)
@@ -417,9 +442,7 @@ namespace TC_WinForms.WinForms.Work
             {
                 var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
-
-
+                //var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
                 var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
                 if (wor != null)
@@ -449,7 +472,7 @@ namespace TC_WinForms.WinForms.Work
 
                         BeginInvoke(new Action(() =>
                         {
-                            UpdateGridLocalTP();
+                            UpdateLocalTP();
                         }));
 
                         TechOperationForm.UpdateGrid();
@@ -464,7 +487,7 @@ namespace TC_WinForms.WinForms.Work
             {
                 var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                //var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 // TechOperationForm.TechOperationWorksList.Single(s => s.Id == work.Id).executionWorks.Single(s => s.IdGuid == idd).
                 var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
                 if (wor != null)
@@ -480,7 +503,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
                 var IddGuid = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
                 //var tech = allTP.Single(s => s.Id == Idd);
                 //TechOperationForm.AddTechTransition(tech, work);
@@ -491,7 +514,7 @@ namespace TC_WinForms.WinForms.Work
                 {
 
                     TechOperationForm.DeleteTechTransit(IddGuid, work);
-                    UpdateGridLocalTP();
+                    UpdateLocalTP();
                     TechOperationForm.UpdateGrid();
                 }
             }
@@ -538,6 +561,34 @@ namespace TC_WinForms.WinForms.Work
                 {
                     TechOperationForm.HighlightExecutionWorkRow(executionWork, false);
                 }
+
+                // Смена выбора в комбобоксе
+                comboBoxTT.SelectedItem = executionWork;
+            }
+        }
+        private void DataGridViewTO_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dataGridViewTO.SelectedRows.Count > 0)
+            {
+                // Get the ExecutionWork object corresponding to the selected row
+                var selectedRow = dataGridViewTO.SelectedRows[0];
+                var selectedObject = (TechOperationWork)selectedRow.Cells[0].Value;
+
+                if(selectedObject != null && selectedObject == SelectedTO)
+                {
+                    return;
+                }
+
+                // найти выбранное ТО из источника данных комбобокса
+                var selectedObject2 = comboBoxTO.Items.Cast<TechOperationWork>()
+                    .SingleOrDefault(s => s == selectedObject);
+
+                if (selectedObject2 != null)
+                {
+                    // Смена выбора в комбобоксе
+                    comboBoxTO.SelectedItem = selectedObject2;
+                }
+
             }
         }
 
@@ -554,12 +605,11 @@ namespace TC_WinForms.WinForms.Work
             }
             return null;
         }
-
         private void DataGridViewTPAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
 
 
@@ -570,14 +620,14 @@ namespace TC_WinForms.WinForms.Work
                     if (coefficient.ShowDialog() == DialogResult.OK)
                     {
                         TechOperationForm.AddTechTransition(Idd, work, null, coefficient);
-                        UpdateGridLocalTP();
+                        UpdateLocalTP();
                         TechOperationForm.UpdateGrid();
                     }
                 }
                 else
                 {
                     TechOperationForm.AddTechTransition(Idd, work, null, null);
-                    UpdateGridLocalTP();
+                    UpdateLocalTP();
                     TechOperationForm.UpdateGrid();
                 }
             }
@@ -586,7 +636,7 @@ namespace TC_WinForms.WinForms.Work
         private void AddNewTP(TechTransition TP, TechOperationWork TOW)
         {
             TechOperationForm.AddTechTransition(TP, TOW);
-            UpdateGridLocalTP();
+            UpdateLocalTP();
             TechOperationForm.UpdateGrid();
         }
 
@@ -623,7 +673,7 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewTPAll.FirstDisplayedScrollingRowIndex;
             dataGridViewTPAll.Rows.Clear();
 
-            var work = (TechOperationWork)comboBoxTO.SelectedItem;
+            var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
 
             if (work == null)
             {
@@ -724,18 +774,20 @@ namespace TC_WinForms.WinForms.Work
             UpdateGridAllTP();
         }
 
-        public void UpdateGridLocalTP()
+        public void UpdateLocalTP()
         {
-            var offScroll = dataGridViewTPLocal.FirstDisplayedScrollingRowIndex;
-
-            dataGridViewTPLocal.Rows.Clear();
-            var work = (TechOperationWork)comboBoxTO.SelectedItem;
+            var selectedTP = SelectedTP; 
+            var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
 
             if (work == null)
             {
                 return;
             }
 
+            var offScroll = dataGridViewTPLocal.FirstDisplayedScrollingRowIndex;
+
+            dataGridViewTPLocal.Rows.Clear();
+            
             var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work)
                 .executionWorks.Where(w => w.Delete == false)
                 .OrderBy(o => o.Order).ToList();
@@ -805,16 +857,18 @@ namespace TC_WinForms.WinForms.Work
                 dataGridViewTPLocal.Rows.Add(listItem.ToArray());
             }
 
-            listExecutionWork = new List<ExecutionWork>(LocalTPs);
+            //listExecutionWork = new List<ExecutionWork>(LocalTPs);
 
-            if (listExecutionWork.Count == 0)
+            if (LocalTPs.Count == 0)
             {
                 comboBoxTT.DataSource = null;
             }
             else
             {
-                comboBoxTT.DataSource = listExecutionWork;
+                comboBoxTT.DataSource = new List<ExecutionWork>(LocalTPs); ;
             }
+
+
 
             try
             {
@@ -826,6 +880,22 @@ namespace TC_WinForms.WinForms.Work
             {
             }
 
+            // Выделить строку соотвествующую активному ТП из комбобокс
+            if (selectedTP != null)
+            {
+                // сбросить выделенные объекты
+                dataGridViewTPLocal.ClearSelection();
+
+                var selectedRowIndex = dataGridViewTPLocal.Rows.Cast<DataGridViewRow>()
+                    .Select(r => r.Cells[0].Value)
+                    .ToList()
+                    .IndexOf(selectedTP.IdGuid);
+
+                if (selectedRowIndex >= 0 && selectedRowIndex < dataGridViewTPLocal.Rows.Count)
+                {
+                    dataGridViewTPLocal.Rows[selectedRowIndex].Selected = true;
+                }
+            }
         }
         #endregion
 
@@ -847,8 +917,8 @@ namespace TC_WinForms.WinForms.Work
 
 
             var AllStaff = TechOperationForm.TehCarta.Staff_TCs.ToList();
-            var ExecutionWorkBox = (ExecutionWork)comboBoxTT.SelectedItem;
-            var work = (TechOperationWork)comboBoxTO.SelectedItem;
+            var ExecutionWorkBox = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
+            var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
 
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
@@ -889,7 +959,7 @@ namespace TC_WinForms.WinForms.Work
             {
                 var staff_TC = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
                 var symbol = staff_TC.Symbol;
-                var EW = (ExecutionWork)comboBoxTT.SelectedItem;
+                var EW = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
                 if (EW != null)
                 {
                     var staffs = EW.Staffs.Where(w => w.Symbol == symbol).ToList();
@@ -986,7 +1056,7 @@ namespace TC_WinForms.WinForms.Work
         public void UpdateGridStaff()
         {
             var offScroll = dataGridViewStaff.FirstDisplayedScrollingRowIndex;
-            var ExecutionWorkBox = (ExecutionWork)comboBoxTT.SelectedItem;
+            var ExecutionWorkBox = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
             dataGridViewStaff.Rows.Clear();
             if (ExecutionWorkBox == null)
             {
@@ -995,7 +1065,7 @@ namespace TC_WinForms.WinForms.Work
 
             TechOperationForm.HighlightExecutionWorkRow(ExecutionWorkBox, true);
 
-            var work = (TechOperationWork)comboBoxTO.SelectedItem;
+            var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
             var AllStaff = TechOperationForm.TehCarta.Staff_TCs.OrderBy(x => x.Symbol);
@@ -1060,7 +1130,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateGridStaffAll()
         {
-            var ExecutionWorkBox = (ExecutionWork)comboBoxTT.SelectedItem;
+            var ExecutionWorkBox = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
 
             var context = TechOperationForm.context;
             AllStaff = context.Staffs.ToList();
@@ -1114,12 +1184,12 @@ namespace TC_WinForms.WinForms.Work
             bool updateTO = false;
 
             var allSZ = TechOperationForm.TehCarta.Protection_TCs.ToList();
-            var ExecutionWorkBox = (ExecutionWork)comboBoxTT.SelectedItem;
-            var work = (TechOperationWork)comboBoxTO.SelectedItem;
+            var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
+            var workF = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
 
-            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
+            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work)
+                .executionWorks.Single(s => s.IdGuid == workF.IdGuid);
 
-            var workF = (ExecutionWork)comboBoxTT.SelectedItem;
 
             foreach (DataGridViewRow? row in dataGridViewLocalSZ.Rows)
             {
@@ -1160,7 +1230,7 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewAllSZ.FirstDisplayedScrollingRowIndex;
             dataGridViewAllSZ.Rows.Clear();
 
-            var work = (ExecutionWork)comboBoxTT.SelectedItem;
+            var work = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
 
             if (work == null)
             {
@@ -1251,15 +1321,20 @@ namespace TC_WinForms.WinForms.Work
         public void UpdateGridLocalSZ()
         {
             var offScroll = dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex;
-            var ExecutionWorkBox = (ExecutionWork)comboBoxTT.SelectedItem;
+            //var ExecutionWorkBox = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
             dataGridViewLocalSZ.Rows.Clear();
-            if (ExecutionWorkBox == null)
+            //if (ExecutionWorkBox == null)
+            //{
+            //    return;
+            //}
+
+            // var work = SelectedTO; // (TechOperationWork)comboBoxTO.SelectedItem;
+            var LocalTP = SelectedTP; // TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
+
+            if (LocalTP == null)
             {
                 return;
             }
-
-            var work = (TechOperationWork)comboBoxTO.SelectedItem;
-            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
             var AllSZ = TechOperationForm.TehCarta.Protection_TCs.OrderBy(x => x.Order).ToList();
 
@@ -1295,7 +1370,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (ExecutionWork)comboBoxTT.SelectedItem;
+                var work = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
                 var Idd = (Protection)dataGridViewAllSZ.Rows[e.RowIndex].Cells[0].Value;
 
                 var tehCardProtections = TechOperationForm.TehCarta.Protection_TCs;
@@ -1383,7 +1458,7 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewComponentAll.FirstDisplayedScrollingRowIndex;
             dataGridViewComponentAll.Rows.Clear();
 
-            var work = (TechOperationWork)comboBoxTO.SelectedItem;
+            var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
 
             if (work == null)
             {
@@ -1521,7 +1596,7 @@ namespace TC_WinForms.WinForms.Work
         {
             var offScroll = dataGridViewComponentLocal.FirstDisplayedScrollingRowIndex;
             dataGridViewComponentLocal.Rows.Clear();
-            var work = (TechOperationWork)comboBoxTO.SelectedItem;
+            var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
             if (work == null)
             {
                 return;
@@ -1560,7 +1635,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (Component)dataGridViewComponentAll.Rows[e.RowIndex].Cells[0].Value;
 
                 var existedIdd = work.ComponentWorks.Where(c => c.componentId == Idd.Id && c.IsDeleted == true).FirstOrDefault();
@@ -1602,7 +1677,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
 
                 TechOperationForm.MarkToDeleteComponentWork(work, Idd);
@@ -1617,7 +1692,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 5)
             {
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
                 var value = (object)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[5].Value;
 
@@ -1642,7 +1717,7 @@ namespace TC_WinForms.WinForms.Work
 
             if (e.ColumnIndex == 6)
             {
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                //var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
                 var value = (string)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[6].Value;
 
@@ -2404,7 +2479,7 @@ namespace TC_WinForms.WinForms.Work
 
                     }
 
-                    UpdateGridLocalTP();
+                    UpdateLocalTP();
                 }
             }
         }
@@ -2517,20 +2592,7 @@ namespace TC_WinForms.WinForms.Work
         }
 
         #endregion
-        private void UpdateComboBoxTT()
-        {
-            var work = (TechOperationWork)comboBoxTO.SelectedItem;
-
-            var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work)
-                .executionWorks.Where(w => w.Delete == false)
-                .OrderBy(o => o.Order).ToList();
-
-            var listExecutionWork = new List<ExecutionWork>(LocalTPs);
-            if (listExecutionWork.Count != 0)
-                comboBoxTT.DataSource = listExecutionWork;
-            else
-                comboBoxTT.DataSource = null;
-        }
+        
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -2539,12 +2601,12 @@ namespace TC_WinForms.WinForms.Work
             {
                 case "tabPageTO":
                     UpdateLocalTO();
-                    UpdateGridAllTP();
-                    comboBoxTO.Visible = true;
+                    //UpdateGridAllTP();
+                    comboBoxTO.Visible = false;
                     comboBoxTT.Visible = false;
                     break;
                 case "tabPageTP":
-                    UpdateGridLocalTP();
+                    UpdateLocalTP();
                     UpdateGridAllTP();
                     comboBoxTO.Visible = true;
                     comboBoxTT.Visible = false;
@@ -2595,7 +2657,12 @@ namespace TC_WinForms.WinForms.Work
             {
                 var list = dataGridViewTO.Rows;
                 foreach (DataGridViewRow dataGridViewRow in list)
+
                 {
+                    // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
+                    //var techOperationWork = (TechOperationWork)dataGridViewRow.Cells[0].Value; 
+                    //techOperationWork.Order = dataGridViewRow.Index; // Обновляем свойство Order
+
                     var idd = (TechOperationWork)dataGridViewRow.Cells[0].Value;
                     var ord = (int)dataGridViewRow.Cells["Order"].Value;
                     TechOperationWork TechOperat = TechOperationForm.TechOperationWorksList.SingleOrDefault(s => s == idd);
@@ -2606,13 +2673,17 @@ namespace TC_WinForms.WinForms.Work
                     }
 
                 }
+
+                // Обновляем comboBoxTO
+                UpdateComboBoxTO();
+
                 TechOperationForm.UpdateGrid();
             }
 
             if (table == 2)
             {
                 var list = dataGridViewTPLocal.Rows;
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+                var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
 
                 foreach (DataGridViewRow dataGridViewRow in list)
                 {
@@ -2626,6 +2697,88 @@ namespace TC_WinForms.WinForms.Work
                 TechOperationForm.UpdateGrid();
             }
 
+        }
+        private void UpdateComboBoxTO()
+        {
+            // Сохраняем текущий выбранный TechOperationWork из dataGridViewTO
+            TechOperationWork selectedTechOperationWork = null;
+            if (dataGridViewTO.SelectedRows.Count > 0)
+            {
+                selectedTechOperationWork = (TechOperationWork)dataGridViewTO.SelectedRows[0].Cells[0].Value;
+            }
+
+            // Создаем новый список TechOperationWork в текущем порядке
+            List<TechOperationWork> currentOrderList = new List<TechOperationWork>();
+            foreach (DataGridViewRow row in dataGridViewTO.Rows)
+            {
+                var techOperationWork = (TechOperationWork)row.Cells[0].Value;
+                currentOrderList.Add(techOperationWork);
+            }
+
+            // Временно отключаем обновление интерфейса ComboBox
+            comboBoxTO.BeginUpdate();
+            try
+            {
+                // Обновляем DataSource для comboBoxTO
+                comboBoxTO.DataSource = null;
+                comboBoxTO.DataSource = currentOrderList;
+
+                // Устанавливаем выбранный элемент в comboBoxTO
+                if (selectedTechOperationWork != null && currentOrderList.Contains(selectedTechOperationWork))
+                {
+                    comboBoxTO.SelectedItem = selectedTechOperationWork;
+                }
+
+                // обновить comboBoxTT
+                UpdateComboBoxTT();
+            }
+            finally
+            {
+                // Включаем обновление интерфейса ComboBox
+                comboBoxTO.EndUpdate();
+            }
+        }
+        private void UpdateComboBoxTT()
+        {
+            // Сохраняем текущий выбранный TechOperationWork из dataGridViewTPLocal
+            ExecutionWork selectedTP = SelectedTP;
+            //if (dataGridViewTPLocal.SelectedRows.Count > 0)
+            //{
+            //    var selectedRow = dataGridViewTPLocal.SelectedRows[0];
+            //    var id = (Guid)selectedRow.Cells[0].Value;
+            //    selectedTP = FindExecutionWorkById(id);
+            //}
+
+            var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
+
+            if (work == null)
+                return;
+
+            var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work)
+                .executionWorks.Where(w => w.Delete == false)
+                .OrderBy(o => o.Order).ToList();
+
+            comboBoxTT.BeginUpdate();
+            try
+            {
+                var listExecutionWork = new List<ExecutionWork>(LocalTPs);
+                comboBoxTT.DataSource = null;
+
+                comboBoxTT.DataSource = listExecutionWork;
+
+                // Устанавливаем выбранный элемент в comboBoxTO
+                if (selectedTP != null && listExecutionWork.Contains(selectedTP))
+                {
+                    comboBoxTT.SelectedItem = selectedTP;
+                }
+
+            }
+            finally
+            {
+                // Включаем обновление интерфейса ComboBox
+                comboBoxTT.EndUpdate();
+            }
+            
         }
 
         private void btnCreateNewTP_Click(object sender, EventArgs e)

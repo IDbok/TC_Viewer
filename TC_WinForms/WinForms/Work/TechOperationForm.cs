@@ -445,7 +445,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 idd.PictureName = gg;
                 HasChanges = true;
                 if (_editForm?.IsDisposed == false)
-                    _editForm.UpdateGridLocalTP();
+                    _editForm.UpdateLocalTP();
             }
         }
         else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
@@ -462,7 +462,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 idd.Comments = gg;
                 HasChanges = true;
                 if(_editForm?.IsDisposed == false)
-                    _editForm.UpdateGridLocalTP();
+                    _editForm.UpdateLocalTP();
             }
             else if (itsTool || ItsComponent)
             {
