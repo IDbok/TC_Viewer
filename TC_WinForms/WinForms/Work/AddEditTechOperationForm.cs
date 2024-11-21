@@ -1,5 +1,7 @@
 ﻿using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+
 //using NCalc;
 using System.Data;
 using System.Linq.Expressions;
@@ -26,18 +28,29 @@ namespace TC_WinForms.WinForms.Work
 
         public AddEditTechOperationForm()
         {
+            Log.Information("Инициализация AddEditTechOperationForm без параметров.");
             InitializeComponent();
         }
 
         public AddEditTechOperationForm(TechOperationForm techOperationForm)
         {
+            Log.Information("Инициализация AddEditTechOperationForm для TechOperationForm");
+
             InitializeComponent();
             TechOperationForm = techOperationForm;
 
             this.Text = $"{TechOperationForm.TehCarta.Name} ({TechOperationForm.TehCarta.Article}) - Редактор хода работ";
 
-            //var context = techOperationForm.context;
+            Log.Information("Настройка событий DataGridView и ComboBox.");
+            SetupEventHandlers();
 
+            Log.Information("Загрузка всех ТО и локальных ТО.");
+            UpdateAllTO();
+            UpdateLocalTO();
+        }
+
+        private void SetupEventHandlers()
+        {
             // dataGridViewAllTO.CellContentClick += DataGridViewAllTO_CellContentClick;
             dataGridViewAllTO.CellClick += DataGridViewAllTO_CellClick;
 
@@ -109,7 +122,6 @@ namespace TC_WinForms.WinForms.Work
             comboBoxTO.SelectedIndexChanged += ComboBoxTO_SelectedIndexChanged;
             comboBoxTT.SelectedIndexChanged += ComboBoxTT_SelectedIndexChanged;
 
-
             var Even = new DGVEvents();
             Even.EventsObj = this;
             Even.Table = 1;
@@ -120,13 +132,7 @@ namespace TC_WinForms.WinForms.Work
             Even.Table = 2;
             Even.AddGragDropEvents(dataGridViewTPLocal);
 
-            // todo: добавить перезаполение combobox c ТО и ТП,
-            // после изменения позиций ТО и ТП в таблицах
-
-            UpdateAllTO();
-            UpdateLocalTO();
-
-
+            Log.Information("Все события для элементов интерфейса настроены.");
         }
 
         private void ComboBoxTT_SelectedIndexChanged(object? sender, EventArgs e)
@@ -231,12 +237,15 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
+                Log.Information("Щелчок по ячейке удаления ТО в строке {RowIndex}.", e.RowIndex);
+
                 var result = MessageBox.Show("Вы уверены, что хотите удалить ТО?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
                 if (result == DialogResult.Yes)
                 {
                     var IddGuid = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
 
+                    Log.Information("Удаление ТО: {TechOperationWork} (id: {Id})", IddGuid.techOperation.Name, IddGuid.Id);
                     TechOperationForm.DeleteTechOperation(IddGuid);
                     UpdateLocalTO();
                     TechOperationForm.UpdateGrid();
@@ -246,20 +255,32 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateAllTO()
         {
-            var offScroll = dataGridViewAllTO.FirstDisplayedScrollingRowIndex;
+            Log.Information("Обновление списка всех технологических операций.");
 
-            dataGridViewAllTO.Rows.Clear();
+            try
+            {
+                var offScroll = dataGridViewAllTO.FirstDisplayedScrollingRowIndex;
 
-            var context = TechOperationForm.context;
-            allTO = context
-                .TechOperations
-                .Include(t => t.techTransitionTypicals)
-                .ToList();
+                dataGridViewAllTO.Rows.Clear();
 
-            var filteredOperations = FilterTechOperations(textBoxPoiskTo.Text);
-            DisplayTechOperations(filteredOperations);
+                Log.Information("Загрузка данных из контекста.");
+                var context = TechOperationForm.context;
+                allTO = context
+                    .TechOperations
+                    .Include(t => t.techTransitionTypicals)
+                    .ToList();
 
-            RestoreScrollPosition(dataGridViewAllTO, offScroll);
+                Log.Information("Фильтрация ТО по строке поиска: {SearchText}", textBoxPoiskTo.Text);
+                var filteredOperations = FilterTechOperations(textBoxPoiskTo.Text);
+                DisplayTechOperations(filteredOperations);
+
+                RestoreScrollPosition(dataGridViewAllTO, offScroll);
+                Log.Information("Список всех ТО обновлен успешно.");
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Ошибка при обновлении списка всех технологических операций.");
+            }
         }
         private IEnumerable<TechOperation> FilterTechOperations(string searchText)
         {
@@ -304,40 +325,51 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateLocalTO()
         {
-            // Сохранение текущего выделения
-            var selectedTO = SelectedTO;
-            //var selectedRowIndex = dataGridViewTO.CurrentRow?.Index ?? -1;
-
-            var offScroll = dataGridViewTO.FirstDisplayedScrollingRowIndex;
-            dataGridViewTO.Rows.Clear();
-
-            List<TechOperationWork> list = TechOperationForm.TechOperationWorksList
-                .Where(w => w.Delete == false)
-                .OrderBy(o => o.Order)
-                .ToList();
-
-            foreach (TechOperationWork techOperationWork in list)
+            Log.Information("Обновление списка всех технологических переходов.");
+            try
             {
-                AddTechOperationToGridLocalTO(techOperationWork);
-            }
+                // Сохранение текущего выделения
+                var selectedTO = SelectedTO;
 
-            RestoreScrollPosition(dataGridViewTO, offScroll);
+                var offScroll = dataGridViewTO.FirstDisplayedScrollingRowIndex;
+                dataGridViewTO.Rows.Clear();
 
-            // Выделить строку соотвествующую активному ТО из комбобокс
-            if (selectedTO != null)
-            {
-                var selectedRowIndex = dataGridViewTO.Rows.Cast<DataGridViewRow>()
-                    .Select(r => r.Cells[0].Value)
-                    .ToList()
-                    .IndexOf(selectedTO);
 
-                if (selectedRowIndex >= 0 && selectedRowIndex < dataGridViewTO.Rows.Count)
+                Log.Information("Загрузка данных.");
+                List<TechOperationWork> list = TechOperationForm.TechOperationWorksList
+                    .Where(w => w.Delete == false)
+                    .OrderBy(o => o.Order)
+                    .ToList();
+
+                foreach (TechOperationWork techOperationWork in list)
                 {
-                    dataGridViewTO.Rows[selectedRowIndex].Selected = true;
+                    AddTechOperationToGridLocalTO(techOperationWork);
                 }
-            }
 
-            UpdateComboBoxTO();
+                RestoreScrollPosition(dataGridViewTO, offScroll);
+
+                // Выделить строку соотвествующую активному ТО из комбобокс
+                if (selectedTO != null)
+                {
+                    var selectedRowIndex = dataGridViewTO.Rows.Cast<DataGridViewRow>()
+                        .Select(r => r.Cells[0].Value)
+                        .ToList()
+                        .IndexOf(selectedTO);
+
+                    if (selectedRowIndex >= 0 && selectedRowIndex < dataGridViewTO.Rows.Count)
+                    {
+                        dataGridViewTO.Rows[selectedRowIndex].Selected = true;
+                    }
+                }
+
+                Log.Information("Список всех ТП обновлен успешно.");
+
+                UpdateComboBoxTO();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Ошибка при обновлении списка всех технологических переходов.");
+            }
         }
         private void AddTechOperationToGridLocalTO(TechOperationWork techOperationWork)
         {
@@ -511,15 +543,16 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
+                Log.Information("Щелчок по ячейке удаления ТП в строке {RowIndex}.", e.RowIndex);
+
                 var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
                 var IddGuid = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
-                //var tech = allTP.Single(s => s.Id == Idd);
-                //TechOperationForm.AddTechTransition(tech, work);
 
                 // запрос на подтверждение удаления
                 var result = MessageBox.Show("Вы уверены, что хотите удалить ТП?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
+                    Log.Information("Удаление ТП c GUID {TechTransitionGuid}", IddGuid);
 
                     TechOperationForm.DeleteTechTransit(IddGuid, work);
                     UpdateLocalTP();
@@ -617,24 +650,31 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
+                Log.Information("Щелчок по ячейке добавить ТП в строке {RowIndex}.", e.RowIndex);
+
                 var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
-                var Idd = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
+                var techTransition = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
 
-
-                if (Idd.Name != "Повторить п.")
+                if (techTransition.Name != "Повторить п.")
                 {
-                    CoefficientForm coefficient = new CoefficientForm(Idd);
+                    CoefficientForm coefficient = new CoefficientForm(techTransition);
 
                     if (coefficient.ShowDialog() == DialogResult.OK)
                     {
-                        TechOperationForm.AddTechTransition(Idd, work, null, coefficient);
+                        Log.Information("Добавление ТП: {TechOperation} (id: {Id})",
+                            techTransition.Name, techTransition.Id);
+
+                        TechOperationForm.AddTechTransition(techTransition, work, null, coefficient);
                         UpdateLocalTP();
                         TechOperationForm.UpdateGrid();
                     }
                 }
                 else
                 {
-                    TechOperationForm.AddTechTransition(Idd, work, null, null);
+                    Log.Information("Добавление ТП: {TechOperation} (id: {Id})",
+                            techTransition.Name, techTransition.Id);
+
+                    TechOperationForm.AddTechTransition(techTransition, work, null, null);
                     UpdateLocalTP();
                     TechOperationForm.UpdateGrid();
                 }
@@ -1012,12 +1052,17 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
+                Log.Information("Щелчок по ячейке удаления персонала в строке {RowIndex}.", e.RowIndex);
+
                 var idd = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
 
                 if (idd != null)
                 {
                     if (MessageBox.Show("Вы действительно хотите удалить данную роль из техкарты?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
                     {
+                        Log.Information("Удаление персонала: {Staff_TC} (symbol: {Synbol}, id: {Id})",
+                            idd.Symbol, idd.Child?.Name, idd.IdAuto);
+
                         var vv = TechOperationForm.TehCarta.Staff_TCs;
                         vv.Remove(idd);
 
@@ -2514,6 +2559,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            Log.Information("Переключение на вкладку: {TabName}", tabControl1.SelectedTab.Name);
 
             switch (tabControl1.SelectedTab.Name)
             {
@@ -2567,6 +2613,8 @@ namespace TC_WinForms.WinForms.Work
                     comboBoxTT.Visible = false;
                     break;
             }
+
+            Log.Information("Обновление данных для вкладки завершено.");
         }
 
         public void UpdateTable(int table)
