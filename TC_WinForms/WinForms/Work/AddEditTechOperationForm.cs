@@ -123,7 +123,7 @@ namespace TC_WinForms.WinForms.Work
             // todo: добавить перезаполение combobox c ТО и ТП,
             // после изменения позиций ТО и ТП в таблицах
 
-            UpdateTO();
+            UpdateAllTO();
             UpdateLocalTO();
 
 
@@ -200,7 +200,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void TextBoxPoiskTo_TextChanged(object? sender, EventArgs e)
         {
-            UpdateTO();
+            UpdateAllTO();
         }
 
 
@@ -244,12 +244,9 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
-        public void UpdateTO()
+        public void UpdateAllTO()
         {
             var offScroll = dataGridViewAllTO.FirstDisplayedScrollingRowIndex;
-
-            //DataGridViewRow currentRow = dataGridViewAllTO.CurrentRow;
-            // int currentRowIndex = dataGridViewAllTO.CurrentRow?.Index ?? 0; // не используется
 
             dataGridViewAllTO.Rows.Clear();
 
@@ -260,33 +257,49 @@ namespace TC_WinForms.WinForms.Work
                 .ToList();
 
             var filteredOperations = FilterTechOperations(textBoxPoiskTo.Text);
-            foreach (var operation in filteredOperations)
-            {
-                AddTechOperationToGridAllTO(operation);
-            }
+            DisplayTechOperations(filteredOperations);
 
-            if (offScroll > 0 && offScroll < dataGridViewAllTO.Rows.Count)
-                dataGridViewAllTO.FirstDisplayedScrollingRowIndex = offScroll;
+            RestoreScrollPosition(dataGridViewAllTO, offScroll);
         }
         private IEnumerable<TechOperation> FilterTechOperations(string searchText)
         {
             return allTO.Where(to => (string.IsNullOrEmpty(searchText) || to.Name.ToLower().Contains(searchText.ToLower())));
             /*&& (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId || to.IsReleased == false))*/ //закомментирована фильтрация то, выводятся все ТО
         }
-        private void AddTechOperationToGridAllTO(TechOperation techOperation)
+        private void RestoreScrollPosition(DataGridView dataGridView, int position)
         {
-            var row = new List<object>
+            try
             {
-                techOperation,
-                "Добавить",
-                techOperation.Name,
-                techOperation.Category == "Типовая ТО",
-                "",
-                ""
-            };
-            dataGridViewAllTO.Rows.Add(row.ToArray());
-            if (!techOperation.IsReleased)
-                dataGridViewAllTO.Rows[dataGridViewAllTO.RowCount - 1].DefaultCellStyle.BackColor = Color.LightGray;
+                if (position > 0 && position < dataGridView.Rows.Count)
+                {
+                    dataGridView.FirstDisplayedScrollingRowIndex = position;
+                }
+            }
+            catch (Exception e)
+            {
+                // ignored
+                // добавить логирование, посмотреть, в каких случаях возникает исключение.
+                // если не возникает убрать try-catch
+            }
+        }
+        private void DisplayTechOperations(IEnumerable<TechOperation> operations)
+        {
+            foreach (var operation in operations)
+            {
+                dataGridViewAllTO.Rows.Add(
+                    operation,
+                    "Добавить",
+                    operation.Name,
+                    operation.Category == "Типовая ТО",
+                    string.Empty,
+                    string.Empty
+                );
+
+                if (!operation.IsReleased)
+                {
+                    dataGridViewAllTO.Rows[^1].DefaultCellStyle.BackColor = Color.LightGray;
+                }
+            }
         }
 
         public void UpdateLocalTO()
@@ -308,12 +321,7 @@ namespace TC_WinForms.WinForms.Work
                 AddTechOperationToGridLocalTO(techOperationWork);
             }
 
-
-            //List<TechOperationWork> list2 = new List<TechOperationWork>(list);
-            //comboBoxTO.DataSource = list2;
-
-            if (offScroll > 0 && offScroll < dataGridViewTO.Rows.Count)
-                dataGridViewTO.FirstDisplayedScrollingRowIndex = offScroll;
+            RestoreScrollPosition(dataGridViewTO, offScroll);
 
             // Выделить строку соотвествующую активному ТО из комбобокс
             if (selectedTO != null)
@@ -755,16 +763,7 @@ namespace TC_WinForms.WinForms.Work
                     dataGridViewTPAll.Rows[dataGridViewTPAll.RowCount - 1].DefaultCellStyle.BackColor = Color.LightGray;
             }
 
-            try
-            {
-                if (offScroll > 0 && offScroll < dataGridViewTPAll.Rows.Count)
-                    dataGridViewTPAll.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e)
-            {
-
-            }
-
+            RestoreScrollPosition(dataGridViewTPAll, offScroll);
         }
 
 
@@ -868,17 +867,7 @@ namespace TC_WinForms.WinForms.Work
                 comboBoxTT.DataSource = new List<ExecutionWork>(LocalTPs); ;
             }
 
-
-
-            try
-            {
-                if (offScroll > 0 && offScroll < dataGridViewTPLocal.Rows.Count)
-                    dataGridViewTPLocal.FirstDisplayedScrollingRowIndex = offScroll;
-
-            }
-            catch (Exception e)
-            {
-            }
+            RestoreScrollPosition(dataGridViewTPLocal, offScroll);
 
             // Выделить строку соотвествующую активному ТП из комбобокс
             if (selectedTP != null)
@@ -1097,16 +1086,7 @@ namespace TC_WinForms.WinForms.Work
                 dataGridViewStaff.Rows.Add(listItem.ToArray());
             }
 
-            try
-            {
-                if (offScroll > 0 && offScroll < dataGridViewStaff.Rows.Count)
-                    dataGridViewStaff.FirstDisplayedScrollingRowIndex = offScroll;
-
-            }
-            catch (Exception e)
-            {
-            }
-
+            RestoreScrollPosition(dataGridViewStaff, offScroll);
         }
 
         public void UpdateStaffAll()
@@ -1124,8 +1104,7 @@ namespace TC_WinForms.WinForms.Work
                 AddStuffToGridAllStaff(staff);
             }
 
-            if (offScroll > 0 && offScroll < dataGridViewStaffAll.Rows.Count)
-                dataGridViewStaffAll.FirstDisplayedScrollingRowIndex = offScroll;
+            RestoreScrollPosition(dataGridViewStaffAll, offScroll);
         }
 
         public void UpdateGridStaffAll()
@@ -1306,16 +1285,7 @@ namespace TC_WinForms.WinForms.Work
                 dataGridViewAllSZ.Rows.Add(listItem.ToArray());
             }
 
-            try
-            {
-                if (offScroll > 0 && offScroll < dataGridViewAllSZ.Rows.Count)
-                    dataGridViewAllSZ.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e)
-            {
-            }
-
-
+            RestoreScrollPosition(dataGridViewAllSZ, offScroll);
         }
 
         public void UpdateGridLocalSZ()
@@ -1358,12 +1328,7 @@ namespace TC_WinForms.WinForms.Work
                 dataGridViewLocalSZ.Rows.Add(listItem.ToArray());
             }
 
-            try
-            {
-                if (offScroll > 0 && offScroll < dataGridViewLocalSZ.Rows.Count)
-                    dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e) { }
+            RestoreScrollPosition(dataGridViewLocalSZ, offScroll);
         }
 
         private void DataGridViewAllSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -1580,16 +1545,7 @@ namespace TC_WinForms.WinForms.Work
                 comboBoxFilterComponent.SelectedIndex = 0;
             }
 
-
-            try
-            {
-                if (offScroll > 0 && offScroll < dataGridViewComponentAll.Rows.Count)
-                    dataGridViewComponentAll.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e)
-            {
-            }
-
+            RestoreScrollPosition(dataGridViewComponentAll, offScroll);
         }
 
         public void UpdateComponentLocal()
@@ -1620,15 +1576,7 @@ namespace TC_WinForms.WinForms.Work
                 dataGridViewComponentLocal.Rows.Add(listItem.ToArray());
             }
 
-            try
-            {
-                if (offScroll > 0 && offScroll < dataGridViewComponentLocal.Rows.Count)
-                    dataGridViewComponentLocal.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e)
-            {
-            }
-
+            RestoreScrollPosition(dataGridViewComponentLocal, offScroll);
         }
 
         private void DataGridViewComponentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -1758,15 +1706,7 @@ namespace TC_WinForms.WinForms.Work
                 dataGridViewInstrumentLocal.Rows.Add(listItem.ToArray());
             }
 
-            try
-            {
-                if (offScroll > 0 && offScroll < dataGridViewInstrumentLocal.Rows.Count)
-                    dataGridViewInstrumentLocal.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e)
-            {
-            }
-
+            RestoreScrollPosition(dataGridViewInstrumentLocal, offScroll);
         }
 
 
@@ -1902,15 +1842,7 @@ namespace TC_WinForms.WinForms.Work
                 comboBoxFiltrCategor.SelectedIndex = 0;
             }
 
-
-            try
-            {
-                dataGridViewInstumentAll.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e)
-            {
-            }
-
+            RestoreScrollPosition(dataGridViewInstumentAll, offScroll);
         }
 
         private void DataGridViewInstumentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -2095,15 +2027,7 @@ namespace TC_WinForms.WinForms.Work
                 }
             }
 
-            try
-            {
-                dataGridViewMeha.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e)
-            {
-            }
-
-
+            RestoreScrollPosition(dataGridViewMeha, offScroll);
         }
 
         public void dataGridViewEtapUpdate()
@@ -2181,14 +2105,8 @@ namespace TC_WinForms.WinForms.Work
                     dataGridViewEtap.Rows.Add(listItem.ToArray());
                 }
             }
-            try
-            {
-                dataGridViewEtap.FirstDisplayedScrollingRowIndex = offScroll;
-            }
-            catch (Exception e)
-            {
-            }
 
+            RestoreScrollPosition(dataGridViewEtap, offScroll);
         }
 
 
@@ -2796,7 +2714,7 @@ namespace TC_WinForms.WinForms.Work
             AddingForm.AfterSave = async (createdObj) => AddTOWToGridLocalTO(createdObj, true);
             AddingForm.ShowDialog();
 
-            UpdateTO();
+            UpdateAllTO();
         }
 
         private void btnToChange_Click(object sender, EventArgs e)
