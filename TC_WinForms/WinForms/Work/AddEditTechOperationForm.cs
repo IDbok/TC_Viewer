@@ -2367,7 +2367,7 @@ namespace TC_WinForms.WinForms.Work
                                 NewCoefficient = "*1"
                             };
                             executionWorkPovtor.ExecutionWorkRepeats.Add(newRepeat);
-                            TechOperationForm.UpdateGrid();
+                            // TechOperationForm.UpdateGrid();
                         }
                     }
                     else
@@ -2377,7 +2377,7 @@ namespace TC_WinForms.WinForms.Work
                             dataGridViewPovtor.Rows[e.RowIndex].Cells[5].Value = "";
 
                             executionWorkPovtor.ExecutionWorkRepeats.Remove(existingRepeat);
-                            TechOperationForm.UpdateGrid();
+                            // TechOperationForm.UpdateGrid();
                         }
                     }
 
