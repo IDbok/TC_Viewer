@@ -55,8 +55,6 @@ namespace TC_WinForms.WinForms
             _tcId = createdTCId;
 
             InitializeComponent();
-
-            _selectionService = new SelectionService<DisplayedProtection>(dgvMain, _displayedObjects);
         }
 
         private async void Win7_7_Protection_Load(object sender, EventArgs e)
@@ -101,6 +99,8 @@ namespace TC_WinForms.WinForms
                 .Select(obj => new DisplayedProtection(obj)).OrderBy(c => c.Name).ToList());
 
             paginationService = new PaginationControlService<DisplayedProtection>(30, _displayedObjects);
+
+            _selectionService = new SelectionService<DisplayedProtection>(dgvMain, _displayedObjects);
 
             FilteringObjects();
             //_bindingList = new BindingList<DisplayedProtection>(_displayedObjects);
