@@ -324,6 +324,7 @@
             comboBoxTO.Margin = new Padding(5, 4, 5, 4);
             comboBoxTO.Name = "comboBoxTO";
             comboBoxTO.Size = new Size(600, 38);
+            comboBoxTO.Visible = false;
             // 
             // comboBoxTT
             // 

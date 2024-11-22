@@ -1,9 +1,11 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -12,14 +14,14 @@ using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Machine : Form, ISaveEventForm, IViewModeable
+    public partial class Win6_Machine : Form, IViewModeable
     {
         private readonly TcViewState _tcViewState;
 
         private bool _isViewMode;
 
-        private DbConnector dbCon = new DbConnector();
         private int _tcId;
+        private MyDbContext context;
 
         private BindingList<DisplayedMachine_TC> _bindingList;
         private List<DisplayedMachine_TC> _changedObjects = new ();
@@ -27,17 +29,15 @@ namespace TC_WinForms.WinForms
         private List<DisplayedMachine_TC> _deletedObjects = new ();
 
         private Dictionary<DisplayedMachine_TC, DisplayedMachine_TC> _replacedObjects = new();// add to UpdateMode
-        public bool CloseFormsNoSave { get; set; } = false;
 
-        public Win6_Machine(int tcId, TcViewState tcViewState)// bool viewerMode = false)
+        public Win6_Machine(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
         {
             _tcViewState = tcViewState;
+            this.context = context;
 
-            //_isViewMode = viewerMode;
             _tcId = tcId;
 
             InitializeComponent();
-
 
             var dgvEventService = new DGVEvents(dgvMain);
             dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
@@ -50,11 +50,6 @@ namespace TC_WinForms.WinForms
 
         public void SetViewMode(bool? isViewMode = null)
         {
-            //if (isViewMode != null)
-            //{
-            //    _isViewMode = (bool)isViewMode;
-            //}
-
             pnlControls.Visible = !_tcViewState.IsViewMode;
 
             // make columns editable
@@ -69,66 +64,41 @@ namespace TC_WinForms.WinForms
             dgvMain.Refresh();
 
         }
-        public bool GetDontSaveData()
-        {
-            if (HasChanges)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
 
-        private async void Win6_Machine_Load(object sender, EventArgs e)
+        private void Win6_Machine_Load(object sender, EventArgs e)
         {
-            await LoadObjects();
+            LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedMachine_TC>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false;
 
             SetViewMode();
         }
-        private async Task LoadObjects()
+        private void LoadObjects()
         {
-            var tcList = await Task.Run(() => dbCon.GetIntermediateObjectList<Machine_TC, Machine>(_tcId).OrderBy(obj => obj.Order)
-                .Select(obj => new DisplayedMachine_TC(obj)).ToList());
+            var tcList = _tcViewState.TechnologicalCard.Machine_TCs.Select(obj => new DisplayedMachine_TC(obj)).ToList();
             _bindingList = new BindingList<DisplayedMachine_TC>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
 
             SetDGVColumnsSettings();
         }
-        private async void Win6_Machine_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (CloseFormsNoSave)
-            {
-                return;
-            }
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-            {
-                e.Cancel = true;
-                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
-
-                if (result == DialogResult.Yes)
-                {
-                    await SaveChanges();
-                }
-                e.Cancel = false;
-                Dispose();
-            }
-        }
         public void AddNewObjects(List<Machine> newObjs)
         {
             foreach (var obj in newObjs)
             {
                 var newObj_TC = CreateNewObject(obj, _bindingList.Count + 1);
+                var machine = context.Machines.Where(s => s.Id == newObj_TC.ChildId).First();
+
+                context.Machines.Attach(machine);
+                _tcViewState.TechnologicalCard.Machine_TCs.Add(newObj_TC);
+
+                newObj_TC.Child = machine;
+                newObj_TC.ChildId = machine.Id;
 
                 var displayedObj_TC = new DisplayedMachine_TC(newObj_TC);
                 _bindingList.Add(displayedObj_TC);
 
-                _newObjects.Add(displayedObj_TC);
             }
             dgvMain.Refresh();
         }
@@ -216,62 +186,51 @@ namespace TC_WinForms.WinForms
             }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count + _replacedObjects.Count != 0; // update to UpdateMode
-        public async Task SaveChanges()
+        private void SaveReplacedObjects() // add to UpdateMode
         {
-
-            if (!HasChanges)
-            {
+            if (_replacedObjects.Count == 0)
                 return;
-            }
-            if (_newObjects.Count > 0)
-            {
-                await SaveNewObjects();
-            }
-            if (_changedObjects.Count > 0)
-            {
-                await SaveChangedObjects();
-            }
-            if (_deletedObjects.Count > 0)
-            {
-                await DeleteDeletedObjects();
-            }
-            if (_replacedObjects.Count > 0) // add to UpdateMode
-            {
-                await SaveReplacedObjects();
-            }
 
-            dgvMain.Refresh();
-        }
-        private async Task SaveNewObjects()
-        {
-            var newObjects = _newObjects.Select(dObj => CreateNewObject(dObj)).ToList();
-
-            await dbCon.AddIntermediateObjectAsync(newObjects);
-
-            _newObjects.Clear();
-        }
-        private async Task SaveChangedObjects()
-        {
-            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-
-            await dbCon.UpdateIntermediateObjectAsync(changedTcs);
-
-            _changedObjects.Clear();
-        }
-
-        private async Task DeleteDeletedObjects()
-        {
-            var deletedObjects = _deletedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-            await dbCon.DeleteIntermediateObjectAsync(deletedObjects);
-            _deletedObjects.Clear();
-        }
-        private async Task SaveReplacedObjects() // add to UpdateMode
-        {
             var oldObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();
             var newObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Value)).ToList();
 
-            await dbCon.ReplaceIntermediateObjectAsync(oldObject, newObject);
+            var obj_TCsIds = oldObject.Select(t => t.ChildId).ToList();
+
+            List<ExecutionWork> executionWorks = new List<ExecutionWork>();
+
+            //Получаем список ExecutionWorks где будет происходить замена Machine
+            foreach (var techOperationWork in _tcViewState.TechOperationWorksList)
+            {
+                var executionWorksToReplace = techOperationWork.executionWorks
+                                                               .Where(ew => ew.techOperationWork.TechnologicalCardId == _tcId
+                                                                         && ew.Machines.Any(m => obj_TCsIds.Contains(m.ChildId)))
+                                                                .ToList();
+
+                if(executionWorksToReplace != null && executionWorksToReplace.Count != 0)
+                    executionWorks.AddRange(executionWorksToReplace);
+            }
+
+            //Присваиваем Machine новым объектам и удаляем старые объекты Machine_TCs под замену
+            for (int i = 0; i < oldObject.Count; i++)
+            {
+                var mach = context.Machines.Where(m => m.Id == newObject[i].ChildId).First();
+                newObject[i].Child = mach;
+
+                var oldMach = _tcViewState.TechnologicalCard.Machine_TCs.Where(m => m.ChildId == oldObject[i].ChildId).FirstOrDefault();
+               
+                if (oldMach != null)
+                {
+                    context.Machine_TCs.Attach(oldMach);
+                    _tcViewState.TechnologicalCard.Machine_TCs.Remove(oldMach);
+                }
+            }
+
+            _tcViewState.TechnologicalCard.Machine_TCs.AddRange(newObject);
+
+            foreach (var newTc in newObject)
+            {
+                executionWorks.ForEach(ew => ew.Machines.Add(newTc));
+            }
 
             _replacedObjects.Clear();
         }
@@ -311,6 +270,21 @@ namespace TC_WinForms.WinForms
         {
             DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
                 _bindingList, _newObjects, _deletedObjects);
+
+            if (_deletedObjects.Count != 0)
+            {
+                var deletedObjects = _deletedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+
+                foreach (var obj in deletedObjects)
+                {
+                    var deletedObj = _tcViewState.TechnologicalCard.Machine_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
+                    _tcViewState.TechnologicalCard.Machine_TCs.Remove(deletedObj);
+                }
+
+                _deletedObjects.Clear();
+
+            }
+
         }
 
         private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) // todo - fix problem with selection replacing row (error while remove it)
@@ -321,6 +295,17 @@ namespace TC_WinForms.WinForms
         {
             DisplayedEntityHelper.ListChangedEventHandlerIntermediate
                 (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
+
+            if (_changedObjects.Count != 0)
+            {
+                foreach (var obj in _changedObjects)
+                {
+                    var changedObject = _tcViewState.TechnologicalCard.Machine_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
+                    if (changedObject != null)
+                        changedObject.ApplyUpdates(CreateNewObject(obj));
+                }
+                _changedObjects.Clear();
+            }
         }
 
         private class DisplayedMachine_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable
@@ -551,6 +536,8 @@ namespace TC_WinForms.WinForms
                 {
                     _replacedObjects.Add(dObj, newDisplayedComponent);
                 }
+
+                SaveReplacedObjects();
 
                 return true;
             }

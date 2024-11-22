@@ -1,4 +1,4 @@
-﻿using Serilog;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
@@ -7,6 +7,7 @@ using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Diagram;
 using TC_WinForms.WinForms.Work;
+using TcDbConnector;
 using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -63,13 +64,10 @@ namespace TC_WinForms.WinForms
         private TechnologicalCard _tc = null!;
         private int _tcId;
         private DbConnector db = new DbConnector();
+        private MyDbContext context = new MyDbContext();
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
-            Log.Information("Win6_new constructor. Loading Tc.Id = {tcId}, ViewMode = {viewMode}",tcId, viewMode);
-#if true
-
-#endif
             tcViewState = new TcViewState(role);
             tcViewState.IsViewMode = viewMode;
 
@@ -78,7 +76,7 @@ namespace TC_WinForms.WinForms
             //_isViewMode = viewMode;
 
             InitializeComponent();
-            
+
             this.KeyDown += ControlSaveEvent;
 
             SetTagsToButtons();
@@ -89,8 +87,6 @@ namespace TC_WinForms.WinForms
         }
         private void ThisFormClosed()
         {
-            Log.Information("Win6_new form closed. Tc.Id = {tcId}", _tcId);
-
             TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
 
             Dispose();
@@ -180,14 +176,13 @@ namespace TC_WinForms.WinForms
             if (isViewMode != null)
             {
                 tcViewState.IsViewMode = (bool)isViewMode;
-
-                Log.Information("SetViewMode. Tc.Id = {tcId}, new ViewMode = {isViewMode}", _tcId, isViewMode);
             }
 
             SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
 
             updateToolStripMenuItem.Text = tcViewState.IsViewMode ? "Редактировать" : "Просмотр";
             actionToolStripMenuItem.Visible = !tcViewState.IsViewMode;
+
 
             foreach (var form in _formsCache.Values)
             {
@@ -199,30 +194,125 @@ namespace TC_WinForms.WinForms
             }
         }
 
+        #region SetTcData
+
+        private async Task<TechnologicalCard> GetTCDataAsync()
+        {
+            var techCard = await context.TechnologicalCards
+            .FirstAsync(t => t.Id == _tcId);
+
+            // 2. Загружаем все связанные данные отдельными запросами
+
+            // Machine_TCs
+            var machineTcs = await context.Machine_TCs
+                .Where(m => m.ParentId == _tcId).Include(m => m.Child)
+                .ToListAsync();
+
+            // Protection_TCs
+            var protectionTcs = await context.Protection_TCs
+                .Where(pt => pt.ParentId == _tcId).Include(m => m.Child)
+                .ToListAsync();
+
+            // Tool_TCs
+            var toolTcs = await context.Tool_TCs
+                .Where(tt => tt.ParentId == _tcId).Include(m => m.Child)
+                .ToListAsync();
+
+            // Component_TCs
+            var componentTcs = await context.Component_TCs
+                .Where(ct => ct.ParentId == _tcId).Include(m => m.Child)
+                .ToListAsync();
+
+            // Staff_TCs
+            var staffTcs = await context.Staff_TCs
+                .Where(st => st.ParentId == _tcId).Include(m => m.Child)
+                .ToListAsync();
+
+            return techCard;
+        }
+
+        private async Task<List<TechOperationWork>> GetTOWDataAsync()
+        {
+            var techOperationWorkList = await context.TechOperationWorks.Where(w => w.TechnologicalCardId == _tcId)
+                       .Include(i => i.techOperation)
+                       .ToListAsync();
+
+            //список ID Технологических операций
+            var towIds = techOperationWorkList.Select(t => t.Id).ToList();
+
+            //Получаем список всех компонентов которые принадлежат карте
+            var componentWorks = await context.ComponentWorks.Where(c => towIds.Any(o => o == c.techOperationWorkId))
+               .Include(t => t.component)
+               .ToListAsync();
+
+            //Получаем список всех инструментов, которые принадлежат карте
+            var toolWorks = await context.ToolWorks.Where(c => towIds.Any(o => o == c.techOperationWorkId))
+                .Include(t => t.tool)
+                .ToListAsync();
+
+            //Получаем список всех ExecutionWorks для технологической карты
+            var executionWorks = await
+               context.ExecutionWorks.Where(e => towIds.Any(o => o == e.techOperationWorkId))
+                                     .Include(e => e.techTransition)
+                                     .Include(e => e.Protections)
+                                     .Include(e => e.Machines)
+                                     .Include(e => e.Staffs)
+                                     .ToListAsync();
+
+            return techOperationWorkList;
+        }
+
+
+        private async Task<List<DiagamToWork>> GetDTWDataAsync()
+        {
+            var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == _tcId).ToListAsync();
+
+
+            var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
+                                                                     .Include(ie => ie.techOperationWork)
+                                                                     .ToListAsync();
+
+            var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
+                .ToListAsync();
+
+            var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
+                .Include(q => q.ListDiagramShagToolsComponent)
+                .ToListAsync();
+
+            return diagramToWorkList;
+        }
+
+
+        private async Task SetTcViewStateData()
+        {
+            tcViewState.TechnologicalCard = await GetTCDataAsync();
+            tcViewState.TechOperationWorksList = await GetTOWDataAsync();
+
+            tcViewState.DiagramToWorkList = await GetDTWDataAsync();
+
+        }
+        #endregion
+
         private async void Win6_new_Load(object sender, EventArgs e)
         {
             // download TC from db
             var tcRepository = new TechnologicalCardRepository();
             try
             {
-                _tc = await tcRepository.GetTechnologicalCardAsync(_tcId);
-                tcViewState.TechnologicalCard = _tc;
+                await SetTcViewStateData();
+                _tc = tcViewState.TechnologicalCard;
+
                 AccessInitialization();
                 SetTCStatusAccess();
 
                 UpdateFormTitle();
-
-                Log.Information("Win6_new form loaded. Tc.Id = {tcId}, Tc.Name = {TcName}", _tcId, _tc.Name);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error loading TC. Tc.Id = {tcId}", _tcId);
-
                 MessageBox.Show(ex.Message);
                 this.Close();
             }
 
-            // todo: кажется, данный цикл можно убрать. но для начала, можно проверить логи
             // повторить загрузку 3 раза, в случае ошибки закрыть форму
             for (int i = 0; i < 3; i++)
             {
@@ -233,13 +323,10 @@ namespace TC_WinForms.WinForms
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Error loading form. Tc.Id = {tcId}, FormType = {formType}. Attempt: {tryNumber}", _tcId, EModelType.WorkStep, i+1);
-
                     if (i == 2)
                     {
                         MessageBox.Show("Ошибка загрузки формы: " + ex.Message);
                         this.Close();
-                        Log.Error("Form closed. Tc.Id = {tcId}, FormType = {formType}.", _tcId, EModelType.WorkStep);
                     }
                 }
             }
@@ -260,7 +347,7 @@ namespace TC_WinForms.WinForms
 
         private async void Win6_new_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
+
             // проверка на наличие изменений во всех формах
             if (!CheckForChanges()) // если false, то отменяем переключение
             {
@@ -274,8 +361,8 @@ namespace TC_WinForms.WinForms
                 if (!form.IsDisposed)
                 {
                     form.Close();
-                }
             }
+        }
         }
 
         private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
@@ -289,17 +376,16 @@ namespace TC_WinForms.WinForms
 
             // Блокировка формы при переключении
             this.Enabled = false;
-
-            bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep;
+            bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep || _activeModelType == EModelType.Diagram || modelType == EModelType.Diagram;
 
 
             if (isSwitchingFromOrToWorkStep)
             {
-                if (!CheckForChanges()) // если false, то отменяем переключение
-                {
-                    this.Enabled = true;
-                    return;
-                }
+                //if (!CheckForChanges()) // если false, то отменяем переключение
+                //{
+                //    this.Enabled = true;
+                //    return;
+                //}
 
                 // Удаляем формы из кеша для их обновления при следующем доступе
                 foreach (var formKey in _formsCache.Keys.ToList())
@@ -313,16 +399,19 @@ namespace TC_WinForms.WinForms
                 _formsCache.Clear(); // Очищаем кеш
             }
 
-
-
             if (!_formsCache.TryGetValue(modelType, out var form))
             {
                 form = CreateForm(modelType);
-                _formsCache[modelType] = form;
+                 _formsCache[modelType] = form;
             }
 
             SwitchActiveForm(form);
             _activeModelType = modelType;
+
+            if (form is TechOperationForm techForm)
+                techForm.UpdateGrid();
+            else if (form is DiagramForm digramForm)
+                digramForm.Update();
 
             UpdateButtonsState(modelType);
 
@@ -342,12 +431,12 @@ namespace TC_WinForms.WinForms
                 return true;
             }
 
-            // проверка на наличие изменений во всех формах
-            bool hasUnsavedChanges = false;
+            var hasUnsavedChanges = false;
 
+            // проверка на наличие изменений
             foreach (var fm in _formsCache.Values)
             {
-                if (fm is ISaveEventForm saveForm && saveForm.HasChanges)
+                if (fm is ISaveEventForm saveForm && saveForm.HasChanges || context.ChangeTracker.HasChanges())
                 {
                     hasUnsavedChanges = true;
                     break;
@@ -362,10 +451,15 @@ namespace TC_WinForms.WinForms
 
                 if (result == DialogResult.Yes)
                 {
-                    foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
-                    {
-                        fm.SaveChanges();
-                    }
+                    //foreach (var fm in _formsCache.Values.OfType<ISaveEventForm>().Where(f => f.HasChanges))
+                    //{
+                    //    fm.SaveChanges();
+                    //}
+
+                    //context.SaveChanges();
+
+                    SaveAllChanges();
+
                     return true;
                 }
                 else if (result == DialogResult.Cancel)
@@ -382,19 +476,19 @@ namespace TC_WinForms.WinForms
             switch (modelType)
             {
                 case EModelType.Staff:
-                    return new Win6_Staff(_tcId, tcViewState);// _isViewMode);
+                    return new Win6_Staff(_tcId, tcViewState, context);// _isViewMode);
                 case EModelType.Component:
-                    return new Win6_Component(_tcId, tcViewState);// _isViewMode);
+                    return new Win6_Component(_tcId, tcViewState, context);// _isViewMode);
                 case EModelType.Machine:
-                    return new Win6_Machine(_tcId, tcViewState); //_isViewMode);
+                    return new Win6_Machine(_tcId, tcViewState, context); //_isViewMode);
                 case EModelType.Protection:
-                    return new Win6_Protection(_tcId, tcViewState);// _isViewMode);
+                    return new Win6_Protection(_tcId, tcViewState, context);// _isViewMode);
                 case EModelType.Tool:
-                    return new Win6_Tool(_tcId, tcViewState);// _isViewMode);
+                    return new Win6_Tool(_tcId, tcViewState, context);// _isViewMode);
                 case EModelType.WorkStep:
-                    return new TechOperationForm(_tcId, tcViewState);// _isViewMode);
+                    return new TechOperationForm(_tcId, tcViewState, context);// _isViewMode);
                 case EModelType.Diagram:
-                    return new DiagramForm(_tcId, tcViewState);// _isViewMode);
+                    return new DiagramForm(_tcId, tcViewState, context);// _isViewMode);
                 case EModelType.ExecutionScheme:
                     return new Win6_ExecutionScheme(/*_tc,*/ tcViewState);// _isViewMode);
                 //case EModelType.TechnologicalCard:
@@ -414,20 +508,19 @@ namespace TC_WinForms.WinForms
             form.Dock = DockStyle.Fill;
             pnlDataViewer.Controls.Add(form);
 
-            //form.Show();
-            //_activeForm = form;
-
             DataGridView dataGridView = form.Controls.OfType<DataGridView>().FirstOrDefault();
             if (dataGridView != null)
             {
                 dataGridView.SuspendLayout();
             }
-            form.Show();
             if (dataGridView != null)
             {
                 dataGridView.ResumeLayout();
             }
+
             _activeForm = form;
+            _activeForm.Show();
+
         }
 
         private async void btnShowStaffs_Click(object sender, EventArgs e) => await ShowForm(EModelType.Staff);
@@ -473,19 +566,26 @@ namespace TC_WinForms.WinForms
         private void toolStripButton4_Click(object sender, EventArgs e) => SaveAllChanges();
         private void SaveAllChanges()
         {
-            if (tcViewState.IsViewMode)
+            try
             {
-                return;
+                SaveTehCartaChanges();
+
+                foreach (var form in _formsCache.Values)
+                {
+                    // is form is ISaveEventForm
+                    if (form is ISaveEventForm saveForm)
+                    {
+                        saveForm.SaveChanges();
+                    }
+                }
+
+               
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
             }
 
-            foreach (var form in _formsCache.Values)
-            {
-                // is form is ISaveEventForm
-                if (form is ISaveEventForm saveForm)
-                {
-                    saveForm.SaveChanges();
-                }
-            }
             MessageBox.Show("Изменения сохранены"); // todo: add bool return value and show message only if changes were saved
         }
         private void ControlSaveEvent(object sender, KeyEventArgs e)
@@ -493,6 +593,92 @@ namespace TC_WinForms.WinForms
             if (e.Control && e.KeyCode == Keys.S)
             {
                 SaveAllChanges();
+            }
+        }
+
+        private void SaveTehCartaChanges()
+        {
+            DbConnector dbCon = new DbConnector();
+
+            List<TechOperationWork> AllDele = tcViewState.TechOperationWorksList.Where(w => w.Delete == true).ToList();
+            foreach (TechOperationWork techOperationWork in AllDele)
+            {
+                tcViewState.TechOperationWorksList.Remove(techOperationWork);
+                if (techOperationWork.NewItem == false)
+                {
+                    context.TechOperationWorks.Remove(techOperationWork);
+                }
+            }
+
+            foreach (TechOperationWork techOperationWork in tcViewState.TechOperationWorksList)
+            {
+                var allDel = techOperationWork.executionWorks.Where(w => w.Delete == true).ToList();
+                foreach (ExecutionWork executionWork in allDel)
+                {
+                    techOperationWork.executionWorks.Remove(executionWork);
+                }
+
+                var to = context.TechOperationWorks.SingleOrDefault(s => techOperationWork.Id != 0 && s.Id == techOperationWork.Id);
+                if (to == null)
+                {
+                    context.TechOperationWorks.Add(techOperationWork);
+                }
+                else
+                {
+                    to = techOperationWork;
+                }
+
+                var delTools = techOperationWork.ToolWorks.Where(w => w.IsDeleted == true).ToList();
+
+                foreach (ToolWork delTool in delTools)
+                {
+                    dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
+                    techOperationWork.ToolWorks.Remove(delTool);
+                }
+
+
+
+                foreach (ToolWork toolWork in techOperationWork.ToolWorks)
+                {
+                    if (tcViewState.TechnologicalCard.Tool_TCs.SingleOrDefault(s => s.Child == toolWork.tool) == null)
+                    {
+                        Tool_TC tool = new Tool_TC();
+                        tool.Child = toolWork.tool;
+                        tool.Order = tcViewState.TechnologicalCard.Tool_TCs.Count + 1;
+                        tool.Quantity = toolWork.Quantity;
+                        tcViewState.TechnologicalCard.Tool_TCs.Add(tool);
+                    }
+                }
+
+                var delComponents = techOperationWork.ComponentWorks.Where(w => w.IsDeleted == true).ToList();
+
+                foreach (var delComp in delComponents)
+                {
+                    dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
+                    techOperationWork.ComponentWorks.Remove(delComp);
+                }
+
+                foreach (ComponentWork componentWork in techOperationWork.ComponentWorks)
+                {
+                    if (tcViewState.TechnologicalCard.Component_TCs.SingleOrDefault(s => s.Child == componentWork.component) == null)
+                    {
+                        Component_TC Comp = new Component_TC();
+                        Comp.Child = componentWork.component;
+                        Comp.Order = tcViewState.TechnologicalCard.Component_TCs.Count + 1;
+                        Comp.Quantity = componentWork.Quantity;
+                        tcViewState.TechnologicalCard.Component_TCs.Add(Comp);
+                    }
+                }
+
+                try
+                {
+                    context.SaveChanges();
+                    // MessageBox.Show("Успешно сохранено");
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show(exception.Message + "\n" + exception.InnerException);
+                }
             }
         }
 
@@ -716,7 +902,7 @@ namespace TC_WinForms.WinForms
             else
                 tcViewState.IsCommentViewMode = !tcViewState.IsCommentViewMode;
 
-            if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm) 
+            if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm)
                 && cachedForm is TechOperationForm techOperationForm)
             {
                 techOperationForm.SetCommentViewMode();

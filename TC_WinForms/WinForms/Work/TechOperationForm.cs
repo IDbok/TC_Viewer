@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.DirectoryServices.ActiveDirectory;
 using System.Drawing.Printing;
+using System.Linq;
 using System.Text;
 using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     private bool _isCommentViewMode;
     private bool _isMachineViewMode;
 
-    public MyDbContext context { get; private set; } = new MyDbContext();
+    public MyDbContext context { get; private set; }
 
     public readonly int tcId;
 
@@ -35,10 +36,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public bool CloseFormsNoSave { get; set; } = false;
 
-    public TechOperationForm(int tcId, TcViewState tcViewState)//,  bool viewerMode = false)
+    public TechOperationForm(int tcId, TcViewState tcViewState, MyDbContext context)//,  bool viewerMode = false)
     {
         this._tcViewState = tcViewState;
-
+        this.context = context;
         this.tcId = tcId;
         //_isViewMode = viewerMode;
         InitializeComponent();
@@ -55,14 +56,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         //this.FormClosed += (sender, e) => this.Dispose();
     }
 
-    private async void TechOperationForm_Load(object sender, EventArgs e)
+    private void TechOperationForm_Load(object sender, EventArgs e)
     {
         // Блокировка формы на время загрузки данных
         this.Enabled = false;
 
         // спросить у пользователя, какой загрузкой воспользоваться
-
-        await LoadDataAsync8(tcId);
+        TehCarta = _tcViewState.TechnologicalCard;
+        TechOperationWorksList = _tcViewState.TechOperationWorksList;
+        //await LoadDataAsync8(tcId);
 
         UpdateGrid();
         SetCommentViewMode();
@@ -443,7 +445,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 idd.PictureName = gg;
                 HasChanges = true;
                 if (_editForm?.IsDisposed == false)
-                    _editForm.UpdateGridLocalTP();
+                    _editForm.UpdateLocalTP();
             }
         }
         else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
@@ -460,7 +462,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 idd.Comments = gg;
                 HasChanges = true;
                 if(_editForm?.IsDisposed == false)
-                    _editForm.UpdateGridLocalTP();
+                    _editForm.UpdateLocalTP();
             }
             else if (itsTool || ItsComponent)
             {
@@ -1410,7 +1412,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             techOperationWork.Order = maxOrder + 1;
 
             TechOperationWorksList.Add(techOperationWork);
-
+            context.TechOperationWorks.Add(techOperationWork);
 
             if (TechOperat.Category == "Типовая ТО")
             {
@@ -1462,6 +1464,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 }
                 techOpeWork.Order = max + 1;
                 TOWork.executionWorks.Add(techOpeWork);
+                context.ExecutionWorks.Add(techOpeWork);
             }
             else
             {
@@ -1474,6 +1477,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 techOpeWork.techTransition = tech;
                 //techOpeWork.Value = tech.TimeExecution;
                 TOWork.executionWorks.Add(techOpeWork);
+                context.ExecutionWorks.Add(techOpeWork);
             }
 
             if (techTransitionTypical != null)
@@ -1496,8 +1500,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         if (vb != null)
         {
             vb.Delete = true;
-            }
+            TechOperationWorksList.Remove(vb);
+
+            var deletedDTW = _tcViewState.DiagramToWorkList.Where(d => d.techOperationWork == TechOperat).FirstOrDefault();
+            if (deletedDTW != null)
+                _tcViewState.DiagramToWorkList.Remove(deletedDTW);
+
+            context.Remove(vb);
         }
+    }
 
     public void MarkToDeleteToolWork(TechOperationWork work, ToolWork tool)
     {
@@ -1505,6 +1516,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         if (vb != null)
         {
             vb.IsDeleted = true;
+            work.ToolWorks.Remove(vb);
+
+            var relatedItems = context.DiagramShagToolsComponent.Where(s => s.toolWorkId == vb.Id).ToList();
+            foreach (var item in relatedItems)
+            {
+                context.Remove(item);
+            }
+
         }
     }
 
@@ -1514,6 +1533,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         if (vb != null)
         {
             vb.IsDeleted = true;
+            work.ComponentWorks.Remove(vb);
+
+            var relatedItems = context.DiagramShagToolsComponent.Where(s => s.componentWorkId == vb.Id).ToList();
+            foreach (var item in relatedItems)
+            {
+                context.Remove(item);
+            }
         }
     }
 
@@ -1533,6 +1559,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
 
             vb.Delete = true;
+            TOWork.executionWorks.Remove(vb);
+            context.Remove(vb);
         }
     }
 
@@ -1566,15 +1594,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         List<TechOperationWork> AllDele = TechOperationWorksList.Where(w => w.Delete == true).ToList();
         foreach (TechOperationWork techOperationWork in AllDele)
         {
-            foreach (ToolWork delTool in techOperationWork.ToolWorks)
-            {
-                dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
-            }
+            // todo: проверить, что удаляются все связанные элементы
+            //foreach (ToolWork delTool in techOperationWork.ToolWorks)
+            //{
+            //    dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
+            //}
 
-            foreach (ComponentWork delComp in techOperationWork.ComponentWorks)
-            {
-                dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
-            }
+            //foreach (ComponentWork delComp in techOperationWork.ComponentWorks)
+            //{
+            //    dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
+            //}
 
             TechOperationWorksList.Remove(techOperationWork);
             if (techOperationWork.NewItem == false)

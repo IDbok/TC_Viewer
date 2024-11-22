@@ -1,8 +1,10 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -11,13 +13,14 @@ using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Tool : Form, ISaveEventForm, IViewModeable
+    public partial class Win6_Tool : Form, IViewModeable
     {
         private readonly TcViewState _tcViewState;
 
         private bool _isViewMode;
 
-        private DbConnector dbCon = new DbConnector();
+        private MyDbContext context;
+
         private int _tcId;
 
         private BindingList<DisplayedTool_TC> _bindingList;
@@ -26,12 +29,11 @@ namespace TC_WinForms.WinForms
         private List<DisplayedTool_TC> _deletedObjects = new ();
 
         private Dictionary<DisplayedTool_TC, DisplayedTool_TC> _replacedObjects = new ();// add to UpdateMode
-        public bool CloseFormsNoSave { get; set; } = false;
-        public Win6_Tool(int tcId, TcViewState tcViewState)// bool viewerMode = false)
+        public Win6_Tool(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
         {
             _tcViewState = tcViewState;
+            this.context = context;
 
-            //_isViewMode= viewerMode;
             _tcId = tcId;
 
             InitializeComponent();
@@ -48,11 +50,6 @@ namespace TC_WinForms.WinForms
 
         public void SetViewMode(bool? isViewMode = null)
         {
-            //if (isViewMode != null)
-            //{
-            //    _isViewMode = (bool)isViewMode;
-            //}
-
             pnlControls.Visible = !_tcViewState.IsViewMode;
 
             // make columns editable
@@ -70,30 +67,21 @@ namespace TC_WinForms.WinForms
 
         }
 
-        public bool GetDontSaveData()
+        private void Win6_Tool_Load(object sender, EventArgs e)
         {
-            if (HasChanges) 
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        private async void Win6_Tool_Load(object sender, EventArgs e)
-        {
-            await LoadObjects();
+            LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedTool_TC>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false;
 
             SetViewMode();
         }
-        private async Task LoadObjects()
+        private void LoadObjects()
         {
-            var tcList = await Task.Run(() => dbCon.GetIntermediateObjectList<Tool_TC, Tool>(_tcId).OrderBy(obj => obj.Order)
-                .Select(obj => new DisplayedTool_TC(obj)).ToList());
+            var tcList = _tcViewState.TechnologicalCard.Tool_TCs.Where(obj => obj.ParentId == _tcId)
+                                                                .OrderBy(o => o.Order).ToList()
+                                                                .Select(obj => new DisplayedTool_TC(obj))
+                                                                .ToList();
             _bindingList = new BindingList<DisplayedTool_TC>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
@@ -101,36 +89,24 @@ namespace TC_WinForms.WinForms
             SetDGVColumnsSettings();
         }
 
-        private async void Win6_Tool_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (CloseFormsNoSave)
-            {
-                return;
-            }
-            if (HasChanges)
-            {
-                e.Cancel = true;
-                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
-
-                if (result == DialogResult.Yes)
-                {
-                    await SaveChanges();
-                }
-                e.Cancel = false;
-                Dispose();
-            }
-        }
         public void AddNewObjects(List<Tool> newObjs)
         {
             foreach (var obj in newObjs)
             {
                 var newObj_TC = CreateNewObject(obj, _bindingList.Count + 1);
+                var tool = context.Tools.Where(s => s.Id == newObj_TC.ChildId).First();
+
+                context.Tools.Attach(tool);
+                _tcViewState.TechnologicalCard.Tool_TCs.Add(newObj_TC);
+
+                newObj_TC.Child = tool;
+                newObj_TC.ChildId = tool.Id;
 
                 var displayedObj_TC = new DisplayedTool_TC(newObj_TC);
                 _bindingList.Add(displayedObj_TC);
-
-                _newObjects.Add(displayedObj_TC);
             }
+
+
             dgvMain.Refresh();
         }
 
@@ -216,62 +192,43 @@ namespace TC_WinForms.WinForms
             }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count + _replacedObjects.Count != 0; // update to UpdateMode
-        public async Task SaveChanges()
+        private void SaveReplacedObjects() // add to UpdateMode
         {
-            if (!HasChanges)
-            {
+            if (_replacedObjects.Count == 0)
                 return;
-            }
-            if (_newObjects.Count > 0)
+
+            var oldObjects = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();
+            var newObjects = _replacedObjects.Select(dtc => CreateNewObject(dtc.Value)).ToList();
+
+            //Присваиваем компонент для обхода ошибки состояний
+            foreach (var newObj in newObjects)
             {
-                await SaveNewObjects();
+                var tool = context.Tools.Where(m => m.Id == newObj.ChildId).First();
+                newObj.Child = tool;
             }
-            if (_changedObjects.Count > 0)
+
+            //Заменяем объект в ToolWorks в TechOperationWorksList, если он присутствует в списке компонентов тех операции
+            foreach (var tecjOperationWork in _tcViewState.TechOperationWorksList)
             {
-                await SaveChangedObjects();
+                for (int i = 0; i < oldObjects.Count; i++)
+                {
+                    var replaceableToolWork = tecjOperationWork.ToolWorks.Where(m => m.toolId == oldObjects[i].ChildId).FirstOrDefault();
+                    if (replaceableToolWork != null)
+                    {
+                        replaceableToolWork.tool = newObjects[i].Child;
+                        replaceableToolWork.toolId = newObjects[i].ChildId;
+                    }
+                }
             }
-            if (_deletedObjects.Count > 0)
+
+            //Удялем старые компоненты из ТехКарты
+            for (int i = 0; i < oldObjects.Count; i++)
             {
-                await DeleteDeletedObjects();
-            }
-            if (_replacedObjects.Count > 0) // add to UpdateMode
-            {
-                await SaveReplacedObjects();
+                var oldTool = _tcViewState.TechnologicalCard.Tool_TCs.Where(m => m.ChildId == oldObjects[i].ChildId).First();
+                _tcViewState.TechnologicalCard.Tool_TCs.Remove(oldTool);
             }
 
-            dgvMain.Refresh();
-        }
-        private async Task SaveNewObjects()
-        {
-            var newObjects = _newObjects.Select(dObj => CreateNewObject(dObj)).ToList();
-
-            await dbCon.AddIntermediateObjectAsync(newObjects);
-
-            _newObjects.Clear();
-        }
-        private async Task SaveChangedObjects()
-        {
-            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-
-            await dbCon.UpdateIntermediateObjectAsync(changedTcs);
-
-            _changedObjects.Clear();
-        }
-
-        private async Task DeleteDeletedObjects()
-        {
-            var deletedObjects = _deletedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-            await dbCon.DeleteIntermediateObjectAsync(deletedObjects);
-            _deletedObjects.Clear();
-        }
-
-        private async Task SaveReplacedObjects() // add to UpdateMode
-        {
-            var oldObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();
-            var newObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Value)).ToList();
-
-            await dbCon.ReplaceIntermediateObjectAsync(oldObject, newObject);
+            _tcViewState.TechnologicalCard.Tool_TCs.AddRange(newObjects);
 
             _changedObjects.Clear();
         }
@@ -313,6 +270,26 @@ namespace TC_WinForms.WinForms
             DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
                 _bindingList, _newObjects, _deletedObjects);
 
+            if (_deletedObjects.Count != 0)
+            {
+                foreach (var obj in _deletedObjects)
+                {
+                    foreach (var tecjOperationWork in _tcViewState.TechOperationWorksList)
+                    {
+                        var deletableCompWork = tecjOperationWork.ToolWorks.Where(m => m.toolId == obj.ChildId).FirstOrDefault();
+                        if (deletableCompWork != null)
+                        {
+                            tecjOperationWork.ToolWorks.Remove(deletableCompWork);
+                        }
+
+                    }
+                    var deletedObj = _tcViewState.TechnologicalCard.Tool_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
+                    if (deletedObj != null)
+                        _tcViewState.TechnologicalCard.Tool_TCs.Remove(deletedObj);
+                }
+
+                _deletedObjects.Clear();
+            }
         }
 
         private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) // todo - fix problem with selection replacing row (error while remove it)
@@ -324,6 +301,18 @@ namespace TC_WinForms.WinForms
         {
             DisplayedEntityHelper.ListChangedEventHandlerIntermediate
                 (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
+
+            if (_changedObjects.Count != 0)
+            {
+                foreach (var obj in _changedObjects)
+                {
+                    var changedObject = _tcViewState.TechnologicalCard.Tool_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
+                    if (changedObject != null)
+                        changedObject.ApplyUpdates(CreateNewObject(obj));
+                }
+
+                _changedObjects.Clear();
+            }
         }
         private class DisplayedTool_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable
         {
@@ -557,6 +546,8 @@ namespace TC_WinForms.WinForms
                 {
                     _replacedObjects.Add(dObj, newDisplayedComponent);
                 }
+
+                SaveReplacedObjects();
 
                 return true;
             }
