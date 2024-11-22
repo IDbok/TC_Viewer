@@ -58,8 +58,6 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
         _tcId = createdTCId;
         InitializeComponent();
 
-        _selectionService = new SelectionService<DisplayedTool>(dgvMain, _displayedObjects);
-
     }
     private async void Win7_6_Tool_Load(object sender, EventArgs e)
     {
@@ -108,6 +106,8 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
             .Select(obj => new DisplayedTool(obj)).OrderBy(c => c.Name).ToList());
 
         paginationService = new PaginationControlService<DisplayedTool>(50, _displayedObjects);
+
+        _selectionService = new SelectionService<DisplayedTool>(dgvMain, _displayedObjects);
 
         FilteringObjects();
 

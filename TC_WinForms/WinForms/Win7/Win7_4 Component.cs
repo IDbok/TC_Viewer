@@ -70,9 +70,6 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         _isUpdateItemMode = isUpdateMode;// add to UpdateMode
 
         InitializeComponent();
-
-
-        _selectionService = new SelectionService<DisplayedComponent>(dgvMain, _displayedObjects);
     }
 
     private  void InitializeTip()
@@ -137,6 +134,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
             .Select(obj => new DisplayedComponent(obj)).OrderBy(c => c.Name).ToList());
 
         paginationService = new PaginationControlService<DisplayedComponent>(50, _displayedObjects);
+
+        _selectionService = new SelectionService<DisplayedComponent>(dgvMain, _displayedObjects);
 
         FilteringObjects();
 
