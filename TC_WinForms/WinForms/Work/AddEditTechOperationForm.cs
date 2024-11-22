@@ -1,11 +1,7 @@
 ﻿using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-
-//using NCalc;
 using System.Data;
-using System.Linq.Expressions;
-using System.Windows.Forms;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TcModels.Models.IntermediateTables;
@@ -1097,7 +1093,7 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
-            TechOperationForm.HighlightExecutionWorkRow(ExecutionWorkBox, true);
+            // TechOperationForm.HighlightExecutionWorkRow(ExecutionWorkBox, true);
 
             var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
@@ -1261,7 +1257,7 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
-            TechOperationForm.HighlightExecutionWorkRow(work, true);
+            // TechOperationForm.HighlightExecutionWorkRow(work, true);
 
             var context = TechOperationForm.context;
 
@@ -1336,14 +1332,9 @@ namespace TC_WinForms.WinForms.Work
         public void UpdateGridLocalSZ()
         {
             var offScroll = dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex;
-            //var ExecutionWorkBox = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
-            dataGridViewLocalSZ.Rows.Clear();
-            //if (ExecutionWorkBox == null)
-            //{
-            //    return;
-            //}
 
-            // var work = SelectedTO; // (TechOperationWork)comboBoxTO.SelectedItem;
+            dataGridViewLocalSZ.Rows.Clear();
+
             var LocalTP = SelectedTP; // TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
             if (LocalTP == null)
@@ -2708,12 +2699,6 @@ namespace TC_WinForms.WinForms.Work
         {
             // Сохраняем текущий выбранный TechOperationWork из dataGridViewTPLocal
             ExecutionWork selectedTP = SelectedTP;
-            //if (dataGridViewTPLocal.SelectedRows.Count > 0)
-            //{
-            //    var selectedRow = dataGridViewTPLocal.SelectedRows[0];
-            //    var id = (Guid)selectedRow.Cells[0].Value;
-            //    selectedTP = FindExecutionWorkById(id);
-            //}
 
             var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
 

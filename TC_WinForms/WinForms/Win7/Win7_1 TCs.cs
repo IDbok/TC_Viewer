@@ -134,9 +134,10 @@ namespace TC_WinForms.WinForms
 
                 dgvMain.RowPostPaint += dgvMain_RowPostPaint;
 
-            ResizeRows();
-            dgvMain.Visible = true;
-            this.Enabled = true;
+                ResizeRows();
+                dgvMain.Visible = true;
+                this.Enabled = true;
+            }
         }
         public async Task LoadDataAsync()
         {
@@ -155,7 +156,6 @@ namespace TC_WinForms.WinForms
                     _displayedTechnologicalCards = await Task.Run(() => dbCon.GetObjectList<TechnologicalCard>()
                         .Select(tc => new DisplayedTechnologicalCard(tc)).OrderBy(tc => tc.Article).ToList());
                 }
-                totalPageCount = (int)Math.Ceiling(_displayedTechnologicalCards.Count / (double)_pageSize);
 
                 paginationService = new PaginationControlService<DisplayedTechnologicalCard>(50, _displayedTechnologicalCards);
 
