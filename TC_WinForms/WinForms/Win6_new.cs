@@ -686,7 +686,7 @@ namespace TC_WinForms.WinForms
             {
                 SaveTehCartaChanges();
 
-                foreach (var form in _formsCache.Values) // TODO - проверить, не лишее ли это сохранение?
+                foreach (var form in _formsCache.Values) 
                 {
                     // is form is ISaveEventForm
                     if (form is ISaveEventForm saveForm)
@@ -1057,7 +1057,8 @@ namespace TC_WinForms.WinForms
         {
             LogUserAction("Отображение схемы выполнения");
 
-            if (!_formsCache.TryGetValue(EModelType.ExecutionScheme, out var win6_ExecutionScheme) || win6_ExecutionScheme.IsDisposed)
+            if (!_formsCache.TryGetValue(EModelType.ExecutionScheme, out var win6_ExecutionScheme) 
+                || win6_ExecutionScheme.IsDisposed)
             {
                 win6_ExecutionScheme = CreateForm(EModelType.ExecutionScheme);
                 _formsCache[EModelType.ExecutionScheme] = win6_ExecutionScheme;
@@ -1072,7 +1073,8 @@ namespace TC_WinForms.WinForms
         {
             LogUserAction("Отображение диаграммы в отдельном окне");
 
-            if (!_formsCache.TryGetValue(EModelType.Diagram, out var diagramForm) || diagramForm.IsDisposed)
+            if (!_formsCache.TryGetValue(EModelType.Diagram, out var diagramForm) 
+                || diagramForm.IsDisposed)
             {
                 diagramForm = CreateForm(EModelType.Diagram);
                 _formsCache[EModelType.Diagram] = diagramForm;
@@ -1086,8 +1088,6 @@ namespace TC_WinForms.WinForms
             Log.Information("Действие пользователя: {Action}, TcId={TcId}", 
                 actionDescription, _tcId);
         }
-
-
     }
 
 

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Serilog;
+using System.IO;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Interfaces;
@@ -22,6 +23,9 @@ namespace TC_WinForms.WinForms
 
         public Win6_ExecutionScheme(TcViewState tcViewState, bool viewerMode = false)
         {
+            Log.Information("Инициализация окна Win6_ExecutionScheme для так {tcId}", 
+                tcViewState.TechnologicalCard.Id);
+
             _tcViewState = tcViewState;
             _tc = tcViewState.TechnologicalCard!;
 
@@ -40,57 +44,83 @@ namespace TC_WinForms.WinForms
         {
             SetViewMode();
 
-            // проверка нет ли во временных данных изображения
-            var image = ImageHelper.LoadImageFromTempFileAsBase64(_tc.Id);
-            if (!string.IsNullOrEmpty(image))
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            try
             {
-                DisplayImage(image, pictureBoxExecutionScheme);
-                return;
-            }
-
-            if (_tc.ExecutionSchemeImageId != null || 
-                (_tc.ExecutionSchemeImageId == null 
-                && _tcViewState.TechnologicalCard!.ExecutionSchemeBase64 != null))
-            {
-                string imageBase64 = "";
-
-                if (_tc.ExecutionSchemeBase64 != null)
-                    imageBase64 = _tc.ExecutionSchemeBase64 ?? "";
-                else if(_tc.ExecutionSchemeImageId != null)
+                // проверка нет ли во временных данных изображения
+                var tempImage = ImageHelper.LoadImageFromTempFileAsBase64(_tc.Id);
+                if (!string.IsNullOrEmpty(tempImage))
                 {
-                    try
-                    {
-                        for(int i = 1; i <=3; i++)//проверка на загрузку изображение, повторяем 3 раза
-                        {
-                            imageBase64 = 
-                                await tcRepository.GetImageBase64Async((long)_tc.ExecutionSchemeImageId) ?? "";
-                            
+                    Log.Information("Изображение найдено во временных файлах для TcId={TcId}",
+                        _tc.Id);
 
-                            if (i == 3 && (imageBase64 == "" || imageBase64 == null))
-                                throw new Exception("не удалось получить изображение");
-                            else if (imageBase64 != null && imageBase64 != "")
-                                break;
+                    DisplayImage(tempImage, pictureBoxExecutionScheme);
+                    return;
+                }
+
+                if (_tc.ExecutionSchemeImageId != null ||
+                    (_tc.ExecutionSchemeImageId == null
+                    && _tcViewState.TechnologicalCard!.ExecutionSchemeBase64 != null))
+                {
+                    string imageBase64 = "";
+
+                    if (_tc.ExecutionSchemeBase64 != null)
+                    { 
+                        imageBase64 = _tc.ExecutionSchemeBase64 ?? ""; 
+                        Log.Information("Изображение загружено из объекта TcViewState для TcId={TcId}", _tc.Id);
+                    }
+                    else if (_tc.ExecutionSchemeImageId != null)
+                    {
+                        for (int attempt = 1; attempt <= 3; attempt++)//проверка на загрузку изображение, повторяем 3 раза
+                        {
+                            try
+                            {
+                                Log.Information("Попытка {Attempt} загрузки изображения из БД для TcId={TcId}", attempt, _tc.Id);
+
+                                imageBase64 =
+                                    await tcRepository.GetImageBase64Async((long)_tc.ExecutionSchemeImageId) ?? "";
+
+                                if (!string.IsNullOrEmpty(imageBase64))
+                                {
+                                    Log.Information("Изображение успешно загружено из БД за {ElapsedMilliseconds} мс для TcId={TcId}",
+                                        stopwatch.ElapsedMilliseconds, _tc.Id); 
+                                    _tc.ExecutionSchemeBase64 = imageBase64;
+                                    break;
+                                }
+
+                                if (attempt == 3)
+                                    throw new Exception("Изображение не удалось загрузить из БД после 3 попыток.");
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error(ex, "Ошибка при загрузке изображения из БД для TcId={TcId}", _tc.Id);
+                                if (attempt == 3) throw;
+                            }
+
                         }
                         _tc.ExecutionSchemeBase64 = imageBase64;
-
                     }
-                    catch(Exception ex)
+
+                    if (!string.IsNullOrEmpty(imageBase64))
                     {
-                        MessageBox.Show(ex.Message);
-                        this.Close();
+                        // Сохраняем изображение во временный файл
+                        ImageHelper.SaveImageToTempFile(imageBase64, _tc.Id);
+                        Log.Information("Изображение сохранено во временный файл для TcId={TcId}", _tc.Id);
+
+                        DisplayImage(imageBase64, pictureBoxExecutionScheme);
                     }
-                }
-
-                if (!string.IsNullOrEmpty(imageBase64))
-                {
-                    // Сохраняем изображение во временный файл
-                    ImageHelper.SaveImageToTempFile(imageBase64, _tc.Id);
-
-                    DisplayImage(imageBase64, pictureBoxExecutionScheme);
-                    //DisplayImage(_tc.ExecutionSchemeBase64, pictureBoxExecutionScheme);
                 }
             }
-
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Ошибка при загрузке изображения для TcId={TcId}", _tc.Id);
+                MessageBox.Show(ex.Message);
+                this.Close();
+            }
+            finally
+            {
+                stopwatch.Stop();
+            }
         }
         
         private void OnViewModeChanged()
@@ -111,6 +141,10 @@ namespace TC_WinForms.WinForms
                 pictureBox.Image = Image.FromStream(ms);
                 pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             }
+
+            Log.Information("Изображение отображено в форме для TcId={TcId}", _tc.Id);
+            // добавить первые 10 символов base64 строки, для проверки, что изображение загружено
+            Log.Debug("Первые 10 символов base64 строки: {First10Chars}", base64String.Substring(0, 10));
         }
 
         private void btnUploadExecutionScheme_Click(object sender, EventArgs e)
@@ -122,28 +156,37 @@ namespace TC_WinForms.WinForms
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    var bytesImage = File.ReadAllBytes(openFileDialog.FileName);
-                    string base64Image = Convert.ToBase64String(bytesImage);
-
-                    var newImage = new ImageStorage
+                    try
                     {
-                        ImageBase64 = base64Image,
-                        Category = ImageCategory.ExecutionScheme
-                    };
-                    _tc.ExecutionSchemeImage = newImage;
+                        var bytesImage = File.ReadAllBytes(openFileDialog.FileName);
+                        string base64Image = Convert.ToBase64String(bytesImage);
 
-                    if (_tc.ExecutionSchemeImageId != null)
-                    {
-                        _tc.ExecutionSchemeImage.Id = (long)_tc.ExecutionSchemeImageId;
+                        var newImage = new ImageStorage
+                        {
+                            ImageBase64 = base64Image,
+                            Category = ImageCategory.ExecutionScheme
+                        };
+                        _tc.ExecutionSchemeImage = newImage;
+
+                        if (_tc.ExecutionSchemeImageId != null)
+                        {
+                            _tc.ExecutionSchemeImage.Id = (long)_tc.ExecutionSchemeImageId;
+                        }
+
+                        // Сохраняем изображение во временный файл
+                        ImageHelper.SaveImageToTempFile(base64Image, _tc.Id);
+                        Log.Information("Новое изображение загружено пользователем и сохранено во временный файл для TcId={TcId}", _tc.Id);
+
+                        DisplayImage(_tc.ExecutionSchemeImage.ImageBase64, pictureBoxExecutionScheme);
+                        _tc.ExecutionSchemeBase64 = base64Image;
+
+                        HasChanges = true;
                     }
-
-                    // Сохраняем изображение во временный файл
-                    ImageHelper.SaveImageToTempFile(base64Image, _tc.Id);
-
-                    DisplayImage(_tc.ExecutionSchemeImage.ImageBase64, pictureBoxExecutionScheme);
-                    _tc.ExecutionSchemeBase64 = base64Image;
-
-                    HasChanges = true;
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Ошибка при загрузке нового изображения для TcId={TcId}", _tc.Id);
+                        MessageBox.Show("Ошибка при загрузке изображения.");
+                    }
                 }
             }
         }
@@ -162,28 +205,38 @@ namespace TC_WinForms.WinForms
                 {
                     await dbCon.UpdateTcExecutionScheme(_tc.Id, _tc.ExecutionSchemeImage.ImageBase64);
                     _tc.ExecutionSchemeBase64 = _tc.ExecutionSchemeImage.ImageBase64;
-
+                    Log.Information("Изображение сохранено в БД для TcId={TcId}", _tc.Id);
                 }
                 else
                 {
                     await dbCon.DeleteTcExecutionScheme(_tc.Id);
                     _tc.ExecutionSchemeBase64 = null;
+                    Log.Information("Изображение удалено из БД для TcId={TcId}", _tc.Id);
                 }
             }
         }
 
         private void btnDeleteES_Click(object sender, EventArgs e)
         {
-            _tc.ExecutionSchemeImage?.ClearBase64Image(); // что делает данное поле?
-            _tc.ExecutionSchemeImage = null;
-            _tc.ExecutionSchemeBase64 = null;
-            _tc.ExecutionSchemeImageId = null;
-            pictureBoxExecutionScheme.Image = null;
+            try
+            {
+                _tc.ExecutionSchemeImage?.ClearBase64Image(); // что делает данное поле?
+                _tc.ExecutionSchemeImage = null;
+                _tc.ExecutionSchemeBase64 = null;
+                _tc.ExecutionSchemeImageId = null;
+                pictureBoxExecutionScheme.Image = null;
 
-            // Удаляем временный файл
-            TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
+                // Удаляем временный файл
+                TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
+                Log.Information("Изображение удалено из формы и временных файлов для TcId={TcId}", _tc.Id);
 
-            HasChanges = true;
+                HasChanges = true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Ошибка при удалении изображения для TcId={TcId}", _tc.Id);
+                MessageBox.Show("Ошибка при удалении изображения.");
+            }
         }
     }
 }
