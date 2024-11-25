@@ -2366,8 +2366,14 @@ namespace TC_WinForms.WinForms.Work
                                 ChildExecutionWorkId = currentEW.Id,
                                 NewCoefficient = "*1"
                             };
+                            dataGridViewPovtor.Rows[e.RowIndex].Cells[5].Value = "*1";
+
                             executionWorkPovtor.ExecutionWorkRepeats.Add(newRepeat);
+
+                            TechOperationForm.context.ExecutionWorkRepeats.Add(newRepeat);
+
                             // TechOperationForm.UpdateGrid();
+
                         }
                     }
                     else
@@ -2377,7 +2383,11 @@ namespace TC_WinForms.WinForms.Work
                             dataGridViewPovtor.Rows[e.RowIndex].Cells[5].Value = "";
 
                             executionWorkPovtor.ExecutionWorkRepeats.Remove(existingRepeat);
+
+                            TechOperationForm.context.ExecutionWorkRepeats.Remove(existingRepeat);
+
                             // TechOperationForm.UpdateGrid();
+
                         }
                     }
 
