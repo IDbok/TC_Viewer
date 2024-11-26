@@ -589,7 +589,7 @@
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
             tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 17F));
-            tableLayoutPanel6.Size = new Size(1574, 770);
+            tableLayoutPanel6.Size = new Size(1574, 1191);
             tableLayoutPanel6.TabIndex = 3;
             // 
             // dataGridViewInstrumentLocal
@@ -741,7 +741,7 @@
             tableLayoutPanel12.Name = "tableLayoutPanel12";
             tableLayoutPanel12.RowCount = 1;
             tableLayoutPanel12.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel12.Size = new Size(1566, 82);
+            tableLayoutPanel12.Size = new Size(1566, 1191);
             tableLayoutPanel12.TabIndex = 4;
             // 
             // groupBox1
@@ -814,7 +814,7 @@
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 17F));
-            tableLayoutPanel5.Size = new Size(1566, 767);
+            tableLayoutPanel5.Size = new Size(1566, 1191);
             tableLayoutPanel5.TabIndex = 2;
             // 
             // dataGridViewComponentAll
@@ -969,7 +969,7 @@
             tableLayoutPanel13.Name = "tableLayoutPanel13";
             tableLayoutPanel13.RowCount = 1;
             tableLayoutPanel13.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel13.Size = new Size(1558, 82);
+            tableLayoutPanel13.Size = new Size(1558, 1191);
             tableLayoutPanel13.TabIndex = 6;
             // 
             // groupBox8
@@ -1041,7 +1041,7 @@
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 17F));
-            tableLayoutPanel3.Size = new Size(1570, 762);
+            tableLayoutPanel3.Size = new Size(1570, 1191);
             tableLayoutPanel3.TabIndex = 1;
             // 
             // dataGridViewTPLocal
@@ -1355,7 +1355,7 @@
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 17F));
-            tableLayoutPanel4.Size = new Size(1574, 768);
+            tableLayoutPanel4.Size = new Size(1574, 1191);
             tableLayoutPanel4.TabIndex = 0;
             // 
             // groupBox4
@@ -1579,7 +1579,7 @@
             tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
             tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
             tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Absolute, 17F));
-            tableLayoutPanel8.Size = new Size(1566, 762);
+            tableLayoutPanel8.Size = new Size(1566, 1191);
             tableLayoutPanel8.TabIndex = 2;
             // 
             // groupBox6
@@ -1753,7 +1753,7 @@
             tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
             tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
             tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
-            tableLayoutPanel9.Size = new Size(1570, 770);
+            tableLayoutPanel9.Size = new Size(1570, 1191);
             tableLayoutPanel9.TabIndex = 3;
             // 
             // groupBox7
