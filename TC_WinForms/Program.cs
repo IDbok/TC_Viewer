@@ -43,6 +43,7 @@ namespace TC_WinForms
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
+                .Enrich.WithClassName()
                 .CreateLogger();
 
             try

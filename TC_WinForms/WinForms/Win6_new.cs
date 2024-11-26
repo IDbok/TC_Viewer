@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Diagram;
 using TC_WinForms.WinForms.Work;
@@ -21,6 +22,7 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_new : Form, IViewModeable
     {
+        private readonly ILogger _logger;
         private TcViewState tcViewState;
 
         //private static bool _isViewMode = true;
@@ -69,7 +71,8 @@ namespace TC_WinForms.WinForms
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
         {
-            Log.Information("Инициализация Win6_new: TcId={TcId}, Role={Role}, ViewMode={ViewMode}", tcId, role, viewMode);
+            _logger = Log.Logger.ForContext<Win6_new>();
+            _logger.Information("Инициализация Win6_new: TcId={TcId}, Role={Role}, ViewMode={ViewMode}", tcId, role, viewMode);
 
             tcViewState = new TcViewState(role);
             tcViewState.IsViewMode = viewMode;
@@ -90,7 +93,7 @@ namespace TC_WinForms.WinForms
         }
         private void ThisFormClosed()
         {
-            Log.Information("Закрытие формы. Очистка временных файлов для TcId={TcId}", _tc.Id);
+            _logger.Information("Закрытие формы. Очистка временных файлов для TcId={TcId}", _tc.Id);
 
             TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
 
@@ -181,7 +184,7 @@ namespace TC_WinForms.WinForms
             if (isViewMode != null && tcViewState.IsViewMode != isViewMode)
             {
                 tcViewState.IsViewMode = (bool)isViewMode;
-                Log.Information("Изменен режим просмотра: TcId={TcId}, IsViewMode={IsViewMode}", _tc.Id, isViewMode);
+                _logger.Information("Изменен режим просмотра: TcId={TcId}, IsViewMode={IsViewMode}", _tc.Id, isViewMode);
             }
 
             SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
@@ -204,7 +207,7 @@ namespace TC_WinForms.WinForms
 
         private async Task<TechnologicalCard> GetTCDataAsync()
         {
-            Log.Information("Загрузка данных технологической карты для TcId={TcId}", _tcId);
+            _logger.Information("Загрузка данных технологической карты для TcId={TcId}", _tcId);
             // зафиксировать время начала загрузки
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -241,25 +244,25 @@ namespace TC_WinForms.WinForms
                     .Where(st => st.ParentId == _tcId).Include(m => m.Child)
                     .ToListAsync();
 
-                Log.Information("Загружены данные технологической карты: {TcName}(id: {TcId})", techCard.Name, _tcId);
+                _logger.Information("Загружены данные технологической карты: {TcName}(id: {TcId})", techCard.Name, _tcId);
                 return techCard;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при загрузке данных технологической карты для TcId={TcId}", _tcId);
+                _logger.Error(ex, "Ошибка при загрузке данных технологической карты для TcId={TcId}", _tcId);
                 throw;
             }
             finally
             {
                 // остановить таймер и вывести время выполнения
                 stopwatch.Stop();
-                Log.Information("Время загрузки данных технологической карты: {Time} мс", stopwatch.ElapsedMilliseconds);
+                _logger.Information("Время загрузки данных технологической карты: {Time} мс", stopwatch.ElapsedMilliseconds);
             }
         }
 
         private async Task<List<TechOperationWork>> GetTOWDataAsync()
         {
-            Log.Information("Загрузка данных технологических операций для TcId={TcId}", _tcId);
+            _logger.Information("Загрузка данных технологических операций для TcId={TcId}", _tcId);
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
 
@@ -292,25 +295,25 @@ namespace TC_WinForms.WinForms
                                          .Include(e => e.ExecutionWorkRepeats)
                                          .ToListAsync();
 
-                Log.Information("Загружены данные технологических операций для TcId={TcId}", _tcId);
+                _logger.Information("Загружены данные технологических операций для TcId={TcId}", _tcId);
                 return techOperationWorkList;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при загрузке данных технологических операций для TcId={TcId}", _tcId);
+                _logger.Error(ex, "Ошибка при загрузке данных технологических операций для TcId={TcId}", _tcId);
                 throw;
             }
             finally
             {
                 stopwatch.Stop();
-                Log.Information("Время загрузки данных технологических операций: {Time} мс", stopwatch.ElapsedMilliseconds);
+                _logger.Information("Время загрузки данных технологических операций: {Time} мс", stopwatch.ElapsedMilliseconds);
             }
         }
 
 
         private async Task<List<DiagamToWork>> GetDTWDataAsync()
         {
-            Log.Information("Загрузка данных диаграмм для TcId={TcId}", _tcId);
+            _logger.Information("Загрузка данных диаграмм для TcId={TcId}", _tcId);
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             try
@@ -329,18 +332,18 @@ namespace TC_WinForms.WinForms
                     .Include(q => q.ListDiagramShagToolsComponent)
                     .ToListAsync();
 
-                Log.Information("Загружены данные диаграмм для TcId={TcId}", _tcId);
+                _logger.Information("Загружены данные диаграмм для TcId={TcId}", _tcId);
                 return diagramToWorkList;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при загрузке данных диаграмм для TcId={TcId}", _tcId);
+                _logger.Error(ex, "Ошибка при загрузке данных диаграмм для TcId={TcId}", _tcId);
                 throw;
             }
             finally
             {
                 stopwatch.Stop();
-                Log.Information("Время загрузки данных диаграмм: {Time} мс", stopwatch.ElapsedMilliseconds);
+                _logger.Information("Время загрузки данных диаграмм: {Time} мс", stopwatch.ElapsedMilliseconds);
             }
         }
 
@@ -353,11 +356,11 @@ namespace TC_WinForms.WinForms
                 tcViewState.TechOperationWorksList = await GetTOWDataAsync();
                 tcViewState.DiagramToWorkList = await GetDTWDataAsync();
 
-                Log.Information("Данные для TcViewState успешно загружены для TcId={TcId}", _tcId);
+                _logger.Information("Данные для TcViewState успешно загружены для TcId={TcId}", _tcId);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при загрузке данных для TcViewState для TcId={TcId}", _tcId);
+                _logger.Error(ex, "Ошибка при загрузке данных для TcViewState для TcId={TcId}", _tcId);
                 throw;
             }
         }
@@ -365,7 +368,7 @@ namespace TC_WinForms.WinForms
 
         private async void Win6_new_Load(object sender, EventArgs e)
         {
-            Log.Information("Загрузка формы Win6_new для TcId={TcId}", _tcId);
+            _logger.Information("Загрузка формы Win6_new для TcId={TcId}", _tcId);
             // download TC from db
             //var tcRepository = new TechnologicalCardRepository(); // не используется
             try
@@ -377,16 +380,16 @@ namespace TC_WinForms.WinForms
                 SetTCStatusAccess();
                 UpdateFormTitle();
 
-                Log.Information("Форма загружена успешно для TcId={TcId}", _tcId);
+                _logger.Information("Форма загружена успешно для TcId={TcId}", _tcId);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при загрузке данных формы для TcId={TcId}", _tcId);
+                _logger.Error(ex, "Ошибка при загрузке данных формы для TcId={TcId}", _tcId);
                 MessageBox.Show(ex.Message);
                 this.Close();
             }
 
-            Log.Information("Отображение формы для TcId={TcId}", _tcId);
+            _logger.Information("Отображение формы для TcId={TcId}", _tcId);
             try
             {
                 
@@ -394,7 +397,7 @@ namespace TC_WinForms.WinForms
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при отображении формы для TcId={TcId}.\n" +
+                _logger.Error(ex, "Ошибка при отображении формы для TcId={TcId}.\n" +
                     "Форма закрыта!", _tcId);
                 MessageBox.Show("Ошибка загрузки формы: " + ex.Message);
                 this.Close();
@@ -440,12 +443,12 @@ namespace TC_WinForms.WinForms
         }
         private async Task ShowForm(EModelType modelType)
         {
-            Log.Information("Загрузка формы ModelType={ModelType} для TcId={TcId}", 
+            _logger.Information("Загрузка формы ModelType={ModelType} для TcId={TcId}", 
                 modelType, _tcId);
 
             if (_activeModelType == modelType)
             {
-                Log.Debug("Форма ModelType={ModelType} уже активна. Пропуск переключения.", modelType);
+                _logger.Debug("Форма ModelType={ModelType} уже активна. Пропуск переключения.", modelType);
                 return;
             }
 
@@ -485,12 +488,12 @@ namespace TC_WinForms.WinForms
 
                 UpdateButtonsState(modelType);
 
-                Log.Information("Форма ModelType={ModelType} успешно активирована для TcId={TcId}",
+                _logger.Information("Форма ModelType={ModelType} успешно активирована для TcId={TcId}",
                     modelType, _tcId);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при загрузке формы ModelType={ModelType} для TcId={TcId}", modelType, _tcId);
+                _logger.Error(ex, "Ошибка при загрузке формы ModelType={ModelType} для TcId={TcId}", modelType, _tcId);
                 MessageBox.Show("Ошибка загрузки формы: " + ex.Message);
                 this.Close();
             }
@@ -502,11 +505,11 @@ namespace TC_WinForms.WinForms
 
         private bool CheckForChanges()
         {
-            Log.Debug("Проверка наличия несохраненных изменений для TcId={TcId}", _tcId);
+            _logger.Debug("Проверка наличия несохраненных изменений для TcId={TcId}", _tcId);
 
             if (tcViewState.IsViewMode) //если находимся в режиме просмотра - выходим из метода без сохранения
             {
-                Log.Debug("Изменений нет, режим просмотра включен для TcId={TcId}", _tcId);
+                _logger.Debug("Изменений нет, режим просмотра включен для TcId={TcId}", _tcId);
                 return true;
             }
 
@@ -534,7 +537,7 @@ namespace TC_WinForms.WinForms
             
             if (hasUnsavedChanges)
             {
-                Log.Warning("Обнаружены несохраненные изменения для TcId={TcId}", _tcId);
+                _logger.Warning("Обнаружены несохраненные изменения для TcId={TcId}", _tcId);
 
                 var result = MessageBox.Show("Вы хотите сохранить изменения?", "Сохранение изменений",
                     MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
@@ -547,13 +550,13 @@ namespace TC_WinForms.WinForms
                 }
                 else if (result == DialogResult.Cancel)
                 {
-                    Log.Information("Сохранение отменено пользователем для TcId={TcId}", _tcId);
+                    _logger.Information("Сохранение отменено пользователем для TcId={TcId}", _tcId);
 
                     return false;
                 }
             }
 
-            Log.Debug("Изменений не обнаружено для TcId={TcId}", _tcId);
+            _logger.Debug("Изменений не обнаружено для TcId={TcId}", _tcId);
             return true;
         }
 
@@ -585,7 +588,7 @@ namespace TC_WinForms.WinForms
         }
         private void SwitchActiveForm(Form form) // todo - move to WinProcessing and add to win7
         {
-            Log.Debug("Переключение на новую форму: {FormName}, TcId={TcId}", form.Name, _tcId);
+            _logger.Debug("Переключение на новую форму: {FormName}, TcId={TcId}", form.Name, _tcId);
 
             if (_activeForm != null)
             {
@@ -609,7 +612,7 @@ namespace TC_WinForms.WinForms
             _activeForm = form;
             _activeForm.Show();
 
-            Log.Information("Форма {FormName} успешно активирована для TcId={TcId}", form.Name, _tcId);
+            _logger.Information("Форма {FormName} успешно активирована для TcId={TcId}", form.Name, _tcId);
         }
 
         private async void btnShowStaffs_Click(object sender, EventArgs e)
@@ -681,7 +684,7 @@ namespace TC_WinForms.WinForms
 
         private void SaveAllChanges()
         {
-            Log.Information("Сохранение изменений для TcId={TcId}", _tcId);
+            _logger.Information("Сохранение изменений для TcId={TcId}", _tcId);
             try
             {
                 SaveTehCartaChanges();
@@ -695,12 +698,12 @@ namespace TC_WinForms.WinForms
                     }
                 }
 
-                Log.Information("Изменения успешно сохранены для TcId={TcId}", _tcId);
+                _logger.Information("Изменения успешно сохранены для TcId={TcId}", _tcId);
                 MessageBox.Show("Изменения сохранены");
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при сохранении изменений для TcId={TcId}", _tcId);
+                _logger.Error(ex, "Ошибка при сохранении изменений для TcId={TcId}", _tcId);
                 MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
             }
         }
@@ -820,29 +823,29 @@ namespace TC_WinForms.WinForms
                 var tcExporter = new ExExportTC();
                 await tcExporter.SaveTCtoExcelFile(_tc.Article, _tc.Id);
 
-                Log.Information("Печать успешно завершена для TcId={TcId}", _tcId);
+                _logger.Information("Печать успешно завершена для TcId={TcId}", _tcId);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при печати для TcId={TcId}", _tcId);
+                _logger.Error(ex, "Ошибка при печати для TcId={TcId}", _tcId);
                 MessageBox.Show(ex.Message);
             }
         }
 
         private async void printDiagramToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Log.Information("Пользователь выбрал печать диаграммы для TcId={TcId}", _tcId);
+            _logger.Information("Пользователь выбрал печать диаграммы для TcId={TcId}", _tcId);
 
             try
             {
                 var diagramExporter = new DiadramExcelExport();
                 await diagramExporter.SaveDiagramToExelFile(_tc.Article, _tc.Id);
 
-                Log.Information("Печать диаграммы успешно завершена для TcId={TcId}", _tcId);
+                _logger.Information("Печать диаграммы успешно завершена для TcId={TcId}", _tcId);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при печати диаграммы для TcId={TcId}", _tcId);
+                _logger.Error(ex, "Ошибка при печати диаграммы для TcId={TcId}", _tcId);
                 MessageBox.Show(ex.Message);
             }
         }
@@ -980,12 +983,12 @@ namespace TC_WinForms.WinForms
                 SetViewMode(true);
                 SetCommentViewMode(false);
 
-                Log.Information("Техническая карта успешно опубликована для TcId={TcId}", _tcId);
+                _logger.Information("Техническая карта успешно опубликована для TcId={TcId}", _tcId);
                 MessageBox.Show("Техническая карта опубликована.");
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Ошибка при опубликовании технической карты TcId={TcId}", _tcId);
+                _logger.Error(ex, "Ошибка при опубликовании технической карты TcId={TcId}", _tcId);
                 MessageBox.Show(ex.Message);
             }
         }
@@ -1085,8 +1088,9 @@ namespace TC_WinForms.WinForms
 
         private void LogUserAction(string actionDescription)
         {
-            Log.Information("Действие пользователя: {Action}, TcId={TcId}", 
-                actionDescription, _tcId);
+            _logger.LogUserAction(actionDescription, _tcId);
+                //Information("Действие пользователя: {Action}, TcId={TcId}", 
+                //actionDescription, _tcId);
         }
     }
 
