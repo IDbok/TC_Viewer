@@ -26,7 +26,6 @@ namespace TC_WinForms.WinForms
         //private static bool _isViewMode = true;
         //private static bool _isCommentViewMode = false;
         private static bool _isMachineCollumnViewMode = true;
-        private bool isCardUsing = false; //используется ли сейчас карта в программе другим пользователем
         public static bool isMachineViewMode
         {
             get => _isMachineCollumnViewMode;
@@ -83,8 +82,7 @@ namespace TC_WinForms.WinForms
         private void ThisFormClosed()
         {
             TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
-            if (!isCardUsing)
-                concurrencyBlockServise.CleanBlockData();
+            concurrencyBlockServise.CleanBlockData();
             Dispose();
         }
         private void AccessInitialization()
@@ -169,7 +167,7 @@ namespace TC_WinForms.WinForms
 
         public void SetViewMode(bool? isViewMode = null)
         {
-            if (isCardUsing)
+            if (concurrencyBlockServise.GetObjectUsedStatus())
             {
                 tcViewState.IsViewMode = true;
             }
@@ -302,9 +300,8 @@ namespace TC_WinForms.WinForms
                 await SetTcViewStateData();
                 _tc = tcViewState.TechnologicalCard;
 
-                concurrencyBlockServise = new ConcurrencyBlockServise<TechnologicalCard>(_tc);
-                isCardUsing = concurrencyBlockServise.GetObjectUsedStatus();
-                if (!isCardUsing && !tcViewState.IsViewMode)
+                concurrencyBlockServise = new ConcurrencyBlockServise<TechnologicalCard>(_tc, 1000*60*25);
+                if (!concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
                 {
                     concurrencyBlockServise.BlockObject();
                 }
@@ -693,7 +690,7 @@ namespace TC_WinForms.WinForms
 
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (isCardUsing)
+            if (concurrencyBlockServise.GetObjectUsedStatus())
             {
                 MessageBox.Show("Сейчас карта используется другим пользователем. Она доступна только для просмотра.");
                 return;
@@ -706,6 +703,9 @@ namespace TC_WinForms.WinForms
             }
 
             tcViewState.IsViewMode = !tcViewState.IsViewMode;
+
+            if (!tcViewState.IsViewMode && !concurrencyBlockServise.GetObjectUsedStatus())
+                concurrencyBlockServise.BlockObject();
 
             SetViewMode();
         }

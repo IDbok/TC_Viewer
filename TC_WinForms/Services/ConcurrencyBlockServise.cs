@@ -8,77 +8,84 @@ namespace TC_WinForms.Services
 {
     public class ConcurrencyBlockServise<T> where T : class, IIdentifiable
     {
-        private bool IsCardUsing = false; //используется ли сейчас карта в программе другим пользователем
+        private bool? IsCardInUse; //используется ли сейчас карта в программе другим пользователем
         private Timer UpdateDataTimer;
         private int ObjectId;
         private string ObjectType;
-
-        public ConcurrencyBlockServise(T obj)
+        private int TimerInterval;//интервал работы таймера в милисекундах
+        public ConcurrencyBlockServise(T obj, int timerInterval)
         {
             ObjectType = obj.GetType().Name;
             ObjectId = obj.Id;
+            TimerInterval = timerInterval;
         }
         public bool GetObjectUsedStatus() 
         {
-            CheckAreObjectBlock();
-            return IsCardUsing; 
+            if (IsCardInUse == null)
+                CheckAreObjectBlock();
+            return (bool)IsCardInUse; 
         }
         public void BlockObject()
         {
-            if (!IsCardUsing) 
+            if ((bool)IsCardInUse)
+                return; 
+
+            using (MyDbContext dbContext = new MyDbContext())
             {
-                using (MyDbContext dbContext = new MyDbContext())
+                using (var transaction = dbContext.Database.BeginTransaction())
                 {
-                    BlockedConcurrencyObjects blockedConcurrencyObjects = new BlockedConcurrencyObjects();
-                    blockedConcurrencyObjects.TimeStamp = DateTime.Now;
-                    blockedConcurrencyObjects.ObjectId = ObjectId;
-                    blockedConcurrencyObjects.ObjectType = ObjectType;
-                    dbContext.BlockedConcurrencyObjects.Add(blockedConcurrencyObjects);
-                    dbContext.SaveChanges();
+                    var isBlocked = dbContext.BlockedConcurrencyObjects
+                                                 .Any(b => b.ObjectId == ObjectId && b.ObjectType == ObjectType);
+
+                    if (!isBlocked)
+                    {
+                        var blockedObject = new ObjectLocker
+                        {
+                            TimeStamp = DateTime.Now,
+                            ObjectId = ObjectId,
+                            ObjectType = ObjectType
+                        };
+
+                        dbContext.BlockedConcurrencyObjects.Add(blockedObject);
+                        dbContext.SaveChanges();
+                        transaction.Commit();
+                    }
                 }
-                SetTimer();
             }
+            SetTimer();
         }
         public void CleanBlockData()
         {
-            if (!IsCardUsing)
+            if ((bool)IsCardInUse)
+                return;
+
+            using (MyDbContext dbContext = new MyDbContext())
             {
-                using (MyDbContext dbContext = new MyDbContext())
-                {
                
-                        var blockedObject = dbContext.BlockedConcurrencyObjects.Where(s => s.ObjectId == ObjectId && s.ObjectType == ObjectType)
-                                                                              .FirstOrDefault();
-                        if (blockedObject != null)
-                        {
-                            dbContext.BlockedConcurrencyObjects.Remove(blockedObject);
-                            dbContext.SaveChanges();
-                        }
-                }
-                UpdateDataTimer.Dispose();
+                    var blockedObject = dbContext.BlockedConcurrencyObjects.Where(s => s.ObjectId == ObjectId && s.ObjectType == ObjectType)
+                                                                            .FirstOrDefault();
+                    if (blockedObject != null)
+                    {
+                        dbContext.BlockedConcurrencyObjects.Remove(blockedObject);
+                        dbContext.SaveChanges();
+                    }
             }
+            UpdateDataTimer.Dispose();
 
         }
         private void CheckAreObjectBlock()
         {
             using (MyDbContext dbContext = new MyDbContext())
             {
-                var isObjectBlocked = dbContext.BlockedConcurrencyObjects.Where(s => s.ObjectId == ObjectId && s.ObjectType == ObjectType)
-                                                                          .FirstOrDefault();
-                if (isObjectBlocked != null)
-                {
-                    IsCardUsing = true;
-                }
-                else
-                {
-                    IsCardUsing = false;
-                }
+                IsCardInUse = dbContext.BlockedConcurrencyObjects
+                                       .Any(s => s.ObjectId == ObjectId && s.ObjectType == ObjectType);
             }
         }
         private void SetTimer()
         {
             // Создание таймера с отсчетом 25 минут
             UpdateDataTimer = new Timer();
-            UpdateDataTimer.Interval = 1000 * 60 * 25;
+            UpdateDataTimer.Interval = TimerInterval;
             // Hook up the Elapsed event for the timer. 
             UpdateDataTimer.Elapsed += UpdateDataTimer_Elapsed;
             UpdateDataTimer.AutoReset = true;
@@ -89,13 +96,17 @@ namespace TC_WinForms.Services
         {
             using (MyDbContext dbContext = new MyDbContext())
             {
-                var cardStatus = dbContext.BlockedConcurrencyObjects.Where(s => s.ObjectId == ObjectId && s.ObjectType == ObjectType)
-                                                                          .FirstOrDefault();
-                if (cardStatus != null)
+                var blockedObject = dbContext.BlockedConcurrencyObjects
+                                             .FirstOrDefault(s => s.ObjectId == ObjectId && s.ObjectType == ObjectType);
+
+                if (blockedObject != null)
                 {
-                    dbContext.BlockedConcurrencyObjects.Where(s => s.ObjectId == ObjectId && s.ObjectType == ObjectType)
-                                                       .ExecuteUpdate(b => b.SetProperty(u => u.TimeStamp, e.SignalTime));
+                    blockedObject.TimeStamp = e.SignalTime;
                     dbContext.SaveChanges();
+                }
+                else
+                {
+                    UpdateDataTimer?.Dispose();
                 }
             }
         }

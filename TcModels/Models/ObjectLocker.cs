@@ -8,7 +8,7 @@ using Timer = System.Timers.Timer;
 
 namespace TcModels.Models
 {
-    public class BlockedConcurrencyObjects
+    public class ObjectLocker
     {
         public int Id { get; set; }
         public int ObjectId { get; set; }
