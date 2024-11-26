@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
 using TC_WinForms.WinForms.Work;
 using TcDbConnector;
@@ -21,11 +22,11 @@ namespace TC_WinForms.WinForms
     public partial class Win6_new : Form, IViewModeable
     {
         private TcViewState tcViewState;
-
+        private ConcurrencyBlockServise<TechnologicalCard> concurrencyBlockServise;
         //private static bool _isViewMode = true;
         //private static bool _isCommentViewMode = false;
         private static bool _isMachineCollumnViewMode = true;
-
+        private bool isCardUsing = false; //используется ли сейчас карта в программе другим пользователем
         public static bool isMachineViewMode
         {
             get => _isMachineCollumnViewMode;
@@ -70,25 +71,20 @@ namespace TC_WinForms.WinForms
         {
             tcViewState = new TcViewState(role);
             tcViewState.IsViewMode = viewMode;
-
             _tcId = tcId;
             _accessLevel = role;
-            //_isViewMode = viewMode;
 
             InitializeComponent();
 
             this.KeyDown += ControlSaveEvent;
-
-            SetTagsToButtons();
-
-            SetViewMode();
 
             FormClosed += (s,e) => ThisFormClosed();
         }
         private void ThisFormClosed()
         {
             TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
-
+            if (!isCardUsing)
+                concurrencyBlockServise.CleanBlockData();
             Dispose();
         }
         private void AccessInitialization()
@@ -173,9 +169,15 @@ namespace TC_WinForms.WinForms
 
         public void SetViewMode(bool? isViewMode = null)
         {
-            if (isViewMode != null)
+            if (isCardUsing)
+            {
+                tcViewState.IsViewMode = true;
+            }
+            else if (isViewMode != null)
             {
                 tcViewState.IsViewMode = (bool)isViewMode;
+                if (!tcViewState.IsViewMode)
+                    concurrencyBlockServise.BlockObject();
             }
 
             SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
@@ -262,7 +264,6 @@ namespace TC_WinForms.WinForms
             return techOperationWorkList;
         }
 
-
         private async Task<List<DiagamToWork>> GetDTWDataAsync()
         {
             var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == _tcId).ToListAsync();
@@ -289,7 +290,6 @@ namespace TC_WinForms.WinForms
             tcViewState.TechOperationWorksList = await GetTOWDataAsync();
 
             tcViewState.DiagramToWorkList = await GetDTWDataAsync();
-
         }
         #endregion
 
@@ -302,6 +302,15 @@ namespace TC_WinForms.WinForms
                 await SetTcViewStateData();
                 _tc = tcViewState.TechnologicalCard;
 
+                concurrencyBlockServise = new ConcurrencyBlockServise<TechnologicalCard>(_tc);
+                isCardUsing = concurrencyBlockServise.GetObjectUsedStatus();
+                if (!isCardUsing && !tcViewState.IsViewMode)
+                {
+                    concurrencyBlockServise.BlockObject();
+                }
+
+                SetTagsToButtons();
+                SetViewMode();
                 AccessInitialization();
                 SetTCStatusAccess();
 
@@ -684,6 +693,12 @@ namespace TC_WinForms.WinForms
 
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (isCardUsing)
+            {
+                MessageBox.Show("Сейчас карта используется другим пользователем. Она доступна только для просмотра.");
+                return;
+            }
+
             if (tcViewState.IsViewMode == false)
             {
                 if (!CheckForChanges())

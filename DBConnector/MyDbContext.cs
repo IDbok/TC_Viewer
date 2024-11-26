@@ -50,7 +50,7 @@ public class MyDbContext : DbContext
     public DbSet<DiagramShagToolsComponent> DiagramShagToolsComponent { get; set; } = null!;
 
     public DbSet<ImageStorage> ImageStorage { get; set; }
-
+    public DbSet<BlockedConcurrencyObjects> BlockedConcurrencyObjects { get; set; } = null!;
 
     public MyDbContext()
     {
