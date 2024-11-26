@@ -2421,6 +2421,9 @@ namespace TC_WinForms.WinForms.Work
                         {
                             if (e.ColumnIndex == 5)
                             {
+                                if (string.IsNullOrEmpty((string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value))
+                                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "*1";
+                                
                                 existingRepeat.NewCoefficient = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                             }
                             else if (e.ColumnIndex == 6)
