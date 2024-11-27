@@ -8,7 +8,7 @@ namespace TC_WinForms.Services
 {
     public class ConcurrencyBlockServise<T> where T : class, IIdentifiable
     {
-        private bool? IsCardInUse; //используется ли сейчас карта в программе другим пользователем
+        private bool? IsObjectInUse; //используется ли сейчас карта в программе другим пользователем
         private Timer UpdateDataTimer;
         private int ObjectId;
         private string ObjectType;
@@ -21,13 +21,13 @@ namespace TC_WinForms.Services
         }
         public bool GetObjectUsedStatus() 
         {
-            if (IsCardInUse == null)
+            if (IsObjectInUse == null)
                 CheckAreObjectBlock();
-            return (bool)IsCardInUse; 
+            return (bool)IsObjectInUse; 
         }
         public void BlockObject()
         {
-            if ((bool)IsCardInUse)
+            if (IsObjectInUse != null && (bool)IsObjectInUse)
                 return; 
 
             using (MyDbContext dbContext = new MyDbContext())
@@ -56,7 +56,7 @@ namespace TC_WinForms.Services
         }
         public void CleanBlockData()
         {
-            if ((bool)IsCardInUse)
+            if (IsObjectInUse != null && (bool)IsObjectInUse)
                 return;
 
             using (MyDbContext dbContext = new MyDbContext())
@@ -77,7 +77,7 @@ namespace TC_WinForms.Services
         {
             using (MyDbContext dbContext = new MyDbContext())
             {
-                IsCardInUse = dbContext.BlockedConcurrencyObjects
+                IsObjectInUse = dbContext.BlockedConcurrencyObjects
                                        .Any(s => s.ObjectId == ObjectId && s.ObjectType == ObjectType);
             }
         }

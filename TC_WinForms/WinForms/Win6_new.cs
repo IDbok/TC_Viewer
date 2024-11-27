@@ -300,7 +300,9 @@ namespace TC_WinForms.WinForms
                 await SetTcViewStateData();
                 _tc = tcViewState.TechnologicalCard;
 
-                concurrencyBlockServise = new ConcurrencyBlockServise<TechnologicalCard>(_tc, 1000*60*25);
+                var timerInterval = 1000 * 60 * 14;//миллисекунды * секунды * минуты
+
+                concurrencyBlockServise = new ConcurrencyBlockServise<TechnologicalCard>(_tc, timerInterval);
                 if (!concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
                 {
                     concurrencyBlockServise.BlockObject();
