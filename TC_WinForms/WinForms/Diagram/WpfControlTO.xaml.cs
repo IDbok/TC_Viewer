@@ -112,37 +112,29 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
             //ComboBoxTO.SelectedItem = this.diagamToWork.techOperationWork;
             SetTechOperationWorkToComboBox(this.diagamToWork.techOperationWork);
 
-            //ComboBoxTO.IsReadOnly = true;
-            //ComboBoxTO.IsEnabled = false;
-
             ListWpfParalelno.Visibility = Visibility.Visible;
 
-            //if(!IsViewMode)
-            //    ButtonAddShag.Visibility = Visibility.Visible;
-
-            //_wpfMainControl.technologicalCard.DiagamToWork.Add(this.diagamToWork);
-
-            //ListWpfParalelno.Children.Clear();
-            Children.Clear();
-
-            if (this.diagamToWork.ListDiagramParalelno.Count == 0)
-            {
-                //ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState)); // this, _tcViewState));
-                Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState)); // this, _tcViewState));
-            }
-
             // проверка на соотвествие diagamToWork с _diagramState.DiagamToWork
-            if(diagamToWork.Id != _diagramState.DiagramToWork.Id)
+            if (diagamToWork.Id != _diagramState.DiagramToWork.Id)
             {
                 _diagramState.DiagramToWork = diagamToWork;
             }
 
-            foreach (DiagramParalelno diagramParalelno in this.diagamToWork.ListDiagramParalelno.OrderBy(x => x.Order))
-            {
-                //ListWpfParalelno.Children.Add(new WpfParalelno(diagramParalelno.techOperationWork, _diagramState, diagramParalelno)); //this, _tcViewState, diagramParalelno));
-                Children.Add(new WpfParalelno(diagramParalelno.techOperationWork, _diagramState, diagramParalelno));
-            }
+            Children.Clear();
 
+            if (this.diagamToWork.ListDiagramParalelno.Any())
+            {
+                foreach (DiagramParalelno diagramParalelno in this.diagamToWork.ListDiagramParalelno.OrderBy(x => x.Order))
+                {
+                    Children.Add(
+                        new WpfParalelno(diagramParalelno.techOperationWork, _diagramState, diagramParalelno));
+                }
+            }
+            else
+            {
+                Children.Add(
+                    new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));
+            }
         }
 
         ParallelButtonsVisibility(this.diagamToWork.ParallelIndex != null);

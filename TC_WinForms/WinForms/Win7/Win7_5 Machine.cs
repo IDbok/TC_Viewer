@@ -59,8 +59,10 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
         _newItemCreateActive = activateNewItemCreate;
 
         InitializeComponent();
+
         dgvMain.DoubleBuffered(true);
         _selectionService = new SelectionService<DisplayedMachine>(dgvMain, _displayedObjects);
+
     }
 
     private async void Win7_5_Machine_Load(object sender, EventArgs e)
@@ -109,6 +111,8 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
             .Select(obj => new DisplayedMachine(obj)).OrderBy(c => c.Name).ToList());
 
         paginationService = new PaginationControlService<DisplayedMachine>(30, _displayedObjects.OrderBy(c => c.Name).ToList());
+
+        _selectionService = new SelectionService<DisplayedMachine>(dgvMain, _displayedObjects);
 
         FilteringObjects();
 

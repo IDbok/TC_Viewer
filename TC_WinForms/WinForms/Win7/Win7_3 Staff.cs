@@ -82,8 +82,6 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
         _newItemCreateActive = activateNewItemCreate;
         _tcId = createdTCId;
         InitializeComponent();
-
-        _selectionService = new SelectionService<DisplayedStaff>(dgvMain, _displayedObjects);
     }
 
     private async void Win7_3_Staff_Load(object sender, EventArgs e)
@@ -138,6 +136,8 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
             .Select(obj => new DisplayedStaff(obj)).OrderBy(c => c.Name).ToList());
 
         paginationService = new PaginationControlService<DisplayedStaff>(15, _displayedObjects);
+
+        _selectionService = new SelectionService<DisplayedStaff>(dgvMain, _displayedObjects);
 
         FilteringObjects();
 
@@ -269,7 +269,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
     void BtnAddSelected_Click(object sender, EventArgs e)
     {
         //// get selected rows
-        //var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
+        // var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
 
         //if (selectedRows.Count == 0)
         //{

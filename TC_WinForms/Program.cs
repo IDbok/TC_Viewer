@@ -1,16 +1,11 @@
+//using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using Nancy.Json;
-using System.Configuration;
-using System.Drawing;
-using System.IO;
-using System.Security.AccessControl;
-using System.Windows.Media;
+using Serilog;
 using TC_WinForms.DataProcessing;
+//using TC_WinForms.Services.Logging;
 using TC_WinForms.WinForms;
-using TC_WinForms.WinForms.BlockScheme;
-using TC_WinForms.WinForms.Diagram;
 using TcModels.Models;
-using TcModels.Models.IntermediateTables;
-using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService.User;
 
 namespace TC_WinForms
@@ -22,6 +17,7 @@ namespace TC_WinForms
 #else
         public static bool IsTestMode = false;
 #endif
+        //public static ILogger Logger { get; set; } = new Logger();
         public static Form MainForm { get; set; }
         public static List<Form> FormsBack { get; set; } = new List<Form>();
         public static List<Form> FormsForward { get; set; } = new List<Form>();
@@ -41,46 +37,72 @@ namespace TC_WinForms
         [STAThread]
         static void Main()
         {
-            //To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .Enrich.WithClassName()
+                .CreateLogger();
+
+            try
+            {
+                Log.Information("Application started");
+                ApplicationStart();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex,"Application crashed");
+            }
+            finally
+            {
+                Log.Information("Application stopped");
+                Log.CloseAndFlush();
+            }
+
+        }
+
+        static void ApplicationStart()
+        {
 
             ApplicationConfiguration.Initialize();
 
-            //string variableName = "TEST_MODE";
-            //string? variableValue = Environment.GetEnvironmentVariable(variableName);
-            //isTestMode = variableValue != null && variableValue.ToLower() == "true";
-
+            #region Test
 #if DEBUG
             configGlobal.ConnectionString = "server=localhost;database=tavrida_db_main;user=root;password=root";
 
 #elif !DEBUG
-            string conString = "";
-            while (true)
-            {
-                try
-                {
-                    conString = System.IO.File.ReadAllText($"appsettings.json");
-                    break;
-                }
-                catch (Exception e)
-                {
-                    Config config = new Config();
+                        string conString = "";
+                        while (true)
+                        {
+                            try
+                            {
+                                conString = System.IO.File.ReadAllText($"appsettings.json");
+                                break;
+                            }
+                            catch (Exception e)
+                            {
+                                Config config = new Config();
 
-                    config.ConnectionString = "server=10.1.100.142;database=tcvdb_main;user=tavrida;password=tavrida$555";
-                    // "server=127.0.0.1;port=3306;database=tavrida_db_main;user=root;password=lsSB1UaiX5"
-                    JavaScriptSerializer javaScriptSerializer1 = new JavaScriptSerializer();
-                    string? bbn = javaScriptSerializer1.Serialize(config);
-                    System.IO.File.WriteAllText($"appsettings.json", bbn);
-                }
-            }
+                                config.ConnectionString = "server=10.1.100.142;database=tcvdb_main;user=tavrida;password=tavrida$555";
+                                // "server=127.0.0.1;port=3306;database=tavrida_db_main;user=root;password=lsSB1UaiX5"
+                                JavaScriptSerializer javaScriptSerializer1 = new JavaScriptSerializer();
+                                string? bbn = javaScriptSerializer1.Serialize(config);
+                                System.IO.File.WriteAllText($"appsettings.json", bbn);
+                            }
+                        }
 
-            JavaScriptSerializer javaScriptSerializer3 = new JavaScriptSerializer();
-            var configGlo = javaScriptSerializer3.Deserialize<Config>(conString);
-            configGlobal = configGlo;
-            
+                        JavaScriptSerializer javaScriptSerializer3 = new JavaScriptSerializer();
+                        var configGlo = javaScriptSerializer3.Deserialize<Config>(conString);
+                        configGlobal = configGlo;
+
 #endif
 
+            #endregion
+
             TcDbConnector.StaticClass.ConnectString = configGlobal.ConnectionString;
+
 
 #if DEBUG
             string login, password;
@@ -115,8 +137,8 @@ namespace TC_WinForms
             }
 
             Test();
-            
-            
+
+
 #elif !DEBUG
 
             var authForm = new Win8();

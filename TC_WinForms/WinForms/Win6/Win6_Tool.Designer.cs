@@ -167,7 +167,6 @@
             Margin = new Padding(4, 4, 4, 4);
             Name = "Win6_Tool";
             Text = "Win6_Tool";
-            FormClosing += Win6_Tool_FormClosing;
             Load += Win6_Tool_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);

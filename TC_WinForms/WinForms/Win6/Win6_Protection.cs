@@ -1,10 +1,13 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml.Style;
 using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.WinForms.Work;
+using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -13,13 +16,13 @@ using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Protection : Form, ISaveEventForm, IViewModeable
+    public partial class Win6_Protection : Form, IViewModeable
     {
         private readonly TcViewState _tcViewState;
 
         private bool _isViewMode;
 
-        private DbConnector dbCon = new DbConnector();
+        private MyDbContext context;
         private int _tcId;
 
         private BindingList<DisplayedProtection_TC> _bindingList;
@@ -29,11 +32,11 @@ namespace TC_WinForms.WinForms
         private Dictionary<DisplayedProtection_TC, DisplayedProtection_TC> _replacedObjects = new();// add to UpdateMode
 
         public bool CloseFormsNoSave { get; set; } = false;
-        public Win6_Protection(int tcId, TcViewState tcViewState)// bool viewerMode = false)
+        public Win6_Protection(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
         {
             _tcViewState = tcViewState;
+            this.context = context;
 
-            //_isViewMode = viewerMode;
             _tcId = tcId;
 
             InitializeComponent();
@@ -49,11 +52,6 @@ namespace TC_WinForms.WinForms
 
         public void SetViewMode(bool? isViewMode = null)
         {
-            //if (isViewMode != null)
-            //{
-            //    _isViewMode = (bool)isViewMode;
-            //}
-
             pnlControls.Visible = !_tcViewState.IsViewMode;
 
             // make columns editable
@@ -68,30 +66,21 @@ namespace TC_WinForms.WinForms
             dgvMain.Refresh();
 
         }
-        public bool GetDontSaveData()
+        private void Win6_Protection_Load(object sender, EventArgs e)
         {
-            if (HasChanges)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        private async void Win6_Protection_Load(object sender, EventArgs e)
-        {
-            await LoadObjects();
+            LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedProtection_TC>(dgvMain);
 
             dgvMain.AllowUserToDeleteRows = false;
 
             SetViewMode();
         }
-        private async Task LoadObjects()
+        private void LoadObjects()
         {
-            var tcList = await Task.Run(() => dbCon.GetIntermediateObjectList<Protection_TC, Protection>(_tcId).OrderBy(obj => obj.Order)
-                .Select(obj => new DisplayedProtection_TC(obj)).ToList());
+            var tcList = _tcViewState.TechnologicalCard.Protection_TCs.Where(obj => obj.ParentId == _tcId)
+                                                                    .OrderBy(o => o.Order).ToList()
+                                                                    .Select(obj => new DisplayedProtection_TC(obj))
+                                                                    .ToList();
             _bindingList = new BindingList<DisplayedProtection_TC>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
@@ -99,36 +88,23 @@ namespace TC_WinForms.WinForms
             SetDGVColumnsSettings();
         }
 
-        private async void Win6_Protection_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (CloseFormsNoSave)
-            {
-                return;
-            }
-            if (_newObjects.Count + _changedObjects.Count + _deletedObjects.Count != 0)
-            {
-                e.Cancel = true;
-                var result = MessageBox.Show("Сохранить изменения перед закрытием?", "Сохранение", MessageBoxButtons.YesNo);
-
-                if (result == DialogResult.Yes)
-                {
-                    await SaveChanges();
-                }
-                e.Cancel = false;
-                Dispose();
-            }
-        }
         public void AddNewObjects(List<Protection> newObjs)
         {
             foreach (var obj in newObjs)
             {
                 var newObj_TC = CreateNewObject(obj, _bindingList.Count + 1);
+                var protection = context.Protections.Where(s => s.Id == newObj_TC.ChildId).First();
+
+                context.Protections.Attach(protection);
+                _tcViewState.TechnologicalCard.Protection_TCs.Add(newObj_TC);
+
+                newObj_TC.Child = protection;
+                newObj_TC.ChildId = protection.Id;
 
                 var displayedObj_TC = new DisplayedProtection_TC(newObj_TC);
                 _bindingList.Add(displayedObj_TC);
-
-                _newObjects.Add(displayedObj_TC);
             }
+
             dgvMain.Refresh();
         }
 
@@ -212,64 +188,46 @@ namespace TC_WinForms.WinForms
             }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count + _replacedObjects.Count != 0; // update to UpdateMode
-        public async Task SaveChanges()
+        
+        private void SaveReplacedObjects() // add to UpdateMode
         {
+            var oldObjects = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();
+            var newObjects = _replacedObjects.Select(dtc => CreateNewObject(dtc.Value)).ToList();
 
-            if (!HasChanges)
+            var obj_TCsIds = oldObjects.Select(t => t.ChildId).ToList();
+
+            List<ExecutionWork> executionWorks = new List<ExecutionWork>();
+
+            foreach (var techOperationWork in _tcViewState.TechOperationWorksList)
             {
-                return;
-            }
-            if (_newObjects.Count > 0)
-            {
-                await SaveNewObjects();
-            }
-            if (_changedObjects.Count > 0)
-            {
-                await SaveChangedObjects();
-            }
-            if (_deletedObjects.Count > 0)
-            {
-                await DeleteDeletedObjects();
-            }
-            if (_replacedObjects.Count > 0) // add to UpdateMode
-            {
-                await SaveReplacedObjects();
+                var executionWorksToReplace = techOperationWork.executionWorks
+                                                               .Where(ew => ew.techOperationWork.TechnologicalCardId == _tcId
+                                                                         && ew.Protections.Any(m => obj_TCsIds.Contains(m.ChildId)))
+                                                                .ToList();
+
+                if (executionWorksToReplace != null && executionWorksToReplace.Count != 0)
+                    executionWorks.AddRange(executionWorksToReplace);
             }
 
-            dgvMain.Refresh();
-        }
-        private async Task SaveNewObjects()
-        {
-            var newObjects = _newObjects.Select(dObj => CreateNewObject(dObj)).ToList();
+            for (int i = 0; i < newObjects.Count; i++)
+            {
+                var protection = context.Protections.Where(m => m.Id == newObjects[i].ChildId).First();
+                newObjects[i].Child = protection;
 
-            await dbCon.AddIntermediateObjectAsync(newObjects);
+                var oldProtection = _tcViewState.TechnologicalCard.Protection_TCs.Where(m => m.ChildId == oldObjects[i].ChildId).FirstOrDefault();
+                if(oldProtection != null)
+                _tcViewState.TechnologicalCard.Protection_TCs.Remove(oldProtection);
+            }
 
-            _newObjects.Clear();
-        }
-        private async Task SaveChangedObjects()
-        {
-            var changedTcs = _changedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
+            _tcViewState.TechnologicalCard.Protection_TCs.AddRange(newObjects);
 
-            await dbCon.UpdateIntermediateObjectAsync(changedTcs);
+            foreach (var newTc in newObjects)
+            {
+                executionWorks.ForEach(ew => ew.Protections.Add(newTc));
+            }
 
-            _changedObjects.Clear();
-        }
 
-        private async Task DeleteDeletedObjects()
-        {
-            var deletedObjects = _deletedObjects.Select(dtc => CreateNewObject(dtc)).ToList();
-            await dbCon.DeleteIntermediateObjectAsync(deletedObjects);
-            _deletedObjects.Clear();
-        }
-        private async Task SaveReplacedObjects() // add to UpdateMode
-        {
-            var oldObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();
-            var newObject = _replacedObjects.Select(dtc => CreateNewObject(dtc.Value)).ToList();
-
-            await dbCon.ReplaceIntermediateObjectAsync(oldObject, newObject);
-
-            _changedObjects.Clear();
+            _replacedObjects.Clear();
         }
         private Protection_TC CreateNewObject(DisplayedProtection_TC dObj)
         {
@@ -307,6 +265,30 @@ namespace TC_WinForms.WinForms
             DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
                 _bindingList, _newObjects, _deletedObjects);
 
+            if (_deletedObjects.Count != 0)
+            {
+                foreach (var obj in _deletedObjects)
+                {
+                    foreach (var techOperation in _tcViewState.TechOperationWorksList)
+                    {
+                        foreach (var executionWork in techOperation.executionWorks)
+                        {
+                            var protectionToDelete = executionWork.Protections.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
+                            if (protectionToDelete != null)
+                                executionWork.Protections.Remove(protectionToDelete);
+                        }
+
+                    }
+
+
+                    var deletedObj = _tcViewState.TechnologicalCard.Protection_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
+                    if(deletedObj != null)
+                        _tcViewState.TechnologicalCard.Protection_TCs.Remove(deletedObj);
+                }
+
+                _deletedObjects.Clear();
+            }
+
         }
 
         private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) // todo - fix problem with selection replacing row (error while remove it)
@@ -318,6 +300,18 @@ namespace TC_WinForms.WinForms
         {
             DisplayedEntityHelper.ListChangedEventHandlerIntermediate
                 (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
+
+            if (_changedObjects.Count != 0)
+            {
+                foreach (var obj in _changedObjects)
+                {
+                    var changedObject = _tcViewState.TechnologicalCard.Protection_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
+                    if (changedObject != null)
+                        changedObject.ApplyUpdates(CreateNewObject(obj));
+                }
+
+                _changedObjects.Clear();
+            }
         }
         private class DisplayedProtection_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable
         {
@@ -547,6 +541,8 @@ namespace TC_WinForms.WinForms
                 {
                     _replacedObjects.Add(dObj, newDisplayedComponent);
                 }
+
+                SaveReplacedObjects();
 
                 return true;
             }

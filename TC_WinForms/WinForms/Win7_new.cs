@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Serilog;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TcDbConnector;
 using TcModels.Models;
@@ -12,6 +14,8 @@ namespace TC_WinForms.WinForms
 
     public partial class Win7_new : Form
     {
+        private readonly ILogger _logger;
+
         //private readonly int _accessLevel;
         private readonly User.Role _accessLevel;
 
@@ -28,6 +32,9 @@ namespace TC_WinForms.WinForms
 
         public Win7_new(User.Role accessLevel)
         {
+            _logger = Log.ForContext<Win7_new>(); // Устанавливаем контекст класса
+            _logger.Information("Инициализация окна Win7_new");
+
             StaticWinForms.Win7_new = this;
 
             _accessLevel = accessLevel;
@@ -48,7 +55,6 @@ namespace TC_WinForms.WinForms
         {
             if (_currentWinNumber != null)
                 await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
-
         }
         private void AccessInitialization()
         {
@@ -85,80 +91,104 @@ namespace TC_WinForms.WinForms
         private void Win7_FormClosing(object sender, FormClosingEventArgs e)
         {
             WinProcessing.ClosingApp(e, ClosingForms);
-
         }
 
 
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
-        private async Task LoadAllForms()
-        {
+        //private async Task LoadAllForms()
+        //{
+        //    var tasks = new List<Task>();
+        //    foreach (var winNumber in Enum.GetValues(typeof(WinNumber)))
+        //    {
+        //        tasks.Add(LoadForm((WinNumber)winNumber));
+        //    }
 
-            var tasks = new List<Task>();
-            foreach (var winNumber in Enum.GetValues(typeof(WinNumber)))
-            {
-                tasks.Add(LoadForm((WinNumber)winNumber));
-            }
-
-            await Task.WhenAll(tasks);
-        }
+        //    await Task.WhenAll(tasks);
+        //}
         private async Task LoadFormInPanel(WinNumber winNumber)
         {
+            _logger.Information("Начало загрузки формы {WinNumber}", winNumber);
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
             SetLoadingState(true);
 
             // выделение нажатой кнопки
             UpdateButtonsState(winNumber);
 
-            var form = await LoadForm(winNumber);
+            try
+            {
+                var form = await LoadForm(winNumber);
 
-            pnlDataViewer.Controls.Clear();
-            pnlDataViewer.Controls.Add(form);
+                SetPaginationBar(form);
 
-            form.Show();
+                pnlDataViewer.Controls.Clear();
+                pnlDataViewer.Controls.Add(form);
 
-            _currentWinNumber = winNumber;
-            form.BringToFront();
+                form.Show();
 
-            SetLoadingState(false);
+                _currentWinNumber = winNumber;
+                form.BringToFront();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Ошибка при загрузке формы {CurrentWinNumber}", winNumber);
+                MessageBox.Show("Ошибка при загрузке формы");
+            }
+            finally
+            {
+                SetLoadingState(false);
+            }
+
+            stopwatch.Stop();
+            _logger.Information("Форма {WinNumber} загружена за {ElapsedMilliseconds} мс",
+                winNumber, stopwatch.ElapsedMilliseconds);
         }
         private async Task<Form> LoadForm(WinNumber winNumber)
         {
             if (!_forms.TryGetValue(winNumber, out var form))
             {
-                form = CreateForm(winNumber);
-                _forms[winNumber] = form;
-                form.TopLevel = false;
-                form.FormBorderStyle = FormBorderStyle.None;
-                form.Dock = DockStyle.Fill;
+                try
+                {
+                    form = CreateForm(winNumber);
+                    _forms[winNumber] = form;
+                    form.TopLevel = false;
+                    form.FormBorderStyle = FormBorderStyle.None;
+                    form.Dock = DockStyle.Fill;
 
-                if (form is IPaginationControl paginationForm)
-                {
-                    SubscribeToPageInfoChanged(paginationForm);
-                    pnlPageControls.Visible = true;
-                }
-                else { pnlPageControls.Visible = false; }
+                    _logger.Information("Создана форма {WinNumber}", winNumber);
 
-                var loadDataTask = (form as ILoadDataAsyncForm)?.LoadDataAsync();
-                if (loadDataTask != null)
-                {
-                    await loadDataTask; //.ConfigureAwait(false);
+                    SubscribeToPageInfoChanged(form as IPaginationControl);
+
+                    var loadDataTask = (form as ILoadDataAsyncForm)?.LoadDataAsync();
+                    if (loadDataTask != null)
+                    {
+                        await loadDataTask; //.ConfigureAwait(false);
+                        _logger.Information("Данные формы {WinNumber} загружены успешно", winNumber);
+                    }
                 }
-            }
-            else if(form is IPaginationControl existedPaginationForm)
-            {
-                if (existedPaginationForm.PageInfo != null)
+                catch (Exception ex)
                 {
-                    existedPaginationForm.RaisePageInfoChanged();
-                    pnlPageControls.Visible = true;
+                    _logger.Error(ex, "Ошибка при создании формы {WinNumber}", winNumber);
+                    throw;
                 }
-            }
-            else
-            {
-                pnlPageControls.Visible = false;
+
             }
 
             return form;
         }
+
+        private void SetPaginationBar(Form? form)
+        {
+            if (form is IPaginationControl paginationForm )
+            {
+                paginationForm.RaisePageInfoChanged();
+
+                pnlPageControls.Visible = true;
+            }
+            else { pnlPageControls.Visible = false; }
+        }
+
         private void AddFormToPanel(WinNumber winNumber)
         {
             pnlDataViewer.Controls.Clear(); // Очищаем предыдущие формы
@@ -172,7 +202,6 @@ namespace TC_WinForms.WinForms
 
         private void SetLoadingState(bool isLoading)
         {
-
             _isAllFormsLoading = isLoading;
 
             if (isLoading)
@@ -229,17 +258,70 @@ namespace TC_WinForms.WinForms
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private async void btnTechCard_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TC).ConfigureAwait(false);
-        private async void btnStaff_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Staff).ConfigureAwait(false);
-        private async void btnComponent_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Component).ConfigureAwait(false);
-        private async void btnMachine_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Machine).ConfigureAwait(false);
-        private async void btnProtection_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Protection).ConfigureAwait(false);
-        private async void btnTool_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Tool).ConfigureAwait(false);
-        private async void btnTechOperation_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechOperation).ConfigureAwait(false);
-        private async void btnWorkStep_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechTransition).ConfigureAwait(false);
+        //private async void btnTechCard_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TC).ConfigureAwait(false);
+        //private async void btnStaff_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Staff).ConfigureAwait(false);
+        //private async void btnComponent_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Component).ConfigureAwait(false);
+        //private async void btnMachine_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Machine).ConfigureAwait(false);
+        //private async void btnProtection_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Protection).ConfigureAwait(false);
+        //private async void btnTool_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Tool).ConfigureAwait(false);
+        //private async void btnTechOperation_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechOperation).ConfigureAwait(false);
+        //private async void btnWorkStep_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechTransition).ConfigureAwait(false);
 
-        private async void btnProject_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Project).ConfigureAwait(false);
+        //private async void btnProject_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Project).ConfigureAwait(false);
 
+        private async void btnTechCard_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Технологические карты");
+            await LoadFormInPanel(WinNumber.TC).ConfigureAwait(false);
+        }
+
+        private async void btnStaff_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Персонал");
+            await LoadFormInPanel(WinNumber.Staff).ConfigureAwait(false);
+        }
+
+        private async void btnComponent_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Компоненты");
+            await LoadFormInPanel(WinNumber.Component).ConfigureAwait(false);
+        }
+
+        private async void btnMachine_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Механизмы");
+            await LoadFormInPanel(WinNumber.Machine).ConfigureAwait(false);
+        }
+
+        private async void btnProtection_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Средства защиты");
+            await LoadFormInPanel(WinNumber.Protection).ConfigureAwait(false);
+        }
+
+        private async void btnTool_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Инструменты");
+            await LoadFormInPanel(WinNumber.Tool).ConfigureAwait(false);
+        }
+
+        private async void btnTechOperation_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Технологические операции");
+            await LoadFormInPanel(WinNumber.TechOperation).ConfigureAwait(false);
+        }
+
+        private async void btnWorkStep_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Технологические Переходы");
+            await LoadFormInPanel(WinNumber.TechTransition).ConfigureAwait(false);
+        }
+
+        private async void btnProject_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Проекты");
+            await LoadFormInPanel(WinNumber.Project).ConfigureAwait(false);
+        }
 
         private void UpdateButtonsState(WinNumber activeModelType)
         {
@@ -300,31 +382,35 @@ namespace TC_WinForms.WinForms
             await Save();
         }
 
-        public async void UpdateTС(TechnologicalCard tc)
-        {
-            // найти ТК в форме с данным id и обновить ее
-            if (_forms.TryGetValue(WinNumber.TC, out var form))
-            {
-                if (form is Win7_1_TCs tcForm)
-                {
-                    //await tcForm.UpdateTc(tc);
-                }
-            }
-        }
+        // Методы нигде не используются
+        //public async void UpdateTС(TechnologicalCard tc)
+        //{
+        //    // найти ТК в форме с данным id и обновить ее
+        //    if (_forms.TryGetValue(WinNumber.TC, out var form))
+        //    {
+        //        if (form is Win7_1_TCs tcForm)
+        //        {
+        //            //await tcForm.UpdateTc(tc);
+        //        }
+        //    }
+        //}
 
-        public async void UpdateTC()
-        {
-            _forms.Remove(WinNumber.TC);
-            LoadForm(WinNumber.TC);
+        //public async void UpdateTC()
+        //{
+        //    _forms.Remove(WinNumber.TC);
+        //    //LoadForm(WinNumber.TC);
 
-            if (_currentWinNumber != null)
-                await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
-        }
+        //    if (_currentWinNumber != null)
+        //        await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
+        //}
 
         public async void UpdateTO()
         {
+            _logger.Information("Обновление формы Технологические операции");
             _forms.Remove(WinNumber.TechOperation);
-            LoadForm(WinNumber.TechOperation);
+            //LoadForm(WinNumber.TechOperation); 
+            // не вижу сценария, при котором окно с ТО не является _currentWinNumber
+            // при вызове этой функции
 
             if (_currentWinNumber != null)
                 await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
@@ -333,6 +419,9 @@ namespace TC_WinForms.WinForms
 
         public async void updateToolStripButton_Click(object sender, EventArgs e)
         {
+            _logger.Information("Вызвано обновление данных из формы {CurrentWinNumber}", 
+                _currentWinNumber);
+
             bool next = true;
             foreach (var frm in _forms)
             {
@@ -380,17 +469,20 @@ namespace TC_WinForms.WinForms
 
             _forms.Clear();
 
-            await LoadAllForms();
+            // await LoadAllForms(); // кажется, заная загрузка при обновлении безколезна,
+            // т.к. активная форма загружается ниже
 
             if (_currentWinNumber != null)
                 await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
 
+            _logger.Information("Данные обновлены");
         }
 
         private void btnNextPage_Click(object sender, EventArgs e)
         {
             if (_forms.TryGetValue(_currentWinNumber.Value, out var activeForm) && activeForm is IPaginationControl paginationControl)
             {
+                _logger.Information("Переход на следующую страницу");
                 paginationControl.GoToNextPage();
             }
         }
@@ -399,17 +491,23 @@ namespace TC_WinForms.WinForms
         {
             if (_forms.TryGetValue(_currentWinNumber.Value, out var activeForm) && activeForm is IPaginationControl paginationControl)
             {
+                _logger.Information("Переход на предыдущую страницу");
                 paginationControl.GoToPreviousPage();
             }
         }
 
-        private void SubscribeToPageInfoChanged(IPaginationControl form)
+        private void SubscribeToPageInfoChanged(IPaginationControl? form)
         {
+            if (form == null)
+                return;
+
             form.PageInfoChanged += Form_PageInfoChanged;
         }
 
-        private void Form_PageInfoChanged(object sender, PageInfoEventArgs e)
+        private void Form_PageInfoChanged(object sender, PageInfoEventArgs? e)
         {
+            if (e == null)
+                return;
             // Может потребоваться использовать Invoke для обновления UI из другого потока.
             lblPageInfo.Invoke((MethodInvoker)delegate
             {
@@ -419,6 +517,7 @@ namespace TC_WinForms.WinForms
 
         private void infoToolStripButton_Click(object sender, EventArgs e)
         {
+            _logger.Information("Вызвано отображение информации о программе");
             // сообщение с информацией о программе
             MessageBox.Show(ApplicationInfoService.GetApplicationInfo(), "О программе");
         }

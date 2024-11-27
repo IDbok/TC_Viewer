@@ -1,4 +1,5 @@
 ﻿using ExcelParsing.DataProcessing;
+using Serilog;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
@@ -13,6 +14,8 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win7_1_TCs_Window : Form
     {
+        private readonly ILogger _logger;
+
         private readonly User.Role _accessLevel;
         public MyDbContext context;
         private DbConnector dbCon = new DbConnector();
@@ -27,11 +30,27 @@ namespace TC_WinForms.WinForms
 
         public Win7_1_TCs_Window(int? tcId = null, bool win6Format = false, User.Role role = User.Role.Lead)
         {
+            _logger = Log.ForContext<Win7_1_TCs_Window>();
+
+            if (tcId != null)
+                _logger.Information("Инициализация окна Win7_1_TCs_Window с ID={TcId}, Win6Format={Win6Format}, Роль={Role}", tcId, win6Format, role);
+            else
+                _logger.Information("Создание новой технологической карты");
+
             _accessLevel = role;
 
             InitializeComponent();
 
-            context = new MyDbContext();
+            try
+            {
+                context = new MyDbContext();
+                _logger.Information("Подключение к контексту базы данных установлено");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Ошибка подключения к базе данных: {ExceptionMessage}", ex.Message);
+                throw;
+            }
 
             ConfigureComboBox();
             ConfigureStatusComboBox();
@@ -44,18 +63,28 @@ namespace TC_WinForms.WinForms
 
             if (tcId != null)
             {
-                OriginCard = context.TechnologicalCards.FirstOrDefault(s => s.Id == tcId);
-                if(OriginCard != null)
+                try
                 {
-                    LocalCard.Id = OriginCard.Id;
-                    LocalCard.ApplyUpdates(OriginCard);
-                    load(LocalCard);
-                    this.Text = "Редактирование технологической карты";
+                    OriginCard = context.TechnologicalCards.FirstOrDefault(s => s.Id == tcId);
+                    if (OriginCard != null)
+                    {
+                        LocalCard.Id = OriginCard.Id;
+                        LocalCard.ApplyUpdates(OriginCard);
+                        load(LocalCard);
+                        _logger.Information("Данные технологической карты с ID={TcId} загружены", tcId);
+                        this.Text = "Редактирование технологической карты";
+                    }
+                    else
+                    {
+                        _logger.Warning("Технологическая карта с ID={TcId} не найдена", tcId);
+                        MessageBox.Show("Технологическая карта не найдена");
+                        this.Close();
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Технологическая карта не найдена");
-                    this.Close();
+                    _logger.Error("Ошибка при загрузке технологической карты с ID={TcId}: {ExceptionMessage}", tcId, ex.Message);
+                    throw;
                 }
             }
             else
@@ -77,6 +106,8 @@ namespace TC_WinForms.WinForms
 
             if (_accessLevel == User.Role.Lead)
             {
+                _logger.Information("Роль Lead: включение отображения статуса");
+
                 cbxStatus.Visible = true;
                 lblStatus.Visible = true;
             }
@@ -152,6 +183,7 @@ namespace TC_WinForms.WinForms
 
         async Task<bool> SaveAsync()
         {
+            _logger.Information("Начало сохранения данных технологической карты");
             //if (LocalCard == null)
             //    LocalCard = new TechnologicalCard();
 
@@ -179,25 +211,34 @@ namespace TC_WinForms.WinForms
                 }
             }
 
-            // проверка полей на уникальность
-            if ( !await UniqueFieldChecker<TechnologicalCard>.IsPropertiesUnique(LocalCard))
-                return false;
-			
-            OriginCard.ApplyUpdates(LocalCard);
 
             try
             {
+
+                _logger.Information("Проверка уникальности данных технологической карты");
+                // проверка полей на уникальность
+                if ( !await UniqueFieldChecker<TechnologicalCard>.IsPropertiesUnique(LocalCard))
+                {
+                    _logger.Warning("Нарушена уникальность полей технологической карты");
+                    return false;
+                }
+
+                OriginCard.ApplyUpdates(LocalCard);
                 await dbCon.AddOrUpdateTCAsync(OriginCard);
 
                 if (AfterSave != null)
                 {
                     await AfterSave(OriginCard);
                 }
+
+                _logger.Information("Сохранение данных технологической карты выполнено успешно");
                 return true;
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                MessageBox.Show(exception.Message);
+                _logger.Error("Ошибка при сохранении данных технологической карты: {ExceptionMessage}", ex.Message);
+
+                MessageBox.Show(ex.Message);
                 return false;
             }
         }
