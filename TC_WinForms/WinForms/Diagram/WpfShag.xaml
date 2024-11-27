@@ -101,7 +101,7 @@
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridTemplateColumn Header="Наименование" Width="100">
+                                        <DataGridTemplateColumn Header="Наименование" Width="110">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding Path=Name}" TextWrapping="Wrap" Background="{Binding Path=BrushBackground}" />
@@ -109,7 +109,7 @@
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridTemplateColumn Header="Тип" Width="110">
+                                        <DataGridTemplateColumn Header="Тип" Width="170">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding Path=Type}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
@@ -124,8 +124,17 @@
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
-
+                                        
                                         <DataGridTemplateColumn Header="Кол-во" Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }"  Background="LightGray"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        
+                                        <DataGridTemplateColumn Header="Всего" IsReadOnly="True"
+                                                                Width="50">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding Path=Count}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
@@ -133,7 +142,7 @@
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridTemplateColumn Header="Комментарии" Width="100">
+                                        <DataGridTemplateColumn Header="Комментарии" Width="130">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBox Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_CommentTextChanged" TextWrapping="Wrap" Background="LightGray"/>
@@ -142,13 +151,7 @@
                                         </DataGridTemplateColumn>
 
 
-                                        <DataGridTemplateColumn Header="Кол-во добавить" Width="100">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }"  Background="LightGray"/>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
+                                        
 
                                     </DataGrid.Columns>
                                 </DataGrid>
@@ -203,7 +206,7 @@
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridTemplateColumn Header="Комментарии" Width="150">
+                                        <DataGridTemplateColumn Header="Комментарии" Width="180">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding Path=Comments}"  TextWrapping="Wrap" Background="{Binding Path=BrushBackground}"/>
