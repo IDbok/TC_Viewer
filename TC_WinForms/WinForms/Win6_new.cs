@@ -20,7 +20,7 @@ using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_new : Form, IViewModeable
+    public partial class Win6_new : Form, IViewModeable, IOpenFormCheck
     {
         private readonly ILogger _logger;
         private TcViewState tcViewState;
@@ -178,7 +178,10 @@ namespace TC_WinForms.WinForms
             action?.Invoke();
 
         }
-
+        public int GetObjectId()
+        {
+            return _tcId;
+        }
         public void SetViewMode(bool? isViewMode = null)
         {
             if (isViewMode != null && tcViewState.IsViewMode != isViewMode)

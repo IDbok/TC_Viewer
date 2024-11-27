@@ -24,6 +24,7 @@ namespace TC_WinForms.WinForms
         private DbConnector dbCon = new DbConnector();
         private List<DisplayedTechnologicalCard> _displayedTechnologicalCards;
         private BindingList<DisplayedTechnologicalCard> _bindingList;
+        private CheckOpenFormService _checkOpenFormService = new CheckOpenFormService();
 
         private List<DisplayedTechnologicalCard> _changedObjects = new List<DisplayedTechnologicalCard>();
         private List<DisplayedTechnologicalCard> _newObjects = new List<DisplayedTechnologicalCard>();
@@ -204,34 +205,23 @@ namespace TC_WinForms.WinForms
 
         /////////////////////////////// btnNavigation events /////////////////////////////////////////////////////////////////
 
-        private bool IsFormOpen(DataGridViewRow selectedRow)
-        {
-            FormCollection fc = Application.OpenForms;
-            string Name = (string)selectedRow.Cells["Name"].Value;
-            string Article = (string)selectedRow.Cells["Article"].Value;
-
-            foreach (Form frm in fc)
-            {
-                //iterate through
-                if (frm.Text.Contains($"{Name} ({Article})"))
-                    return true;
-            }
-            return false;
-        }
-
         private void btnViewMode_Click(object sender, EventArgs e)
         {
             if (dgvMain.SelectedRows.Count == 1)
             {
                 var selectedRow = dgvMain.SelectedRows[0];
+                int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
 
-                if (IsFormOpen(selectedRow))
+                var checkinFormType = "Win6_new";
+                _checkOpenFormService.SetFormType(checkinFormType);
+                var openedForm = _checkOpenFormService.AreFormOpen(id);
+                
+                if (openedForm != null)
                 {
-                    MessageBox.Show("Данная ТК уже открыта.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    openedForm.BringToFront();
                     return;
                 }
 
-                int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
                 if (id != 0)
                 {
                     var win6 = new Win6_new(id, role: _accessLevel, viewMode: true);

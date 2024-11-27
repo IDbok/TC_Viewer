@@ -1,8 +1,7 @@
-﻿using ExcelParsing.DataProcessing;
-using Serilog;
-using System.Windows.Forms;
+﻿using Serilog;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 using TcDbConnector;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -19,6 +18,7 @@ namespace TC_WinForms.WinForms
         private readonly User.Role _accessLevel;
         public MyDbContext context;
         private DbConnector dbCon = new DbConnector();
+        private CheckOpenFormService _checkOpenFormService = new CheckOpenFormService();
 
         private List<object> AllEllement = new List<object>();
         private TechnologicalCard OriginCard = null!;
@@ -179,19 +179,6 @@ namespace TC_WinForms.WinForms
             }
             return ValueRet;
         }
-
-        private bool IsFormOpen()
-        {
-            FormCollection fc = Application.OpenForms;
-
-            foreach (Form frm in fc)
-            {
-                //iterate through
-                if (frm.Text.Contains($"{LocalCard.Name} ({LocalCard.Article})"))
-                    return true;
-            }
-            return false;
-        }
         async Task<bool> SaveAsync()
         {
             _logger.Information("Начало сохранения данных технологической карты");
@@ -271,12 +258,17 @@ namespace TC_WinForms.WinForms
         {
             if (NoEmptiness())
             {
-                if (IsFormOpen())
+                var checkinFormType = "Win6_new";
+                _checkOpenFormService.SetFormType(checkinFormType);
+                var openedForm = _checkOpenFormService.AreFormOpen(LocalCard.Id);
+
+                if (openedForm != null)
                 {
-                    MessageBox.Show("Данная ТК уже открыта.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    openedForm.BringToFront();
                     return;
                 }
-                    if (HasChanges())
+
+                if (HasChanges())
                 {
                     if (!await SaveAsync())
                         return;
