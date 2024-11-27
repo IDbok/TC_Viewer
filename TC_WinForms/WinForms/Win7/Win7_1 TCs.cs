@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Reflection.Metadata;
 using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
@@ -20,6 +21,7 @@ namespace TC_WinForms.WinForms
     public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
     {
         private readonly User.Role _accessLevel;
+        private readonly int _minRowHeight = 20;
 
         private DbConnector dbCon = new DbConnector();
         private List<DisplayedTechnologicalCard> _displayedTechnologicalCards;
@@ -134,10 +136,11 @@ namespace TC_WinForms.WinForms
 
                 dgvMain.RowPostPaint += dgvMain_RowPostPaint;
 
-                ResizeRows();
-                dgvMain.Visible = true;
-                this.Enabled = true;
-            }
+
+            dgvMain.ResizeRows(_minRowHeight);
+            dgvMain.Visible = true;
+            this.Enabled = true;
+
         }
         public async Task LoadDataAsync()
         {
@@ -175,31 +178,12 @@ namespace TC_WinForms.WinForms
 
             _bindingList = new BindingList<DisplayedTechnologicalCard>(paginationService.GetPageData());
             dgvMain.DataSource = _bindingList;//.OrderBy(tc => tc.Article);
-            ResizeRows();
+            dgvMain.ResizeRows(20);
             // Подготовка данных для события
             PageInfo = paginationService.GetPageInfo();
 
             // Вызов события с подготовленными данными
             RaisePageInfoChanged();
-        }
-
-        private void ResizeRows()
-        {
-            foreach (DataGridViewRow row in dgvMain.Rows)
-
-            {
-                DataGridViewRow dataGridViewRow = dgvMain.Rows.SharedRow(row.Index);
-                int minimumHeight = 20;
-
-                int preferredThickness = row.GetPreferredHeight(row.Index, DataGridViewAutoSizeRowMode.AllCells, true);
-
-                if (preferredThickness < minimumHeight)
-                {
-                    preferredThickness = minimumHeight;
-                }
-
-                row.Height = preferredThickness;
-            }
         }
 
         /////////////////////////////// btnNavigation events /////////////////////////////////////////////////////////////////
@@ -948,17 +932,9 @@ namespace TC_WinForms.WinForms
 
         private void Win7_1_TCs_SizeChanged(object sender, EventArgs e)
         {
-            ResizeRows();
+            dgvMain.ResizeRows(_minRowHeight);
         }
     }
 
-    public static class ExtensionMethods
-    {
-        public static void DoubleBuffered(this DataGridView dgv, bool setting)
-        {
-            Type dgvType = dgv.GetType();
-            PropertyInfo pi = dgvType.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
-            pi.SetValue(dgv, setting, null);
-        }
-    }
+    
 }
