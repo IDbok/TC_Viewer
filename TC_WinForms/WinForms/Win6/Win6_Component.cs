@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -19,6 +20,8 @@ namespace TC_WinForms.WinForms
 {
     public partial class Win6_Component : Form, IViewModeable
     {
+        private readonly ILogger _logger;
+
         private readonly TcViewState _tcViewState;
 
         private bool _isViewMode;
@@ -38,6 +41,13 @@ namespace TC_WinForms.WinForms
 
         public Win6_Component(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
         {
+
+            _logger = Log.Logger
+                .ForContext<Win6_Component>()
+                .ForContext("TcId", _tcId);
+
+            _logger.Information("Инициализация формы Win6_Component TcId={TcId}");
+
             _tcViewState = tcViewState;
             this.context = context;
 
@@ -50,7 +60,10 @@ namespace TC_WinForms.WinForms
             dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
             dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
 
-            this.FormClosed += (sender, e) => this.Dispose();
+            this.FormClosed += (sender, e) => {
+                _logger.Information("Форма закрыта");
+                this.Dispose();
+            };
         }
 
         public void SetViewMode(bool? isViewMode = null)
@@ -74,6 +87,8 @@ namespace TC_WinForms.WinForms
         }
         private void Win6_Component_Load(object sender, EventArgs e)
         {
+            _logger.Information("Загрузка формы Win6_Component");
+
             LoadObjects();
             DisplayedEntityHelper.SetupDataGridView<DisplayedComponent_TC>(dgvMain);
 
