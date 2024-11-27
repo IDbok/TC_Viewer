@@ -204,11 +204,33 @@ namespace TC_WinForms.WinForms
 
         /////////////////////////////// btnNavigation events /////////////////////////////////////////////////////////////////
 
+        private bool IsFormOpen(DataGridViewRow selectedRow)
+        {
+            FormCollection fc = Application.OpenForms;
+            string Name = (string)selectedRow.Cells["Name"].Value;
+            string Article = (string)selectedRow.Cells["Article"].Value;
+
+            foreach (Form frm in fc)
+            {
+                //iterate through
+                if (frm.Text.Contains($"{Name} ({Article})"))
+                    return true;
+            }
+            return false;
+        }
+
         private void btnViewMode_Click(object sender, EventArgs e)
         {
             if (dgvMain.SelectedRows.Count == 1)
             {
                 var selectedRow = dgvMain.SelectedRows[0];
+
+                if (IsFormOpen(selectedRow))
+                {
+                    MessageBox.Show("Данная ТК уже открыта.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
                 if (id != 0)
                 {

@@ -180,7 +180,18 @@ namespace TC_WinForms.WinForms
             return ValueRet;
         }
 
+        private bool IsFormOpen()
+        {
+            FormCollection fc = Application.OpenForms;
 
+            foreach (Form frm in fc)
+            {
+                //iterate through
+                if (frm.Text.Contains($"{LocalCard.Name} ({LocalCard.Article})"))
+                    return true;
+            }
+            return false;
+        }
         async Task<bool> SaveAsync()
         {
             _logger.Information("Начало сохранения данных технологической карты");
@@ -248,7 +259,6 @@ namespace TC_WinForms.WinForms
         {
             if (NoEmptiness())
             {
-
                 if (await SaveAsync())
                 {
                     this.BringToFront();
@@ -261,7 +271,12 @@ namespace TC_WinForms.WinForms
         {
             if (NoEmptiness())
             {
-                if (HasChanges())
+                if (IsFormOpen())
+                {
+                    MessageBox.Show("Данная ТК уже открыта.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                    if (HasChanges())
                 {
                     if (!await SaveAsync())
                         return;
