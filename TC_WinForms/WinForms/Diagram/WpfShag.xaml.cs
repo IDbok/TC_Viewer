@@ -432,7 +432,8 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void ButtonDelete_Click(object sender, RoutedEventArgs e)
         {
-            var result = System.Windows.Forms.MessageBox.Show("Вы действительно хотите удалить шаг?", "Удаление шага", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var result = System.Windows.Forms.MessageBox.Show("Вы действительно хотите удалить шаг?", 
+                "Удаление шага", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {
                 wpfPosledovatelnost.diagramPosledov.ListDiagramShag.Remove(diagramShag);

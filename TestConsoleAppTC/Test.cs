@@ -16,6 +16,8 @@ using TcDbConnector.Migrations;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Drawing;
+using Serilog;
+using Serilog.Events;
 
 namespace TestConsoleAppTC;
 
@@ -38,9 +40,48 @@ internal class Program
 
         var exporter = new ExcelExporter();
 
-        LoadImage();
+        LoadLogsToSeq();
+        // LoadImage();
         //LoadImageInRangeExcel2();
 
+    }
+
+    static void LoadLogsToSeq() // добавляет в seq логи из файла, но пока без параметров и указывает время добавление, а не из лога
+    {
+        var seqLogger = new LoggerConfiguration()
+            .WriteTo.Seq("http://localhost:8081") // Укажите URL Seq
+            .CreateLogger();
+
+        var pathToLogs = @"C:/Users/bokar/source/TC_Viewer/TC_WinForms/bin/Debug/net6.0-windows/logs";
+        using (var reader = new StreamReader(pathToLogs + "/log-20241122.json"))
+        {
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                var log = JsonConvert.DeserializeObject<dynamic>(line);
+
+                // Проверка обязательных полей для Seq
+                if (log.ContainsKey("Timestamp") && log.ContainsKey("Level") && log.ContainsKey("MessageTemplate"))
+                {
+                    var timestamp = log["Timestamp"];
+                    var level = log["Level"];
+                    var messageTemplate = log["MessageTemplate"];
+                    var properties = log.ContainsKey("Properties") ? log["Properties"] : null;
+
+                    // Отправляем лог в Seq
+                    seqLogger
+                        .ForContext("Properties", properties) // Добавляем свойства, если они есть
+                        .Write((LogEventLevel)Enum.Parse(typeof(LogEventLevel), level.ToString(), true),
+                            messageTemplate.ToString());
+                }
+                else
+                {
+                    Console.WriteLine($"Неверный формат лога: {line}");
+                }
+            }
+        }
+
+        seqLogger.Dispose();
     }
 
     static void LoadImage()
