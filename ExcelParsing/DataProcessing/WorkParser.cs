@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NCalc;
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
 using System.Data;
@@ -1729,5 +1730,86 @@ public class WorkParser
             
         }
         
+    }
+
+    // метод, который принимает в качестве параметров выражение и словарь переменных,
+    // ключами которого являются имена переменных, а значениями - их значения.
+    public static double EvaluateExpression(string expression, Dictionary<string, double> variables)
+    {
+        // Создаем новое выражение
+        Expression e = new Expression(expression);
+
+        // Извлекаем список переменных из выражения
+        var parameters = new List<string>();
+
+        // Регулярное выражение для поиска идентификаторов (переменных)
+        Regex regex = new Regex(@"[a-zA-Z_]\w*");
+
+        MatchCollection matches = regex.Matches(expression);
+
+        foreach (Match match in matches)
+        {
+            string paramName = match.Value;
+
+            // Исключаем функции и операторы
+            if (!IsFunction(paramName) && !IsOperator(paramName))
+            {
+                parameters.Add(paramName);
+            }
+        }
+
+        // Убираем дубликаты переменных
+        parameters = parameters.Distinct().ToList();
+
+        // Проверяем наличие всех переменных в словаре
+        foreach (var param in parameters)
+        {
+            if (!variables.ContainsKey(param))
+            {
+                throw new ArgumentException($"Переменная '{param}' отсутствует в словаре переменных.");
+            }
+        }
+
+        // Передаем переменные в выражение
+        foreach (var variable in variables)
+        {
+            e.Parameters[variable.Key] = variable.Value;
+        }
+
+        // Вычисляем результат
+        object result = e.Evaluate();
+
+        // Преобразуем результат в double и возвращаем
+        return Convert.ToDouble(result);
+    }
+
+    // Метод для проверки, является ли идентификатор функцией NCalc
+    private static bool IsFunction(string name)
+    {
+        // Список функций, поддерживаемых NCalc
+        string[] functions = new string[]
+        {
+        "Abs", "Acos", "Asin", "Atan", "Ceiling", "Cos", "Exp",
+        "Floor", "IEEERemainder", "Log", "Log10", "Pow", "Round",
+        "Sign", "Sin", "Sqrt", "Tan", "Truncate", "Max", "Min",
+        "If", "In", "Not", "Len", "Lower", "Upper", "Contains",
+        "StartsWith", "EndsWith", "Substring", "IsNull", "ToInt32",
+        "ToDouble", "ToString", "DateTime", "Now", "Today", "Ticks"
+        };
+
+        return functions.Contains(name, StringComparer.OrdinalIgnoreCase);
+    }
+
+    // Метод для проверки, является ли идентификатор оператором NCalc
+    private static bool IsOperator(string name)
+    {
+        // Список операторов, поддерживаемых NCalc
+        string[] operators = new string[]
+        {
+        "and", "or", "not", "!", "+", "-", "*", "/", "%", "^",
+        "=", "<>", "!=", ">", ">=", "<", "<=", "&&", "||"
+        };
+
+        return operators.Contains(name, StringComparer.OrdinalIgnoreCase);
     }
 }

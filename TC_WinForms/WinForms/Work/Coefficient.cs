@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TcModels.Models.TcContent;
+using static Antlr4.Runtime.Atn.SemanticContext;
 
 namespace TC_WinForms.WinForms.Work
 {
@@ -49,7 +50,24 @@ namespace TC_WinForms.WinForms.Work
 
             try
             {
-                var bn = WorkParser.EvaluateExpression(Idd.TimeExecution.ToString().Replace(',', '.') + " " + textBox1.Text.Replace(',', '.')); // ee.Evaluate();
+                var time = Idd.TimeExecution.ToString().Replace(',', '.');
+                var coef = textBox1.Text.Replace(',', '.');
+                var expression = "1";
+
+                // проверить нет ли в знака первым символом
+                if (coef[0] == '+' || coef[0] == '-' ||
+                    coef[0] == '*' || coef[0] == '/')
+                {
+                    expression = time + coef.Replace(',', '.');
+                }
+                else
+                {
+                    expression = time + "*" + coef.Replace(',', '.');
+                }
+
+                var bn = WorkParser.EvaluateExpression(expression); //ee.Evaluate();
+
+                //var bn = WorkParser.EvaluateExpression(Idd.TimeExecution.ToString().Replace(',', '.') + " " + textBox1.Text.Replace(',', '.')); // ee.Evaluate();
                 label4.Text = bn.ToString();
                 button1.Enabled = true;
             }

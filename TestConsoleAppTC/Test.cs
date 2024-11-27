@@ -35,15 +35,19 @@ internal class Program
 
         // получить ТК по id
         TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
-        var context = new MyDbContext();
-        var tcId = 495;
+        
+        var expression = "3+k2-1-k20";
+        var variables = new Dictionary<string, double>
+        {
+            { "k2", 2 },
+            { "k20", 0.5 }
+        };
 
-        var exporter = new ExcelExporter();
+        var result = WorkParser.EvaluateExpression(expression, variables);
 
-        LoadLogsToSeq();
-        // LoadImage();
-        //LoadImageInRangeExcel2();
+        Console.WriteLine(result);
 
+        Console.ReadLine();
     }
 
     static void LoadLogsToSeq() // добавляет в seq логи из файла, но пока без параметров и указывает время добавление, а не из лога

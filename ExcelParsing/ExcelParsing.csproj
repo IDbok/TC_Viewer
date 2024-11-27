@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CoreCLR-NCalc" Version="3.1.253" />
     <PackageReference Include="EPPlus" Version="7.0.2" />
 	<ProjectReference Include="..\DBConnector\TcDbConnector.csproj" />
 	<ProjectReference Include="..\TcModels\TcModels.csproj" />

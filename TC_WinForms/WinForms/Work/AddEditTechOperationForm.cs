@@ -6,6 +6,7 @@ using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using static Antlr4.Runtime.Atn.SemanticContext;
 using Component = TcModels.Models.TcContent.Component;
 using Machine = TcModels.Models.TcContent.Machine;
 
@@ -495,7 +496,21 @@ namespace TC_WinForms.WinForms.Work
                         wor.Coefficient = gg ?? "";
                         try
                         {
-                            var bn = WorkParser.EvaluateExpression(wor.techTransition?.TimeExecution.ToString().Replace(',', '.') + "*" + wor.Coefficient.Replace(',', '.')); //ee.Evaluate();
+                            var time = wor.techTransition?.TimeExecution.ToString().Replace(',', '.');
+                            var expression = "1";
+                            // проверить нет ли в знака первым символом
+                            if (wor.Coefficient[0] == '+' ||
+                                wor.Coefficient[0] == '-' ||
+                                wor.Coefficient[0] == '*' ||
+                                wor.Coefficient[0] == '/')
+                            {
+                                expression = time + wor.Coefficient.Replace(',', '.');
+                            }
+                            else
+                            {
+                                expression = time + "*" + wor.Coefficient.Replace(',', '.');
+                            }
+                            var bn = WorkParser.EvaluateExpression(expression); //ee.Evaluate();
                             wor.Value = Math.Round(bn, 2);//double.Parse(bn.ToString()), 2);
                         }
                         catch (Exception)
