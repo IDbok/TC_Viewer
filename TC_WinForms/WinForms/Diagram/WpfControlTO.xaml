@@ -14,7 +14,7 @@
         <StackPanel HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
                 <TextBlock Text="Выбрите ТО" />
-                
+
                 <ComboBox Name="ComboBoxTO" Width="300" Margin="30,0,0,0"
                             SelectionChanged="ComboBoxTO_SelectionChanged" 
                             PreviewMouseDown="ComboBoxTO_PreviewMouseDown" 
@@ -22,7 +22,20 @@
                             DropDownOpened="ComboBoxTO_DropDownOpened"
                             DropDownClosed="ComboBoxTO_DropDownClosed"
                           IsEnabled="{Binding IsHiddenInViewMode}"
-                          />
+                          >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="№{0} {1}">
+                                        <Binding Path="Order"/>
+                                        <Binding Path="techOperation.Name"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
 
                 <StackPanel Orientation="Horizontal" 
                             

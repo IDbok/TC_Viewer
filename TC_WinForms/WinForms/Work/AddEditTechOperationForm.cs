@@ -128,6 +128,24 @@ namespace TC_WinForms.WinForms.Work
             Even.Table = 2;
             Even.AddGragDropEvents(dataGridViewTPLocal);
 
+            comboBoxTO.Format += (s, e) =>
+            {
+                if (e.ListItem is TechOperationWork tow)
+                {
+                    // Задайте формат отображения текста
+                    e.Value = $"№{tow.Order} {tow.techOperation.Name}";
+                }
+            };
+
+            comboBoxTT.Format += (s, e) =>
+            {
+                if (e.ListItem is ExecutionWork ew)
+                {
+                    // Задайте формат отображения текста
+                    e.Value = $"№{ew.Order} {ew.techTransition.Name}";
+                }
+            };
+
             Log.Information("Все события для элементов интерфейса настроены.");
         }
 
@@ -374,12 +392,12 @@ namespace TC_WinForms.WinForms.Work
             {
                 techOperationWork,
                 "Удалить",
-                techOperationWork.techOperation.Name,
+                $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
                 techOperationWork.techOperation.Category == "Типовая ТО",
                 techOperationWork.Order,
                 techOperationWork.GetParallelIndex().ToString() ?? "",
                 techOperationWork.GetSequenceGroupIndex().ToString() ?? ""
-            };
+            }; 
             dataGridViewTO.Rows.Add(row.ToArray());
         }
 
@@ -2097,7 +2115,7 @@ namespace TC_WinForms.WinForms.Work
                     List<object> listItem = new List<object>();
                     listItem.Add(Wor);
 
-                    listItem.Add(techOperationWork.techOperation.Name);
+                    listItem.Add($"№{techOperationWork.Order} {techOperationWork.techOperation.Name}");
                     if (Wor.Repeat)
                     {
                         listItem.Add("Повторить");
@@ -2506,7 +2524,7 @@ namespace TC_WinForms.WinForms.Work
                             {
                                 listItem.Add(false);
                             }
-                            listItem.Add(techOperationWork.techOperation.Name);
+                            listItem.Add($"№{techOperationWork.Order} {techOperationWork.techOperation.Name}");
                             listItem.Add(executionWork.techTransition?.Name ?? ""); // todo - проверить, может ли имя быть null у EW
 
                             listItem.Add(executionWork.Coefficient ?? "");
