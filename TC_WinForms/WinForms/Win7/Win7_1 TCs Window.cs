@@ -1,8 +1,7 @@
-﻿using ExcelParsing.DataProcessing;
-using Serilog;
-using System.Windows.Forms;
+﻿using Serilog;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 using TcDbConnector;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -179,8 +178,6 @@ namespace TC_WinForms.WinForms
             }
             return ValueRet;
         }
-
-
         async Task<bool> SaveAsync()
         {
             _logger.Information("Начало сохранения данных технологической карты");
@@ -248,7 +245,6 @@ namespace TC_WinForms.WinForms
         {
             if (NoEmptiness())
             {
-
                 if (await SaveAsync())
                 {
                     this.BringToFront();
@@ -261,6 +257,16 @@ namespace TC_WinForms.WinForms
         {
             if (NoEmptiness())
             {
+                var checkinFormType = "Win6_new";
+
+                var openedForm = CheckOpenFormService.AreFormOpen(LocalCard.Id, checkinFormType);
+
+                if (openedForm != null)
+                {
+                    openedForm.BringToFront();
+                    return;
+                }
+
                 if (HasChanges())
                 {
                     if (!await SaveAsync())
