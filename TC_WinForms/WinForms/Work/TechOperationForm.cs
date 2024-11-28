@@ -1398,7 +1398,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public void AddTechOperation(TechOperation TechOperat)
     {
-        int maxOrder = -1;
+        int maxOrder = 0;
 
         if (TechOperationWorksList.Count > 0)
         {
