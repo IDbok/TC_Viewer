@@ -4,6 +4,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
@@ -17,7 +18,7 @@ namespace TC_WinForms.WinForms;
 public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
 {
     private readonly User.Role _accessLevel;
-
+    private readonly int _minRowHeight = 20;
     private DbConnector dbCon = new DbConnector();
 
     private SelectionService<DisplayedStaff> _selectionService;
@@ -67,7 +68,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
 
         InitializeComponent();
         AccessInitialization();
-
+        dgvMain.DoubleBuffered(true);
         //this.Enabled = false;
         //dgvMain.Visible = false;
     }
@@ -116,6 +117,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
             SetAddingFormEvents();
 
         }
+        dgvMain.ResizeRows(_minRowHeight);
 
         dgvMain.Visible = true;
         this.Enabled = true;
@@ -147,6 +149,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
 
         _bindingList = new BindingList<DisplayedStaff>(paginationService.GetPageData());
         dgvMain.DataSource = _bindingList;
+        dgvMain.ResizeRows(_minRowHeight);
 
         // Подготовка данных для события
         PageInfo = paginationService.GetPageInfo();
@@ -213,7 +216,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
     {
         // автоподбор ширины столбцов под ширину таблицы
         dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+        //dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
         dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         //dgvMain.RowHeadersWidth = 25;
         dgvMain.RowHeadersVisible = false;
@@ -372,7 +375,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
 
 
         //private List<DisplayedStaff> relatedStaffs;
-        private string? classifierCode; 
+        private string? classifierCode;
 
         public DisplayedStaff()
         {
@@ -657,4 +660,8 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
         PageInfoChanged?.Invoke(this, PageInfo);
     }
 
+    private void Win7_3_Staff_SizeChanged(object sender, EventArgs e)
+    {
+        dgvMain.ResizeRows(_minRowHeight);
+    }
 }

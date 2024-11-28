@@ -654,7 +654,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 TechOperationDataGridItems.Add(new TechOperationDataGridItem
                 {
                     Nomer = -1,
-                    TechOperation = techOperationWork.techOperation.Name,
+                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
                     IdTO = techOperationWork.techOperation.Id
                 });
             }
@@ -675,7 +675,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     Nomer = nomer,
                     Staff = staffStr,
-                    TechOperation = techOperationWork.techOperation.Name,
+                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
                     TechTransition = executionWork.techTransition?.Name ?? "",
                     TechTransitionValue = executionWork.Value.ToString(),
                     Protections = protectStr,
@@ -708,7 +708,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     Nomer = nomer,
                     Staff = "",
-                    TechOperation = techOperationWork.techOperation.Name,
+                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
                     TechTransition = $"{toolWork.tool.Name}   {toolWork.tool.Type}    {toolWork.tool.Unit}",
                     TechTransitionValue = toolWork.Quantity.ToString(),
                     ItsTool = true,
@@ -724,7 +724,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     Nomer = nomer,
                     Staff = "",
-                    TechOperation = techOperationWork.techOperation.Name,
+                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
                     TechTransition = $"{componentWork.component.Name}   {componentWork.component.Type}    {componentWork.component.Unit}",
                     TechTransitionValue = componentWork.Quantity.ToString(),
                     ItsComponent = true,
