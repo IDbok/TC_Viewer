@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -25,6 +26,8 @@ namespace TC_WinForms.WinForms
         //public delegate Task PostSaveAction();
         public delegate Task PostSaveAction<TModel>(TModel modelObject) where TModel : IModelStructure;
         public PostSaveAction<IModelStructure> AfterSave { get; set; }
+
+        private ConcurrencyBlockServise<IModelStructure> objectBlockService;
 
         private bool _isNewObject = false;
         private bool _imageChanged = false;
@@ -73,6 +76,11 @@ namespace TC_WinForms.WinForms
                 {
                     cbxCategory.SelectedIndex = cbxCategory.FindStringExact(categoryable.Categoty);
                 }
+
+                var timerInterval = 1000 * 60 * 25;
+
+                objectBlockService = new ConcurrencyBlockServise<IModelStructure>(_editingObj, timerInterval);
+                objectBlockService.BlockObject();
             }
 
             _links = new BindingList<LinkEntety>(_editingObj.Links);
@@ -521,6 +529,9 @@ namespace TC_WinForms.WinForms
 
         private void btnClose_Click(object sender, EventArgs e)
         {
+            if (objectBlockService != null)
+                objectBlockService.CleanBlockData();
+
             if (HasChanges())
             {
                 var result = MessageBox.Show("Закрыть без сохранения?", "Подтверждение", MessageBoxButtons.YesNo);

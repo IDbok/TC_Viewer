@@ -6,6 +6,7 @@ using TcModels.Models.TcContent.Work;
 using TC_WinForms.DataProcessing;
 using Microsoft.EntityFrameworkCore;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 
 namespace TC_WinForms.WinForms;
 
@@ -14,6 +15,7 @@ public partial class Win7_TechOperation_Window : Form
     MyDbContext context;
 
     TechOperation techOperation;
+    private ConcurrencyBlockServise<TechOperation> techOperationBlockService;
 
     public delegate Task PostSaveActionTO(TechOperation modelObject);
     public PostSaveActionTO? AfterSave { get; set; }
@@ -45,6 +47,11 @@ public partial class Win7_TechOperation_Window : Form
             {
                 checkBox1.Checked = false;
             }
+
+            var timerInterval = 1000 * 60 * 25;
+
+            techOperationBlockService = new ConcurrencyBlockServise<TechOperation>(techOperation, timerInterval);
+            techOperationBlockService.BlockObject();
         }
 
         dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
@@ -280,6 +287,9 @@ public partial class Win7_TechOperation_Window : Form
 
     private void Win7_TechOperation_Window_FormClosing(object sender, FormClosingEventArgs e)
     {
+        if (techOperationBlockService != null)
+            techOperationBlockService.CleanBlockData();
+
         var Track = context.ChangeTracker.Entries().Where(w => w.State != Microsoft.EntityFrameworkCore.EntityState.Unchanged).Count();
 
         if (Track > 0)

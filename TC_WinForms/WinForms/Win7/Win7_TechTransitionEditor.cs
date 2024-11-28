@@ -2,6 +2,7 @@
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms;
@@ -13,6 +14,7 @@ public partial class Win7_TechTransitionEditor : Form
     public delegate Task PostSaveActionTP(TechTransition modelObject);
     public PostSaveActionTP AfterSave { get; set; }
     private bool _isNewObject = false;
+    private ConcurrencyBlockServise<TechTransition> techTransitionBlockService;
 
     List<string> _requiredProperties = new List<string>()
         {
@@ -58,6 +60,12 @@ public partial class Win7_TechTransitionEditor : Form
             rtxtTimeComment.Text = _editingObj.CommentTimeExecution;
 
             cbxIsReleased.Checked = _editingObj.IsReleased;
+
+
+            var timerInterval = 1000 * 60 * 25;
+
+            techTransitionBlockService = new ConcurrencyBlockServise<TechTransition>(_editingObj, timerInterval);
+            techTransitionBlockService.BlockObject();
         }
     }
 
@@ -65,7 +73,7 @@ public partial class Win7_TechTransitionEditor : Form
     {
         //Работа с техникой,Подготовка,Сборка/монтаж,Перемещение ,Действия с проводником,Земляные работы,Демонтаж,Действия с лебедкой,Установка стойки,Ссылки/нетиповые переходы
 
-        cbxCategory.Items.AddRange(new string[] { 
+        cbxCategory.Items.AddRange(new string[] {
             "Работа с техникой",
             "Подготовка",
             "Сборка/монтаж",
@@ -114,7 +122,7 @@ public partial class Win7_TechTransitionEditor : Form
             return;
 
         var dbConnector = new DbConnector();
-        
+
         if (_isNewObject)
         {
             await dbConnector.AddObjectAsync(_editingObj);
@@ -123,7 +131,7 @@ public partial class Win7_TechTransitionEditor : Form
         {
             await dbConnector.UpdateObjectsAsync(_editingObj);
         }
-        
+
 
         if (AfterSave != null)
         {
@@ -156,7 +164,7 @@ public partial class Win7_TechTransitionEditor : Form
     public bool AreRequiredPropertiesFilled() // todo: добавить подцветку обязательных полей
     {
         Type modelType = _editingObj.GetType();
-        
+
 
         foreach (string propertyName in _requiredProperties)
         {
@@ -174,5 +182,11 @@ public partial class Win7_TechTransitionEditor : Form
         }
 
         return true;
+    }
+
+    private void Win7_TechTransitionEditor_FormClosing(object sender, FormClosingEventArgs e)
+    {
+        if (techTransitionBlockService != null)
+            techTransitionBlockService.CleanBlockData();
     }
 }

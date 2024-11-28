@@ -23,6 +23,7 @@ namespace TC_WinForms.WinForms
         private DbConnector dbCon = new DbConnector();
         private List<DisplayedProtection> _displayedObjects = new();
         private BindingList<DisplayedProtection> _bindingList;
+        private ConcurrencyBlockServise<Protection> concurrencyBlockServise;
 
         private readonly bool _isAddingForm = false;
         private readonly bool _isUpdateItemMode = false; // add to UpdateMode
@@ -609,6 +610,14 @@ namespace TC_WinForms.WinForms
 
                 if (machine != null)
                 {
+                    var timerInterval = 1000 * 60 * 25;
+                    concurrencyBlockServise = new ConcurrencyBlockServise<Protection>(machine, timerInterval);
+                    if (concurrencyBlockServise.GetObjectUsedStatus())
+                    {
+                        MessageBox.Show("Данный объект сейчас редактируется другим пользователем. Вы не можете его редактировать.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
                     var objEditor = new Win7_LinkObjectEditor(machine, accessLevel: _accessLevel);
 
                     objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView<Protection, DisplayedProtection>(updatedObj as Protection);

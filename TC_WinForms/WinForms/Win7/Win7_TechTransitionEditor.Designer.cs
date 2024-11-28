@@ -205,6 +205,7 @@
             MinimumSize = new Size(800, 600);
             Name = "Win7_TechTransitionEditor";
             Text = "Win7_TechTransitionEditor";
+            FormClosing += Win7_TechTransitionEditor_FormClosing;
             Load += Win7_TechTransitionEditor_Load;
             ResumeLayout(false);
             PerformLayout();

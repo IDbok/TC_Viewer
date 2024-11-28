@@ -3,6 +3,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -22,6 +23,8 @@ public partial class Win7_StaffEditor : Form
     //public delegate Task PostSaveAction();
     public delegate Task PostSaveAction(Staff modelObject);
     public PostSaveAction? AfterSave { get; set; }
+
+    private ConcurrencyBlockServise<Staff> staffBlockService;
 
     private bool _isNewObject = false;
     public Win7_StaffEditor(Staff obj, bool isNewObject = false, User.Role accessLevel = User.Role.Lead) // todo: Сделать видимость не выпущенных объектов только для администратора или из карт в которых они были созданы
@@ -55,6 +58,12 @@ public partial class Win7_StaffEditor : Form
 
             cbxIsReleased.Checked = _editingObj.IsReleased;
             txtClassifierCode.Text = _editingObj.ClassifierCode;
+            
+            var timerInterval = 1000 * 60 * 25;
+
+            staffBlockService = new ConcurrencyBlockServise<Staff>(_editingObj, timerInterval);
+            staffBlockService.BlockObject();
+
         }
 
         dgvRelatedStaffs.DataSource = _editingObj.RelatedStaffs;
@@ -127,6 +136,9 @@ public partial class Win7_StaffEditor : Form
 
     private void btnClose_Click(object sender, EventArgs e)
     {
+        if (staffBlockService != null)
+            staffBlockService.CleanBlockData();
+
         if (HasChanges())
         {
             var result = MessageBox.Show("Закрыть без сохранения?", "Подтверждение", MessageBoxButtons.YesNo);
