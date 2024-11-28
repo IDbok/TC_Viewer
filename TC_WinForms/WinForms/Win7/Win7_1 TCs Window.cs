@@ -18,7 +18,6 @@ namespace TC_WinForms.WinForms
         private readonly User.Role _accessLevel;
         public MyDbContext context;
         private DbConnector dbCon = new DbConnector();
-        private CheckOpenFormService _checkOpenFormService = new CheckOpenFormService();
 
         private List<object> AllEllement = new List<object>();
         private TechnologicalCard OriginCard = null!;
@@ -259,8 +258,8 @@ namespace TC_WinForms.WinForms
             if (NoEmptiness())
             {
                 var checkinFormType = "Win6_new";
-                _checkOpenFormService.SetFormType(checkinFormType);
-                var openedForm = _checkOpenFormService.AreFormOpen(LocalCard.Id);
+
+                var openedForm = CheckOpenFormService.AreFormOpen(LocalCard.Id, checkinFormType);
 
                 if (openedForm != null)
                 {

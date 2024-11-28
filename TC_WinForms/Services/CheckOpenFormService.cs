@@ -8,16 +8,9 @@ using TC_WinForms.Interfaces;
 
 namespace TC_WinForms.Services
 {
-    public class CheckOpenFormService
+    public static class CheckOpenFormService
     {
-        private string FormType;
-
-        public void SetFormType(string FormType)
-        {
-            this.FormType = FormType;
-        }
-
-        public Form? AreFormOpen(int objectId)
+        public static Form? AreFormOpen(int objectId, string FormType)
         {
             FormCollection fc = Application.OpenForms;
 

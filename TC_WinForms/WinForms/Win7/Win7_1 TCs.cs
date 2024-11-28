@@ -24,7 +24,6 @@ namespace TC_WinForms.WinForms
         private DbConnector dbCon = new DbConnector();
         private List<DisplayedTechnologicalCard> _displayedTechnologicalCards;
         private BindingList<DisplayedTechnologicalCard> _bindingList;
-        private CheckOpenFormService _checkOpenFormService = new CheckOpenFormService();
 
         private List<DisplayedTechnologicalCard> _changedObjects = new List<DisplayedTechnologicalCard>();
         private List<DisplayedTechnologicalCard> _newObjects = new List<DisplayedTechnologicalCard>();
@@ -213,8 +212,7 @@ namespace TC_WinForms.WinForms
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
 
                 var checkinFormType = "Win6_new";
-                _checkOpenFormService.SetFormType(checkinFormType);
-                var openedForm = _checkOpenFormService.AreFormOpen(id);
+                var openedForm = CheckOpenFormService.AreFormOpen(id, checkinFormType);
                 
                 if (openedForm != null)
                 {
