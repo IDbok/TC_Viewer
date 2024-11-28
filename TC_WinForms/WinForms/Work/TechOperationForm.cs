@@ -1398,42 +1398,32 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public void AddTechOperation(TechOperation TechOperat)
     {
-        int maxOrder = -1;
+        int maxOrder = 0;
 
         if (TechOperationWorksList.Count > 0)
         {
             maxOrder = TechOperationWorksList.Max(m => m.Order);
         }
 
-        // Данный механизм отвечает за добавление удалённого объекта с таким же Id
-        // был удалён в соответствии с п154 замечаний
-        //var vb = TechOperationWorksList.Where(s => s.techOperation == TechOperat && s.Delete == true).ToList();
-        if (false)//vb.Count > 0)
-        {
-            //vb[0].Delete = false;
-        }
-        else
-        {
-            TechOperationWork techOperationWork = new TechOperationWork();
-            techOperationWork.techOperation = TechOperat;
-            techOperationWork.technologicalCard = TehCarta;
-            techOperationWork.NewItem = true;
-            techOperationWork.Order = maxOrder + 1;
+        TechOperationWork techOperationWork = new TechOperationWork();
+        techOperationWork.techOperation = TechOperat;
+        techOperationWork.technologicalCard = TehCarta;
+        techOperationWork.NewItem = true;
+        techOperationWork.Order = ++maxOrder;
 
-            TechOperationWorksList.Add(techOperationWork);
-            context.TechOperationWorks.Add(techOperationWork);
+        TechOperationWorksList.Add(techOperationWork);
+        context.TechOperationWorks.Add(techOperationWork);
 
-            if (TechOperat.Category == "Типовая ТО")
+        if (TechOperat.Category == "Типовая ТО")
+        {
+            foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals)
             {
-                foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals)
+                var temp = item.TechTransition;
+                if (temp == null)
                 {
-                    var temp = item.TechTransition;
-                    if (temp == null)
-                    {
-                        temp = context.TechTransitions.Single(s => s.Id == item.TechTransitionId);
-                    }
-                    AddTechTransition(temp, techOperationWork, item);
+                    temp = context.TechTransitions.Single(s => s.Id == item.TechTransitionId);
                 }
+                AddTechTransition(temp, techOperationWork, item);
             }
         }
     }
@@ -1441,64 +1431,47 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
     public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null, CoefficientForm coefficient = null)
     {
         TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
-        // Данный механизм отвечает за добавление удалённого объекта с таким же Id
-        // был удалён в соответствии с п154 замечаний
-        //var exec = TOWork.executionWorks.Where(w => w.techTransition == tech && w.Delete == true).ToList();
-        if (false) //exec.Count > 0)
+
+        int max = 0;
+        if (TOWork.executionWorks.Count > 0)
         {
-            //var one = exec[0];
-            //one.Delete = false;
+            max = TOWork.executionWorks.Max(w => w.Order);
+        }
+
+        ExecutionWork techOpeWork = new ExecutionWork
+        {
+            IdGuid = Guid.NewGuid(),
+            techOperationWork = TOWork,
+            NewItem = true,
+            techTransition = tech,
+            Order = ++max
+        };
+
+        TOWork.executionWorks.Add(techOpeWork);
+        context.ExecutionWorks.Add(techOpeWork);
+
+        if (tech.Name == "Повторить" || tech.Name == "Повторить п.")
+        {
+            techOpeWork.Repeat = true;
         }
         else
         {
-            int max = 0;
-            if (TOWork.executionWorks.Count > 0)
+            techOpeWork.Value = tech.TimeExecution;
+            if (coefficient != null)
             {
-                max = TOWork.executionWorks.Max(w => w.Order);
+                techOpeWork.Coefficient = coefficient.GetCoefficient;
+                techOpeWork.Value = coefficient.GetValue;
             }
+        }
 
-            ExecutionWork techOpeWork = new ExecutionWork();
+        if (techTransitionTypical != null)
+        {
+            techOpeWork.Etap = techTransitionTypical.Etap;
+            techOpeWork.Posled = techTransitionTypical.Posled;
+            techOpeWork.Coefficient = techTransitionTypical.Coefficient;
+            techOpeWork.Comments = techTransitionTypical.Comments ?? "";
 
-            if (tech.Name != "Повторить" && tech.Name != "Повторить п.")
-            {
-                techOpeWork.IdGuid = Guid.NewGuid();
-                techOpeWork.techOperationWork = TOWork;
-                techOpeWork.NewItem = true;
-                techOpeWork.techTransition = tech;
-                techOpeWork.Value = tech.TimeExecution;
-                if (coefficient != null)
-                {
-                    techOpeWork.Coefficient = coefficient.GetCoefficient;
-                    techOpeWork.Value = coefficient.GetValue;
-                }
-                techOpeWork.Order = max + 1;
-                TOWork.executionWorks.Add(techOpeWork);
-                context.ExecutionWorks.Add(techOpeWork);
-            }
-            else
-            {
-                //ExecutionWork techOpeWork = new ExecutionWork();
-                techOpeWork.IdGuid = Guid.NewGuid();
-                techOpeWork.techOperationWork = TOWork;
-                techOpeWork.NewItem = true;
-                techOpeWork.Repeat = true;
-                techOpeWork.Order = max + 1;
-                techOpeWork.techTransition = tech;
-                //techOpeWork.Value = tech.TimeExecution;
-                TOWork.executionWorks.Add(techOpeWork);
-                context.ExecutionWorks.Add(techOpeWork);
-            }
-
-            if (techTransitionTypical != null)
-            {
-                techOpeWork.Etap = techTransitionTypical.Etap;
-                techOpeWork.Posled = techTransitionTypical.Posled;
-                techOpeWork.Coefficient = techTransitionTypical.Coefficient;
-                techOpeWork.Comments = techTransitionTypical.Comments ?? "";
-
-                techOpeWork.Value = string.IsNullOrEmpty(techTransitionTypical.Coefficient) ? tech.TimeExecution : WorkParser.EvaluateExpression(tech.TimeExecution + "*" + techTransitionTypical.Coefficient);
-            }
-
+            techOpeWork.Value = string.IsNullOrEmpty(techTransitionTypical.Coefficient) ? tech.TimeExecution : WorkParser.EvaluateExpression(tech.TimeExecution + "*" + techTransitionTypical.Coefficient);
         }
 
     }

@@ -264,6 +264,9 @@ namespace TC_WinForms.WinForms.Work
                     TechOperationForm.DeleteTechOperation(IddGuid);
                     UpdateLocalTO();
                     TechOperationForm.UpdateGrid();
+
+                    // проверить, открыта ли форма с БС и обновить ее
+
                 }
             }
         }

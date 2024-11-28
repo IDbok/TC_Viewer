@@ -137,9 +137,10 @@ namespace TC_WinForms.WinForms
                 dgvMain.RowPostPaint += dgvMain_RowPostPaint;
 
 
-            dgvMain.ResizeRows(_minRowHeight);
-            dgvMain.Visible = true;
-            this.Enabled = true;
+                dgvMain.ResizeRows(_minRowHeight);
+                dgvMain.Visible = true;
+                this.Enabled = true;
+            }
 
         }
         public async Task LoadDataAsync()
