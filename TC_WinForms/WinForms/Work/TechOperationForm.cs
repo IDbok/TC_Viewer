@@ -1290,6 +1290,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
+                else if (e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
+                {
+                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                }
+                else if ((e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index
+                    || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index))
+                {
+                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                }
             }
         }
     }
