@@ -4,6 +4,8 @@ using Serilog;
 using System.Data;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.Services;
+using TC_WinForms.WinForms.Diagram;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using static Antlr4.Runtime.Atn.SemanticContext;
@@ -264,9 +266,6 @@ namespace TC_WinForms.WinForms.Work
                     TechOperationForm.DeleteTechOperation(IddGuid);
                     UpdateLocalTO();
                     TechOperationForm.UpdateGrid();
-
-                    // проверить, открыта ли форма с БС и обновить ее
-
                 }
             }
         }

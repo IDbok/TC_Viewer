@@ -7,6 +7,8 @@ using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
+using TC_WinForms.WinForms.Diagram;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -510,6 +512,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
             if (offScroll < dgvMain.Rows.Count && offScroll > 0)
                 dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
+
+            // проверить, открыта ли форма с БС и обновить ее
+            var bsForm = CheckOpenFormService.FindOpenedForm<DiagramForm>(tcId);
+            if (bsForm != null)
+            {
+                bsForm.UpdateVisualData();
+            }
         }
         catch (Exception ex)
         {

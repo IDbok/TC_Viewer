@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TC_WinForms.Interfaces
 {
-    public interface IOpenFormCheck
+    public interface IFormWithObjectId
     {
         public int GetObjectId();
     }

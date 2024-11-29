@@ -20,7 +20,7 @@ using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_new : Form, IViewModeable, IOpenFormCheck
+    public partial class Win6_new : Form, IViewModeable, IFormWithObjectId
     {
         private readonly ILogger _logger;
         private TcViewState tcViewState;

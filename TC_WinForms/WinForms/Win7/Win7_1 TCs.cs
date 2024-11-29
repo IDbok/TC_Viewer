@@ -197,7 +197,7 @@ namespace TC_WinForms.WinForms
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
 
                 var checkinFormType = "Win6_new";
-                var openedForm = CheckOpenFormService.AreFormOpen(id, checkinFormType);
+                var openedForm = CheckOpenFormService.FindOpenedForm(id, checkinFormType);
                 
                 if (openedForm != null)
                 {

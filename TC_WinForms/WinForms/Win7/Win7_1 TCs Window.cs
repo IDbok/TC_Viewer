@@ -259,7 +259,7 @@ namespace TC_WinForms.WinForms
             {
                 var checkinFormType = "Win6_new";
 
-                var openedForm = CheckOpenFormService.AreFormOpen(LocalCard.Id, checkinFormType);
+                var openedForm = CheckOpenFormService.FindOpenedForm(LocalCard.Id, checkinFormType);
 
                 if (openedForm != null)
                 {
