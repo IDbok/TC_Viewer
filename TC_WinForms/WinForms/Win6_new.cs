@@ -7,6 +7,7 @@ using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
 using TC_WinForms.WinForms.Work;
 using TcDbConnector;
@@ -24,11 +25,10 @@ namespace TC_WinForms.WinForms
     {
         private readonly ILogger _logger;
         private TcViewState tcViewState;
-
+        private ConcurrencyBlockServise<TechnologicalCard> concurrencyBlockServise;
         //private static bool _isViewMode = true;
         //private static bool _isCommentViewMode = false;
         private static bool _isMachineCollumnViewMode = true;
-
         public static bool isMachineViewMode
         {
             get => _isMachineCollumnViewMode;
@@ -76,18 +76,12 @@ namespace TC_WinForms.WinForms
 
             tcViewState = new TcViewState(role);
             tcViewState.IsViewMode = viewMode;
-
             _tcId = tcId;
             _accessLevel = role;
-            //_isViewMode = viewMode;
 
             InitializeComponent();
 
             this.KeyDown += ControlSaveEvent;
-
-            SetTagsToButtons();
-
-            SetViewMode();
 
             FormClosed += (s,e) => ThisFormClosed();
         }
@@ -96,7 +90,7 @@ namespace TC_WinForms.WinForms
             _logger.Information("Закрытие формы. Очистка временных файлов для TcId={TcId}", _tc.Id);
 
             TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
-
+            concurrencyBlockServise.CleanBlockData();
             Dispose();
         }
         private void AccessInitialization()
@@ -184,10 +178,18 @@ namespace TC_WinForms.WinForms
         }
         public void SetViewMode(bool? isViewMode = null)
         {
-            if (isViewMode != null && tcViewState.IsViewMode != isViewMode)
+
+            if (concurrencyBlockServise.GetObjectUsedStatus())
+            {
+                tcViewState.IsViewMode = true;
+            }
+            else if (isViewMode != null && tcViewState.IsViewMode != isViewMode)
             {
                 tcViewState.IsViewMode = (bool)isViewMode;
                 _logger.Information("Изменен режим просмотра: TcId={TcId}, IsViewMode={IsViewMode}", _tc.Id, isViewMode);
+                if (!tcViewState.IsViewMode)
+                    concurrencyBlockServise.BlockObject();
+
             }
 
             SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
@@ -313,7 +315,6 @@ namespace TC_WinForms.WinForms
             }
         }
 
-
         private async Task<List<DiagamToWork>> GetDTWDataAsync()
         {
             _logger.Information("Загрузка данных диаграмм для TcId={TcId}", _tcId);
@@ -353,6 +354,7 @@ namespace TC_WinForms.WinForms
 
         private async Task SetTcViewStateData()
         {
+
             try
             {
                 tcViewState.TechnologicalCard = await GetTCDataAsync();
@@ -366,6 +368,7 @@ namespace TC_WinForms.WinForms
                 _logger.Error(ex, "Ошибка при загрузке данных для TcViewState для TcId={TcId}", _tcId);
                 throw;
             }
+
         }
         #endregion
 
@@ -379,6 +382,16 @@ namespace TC_WinForms.WinForms
                 await SetTcViewStateData();
                 _tc = tcViewState.TechnologicalCard;
 
+                var timerInterval = 1000 * 60 * 14;//миллисекунды * секунды * минуты
+
+                concurrencyBlockServise = new ConcurrencyBlockServise<TechnologicalCard>(_tc, timerInterval);
+                if (!concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
+                {
+                    concurrencyBlockServise.BlockObject();
+                }
+
+                SetTagsToButtons();
+                SetViewMode();
                 AccessInitialization();
                 SetTCStatusAccess();
                 UpdateFormTitle();
@@ -808,14 +821,30 @@ namespace TC_WinForms.WinForms
 
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
+
+            if (concurrencyBlockServise.GetObjectUsedStatus())
+            {
+                MessageBox.Show("Сейчас карта используется другим пользователем. Она доступна только для просмотра.");
+                return;
+            }
+
             LogUserAction("Изменение режима редактирования");
+
 
             if (tcViewState.IsViewMode == false)
             {
                 if (!CheckForChanges())
                     return;
             }
+
+
+
+            if (!tcViewState.IsViewMode && !concurrencyBlockServise.GetObjectUsedStatus())
+                concurrencyBlockServise.BlockObject();
+
+
             SetViewMode(!tcViewState.IsViewMode);
+
         }
 
         private async void printToolStripMenuItem_Click(object sender, EventArgs e)
