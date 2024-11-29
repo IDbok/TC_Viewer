@@ -8,15 +8,14 @@ namespace TcDbConnector;
 
 public class MyDbContext : DbContext
 {
+    public DbSet<Author> Authors { get; set; } = null!; // авторизация
     public DbSet<TechnologicalProcess> TechnologicalProcesses { get; set; } = null!; // технологический процесс
     public DbSet<TechnologicalCard> TechnologicalCards { get; set; } = null!; // Технические карты
-    public DbSet<Author> Authors { get; set; } = null!; // авторизация
     public DbSet<Staff> Staffs { get; set; } = null!; //персонал
     public DbSet<Component> Components { get; set; } = null!; //таблица 2
     public DbSet<Tool> Tools { get; set; } = null!;  // таблица 5 Инструменты
     public DbSet<Machine> Machines { get; set; } = null!; //таблица 3
     public DbSet<Protection> Protections { get; set; } = null!; //Таблица 4 Средства защиты
-    //public DbSet<WorkStep> WorkSteps { get; set; } = null!;
 
     public DbSet<TechOperation> TechOperations { get; set; } = null!;
     public DbSet<TechTransition> TechTransitions { get; set; } = null!;
@@ -26,10 +25,6 @@ public class MyDbContext : DbContext
     public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
 
     public DbSet<ComponentWork> ComponentWorks { get; set; } = null!;
-   // public DbSet<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = null!;
-
-    //public DbSet<MaxEW> MaxEWs { get; set; } = null!;
-    //public DbSet<SumEW> SumEWs { get; set; } = null!;
     public DbSet<ToolWork> ToolWorks { get; set; } = null!;
 
     public DbSet<Staff_TC> Staff_TCs { get; set; } = null!;
@@ -59,14 +54,24 @@ public class MyDbContext : DbContext
 
         Database.SetCommandTimeout(120);
     }
-  
-    
+    //public MyDbContext(DbContextOptions<MyDbContext> options)
+    //      : base(options)
+    //{
+    //}
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+#if DEBUG
+        optionsBuilder
+            .UseMySql("server=localhost;database=tavrida_db_main;user=root;password=root",
+            //"server=localhost;database=tavrida_db_v141;user=root;password=root",//
+            new MySqlServerVersion(new Version(5, 7, 24)));
+#else
         optionsBuilder
             .UseMySql(TcDbConnector.StaticClass.ConnectString,
             //"server=localhost;database=tavrida_db_v141;user=root;password=root",//
             new MySqlServerVersion(new Version(5, 7, 24)));
+#endif
 
 
     }
@@ -93,6 +98,7 @@ public class MyDbContext : DbContext
             .HasForeignKey(link => link.ChildExecutionWorkId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Исключил т.к. не используется (Игорь)
         modelBuilder
             .Entity<Component>()
             .HasMany(cp => cp.Parents)
@@ -110,10 +116,10 @@ public class MyDbContext : DbContext
                 {
                     j.Property(sttc => sttc.Quantity).IsRequired().HasDefaultValue(0);
                     j.Property(sttc => sttc.Order).IsRequired().HasDefaultValue(0);
-                    j.HasKey(t => new { t.ParentId, t.ChildId});
+                    j.HasKey(t => new { t.ParentId, t.ChildId });
                     //j.ToTable("Instrument_kit");
                 });
-        
+
         modelBuilder
             .Entity<TechnologicalCard>()
             .HasMany(tc => tc.Staffs)
