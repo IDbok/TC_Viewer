@@ -411,7 +411,7 @@
             dataGridViewTO.AllowUserToDeleteRows = false;
             dataGridViewTO.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewTO.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewTO.Columns.AddRange(new DataGridViewColumn[] { IdTO, Column18, dgvColTOName, Column22, Order, ParallelIndex, SequenceGroupIndex });
+            dataGridViewTO.Columns.AddRange(new DataGridViewColumn[] { IdTO, Column18, dgvColTOName, Order, Column22, ParallelIndex, SequenceGroupIndex });
             dataGridViewTO.Location = new Point(2, 2);
             dataGridViewTO.Margin = new Padding(2);
             dataGridViewTO.MultiSelect = false;
@@ -458,12 +458,13 @@
             // 
             // Order
             // 
-            Order.HeaderText = "Order";
+            Order.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Order.HeaderText = "Порядок";
             Order.MinimumWidth = 6;
             Order.Name = "Order";
             Order.SortMode = DataGridViewColumnSortMode.NotSortable;
-            Order.Visible = false;
-            Order.Width = 125;
+            Order.Width = 65;
+            Order.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             // 
             // ParallelIndex
             // 
@@ -1050,7 +1051,7 @@
             dataGridViewTPLocal.AllowUserToDeleteRows = false;
             dataGridViewTPLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewTPLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Time, Coefficient, Column28, Comment, PictureName, Order1 });
+            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Order1, Time, Coefficient, Column28, Comment, PictureName });
             dataGridViewTPLocal.Dock = DockStyle.Fill;
             dataGridViewTPLocal.Location = new Point(2, 2);
             dataGridViewTPLocal.Margin = new Padding(2);
@@ -1123,10 +1124,13 @@
             // 
             // Order1
             // 
-            Order1.HeaderText = "Order";
+            Order1.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            Order1.HeaderText = "Порядок";
             Order1.MinimumWidth = 6;
             Order1.Name = "Order1";
-            Order1.Visible = false;
+            Order1.SortMode = DataGridViewColumnSortMode.NotSortable;
+            Order1.Width = 65;
+            Order1.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             // 
             // pnlTPAdditional
             // 
