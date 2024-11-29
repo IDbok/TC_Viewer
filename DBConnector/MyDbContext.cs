@@ -8,9 +8,9 @@ namespace TcDbConnector;
 
 public class MyDbContext : DbContext
 {
+    public DbSet<TechnologicalCard> TechnologicalCards { get; set; } = null!; // Технические карты
     public DbSet<Author> Authors { get; set; } = null!; // авторизация
     public DbSet<TechnologicalProcess> TechnologicalProcesses { get; set; } = null!; // технологический процесс
-    public DbSet<TechnologicalCard> TechnologicalCards { get; set; } = null!; // Технические карты
     public DbSet<Staff> Staffs { get; set; } = null!; //персонал
     public DbSet<Component> Components { get; set; } = null!; //таблица 2
     public DbSet<Tool> Tools { get; set; } = null!;  // таблица 5 Инструменты
