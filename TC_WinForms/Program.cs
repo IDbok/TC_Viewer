@@ -69,10 +69,10 @@ namespace TC_WinForms
             ApplicationConfiguration.Initialize();
 
             #region Test
-#if DEBUG
-            configGlobal.ConnectionString = "server=localhost;database=tavrida_db_main;user=root;password=root";
+//#if DEBUG
+//            configGlobal.ConnectionString = "server=localhost;database=tavrida_db_main;user=root;password=root";
 
-#elif !DEBUG
+#if !DEBUG
                         string conString = "";
                         while (true)
                         {
