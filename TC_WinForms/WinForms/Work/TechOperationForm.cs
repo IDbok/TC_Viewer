@@ -663,6 +663,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 TechOperationDataGridItems.Add(new TechOperationDataGridItem
                 {
                     Nomer = -1,
+                    TechOperationWork = techOperationWork,
                     TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
                     IdTO = techOperationWork.techOperation.Id
                 });
@@ -684,6 +685,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
                 {
                     Nomer = nomer,
                     Staff = staffStr,
+                    TechOperationWork = techOperationWork,
                     TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
                     TechTransition = executionWork.techTransition?.Name ?? "",
                     TechTransitionValue = executionWork.Value.ToString(),
@@ -1731,27 +1733,48 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         _editForm?.Close();
     }
 
-    public void HighlightExecutionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)
+
+    public void SelectCurrentRow(TechOperationWork work, ExecutionWork executionWork = null)
     {
-        if (executionWork == null)
+
+
+        if (work == null)
             return;
 
-        foreach (DataGridViewRow row in dgvMain.Rows)
+        TechOperationDataGridItem? dgvItem = executionWork == null
+                                            ? dgvItem = TechOperationDataGridItems.Where(t => t.TechOperationWork == work).FirstOrDefault()
+                                            : TechOperationDataGridItems.Where(t => t.TechOperationWork == work && t.techWork == executionWork).FirstOrDefault();
+
+        if (dgvItem != null)
         {
-            if (row.Cells[0].Value is ExecutionWork currentWork 
-                && currentWork.Id == executionWork.Id 
-                && currentWork.techTransitionId == executionWork.techTransitionId
-                && currentWork.techOperationWorkId == executionWork.techOperationWorkId
-                )
-            {
-                dgvMain.ClearSelection(); // Снимите выделение со всех строк
-                row.Selected = true; // Выделите найденную строку
-                if (scrollToRow)
-                {
-                    dgvMain.FirstDisplayedScrollingRowIndex = row.Index; // Прокрутите до выделенной строки
-                }
-                break;
-            }
+            dgvMain.ClearSelection();
+            dgvMain.FirstDisplayedScrollingRowIndex = TechOperationDataGridItems.IndexOf(dgvItem);
+            dgvMain.Rows[TechOperationDataGridItems.IndexOf(dgvItem)].Selected = true;
         }
+
     }
+
+    //public void HighlightExecutionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)
+    //{
+    //    if (executionWork == null)
+    //        return;
+
+    //    foreach (DataGridViewRow row in dgvMain.Rows)
+    //    {
+    //        if (row.Cells[0].Value is ExecutionWork currentWork 
+    //            && currentWork.Id == executionWork.Id 
+    //            && currentWork.techTransitionId == executionWork.techTransitionId
+    //            && currentWork.techOperationWorkId == executionWork.techOperationWorkId
+    //            )
+    //        {
+    //            dgvMain.ClearSelection(); // Снимите выделение со всех строк
+    //            row.Selected = true; // Выделите найденную строку
+    //            if (scrollToRow)
+    //            {
+    //                dgvMain.FirstDisplayedScrollingRowIndex = row.Index; // Прокрутите до выделенной строки
+    //            }
+    //            break;
+    //        }
+    //    }
+    //}
 }
