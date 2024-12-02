@@ -53,8 +53,10 @@ namespace TC_WinForms
                 ApplicationStart();
             }
             catch (Exception ex)
-             {
+            {
                 Log.Fatal(ex, "Application crashed");
+                MessageBox.Show("Произошла ошибка при запуске приложения. Подробности в логах.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -73,9 +75,20 @@ namespace TC_WinForms
             EnsureAppSettingsExists();
 
             // Загружаем конфигурацию
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            IConfigurationRoot configuration = builder.Build();
+
+            // Устанавливаем строку подключения к БД
+            var connectionString = configuration.GetValue<string>("Config:ConnectionString");
+            if (connectionString != null)
+            {
+                TcDbConnector.StaticClass.ConnectString = connectionString;
+            }
+            else
+            {
+                throw new Exception("Строка подключения к БД не найдена в файле конфигурации.");
+            }
 
             bool isFirstRun = configuration.GetValue<bool>("IsFirstRun");
 
@@ -87,16 +100,7 @@ namespace TC_WinForms
                 UpdateFirstRunFlag();
             }
 
-            // Устанавливаем строку подключения к БД
-            var connectionString = configuration.GetValue<string>("connectionString");
-            if (connectionString != null)
-            {
-                TcDbConnector.StaticClass.ConnectString = connectionString;
-            }
-            else
-            {
-                throw new Exception("Строка подключения к БД не найдена в файле конфигурации.");
-            }
+            
 #if DEBUG
             RunDebugMode();
 #else
@@ -113,8 +117,16 @@ namespace TC_WinForms
 
                 if (pendingMigrations.Any())
                 {
-                    context.Database.Migrate();
-                    Log.Information("Миграции успешно применены.");
+                    try
+                    {
+                        context.Database.Migrate();
+                        Log.Information("Миграции успешно применены.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Ошибка применения миграций.");
+                        throw;
+                    }
                 }
                 else
                 {
