@@ -1,12 +1,14 @@
-//using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Nancy.Json;
 using Serilog;
+using System.IO;
 using TC_WinForms.DataProcessing;
-//using TC_WinForms.Services.Logging;
 using TC_WinForms.WinForms;
+using TcDbConnector;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService.User;
+using System.Text.Json;
+using System.Text;
 
 namespace TC_WinForms
 {
@@ -23,14 +25,13 @@ namespace TC_WinForms
         public static List<Form> FormsForward { get; set; } = new List<Form>();
         public static List<TechnologicalCard> ExistingCatds { get; set; } = new List<TechnologicalCard>();
         public static List<TechnologicalProcess> ExistingProcces { get; set; } = new List<TechnologicalProcess>();
-        
+
         public static TechnologicalCard currentTc = new TechnologicalCard();
 
         //public static TechnologicalCard currentTc { get; set; } = new TechnologicalCard();
         public static TechnologicalCard? NewTc { get; set; }
         public static TechnologicalProcess CurrentTp { get; set; } = new TechnologicalProcess();
-
-        public static Config configGlobal = new Config();
+        //public static Config configGlobal = new Config();
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -52,8 +53,8 @@ namespace TC_WinForms
                 ApplicationStart();
             }
             catch (Exception ex)
-            {
-                Log.Fatal(ex,"Application crashed");
+             {
+                Log.Fatal(ex, "Application crashed");
             }
             finally
             {
@@ -68,43 +69,120 @@ namespace TC_WinForms
 
             ApplicationConfiguration.Initialize();
 
-            #region Test
-//#if DEBUG
-//            configGlobal.ConnectionString = "server=localhost;database=tavrida_db_main;user=root;password=root";
+            // Проверяем наличие файла appsettings.json и создаем его с настройками по умолчанию, если он отсутствует
+            EnsureAppSettingsExists();
 
-#if !DEBUG
-                        string conString = "";
-                        while (true)
+            // Загружаем конфигурацию
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            bool isFirstRun = configuration.GetValue<bool>("IsFirstRun");
+
+            if (isFirstRun)
+            {
+                ApplyMigrationsIfNecessary();
+
+                // Обновляем флаг в файле конфигурации
+                UpdateFirstRunFlag();
+            }
+
+            // Устанавливаем строку подключения к БД
+            var connectionString = configuration.GetValue<string>("connectionString");
+            if (connectionString != null)
+            {
+                TcDbConnector.StaticClass.ConnectString = connectionString;
+            }
+            else
+            {
+                throw new Exception("Строка подключения к БД не найдена в файле конфигурации.");
+            }
+#if DEBUG
+            RunDebugMode();
+#else
+            RunReleaseMode();
+#endif
+        }
+
+
+        static void ApplyMigrationsIfNecessary()
+        {
+            using (var context = new MyDbContext())
+            {
+                var pendingMigrations = context.Database.GetPendingMigrations();
+
+                if (pendingMigrations.Any())
+                {
+                    context.Database.Migrate();
+                    Log.Information("Миграции успешно применены.");
+                }
+                else
+                {
+                    Log.Information("Все миграции уже были применены.");
+                }
+            }
+        }
+        
+        static void EnsureAppSettingsExists()
+        {
+            if (!File.Exists("appsettings.json"))
+            {
+                // Создаем настройки по умолчанию
+                var defaultConfig = new
+                {
+                    connectionString = "server=10.1.100.142;database=tcvdb_main;user=tavrida;password=tavrida$555",
+                    IsFirstRun = true,
+                    Serilog = new
+                    {
+                        Using = Array.Empty<string>(),
+                        MinimumLevel = new
                         {
-                            try
+                            Default = "Debug",
+                            Override = new
                             {
-                                conString = System.IO.File.ReadAllText($"appsettings.json");
-                                break;
+                                Microsoft = "Warning",
+                                System = "Warning"
                             }
-                            catch (Exception e)
+                        },
+                        Enrich = new[] { "FromLogContext", "WithMachineName", "WhithProcessId", "WhithThreadId" },
+                        WriteTo = new[]
+                        {
+                            new
                             {
-                                Config config = new Config();
-
-                                config.ConnectionString = "server=10.1.100.142;database=tcvdb_main;user=tavrida;password=tavrida$555";
-                                // "server=127.0.0.1;port=3306;database=tavrida_db_main;user=root;password=lsSB1UaiX5"
-                                JavaScriptSerializer javaScriptSerializer1 = new JavaScriptSerializer();
-                                string? bbn = javaScriptSerializer1.Serialize(config);
-                                System.IO.File.WriteAllText($"appsettings.json", bbn);
+                                Name = "File",
+                                Args = new
+                                {
+                                    path = "logs/log-.json",
+                                    formatter = "Serilog.Formatting.Json.JsonFormatter, Serilog",
+                                    rollingInterval = "Day"
+                                }
                             }
                         }
+                    }
+                };
 
-                        JavaScriptSerializer javaScriptSerializer3 = new JavaScriptSerializer();
-                        var configGlo = javaScriptSerializer3.Deserialize<Config>(conString);
-                        configGlobal = configGlo;
+                // Сериализация в JSON
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                var json = JsonSerializer.Serialize(defaultConfig, options);
 
-#endif
+                // Запись в файл
+                File.WriteAllText("appsettings.json", json);
+            }
+        }
 
-            #endregion
 
-            TcDbConnector.StaticClass.ConnectString = configGlobal.ConnectionString;
-
+        static void UpdateFirstRunFlag()
+        {
+            var json = File.ReadAllText("appsettings.json");
+            dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+            jsonObj["IsFirstRun"] = false;
+            string output = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText("appsettings.json", output);
+        }
 
 #if DEBUG
+        static void RunDebugMode()
+        {
             string login, password;
             Role userRole = Role.Admin;
 
@@ -129,27 +207,14 @@ namespace TC_WinForms
             if (AuthorizationService.CurrentUser != null)
             {
                 Program.MainForm = new Win7_new(AuthorizationService.CurrentUser.UserRole());
-                //Program.MainForm.Show();
+                Application.Run(MainForm);
             }
             else
             {
                 throw new Exception("Пользователь не найден!");
             }
-
-            Test();
-
-
-#elif !DEBUG
-
-            var authForm = new Win8();
-            authForm.ShowDialog();
-
-            Application.Run(MainForm);
-            
-#endif
         }
 
-#if DEBUG
         static void Test()
         {
             var appIndex = 0;
@@ -184,10 +249,19 @@ namespace TC_WinForms
                 form.ShowDialog();
             }
         }
+#else
+        static void RunReleaseMode()
+        {
+            var authForm = new Win8();
+            authForm.ShowDialog();
+
+            Application.Run(MainForm);
+        }
 #endif
+
     }
 
-    
 
-    
+
+
 }
