@@ -21,6 +21,7 @@ namespace TC_WinForms.WinForms
 
         private List<DisplayedTechOperation> _displayedObjects;
         private BindingList<DisplayedTechOperation> _bindingList;
+        private ConcurrencyBlockServise<TechOperation> concurrencyBlockServise;
 
         private List<DisplayedTechOperation> _changedObjects = new List<DisplayedTechOperation>();
         private List<DisplayedTechOperation> _newObjects = new List<DisplayedTechOperation>();
@@ -300,6 +301,18 @@ namespace TC_WinForms.WinForms
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
                 if (id != 0)
                 {
+                    var techOperation = dbCon.GetObject<TechOperation>(id);
+                    if (techOperation != null)
+                    {
+                        var timerInterval = 1000 * 60 * 25;
+                        concurrencyBlockServise = new ConcurrencyBlockServise<TechOperation>(techOperation, timerInterval);
+                        if (concurrencyBlockServise.GetObjectUsedStatus())
+                        {
+                            MessageBox.Show("Данный объект сейчас редактируется другим пользователем. Вы не можете его редактировать.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                    }
+
                     Win7_TechOperation_Window win71TCsWindow = new Win7_TechOperation_Window(id);
                     win71TCsWindow.Show();
                 }

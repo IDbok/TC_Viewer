@@ -26,6 +26,7 @@ namespace TC_WinForms.WinForms
         private List<DisplayedTechTransition> _changedObjects = new List<DisplayedTechTransition>();
         private List<DisplayedTechTransition> _newObjects = new List<DisplayedTechTransition>();
         private List<DisplayedTechTransition> _deletedObjects = new List<DisplayedTechTransition>();
+        private ConcurrencyBlockServise<TechTransition> concurrencyBlockServise;
 
         private DisplayedTechTransition _newObject;
 
@@ -623,6 +624,14 @@ namespace TC_WinForms.WinForms
 
                 if (TP != null)
                 {
+                    var timerInterval = 1000 * 60 * 25;
+                    concurrencyBlockServise = new ConcurrencyBlockServise<TechTransition>(TP, timerInterval);
+                    if (concurrencyBlockServise.GetObjectUsedStatus())
+                    {
+                        MessageBox.Show("Данный объект сейчас редактируется другим пользователем. Вы не можете его редактировать.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
                     var objEditor = new Win7_TechTransitionEditor(TP);
 
                     objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView(updatedObj);

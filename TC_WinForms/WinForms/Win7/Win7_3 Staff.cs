@@ -22,7 +22,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
     private DbConnector dbCon = new DbConnector();
 
     private SelectionService<DisplayedStaff> _selectionService;
-
+    private ConcurrencyBlockServise<Staff> concurrencyBlockServise;
 
     private List<DisplayedStaff> _displayedObjects = new();
     private static BindingList<DisplayedStaff> _bindingList;
@@ -585,6 +585,14 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
 
             if (staff != null)
             {
+                var timerInterval = 1000 * 60 * 25;
+                concurrencyBlockServise = new ConcurrencyBlockServise<Staff>(staff, timerInterval);
+                if (concurrencyBlockServise.GetObjectUsedStatus())
+                {
+                    MessageBox.Show("Данный объект сейчас редактируется другим пользователем. Вы не можете его редактировать.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 var objEditor = new Win7_StaffEditor(staff, accessLevel: _accessLevel);
 
                 objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView(updatedObj as Staff);
