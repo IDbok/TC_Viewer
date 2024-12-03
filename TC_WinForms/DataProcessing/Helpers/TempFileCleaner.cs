@@ -31,8 +31,17 @@ public static class TempFileCleaner
 
     public static string GetTempFilePath(long imageId)
     {
+        // Определяем путь до директории ExecutionSchemes
+        string executionSchemesPath = Path.Combine(TempDirectory, "ExecutionSchemes");
+
+        // Проверяем и создаем папку, если её нет
+        if (!Directory.Exists(executionSchemesPath))
+        {
+            Directory.CreateDirectory(executionSchemesPath);
+        }
+
         // Создаем уникальное имя файла на основе идентификатора изображения
-        return Path.Combine(TempDirectory, "ExecutionSchemes", $"{imageId}.tmp");
+        return Path.Combine(executionSchemesPath, $"{imageId}.tmp");
     }
 
     private static void OnApplicationExit(object sender, EventArgs e)
