@@ -7,7 +7,7 @@ using System.Windows.Forms;
 public static class TempFileCleaner
 {
     private static readonly List<string> TempFiles = new List<string>();
-    private static readonly string TempDirectory = Path.GetTempPath();
+    private static readonly string TempDirectory = Path.Combine(Path.GetTempPath(), "TC_Viewer");// Path.GetTempPath();
 
     static TempFileCleaner()
     {
@@ -32,7 +32,7 @@ public static class TempFileCleaner
     public static string GetTempFilePath(long imageId)
     {
         // Создаем уникальное имя файла на основе идентификатора изображения
-        return Path.Combine(TempDirectory, $"ExecutionScheme_{imageId}.tmp");
+        return Path.Combine(TempDirectory, "ExecutionSchemes", $"{imageId}.tmp");
     }
 
     private static void OnApplicationExit(object sender, EventArgs e)
