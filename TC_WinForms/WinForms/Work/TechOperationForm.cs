@@ -1736,14 +1736,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public void SelectCurrentRow(TechOperationWork work, ExecutionWork executionWork = null)
     {
-
-
         if (work == null)
             return;
 
-        TechOperationDataGridItem? dgvItem = executionWork == null
-                                            ? dgvItem = TechOperationDataGridItems.Where(t => t.TechOperationWork == work).FirstOrDefault()
-                                            : TechOperationDataGridItems.Where(t => t.TechOperationWork == work && t.techWork == executionWork).FirstOrDefault();
+        TechOperationDataGridItem? dgvItem = TechOperationDataGridItems.FirstOrDefault(t => (executionWork != null && t.techWork == executionWork) 
+                                                                                            || (executionWork == null && t.TechOperationWork == work));
 
         if (dgvItem != null)
         {
