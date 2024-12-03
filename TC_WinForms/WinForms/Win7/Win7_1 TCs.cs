@@ -347,11 +347,17 @@ namespace TC_WinForms.WinForms
             if (dgvMain.SelectedRows.Count == 1)
             {
                 var selectedObj = dgvMain.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
-                var obj = Convert.ToInt32(selectedObj?.Cells["Id"].Value);
+                var objId = Convert.ToInt32(selectedObj?.Cells["Id"].Value);
 
-                if (obj != 0)
+                if (objId != 0)
                 {
-                    var objEditor = new Win7_1_TCs_Window(obj, role: _accessLevel);
+                    var openedForm = CheckOpenFormService.FindOpenedForm<Win7_1_TCs_Window>(objId);
+                    if (openedForm != null)
+                    {
+                        openedForm.BringToFront();
+                        return;
+                    }
+                    var objEditor = new Win7_1_TCs_Window(objId, role: _accessLevel);
                     objEditor.AfterSave = async (updatedObj) => UpdateObjectInDataGridView(updatedObj);
                     objEditor.Show();
                 }

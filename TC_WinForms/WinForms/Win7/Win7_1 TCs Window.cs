@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TcDbConnector;
 using TcModels.Models;
@@ -11,7 +12,7 @@ using TextBox = System.Windows.Forms.TextBox;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win7_1_TCs_Window : Form
+    public partial class Win7_1_TCs_Window : Form, IFormWithObjectId
     {
         private readonly ILogger _logger;
 
@@ -373,5 +374,9 @@ namespace TC_WinForms.WinForms
             }
         }
 
+        public int GetObjectId()
+        {
+            return OriginCard.Id;
+        }
     }
 }
