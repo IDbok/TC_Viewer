@@ -15,7 +15,7 @@ public partial class Win7_TechOperation_Window : Form
     MyDbContext context;
 
     TechOperation techOperation;
-    private ConcurrencyBlockServise<TechOperation> techOperationBlockService;
+    private ConcurrencyBlockService<TechOperation> techOperationBlockService;
 
     public delegate Task PostSaveActionTO(TechOperation modelObject);
     public PostSaveActionTO? AfterSave { get; set; }
@@ -50,7 +50,7 @@ public partial class Win7_TechOperation_Window : Form
 
             var timerInterval = 1000 * 60 * 25;
 
-            techOperationBlockService = new ConcurrencyBlockServise<TechOperation>(techOperation, timerInterval);
+            techOperationBlockService = new ConcurrencyBlockService<TechOperation>(techOperation, timerInterval);
             techOperationBlockService.BlockObject();
         }
 

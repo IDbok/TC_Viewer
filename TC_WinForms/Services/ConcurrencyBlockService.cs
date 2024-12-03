@@ -6,14 +6,14 @@ using Timer = System.Timers.Timer;
 
 namespace TC_WinForms.Services
 {
-    public class ConcurrencyBlockServise<T> where T : class, IIdentifiable
+    public class ConcurrencyBlockService<T> where T : class, IIdentifiable
     {
         private bool? IsObjectInUse; //используется ли сейчас карта в программе другим пользователем
-        private Timer UpdateDataTimer;
+        private Timer? UpdateDataTimer;
         private int ObjectId;
         private string ObjectType;
         private int TimerInterval;//интервал работы таймера в милисекундах
-        public ConcurrencyBlockServise(T obj, int timerInterval)
+        public ConcurrencyBlockService(T obj, int timerInterval)
         {
             ObjectType = obj.GetType().Name;
             ObjectId = obj.Id;
@@ -70,7 +70,7 @@ namespace TC_WinForms.Services
                         dbContext.SaveChanges();
                     }
             }
-            UpdateDataTimer.Dispose();
+            UpdateDataTimer?.Dispose();
 
         }
         private void CheckAreObjectBlock()

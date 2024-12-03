@@ -196,8 +196,7 @@ namespace TC_WinForms.WinForms
                 var selectedRow = dgvMain.SelectedRows[0];
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
 
-                var checkinFormType = "Win6_new";
-                var openedForm = CheckOpenFormService.FindOpenedForm(id, checkinFormType);
+                var openedForm = CheckOpenFormService.FindOpenedForm<Win6_new>(id);
                 
                 if (openedForm != null)
                 {

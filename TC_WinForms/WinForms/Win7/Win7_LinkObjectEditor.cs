@@ -27,7 +27,7 @@ namespace TC_WinForms.WinForms
         public delegate Task PostSaveAction<TModel>(TModel modelObject) where TModel : IModelStructure;
         public PostSaveAction<IModelStructure> AfterSave { get; set; }
 
-        private ConcurrencyBlockServise<IModelStructure> objectBlockService;
+        private ConcurrencyBlockService<IModelStructure> objectBlockService;
 
         private bool _isNewObject = false;
         private bool _imageChanged = false;
@@ -79,7 +79,7 @@ namespace TC_WinForms.WinForms
 
                 var timerInterval = 1000 * 60 * 25;
 
-                objectBlockService = new ConcurrencyBlockServise<IModelStructure>(_editingObj, timerInterval);
+                objectBlockService = new ConcurrencyBlockService<IModelStructure>(_editingObj, timerInterval);
                 objectBlockService.BlockObject();
             }
 

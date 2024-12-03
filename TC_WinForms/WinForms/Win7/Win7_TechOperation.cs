@@ -21,7 +21,7 @@ namespace TC_WinForms.WinForms
 
         private List<DisplayedTechOperation> _displayedObjects;
         private BindingList<DisplayedTechOperation> _bindingList;
-        private ConcurrencyBlockServise<TechOperation> concurrencyBlockServise;
+        private ConcurrencyBlockService<TechOperation> concurrencyBlockServise;
 
         private List<DisplayedTechOperation> _changedObjects = new List<DisplayedTechOperation>();
         private List<DisplayedTechOperation> _newObjects = new List<DisplayedTechOperation>();
@@ -305,7 +305,7 @@ namespace TC_WinForms.WinForms
                     if (techOperation != null)
                     {
                         var timerInterval = 1000 * 60 * 25;
-                        concurrencyBlockServise = new ConcurrencyBlockServise<TechOperation>(techOperation, timerInterval);
+                        concurrencyBlockServise = new ConcurrencyBlockService<TechOperation>(techOperation, timerInterval);
                         if (concurrencyBlockServise.GetObjectUsedStatus())
                         {
                             MessageBox.Show("Данный объект сейчас редактируется другим пользователем. Вы не можете его редактировать.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);

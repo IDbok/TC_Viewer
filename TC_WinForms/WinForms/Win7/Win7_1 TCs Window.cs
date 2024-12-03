@@ -257,9 +257,7 @@ namespace TC_WinForms.WinForms
         {
             if (NoEmptiness())
             {
-                var checkinFormType = "Win6_new";
-
-                var openedForm = CheckOpenFormService.FindOpenedForm(LocalCard.Id, checkinFormType);
+                var openedForm = CheckOpenFormService.FindOpenedForm<Win6_new>(LocalCard.Id);
 
                 if (openedForm != null)
                 {

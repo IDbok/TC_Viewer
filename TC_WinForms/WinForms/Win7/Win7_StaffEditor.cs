@@ -24,7 +24,7 @@ public partial class Win7_StaffEditor : Form
     public delegate Task PostSaveAction(Staff modelObject);
     public PostSaveAction? AfterSave { get; set; }
 
-    private ConcurrencyBlockServise<Staff> staffBlockService;
+    private ConcurrencyBlockService<Staff> staffBlockService;
 
     private bool _isNewObject = false;
     public Win7_StaffEditor(Staff obj, bool isNewObject = false, User.Role accessLevel = User.Role.Lead) // todo: Сделать видимость не выпущенных объектов только для администратора или из карт в которых они были созданы
@@ -61,7 +61,7 @@ public partial class Win7_StaffEditor : Form
             
             var timerInterval = 1000 * 60 * 25;
 
-            staffBlockService = new ConcurrencyBlockServise<Staff>(_editingObj, timerInterval);
+            staffBlockService = new ConcurrencyBlockService<Staff>(_editingObj, timerInterval);
             staffBlockService.BlockObject();
 
         }

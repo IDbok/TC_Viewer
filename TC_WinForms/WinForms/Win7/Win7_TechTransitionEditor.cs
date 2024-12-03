@@ -14,7 +14,7 @@ public partial class Win7_TechTransitionEditor : Form
     public delegate Task PostSaveActionTP(TechTransition modelObject);
     public PostSaveActionTP AfterSave { get; set; }
     private bool _isNewObject = false;
-    private ConcurrencyBlockServise<TechTransition> techTransitionBlockService;
+    private ConcurrencyBlockService<TechTransition> techTransitionBlockService;
 
     List<string> _requiredProperties = new List<string>()
         {
@@ -64,7 +64,7 @@ public partial class Win7_TechTransitionEditor : Form
 
             var timerInterval = 1000 * 60 * 25;
 
-            techTransitionBlockService = new ConcurrencyBlockServise<TechTransition>(_editingObj, timerInterval);
+            techTransitionBlockService = new ConcurrencyBlockService<TechTransition>(_editingObj, timerInterval);
             techTransitionBlockService.BlockObject();
         }
     }

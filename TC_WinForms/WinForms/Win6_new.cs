@@ -25,7 +25,7 @@ namespace TC_WinForms.WinForms
     {
         private readonly ILogger _logger;
         private TcViewState tcViewState;
-        private ConcurrencyBlockServise<TechnologicalCard> concurrencyBlockServise;
+        private ConcurrencyBlockService<TechnologicalCard> concurrencyBlockServise;
         //private static bool _isViewMode = true;
         //private static bool _isCommentViewMode = false;
         private static bool _isMachineCollumnViewMode = true;
@@ -384,7 +384,7 @@ namespace TC_WinForms.WinForms
 
                 var timerInterval = 1000 * 60 * 14;//миллисекунды * секунды * минуты
 
-                concurrencyBlockServise = new ConcurrencyBlockServise<TechnologicalCard>(_tc, timerInterval);
+                concurrencyBlockServise = new ConcurrencyBlockService<TechnologicalCard>(_tc, timerInterval);
                 if (!concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
                 {
                     concurrencyBlockServise.BlockObject();

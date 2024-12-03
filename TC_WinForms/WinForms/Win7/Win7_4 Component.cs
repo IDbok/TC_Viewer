@@ -28,7 +28,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
     private DbConnector dbCon = new DbConnector();
     private List<DisplayedComponent> _displayedObjects = new();
     private BindingList<DisplayedComponent> _bindingList;
-    private ConcurrencyBlockServise<Component> concurrencyBlockServise;
+    private ConcurrencyBlockService<Component> concurrencyBlockServise;
 
     private readonly bool _isAddingForm = false;
     private readonly bool _isUpdateItemMode = false;// add to UpdateMode
@@ -754,7 +754,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
             if (machine != null)
             {
                 var timerInterval = 1000 * 60 * 25;
-                concurrencyBlockServise = new ConcurrencyBlockServise<Component>(machine, timerInterval);
+                concurrencyBlockServise = new ConcurrencyBlockService<Component>(machine, timerInterval);
                 if (concurrencyBlockServise.GetObjectUsedStatus())
                 {
                     MessageBox.Show("Данный объект сейчас редактируется другим пользователем. Вы не можете его редактировать.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);

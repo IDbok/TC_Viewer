@@ -24,7 +24,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
 
     private List<DisplayedTool> _displayedObjects = new();
     private BindingList<DisplayedTool> _bindingList;
-    private ConcurrencyBlockServise<Tool> concurrencyBlockServise;
+    private ConcurrencyBlockService<Tool> concurrencyBlockServise;
 
     private bool _isAddingForm = false;
     private readonly bool _isUpdateItemMode = false; // add to UpdateMode
@@ -658,7 +658,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
             if (machine != null)
             {
                 var timerInterval = 1000 * 60 * 25;
-                concurrencyBlockServise = new ConcurrencyBlockServise<Tool>(machine, timerInterval);
+                concurrencyBlockServise = new ConcurrencyBlockService<Tool>(machine, timerInterval);
                 if (concurrencyBlockServise.GetObjectUsedStatus())
                 {
                     MessageBox.Show("Данный объект сейчас редактируется другим пользователем. Вы не можете его редактировать.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
