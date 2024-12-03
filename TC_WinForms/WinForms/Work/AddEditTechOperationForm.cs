@@ -265,6 +265,14 @@ namespace TC_WinForms.WinForms.Work
                     Log.Information("Удаление ТО: {TechOperationWork} (id: {Id})", IddGuid.techOperation.Name, IddGuid.Id);
                     TechOperationForm.DeleteTechOperation(IddGuid);
                     UpdateLocalTO();
+
+                    foreach (DataGridViewRow dataGridViewRow in dataGridViewTO.Rows)
+                    {
+                        // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
+                        var techOperationWorkRow = (TechOperationWork)dataGridViewRow.Cells[0].Value;
+                        techOperationWorkRow.Order = dataGridViewRow.Index + 1; // Обновляем свойство Order
+                    }
+
                     TechOperationForm.UpdateGrid();
                 }
             }
@@ -669,6 +677,16 @@ namespace TC_WinForms.WinForms.Work
 
                     TechOperationForm.DeleteTechTransit(IddGuid, work);
                     UpdateLocalTP();
+
+                    foreach (DataGridViewRow dataGridViewRow in dataGridViewTPLocal.Rows)
+                    {
+                        // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
+                        IddGuid = (Guid)dataGridViewRow.Cells[0].Value;
+
+                        var bg = work.executionWorks.SingleOrDefault(s => s.IdGuid == IddGuid);
+                        bg.Order = dataGridViewRow.Index + 1;
+                    }
+
                     TechOperationForm.UpdateGrid();
                 }
             }
