@@ -7,7 +7,7 @@ using System.Windows.Forms;
 public static class TempFileCleaner
 {
     private static readonly List<string> TempFiles = new List<string>();
-    private static readonly string TempDirectory = Path.Combine(Path.GetTempPath(), "TC_Viewer");// Path.GetTempPath();
+    private static readonly string TempDirectory = Path.GetTempPath();
 
     static TempFileCleaner()
     {
