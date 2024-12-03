@@ -121,15 +121,15 @@ namespace TC_WinForms.WinForms.Work
             comboBoxTO.SelectedIndexChanged += ComboBoxTO_SelectedIndexChanged;
             comboBoxTT.SelectedIndexChanged += ComboBoxTT_SelectedIndexChanged;
 
-            var Even = new DGVEvents();
-            Even.EventsObj = this;
-            Even.Table = 1;
-            Even.AddGragDropEvents(dataGridViewTO);
+            //var Even = new DGVEvents();
+            //Even.EventsObj = this;
+            //Even.Table = 1;
+            //Even.AddGragDropEvents(dataGridViewTO);
 
-            Even = new DGVEvents();
-            Even.EventsObj = this;
-            Even.Table = 2;
-            Even.AddGragDropEvents(dataGridViewTPLocal);
+            //var Even = new DGVEvents();
+            //Even.EventsObj = this;
+            //Even.Table = 2;
+            //Even.AddGragDropEvents(dataGridViewTPLocal);
 
             comboBoxTO.Format += (s, e) =>
             {
@@ -175,7 +175,7 @@ namespace TC_WinForms.WinForms.Work
                     // UpdateLocalTO(); // обновление произойдет в момент перехода на вкладку tabPageTP
                     break;
                 case "tabPageTP":
-                    UpdateLocalTP(); 
+                    UpdateLocalTP();
                     break;
                 case "tabPageStaff":
                     UpdateComboBoxTT();
@@ -396,11 +396,11 @@ namespace TC_WinForms.WinForms.Work
                 techOperationWork,
                 "Удалить",
                 $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                techOperationWork.techOperation.Category == "Типовая ТО",
                 techOperationWork.Order,
+                techOperationWork.techOperation.Category == "Типовая ТО",
                 techOperationWork.GetParallelIndex().ToString() ?? "",
                 techOperationWork.GetSequenceGroupIndex().ToString() ?? ""
-            }; 
+            };
             dataGridViewTO.Rows.Add(row.ToArray());
         }
 
@@ -458,12 +458,50 @@ namespace TC_WinForms.WinForms.Work
                     }
                 }
             }
+            else if (e.ColumnIndex == dataGridViewTO.Columns["Order"].Index)
+            {
+                var techOperationWork = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
+
+                int newOrder = 1;
+                try
+                {
+                    newOrder = Convert.ToInt32(dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex].Value);
+                }
+                catch (FormatException ex)
+                {
+                    MessageBox.Show("Введите числовое значение!", "Ошибка формата!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = techOperationWork.Order;
+                    return;
+                }
+
+                if (techOperationWork != null)
+                {
+                    newOrder = newOrder <= 0 ? 1 : newOrder;
+                    newOrder = newOrder > dataGridViewTO.RowCount ? dataGridViewTO.RowCount : newOrder;
+
+                    this.BeginInvoke(new MethodInvoker(() =>//используется для обхода рекурсивного вызова перемещения строк
+                    {
+                        DGVProcessing.ReorderRows(dataGridViewTO.Rows[e.RowIndex], newOrder, dataGridViewTO);
+                    
+
+                        foreach (DataGridViewRow dataGridViewRow in dataGridViewTO.Rows)
+                        {
+                            // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
+                            var techOperationWorkRow = (TechOperationWork)dataGridViewRow.Cells[0].Value;
+                            techOperationWorkRow.Order = dataGridViewRow.Index + 1; // Обновляем свойство Order
+                        }
+                    }));
+
+                    TechOperationForm.UpdateGrid();
+                }
+            }
         }
 
         private void DataGridViewTO_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.ColumnIndex == dataGridViewTO.Columns["ParallelIndex"].Index
-                || e.ColumnIndex == dataGridViewTO.Columns["SequenceGroupIndex"].Index)
+                || e.ColumnIndex == dataGridViewTO.Columns["SequenceGroupIndex"].Index
+                || e.ColumnIndex == dataGridViewTO.Columns["Order"].Index)
             {
                 TechOperationForm.CellChangeReadOnly(dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
             }
@@ -478,11 +516,11 @@ namespace TC_WinForms.WinForms.Work
         #region TP
 
 
-        private void DataGridViewTPLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+        private async void DataGridViewTPLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
             var work = SelectedTO;
 
-            if (e.ColumnIndex == 6)
+            if (e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index)
             {
                 var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -495,7 +533,7 @@ namespace TC_WinForms.WinForms.Work
                     TechOperationForm.UpdateGrid();
                 }
             }
-            else if (e.ColumnIndex == 4)
+            else if (e.ColumnIndex == dataGridViewTPLocal.Columns["Coefficient"].Index)
             {
                 var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -554,7 +592,7 @@ namespace TC_WinForms.WinForms.Work
                     }
                 }
             }
-            else if (e.ColumnIndex == 7)
+            else if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index)
             {
                 var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -566,6 +604,50 @@ namespace TC_WinForms.WinForms.Work
                     wor.PictureName = gg;
                     TechOperationForm.UpdateGrid();
                 }
+            }
+            else if (e.ColumnIndex == dataGridViewTPLocal.Columns["Order1"].Index)
+            {
+                var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
+                var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
+
+                int newOrder = 1;
+                try
+                {
+                    newOrder = Convert.ToInt32(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value);
+                }
+                catch (FormatException ex)
+                {
+                    MessageBox.Show("Введите числовое значение!", "Ошибка формата!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = wor.Order;
+                    return;
+                }
+
+                if (wor != null)
+                {
+                    newOrder = newOrder <= 0 ? 1 : newOrder;
+                    newOrder = newOrder > dataGridViewTPLocal.RowCount ? dataGridViewTPLocal.RowCount : newOrder;
+
+                    this.BeginInvoke(new MethodInvoker(() =>//используется для обхода рекурсивного вызова перемещения строк
+                    {
+                        DGVProcessing.ReorderRows(dataGridViewTPLocal.Rows[e.RowIndex], newOrder, dataGridViewTPLocal);
+                    
+
+                        foreach (DataGridViewRow dataGridViewRow in dataGridViewTPLocal.Rows)
+                        {
+                            // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
+                            var IddGuid = (Guid)dataGridViewRow.Cells[0].Value;
+
+                            var ord = Convert.ToInt32(dataGridViewRow.Cells["Order1"].Value);
+
+                            var bg = work.executionWorks.SingleOrDefault(s => s.IdGuid == IddGuid);
+                            bg.Order = ord;
+                        }
+
+                    }));
+
+                    TechOperationForm.UpdateGrid();
+                }
+                
             }
 
         }
@@ -596,7 +678,8 @@ namespace TC_WinForms.WinForms.Work
         {
 
             if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index
-                || e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index)// Индекс столбца с checkBox
+                || e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index
+                || e.ColumnIndex == dataGridViewTPLocal.Columns["Order1"].Index)// Индекс столбца с checkBox
             {
                 TechOperationForm.CellChangeReadOnly(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
 
@@ -846,7 +929,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateLocalTP()
         {
-            var selectedTP = SelectedTP; 
+            var selectedTP = SelectedTP;
             var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
 
             if (work == null)
@@ -857,7 +940,7 @@ namespace TC_WinForms.WinForms.Work
             var offScroll = dataGridViewTPLocal.FirstDisplayedScrollingRowIndex;
 
             dataGridViewTPLocal.Rows.Clear();
-            
+
             var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work)
                 .executionWorks.Where(w => w.Delete == false)
                 .OrderBy(o => o.Order).ToList();
@@ -882,6 +965,7 @@ namespace TC_WinForms.WinForms.Work
                 if (executionWork.Repeat)
                 {
                     listItem.Add("Повторить");
+                    listItem.Add(executionWork.Order);
                     listItem.Add("");
 
                     listItem.Add("");
@@ -890,6 +974,7 @@ namespace TC_WinForms.WinForms.Work
                 else
                 {
                     listItem.Add(executionWork.techTransition?.Name);
+                    listItem.Add(executionWork.Order);
                     listItem.Add(executionWork.techTransition?.TimeExecution);
 
                     listItem.Add(executionWork.Coefficient);
@@ -2458,7 +2543,7 @@ namespace TC_WinForms.WinForms.Work
                             {
                                 if (string.IsNullOrEmpty((string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value))
                                     dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "*1";
-                                
+
                                 existingRepeat.NewCoefficient = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                             }
                             else if (e.ColumnIndex == 6)
@@ -2594,7 +2679,7 @@ namespace TC_WinForms.WinForms.Work
         }
 
         #endregion
-        
+
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -2777,7 +2862,7 @@ namespace TC_WinForms.WinForms.Work
                 // Включаем обновление интерфейса ComboBox
                 comboBoxTT.EndUpdate();
             }
-            
+
         }
 
         private void btnCreateNewTP_Click(object sender, EventArgs e)
