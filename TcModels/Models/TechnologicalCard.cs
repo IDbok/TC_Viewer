@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -133,6 +134,40 @@ namespace TcModels.Models
         //public int? WorkStepsId { get; set; }
         //public List<WorkStep> WorkSteps { get; set; } = new();
 
+        public TechnologicalCard CLone()
+        {
+            TechnologicalCard TechCard = new TechnologicalCard
+            {
+                Article = this.Article,
+                Name = this.Name,
+                Description = this.Description,
+                Version = this.Version,
+                Type = this.Type,
+                NetworkVoltage = this.NetworkVoltage,
+                TechnologicalProcessType = this.TechnologicalProcessType,
+                TechnologicalProcessName = this.TechnologicalProcessName,
+                TechnologicalProcessNumber = this.TechnologicalProcessNumber,
+                Parameter = this.Parameter,
+                FinalProduct = this.FinalProduct,
+                Applicability = this.Applicability,
+                Note = this.Note,
+                DamageType = this.DamageType,
+                RepairType = this.RepairType,
+                IsCompleted = this.IsCompleted,
+                ExecutionSchemeBase64 = this.ExecutionSchemeBase64,
+                ExecutionSchemeImageId = this.ExecutionSchemeImageId,
+            };
+
+            TechCard.Tool_TCs = this.Tool_TCs.CloneJsonIIntermediateTable();
+            TechCard.Component_TCs = this.Component_TCs.CloneJsonIIntermediateTable();
+            TechCard.Protection_TCs = this.Protection_TCs.CloneJsonIIntermediateTable();
+            TechCard.Machine_TCs = this.Machine_TCs.CloneJsonIIntermediateTable();
+            TechCard.Staff_TCs = this.Staff_TCs.CloneJson();
+            
+            
+
+            return TechCard;
+        }
         public Staff_TC ConnectObject(Staff staff, int order, string symbol)
         {
             Staff_TC staff_tc = new Staff_TC { Parent = this, Child = staff, Order = order, Symbol = symbol };

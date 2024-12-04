@@ -66,6 +66,8 @@ public class MyDbContext : DbContext
             .UseMySql("server=localhost;database=tavrida_db_main;user=root;password=root",
             //"server=localhost;database=tavrida_db_v141;user=root;password=root",//
             new MySqlServerVersion(new Version(5, 7, 24)));
+
+        optionsBuilder.EnableSensitiveDataLogging();
 #else
         optionsBuilder
             .UseMySql(TcDbConnector.StaticClass.ConnectString,
