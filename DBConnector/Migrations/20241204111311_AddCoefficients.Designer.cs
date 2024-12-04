@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TcDbConnector;
@@ -11,16 +12,18 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20241129143432_LockServiceImplementation")]
-    partial class LockServiceImplementation
+    [Migration("20241204111311_AddCoefficients")]
+    partial class AddCoefficients
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-				.HasAnnotation("ProductVersion", "7.0.2")
-				.HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("AuthorTechnologicalCard", b =>
                 {
@@ -109,6 +112,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("AccessLevel")
                         .HasColumnType("int");
 
@@ -134,6 +139,8 @@ namespace TcDbConnector.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("Category")
                         .HasColumnType("int");
@@ -162,6 +169,9 @@ namespace TcDbConnector.Migrations
 
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Formula")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
@@ -216,6 +226,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("ComponentId")
                         .HasColumnType("int");
@@ -314,6 +326,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("RelatedStaffId")
                         .HasColumnType("int");
 
@@ -334,6 +348,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("IdAuto")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdAuto"));
 
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
@@ -395,6 +411,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("ObjectId")
                         .HasColumnType("int");
 
@@ -412,11 +430,50 @@ namespace TcDbConnector.Migrations
                     b.ToTable("BlockedConcurrencyObjects");
                 });
 
+            modelBuilder.Entity("TcModels.Models.TcContent.Coefficient", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("varchar(3)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("ShortName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("TechnologicalCardId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Value")
+                        .HasColumnType("double");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TechnologicalCardId");
+
+                    b.HasIndex("Code", "TechnologicalCardId")
+                        .IsUnique();
+
+                    b.ToTable("Coefficients");
+                });
+
             modelBuilder.Entity("TcModels.Models.TcContent.Component", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Categoty")
                         .IsRequired()
@@ -466,6 +523,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Comments")
                         .HasColumnType("longtext");
 
@@ -492,6 +551,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
@@ -520,6 +581,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("DiagamToWorkId")
                         .HasColumnType("int");
 
@@ -544,6 +607,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("DiagramParalelnoId")
                         .HasColumnType("int");
 
@@ -562,6 +627,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Deystavie")
                         .IsRequired()
@@ -603,6 +670,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Comment")
                         .HasColumnType("longtext");
 
@@ -634,6 +703,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Coefficient")
                         .HasColumnType("longtext");
@@ -696,6 +767,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("ChildExecutionWorkId")
                         .HasColumnType("int");
 
@@ -728,6 +801,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClassifierCode")
                         .IsRequired()
@@ -770,6 +845,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<string>("ClassifierCode")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -810,6 +887,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClassifierCode")
                         .HasColumnType("longtext");
@@ -862,6 +941,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Category")
                         .HasColumnType("longtext");
 
@@ -885,6 +966,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("Component_TCChildId")
                         .HasColumnType("int");
@@ -930,6 +1013,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Category")
                         .HasColumnType("longtext");
 
@@ -965,6 +1050,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Categoty")
                         .IsRequired()
@@ -1011,6 +1098,8 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Comments")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -1038,6 +1127,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Coefficient")
                         .HasColumnType("longtext");
@@ -1073,6 +1164,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Applicability")
                         .HasColumnType("longtext");
@@ -1143,6 +1236,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateCreation")
                         .HasColumnType("datetime(6)");
@@ -1407,6 +1502,17 @@ namespace TcDbConnector.Migrations
                     b.Navigation("Child");
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("TcModels.Models.TcContent.Coefficient", b =>
+                {
+                    b.HasOne("TcModels.Models.TechnologicalCard", "TechnologicalCard")
+                        .WithMany("Coefficients")
+                        .HasForeignKey("TechnologicalCardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TechnologicalCard");
                 });
 
             modelBuilder.Entity("TcModels.Models.TcContent.ComponentWork", b =>
@@ -1734,6 +1840,8 @@ namespace TcDbConnector.Migrations
 
             modelBuilder.Entity("TcModels.Models.TechnologicalCard", b =>
                 {
+                    b.Navigation("Coefficients");
+
                     b.Navigation("Component_TCs");
 
                     b.Navigation("DiagamToWork");

@@ -128,12 +128,15 @@ namespace TcModels.Models
         public List<TechOperationWork> TechOperationWorks { get; set; } = new();
 
         public List<DiagamToWork> DiagamToWork { get; set; } = new();
-        
 
-        //public int? WorkStepsId { get; set; }
-        //public List<WorkStep> WorkSteps { get; set; } = new();
+		public List<Coefficient> Coefficients { get; set; } = new();
 
-        public Staff_TC ConnectObject(Staff staff, int order, string symbol)
+
+
+		//public int? WorkStepsId { get; set; }
+		//public List<WorkStep> WorkSteps { get; set; } = new();
+
+		public Staff_TC ConnectObject(Staff staff, int order, string symbol)
         {
             Staff_TC staff_tc = new Staff_TC { Parent = this, Child = staff, Order = order, Symbol = symbol };
             Staff_TCs.Add(new Staff_TC { Parent = this, Child = staff, Order = order, Symbol = symbol });

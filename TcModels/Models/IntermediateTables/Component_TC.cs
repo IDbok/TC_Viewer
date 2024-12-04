@@ -1,4 +1,5 @@
-﻿using TcModels.Models.Interfaces;
+﻿using System.Data;
+using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.Work;
 
@@ -50,7 +51,12 @@ namespace TcModels.Models.IntermediateTables
 
         public int Order { get; set; }
         public double Quantity { get; set; }
-        public string? Note { get; set; }
+
+		/// <summary>
+		/// Формула для расчёта количества (Quantity)
+		/// </summary>
+		public string? Formula { get; set; }
+		public string? Note { get; set; }
 
         public List<TechOperationWork> TechOperationWorks { get; set; }
 
@@ -64,7 +70,53 @@ namespace TcModels.Models.IntermediateTables
             }
         }
 
-        public override string ToString()
+		/// <summary>
+		/// Вычисляет значение количества на основе формулы
+		/// </summary>
+		/// <returns>Вычисленное значение</returns>
+		public double CalculateQuantity()
+		{
+			if (string.IsNullOrWhiteSpace(Formula))
+				return Quantity; // Если формула не задана, возвращаем текущее значение
+
+			try
+			{
+				var coefficients = Parent?.Coefficients?.ToDictionary(c => c.Code, c => c.Value)
+								  ?? new Dictionary<string, double>();
+
+				string formula = Formula;
+
+				// Заменяем шифры коэффициентов в формуле на их значения
+				foreach (var coefficient in coefficients)
+				{
+					formula = formula.Replace(coefficient.Key, coefficient.Value.ToString());
+				}
+
+				// Вычисляем значение формулы
+				return EvaluateFormula(formula);
+			}
+			catch
+			{
+				// Если возникла ошибка при вычислении, возвращаем 0 (или выбрасываем исключение)
+				return 0;
+			}
+		}
+
+		/// <summary>
+		/// Вычисляет математическое выражение в строковом формате
+		/// </summary>
+		/// <param name="expression">Математическое выражение</param>
+		/// <returns>Результат вычисления</returns>
+		private double EvaluateFormula(string expression)
+		{
+			DataTable table = new DataTable();
+			table.Columns.Add("expression", typeof(string), expression);
+			DataRow row = table.NewRow();
+			table.Rows.Add(row);
+			return double.Parse((string)row["expression"]);
+		}
+
+		public override string ToString()
         {
             return $"{Order}.{Child.Name} (id: {ChildId}) {Quantity}";
         }

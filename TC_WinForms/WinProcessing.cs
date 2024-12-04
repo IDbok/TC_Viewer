@@ -23,11 +23,11 @@ namespace TC_WinForms
             Form[] allForms = Program.FormsBack.Concat(Program.FormsForward).ToArray();
             foreach (Form form in allForms)
             {
-                if (form is Win2)
-                { 
-                    Win2 saveableForm = (Win2)form;
-                    //DataJsonSerializer.Serialize<TcData>(saveableForm.tp, saveableForm.GetPath());
-                }
+                //if (form is Win2)
+                //{ 
+                //    Win2 saveableForm = (Win2)form;
+                //    //DataJsonSerializer.Serialize<TcData>(saveableForm.tp, saveableForm.GetPath());
+                //}
             }
             MessageBox.Show("Данные сохранены", "Сохранение", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }

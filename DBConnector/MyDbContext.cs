@@ -47,7 +47,9 @@ public class MyDbContext : DbContext
     public DbSet<ImageStorage> ImageStorage { get; set; }
     public DbSet<ObjectLocker> BlockedConcurrencyObjects { get; set; } = null!;
 
-    public MyDbContext()
+    public DbSet<Coefficient> Coefficients { get; set; } = null!;
+
+	public MyDbContext()
     {
         //Database.EnsureDeleted();
         //Database.EnsureCreated(); // todo - create exception catch if db is unavailable
