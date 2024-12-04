@@ -69,5 +69,38 @@ namespace TcModels.Models.TcContent
 
            }
         }
+
+        public ExecutionWork CopyEW()
+        {
+            ExecutionWork newEW = new ExecutionWork()
+            {
+                techOperationWork = this.techOperationWork,
+                techOperationWorkId = this.techOperationWorkId,
+                techTransitionId = this.techTransitionId,
+                Repeat = this.Repeat,
+                Order = this.Order,
+                Etap = this.Etap,
+                Posled = this.Posled,
+                Vopros = this.Vopros,
+                PictureName = this.PictureName,
+                Coefficient = this.Coefficient,
+                Comments = this.Comments,
+                Value = this.Value,
+            };
+
+            //newEW.Staffs = this.Staffs.CloneJson();
+            //newEW.Machines = this.Machines.CloneJsonIIntermediateTable();
+            //newEW.Protections = this.Protections.CloneJsonIIntermediateTable();
+
+            //foreach (var item in this.ExecutionWorkRepeats)
+            //{
+            //    item.Id = 0;
+            //    item.ParentExecutionWorkId = newEW.Id;
+            //    var newObject = item.CloneJson();
+            //    newEW.ExecutionWorkRepeats.Add(item);
+            //}
+
+            return newEW;
+        }
     }
 }

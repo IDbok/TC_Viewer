@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            Button button1;
             dgvMain = new DataGridView();
             pnlControls = new Panel();
             pnlFilters = new Panel();
@@ -44,6 +45,7 @@
             btnCreateTC = new Button();
             pnlDataViewer = new Panel();
             progressBar = new ProgressBar();
+            button1 = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
             pnlControls.SuspendLayout();
             pnlFilters.SuspendLayout();
@@ -64,7 +66,7 @@
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
             dgvMain.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvMain.Size = new Size(1001, 278);
+            dgvMain.Size = new Size(1308, 278);
             dgvMain.TabIndex = 0;
             // 
             // pnlControls
@@ -75,7 +77,7 @@
             pnlControls.Location = new Point(0, 0);
             pnlControls.Margin = new Padding(3, 2, 3, 2);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1001, 60);
+            pnlControls.Size = new Size(1308, 60);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
@@ -90,7 +92,7 @@
             pnlFilters.Location = new Point(0, 0);
             pnlFilters.Margin = new Padding(3, 2, 3, 2);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(426, 60);
+            pnlFilters.Size = new Size(487, 60);
             pnlFilters.TabIndex = 25;
             // 
             // lblType
@@ -154,21 +156,22 @@
             // 
             // pnlControlBtns
             // 
+            pnlControlBtns.Controls.Add(button1);
             pnlControlBtns.Controls.Add(btnViewMode);
             pnlControlBtns.Controls.Add(btnDeleteTC);
             pnlControlBtns.Controls.Add(btnUpdateTC);
             pnlControlBtns.Controls.Add(btnCreateTC);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(426, 0);
+            pnlControlBtns.Location = new Point(487, 0);
             pnlControlBtns.Margin = new Padding(3, 2, 3, 2);
             pnlControlBtns.Name = "pnlControlBtns";
-            pnlControlBtns.Size = new Size(575, 60);
+            pnlControlBtns.Size = new Size(821, 60);
             pnlControlBtns.TabIndex = 24;
             // 
             // btnViewMode
             // 
             btnViewMode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnViewMode.Location = new Point(35, 9);
+            btnViewMode.Location = new Point(281, 9);
             btnViewMode.Margin = new Padding(3, 2, 3, 2);
             btnViewMode.Name = "btnViewMode";
             btnViewMode.Size = new Size(122, 45);
@@ -180,7 +183,7 @@
             // btnDeleteTC
             // 
             btnDeleteTC.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnDeleteTC.Location = new Point(442, 9);
+            btnDeleteTC.Location = new Point(688, 9);
             btnDeleteTC.Margin = new Padding(3, 2, 3, 2);
             btnDeleteTC.Name = "btnDeleteTC";
             btnDeleteTC.Size = new Size(122, 45);
@@ -192,7 +195,7 @@
             // btnUpdateTC
             // 
             btnUpdateTC.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnUpdateTC.Location = new Point(306, 9);
+            btnUpdateTC.Location = new Point(552, 9);
             btnUpdateTC.Margin = new Padding(3, 2, 3, 2);
             btnUpdateTC.Name = "btnUpdateTC";
             btnUpdateTC.Size = new Size(122, 45);
@@ -204,7 +207,7 @@
             // btnCreateTC
             // 
             btnCreateTC.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnCreateTC.Location = new Point(171, 9);
+            btnCreateTC.Location = new Point(417, 9);
             btnCreateTC.Margin = new Padding(3, 2, 3, 2);
             btnCreateTC.Name = "btnCreateTC";
             btnCreateTC.Size = new Size(122, 45);
@@ -221,13 +224,13 @@
             pnlDataViewer.Location = new Point(0, 60);
             pnlDataViewer.Margin = new Padding(3, 2, 3, 2);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1001, 278);
+            pnlDataViewer.Size = new Size(1308, 278);
             pnlDataViewer.TabIndex = 2;
             // 
             // progressBar
             // 
             progressBar.Anchor = AnchorStyles.None;
-            progressBar.Location = new Point(309, 50);
+            progressBar.Location = new Point(463, 50);
             progressBar.Margin = new Padding(2);
             progressBar.MarqueeAnimationSpeed = 30;
             progressBar.Name = "progressBar";
@@ -236,11 +239,24 @@
             progressBar.TabIndex = 1;
             progressBar.Visible = false;
             // 
+            // button1
+            // 
+            button1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            button1.BackColor = SystemColors.Control;
+            button1.Location = new Point(153, 9);
+            button1.Margin = new Padding(3, 2, 3, 2);
+            button1.Name = "button1";
+            button1.Size = new Size(122, 45);
+            button1.TabIndex = 27;
+            button1.Text = "Копировать";
+            button1.UseVisualStyleBackColor = false;
+            button1.Click += button1_Click;
+            // 
             // Win7_1_TCs
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1001, 338);
+            ClientSize = new Size(1308, 338);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
             Margin = new Padding(3, 2, 3, 2);

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
 
 namespace TcModels.Models.TcContent
 {
@@ -111,6 +112,48 @@ namespace TcModels.Models.TcContent
         public string? GetParallelIndexString()
         {
             return ParallelIndex;
+        }
+
+        public TechOperationWork CopyTOWList()
+        {
+            TechOperationWork newTOW = new TechOperationWork
+            {
+                Id = 0,
+                TechnologicalCardId = this.TechnologicalCardId,
+                techOperation = this.techOperation,
+                techOperationId = this.techOperationId,
+                Order = this.Order,
+                ParallelIndex = this.ParallelIndex,
+            };
+
+            foreach(var item in this.ToolWorks)
+            {
+                item.Id = 0;
+                item.techOperationWorkId = newTOW.Id;
+                item.techOperationWork = null;
+                var newItem = item.CloneJson();
+                newTOW.ToolWorks.Add(newItem);
+            }
+
+            foreach (var item in this.ComponentWorks)
+            {
+                item.Id = 0;
+                item.techOperationWorkId = newTOW.Id;
+                item.techOperationWork = null;
+                var newItem = item.CloneJson();
+                newTOW.ComponentWorks.Add(newItem);
+            }
+
+            //foreach (var item in this.executionWorks)
+            //{
+            //    item.Id = 0;
+            //    item.techOperationWorkId = newTOW.Id;
+            //    item.techOperationWork = null;
+            //    var newItem = item.CopyEW();
+            //    newTOW.executionWorks.Add(newItem);
+            //}
+
+            return newTOW;
         }
 
     }
