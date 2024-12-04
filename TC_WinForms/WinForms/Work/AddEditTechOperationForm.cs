@@ -20,6 +20,7 @@ namespace TC_WinForms.WinForms.Work
         private List<TechOperation> allTO;
         private List<TechTransition> allTP;
         private List<Staff> AllStaff;
+        (int TOWID,int TOWOrder,int? EWID, int? EWOrder) highlightRowData; 
         //private List<ExecutionWork> listExecutionWork; // не используется
 
         private TechOperationWork SelectedTO => (TechOperationWork)comboBoxTO.SelectedItem;
@@ -97,6 +98,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewEtap.CellEndEdit += DataGridViewEtap_CellEndEdit;
             dataGridViewEtap.CellContentClick += DataGridViewEtap_CellContentClick;
             dataGridViewEtap.CellValidating += CellValidating;
+            dataGridViewEtap.CellClick += DataGridViewEtap_CellClick;
 
             dataGridViewMeha.CellContentClick += DataGridViewMeha_CellContentClick;
             dataGridViewMeha.CellValidating += CellValidating;
@@ -154,6 +156,8 @@ namespace TC_WinForms.WinForms.Work
 
         private void ComboBoxTT_SelectedIndexChanged(object? sender, EventArgs e)
         {
+            HighlightTOTTRow(true);
+
             switch (tabControl1.SelectedTab.Name)
             {
                 case "tabPageStaff":
@@ -169,6 +173,8 @@ namespace TC_WinForms.WinForms.Work
 
         private void ComboBoxTO_SelectedIndexChanged(object? sender, EventArgs e)
         {
+            HighlightTOTTRow();
+
             switch (tabControl1.SelectedTab.Name)
             {
                 case "tabPageTO":
@@ -252,6 +258,8 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTO_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
+            HighlightTOTTRow();
+
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 Log.Information("Щелчок по ячейке удаления ТО в строке {RowIndex}.", e.RowIndex);
@@ -730,10 +738,8 @@ namespace TC_WinForms.WinForms.Work
                 var id = (Guid)selectedRow.Cells[0].Value;
                 var executionWork = FindExecutionWorkById(id);
 
-                if (executionWork != null)
-                {
-                    TechOperationForm.HighlightExecutionWorkRow(executionWork, false);
-                }
+                HighlightTOTTRow(true);
+
 
                 // Смена выбора в комбобоксе
                 comboBoxTT.SelectedItem = executionWork;
@@ -777,6 +783,7 @@ namespace TC_WinForms.WinForms.Work
                 }
             }
             return null;
+
         }
         private void DataGridViewTPAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
@@ -1797,6 +1804,8 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewComponentLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
+            HighlightTOTTRow();
+
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
@@ -2070,6 +2079,8 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewInstrumentLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
+            HighlightTOTTRow();
+
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 var work = (TechOperationWork)comboBoxTO.SelectedItem;
@@ -2283,6 +2294,10 @@ namespace TC_WinForms.WinForms.Work
             RestoreScrollPosition(dataGridViewEtap, offScroll);
         }
 
+        private void DataGridViewEtap_CellClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            HighlightTOTTRow(false, (ExecutionWork)dataGridViewEtap.Rows[e.RowIndex].Cells[0].Value);
+        }
 
         private void DataGridViewEtap_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
@@ -2335,6 +2350,8 @@ namespace TC_WinForms.WinForms.Work
                         TechOperationForm.UpdateGrid();
                     }
                 }
+
+                HighlightTOTTRow(false, (ExecutionWork)dataGridViewEtap.Rows[e.RowIndex].Cells[0].Value);
             }
         }
 
@@ -2427,7 +2444,7 @@ namespace TC_WinForms.WinForms.Work
                 var executionWork = (ExecutionWork)selectedRow.Cells[0].Value;
 
                 // Вызываем метод для выделения строки
-                TechOperationForm.HighlightExecutionWorkRow(executionWork, false);
+                //TechOperationForm.HighlightExecutionWorkRow(executionWork, false);
             }
         }
 
@@ -2698,6 +2715,36 @@ namespace TC_WinForms.WinForms.Work
 
         #endregion
 
+
+        private void HighlightTOTTRow(bool HighlightTT = false, ExecutionWork exWork = null)
+        {
+            if (SelectedTO == null || SelectedTP == null
+                || (highlightRowData == (SelectedTO.techOperationId, SelectedTO.Order, null, null) && !HighlightTT && exWork == null)
+                || (exWork == null && highlightRowData == (SelectedTO.techOperationId, SelectedTO.Order, SelectedTP.techTransitionId, SelectedTP.Order))
+                || (exWork != null && highlightRowData == (exWork.techOperationWork.techOperationId, exWork.techOperationWork.Order, exWork.techTransitionId, exWork.Order)))
+            {
+                return;
+            }
+
+            if (exWork != null)
+            {
+                TechOperationForm.SelectCurrentRow(exWork.techOperationWork, exWork);
+                highlightRowData = (exWork.techOperationWork.techOperationId, exWork.techOperationWork.Order, exWork.techTransitionId, exWork.Order);
+                return;
+            }
+
+            if (HighlightTT)
+            {
+                TechOperationForm.SelectCurrentRow(SelectedTO, SelectedTP);
+
+                highlightRowData = (SelectedTO.techOperationId, SelectedTO.Order, SelectedTP.techTransitionId, SelectedTP.Order);
+            }
+            else
+            {
+                TechOperationForm.SelectCurrentRow(SelectedTO);
+                highlightRowData = (SelectedTO.techOperationId, SelectedTO.Order, null, null);
+            }
+        }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
