@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,8 @@ namespace TcModels.Models.TcContent
         public string? ParallelIndex { get; set; } 
         public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new List<DiagramParalelno>();
         public int Order { get; set; }
+
+        
 
         public string? GetParallelIndex()
         {

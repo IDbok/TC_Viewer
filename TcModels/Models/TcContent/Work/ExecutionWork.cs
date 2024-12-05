@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using AutoMapper;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent
@@ -69,5 +71,7 @@ namespace TcModels.Models.TcContent
 
            }
         }
+
+        
     }
 }
