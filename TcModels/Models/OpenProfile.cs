@@ -1,0 +1,79 @@
+﻿using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TcModels.Models.IntermediateTables;
+using TcModels.Models.TcContent;
+
+namespace TcModels.Models
+{
+    internal class OpenProfile: Profile
+    {
+        public OpenProfile(int i)//В зависимости от значения создаем профиль карт нужного объекта
+        {
+            switch(i)
+            {
+                case 0:
+                    TCProfile();
+                    break;
+                case 1:
+                    TOWProfile();
+                    break;
+                case 2:
+                    EWProfile();
+                    break;
+            }
+        }
+
+        public void TOWProfile()
+        {
+            CreateMap<TechOperationWork, TechOperationWork>()
+                        .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        .ForMember(dest => dest.TechnologicalCardId, opt => opt.Ignore())
+                        .ForMember(dest => dest.executionWorks, opt => opt.Ignore());
+
+            CreateMap<ToolWork, ToolWork>()
+                        .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        .ForMember(dest => dest.techOperationWorkId, opt => opt.Ignore());
+
+            CreateMap<ComponentWork, ComponentWork>()
+                        .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        .ForMember(dest => dest.techOperationWorkId, opt => opt.Ignore());
+
+        }
+
+        public void EWProfile()
+        {
+            CreateMap<ExecutionWork, ExecutionWork>()
+                        .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        .ForMember(dest => dest.techOperationWorkId, opt => opt.Ignore())
+                        .ForMember(dest => dest.Staffs, opt => opt.Ignore())
+                        .ForMember(dest => dest.Protections, opt => opt.Ignore())
+                        .ForMember(dest => dest.Machines, opt => opt.Ignore());
+        }
+
+        public void TCProfile()
+        {
+            CreateMap<Staff_TC, Staff_TC>()
+                        .ForMember(dest => dest.ParentId, opt => opt.Ignore())
+                        .ForMember(dest => dest.IdAuto, opt => opt.Ignore());
+
+            CreateMap<Component_TC, Component_TC>()
+                        .ForMember(dest => dest.ParentId, opt => opt.Ignore());
+
+            CreateMap<Tool_TC, Tool_TC>()
+                        .ForMember(dest => dest.ParentId, opt => opt.Ignore());
+
+            CreateMap<Protection_TC, Protection_TC>()
+                        .ForMember(dest => dest.ParentId, opt => opt.Ignore());
+
+            CreateMap<Machine_TC, Machine_TC>()
+                        .ForMember(dest => dest.ParentId, opt => opt.Ignore());
+
+            CreateMap<TechnologicalCard, TechnologicalCard>()
+                            .ForMember(dest => dest.Id, opt => opt.Ignore());
+        }
+    }
+}
