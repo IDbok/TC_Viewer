@@ -9,7 +9,9 @@
         Tool,
         WorkStep,
         Diagram,
-        ExecutionScheme
-        // TechnologicalCard
-    }
+        ExecutionScheme,
+		Coefficient
+
+		// TechnologicalCard
+	}
 }

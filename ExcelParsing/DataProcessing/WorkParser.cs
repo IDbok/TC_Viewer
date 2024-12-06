@@ -1766,7 +1766,7 @@ public class WorkParser
         {
             if (!variables.ContainsKey(param))
             {
-                throw new ArgumentException($"Переменная '{param}' отсутствует в словаре переменных.");
+                throw new ArgumentException($"Переменная '{param}' отсутствует в данной ТК.");
             }
         }
 

@@ -246,6 +246,11 @@ namespace TC_WinForms.WinForms
 					.Where(st => st.ParentId == _tcId).Include(m => m.Child)
 					.ToListAsync();
 
+				// Coefficient
+				var coefficients = await context.Coefficients
+					.Where(c => c.TechnologicalCardId == _tcId)
+					.ToListAsync();
+
 				_logger.Information("Загружены данные технологической карты: {TcName}(id: {TcId})", techCard.Name, _tcId);
 				return techCard;
 			}
@@ -595,6 +600,9 @@ namespace TC_WinForms.WinForms
 					return new Win6_ExecutionScheme(/*_tc,*/ tcViewState);// _isViewMode);
 																		  //case EModelType.TechnologicalCard:
 																		  //    return new Win7_1_TCs_Window(_tcId, win6Format: true);
+				case EModelType.Coefficient:
+					return new CoefficientEditorForm(_tcId, tcViewState, context);
+
 				default:
 					throw new ArgumentOutOfRangeException(nameof(modelType), "Неизвестный тип модели");
 			}
@@ -693,6 +701,7 @@ namespace TC_WinForms.WinForms
 			btnShowProtections.Tag = EModelType.Protection;
 			btnShowTools.Tag = EModelType.Tool;
 			btnShowWorkSteps.Tag = EModelType.WorkStep;
+			btnCoefficients.Tag = EModelType.Coefficient;
 		}
 
 		private void SaveAllChanges()
@@ -941,7 +950,8 @@ namespace TC_WinForms.WinForms
 			}
 		}
 
-		private List<(string, string)> CanTCDraftStatusChange()
+		private List<(string, string)> CanTCDraftStatusChange() 
+			// todo: произвести рефакторинг. много повторяющегося кода. Добавить описание. Дать отражающее суть название метода
 		{
 			List<(string, string)> nameOfUmpablishedElements = new List<(string, string)>();
 
@@ -1122,27 +1132,32 @@ namespace TC_WinForms.WinForms
 			//actionDescription, _tcId);
 		}
 
-		private void btnCoefficients_Click(object sender, EventArgs e)
+		private async void btnCoefficients_Click(object sender, EventArgs e)
 		{
-			if (_activeForm != null)
-			{
-				_activeForm.Hide();
-			}
+			LogUserAction("Отображение коэффициентов");
+			await ShowForm(EModelType.Coefficient);
 
-			// Create ElementHost
-			ElementHost host = new ElementHost
-			{
-				Dock = DockStyle.Fill
-			};
+			//if (_activeForm != null)
+			//{
+			//	_activeForm.Hide();
+			//}
 
-			// Load WPF UserControl
-			var coefficientEditor = new CoefficientEditor();
-			host.Child = coefficientEditor;
+			//// Create ElementHost
+			//ElementHost host = new ElementHost
+			//{
+			//	Dock = DockStyle.Fill
+			//};
 
-			// Add to WinForms Form
-			pnlDataViewer.Controls.Clear();
+			//// Load WPF UserControl
+			//var coefficientEditor = new CoefficientEditor();
+			//host.Child = coefficientEditor;
 
-			pnlDataViewer.Controls.Add(host);
+			//// Add to WinForms Form
+			//pnlDataViewer.Controls.Clear();
+
+			//pnlDataViewer.Controls.Add(host);
+
+
 		}
 	}
 

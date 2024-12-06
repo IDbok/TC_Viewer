@@ -32,6 +32,17 @@ public class Coefficient
 	[MaxLength(500)]
 	public string? Description { get; set; }
 
+	public int GetNumber()
+	{
+		// Возвращает номер коэффициента (его код, за исключением первого символа)
+
+		return int.Parse(Code.Substring(1));
+	}
+	public char GetLetter()
+	{
+		return Code[0];
+	}
+
 	public override string ToString()
 	{
 		return $"{Code}: {Value} ({ShortName})";

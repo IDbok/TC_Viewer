@@ -1566,7 +1566,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
         // Проверяем, была ли форма создана и не была ли закрыта
         if (_editForm == null || _editForm.IsDisposed)
         {
-            _editForm = new AddEditTechOperationForm(this);
+            _editForm = new AddEditTechOperationForm(this, _tcViewState);
         }
 
         // Выводим форму на передний план

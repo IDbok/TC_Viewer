@@ -17,7 +17,8 @@ namespace TC_WinForms.WinForms.Work
     public partial class AddEditTechOperationForm : Form
     {
         public TechOperationForm TechOperationForm { get; }
-        private List<TechOperation> allTO;
+        private readonly TcViewState _tcViewState;
+		private List<TechOperation> allTO;
         private List<TechTransition> allTP;
         private List<Staff> AllStaff;
         (int TOWID,int TOWOrder,int? EWID, int? EWOrder) highlightRowData; 
@@ -32,14 +33,15 @@ namespace TC_WinForms.WinForms.Work
             InitializeComponent();
         }
 
-        public AddEditTechOperationForm(TechOperationForm techOperationForm)
+        public AddEditTechOperationForm(TechOperationForm techOperationForm, TcViewState tcViewState)
         {
             Log.Information("Инициализация AddEditTechOperationForm для TechOperationForm");
 
             InitializeComponent();
             TechOperationForm = techOperationForm;
+			_tcViewState = tcViewState;
 
-            this.Text = $"{TechOperationForm.TehCarta.Name} ({TechOperationForm.TehCarta.Article}) - Редактор хода работ";
+			this.Text = $"{TechOperationForm.TehCarta.Name} ({TechOperationForm.TehCarta.Article}) - Редактор хода работ";
 
             Log.Information("Настройка событий DataGridView и ComboBox.");
             SetupEventHandlers();
@@ -582,14 +584,26 @@ namespace TC_WinForms.WinForms.Work
                             }
                             else
                             {
-                                expression = time + "*" + wor.Coefficient.Replace(',', '.');
+                                expression = time + "*(" + wor.Coefficient.Replace(',', '.') + ")"; 
                             }
-                            var bn = WorkParser.EvaluateExpression(expression); //ee.Evaluate();
+                            var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+
+                            double bn = 0;
+							if (coefDict.Count != 0)
+							{
+								bn = WorkParser.EvaluateExpression(expression, coefDict); //ee.Evaluate();
+							}
+                            else
+							{
+								bn = WorkParser.EvaluateExpression(expression); //ee.Evaluate();
+
+							}
                             wor.Value = Math.Round(bn, 2);//double.Parse(bn.ToString()), 2);
                         }
                         catch (Exception)
                         {
-                            wor.Value = -1;
+                            MessageBox.Show("Ошибка в формуле!", "Ошибка формулы!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+							wor.Value = -1;
                         }
 
 
