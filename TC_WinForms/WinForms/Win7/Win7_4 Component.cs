@@ -70,9 +70,10 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         _tcId = createdTCId;
         _newItemCreateActive = activateNewItemCreate;
         _isUpdateItemMode = isUpdateMode;// add to UpdateMode
-        dgvMain.DoubleBuffered(true);
 
         InitializeComponent();
+        dgvMain.DoubleBuffered(true);
+
     }
 
     private  void InitializeTip()
@@ -137,7 +138,10 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         _displayedObjects = await Task.Run(() => DataService.GetComponents() //dbCon.GetObjectList<Component>(includeLinks: true)
             .Select(obj => new DisplayedComponent(obj)).OrderBy(c => c.Name).ToList());
 
-        paginationService = new PaginationControlService<DisplayedComponent>(30, _displayedObjects);
+        if(!_isAddingForm) 
+            paginationService = new PaginationControlService<DisplayedComponent>(30, _displayedObjects);
+        else
+            paginationService = new PaginationControlService<DisplayedComponent>(_displayedObjects.Count, _displayedObjects);
 
         _selectionService = new SelectionService<DisplayedComponent>(dgvMain, _displayedObjects);
 

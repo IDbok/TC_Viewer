@@ -111,7 +111,10 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
         _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
             .Select(obj => new DisplayedMachine(obj)).OrderBy(c => c.Name).ToList());
 
-        paginationService = new PaginationControlService<DisplayedMachine>(30, _displayedObjects.OrderBy(c => c.Name).ToList());
+        if (!_isAddingForm)
+            paginationService = new PaginationControlService<DisplayedMachine>(30, _displayedObjects.OrderBy(c => c.Name).ToList());
+        else
+            paginationService = new PaginationControlService<DisplayedMachine>(_displayedObjects.Count, _displayedObjects.OrderBy(c => c.Name).ToList());
 
         _selectionService = new SelectionService<DisplayedMachine>(dgvMain, _displayedObjects);
 

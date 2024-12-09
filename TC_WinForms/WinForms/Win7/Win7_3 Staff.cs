@@ -135,7 +135,11 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
         _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Staff>(includeRelatedStaffs: true) //.Where(obj => obj.IsReleased == true)
             .Select(obj => new DisplayedStaff(obj)).OrderBy(c => c.Name).ToList());
 
-        paginationService = new PaginationControlService<DisplayedStaff>(15, _displayedObjects);
+        if (!_isAddingForm)
+            paginationService = new PaginationControlService<DisplayedStaff>(15, _displayedObjects);
+        else
+            paginationService = new PaginationControlService<DisplayedStaff>(_displayedObjects.Count, _displayedObjects);
+
 
         _selectionService = new SelectionService<DisplayedStaff>(dgvMain, _displayedObjects);
 
