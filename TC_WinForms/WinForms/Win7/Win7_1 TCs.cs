@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Serilog;
 using System.ComponentModel;
@@ -11,8 +12,10 @@ using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
+using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
+using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
 
@@ -38,7 +41,7 @@ namespace TC_WinForms.WinForms
 
         private bool isFiltered = false;
 
-        public string setSearch { get => txtSearch.Text;}
+        public string setSearch { get => txtSearch.Text; }
 
         PaginationControlService<DisplayedTechnologicalCard> paginationService;
 
@@ -197,7 +200,7 @@ namespace TC_WinForms.WinForms
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
 
                 var openedForm = CheckOpenFormService.FindOpenedForm<Win6_new>(id);
-                
+
                 if (openedForm != null)
                 {
                     openedForm.BringToFront();
@@ -297,7 +300,7 @@ namespace TC_WinForms.WinForms
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
 
         ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
 
@@ -371,7 +374,7 @@ namespace TC_WinForms.WinForms
                 MessageBox.Show("Выберите одну карту для редактирования.");
             }
         }
-        
+
         private void DeleteSelected()
         {
             if (dgvMain.SelectedRows.Count > 0)
@@ -931,7 +934,116 @@ namespace TC_WinForms.WinForms
                 : width;
         }
 
+        private async Task<TechnologicalCard> GetTCDataAsync(int _tcId)
+        {
 
+            try
+            {
+                using (MyDbContext context = new MyDbContext())
+                {
+                    var techCard = await context.TechnologicalCards
+                        .FirstAsync(t => t.Id == _tcId);
+
+
+                    // 2. Загружаем все связанные данные отдельными запросами
+
+                    // Machine_TCs
+                    var machineTcs = await context.Machine_TCs
+                        .Where(m => m.ParentId == _tcId)
+                        .ToListAsync();
+
+                    //// Protection_TCs
+                    var protectionTcs = await context.Protection_TCs
+                        .Where(pt => pt.ParentId == _tcId)
+                        .ToListAsync();
+
+                    // Tool_TCs
+                    var toolTcs = await context.Tool_TCs
+                        .Where(tt => tt.ParentId == _tcId)
+                        .ToListAsync();
+
+                    // Component_TCs
+                    var componentTcs = await context.Component_TCs
+                        .Where(ct => ct.ParentId == _tcId)
+                        .ToListAsync();
+
+                    // Staff_TCs
+                    var staffTcs = await context.Staff_TCs
+                        .Where(st => st.ParentId == _tcId)
+                        .ToListAsync();
+
+                    return techCard;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+
+            }
+        }
+
+        private async Task<List<TechOperationWork>> GetTOWDataAsync(int _tcId)
+        {
+            using (MyDbContext context = new MyDbContext())
+            {
+                var techOperationWorkList = await context.TechOperationWorks.Where(w => w.TechnologicalCardId == _tcId)
+                    .ToListAsync();
+
+                //список ID Технологических операций
+                var towIds = techOperationWorkList.Select(t => t.Id).ToList();
+
+                //Получаем список всех компонентов которые принадлежат карте
+                var componentWorks = await context.ComponentWorks.Where(c => towIds.Any(o => o == c.techOperationWorkId))
+                    .ToListAsync();
+
+                //Получаем список всех инструментов, которые принадлежат карте
+                var toolWorks = await context.ToolWorks.Where(c => towIds.Any(o => o == c.techOperationWorkId))
+                    .ToListAsync();
+
+                var executionWorks = await
+                    context.ExecutionWorks.Where(e => towIds.Any(o => o == e.techOperationWorkId))
+                                            .Include(e => e.Protections)
+                                            .Include(e => e.Machines)
+                                            .Include(e => e.Staffs)
+                                            .Include(e => e.ExecutionWorkRepeats).ThenInclude(e => e.ChildExecutionWork)
+                                            .ToListAsync();
+
+
+                return techOperationWorkList;
+            }
+        }
+
+        private async Task<List<DiagamToWork>> GetDTWDataAsync(int _tcId)
+        {
+
+            using (MyDbContext context = new MyDbContext())
+            {
+                
+                var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == _tcId)
+                                                                            .Include(ie => ie.techOperationWork)
+                                                                            .ToListAsync();
+
+
+                var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
+                                                                            .ToListAsync();
+
+                var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
+                    .ToListAsync();
+
+                var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
+                    .Include(q => q.ListDiagramShagToolsComponent)
+                        .ThenInclude(e => e.toolWork)
+                     .Include(q => q.ListDiagramShagToolsComponent)
+                        .ThenInclude(e => e.componentWork)
+                    .ToListAsync();
+
+                return diagramToWorkList;
+                
+            }
+        }
 
         public void GoToNextPage()
         {
@@ -943,14 +1055,67 @@ namespace TC_WinForms.WinForms
         {
             paginationService.GoToPreviousPage();
             UpdateDisplayedData();
-            
+
         }
 
         private void Win7_1_TCs_SizeChanged(object sender, EventArgs e)
         {
             dgvMain.ResizeRows(_minRowHeight);
         }
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.SelectedRows.Count == 1)
+            {
+                var selectedObj = dgvMain.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
+                var objId = Convert.ToInt32(selectedObj?.Cells["Id"].Value);
+
+                if (objId != 0)
+                {
+                    var card = await GetTCDataAsync(objId);
+                    var TOWList = await GetTOWDataAsync(objId);
+                    var newCard = card.DeepCopyTC(card);
+                    newCard.Article += "(copy)";
+
+                    card.TechOperationWorks.AddRange(TOWList);
+                    card.DiagamToWork = await GetDTWDataAsync(objId);
+
+                    foreach (var item in TOWList)
+                    {
+                        var newTOW = item.DeepCopyTOW(item);
+                        newCard.TechOperationWorks.Add(newTOW);
+
+                        foreach (var exItem in item.executionWorks)
+                        {
+                            var newEx = exItem.DeepCopyEW(exItem, newCard);
+                            newTOW.executionWorks.Add(newEx);
+                        }
+                    }
+
+                    foreach (var item in card.DiagamToWork)
+                    {
+                        var newDTW = item.DeepCopyDTW(item, newCard);
+                        newCard.DiagamToWork.Add(newDTW);
+                    }
+
+                    using (MyDbContext dbContext = new MyDbContext())//
+                    {
+                        dbContext.TechnologicalCards.Add(newCard);
+                        dbContext.SaveChanges();
+                    }
+                    MessageBox.Show("Карта скопированна.");
+                }
+                else
+                {
+                    MessageBox.Show("Карта ещё не добавлена в БД.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Выберите одну карту для редактирования.");
+            }
+        }
     }
 
-    
+
 }
