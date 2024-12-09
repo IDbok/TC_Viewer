@@ -51,7 +51,8 @@ namespace TcModels.Models
                         .ForMember(dest => dest.techOperationWorkId, opt => opt.Ignore())
                         .ForMember(dest => dest.Staffs, opt => opt.Ignore())
                         .ForMember(dest => dest.Protections, opt => opt.Ignore())
-                        .ForMember(dest => dest.Machines, opt => opt.Ignore());
+                        .ForMember(dest => dest.Machines, opt => opt.Ignore())
+                        .ForMember(dest => dest.ExecutionWorkRepeats, opt => opt.Ignore());
         }
 
         public void TCProfile()

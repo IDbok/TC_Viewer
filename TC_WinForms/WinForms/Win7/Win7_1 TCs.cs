@@ -1008,7 +1008,7 @@ namespace TC_WinForms.WinForms
                                             .Include(e => e.Protections)
                                             .Include(e => e.Machines)
                                             .Include(e => e.Staffs)
-                                            //.Include(e => e.ExecutionWorkRepeats)
+                                            .Include(e => e.ExecutionWorkRepeats).ThenInclude(e => e.ChildExecutionWork)
                                             .ToListAsync();
 
 

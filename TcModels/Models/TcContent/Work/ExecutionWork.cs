@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent
@@ -94,6 +95,32 @@ namespace TcModels.Models.TcContent
             newExecutionWork.Staffs.AddRange(currentStaffs);
             newExecutionWork.Protections.AddRange(currentProtections);
             newExecutionWork.Machines.AddRange(currentMachines);
+
+            if (sourceExecutionWork.Repeat)
+            {
+                var repeats = sourceExecutionWork.ExecutionWorkRepeats.Select(e => e.ChildExecutionWork).ToList();
+                var techOperationWorks = repeats.Select(e => e.techOperationWork).Distinct().ToList();
+                
+                foreach (var tow in techOperationWorks)
+                {
+                    var currentTow = newtechnologicalCard.TechOperationWorks.Where(e => e.techOperationId == tow.techOperationId && e.Order == tow.Order).FirstOrDefault()?.executionWorks.ToList();
+                    //var currentExecutionWorks = currentTow.executionWorks.ToList();
+
+                    var repeatsA = currentTow.Where(e => repeats.Exists(ex => ex.techTransitionId == e.techTransitionId && ex.Order == e.Order && ex.techOperationWorkId == tow.Id)).ToList();
+
+                    foreach (var repeat in repeatsA)
+                    {
+                        var newExecutionWorkRepeat = new ExecutionWorkRepeat
+                        {
+                            ChildExecutionWorkId = repeat.Id,
+                            ChildExecutionWork = repeat,
+                            ParentExecutionWork = newExecutionWork,
+                            ParentExecutionWorkId = newExecutionWork.Id,
+                        };
+                        newExecutionWork.ExecutionWorkRepeats.Add(newExecutionWorkRepeat);
+                    }
+                }
+            }
 
             return newExecutionWork;
         }
