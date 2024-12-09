@@ -57,6 +57,18 @@ public partial class CoefficientEditorForm : Form
 		}
 
 		// найти максимум из всех номеров коэффициентов
+		int newNum = GetNextCoefficientNumber();
+
+		var newCode = "Q" + (newNum);
+		var newC = new Coefficient { TechnologicalCardId = _tcId, Code = newCode };
+		_coefficients.Add(newC);
+		_bindingSource.ResetBindings(false);
+
+		Debug.WriteLine($"Номер коэффициента: {newC.GetNumber()}");
+	}
+
+	private int GetNextCoefficientNumber()
+	{
 		var allNumbers = _coefficients.Select(c => c.GetNumber()).ToList();
 		var maxCfNumber = allNumbers.Max();
 		var newNum = 0;
@@ -78,45 +90,7 @@ public partial class CoefficientEditorForm : Form
 			newNum = maxCfNumber + 1;
 		}
 
-		var newCode = "Q" + (newNum);
-		var newC = new Coefficient { TechnologicalCardId = _tcId, Code = newCode };
-		_coefficients.Add(newC);
-		_bindingSource.ResetBindings(false);
-
-		Debug.WriteLine($"Номер коэффициента: {newC.GetNumber()}");
-	}
-
-	private async void CoefficientEditorForm_Load(object sender, EventArgs e)
-	{
-		//_coefficients = await _context.Coefficients.Where(c => c.TechnologicalCardId == _tcId).ToListAsync();
-
-		//InitializeData();
-	}
-
-	private void dgvCoefficients_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-	{
-		var row = dgvCoefficients.Rows[e.RowIndex];
-		var cell = row.Cells[e.ColumnIndex];
-		var coefficient = row.DataBoundItem as Coefficient;
-
-		if (coefficient == null) return;
-
-		// Получаем имя свойства, связанного с редактируемой колонкой
-		var propertyName = dgvCoefficients.Columns[e.ColumnIndex].DataPropertyName;
-
-		// Список для хранения ошибок
-		var validationResults = new List<ValidationResult>();
-		var validationContext = new ValidationContext(coefficient) { MemberName = propertyName };
-
-		// Проверка объекта на соответствие атрибутам
-		if (!TryValidateWithRollback(coefficient, propertyName, cell.Value, out var errorMessage))
-		{
-			MessageBox.Show(errorMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			cell.Value = _previousCellValue;
-		}
-
-		// Обновляем привязку данных при успешной валидации
-		_bindingSource.ResetBindings(false);
+		return newNum;
 	}
 
 	private object _previousCellValue;
@@ -140,9 +114,18 @@ public partial class CoefficientEditorForm : Form
 		var context = new ValidationContext(obj) { MemberName = propertyName };
 		var results = new List<ValidationResult>();
 
-		if (!Validator.TryValidateProperty(propertyValue, context, results))
+				// Попытка валидации свойства
+		try
 		{
-			errorMessage = string.Join("\n", results.Select(r => r.ErrorMessage));
+			if (!Validator.TryValidateProperty(propertyValue, context, results))
+			{
+				errorMessage = string.Join("\n", results.Select(r => r.ErrorMessage));
+				return false;
+			}
+		}
+		catch (Exception ex)
+		{
+			errorMessage = $"Ошибка валидации: {ex.Message}";
 			return false;
 		}
 
@@ -150,42 +133,42 @@ public partial class CoefficientEditorForm : Form
 		return true;
 	}
 
-	private void dgvCoefficients_DataError(object sender, DataGridViewDataErrorEventArgs e)
-	{
-		//// Обработка конкретного типа ошибок
-		//if (e.Context == DataGridViewDataErrorContexts.Commit ||
-		//	e.Context == DataGridViewDataErrorContexts.CurrentCellChange)
-		//{
-		//	e.ThrowException = false;
-		//}
-		//else
-		//{
-		//	// Логирование других ошибок
-		//	_logger.Error(e.Exception, "Ошибка в dgvCoefficients");
-		//	MessageBox.Show("Произошла ошибка: " + e.Exception.Message);
-		//}
-	}
-
 	private void dgvCoefficients_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
 	{
-		//if (dgvCoefficients.Columns[e.ColumnIndex].Name == "Значение")
-		//{
-		//	if (string.IsNullOrWhiteSpace(e.FormattedValue.ToString()))
-		//	{
-		//		// установить значение в ноль
+		var cell = dgvCoefficients.Rows[e.RowIndex].Cells[e.ColumnIndex];
+		var coefficient = dgvCoefficients.Rows[e.RowIndex].DataBoundItem as Coefficient;
 
-		//		var row = dgvCoefficients.Rows[e.RowIndex];
-		//		var cell = row.Cells[e.ColumnIndex];
-		//		cell.Value = 0;
+		if (coefficient == null) return;
 
-		//		MessageBox.Show("Значение не может быть пустым!");
-		//	}
-		//	else if (!double.TryParse(e.FormattedValue.ToString(), out _))
-		//	{
-		//		e.Cancel = true;
-		//		MessageBox.Show("Введите корректное числовое значение!");
+		// Получаем имя свойства, связанного с редактируемой колонкой
+		var propertyName = dgvCoefficients.Columns[e.ColumnIndex].DataPropertyName;
+		var propertyValue = e.FormattedValue;
 
-		//	}
-		//}
+		// Проверяем числовые поля
+		if (propertyName == nameof(Coefficient.Value))
+		{
+			if (propertyValue == null || !double.TryParse(propertyValue.ToString(), out double parsedValue))
+			{
+				MessageBox.Show("Значение коэффициента должно быть числом.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+				// установка нулегового значения
+				e.Cancel = true;
+				cell.Value = _previousCellValue;
+
+				return;
+			}
+			propertyValue = parsedValue;
+		}
+
+		// Выполняем валидацию
+		if (!TryValidateWithRollback(coefficient, propertyName, propertyValue, out var errorMessage))
+		{
+			// Показываем сообщение об ошибке
+			MessageBox.Show(errorMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			// Отменяем изменение
+			e.Cancel = true;
+
+		}
 	}
+
 }

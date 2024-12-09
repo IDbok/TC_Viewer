@@ -66,9 +66,7 @@
 			dgvCoefficients.Size = new Size(1214, 386);
 			dgvCoefficients.TabIndex = 0;
 			dgvCoefficients.CellBeginEdit += dgvCoefficients_CellBeginEdit;
-			dgvCoefficients.CellEndEdit += dgvCoefficients_CellEndEdit;
 			dgvCoefficients.CellValidating += dgvCoefficients_CellValidating;
-			dgvCoefficients.DataError += dgvCoefficients_DataError;
 			// 
 			// idDataGridViewTextBoxColumn
 			// 
@@ -152,7 +150,6 @@
 			Controls.Add(dgvCoefficients);
 			Name = "CoefficientEditorForm";
 			Text = "CoefficientEditorForm";
-			Load += CoefficientEditorForm_Load;
 			((System.ComponentModel.ISupportInitialize)dgvCoefficients).EndInit();
 			((System.ComponentModel.ISupportInitialize)coefficientBindingSource).EndInit();
 			ResumeLayout(false);
