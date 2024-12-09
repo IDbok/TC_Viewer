@@ -92,7 +92,7 @@ namespace TC_WinForms.WinForms
         {
             foreach (var obj in newObjs)
             {
-                var newObj_TC = CreateNewObject(obj, _bindingList.Count + 1);
+                var newObj_TC = CreateNewObject(obj, _bindingList.Select(o => o.Order).Max() + 1);
                 var protection = context.Protections.Where(s => s.Id == newObj_TC.ChildId).First();
 
                 context.Protections.Attach(protection);

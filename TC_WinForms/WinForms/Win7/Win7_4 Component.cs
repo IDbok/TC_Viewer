@@ -70,10 +70,11 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         _tcId = createdTCId;
         _newItemCreateActive = activateNewItemCreate;
         _isUpdateItemMode = isUpdateMode;// add to UpdateMode
-        dgvMain.DoubleBuffered(true);
 
         InitializeComponent();
-    }
+
+		dgvMain.DoubleBuffered(true);
+	}
 
     private  void InitializeTip()
     {
