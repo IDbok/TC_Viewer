@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,9 @@ namespace TcModels.Models
                     break;
                 case 2:
                     EWProfile();
+                    break;
+                case 3:
+                    DTWProfile();
                     break;
             }
         }
@@ -74,7 +78,43 @@ namespace TcModels.Models
                         .ForMember(dest => dest.ParentId, opt => opt.Ignore());
 
             CreateMap<TechnologicalCard, TechnologicalCard>()
-                            .ForMember(dest => dest.Id, opt => opt.Ignore());
+                        .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        .ForMember(dest => dest.DiagamToWork, opt => opt.Ignore());
+        }
+
+        public void DTWProfile()
+        {
+            CreateMap<DiagamToWork, DiagamToWork>()
+                        .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        .ForMember(dest => dest.technologicalCardId, opt => opt.Ignore())
+                        .ForMember(dest => dest.techOperationWorkId, opt => opt.Ignore())
+                        .ForMember(dest => dest.techOperationWork, opt => opt.Ignore());
+
+            CreateMap<DiagramParalelno, DiagramParalelno>()
+                        .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        .ForMember(dest => dest.DiagamToWorkId, opt => opt.Ignore())
+                        .ForMember(dest => dest.techOperationWorkId, opt => opt.Ignore())
+                        .ForMember(dest => dest.techOperationWork, opt => opt.Ignore());
+
+
+            CreateMap<DiagramPosledov, DiagramPosledov>()
+                        .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        .ForMember(dest => dest.DiagramParalelnoId, opt => opt.Ignore());
+
+            CreateMap<DiagramShag, DiagramShag>()
+                        .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        .ForMember(dest => dest.DiagramPosledovId, opt => opt.Ignore());
+                        //.ForMember(dest => dest.ListDiagramShagToolsComponent, opt => opt.Ignore());
+
+
+            CreateMap<DiagramShagToolsComponent, DiagramShagToolsComponent>()
+                        .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        //.ForMember(dest => dest.componentWorkId, opt => opt.Ignore())
+                        //.ForMember(dest => dest.componentWork, opt => opt.Ignore())
+                        //.ForMember(dest => dest.toolWorkId, opt => opt.Ignore())
+                        //.ForMember(dest => dest.toolWork, opt => opt.Ignore())
+                        .ForMember(dest => dest.DiagramShagId, opt => opt.Ignore());
+
         }
     }
 }

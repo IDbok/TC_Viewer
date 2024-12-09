@@ -1016,6 +1016,35 @@ namespace TC_WinForms.WinForms
             }
         }
 
+        private async Task<List<DiagamToWork>> GetDTWDataAsync(int _tcId)
+        {
+
+            using (MyDbContext context = new MyDbContext())
+            {
+                
+                var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == _tcId)
+                                                                            .Include(ie => ie.techOperationWork)
+                                                                            .ToListAsync();
+
+
+                var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
+                                                                            .ToListAsync();
+
+                var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
+                    .ToListAsync();
+
+                var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
+                    .Include(q => q.ListDiagramShagToolsComponent)
+                        .ThenInclude(e => e.toolWork)
+                     .Include(q => q.ListDiagramShagToolsComponent)
+                        .ThenInclude(e => e.componentWork)
+                    .ToListAsync();
+
+                return diagramToWorkList;
+                
+            }
+        }
+
         public void GoToNextPage()
         {
             paginationService.GoToNextPage();
@@ -1049,6 +1078,7 @@ namespace TC_WinForms.WinForms
                     newCard.Article += "(copy)";
 
                     card.TechOperationWorks.AddRange(TOWList);
+                    card.DiagamToWork = await GetDTWDataAsync(objId);
 
                     foreach (var item in TOWList)
                     {
@@ -1060,6 +1090,12 @@ namespace TC_WinForms.WinForms
                             var newEx = exItem.DeepCopyEW(exItem, newCard);
                             newTOW.executionWorks.Add(newEx);
                         }
+                    }
+
+                    foreach (var item in card.DiagamToWork)
+                    {
+                        var newDTW = item.DeepCopyDTW(item, newCard);
+                        newCard.DiagamToWork.Add(newDTW);
                     }
 
                     using (MyDbContext dbContext = new MyDbContext())//
