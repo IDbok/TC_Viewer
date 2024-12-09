@@ -105,7 +105,10 @@ namespace TC_WinForms.WinForms
             _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Protection>(includeLinks: true)
                 .Select(obj => new DisplayedProtection(obj)).OrderBy(c => c.Name).ToList());
 
-            paginationService = new PaginationControlService<DisplayedProtection>(30, _displayedObjects);
+            if(!_isAddingForm)
+                paginationService = new PaginationControlService<DisplayedProtection>(30, _displayedObjects);
+            else
+                paginationService = new PaginationControlService<DisplayedProtection>(_displayedObjects.Count, _displayedObjects);
 
             _selectionService = new SelectionService<DisplayedProtection>(dgvMain, _displayedObjects);
 

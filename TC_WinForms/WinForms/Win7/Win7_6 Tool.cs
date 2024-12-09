@@ -109,7 +109,10 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
         _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Tool>(includeLinks: true)
             .Select(obj => new DisplayedTool(obj)).OrderBy(c => c.Name).ToList());
 
-        paginationService = new PaginationControlService<DisplayedTool>(30, _displayedObjects);
+        if (!_isAddingForm)
+            paginationService = new PaginationControlService<DisplayedTool>(30, _displayedObjects);
+        else
+            paginationService = new PaginationControlService<DisplayedTool>(_displayedObjects.Count, _displayedObjects);
 
         _selectionService = new SelectionService<DisplayedTool>(dgvMain, _displayedObjects);
 
