@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using TcModels.Models.Helpers;
 
 namespace TcModels.Models.TcContent;
 
@@ -16,20 +17,22 @@ public class Coefficient
 	public TechnologicalCard TechnologicalCard { get; set; }
 
 	// Шифр коэффициента
-	[Required]
-	[MaxLength(3)]
+	[Required(ErrorMessage = "Код коэффициента обязателен")]
+	[MaxLength(3, ErrorMessage = "Код коэффициента не должен превышать 3 символов")]
+	[FirstLetter('Q')]
+	[NumericTail(ErrorMessage = "Все символы после первого должны быть цифрами.")]
 	public string Code { get; set; }
 
 	// Значение коэффициента
-	[Required]
+	[Required(ErrorMessage = "Значение коэффициента обязательно")]
 	public double Value { get; set; }
 
-	// Краткое название
-	[MaxLength(100)]
+	// Наименование
+	[MaxLength(100, ErrorMessage = "Наименование не должно превышать 100 символов")]
 	public string? ShortName { get; set; }
 
 	// Описание коэффициента
-	[MaxLength(500)]
+	[MaxLength(500, ErrorMessage = "Описание не должно превышать 500 символов")]
 	public string? Description { get; set; }
 
 	public int GetNumber()

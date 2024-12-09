@@ -31,8 +31,6 @@
 			components = new System.ComponentModel.Container();
 			DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
 			dgvCoefficients = new DataGridView();
-			coefficientBindingSource = new BindingSource(components);
-			btnAddCoefficient = new Button();
 			idDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
 			technologicalCardIdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
 			technologicalCardDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
@@ -40,6 +38,8 @@
 			valueDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
 			shortNameDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
 			descriptionDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+			coefficientBindingSource = new BindingSource(components);
+			btnAddCoefficient = new Button();
 			((System.ComponentModel.ISupportInitialize)dgvCoefficients).BeginInit();
 			((System.ComponentModel.ISupportInitialize)coefficientBindingSource).BeginInit();
 			SuspendLayout();
@@ -65,21 +65,10 @@
 			dgvCoefficients.RowHeadersWidth = 62;
 			dgvCoefficients.Size = new Size(1214, 386);
 			dgvCoefficients.TabIndex = 0;
+			dgvCoefficients.CellBeginEdit += dgvCoefficients_CellBeginEdit;
 			dgvCoefficients.CellEndEdit += dgvCoefficients_CellEndEdit;
-			// 
-			// coefficientBindingSource
-			// 
-			coefficientBindingSource.DataSource = typeof(TcModels.Models.TcContent.Coefficient);
-			// 
-			// btnAddCoefficient
-			// 
-			btnAddCoefficient.Location = new Point(12, 404);
-			btnAddCoefficient.Name = "btnAddCoefficient";
-			btnAddCoefficient.Size = new Size(218, 34);
-			btnAddCoefficient.TabIndex = 1;
-			btnAddCoefficient.Text = "Добавить";
-			btnAddCoefficient.UseVisualStyleBackColor = true;
-			btnAddCoefficient.Click += btnAddCoefficient_Click;
+			dgvCoefficients.CellValidating += dgvCoefficients_CellValidating;
+			dgvCoefficients.DataError += dgvCoefficients_DataError;
 			// 
 			// idDataGridViewTextBoxColumn
 			// 
@@ -139,6 +128,20 @@
 			descriptionDataGridViewTextBoxColumn.HeaderText = "Описание";
 			descriptionDataGridViewTextBoxColumn.MinimumWidth = 8;
 			descriptionDataGridViewTextBoxColumn.Name = "descriptionDataGridViewTextBoxColumn";
+			// 
+			// coefficientBindingSource
+			// 
+			coefficientBindingSource.DataSource = typeof(TcModels.Models.TcContent.Coefficient);
+			// 
+			// btnAddCoefficient
+			// 
+			btnAddCoefficient.Location = new Point(12, 404);
+			btnAddCoefficient.Name = "btnAddCoefficient";
+			btnAddCoefficient.Size = new Size(218, 34);
+			btnAddCoefficient.TabIndex = 1;
+			btnAddCoefficient.Text = "Добавить";
+			btnAddCoefficient.UseVisualStyleBackColor = true;
+			btnAddCoefficient.Click += btnAddCoefficient_Click;
 			// 
 			// CoefficientEditorForm
 			// 
