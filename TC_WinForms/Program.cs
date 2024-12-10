@@ -53,7 +53,18 @@ namespace TC_WinForms
 
             try
             {
-                Log.Information("Application started");
+#if DEBUG
+				// Очистить таблицу блокировок в БД перед запуском в режиме debug
+				using (var context = new MyDbContext())
+				{
+                    var blockedConcurrencyObjects = context.BlockedConcurrencyObjects.ToList();
+					context.BlockedConcurrencyObjects.RemoveRange(blockedConcurrencyObjects);
+                    context.SaveChanges();
+				}
+
+#endif
+
+				Log.Information("Application started");
                 ApplicationStart();
             }
             catch (Exception ex)
