@@ -79,6 +79,7 @@ namespace TcModels.Models
 
             CreateMap<TechnologicalCard, TechnologicalCard>()
                         .ForMember(dest => dest.Id, opt => opt.Ignore())
+                        .ForMember(dest => dest.TechOperationWorks, opt => opt.Ignore())
                         .ForMember(dest => dest.DiagamToWork, opt => opt.Ignore());
         }
 
