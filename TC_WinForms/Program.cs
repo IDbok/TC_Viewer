@@ -53,17 +53,6 @@ namespace TC_WinForms
 
             try
             {
-#if DEBUG
-				// Очистить таблицу блокировок в БД перед запуском в режиме debug
-				using (var context = new MyDbContext())
-				{
-                    var blockedConcurrencyObjects = context.BlockedConcurrencyObjects.ToList();
-					context.BlockedConcurrencyObjects.RemoveRange(blockedConcurrencyObjects);
-                    context.SaveChanges();
-				}
-
-#endif
-
 				Log.Information("Application started");
                 ApplicationStart();
             }
@@ -105,7 +94,18 @@ namespace TC_WinForms
                 throw new Exception("Строка подключения к БД не найдена в файле конфигурации.");
             }
 
-            bool isFirstRun = configuration.GetValue<bool>("IsFirstRun");
+#if DEBUG
+			// Очистить таблицу блокировок в БД перед запуском в режиме debug
+			using (var context = new MyDbContext())
+			{
+				var blockedConcurrencyObjects = context.BlockedConcurrencyObjects.ToList();
+				context.BlockedConcurrencyObjects.RemoveRange(blockedConcurrencyObjects);
+				context.SaveChanges();
+			}
+
+#endif
+
+			bool isFirstRun = configuration.GetValue<bool>("IsFirstRun");
 
             if (isFirstRun)
             {
