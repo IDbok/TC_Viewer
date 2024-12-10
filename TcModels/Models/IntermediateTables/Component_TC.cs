@@ -67,6 +67,7 @@ namespace TcModels.Models.IntermediateTables
                 Order = sourceCard.Order;
                 Quantity = sourceCard.Quantity;
                 Note = sourceCard.Note;
+                Formula = sourceCard.Formula;
             }
         }
 

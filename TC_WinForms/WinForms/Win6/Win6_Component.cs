@@ -73,12 +73,14 @@ namespace TC_WinForms.WinForms
 
             // make columns editable
             dgvMain.Columns[nameof(DisplayedComponent_TC.Order)].ReadOnly = _tcViewState.IsViewMode;
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].ReadOnly = _tcViewState.IsViewMode;
+			dgvMain.Columns[nameof(DisplayedComponent_TC.Formula)].ReadOnly = _tcViewState.IsViewMode;
+			dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].ReadOnly = _tcViewState.IsViewMode;
             dgvMain.Columns[nameof(DisplayedComponent_TC.Note)].ReadOnly = _tcViewState.IsViewMode;
 
 
             dgvMain.Columns[nameof(DisplayedComponent_TC.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+			dgvMain.Columns[nameof(DisplayedComponent_TC.Formula)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+			dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
             dgvMain.Columns[nameof(DisplayedComponent_TC.Note)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 
             // update form
@@ -152,7 +154,8 @@ namespace TC_WinForms.WinForms
                 { nameof(DisplayedComponent_TC.Type), 4*pixels },
                 { nameof(DisplayedComponent_TC.Unit), 2*pixels },
                 { nameof(DisplayedComponent_TC.TotalPrice), 3*pixels },
-                { nameof(DisplayedComponent_TC.Quantity), 3*pixels },
+				{ nameof(DisplayedComponent_TC.Formula), 3*pixels },
+				{ nameof(DisplayedComponent_TC.Quantity), 3*pixels },
                 { nameof(DisplayedComponent_TC.ChildId), 2*pixels },
 
             };
@@ -174,6 +177,7 @@ namespace TC_WinForms.WinForms
             {
                 nameof(DisplayedComponent_TC.Order),
                 nameof(DisplayedComponent_TC.Quantity),
+                nameof(DisplayedComponent_TC.Formula),
                 nameof(DisplayedComponent_TC.Note),
             };
             foreach (var column in changeableColumn)
@@ -253,7 +257,8 @@ namespace TC_WinForms.WinForms
                 Order = dObj.Order,
                 Quantity = dObj.Quantity ?? 0,
                 Note = dObj.Note,
-            };
+                Formula = dObj.Formula,
+			};
         }
         private Component_TC CreateNewObject(Component obj, int order)
         {
@@ -265,7 +270,7 @@ namespace TC_WinForms.WinForms
                 Order = order,
                 Quantity = 0,
                 Note = "",
-            };
+			};
         }
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
@@ -333,23 +338,24 @@ namespace TC_WinForms.WinForms
             public Dictionary<string, string> GetPropertiesNames()
             {
                 return new Dictionary<string, string>
-            {
-                { nameof(ChildId), "ID" },
-                { nameof(ParentId), "ID тех. карты" },
-                { nameof(Order), "№" },
-                { nameof(Quantity), "Кол-во" },
-                { nameof(Note), "Примечание" },
+                {
+                    { nameof(ChildId), "ID" },
+                    { nameof(ParentId), "ID тех. карты" },
+                    { nameof(Order), "№" },
+                    { nameof(Quantity), "Кол-во" },
+				    { nameof(Formula), "Формула" },
+				    { nameof(Note), "Примечание" },
 
-                { nameof(Name), "Наименование" },
-                { nameof(Type), "Тип (исполнение)" },
-                { nameof(Unit), "Ед.изм." },
-                { nameof(Price), "Стоимость за ед., руб. без НДС" },
-                { nameof(TotalPrice), "Стоимость, руб. без НДС" },
-                { nameof(Description), "Описание" },
-                { nameof(Manufacturer), "Производители (поставщики)" },
-                { nameof(Categoty), "Категория" },
-                { nameof(ClassifierCode), "Код в classifier" },
-            };
+                    { nameof(Name), "Наименование" },
+                    { nameof(Type), "Тип (исполнение)" },
+                    { nameof(Unit), "Ед.изм." },
+                    { nameof(Price), "Стоимость за ед., руб. без НДС" },
+                    { nameof(TotalPrice), "Стоимость, руб. без НДС" },
+                    { nameof(Description), "Описание" },
+                    { nameof(Manufacturer), "Производители (поставщики)" },
+                    { nameof(Categoty), "Категория" },
+                    { nameof(ClassifierCode), "Код в classifier" },
+                };
             }
             public List<string> GetPropertiesOrder()
             {
@@ -360,8 +366,9 @@ namespace TC_WinForms.WinForms
                     nameof(Name),
                     nameof(Type),
                     nameof(Unit),
-                    nameof(Quantity),
-                    nameof(TotalPrice),
+					nameof(Formula),
+					nameof(Quantity),
+					nameof(TotalPrice),
                     nameof(Note),
                     nameof(ChildId),
 
@@ -391,6 +398,8 @@ namespace TC_WinForms.WinForms
             private double quantity;
             private string? note;
 
+            private string? formula;
+
             public DisplayedComponent_TC()
             {
 
@@ -406,7 +415,8 @@ namespace TC_WinForms.WinForms
 
                 Unit = obj.Child.Unit;
                 Quantity = obj.Quantity;
-                Price = obj.Child.Price ?? 0;
+				Formula = obj.Formula;
+				Price = obj.Child.Price ?? 0;
                 Description = obj.Child.Description;
                 Manufacturer = obj.Child.Manufacturer;
                 Categoty = obj.Child.Categoty;
@@ -447,7 +457,22 @@ namespace TC_WinForms.WinForms
                     }
                 }
             }
-            public string? Note
+
+			public string? Formula
+			{
+				get => formula;
+				set
+				{
+					if (formula != value)
+					{
+						formula = value;
+						OnPropertyChanged(nameof(Formula));
+					}
+					// todo:  пересчёт количества по формуле
+				}
+			}
+
+			public string? Note
             {
                 get => note;
                 set
