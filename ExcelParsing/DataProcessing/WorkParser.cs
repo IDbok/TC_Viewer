@@ -1736,8 +1736,10 @@ public class WorkParser
     // ключами которого являются имена переменных, а значениями - их значения.
     public static double EvaluateExpression(string expression, Dictionary<string, double> variables)
     {
-        // Создаем новое выражение
-        Expression e = new Expression(expression);
+		var formattedExpression = expression.Replace(',', '.');
+
+		// Создаем новое выражение
+		Expression e = new Expression(formattedExpression);
 
         // Извлекаем список переменных из выражения
         var parameters = new List<string>();
@@ -1745,7 +1747,7 @@ public class WorkParser
         // Регулярное выражение для поиска идентификаторов (переменных)
         Regex regex = new Regex(@"[a-zA-Z_]\w*");
 
-        MatchCollection matches = regex.Matches(expression);
+        MatchCollection matches = regex.Matches(formattedExpression);
 
         foreach (Match match in matches)
         {

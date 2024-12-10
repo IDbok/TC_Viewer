@@ -568,55 +568,30 @@ namespace TC_WinForms.WinForms.Work
                         return;
                     }
                     try
-                    {
-                        wor.Coefficient = gg ?? "";
-                        try
-                        {
-                            var time = wor.techTransition?.TimeExecution.ToString().Replace(',', '.');
-                            var expression = "1";
-                            // проверить нет ли в знака первым символом
-                            if (wor.Coefficient[0] == '+' ||
-                                wor.Coefficient[0] == '-' ||
-                                wor.Coefficient[0] == '*' ||
-                                wor.Coefficient[0] == '/')
-                            {
-                                expression = time + wor.Coefficient.Replace(',', '.');
-                            }
-                            else
-                            {
-                                expression = time + "*(" + wor.Coefficient.Replace(',', '.') + ")"; 
-                            }
-                            var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+					{
+						wor.Coefficient = gg ?? "";
 
-                            double bn = 0;
-							if (coefDict.Count != 0)
-							{
-								bn = WorkParser.EvaluateExpression(expression, coefDict); //ee.Evaluate();
-							}
-                            else
-							{
-								bn = WorkParser.EvaluateExpression(expression); //ee.Evaluate();
+                        var techTransition = wor.techTransition;
 
-							}
-                            wor.Value = Math.Round(bn, 2);//double.Parse(bn.ToString()), 2);
-                        }
-                        catch (Exception)
-                        {
-                            MessageBox.Show("Ошибка в формуле!", "Ошибка формулы!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-							wor.Value = -1;
-                        }
+						if (techTransition == null)
+                            throw new Exception("Технологический переход не найден.");
 
+						var time = techTransition.TimeExecution.ToString().Replace(',', '.');
+						var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+						var coefficient = wor.Coefficient;
 
-                        // todo: реализовать обновление только ячейки времени выполнения, а не всей таблицы
+						wor.Value = EvaluateCoefficientExpression(coefficient, time, coefDict);
 
-                        BeginInvoke(new Action(() =>
-                        {
-                            UpdateLocalTP();
-                        }));
+						// todo: реализовать обновление только ячейки времени выполнения, а не всей таблицы
 
-                        TechOperationForm.UpdateGrid();
-                    }
-                    catch (Exception)
+						BeginInvoke(new Action(() =>
+						{
+							UpdateLocalTP();
+						}));
+
+						TechOperationForm.UpdateGrid();
+					}
+					catch (Exception)
                     {
 
                     }
@@ -682,7 +657,43 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
-        private void DataGridViewTPLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
+		/// <summary>
+		/// Evaluates an expression using a coefficient and default value, with optional coefficient dictionary for variable substitution.
+		/// </summary>
+		/// <param name="coefficient">The coefficient expression (e.g., "+0.5", "-0.2").</param>
+		/// <param name="defaultValue">The default value to be used in the expression.</param>
+		/// <param name="coefDict">Optional dictionary of variables for expression evaluation.</param>
+		/// <returns>The calculated value rounded to 2 decimal places, or -1 if an error occurs.</returns>
+
+		private static double EvaluateCoefficientExpression(string coefficient, string defaultValue, Dictionary<string, double> coefDict)
+		{
+			try
+			{
+				if (string.IsNullOrWhiteSpace(coefficient))
+					throw new ArgumentException("Coefficient cannot be null or empty.", nameof(coefficient));
+
+				// проверить нет ли в знака первым символом
+				var firstChar = coefficient[0];
+
+				// Определяем формат выражения
+				var expression = (firstChar == '+' || firstChar == '-' || firstChar == '*' || firstChar == '/')
+					? $"{defaultValue}{coefficient}"
+					: $"{defaultValue}*({coefficient})";
+
+				double value = coefDict?.Count > 0
+			        ? WorkParser.EvaluateExpression(expression, coefDict)
+			        : WorkParser.EvaluateExpression(expression);
+
+				return  Math.Round(value, 2);
+			}
+			catch (Exception)
+			{
+				MessageBox.Show("Ошибка в формуле!", "Ошибка формулы!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return -1;
+			}
+		}
+
+		private void DataGridViewTPLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
@@ -2584,24 +2595,30 @@ namespace TC_WinForms.WinForms.Work
                     var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
                         .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
 
-                    if (isSelected)
+
+					var cell = dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+					if (isSelected)
                     {
                         if (existingRepeat != null)
                         {
-                            if (e.ColumnIndex == 5)
-                            {
-                                if (string.IsNullOrEmpty((string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value))
-                                    dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "*1";
 
-                                existingRepeat.NewCoefficient = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+							var cellValueStr = (string)cell.Value;
+
+							if (e.ColumnIndex == 5)
+                            {
+                                if (string.IsNullOrEmpty(cellValueStr))
+									cell.Value = "*1";
+
+                                existingRepeat.NewCoefficient = cellValueStr;
                             }
                             else if (e.ColumnIndex == 6)
                             {
-                                existingRepeat.NewEtap = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                                existingRepeat.NewEtap = cellValueStr;
                             }
                             else if (e.ColumnIndex == 7)
                             {
-                                existingRepeat.NewPosled = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                                existingRepeat.NewPosled = cellValueStr;
                             }
 
                             RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
@@ -2611,7 +2628,7 @@ namespace TC_WinForms.WinForms.Work
                     else
                     {
                         // отмена изменений
-                        dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = null;
+                        cell.Value = null;
 
                     }
 
@@ -2708,20 +2725,27 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (var repeat in executionWorkPovtor.ExecutionWorkRepeats)
             {
-                double coefficient = 1;
-                if (!string.IsNullOrEmpty(repeat.NewCoefficient))
-                {
-                    try
-                    {
-                        coefficient = WorkParser.EvaluateExpression(repeat.NewCoefficient);
-                    }
-                    catch
-                    {
-                        coefficient = 1; // значение по умолчанию, если выражение не удаётся вычислить
-                    }
-                }
+				var value = repeat.ChildExecutionWork.Value;
+				var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
 
-                totalValue += repeat.ChildExecutionWork.Value * coefficient;
+				totalValue += EvaluateCoefficientExpression(repeat.NewCoefficient, value.ToString(), coefDict);
+
+                //double coefficient = 1;
+
+                //if (!string.IsNullOrEmpty(repeat.NewCoefficient))
+                //{
+
+                //    try
+                //    {
+                //        coefficient = WorkParser.EvaluateExpression(repeat.NewCoefficient);
+                //    }
+                //    catch
+                //    {
+                //        coefficient = 1; // значение по умолчанию, если выражение не удаётся вычислить
+                //    }
+                //}
+
+                //totalValue += repeat.ChildExecutionWork.Value * coefficient;
             }
 
             executionWorkPovtor.Value = totalValue;
