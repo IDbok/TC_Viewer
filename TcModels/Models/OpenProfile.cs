@@ -10,22 +10,30 @@ using TcModels.Models.TcContent;
 
 namespace TcModels.Models
 {
-    internal class OpenProfile: Profile
+    public enum CloneObjectType
     {
-        public OpenProfile(int i)//В зависимости от значения создаем профиль карт нужного объекта
+        TechnologicalCard,
+        TechOperationWork,
+        ExecutionWork,
+        DiagamToWork
+    }
+
+    public class OpenProfile: Profile
+    {
+        public OpenProfile(CloneObjectType type)//В зависимости от значения создаем профиль карт нужного объекта
         {
-            switch(i)
+            switch(type)
             {
-                case 0:
+                case CloneObjectType.TechnologicalCard:
                     TCProfile();
                     break;
-                case 1:
+                case CloneObjectType.TechOperationWork:
                     TOWProfile();
                     break;
-                case 2:
+                case CloneObjectType.ExecutionWork:
                     EWProfile();
                     break;
-                case 3:
+                case CloneObjectType.DiagamToWork:
                     DTWProfile();
                     break;
             }

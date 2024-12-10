@@ -72,57 +72,6 @@ namespace TcModels.Models.TcContent
            }
         }
 
-        public ExecutionWork DeepCopyEW(ExecutionWork sourceExecutionWork, TechnologicalCard newtechnologicalCard)
-        {
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new OpenProfile(2));
-            });
-            var newExecutionWork = new ExecutionWork();
-
-            var mapper = config.CreateMapper();
-
-            newExecutionWork = mapper.Map<ExecutionWork>(sourceExecutionWork);
-
-            var staffs = sourceExecutionWork.Staffs;
-            var protections = sourceExecutionWork.Protections;
-            var machines = sourceExecutionWork.Machines;
-
-            var currentStaffs = newtechnologicalCard.Staff_TCs.Where(s => staffs.Exists(staffs => staffs.ChildId == s.ChildId && staffs.Order == s.Order && staffs.Symbol == s.Symbol)).ToList();
-            var currentProtections = newtechnologicalCard.Protection_TCs.Where(s => protections.Exists(staffs => staffs.ChildId == s.ChildId && staffs.Order == s.Order)).ToList();
-            var currentMachines = newtechnologicalCard.Machine_TCs.Where(s => machines.Exists(staffs => staffs.ChildId == s.ChildId && staffs.Order == s.Order)).ToList();
-
-            newExecutionWork.Staffs.AddRange(currentStaffs);
-            newExecutionWork.Protections.AddRange(currentProtections);
-            newExecutionWork.Machines.AddRange(currentMachines);
-
-            if (sourceExecutionWork.Repeat)
-            {
-                var repeats = sourceExecutionWork.ExecutionWorkRepeats.Select(e => e.ChildExecutionWork).ToList();
-                var techOperationWorks = repeats.Select(e => e.techOperationWork).Distinct().ToList();
-                
-                foreach (var tow in techOperationWorks)
-                {
-                    var currentTow = newtechnologicalCard.TechOperationWorks.Where(e => e.techOperationId == tow.techOperationId && e.Order == tow.Order).FirstOrDefault()?.executionWorks.ToList();
-                    //var currentExecutionWorks = currentTow.executionWorks.ToList();
-
-                    var repeatsA = currentTow.Where(e => repeats.Exists(ex => ex.techTransitionId == e.techTransitionId && ex.Order == e.Order && ex.techOperationWorkId == tow.Id)).ToList();
-
-                    foreach (var repeat in repeatsA)
-                    {
-                        var newExecutionWorkRepeat = new ExecutionWorkRepeat
-                        {
-                            ChildExecutionWorkId = repeat.Id,
-                            ChildExecutionWork = repeat,
-                            ParentExecutionWork = newExecutionWork,
-                            ParentExecutionWorkId = newExecutionWork.Id,
-                        };
-                        newExecutionWork.ExecutionWorkRepeats.Add(newExecutionWorkRepeat);
-                    }
-                }
-            }
-
-            return newExecutionWork;
-        }
+        
     }
 }

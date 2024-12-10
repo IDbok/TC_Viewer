@@ -962,31 +962,8 @@ namespace TC_WinForms.WinForms
 
                 if (objId != 0)
                 {
-                    TechnologicalCardRepository technologicalCardRepository = new TechnologicalCardRepository();
-
-                    var card = await technologicalCardRepository.GetTCDataAsync(objId, false);
-                    card.TechOperationWorks = await technologicalCardRepository.GetTOWDataAsync(objId, false);
-                    card.DiagamToWork = await technologicalCardRepository.GetDTWDataAsync(objId, false);
-
-                    var newCard = card.DeepCopyTC(card);
-                    newCard.Article += "(copy)";
-
-                    foreach (var item in card.TechOperationWorks)
-                    {
-                        var newTOW = item.DeepCopyTOW(item);
-                        newCard.TechOperationWorks.Add(newTOW);
-                        foreach (var exItem in item.executionWorks)
-                        {
-                            var newEx = exItem.DeepCopyEW(exItem, newCard);
-                            newTOW.executionWorks.Add(newEx);
-                        }
-                    }
-
-                    foreach (var item in card.DiagamToWork)
-                    {
-                        var newDTW = item.DeepCopyDTW(item, newCard);
-                        newCard.DiagamToWork.Add(newDTW);
-                    }
+                    CloneObjectService cloneObjectService = new CloneObjectService();
+                    var newCard = await cloneObjectService.CloneTC(objId);
 
                     using (MyDbContext dbContext = new MyDbContext())//
                     {

@@ -26,55 +26,7 @@ namespace TcModels.Models.TcContent
         public List<DiagramParalelno> ListDiagramParalelno { get; set; } = new List<DiagramParalelno>();
         public int Order { get; set; }
 
-        public DiagamToWork DeepCopyDTW(DiagamToWork sourceDTW, TechnologicalCard newtechnologicalCard)
-        {
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new OpenProfile(3));
-            });
-
-            var newDTW = new DiagamToWork();
-
-            var mapper = config.CreateMapper();
-
-            var currentTow = newtechnologicalCard.TechOperationWorks.Where(e => e.techOperationId == sourceDTW.techOperationWork.techOperationId && e.Order == sourceDTW.techOperationWork.Order).FirstOrDefault();
-            
-            
-
-            foreach(var paral in sourceDTW.ListDiagramParalelno)
-            {
-                foreach(var posled in paral.ListDiagramPosledov)
-                {
-                    foreach(var shag in posled.ListDiagramShag)
-                    {
-                        foreach(var ShagToolsComponent in shag.ListDiagramShagToolsComponent)
-                        {
-                            if(ShagToolsComponent.toolWorkId == null)
-                            {
-                                var component = currentTow.ComponentWorks.Where(w => w.componentId == ShagToolsComponent.componentWork.componentId).FirstOrDefault();
-                                ShagToolsComponent.componentWork = component;
-                                ShagToolsComponent.componentWorkId = component.Id;
-                            }
-                            else
-                            {
-                                var tool = currentTow.ToolWorks.Where(w => w.toolId == ShagToolsComponent.toolWork.toolId).FirstOrDefault();
-                                ShagToolsComponent.toolWork = tool;
-                                ShagToolsComponent.toolWorkId = tool.Id;
-                            }
-                        }
-                    }
-                }
-            }
-
-            newDTW = mapper.Map<DiagamToWork>(sourceDTW);
-
-            newDTW.techOperationWork = currentTow;
-            newDTW.techOperationWorkId = currentTow.Id;
-            newDTW.ListDiagramParalelno.ForEach(e => e.techOperationWorkId = currentTow.Id);
-            newDTW.ListDiagramParalelno.ForEach(e => e.techOperationWork = currentTow);
-
-            return newDTW;
-        }
+        
 
         public string? GetParallelIndex()
         {

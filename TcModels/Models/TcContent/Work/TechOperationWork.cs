@@ -114,20 +114,6 @@ namespace TcModels.Models.TcContent
             return ParallelIndex;
         }
 
-        public TechOperationWork DeepCopyTOW(TechOperationWork sourceTOW)
-        {
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new OpenProfile(1));
-            });
-
-            var newTOW = new TechOperationWork();
-
-            var mapper = config.CreateMapper();
-
-            newTOW = mapper.Map<TechOperationWork>(sourceTOW);
-
-            return newTOW;
-        }
+       
     }
 }
