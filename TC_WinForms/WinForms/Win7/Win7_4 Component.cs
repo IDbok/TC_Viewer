@@ -72,9 +72,11 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         _isUpdateItemMode = isUpdateMode;// add to UpdateMode
 
         InitializeComponent();
-        dgvMain.DoubleBuffered(true);
 
-    }
+
+		dgvMain.DoubleBuffered(true);
+	}
+
 
     private  void InitializeTip()
     {

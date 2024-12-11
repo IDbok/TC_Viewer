@@ -113,7 +113,7 @@ namespace TC_WinForms.WinForms
         {
             foreach (var obj in newObjs)
             {
-                var newObj_TC = CreateNewObject(obj, _bindingList.Count + 1);
+                var newObj_TC = CreateNewObject(obj, _bindingList.Select(o => o.Order).Max() + 1);
                 var component = context.Components.Where(s => s.Id == newObj_TC.ChildId).First();
 
                 context.Components.Attach(component);
