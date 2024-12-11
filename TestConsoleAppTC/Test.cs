@@ -35,16 +35,7 @@ internal class Program
         // получить ТК по id
         TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
         
-        var expression = "3+k2-1-k20";
-        var variables = new Dictionary<string, double>
-        {
-            { "k2", 2 },
-            { "k20", 0.5 }
-        };
-
-        var result = WorkParser.EvaluateExpression(expression, variables);
-
-        Console.WriteLine(result);
+        
 
         Console.ReadLine();
     }

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TC_WinForms.Services;
 using TcModels.Models.TcContent;
 using static Antlr4.Runtime.Atn.SemanticContext;
 
@@ -65,7 +66,7 @@ namespace TC_WinForms.WinForms.Work
                     expression = time + "*" + coef.Replace(',', '.');
                 }
 
-                var bn = WorkParser.EvaluateExpression(expression); //ee.Evaluate();
+                var bn = MathScript.EvaluateExpression(expression); //ee.Evaluate();
 
                 //var bn = WorkParser.EvaluateExpression(Idd.TimeExecution.ToString().Replace(',', '.') + " " + textBox1.Text.Replace(',', '.')); // ee.Evaluate();
                 label4.Text = bn.ToString();

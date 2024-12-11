@@ -580,7 +580,7 @@ namespace TC_WinForms.WinForms.Work
 						var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
 						var coefficient = wor.Coefficient;
 
-						wor.Value = EvaluateCoefficientExpression(coefficient, time, coefDict);
+						wor.Value = MathScript.EvaluateCoefficientExpression(coefficient, time, coefDict);
 					}
 					catch (Exception ex)
                     {
@@ -660,52 +660,6 @@ namespace TC_WinForms.WinForms.Work
             }
 
         }
-
-		/// <summary>
-		/// Evaluates an expression using a coefficient and default value, with optional coefficient dictionary for variable substitution.
-		/// </summary>
-		/// <param name="coefficient">The coefficient expression (e.g., "+0.5", "-0.2").</param>
-		/// <param name="defaultValue">The default value to be used in the expression.</param>
-		/// <param name="coefDict">Optional dictionary of variables for expression evaluation.</param>
-		/// <returns>The calculated value rounded to 2 decimal places, or -1 if an error occurs.</returns>
-		private static double EvaluateCoefficientExpression(string coefficient, string defaultValue, Dictionary<string, double> coefDict)
-		{
-			try
-			{
-				if (string.IsNullOrWhiteSpace(coefficient)) // todo: возможно логичнее возврат defaultValue ?
-					throw new ArgumentException("Coefficient cannot be null or empty.", nameof(coefficient));
-
-				var firstChar = coefficient[0];
-
-				// проверка, что коэффициент не является только знак
-				if (coefficient.Length == 1 && IsMathSign(firstChar))
-					throw new ArgumentException("Коэффициент не может быть знаком.", nameof(coefficient));
-
-				// проверить нет ли в знака первым символом
-				// Определяем формат выражения
-				var expression = IsMathSign(firstChar)
-					? $"{defaultValue}{coefficient}"
-					: $"{defaultValue}*({coefficient})";
-
-				double value = coefDict?.Count > 0
-					? WorkParser.EvaluateExpression(expression, coefDict)
-					: WorkParser.EvaluateExpression(expression);
-
-				return Math.Round(value, 2);
-			}
-			catch (Exception e)
-			{
-				throw new Exception($"Ошибка в формуле!\n{e}", e);
-
-				//MessageBox.Show($"Ошибка в формуле!\n{e}", "Ошибка формулы!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				//return -1;
-			}
-
-			static bool IsMathSign(char firstChar)
-			{
-				return (firstChar == '+' || firstChar == '-' || firstChar == '*' || firstChar == '/');
-			}
-		}
 
 		private void DataGridViewTPLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
@@ -2748,7 +2702,7 @@ namespace TC_WinForms.WinForms.Work
 					var value = repeat.ChildExecutionWork.Value;
 					var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
 
-					totalValue += EvaluateCoefficientExpression(repeat.NewCoefficient, value.ToString(), coefDict);
+					totalValue += MathScript.EvaluateCoefficientExpression(repeat.NewCoefficient, value.ToString(), coefDict);
 				}
 			}
 			catch (Exception ex)

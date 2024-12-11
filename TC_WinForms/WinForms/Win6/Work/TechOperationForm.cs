@@ -1482,7 +1482,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             techOpeWork.Coefficient = techTransitionTypical.Coefficient;
             techOpeWork.Comments = techTransitionTypical.Comments ?? "";
 
-            techOpeWork.Value = string.IsNullOrEmpty(techTransitionTypical.Coefficient) ? tech.TimeExecution : WorkParser.EvaluateExpression(tech.TimeExecution + "*" + techTransitionTypical.Coefficient);
+            techOpeWork.Value = string.IsNullOrEmpty(techTransitionTypical.Coefficient) 
+                ? tech.TimeExecution 
+                : MathScript.EvaluateExpression(tech.TimeExecution + "*" + techTransitionTypical.Coefficient);
         }
 
     }
