@@ -581,9 +581,17 @@ namespace TC_WinForms.WinForms.Work
 						var coefficient = wor.Coefficient;
 
 						wor.Value = EvaluateCoefficientExpression(coefficient, time, coefDict);
+					}
+					catch (Exception ex)
+                    {
+						string errorMessage = ex.InnerException?.Message ?? ex.Message;
+						MessageBox.Show($"Ошибка при расчёте времени перехода:\n\n{errorMessage}", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						wor.Value = -1;
+					}
+                    finally
+                    {
 
 						// todo: реализовать обновление только ячейки времени выполнения, а не всей таблицы
-
 						BeginInvoke(new Action(() =>
 						{
 							UpdateLocalTP();
@@ -591,10 +599,6 @@ namespace TC_WinForms.WinForms.Work
 
 						TechOperationForm.UpdateGrid();
 					}
-					catch (Exception)
-                    {
-
-                    }
                 }
             }
             else if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index)
@@ -664,32 +668,42 @@ namespace TC_WinForms.WinForms.Work
 		/// <param name="defaultValue">The default value to be used in the expression.</param>
 		/// <param name="coefDict">Optional dictionary of variables for expression evaluation.</param>
 		/// <returns>The calculated value rounded to 2 decimal places, or -1 if an error occurs.</returns>
-
 		private static double EvaluateCoefficientExpression(string coefficient, string defaultValue, Dictionary<string, double> coefDict)
 		{
 			try
 			{
-				if (string.IsNullOrWhiteSpace(coefficient))
+				if (string.IsNullOrWhiteSpace(coefficient)) // todo: возможно логичнее возврат defaultValue ?
 					throw new ArgumentException("Coefficient cannot be null or empty.", nameof(coefficient));
 
-				// проверить нет ли в знака первым символом
 				var firstChar = coefficient[0];
 
+				// проверка, что коэффициент не является только знак
+				if (coefficient.Length == 1 && IsMathSign(firstChar))
+					throw new ArgumentException("Коэффициент не может быть знаком.", nameof(coefficient));
+
+				// проверить нет ли в знака первым символом
 				// Определяем формат выражения
-				var expression = (firstChar == '+' || firstChar == '-' || firstChar == '*' || firstChar == '/')
+				var expression = IsMathSign(firstChar)
 					? $"{defaultValue}{coefficient}"
 					: $"{defaultValue}*({coefficient})";
 
 				double value = coefDict?.Count > 0
-			        ? WorkParser.EvaluateExpression(expression, coefDict)
-			        : WorkParser.EvaluateExpression(expression);
+					? WorkParser.EvaluateExpression(expression, coefDict)
+					: WorkParser.EvaluateExpression(expression);
 
-				return  Math.Round(value, 2);
+				return Math.Round(value, 2);
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
-				MessageBox.Show("Ошибка в формуле!", "Ошибка формулы!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				return -1;
+				throw new Exception($"Ошибка в формуле!\n{e}", e);
+
+				//MessageBox.Show($"Ошибка в формуле!\n{e}", "Ошибка формулы!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				//return -1;
+			}
+
+			static bool IsMathSign(char firstChar)
+			{
+				return (firstChar == '+' || firstChar == '-' || firstChar == '*' || firstChar == '/');
 			}
 		}
 
@@ -2608,9 +2622,14 @@ namespace TC_WinForms.WinForms.Work
 							if (e.ColumnIndex == 5)
                             {
                                 if (string.IsNullOrEmpty(cellValueStr))
+                                {
 									cell.Value = "*1";
-
-                                existingRepeat.NewCoefficient = cellValueStr;
+									existingRepeat.NewCoefficient = "*1";
+                                }
+                                else
+                                {
+									existingRepeat.NewCoefficient = cellValueStr;
+								}
                             }
                             else if (e.ColumnIndex == 6)
                             {
@@ -2720,36 +2739,33 @@ namespace TC_WinForms.WinForms.Work
         }
 
         private void RecalculateExecutionWorkPovtorValue(ExecutionWork executionWorkPovtor)
-        {
-            double totalValue = 0;
-
-            foreach (var repeat in executionWorkPovtor.ExecutionWorkRepeats)
+		{
+			double totalValue = 0;
+			try
             {
-				var value = repeat.ChildExecutionWork.Value;
-				var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+				foreach (var repeat in executionWorkPovtor.ExecutionWorkRepeats)
+				{
+					var value = repeat.ChildExecutionWork.Value;
+					var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
 
-				totalValue += EvaluateCoefficientExpression(repeat.NewCoefficient, value.ToString(), coefDict);
+					totalValue += EvaluateCoefficientExpression(repeat.NewCoefficient, value.ToString(), coefDict);
+				}
+			}
+			catch (Exception ex)
+            {
+				Log.Error(ex, "Ошибка при пересчете значения повтора");
+				string errorMessage = ex.InnerException?.Message ?? ex.Message;
 
-                //double coefficient = 1;
+				MessageBox.Show($"Ошибка при пересчете значения повтора:\n\n{errorMessage}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                //if (!string.IsNullOrEmpty(repeat.NewCoefficient))
-                //{
+                totalValue = -1;
+			}
+            finally
+            {
+				executionWorkPovtor.Value = totalValue;
+			}
 
-                //    try
-                //    {
-                //        coefficient = WorkParser.EvaluateExpression(repeat.NewCoefficient);
-                //    }
-                //    catch
-                //    {
-                //        coefficient = 1; // значение по умолчанию, если выражение не удаётся вычислить
-                //    }
-                //}
-
-                //totalValue += repeat.ChildExecutionWork.Value * coefficient;
-            }
-
-            executionWorkPovtor.Value = totalValue;
-        }
+		}
 
         #endregion
 

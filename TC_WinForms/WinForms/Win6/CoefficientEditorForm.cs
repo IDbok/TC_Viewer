@@ -70,6 +70,8 @@ public partial class CoefficientEditorForm : Form
 	private int GetNextCoefficientNumber()
 	{
 		var allNumbers = _coefficients.Select(c => c.GetNumber()).ToList();
+		if (allNumbers.Count == 0) return 1;
+
 		var maxCfNumber = allNumbers.Max();
 		var newNum = 0;
 
