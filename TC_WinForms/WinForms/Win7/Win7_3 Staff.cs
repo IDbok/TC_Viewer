@@ -135,7 +135,9 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
         _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Staff>(includeRelatedStaffs: true) //.Where(obj => obj.IsReleased == true)
             .Select(obj => new DisplayedStaff(obj)).OrderBy(c => c.Name).ToList());
 
-        paginationService = new PaginationControlService<DisplayedStaff>(15, _displayedObjects);
+        if (!_isAddingForm)
+            paginationService = new PaginationControlService<DisplayedStaff>(15, _displayedObjects);
+
 
         _selectionService = new SelectionService<DisplayedStaff>(dgvMain, _displayedObjects);
 
@@ -146,16 +148,19 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
     private void UpdateDisplayedData()
     {
         // Расчет отображаемых записей
+        if (!_isAddingForm && paginationService != null)
+            _bindingList = new BindingList<DisplayedStaff>(paginationService.GetPageData());
 
-        _bindingList = new BindingList<DisplayedStaff>(paginationService.GetPageData());
         dgvMain.DataSource = _bindingList;
         dgvMain.ResizeRows(_minRowHeight);
 
-        // Подготовка данных для события
-        PageInfo = paginationService.GetPageInfo();
-
-        // Вызов события с подготовленными данными
-        RaisePageInfoChanged();
+        if (!_isAddingForm && paginationService != null)
+        { 
+            // Подготовка данных для события
+            PageInfo = paginationService.GetPageInfo();
+            // Вызов события с подготовленными данными
+            RaisePageInfoChanged();
+        }
     }
 
     private void AccessInitialization()
@@ -549,7 +554,11 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
 
             }
 
-            paginationService.SetAllObjectList(displayedStaffList.ToList());
+            if(!_isAddingForm && paginationService != null)
+                paginationService.SetAllObjectList(displayedStaffList.ToList());
+            else
+                _bindingList = displayedStaffList;
+
             UpdateDisplayedData();
 
             //dgvMain.DataSource = _bindingList;

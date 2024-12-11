@@ -105,8 +105,9 @@ namespace TC_WinForms.WinForms
             _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Protection>(includeLinks: true)
                 .Select(obj => new DisplayedProtection(obj)).OrderBy(c => c.Name).ToList());
 
-            paginationService = new PaginationControlService<DisplayedProtection>(30, _displayedObjects);
-
+            if(!_isAddingForm)
+                paginationService = new PaginationControlService<DisplayedProtection>(30, _displayedObjects);
+            
             _selectionService = new SelectionService<DisplayedProtection>(dgvMain, _displayedObjects);
 
             FilteringObjects();
@@ -122,16 +123,20 @@ namespace TC_WinForms.WinForms
         private void UpdateDisplayedData()
         {
             // Расчет отображаемых записей
+            if(!_isAddingForm && paginationService != null)
+                _bindingList = new BindingList<DisplayedProtection>(paginationService.GetPageData());
 
-            _bindingList = new BindingList<DisplayedProtection>(paginationService.GetPageData());
             dgvMain.DataSource = _bindingList;
             dgvMain.ResizeRows(_minRowHeight);
 
             // Подготовка данных для события
-            PageInfo = paginationService.GetPageInfo();
+            if (!_isAddingForm && paginationService != null)
+            {
+                PageInfo = paginationService.GetPageInfo();
+                // Вызов события с подготовленными данными
+                RaisePageInfoChanged();
+            }
 
-            // Вызов события с подготовленными данными
-            RaisePageInfoChanged();
         }
 
         private async void Win7_7_Protection_FormClosing(object sender, FormClosingEventArgs e)
@@ -557,7 +562,13 @@ namespace TC_WinForms.WinForms
                     _isFiltered = true;
                 }
                 //dgvMain.DataSource = _bindingList;
-                paginationService.SetAllObjectList(displayedProtectionList.ToList());
+                if(!_isAddingForm && paginationService != null)
+                    paginationService.SetAllObjectList(displayedProtectionList.ToList());
+                else
+                {
+                    _bindingList = displayedProtectionList;
+                }
+
                 UpdateDisplayedData();
 
                 // Восстанавливаем выделенные объекты

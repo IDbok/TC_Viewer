@@ -109,7 +109,8 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
         _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Tool>(includeLinks: true)
             .Select(obj => new DisplayedTool(obj)).OrderBy(c => c.Name).ToList());
 
-        paginationService = new PaginationControlService<DisplayedTool>(30, _displayedObjects);
+        if (!_isAddingForm)
+            paginationService = new PaginationControlService<DisplayedTool>(30, _displayedObjects);
 
         _selectionService = new SelectionService<DisplayedTool>(dgvMain, _displayedObjects);
 
@@ -121,16 +122,19 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
     private void UpdateDisplayedData()
     {
         // Расчет отображаемых записей
+        if (!_isAddingForm && paginationService != null)
+            _bindingList = new BindingList<DisplayedTool>(paginationService.GetPageData());
 
-        _bindingList = new BindingList<DisplayedTool>(paginationService.GetPageData());
         dgvMain.DataSource = _bindingList;
         dgvMain.ResizeRows(_minRowHeight);
 
-        // Подготовка данных для события
-        PageInfo = paginationService.GetPageInfo();
-
-        // Вызов события с подготовленными данными
-        RaisePageInfoChanged();
+        if (!_isAddingForm && paginationService != null)
+        {
+            // Подготовка данных для события
+            PageInfo = paginationService.GetPageInfo();
+            // Вызов события с подготовленными данными
+            RaisePageInfoChanged();
+        }
     }
     private void AccessInitialization()
     {
@@ -597,7 +601,11 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
             }
             //dgvMain.DataSource = _bindingList;
 
-            paginationService.SetAllObjectList(displayedToolList.ToList());
+            if (!_isAddingForm && paginationService != null)
+                paginationService.SetAllObjectList(displayedToolList.ToList());
+            else
+                _bindingList = displayedToolList;
+
             UpdateDisplayedData();
 
             DisplayedEntityHelper.SetupDataGridView<DisplayedTool>(dgvMain);
