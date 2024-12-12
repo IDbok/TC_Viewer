@@ -4,6 +4,7 @@ using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TcDbConnector;
+using TcDbConnector.Repositories;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
@@ -107,7 +108,7 @@ namespace TC_WinForms.WinForms
             if (_accessLevel == User.Role.Lead)
             {
                 _logger.Information("Роль Lead: включение отображения статуса");
-
+                btnClone.Visible = true ;
                 cbxStatus.Visible = true;
                 lblStatus.Visible = true;
             }
@@ -377,6 +378,81 @@ namespace TC_WinForms.WinForms
         public int GetObjectId()
         {
             return OriginCard.Id;
+        }
+
+        public async Task<bool> CloneAsync()
+        {
+            _logger.Information("Начало копирования данных технологической карты");
+
+            LocalCard.Name = txtName.Text;
+            LocalCard.Article = txtArticle.Text;
+            LocalCard.Type = cbxType.Text;
+            LocalCard.NetworkVoltage = float.Parse(cbxNetworkVoltage.Text);
+            LocalCard.TechnologicalProcessType = txtTechProcessType.Text;
+            LocalCard.TechnologicalProcessName = txtTechProcess.Text;
+            LocalCard.Parameter = txtParametr.Text;
+            LocalCard.FinalProduct = txtFinalProduct.Text;
+            LocalCard.Applicability = txtApplicability.Text;
+            LocalCard.Note = txtNote.Text;
+            LocalCard.IsCompleted = chbxIsCompleted.Checked;
+
+            var selectedDescription = cbxStatus.SelectedItem.ToString();
+            var enumValues = cbxStatus.Tag as List<Enum>;
+
+            if (enumValues != null)
+            {
+                var selectedEnumValue = enumValues.FirstOrDefault(e => e.GetDescription() == selectedDescription);
+                LocalCard.Status = (TechnologicalCardStatus)selectedEnumValue;
+            }
+
+            try
+            {
+                _logger.Information("Проверка уникальности данных технологической карты");
+                // проверка полей на уникальность
+                if (!await UniqueFieldChecker<TechnologicalCard>.IsPropertiesUnique(LocalCard))
+                {
+                    _logger.Warning("Нарушена уникальность полей технологической карты");
+                    return false;
+                }
+
+                _logger.Information("Создание репозитория для получения данных технологической карты");
+
+                TechnologicalCardRepository technologicalCardRepository = new TechnologicalCardRepository();
+                OriginCard = await technologicalCardRepository.GetTechnologicalCardAsync(OriginCard.Id);
+                OriginCard.ApplyUpdates(LocalCard);
+
+                _logger.Information("Копирование технологической карты");
+
+                TechnologicalCard newCard = OriginCard.CloneObject();
+                await dbCon.AddObjectAsync(newCard);
+
+                if (AfterSave != null)
+                {
+                    await AfterSave(newCard);
+                }
+
+                _logger.Information("Копирование и данных технологической карты выполнено успешно");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Ошибка при сохранении данных копированной технологической карты: {ExceptionMessage}", ex.Message);
+
+                MessageBox.Show(ex.Message);
+                return false;
+            }
+        }
+
+        private async void btnClone_Click(object sender, EventArgs e)
+        {
+            if (NoEmptiness())
+            {
+                if (await CloneAsync())
+                {
+                    MessageBox.Show("Карта успешно скопирована!");
+                    Close();
+                }
+            }
         }
     }
 }

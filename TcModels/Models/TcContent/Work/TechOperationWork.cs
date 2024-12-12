@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using AutoMapper;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TcModels.Models.TcContent
 {
@@ -113,5 +114,6 @@ namespace TcModels.Models.TcContent
             return ParallelIndex;
         }
 
+       
     }
 }
