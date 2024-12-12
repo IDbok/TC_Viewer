@@ -1,44 +1,39 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Serilog;
+﻿using Serilog;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
-using TC_WinForms.Services;
 using TcDbConnector;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
-using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.DGVProcessing;
-using static TC_WinForms.WinForms.Win6_Staff;
+using static TC_WinForms.WinForms.Win6_Component;
 using Component = TcModels.Models.TcContent.Component;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Component : BaseContentForm, IViewModeable
+	public partial class Win6_Component : BaseContentFormWithFormula<DisplayedComponent_TC>, IViewModeable
     {
-        private readonly ILogger _logger;
+		//private readonly ILogger _logger;
+		//private readonly TcViewState _tcViewState;
+		protected override DataGridView DgvMain => dgvMain;
 
-        private readonly TcViewState _tcViewState;
 
-        private bool _isViewMode;
+        //private bool _isViewMode;
 
         private MyDbContext context;
 
         private int _tcId;
 
-        private BindingList<DisplayedComponent_TC> _bindingList;
-        private List<DisplayedComponent_TC> _changedObjects = new ();
-        private List<DisplayedComponent_TC> _newObjects = new ();
-        private List<DisplayedComponent_TC> _deletedObjects = new ();
+        //private BindingList<DisplayedComponent_TC> _bindingList;
+        //private List<DisplayedComponent_TC> _changedObjects = new ();
+        //private List<DisplayedComponent_TC> _newObjects = new ();
+        //private List<DisplayedComponent_TC> _deletedObjects = new ();
 
-        private Dictionary<DisplayedComponent_TC, DisplayedComponent_TC> _replacedObjects = new (); // add to UpdateMode
+        private Dictionary<DisplayedComponent_TC, DisplayedComponent_TC> _replacedObjects = new (); // add to UpdateMode // todo: можно перенести в BaseForm
 
-        public bool CloseFormsNoSave { get; set; } = false;
+		public bool CloseFormsNoSave { get; set; } = false;
 
         public Win6_Component(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
         {
@@ -53,7 +48,8 @@ namespace TC_WinForms.WinForms
             this.context = context;
 
             InitializeComponent();
-            _tcId = tcId;
+
+			_tcId = tcId;
 
             var dgvEventService = new DGVEvents(dgvMain);
             dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
@@ -68,7 +64,7 @@ namespace TC_WinForms.WinForms
             };
         }
 
-        public void SetViewMode(bool? isViewMode = null)
+        public void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
         {
 
             pnlControls.Visible = !_tcViewState.IsViewMode;
@@ -89,15 +85,9 @@ namespace TC_WinForms.WinForms
             dgvMain.Refresh();
 
         }
-		public override async void OnActivate()
-		{
-            //RecalculateQuantities();
-            await RecalculateQuantitiesAsync(); 
-            // использую асинхронный метод для избежания блокировки интерфейса при выдачи сообщения об ошибки
-		}
 
-		private void Win6_Component_Load(object sender, EventArgs e)
-        {
+		private void Win6_Component_Load(object sender, EventArgs e) // todo: можно перенести в BaseForm
+		{
             _logger.Information("Загрузка формы Win6_Component");
 
             LoadObjects();
@@ -109,18 +99,22 @@ namespace TC_WinForms.WinForms
 
 			RecalculateQuantities();
 		}
-        private void LoadObjects()
-        {
-            var tcList = _tcViewState.TechnologicalCard.Component_TCs.Where(obj => obj.ParentId == _tcId)
-                                                    .OrderBy(o => o.Order).ToList()
-                                                    .Select(obj => new DisplayedComponent_TC(obj))
-                                                    .ToList();
+		protected override void LoadObjects() // todo: можно перенести в BaseForm
+		{
+            var tcList = _tcViewState.TechnologicalCard.Component_TCs
+                .Where(obj => obj.ParentId == _tcId)
+                .OrderBy(o => o.Order)
+                .Select(obj => new DisplayedComponent_TC(obj))
+                .ToList();
+
             _bindingList = new BindingList<DisplayedComponent_TC>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
 
-            SetDGVColumnsSettings();
-        }
+            //SetDGVColumnsSettings();
+            InitializeDataGridViewColumns();
+
+		}
         
         public void AddNewObjects(List<Component> newObjs)
         {
@@ -144,8 +138,8 @@ namespace TC_WinForms.WinForms
         }
 
         ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
-        void SetDGVColumnsSettings()
-        {
+        void SetDGVColumnsSettings() // todo: можно перенести в BaseForm. Хотябы частично
+		{
 
             // автоподбор ширины столбцов под ширину таблицы
             dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -187,7 +181,7 @@ namespace TC_WinForms.WinForms
             var changeableColumn = new List<string>
             {
                 nameof(DisplayedComponent_TC.Order),
-                nameof(DisplayedComponent_TC.Quantity),
+                //nameof(DisplayedComponent_TC.Quantity),
                 nameof(DisplayedComponent_TC.Formula),
                 nameof(DisplayedComponent_TC.Note),
             };
@@ -197,17 +191,18 @@ namespace TC_WinForms.WinForms
                 dgvMain.Columns[column].DefaultCellStyle.BackColor = Color.LightGray;
             }
         }
-        private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
+
+        private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e) // todo: можно перенести в BaseForm
+		{
             // Проверяем, что это не заголовок столбца и не новая строка
             if (e.RowIndex >= 0 && e.RowIndex < dgvMain.Rows.Count)
             {
                 var row = dgvMain.Rows[e.RowIndex];
-                var displayedStaff = row.DataBoundItem as DisplayedComponent_TC;
-                if (displayedStaff != null)
+                var displayedObject = row.DataBoundItem as DisplayedComponent_TC;
+                if (displayedObject != null)
                 {
                     // Меняем цвет строки в зависимости от значения свойства IsReleased
-                    if (!displayedStaff.IsReleased)
+                    if (!displayedObject.IsReleased)
                     {
                         row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
                     }
@@ -317,13 +312,13 @@ namespace TC_WinForms.WinForms
                 }
 
                 _deletedObjects.Clear();
-
-
             }
         }
 
-        private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) // todo - fix problem with selection replacing row (error while remove it)
-        {
+        private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) 
+            // todo: можно перенести в BaseForm
+			// todo - fix problem with selection replacing row (error while remove it)
+		{
             ReorderRows(dgvMain, e, _bindingList);
         }
 
@@ -344,8 +339,13 @@ namespace TC_WinForms.WinForms
 
             }
         }
-        private class DisplayedComponent_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable
-        {
+		protected override void InitializeDataGridViewColumns()
+		{
+			SetDGVColumnsSettings();
+		}
+
+		public class DisplayedComponent_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable, IFormulaItem
+		{
             public Dictionary<string, string> GetPropertiesNames()
             {
                 return new Dictionary<string, string>
@@ -601,122 +601,123 @@ namespace TC_WinForms.WinForms
             return false;
         }
 
-		private void dgvMain_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+		private void dgvMain_CellValueChanged(object sender, DataGridViewCellEventArgs e) // todo: можно перенести в BaseForm
 		{
 			if (e.RowIndex >= 0 && dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedComponent_TC.Formula))
 			{
 				var row = dgvMain.Rows[e.RowIndex];
 				if (row.DataBoundItem is DisplayedComponent_TC displayedComponent)
 				{
-					RecalculateQuantityForComponent(displayedComponent);
-				}
-			}
-		}
-		private void RecalculateQuantityForComponent(DisplayedComponent_TC displayedComponent)
-		{
-			if (displayedComponent == null || string.IsNullOrEmpty(displayedComponent.Formula))
-				return;
-
-			try
-			{
-				var coefDict = GetCoefficientDictionary();
-				displayedComponent.Quantity = MathScript.EvaluateCoefficientExpression(displayedComponent.Formula, coefDict);
-				dgvMain.Refresh();
-			}
-			catch (Exception ex)
-			{
-				LogAndShowError(
-					$"Ошибка вычисления формулы: {ex.Message}",
-					$"Ошибка вычисления формулы для компонента '{displayedComponent.Name} - {displayedComponent.Type}'. Проверьте формулу.");
-			}
-		}
-
-		private Dictionary<string, double> GetCoefficientDictionary()
-		{
-			return _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
-		}
-
-		/// <summary>
-		/// Пересчёт значения Quantity для всех объектов с заданной формулой.
-		/// </summary>
-		private void RecalculateQuantities()
-		{
-            if (_bindingList == null || _bindingList.Count == 0)
-                return;
-
-            try
-            {
-                ApplyFormulasToQuantities();
-
-				dgvMain.Refresh(); // Обновляем отображение данных в DataGridView
-            }
-            catch (Exception ex)
-            {
-				LogAndShowError($"Ошибка при пересчёте значений Quantity: {ex.Message}",
-					"Ошибка пересчёта значений. Проверьте корректность данных.",
-					ex.InnerException?.Message);
-            }
-        }
-
-		/// <summary>
-		/// Асинхронный пересчёт значения Quantity для всех объектов с заданной формулой.
-		/// </summary>
-		private async Task RecalculateQuantitiesAsync()
-		{
-			if (_bindingList == null || _bindingList.Count == 0)
-				return;
-
-			try
-			{
-				// Выполняем пересчёт в отдельной задаче
-				await Task.Run(() =>
-				{
-					ApplyFormulasToQuantities();
-				});
-
-                // Обновляем интерфейс в основном потоке
-                Invoke(new Action(() => dgvMain.Refresh()));
-
-            }
-			catch (Exception ex)
-			{
-                LogAndShowError($"Ошибка при пересчёте значений Quantity: {ex.Message}",
-					"Ошибка пересчёта значений. Проверьте корректность данных.",
-					ex.InnerException?.Message);
-			}
-		}
-
-		private void ApplyFormulasToQuantities()
-		{
-			var coefDict = GetCoefficientDictionary();
-
-			foreach (var displayedComponent in _bindingList)
-			{
-				if (!string.IsNullOrWhiteSpace(displayedComponent.Formula))
-				{
-					try
-					{
-						// Пересчёт значения Quantity на основе формулы и коэффициентов
-						displayedComponent.Quantity = MathScript.EvaluateCoefficientExpression(displayedComponent.Formula, coefDict);
-					}
-					catch (Exception ex)
-					{
-						_logger.Error($"Ошибка вычисления формулы для компонента ID={displayedComponent.ChildId}: {ex.Message}. Формула: {displayedComponent.Formula}");
-						throw new InvalidOperationException($"Ошибка вычисления формулы для компонента '{displayedComponent.Name} - {displayedComponent.Type}'.", ex);
-					}
+					RecalculateQuantityForObject(displayedComponent);
 				}
 			}
 		}
 
-        private void LogAndShowError(string logMessage, string userMessage, string? innerError = null)
-        {
-            _logger.Error(logMessage);
+		//private void RecalculateQuantityForComponent(DisplayedComponent_TC displayedComponent)
+		//{
+		//	if (displayedComponent == null || string.IsNullOrEmpty(displayedComponent.Formula))
+		//		return;
 
-            if (!string.IsNullOrWhiteSpace(innerError))
-                userMessage += "\n\n" + innerError;
+		//	try
+		//	{
+		//		var coefDict = GetCoefficientDictionary();
+		//		displayedComponent.Quantity = MathScript.EvaluateCoefficientExpression(displayedComponent.Formula, coefDict);
+		//		dgvMain.Refresh();
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		LogAndShowError(
+		//			$"Ошибка вычисления формулы: {ex.Message}",
+		//			$"Ошибка вычисления формулы для компонента '{displayedComponent.Name} - {displayedComponent.Type}'. Проверьте формулу.");
+		//	}
+		//}
 
-			MessageBox.Show(userMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-		}
+		//private Dictionary<string, double> GetCoefficientDictionary()
+		//{
+		//	return _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+		//}
+
+		///// <summary>
+		///// Пересчёт значения Quantity для всех объектов с заданной формулой.
+		///// </summary>
+		//private void RecalculateQuantities()
+		//{
+  //          if (_bindingList == null || _bindingList.Count == 0)
+  //              return;
+
+  //          try
+  //          {
+  //              ApplyFormulasToQuantities();
+
+		//		dgvMain.Refresh(); // Обновляем отображение данных в DataGridView
+  //          }
+  //          catch (Exception ex)
+  //          {
+		//		LogAndShowError($"Ошибка при пересчёте значений Quantity: {ex.Message}",
+		//			"Ошибка пересчёта значений. Проверьте корректность данных.",
+		//			ex.InnerException?.Message);
+  //          }
+  //      }
+
+		///// <summary>
+		///// Асинхронный пересчёт значения Quantity для всех объектов с заданной формулой.
+		///// </summary>
+		//private async Task RecalculateQuantitiesAsync()
+		//{
+		//	if (_bindingList == null || _bindingList.Count == 0)
+		//		return;
+
+		//	try
+		//	{
+		//		// Выполняем пересчёт в отдельной задаче
+		//		await Task.Run(() =>
+		//		{
+		//			ApplyFormulasToQuantities();
+		//		});
+
+  //              // Обновляем интерфейс в основном потоке
+  //              Invoke(new Action(() => dgvMain.Refresh()));
+
+  //          }
+		//	catch (Exception ex)
+		//	{
+  //              LogAndShowError($"Ошибка при пересчёте значений Quantity: {ex.Message}",
+		//			"Ошибка пересчёта значений. Проверьте корректность данных.",
+		//			ex.InnerException?.Message);
+		//	}
+		//}
+
+		//private void ApplyFormulasToQuantities()
+		//{
+		//	var coefDict = GetCoefficientDictionary();
+
+		//	foreach (var displayedComponent in _bindingList)
+		//	{
+		//		if (!string.IsNullOrWhiteSpace(displayedComponent.Formula))
+		//		{
+		//			try
+		//			{
+		//				// Пересчёт значения Quantity на основе формулы и коэффициентов
+		//				displayedComponent.Quantity = MathScript.EvaluateCoefficientExpression(displayedComponent.Formula, coefDict);
+		//			}
+		//			catch (Exception ex)
+		//			{
+		//				_logger.Error($"Ошибка вычисления формулы для компонента ID={displayedComponent.ChildId}: {ex.Message}. Формула: {displayedComponent.Formula}");
+		//				throw new InvalidOperationException($"Ошибка вычисления формулы для компонента '{displayedComponent.Name} - {displayedComponent.Type}'.", ex);
+		//			}
+		//		}
+		//	}
+		//}
+
+  //      private void LogAndShowError(string logMessage, string userMessage, string? innerError = null)
+  //      {
+  //          _logger.Error(logMessage);
+
+  //          if (!string.IsNullOrWhiteSpace(innerError))
+  //              userMessage += "\n\n" + innerError;
+
+		//	MessageBox.Show(userMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		//}
 	}
 
 

@@ -13,8 +13,8 @@ using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Tool : Form, IViewModeable
-    {
+    public partial class Win6_Tool : Form, IViewModeable //BaseContentFormWithFormula<DisplayedTool_TC>
+	{
         private readonly TcViewState _tcViewState;
 
         private bool _isViewMode;
@@ -314,8 +314,8 @@ namespace TC_WinForms.WinForms
                 _changedObjects.Clear();
             }
         }
-        private class DisplayedTool_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable
-        {
+        private class DisplayedTool_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable//, IFormulaItem
+		{
             public Dictionary<string, string> GetPropertiesNames()
             {
                 return new Dictionary<string, string>
