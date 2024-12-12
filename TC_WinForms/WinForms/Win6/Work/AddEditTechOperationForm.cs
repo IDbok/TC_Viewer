@@ -580,7 +580,7 @@ namespace TC_WinForms.WinForms.Work
 						var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
 						var coefficient = wor.Coefficient;
 
-						wor.Value = MathScript.EvaluateCoefficientExpression(coefficient, time, coefDict);
+						wor.Value = MathScript.EvaluateCoefficientExpression(coefficient, coefDict, time);
 					}
 					catch (Exception ex)
                     {
@@ -2702,7 +2702,7 @@ namespace TC_WinForms.WinForms.Work
 					var value = repeat.ChildExecutionWork.Value;
 					var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
 
-					totalValue += MathScript.EvaluateCoefficientExpression(repeat.NewCoefficient, value.ToString(), coefDict);
+					totalValue += MathScript.EvaluateCoefficientExpression(repeat.NewCoefficient, coefDict, value.ToString());
 				}
 			}
 			catch (Exception ex)

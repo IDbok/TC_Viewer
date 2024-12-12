@@ -8,6 +8,7 @@ using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TcDbConnector;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -18,7 +19,7 @@ using Component = TcModels.Models.TcContent.Component;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Component : Form, IViewModeable
+    public partial class Win6_Component : BaseContentForm, IViewModeable
     {
         private readonly ILogger _logger;
 
@@ -59,8 +60,9 @@ namespace TC_WinForms.WinForms
 
             dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
             dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
+			dgvMain.CellValueChanged += dgvMain_CellValueChanged;
 
-            this.FormClosed += (sender, e) => {
+			this.FormClosed += (sender, e) => {
                 _logger.Information("Форма закрыта");
                 this.Dispose();
             };
@@ -87,7 +89,14 @@ namespace TC_WinForms.WinForms
             dgvMain.Refresh();
 
         }
-        private void Win6_Component_Load(object sender, EventArgs e)
+		public override async void OnActivate()
+		{
+            //RecalculateQuantities();
+            await RecalculateQuantitiesAsync(); 
+            // использую асинхронный метод для избежания блокировки интерфейса при выдачи сообщения об ошибки
+		}
+
+		private void Win6_Component_Load(object sender, EventArgs e)
         {
             _logger.Information("Загрузка формы Win6_Component");
 
@@ -97,7 +106,9 @@ namespace TC_WinForms.WinForms
             dgvMain.AllowUserToDeleteRows = false;
 
             SetViewMode();
-        }
+
+			RecalculateQuantities();
+		}
         private void LoadObjects()
         {
             var tcList = _tcViewState.TechnologicalCard.Component_TCs.Where(obj => obj.ParentId == _tcId)
@@ -589,7 +600,124 @@ namespace TC_WinForms.WinForms
 
             return false;
         }
-    }
+
+		private void dgvMain_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+		{
+			if (e.RowIndex >= 0 && dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedComponent_TC.Formula))
+			{
+				var row = dgvMain.Rows[e.RowIndex];
+				if (row.DataBoundItem is DisplayedComponent_TC displayedComponent)
+				{
+					RecalculateQuantityForComponent(displayedComponent);
+				}
+			}
+		}
+		private void RecalculateQuantityForComponent(DisplayedComponent_TC displayedComponent)
+		{
+			if (displayedComponent == null || string.IsNullOrEmpty(displayedComponent.Formula))
+				return;
+
+			try
+			{
+				var coefDict = GetCoefficientDictionary();
+				displayedComponent.Quantity = MathScript.EvaluateCoefficientExpression(displayedComponent.Formula, coefDict);
+				dgvMain.Refresh();
+			}
+			catch (Exception ex)
+			{
+				LogAndShowError(
+					$"Ошибка вычисления формулы: {ex.Message}",
+					$"Ошибка вычисления формулы для компонента '{displayedComponent.Name} - {displayedComponent.Type}'. Проверьте формулу.");
+			}
+		}
+
+		private Dictionary<string, double> GetCoefficientDictionary()
+		{
+			return _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+		}
+
+		/// <summary>
+		/// Пересчёт значения Quantity для всех объектов с заданной формулой.
+		/// </summary>
+		private void RecalculateQuantities()
+		{
+            if (_bindingList == null || _bindingList.Count == 0)
+                return;
+
+            try
+            {
+                ApplyFormulasToQuantities();
+
+				dgvMain.Refresh(); // Обновляем отображение данных в DataGridView
+            }
+            catch (Exception ex)
+            {
+				LogAndShowError($"Ошибка при пересчёте значений Quantity: {ex.Message}",
+					"Ошибка пересчёта значений. Проверьте корректность данных.",
+					ex.InnerException?.Message);
+            }
+        }
+
+		/// <summary>
+		/// Асинхронный пересчёт значения Quantity для всех объектов с заданной формулой.
+		/// </summary>
+		private async Task RecalculateQuantitiesAsync()
+		{
+			if (_bindingList == null || _bindingList.Count == 0)
+				return;
+
+			try
+			{
+				// Выполняем пересчёт в отдельной задаче
+				await Task.Run(() =>
+				{
+					ApplyFormulasToQuantities();
+				});
+
+                // Обновляем интерфейс в основном потоке
+                Invoke(new Action(() => dgvMain.Refresh()));
+
+            }
+			catch (Exception ex)
+			{
+                LogAndShowError($"Ошибка при пересчёте значений Quantity: {ex.Message}",
+					"Ошибка пересчёта значений. Проверьте корректность данных.",
+					ex.InnerException?.Message);
+			}
+		}
+
+		private void ApplyFormulasToQuantities()
+		{
+			var coefDict = GetCoefficientDictionary();
+
+			foreach (var displayedComponent in _bindingList)
+			{
+				if (!string.IsNullOrWhiteSpace(displayedComponent.Formula))
+				{
+					try
+					{
+						// Пересчёт значения Quantity на основе формулы и коэффициентов
+						displayedComponent.Quantity = MathScript.EvaluateCoefficientExpression(displayedComponent.Formula, coefDict);
+					}
+					catch (Exception ex)
+					{
+						_logger.Error($"Ошибка вычисления формулы для компонента ID={displayedComponent.ChildId}: {ex.Message}. Формула: {displayedComponent.Formula}");
+						throw new InvalidOperationException($"Ошибка вычисления формулы для компонента '{displayedComponent.Name} - {displayedComponent.Type}'.", ex);
+					}
+				}
+			}
+		}
+
+        private void LogAndShowError(string logMessage, string userMessage, string? innerError = null)
+        {
+            _logger.Error(logMessage);
+
+            if (!string.IsNullOrWhiteSpace(innerError))
+                userMessage += "\n\n" + innerError;
+
+			MessageBox.Show(userMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
+	}
 
 
 }

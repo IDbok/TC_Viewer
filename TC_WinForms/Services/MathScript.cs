@@ -14,7 +14,7 @@ public static class MathScript
 	/// <param name="defaultValue">Значение по умолчанию, используемое в выражении. На него домножается (по умолчанию) выражение с коэффициентом</param>
 	/// <param name="coefDict">Необязательный словарь переменных для вычисления выражения.</param>
 	/// <returns>Вычисленное значение, округленное до 2 знаков после запятой, или генерирует исключение при ошибке.</returns>
-	public static double EvaluateCoefficientExpression(string coefficient, string defaultValue, Dictionary<string, double> coefDict)
+	public static double EvaluateCoefficientExpression(string coefficient, Dictionary<string, double> coefDict, string? defaultValue = null)
 	{
 		try
 		{
@@ -29,9 +29,17 @@ public static class MathScript
 
 			// проверить нет ли в знака первым символом
 			// Определяем формат выражения
-			var expression = IsMathSign(firstChar)
+			string expression;
+			if (string.IsNullOrWhiteSpace(defaultValue))
+			{
+				expression = coefficient;
+			}else
+			{
+				expression = IsMathSign(firstChar)
 				? $"{defaultValue}{coefficient}"
 				: $"{defaultValue}*({coefficient})";
+			}
+			
 
 			double value = coefDict?.Count > 0
 				? EvaluateExpression(expression, coefDict)

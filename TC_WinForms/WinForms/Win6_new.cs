@@ -496,6 +496,12 @@ namespace TC_WinForms.WinForms
 					_formsCache[modelType] = form;
 				}
 
+				if (form is BaseContentForm baseForm)
+				{
+					baseForm.OnActivate();
+				}
+
+
 				SwitchActiveForm(form);
 				_activeModelType = modelType;
 
