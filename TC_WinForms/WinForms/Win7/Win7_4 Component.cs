@@ -73,8 +73,10 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
 
         InitializeComponent();
 
+
 		dgvMain.DoubleBuffered(true);
 	}
+
 
     private  void InitializeTip()
     {
@@ -138,7 +140,9 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         _displayedObjects = await Task.Run(() => DataService.GetComponents() //dbCon.GetObjectList<Component>(includeLinks: true)
             .Select(obj => new DisplayedComponent(obj)).OrderBy(c => c.Name).ToList());
 
-        paginationService = new PaginationControlService<DisplayedComponent>(30, _displayedObjects);
+        if(!_isAddingForm) 
+            paginationService = new PaginationControlService<DisplayedComponent>(30, _displayedObjects);
+       
 
         _selectionService = new SelectionService<DisplayedComponent>(dgvMain, _displayedObjects);
 
@@ -150,16 +154,18 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
     private void UpdateDisplayedData()
     {
         // Расчет отображаемых записей
+        if (!_isAddingForm && paginationService != null)
+            _bindingList = new BindingList<DisplayedComponent>(paginationService.GetPageData());
 
-        _bindingList = new BindingList<DisplayedComponent>(paginationService.GetPageData());
         dgvMain.DataSource = _bindingList;
         dgvMain.ResizeRows(_minRowHeight);
-
-        // Подготовка данных для события
-        PageInfo = paginationService.GetPageInfo();
-
-        // Вызов события с подготовленными данными
-        RaisePageInfoChanged();
+        if (!_isAddingForm && paginationService != null)
+        {
+            // Подготовка данных для события
+            PageInfo = paginationService.GetPageInfo();
+            // Вызов события с подготовленными данными
+            RaisePageInfoChanged();
+        }
     }
     private void AccessInitialization()
     {
@@ -694,8 +700,11 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
 
             }
             //dgvMain.DataSource = _bindingList;
+            if (!_isAddingForm && paginationService != null)
+                paginationService.SetAllObjectList(displayedComponentList.ToList());
+            else
+                _bindingList = displayedComponentList;
 
-            paginationService.SetAllObjectList(displayedComponentList.ToList());
             UpdateDisplayedData();
 
 

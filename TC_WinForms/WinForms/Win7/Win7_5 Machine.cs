@@ -111,7 +111,9 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
         _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Machine>(includeLinks: true)
             .Select(obj => new DisplayedMachine(obj)).OrderBy(c => c.Name).ToList());
 
-        paginationService = new PaginationControlService<DisplayedMachine>(30, _displayedObjects.OrderBy(c => c.Name).ToList());
+        if (!_isAddingForm)
+            paginationService = new PaginationControlService<DisplayedMachine>(30, _displayedObjects.OrderBy(c => c.Name).ToList());
+        
 
         _selectionService = new SelectionService<DisplayedMachine>(dgvMain, _displayedObjects);
 
@@ -123,16 +125,19 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
     private void UpdateDisplayedData()
     {
         // Расчет отображаемых записей
+        if (!_isAddingForm && paginationService != null)
+            _bindingList = new BindingList<DisplayedMachine>(paginationService.GetPageData());
 
-        _bindingList = new BindingList<DisplayedMachine>(paginationService.GetPageData());
         dgvMain.DataSource = _bindingList;
         dgvMain.ResizeRows(_minRowHeight);
 
-        // Подготовка данных для события
-        PageInfo = paginationService.GetPageInfo();
-
-        // Вызов события с подготовленными данными
-        RaisePageInfoChanged();
+        if (!_isAddingForm && paginationService != null)
+        {
+            // Подготовка данных для события
+            PageInfo = paginationService.GetPageInfo();
+            // Вызов события с подготовленными данными
+            RaisePageInfoChanged();
+        }
     }
     private void AccessInitialization()
     {
@@ -592,7 +597,11 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
                 _isFiltered = true;
             }
 
-            paginationService.SetAllObjectList(displayedMachineList.ToList());
+            if (!_isAddingForm && paginationService != null)
+                paginationService.SetAllObjectList(displayedMachineList.ToList());
+            else
+                _bindingList = displayedMachineList;
+
             UpdateDisplayedData();
 
             if (_isAddingForm)
