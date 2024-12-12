@@ -1,12 +1,11 @@
 ﻿using Serilog;
 using System.ComponentModel;
 using TC_WinForms.Services;
-using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.WinForms;
 
 public abstract class BaseContentFormWithFormula<T> : BaseContentForm
-	where T : class, IFormulaItem, IIntermediateDisplayedEntity, INotifyPropertyChanged, new()
+	where T : BaseDisplayedEntity, new() //class, IFormulaItem, IIntermediateDisplayedEntity, INotifyPropertyChanged, new()
 {
 	protected TcViewState _tcViewState;
 	protected ILogger _logger;
@@ -138,12 +137,4 @@ public abstract class BaseContentFormWithFormula<T> : BaseContentForm
 				$"Проверьте формулу.");
 		}
 	}
-}
-// Интерфейс для элементов, у которых есть формулы
-public interface IFormulaItem
-{
-	string? Formula { get; }
-	double? Quantity { get; set; }
-	string Name { get; }
-	string? Type { get; }
 }

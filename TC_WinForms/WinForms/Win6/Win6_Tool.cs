@@ -13,7 +13,7 @@ using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Tool : Form, IViewModeable //BaseContentFormWithFormula<DisplayedTool_TC>
+    public partial class Win6_Tool : /*BaseContentFormWithFormula<DisplayedTool_TC>*/Form, IViewModeable 
 	{
         private readonly TcViewState _tcViewState;
 

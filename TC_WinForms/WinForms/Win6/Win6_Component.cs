@@ -344,72 +344,25 @@ namespace TC_WinForms.WinForms
 			SetDGVColumnsSettings();
 		}
 
-		public class DisplayedComponent_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable, IFormulaItem
+		public class DisplayedComponent_TC : BaseDisplayedEntity
 		{
-            public Dictionary<string, string> GetPropertiesNames()
+            public override Dictionary<string, string> GetPropertiesNames()
             {
-                return new Dictionary<string, string>
-                {
-                    { nameof(ChildId), "ID" },
-                    { nameof(ParentId), "ID тех. карты" },
-                    { nameof(Order), "№" },
-                    { nameof(Quantity), "Кол-во" },
-				    { nameof(Formula), "Формула" },
-				    { nameof(Note), "Примечание" },
+                var baseDict = base.GetPropertiesNames();
 
-                    { nameof(Name), "Наименование" },
-                    { nameof(Type), "Тип (исполнение)" },
-                    { nameof(Unit), "Ед.изм." },
-                    { nameof(Price), "Стоимость за ед., руб. без НДС" },
-                    { nameof(TotalPrice), "Стоимость, руб. без НДС" },
-                    { nameof(Description), "Описание" },
-                    { nameof(Manufacturer), "Производители (поставщики)" },
-                    { nameof(Categoty), "Категория" },
-                    { nameof(ClassifierCode), "Код в classifier" },
-                };
-            }
-            public List<string> GetPropertiesOrder()
+				baseDict.Add(nameof(Category), "Категория");
+				baseDict.Add(nameof(TotalPrice), "Стоимость, руб. без НДС");
+
+                return baseDict;
+			}
+			public override List<string> GetPropertiesOrder()
             {
-                return new List<string>
-                {
-                    nameof(Order),
+                var baseList = base.GetPropertiesOrder();
 
-                    nameof(Name),
-                    nameof(Type),
-                    nameof(Unit),
-					nameof(Formula),
-					nameof(Quantity),
-					nameof(TotalPrice),
-                    nameof(Note),
-                    nameof(ChildId),
+                baseList.Insert(5, nameof(TotalPrice));
 
-                };
-            }
-            public List<string> GetRequiredFields()
-            {
-                return new List<string>
-                {
-                    nameof(ChildId) ,
-                    nameof(ParentId) ,
-                    nameof(Order),
-                };
-            }
-            public List<string> GetKeyFields()
-            {
-                return new List<string>
-                {
-                    nameof(ChildId),
-                    nameof(ParentId),
-                };
-            }
-
-            private int childId;
-            private int parentId;
-            private int order;
-            private double quantity;
-            private string? note;
-
-            private string? formula;
+				return baseList;
+			}            
 
             public DisplayedComponent_TC()
             {
@@ -430,104 +383,16 @@ namespace TC_WinForms.WinForms
 				Price = obj.Child.Price ?? 0;
                 Description = obj.Child.Description;
                 Manufacturer = obj.Child.Manufacturer;
-                Categoty = obj.Child.Categoty;
+                Category = obj.Child.Categoty;
                 ClassifierCode = obj.Child.ClassifierCode;
                 Note = obj.Note;
                 IsReleased = obj.Child.IsReleased;
 
-                previousOrder = Order;
-            }
-
-            public int ChildId { get; set; }
-            public int ParentId { get; set; }
-            private int previousOrder;
-            public int Order
-            {
-                get => order;
-                set
-                {
-                    if (order != value)
-                    {
-                        previousOrder = order;
-                        order = value;
-                        OnPropertyChanged(nameof(Order));
-                    }
-                }
-            }
-
-            public int PreviousOrder => previousOrder;
-            public double? Quantity
-            {
-                get => quantity;
-                set
-                {
-                    if (quantity != value)
-                    {
-                        quantity = value ?? 0;
-                        OnPropertyChanged(nameof(Quantity));
-                    }
-                }
-            }
-
-			public string? Formula
-			{
-				get => formula;
-				set
-				{
-					if (formula != value)
-					{
-						formula = value;
-						OnPropertyChanged(nameof(Formula));
-					}
-					// todo:  пересчёт количества по формуле
-				}
+				//previousOrder = Order; // устанавливается вместе с Order
 			}
 
-			public string? Note
-            {
-                get => note;
-                set
-                {
-                    if (note != value)
-                    {
-                        note = value;
-                        OnPropertyChanged(nameof(Note));
-                    }
-                }
-            }
-
-            public string Name { get; set; }
-            public string? Type { get; set; }
-            public string Unit { get; set; }
-            public float Price { get; set; } = 0;
-
-            public double TotalPrice => (int)(Price * Quantity);
-            public string? Description { get; set; }
-            public string? Manufacturer { get; set; }
-            //public List<LinkEntety> Links { get; set; } = new();
-            public string Categoty { get; set; } = "StandComp";
-            public string ClassifierCode { get; set; }
-
-            public bool IsReleased { get; set; } = false;
-
-
-            public event PropertyChangedEventHandler PropertyChanged;
-            protected virtual void OnPropertyChanged(string propertyName)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-
-            private Dictionary<string, object> oldValueDict = new Dictionary<string, object>();
-
-            public object GetOldValue(string propertyName)
-            {
-                if (oldValueDict.ContainsKey(propertyName))
-                {
-                    return oldValueDict[propertyName];
-                }
-
-                return null;
-            }
+			public double TotalPrice => (int)(Price * Quantity);
+            public string Category { get; set; } = "StandComp";
 
         }
 
