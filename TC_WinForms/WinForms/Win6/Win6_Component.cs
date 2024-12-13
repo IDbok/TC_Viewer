@@ -5,34 +5,23 @@ using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
 using TcDbConnector;
-using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
-using static TC_WinForms.DataProcessing.DGVProcessing;
 using static TC_WinForms.WinForms.Win6_Component;
 using Component = TcModels.Models.TcContent.Component;
 
 namespace TC_WinForms.WinForms
 {
-	public partial class Win6_Component : BaseContentFormWithFormula<DisplayedComponent_TC>, IViewModeable
+	public partial class Win6_Component : BaseContentFormWithFormula<DisplayedComponent_TC, Component_TC>, IViewModeable
     {
-		//private readonly ILogger _logger;
-		//private readonly TcViewState _tcViewState;
 		protected override DataGridView DgvMain => dgvMain;
+        protected override Panel PnlControls => pnlControls;
+		protected override IList<Component_TC> TargetTable 
+            => _tcViewState.TechnologicalCard.Component_TCs;
 
 
-        //private bool _isViewMode;
-
-        private MyDbContext context;
+		private MyDbContext context;
 
         private int _tcId;
-
-        //private BindingList<DisplayedComponent_TC> _bindingList;
-        //private List<DisplayedComponent_TC> _changedObjects = new ();
-        //private List<DisplayedComponent_TC> _newObjects = new ();
-        //private List<DisplayedComponent_TC> _deletedObjects = new ();
-
-        private Dictionary<DisplayedComponent_TC, DisplayedComponent_TC> _replacedObjects = new (); // add to UpdateMode // todo: можно перенести в BaseForm
-
 		public bool CloseFormsNoSave { get; set; } = false;
 
         public Win6_Component(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
@@ -64,44 +53,9 @@ namespace TC_WinForms.WinForms
             };
         }
 
-        public void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
-        {
-
-            pnlControls.Visible = !_tcViewState.IsViewMode;
-
-            // make columns editable
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Order)].ReadOnly = _tcViewState.IsViewMode;
-			dgvMain.Columns[nameof(DisplayedComponent_TC.Formula)].ReadOnly = _tcViewState.IsViewMode;
-			dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].ReadOnly = _tcViewState.IsViewMode;
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Note)].ReadOnly = _tcViewState.IsViewMode;
-
-
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
-			dgvMain.Columns[nameof(DisplayedComponent_TC.Formula)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
-			dgvMain.Columns[nameof(DisplayedComponent_TC.Quantity)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Note)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
-
-            // update form
-            dgvMain.Refresh();
-
-        }
-
-		private void Win6_Component_Load(object sender, EventArgs e) // todo: можно перенести в BaseForm
-		{
-            _logger.Information("Загрузка формы Win6_Component");
-
-            LoadObjects();
-            DisplayedEntityHelper.SetupDataGridView<DisplayedComponent_TC>(dgvMain);
-
-            dgvMain.AllowUserToDeleteRows = false;
-
-            SetViewMode();
-
-			RecalculateQuantities();
-		}
 		protected override void LoadObjects() // todo: можно перенести в BaseForm
 		{
-            var tcList = _tcViewState.TechnologicalCard.Component_TCs
+            var tcList = TargetTable //_tcViewState.TechnologicalCard.Component_TCs
                 .Where(obj => obj.ParentId == _tcId)
                 .OrderBy(o => o.Order)
                 .Select(obj => new DisplayedComponent_TC(obj))
@@ -111,12 +65,10 @@ namespace TC_WinForms.WinForms
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
 
-            //SetDGVColumnsSettings();
             InitializeDataGridViewColumns();
-
 		}
-        
-        public void AddNewObjects(List<Component> newObjs)
+
+		public void AddNewObjects(List<Component> newObjs)
         {
             foreach (var obj in newObjs)
             {
@@ -124,7 +76,8 @@ namespace TC_WinForms.WinForms
                 var component = context.Components.Where(s => s.Id == newObj_TC.ChildId).First();
 
                 context.Components.Attach(component);
-                _tcViewState.TechnologicalCard.Component_TCs.Add(newObj_TC);
+				TargetTable //_tcViewState.TechnologicalCard.Component_TCs
+                    .Add(newObj_TC);
 
                 newObj_TC.Child = component;
                 newObj_TC.ChildId = component.Id;
@@ -137,82 +90,24 @@ namespace TC_WinForms.WinForms
             dgvMain.Refresh();
         }
 
-        ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
-        void SetDGVColumnsSettings() // todo: можно перенести в BaseForm. Хотябы частично
+		////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
+		protected override Dictionary<string, int> GetFixedColumnWidths(int pixels)
 		{
-
-            // автоподбор ширины столбцов под ширину таблицы
-            dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
-            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvMain.RowHeadersWidth = 25;
-
-            //// автоперенос в ячейках
-            dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-
-            int pixels = 35;
-
-            // Минимальные ширины столбцов
-            Dictionary<string, int> fixColumnWidths = new Dictionary<string, int>
-            {
-                { nameof(DisplayedComponent_TC.Order), 1*pixels },
-                { nameof(DisplayedComponent_TC.Type), 4*pixels },
-                { nameof(DisplayedComponent_TC.Unit), 2*pixels },
+			return new Dictionary<string, int>
+	        {
+		        { nameof(BaseDisplayedEntity.Order), 1 * pixels },
+		        { nameof(BaseDisplayedEntity.Type), 4 * pixels },
+		        { nameof(BaseDisplayedEntity.Unit), 2 * pixels },
                 { nameof(DisplayedComponent_TC.TotalPrice), 3*pixels },
-				{ nameof(DisplayedComponent_TC.Formula), 3*pixels },
-				{ nameof(DisplayedComponent_TC.Quantity), 3*pixels },
-                { nameof(DisplayedComponent_TC.ChildId), 2*pixels },
+                { nameof(BaseDisplayedEntity.Formula), 3 * pixels },
+		        { nameof(BaseDisplayedEntity.Quantity), 3 * pixels },
+		        { nameof(BaseDisplayedEntity.ChildId), 2 * pixels }
+	        };
+		}
 
-            };
-            foreach (var column in fixColumnWidths)
-            {
-                dgvMain.Columns[column.Key].Width = column.Value;
-                dgvMain.Columns[column.Key].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                dgvMain.Columns[column.Key].Resizable = DataGridViewTriState.False;
-            }
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            dgvMain.Columns[nameof(DisplayedComponent_TC.Type)].Resizable = DataGridViewTriState.True;
-
-            // make columns readonly
-            foreach (DataGridViewColumn column in dgvMain.Columns)
-            {
-                column.ReadOnly = true;
-            }
-            var changeableColumn = new List<string>
-            {
-                nameof(DisplayedComponent_TC.Order),
-                //nameof(DisplayedComponent_TC.Quantity),
-                nameof(DisplayedComponent_TC.Formula),
-                nameof(DisplayedComponent_TC.Note),
-            };
-            foreach (var column in changeableColumn)
-            {
-                dgvMain.Columns[column].ReadOnly = false;
-                dgvMain.Columns[column].DefaultCellStyle.BackColor = Color.LightGray;
-            }
-        }
-
-        private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e) // todo: можно перенести в BaseForm
-		{
-            // Проверяем, что это не заголовок столбца и не новая строка
-            if (e.RowIndex >= 0 && e.RowIndex < dgvMain.Rows.Count)
-            {
-                var row = dgvMain.Rows[e.RowIndex];
-                var displayedObject = row.DataBoundItem as DisplayedComponent_TC;
-                if (displayedObject != null)
-                {
-                    // Меняем цвет строки в зависимости от значения свойства IsReleased
-                    if (!displayedObject.IsReleased)
-                    {
-                        row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
-                    }
-                }
-            }
-        }
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-       
-
-        private void SaveReplacedObjects() // add to UpdateMode
+		protected override void SaveReplacedObjects() // add to UpdateMode
         {
             if (_replacedObjects.Count == 0)
                 return;
@@ -244,17 +139,25 @@ namespace TC_WinForms.WinForms
             //Удялем старые компоненты из ТехКарты
             for (int i = 0; i < oldObjects.Count; i++)
             {
-                var oldComponent = _tcViewState.TechnologicalCard.Component_TCs.Where(m => m.ChildId == oldObjects[i].ChildId).First();
-                _tcViewState.TechnologicalCard.Component_TCs.Remove(oldComponent);
+                var oldComponent = TargetTable //_tcViewState.TechnologicalCard.Component_TCs
+                    .Where(m => m.ChildId == oldObjects[i].ChildId).First();
+				TargetTable //_tcViewState.TechnologicalCard.Component_TCs
+                    .Remove(oldComponent);
             }
 
-            _tcViewState.TechnologicalCard.Component_TCs.AddRange(newObjects);
+            foreach (var newObj in newObjects)
+            {
+                TargetTable 
+                    .Add(newObj);
+            }
+			//_tcViewState.TechnologicalCard.Component_TCs
+   //             .AddRange(newObjects);
 
             _changedObjects.Clear();
 
         }
 
-        private Component_TC CreateNewObject(DisplayedComponent_TC dObj)
+		protected override Component_TC CreateNewObject(BaseDisplayedEntity dObj)
         {
             return new Component_TC
             {
@@ -286,7 +189,6 @@ namespace TC_WinForms.WinForms
             newForm.WindowState = FormWindowState.Maximized;
             newForm.ShowDialog();
         }
-
         private void btnDeleteObj_Click(object sender, EventArgs e)
         {
             DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
@@ -306,96 +208,16 @@ namespace TC_WinForms.WinForms
 
                     }
 
-                    var deletedObj = _tcViewState.TechnologicalCard.Component_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
+                    var deletedObj = TargetTable //_tcViewState.TechnologicalCard.Component_TCs
+                        .Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
                     if (deletedObj != null)
-                        _tcViewState.TechnologicalCard.Component_TCs.Remove(deletedObj);
+						TargetTable //_tcViewState.TechnologicalCard.Component_TCs
+                            .Remove(deletedObj);
                 }
 
                 _deletedObjects.Clear();
             }
         }
-
-        private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) 
-            // todo: можно перенести в BaseForm
-			// todo - fix problem with selection replacing row (error while remove it)
-		{
-            ReorderRows(dgvMain, e, _bindingList);
-        }
-
-        private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
-        {
-            DisplayedEntityHelper.ListChangedEventHandlerIntermediate
-                (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
-
-            if (_changedObjects.Count != 0)
-            {
-                foreach (var obj in _changedObjects)
-                {
-                    var changedObject = _tcViewState.TechnologicalCard.Component_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
-                    if (changedObject != null)
-                        changedObject.ApplyUpdates(CreateNewObject(obj));
-                }
-                _changedObjects.Clear();
-
-            }
-        }
-		protected override void InitializeDataGridViewColumns()
-		{
-			SetDGVColumnsSettings();
-		}
-
-		public class DisplayedComponent_TC : BaseDisplayedEntity
-		{
-            public override Dictionary<string, string> GetPropertiesNames()
-            {
-                var baseDict = base.GetPropertiesNames();
-
-				baseDict.Add(nameof(Category), "Категория");
-				baseDict.Add(nameof(TotalPrice), "Стоимость, руб. без НДС");
-
-                return baseDict;
-			}
-			public override List<string> GetPropertiesOrder()
-            {
-                var baseList = base.GetPropertiesOrder();
-
-                baseList.Insert(5, nameof(TotalPrice));
-
-				return baseList;
-			}            
-
-            public DisplayedComponent_TC()
-            {
-
-            }
-            public DisplayedComponent_TC(Component_TC obj)
-            {
-                ChildId = obj.ChildId;
-                ParentId = obj.ParentId;
-                Order = obj.Order;
-
-                Name = obj.Child.Name;
-                Type = obj.Child.Type;
-
-                Unit = obj.Child.Unit;
-                Quantity = obj.Quantity;
-				Formula = obj.Formula;
-				Price = obj.Child.Price ?? 0;
-                Description = obj.Child.Description;
-                Manufacturer = obj.Child.Manufacturer;
-                Category = obj.Child.Categoty;
-                ClassifierCode = obj.Child.ClassifierCode;
-                Note = obj.Note;
-                IsReleased = obj.Child.IsReleased;
-
-				//previousOrder = Order; // устанавливается вместе с Order
-			}
-
-			public double TotalPrice => (int)(Price * Quantity);
-            public string Category { get; set; } = "StandComp";
-
-        }
-
         private void btnReplace_Click(object sender, EventArgs e) // add to UpdateMode
         {
             // Выделение объекта выбранной строки
@@ -411,7 +233,6 @@ namespace TC_WinForms.WinForms
             newForm.WindowState = FormWindowState.Maximized;
             newForm.ShowDialog();
         }
-
         public bool UpdateSelectedObject(Component updatedObject) // add to UpdateMode
         {
             if (dgvMain.SelectedRows.Count != 1)
@@ -465,125 +286,56 @@ namespace TC_WinForms.WinForms
 
             return false;
         }
-
-		private void dgvMain_CellValueChanged(object sender, DataGridViewCellEventArgs e) // todo: можно перенести в BaseForm
+		public class DisplayedComponent_TC : BaseDisplayedEntity
 		{
-			if (e.RowIndex >= 0 && dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedComponent_TC.Formula))
+			public override Dictionary<string, string> GetPropertiesNames()
 			{
-				var row = dgvMain.Rows[e.RowIndex];
-				if (row.DataBoundItem is DisplayedComponent_TC displayedComponent)
-				{
-					RecalculateQuantityForObject(displayedComponent);
-				}
+				var baseDict = base.GetPropertiesNames();
+
+				baseDict.Add(nameof(Category), "Категория");
+				baseDict.Add(nameof(TotalPrice), "Стоимость, руб. без НДС");
+
+				return baseDict;
 			}
+			public override List<string> GetPropertiesOrder()
+			{
+				var baseList = base.GetPropertiesOrder();
+
+				baseList.Insert(5, nameof(TotalPrice));
+
+				return baseList;
+			}
+
+			public DisplayedComponent_TC()
+			{
+
+			}
+			public DisplayedComponent_TC(Component_TC obj)
+			{
+				ChildId = obj.ChildId;
+				ParentId = obj.ParentId;
+				Order = obj.Order;
+
+				Name = obj.Child.Name;
+				Type = obj.Child.Type;
+
+				Unit = obj.Child.Unit;
+				Quantity = obj.Quantity;
+				Formula = obj.Formula;
+				Price = obj.Child.Price ?? 0;
+				Description = obj.Child.Description;
+				Manufacturer = obj.Child.Manufacturer;
+				Category = obj.Child.Categoty;
+				ClassifierCode = obj.Child.ClassifierCode;
+				Note = obj.Note;
+				IsReleased = obj.Child.IsReleased;
+
+				//previousOrder = Order; // устанавливается вместе с Order
+			}
+
+			public double TotalPrice => (int)(Price * Quantity);
+			public string Category { get; set; } = "StandComp";
+
 		}
-
-		//private void RecalculateQuantityForComponent(DisplayedComponent_TC displayedComponent)
-		//{
-		//	if (displayedComponent == null || string.IsNullOrEmpty(displayedComponent.Formula))
-		//		return;
-
-		//	try
-		//	{
-		//		var coefDict = GetCoefficientDictionary();
-		//		displayedComponent.Quantity = MathScript.EvaluateCoefficientExpression(displayedComponent.Formula, coefDict);
-		//		dgvMain.Refresh();
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		LogAndShowError(
-		//			$"Ошибка вычисления формулы: {ex.Message}",
-		//			$"Ошибка вычисления формулы для компонента '{displayedComponent.Name} - {displayedComponent.Type}'. Проверьте формулу.");
-		//	}
-		//}
-
-		//private Dictionary<string, double> GetCoefficientDictionary()
-		//{
-		//	return _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
-		//}
-
-		///// <summary>
-		///// Пересчёт значения Quantity для всех объектов с заданной формулой.
-		///// </summary>
-		//private void RecalculateQuantities()
-		//{
-  //          if (_bindingList == null || _bindingList.Count == 0)
-  //              return;
-
-  //          try
-  //          {
-  //              ApplyFormulasToQuantities();
-
-		//		dgvMain.Refresh(); // Обновляем отображение данных в DataGridView
-  //          }
-  //          catch (Exception ex)
-  //          {
-		//		LogAndShowError($"Ошибка при пересчёте значений Quantity: {ex.Message}",
-		//			"Ошибка пересчёта значений. Проверьте корректность данных.",
-		//			ex.InnerException?.Message);
-  //          }
-  //      }
-
-		///// <summary>
-		///// Асинхронный пересчёт значения Quantity для всех объектов с заданной формулой.
-		///// </summary>
-		//private async Task RecalculateQuantitiesAsync()
-		//{
-		//	if (_bindingList == null || _bindingList.Count == 0)
-		//		return;
-
-		//	try
-		//	{
-		//		// Выполняем пересчёт в отдельной задаче
-		//		await Task.Run(() =>
-		//		{
-		//			ApplyFormulasToQuantities();
-		//		});
-
-  //              // Обновляем интерфейс в основном потоке
-  //              Invoke(new Action(() => dgvMain.Refresh()));
-
-  //          }
-		//	catch (Exception ex)
-		//	{
-  //              LogAndShowError($"Ошибка при пересчёте значений Quantity: {ex.Message}",
-		//			"Ошибка пересчёта значений. Проверьте корректность данных.",
-		//			ex.InnerException?.Message);
-		//	}
-		//}
-
-		//private void ApplyFormulasToQuantities()
-		//{
-		//	var coefDict = GetCoefficientDictionary();
-
-		//	foreach (var displayedComponent in _bindingList)
-		//	{
-		//		if (!string.IsNullOrWhiteSpace(displayedComponent.Formula))
-		//		{
-		//			try
-		//			{
-		//				// Пересчёт значения Quantity на основе формулы и коэффициентов
-		//				displayedComponent.Quantity = MathScript.EvaluateCoefficientExpression(displayedComponent.Formula, coefDict);
-		//			}
-		//			catch (Exception ex)
-		//			{
-		//				_logger.Error($"Ошибка вычисления формулы для компонента ID={displayedComponent.ChildId}: {ex.Message}. Формула: {displayedComponent.Formula}");
-		//				throw new InvalidOperationException($"Ошибка вычисления формулы для компонента '{displayedComponent.Name} - {displayedComponent.Type}'.", ex);
-		//			}
-		//		}
-		//	}
-		//}
-
-  //      private void LogAndShowError(string logMessage, string userMessage, string? innerError = null)
-  //      {
-  //          _logger.Error(logMessage);
-
-  //          if (!string.IsNullOrWhiteSpace(innerError))
-  //              userMessage += "\n\n" + innerError;
-
-		//	MessageBox.Show(userMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-		//}
 	}
-
-
 }
