@@ -189,7 +189,6 @@ namespace TC_WinForms.WinForms
                 _logger.Information("Изменен режим просмотра: TcId={TcId}, IsViewMode={IsViewMode}", _tc.Id, isViewMode);
                 if (!tcViewState.IsViewMode)
                     concurrencyBlockServise.BlockObject();
-
             }
 
             SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
@@ -391,10 +390,15 @@ namespace TC_WinForms.WinForms
                 }
 
                 SetTagsToButtons();
-                SetViewMode();
                 AccessInitialization();
                 SetTCStatusAccess();
                 UpdateFormTitle();
+
+                if (concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
+                    MessageBox.Show("Данная карта сейчас редактируется другим пользователем, ТК открыта в режиме просмотра");
+
+                SetViewMode();
+
 
                 _logger.Information("Форма загружена успешно для TcId={TcId}", _tcId);
             }
