@@ -264,6 +264,7 @@ namespace TC_WinForms.WinForms
                 if (openedForm != null)
                 {
                     openedForm.BringToFront();
+                    this.Close();
                     return;
                 }
 
@@ -385,7 +386,7 @@ namespace TC_WinForms.WinForms
             _logger.Information("Начало копирования данных технологической карты");
 
             LocalCard.Name = txtName.Text;
-            LocalCard.Article = txtArticle.Text;
+            LocalCard.Article = txtArticle.Text + " (clone)";
             LocalCard.Type = cbxType.Text;
             LocalCard.NetworkVoltage = float.Parse(cbxNetworkVoltage.Text);
             LocalCard.TechnologicalProcessType = txtTechProcessType.Text;
@@ -395,15 +396,8 @@ namespace TC_WinForms.WinForms
             LocalCard.Applicability = txtApplicability.Text;
             LocalCard.Note = txtNote.Text;
             LocalCard.IsCompleted = chbxIsCompleted.Checked;
-
-            var selectedDescription = cbxStatus.SelectedItem.ToString();
-            var enumValues = cbxStatus.Tag as List<Enum>;
-
-            if (enumValues != null)
-            {
-                var selectedEnumValue = enumValues.FirstOrDefault(e => e.GetDescription() == selectedDescription);
-                LocalCard.Status = (TechnologicalCardStatus)selectedEnumValue;
-            }
+            LocalCard.Status = TechnologicalCardStatus.Draft;
+            
 
             try
             {
@@ -431,6 +425,8 @@ namespace TC_WinForms.WinForms
                     await AfterSave(newCard);
                 }
 
+                OriginCard.Id = newCard.Id;
+
                 _logger.Information("Копирование и данных технологической карты выполнено успешно");
                 return true;
             }
@@ -450,7 +446,10 @@ namespace TC_WinForms.WinForms
                 if (await CloneAsync())
                 {
                     MessageBox.Show("Карта успешно скопирована!");
-                    Close();
+                    var nn = OriginCard.Id;
+                    var editorForm = new Win6_new(nn, role: _accessLevel);
+                    this.Close();
+                    editorForm.Show();
                 }
             }
         }
