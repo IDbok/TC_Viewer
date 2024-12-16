@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -60,7 +61,11 @@ namespace TC_WinForms.WinForms
         {
             var controlAccess = new Dictionary<User.Role, Action>
             {
-                [User.Role.Lead] = () => { _currentWinNumber = WinNumber.TC; },
+                [User.Role.Lead] = () => 
+                { 
+                    _currentWinNumber = WinNumber.TC;
+					blockServiceToolStripButton.Visible = true;
+				},
 
                 [User.Role.Implementer] = () => { _currentWinNumber = WinNumber.TC; },
 
@@ -418,8 +423,18 @@ namespace TC_WinForms.WinForms
 
         public void blockServiceToolStripButton_Click(object sender, EventArgs e)
         {
-            var lockerForm = new Win7_BLockService(_accessLevel);
-            lockerForm.Show();
+			var openedForm = CheckOpenFormService.FindOpenedForm<Win7_BLockService>();
+
+			if (openedForm != null)
+			{
+				openedForm.BringToFront();
+				return;
+			}
+            else
+			{
+				var lockerForm = new Win7_BLockService(_accessLevel);
+				lockerForm.Show();
+			}
         }
         public async void updateToolStripButton_Click(object sender, EventArgs e)
         {
