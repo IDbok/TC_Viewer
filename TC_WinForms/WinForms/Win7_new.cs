@@ -416,7 +416,11 @@ namespace TC_WinForms.WinForms
                 await LoadFormInPanel(_currentWinNumber.Value).ConfigureAwait(false);
         }
 
-
+        public void blockServiceToolStripButton_Click(object sender, EventArgs e)
+        {
+            var lockerForm = new Win7_BLockService(_accessLevel);
+            lockerForm.Show();
+        }
         public async void updateToolStripButton_Click(object sender, EventArgs e)
         {
             _logger.Information("Вызвано обновление данных из формы {CurrentWinNumber}", 

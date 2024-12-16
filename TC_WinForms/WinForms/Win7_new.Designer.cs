@@ -36,6 +36,7 @@
             infoToolStripButton = new ToolStripButton();
             toolStripButton5 = new ToolStripButton();
             updateToolStripButton = new ToolStripButton();
+            blockServiceToolStripButton = new ToolStripButton();
             pnlNavigationBlok = new Panel();
             pnlNavigationBtns = new Panel();
             btnWorkStep = new Button();
@@ -75,7 +76,7 @@
             // 
             toolStrip1.BackColor = SystemColors.InactiveBorder;
             toolStrip1.ImageScalingSize = new Size(20, 20);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2, infoToolStripButton, toolStripButton5, updateToolStripButton });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2, infoToolStripButton, toolStripButton5, updateToolStripButton, blockServiceToolStripButton });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(1578, 34);
@@ -129,6 +130,17 @@
             updateToolStripButton.Text = "Обновить БД";
             updateToolStripButton.ToolTipText = "Обновить";
             updateToolStripButton.Click += updateToolStripButton_Click;
+            // 
+            // blockServiceToolStripButton
+            // 
+            blockServiceToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            blockServiceToolStripButton.ImageTransparentColor = Color.Magenta;
+            blockServiceToolStripButton.Name = "blockServiceToolStripButton";
+            blockServiceToolStripButton.Size = new Size(124, 29);
+            blockServiceToolStripButton.Text = "Заблокированные объекты";
+            blockServiceToolStripButton.ToolTipText = "Окно заблокированных другими пользователями объектов";
+            blockServiceToolStripButton.Click += blockServiceToolStripButton_Click;
+
             // 
             // pnlNavigationBlok
             // 
@@ -399,6 +411,7 @@
         private ToolStripButton infoToolStripButton;
         private ToolStripButton toolStripButton5;
         private ToolStripButton updateToolStripButton;
+        private ToolStripButton blockServiceToolStripButton;
         private ProgressBar progressBarLoad;
         private Panel pnlPageControls;
         private Button btnPreviousPage;
