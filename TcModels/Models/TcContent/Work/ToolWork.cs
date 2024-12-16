@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TcModels.Models.TcContent
 {
-    public class ToolWork
+	public class ToolWork
     {
         public int Id { get; set; }
         public int techOperationWorkId { get; set; }
@@ -18,7 +12,7 @@ namespace TcModels.Models.TcContent
         public int toolId { get; set; }
         public double Quantity { get; set; }
 
-        public string Comments { get; set; } = "";
+        public string? Comments { get; set; } = "";
 
         [NotMapped] public bool IsDeleted { get; set; } = false;
 

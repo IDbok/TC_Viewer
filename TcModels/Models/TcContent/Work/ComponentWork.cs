@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TcModels.Models.TcContent
 {
-    public class ComponentWork
+	public class ComponentWork
     {
         public int Id { get; set; }
         public int techOperationWorkId { get; set; }

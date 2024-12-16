@@ -8,7 +8,6 @@ using TcDbConnector;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService.User;
 using System.Text.Json;
-using System.Text;
 
 namespace TC_WinForms
 {

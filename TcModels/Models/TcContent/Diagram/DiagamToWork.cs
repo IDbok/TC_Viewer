@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TcModels.Models.TcContent
+﻿namespace TcModels.Models.TcContent
 {
-    public class DiagamToWork
+	public class DiagamToWork
     {
         public int Id { get; set; }
         public int techOperationWorkId { get; set; }
