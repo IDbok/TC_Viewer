@@ -301,7 +301,7 @@ namespace TC_WinForms.WinForms
                 return;
             }
             // find opened form
-            var tcEditor = Application.OpenForms.OfType<Win6_Protection>().FirstOrDefault();
+            var tcEditor = CheckOpenFormService.FindOpenedForm<Win6_Protection>((int)_tcId);
             var newItems = new List<Protection>();
             foreach (var obj in selectedObjs)
             {
