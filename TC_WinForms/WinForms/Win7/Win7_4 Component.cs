@@ -376,7 +376,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
         }
 
         // find opened form
-        var tcEditor = Application.OpenForms.OfType<Win6_Component>().FirstOrDefault();
+        var tcEditor = CheckOpenFormService.FindOpenedForm<Win6_Component>((int)_tcId);
         var newItems = new List<Component>();
         foreach (var obj in selectedObjs)
         {

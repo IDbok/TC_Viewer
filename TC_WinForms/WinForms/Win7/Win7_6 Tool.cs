@@ -319,7 +319,7 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
         }
 
         // find opened form
-        var tcEditor = Application.OpenForms.OfType<Win6_Tool>().FirstOrDefault();
+        var tcEditor = CheckOpenFormService.FindOpenedForm<Win6_Tool>((int)_tcId);
 
         tcEditor.AddNewObjects(newItems);
 

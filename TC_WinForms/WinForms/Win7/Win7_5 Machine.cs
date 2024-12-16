@@ -337,7 +337,7 @@ public partial class Win7_5_Machine : Form, ILoadDataAsyncForm, IPaginationContr
             newItems.Add(CreateNewObject(obj));
         }
         // find opened form
-        var tcEditor = Application.OpenForms.OfType<Win6_Machine>().FirstOrDefault();
+        var tcEditor = CheckOpenFormService.FindOpenedForm<Win6_Machine>((int)_tcId);
 
         tcEditor.AddNewObjects(newItems);
 
