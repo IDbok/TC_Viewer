@@ -65,8 +65,8 @@ public class MyDbContext : DbContext
     {
 #if DEBUG
         optionsBuilder
-            .UseMySql(TcDbConnector.StaticClass.ConnectString, // убрать при применения миграции через консоль
-			//"server=localhost;database=tavrida_db_main;user=root;password=root",
+            .UseMySql(//TcDbConnector.StaticClass.ConnectString, // убрать при применения миграции через консоль
+			"server=localhost;database=tavrida_db_main;user=root;password=root",
 			//"server=localhost;database=tavrida_db_v141;user=root;password=root",//
 			new MySqlServerVersion(new Version(5, 7, 24)));
 #else
