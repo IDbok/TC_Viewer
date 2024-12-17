@@ -600,6 +600,8 @@ namespace TC_WinForms.WinForms.Work
                             UpdateLocalTP();
                         }));
 
+                        UpdateAllPovtorValue();
+                        UpdateLocalTP();
                         TechOperationForm.UpdateGrid();
                     }
                     catch (Exception)
@@ -695,6 +697,8 @@ namespace TC_WinForms.WinForms.Work
                         bg.Order = dataGridViewRow.Index + 1;
                     }
 
+                    UpdateAllPovtorValue();
+                    UpdateLocalTP();
                     TechOperationForm.UpdateGrid();
                 }
             }
@@ -2547,7 +2551,7 @@ namespace TC_WinForms.WinForms.Work
                     }
 
 
-                    RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
+                    UpdateAllPovtorValue();
 
                     // Перерисовать таблицу
                     dataGridViewPovtor.Invalidate();
@@ -2590,8 +2594,8 @@ namespace TC_WinForms.WinForms.Work
                                 existingRepeat.NewPosled = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                             }
 
-                            RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
-                            TechOperationForm.UpdateGrid();
+                            //RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
+                            //TechOperationForm.UpdateGrid();
                         }
                     }
                     else
@@ -2601,7 +2605,10 @@ namespace TC_WinForms.WinForms.Work
 
                     }
 
+                    UpdateAllPovtorValue();
                     UpdateLocalTP();
+                    TechOperationForm.UpdateGrid();
+
                 }
             }
         }
@@ -2694,6 +2701,9 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (var repeat in executionWorkPovtor.ExecutionWorkRepeats)
             {
+                if (repeat.ChildExecutionWork.Delete)
+                    continue;
+
                 double coefficient = 1;
                 if (!string.IsNullOrEmpty(repeat.NewCoefficient))
                 {
@@ -2713,6 +2723,18 @@ namespace TC_WinForms.WinForms.Work
             executionWorkPovtor.Value = totalValue;
         }
 
+        private void UpdateAllPovtorValue()
+        {
+            foreach (var executionWork in TechOperationForm.GetAllRepeatExecutionWorks())
+            {
+                if (executionWork.Repeat)
+                {
+                    RecalculateExecutionWorkPovtorValue(executionWork);
+                }
+                else
+                    continue;
+            }
+        }
         #endregion
 
 
