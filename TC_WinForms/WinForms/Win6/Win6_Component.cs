@@ -11,8 +11,13 @@ using Component = TcModels.Models.TcContent.Component;
 
 namespace TC_WinForms.WinForms
 {
-	public partial class Win6_Component : BaseContentFormWithFormula<DisplayedComponent_TC, Component_TC>, IViewModeable
-    {
+	[DesignerCategory("Form")]
+#if DEBUG
+	public partial class Win6_Component : Win6_Component_Design
+#else
+    public partial class Win6_Component : BaseContentFormWithFormula<DisplayedComponent_TC, Component_TC>
+#endif
+	{
 		protected override DataGridView DgvMain => dgvMain;
         protected override Panel PnlControls => pnlControls;
 		protected override IList<Component_TC> TargetTable 
@@ -26,8 +31,10 @@ namespace TC_WinForms.WinForms
 
         public Win6_Component(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
         {
+			if (DesignMode)
+				return;
 
-            _logger = Log.Logger
+			_logger = Log.Logger
                 .ForContext<Win6_Component>()
                 .ForContext("TcId", _tcId);
 

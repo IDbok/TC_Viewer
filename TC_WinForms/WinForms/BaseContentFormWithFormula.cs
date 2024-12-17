@@ -8,7 +8,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TC_WinForms.WinForms;
 
-public abstract class BaseContentFormWithFormula<T, TIntermediate> : BaseContentForm
+public abstract class BaseContentFormWithFormula<T, TIntermediate> : Form
 	where T : BaseDisplayedEntity, new() //class, IFormulaItem, IIntermediateDisplayedEntity, INotifyPropertyChanged, new()
 	where TIntermediate : IIntermediateTableIds, IUpdatableEntity, new()
 {
@@ -26,6 +26,10 @@ public abstract class BaseContentFormWithFormula<T, TIntermediate> : BaseContent
 
 	protected abstract DataGridView DgvMain { get; }
 	protected abstract Panel PnlControls { get; }
+	public BaseContentFormWithFormula()
+	{
+		
+	}
 
 	// Дочерние формы определят конкретную загрузку объектов
 	protected abstract void LoadObjects();
@@ -42,7 +46,7 @@ public abstract class BaseContentFormWithFormula<T, TIntermediate> : BaseContent
 		return _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
 	}
 
-	public override async void OnActivate()
+	public virtual async void OnActivate()
 	{
 		await RecalculateQuantitiesAsync();
 	}

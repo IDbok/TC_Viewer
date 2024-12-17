@@ -11,7 +11,12 @@ using static TC_WinForms.WinForms.Win6_Tool;
 
 namespace TC_WinForms.WinForms
 {
-	public partial class Win6_Tool : BaseContentFormWithFormula<DisplayedTool_TC, Tool_TC>, IViewModeable 
+	[DesignerCategory("Form")]
+#if DEBUG
+	public partial class Win6_Tool : Win6_Tool_Design
+#else
+    public partial class Win6_Tool : BaseContentFormWithFormula<DisplayedTool_TC, Tool_TC>, IViewModeable 
+#endif
 	{
 		protected override DataGridView DgvMain => dgvMain;
 		protected override Panel PnlControls => pnlControls;

@@ -496,7 +496,7 @@ namespace TC_WinForms.WinForms
 					_formsCache[modelType] = form;
 				}
 
-				if (form is BaseContentForm baseForm)
+				if (form is IOnActivationForm baseForm)
 				{
 					baseForm.OnActivate();
 				}
