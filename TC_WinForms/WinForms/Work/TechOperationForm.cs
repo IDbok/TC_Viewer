@@ -40,7 +40,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public List<ExecutionWork> GetAllRepeatExecutionWorks()
     {
-        return TechOperationDataGridItems.Where(e => e.executionWorkItem != null && e.executionWorkItem.Repeat).Select(e => e.executionWorkItem).ToList();
+        return TechOperationDataGridItems.Where(e => e.executionWorkItem != null && e.executionWorkItem.Repeat && !e.executionWorkItem.Delete).Select(e => e.executionWorkItem).ToList();
     }
 
     public TechOperationForm(int tcId, TcViewState tcViewState, MyDbContext context)//,  bool viewerMode = false)

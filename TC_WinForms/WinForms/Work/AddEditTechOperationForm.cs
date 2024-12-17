@@ -600,7 +600,7 @@ namespace TC_WinForms.WinForms.Work
                             UpdateLocalTP();
                         }));
 
-                        UpdateAllPovtorValue();
+                        UpdateAllPovtorValue(wor);
                         UpdateLocalTP();
                         TechOperationForm.UpdateGrid();
                     }
@@ -686,6 +686,7 @@ namespace TC_WinForms.WinForms.Work
                     Log.Information("Удаление ТП c GUID {TechTransitionGuid}", IddGuid);
 
                     TechOperationForm.DeleteTechTransit(IddGuid, work);
+                    UpdateAllPovtorValue(FindExecutionWorkById(IddGuid));
                     UpdateLocalTP();
 
                     foreach (DataGridViewRow dataGridViewRow in dataGridViewTPLocal.Rows)
@@ -696,9 +697,7 @@ namespace TC_WinForms.WinForms.Work
                         var bg = work.executionWorks.SingleOrDefault(s => s.IdGuid == IddGuid);
                         bg.Order = dataGridViewRow.Index + 1;
                     }
-
-                    UpdateAllPovtorValue();
-                    UpdateLocalTP();
+                    
                     TechOperationForm.UpdateGrid();
                 }
             }
@@ -2550,8 +2549,8 @@ namespace TC_WinForms.WinForms.Work
                         }
                     }
 
-
-                    UpdateAllPovtorValue();
+                    RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
+                    UpdateAllPovtorValue(executionWorkPovtor);
 
                     // Перерисовать таблицу
                     dataGridViewPovtor.Invalidate();
@@ -2594,8 +2593,7 @@ namespace TC_WinForms.WinForms.Work
                                 existingRepeat.NewPosled = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                             }
 
-                            //RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
-                            //TechOperationForm.UpdateGrid();
+                            RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
                         }
                     }
                     else
@@ -2605,7 +2603,7 @@ namespace TC_WinForms.WinForms.Work
 
                     }
 
-                    UpdateAllPovtorValue();
+                    UpdateAllPovtorValue(executionWorkPovtor);
                     UpdateLocalTP();
                     TechOperationForm.UpdateGrid();
 
@@ -2723,16 +2721,15 @@ namespace TC_WinForms.WinForms.Work
             executionWorkPovtor.Value = totalValue;
         }
 
-        private void UpdateAllPovtorValue()
+        private void UpdateAllPovtorValue(ExecutionWork updatedExecutionWork)
         {
             foreach (var executionWork in TechOperationForm.GetAllRepeatExecutionWorks())
             {
-                if (executionWork.Repeat)
+                if (executionWork.Repeat && executionWork.ExecutionWorkRepeats.Select(e => e.ChildExecutionWorkId).Contains(updatedExecutionWork.Id))
                 {
                     RecalculateExecutionWorkPovtorValue(executionWork);
+                    UpdateAllPovtorValue(executionWork);
                 }
-                else
-                    continue;
             }
         }
         #endregion
