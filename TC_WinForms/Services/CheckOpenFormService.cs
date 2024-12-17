@@ -1,14 +1,8 @@
-﻿using Antlr4.Runtime.Tree.Xpath;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TC_WinForms.Interfaces;
+﻿using TC_WinForms.Interfaces;
 
 namespace TC_WinForms.Services
 {
-    public static class CheckOpenFormService
+	public static class CheckOpenFormService
     {
         public static Form? FindOpenedForm(int objectId, string FormType)
         {

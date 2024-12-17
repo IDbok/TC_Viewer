@@ -1,20 +1,17 @@
-﻿using ExcelParsing.DataProcessing;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Data;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Services;
-using TC_WinForms.WinForms.Diagram;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
-using static Antlr4.Runtime.Atn.SemanticContext;
 using Component = TcModels.Models.TcContent.Component;
 using Machine = TcModels.Models.TcContent.Machine;
 
 namespace TC_WinForms.WinForms.Work
 {
-    public partial class AddEditTechOperationForm : Form
+	public partial class AddEditTechOperationForm : Form
     {
         public TechOperationForm TechOperationForm { get; }
         private readonly TcViewState _tcViewState;

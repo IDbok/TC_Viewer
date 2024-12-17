@@ -1,14 +1,10 @@
-﻿using Antlr4.Runtime.Tree.Xpath;
-using Serilog;
+﻿using Serilog;
 using System.ComponentModel;
-using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Services;
 using TcModels.Models.Interfaces;
-using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent.Work;
-using static TC_WinForms.WinForms.Win6_Component;
 
 namespace TC_WinForms.WinForms;
 

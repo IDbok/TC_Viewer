@@ -1,21 +1,9 @@
-﻿using ExcelParsing.DataProcessing;
-//using NCalc;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using TC_WinForms.Services;
+﻿using TC_WinForms.Services;
 using TcModels.Models.TcContent;
-using static Antlr4.Runtime.Atn.SemanticContext;
 
 namespace TC_WinForms.WinForms.Work
 {
-    public partial class CoefficientForm : Form
+	public partial class CoefficientForm : Form
     {
         //public CoefficientForm()
         //{
