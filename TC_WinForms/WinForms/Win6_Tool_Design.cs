@@ -1,5 +1,7 @@
-﻿using static TC_WinForms.WinForms.Win6_Tool;
+﻿#if DEBUG
+using static TC_WinForms.WinForms.Win6_Tool;
 using TcModels.Models.IntermediateTables;
+using TC_WinForms.WinForms.Win6.Models;
 
 namespace TC_WinForms.WinForms;
 
@@ -16,3 +18,4 @@ public partial class Win6_Tool_Design : BaseContentFormWithFormula<DisplayedTool
 		return new Tool_TC();
 	}
 }
+#endif

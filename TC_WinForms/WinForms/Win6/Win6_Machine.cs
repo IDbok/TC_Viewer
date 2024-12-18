@@ -1,12 +1,10 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
-using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -14,7 +12,7 @@ using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Machine : Form, IViewModeable
+	public partial class Win6_Machine : Form, IViewModeable
     {
         private readonly TcViewState _tcViewState;
 
@@ -308,172 +306,7 @@ namespace TC_WinForms.WinForms
             }
         }
 
-        private class DisplayedMachine_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable
-        {
-            public Dictionary<string, string> GetPropertiesNames()
-            {
-                return new Dictionary<string, string>
-            {
-                { nameof(ChildId), "ID" },
-                { nameof(ParentId), "ID тех. карты" },
-                { nameof(Order), "№" },
-                { nameof(Quantity), "Кол-во" },
-                { nameof(Note), "Примечание" },
-
-                { nameof(Name), "Наименование" },
-                { nameof(Type), "Тип (исполнение)" },
-                { nameof(Unit), "Ед.изм." },
-                { nameof(Price), "Стоимость, руб. без НДС" },
-                { nameof(Description), "Описание" },
-                { nameof(Manufacturer), "Производители (поставщики)" },
-                { nameof(ClassifierCode), "Код в classifier" },
-            };
-            }
-            public List<string> GetPropertiesOrder()
-            {
-                return new List<string>
-                {
-                    //nameof(ParentId),
-                    nameof(Order),
-
-                    nameof(Name),
-                    nameof(Type),
-                    nameof(Unit),
-                    // nameof(Description),
-                    // nameof(Manufacturer),
-                    // nameof(ClassifierCode),
-
-                    nameof(Quantity),
-                   // nameof(Price),
-                    //nameof(Note),
-
-                    nameof(ChildId),
-
-                };
-            }
-            public List<string> GetRequiredFields()
-            {
-                return new List<string>
-                {
-                    nameof(ChildId) ,
-                    nameof(ParentId) ,
-                    nameof(Order),
-                };
-            }
-            public List<string> GetKeyFields()
-            {
-                return new List<string>
-                {
-                    nameof(ChildId),
-                    nameof(ParentId),
-                };
-            }
-
-            private int childId;
-            private int parentId;
-            private int order;
-            private double quantity;
-            private string? note;
-
-            public DisplayedMachine_TC()
-            {
-
-            }
-            public DisplayedMachine_TC(Machine_TC obj)
-            {
-                ChildId = obj.ChildId;
-                ParentId = obj.ParentId;
-                Order = obj.Order;
-
-                Name = obj.Child.Name;
-                Type = obj.Child.Type;
-
-                Unit = obj.Child.Unit;
-                Quantity = obj.Quantity;
-                Price = obj.Child.Price;
-                Description = obj.Child.Description;
-                Manufacturer = obj.Child.Manufacturer;
-                ClassifierCode = obj.Child.ClassifierCode;
-
-                IsReleased = obj.Child.IsReleased;
-
-                previousOrder = Order;
-            }
-
-            public int ChildId { get; set; }
-            public int ParentId { get; set; }
-            private int previousOrder;
-            public int Order
-            {
-                get => order;
-                set
-                {
-                    if (order != value)
-                    {
-                        previousOrder = order;
-                        order = value;
-                        OnPropertyChanged(nameof(Order));
-                    }
-                }
-            }
-
-            public int PreviousOrder => previousOrder;
-            public double? Quantity
-            {
-                get => quantity;
-                set
-                {
-                    if (quantity != value)
-                    {
-                        quantity = value ?? 0;
-                        OnPropertyChanged(nameof(Quantity));
-                    }
-                }
-            }
-            public string? Note
-            {
-                get => note;
-                set
-                {
-                    if (note != value)
-                    {
-                        note = value;
-                        OnPropertyChanged(nameof(Note));
-                    }
-                }
-            }
-
-            public string Name { get; set; }
-            public string? Type { get; set; }
-            public string Unit { get; set; }
-            public float? Price { get; set; }
-            public string? Description { get; set; }
-            public string? Manufacturer { get; set; }
-            //public List<LinkEntety> Links { get; set; } = new();
-            public string ClassifierCode { get; set; }
-
-            public bool IsReleased { get; set; } = false;
-
-
-            public event PropertyChangedEventHandler PropertyChanged;
-            protected virtual void OnPropertyChanged(string propertyName)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-
-            private Dictionary<string, object> oldValueDict = new Dictionary<string, object>();
-
-            public object GetOldValue(string propertyName)
-            {
-                if (oldValueDict.ContainsKey(propertyName))
-                {
-                    return oldValueDict[propertyName];
-                }
-
-                return null;
-            }
-
-        }
+        
 
         private void btnReplace_Click(object sender, EventArgs e)
         {
