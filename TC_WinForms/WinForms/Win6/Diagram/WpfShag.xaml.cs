@@ -7,15 +7,16 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using TC_WinForms.WinForms.Win6.Models;
 using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms.Diagram
 {
-    /// <summary>
-    /// Логика взаимодействия для WpfShag.xaml
-    /// </summary>
-    public partial class WpfShag : System.Windows.Controls.UserControl, INotifyPropertyChanged
+	/// <summary>
+	/// Логика взаимодействия для WpfShag.xaml
+	/// </summary>
+	public partial class WpfShag : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
         private readonly DiagramState _diagramState;
         private readonly TcViewState _tcViewState;

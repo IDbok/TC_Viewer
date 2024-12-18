@@ -3,16 +3,17 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram
 {
-    /// <summary>F
-    /// Логика взаимодействия для WpfMainControl.xaml
-    /// </summary>
-    public partial class WpfMainControl : System.Windows.Controls.UserControl, INotifyPropertyChanged
+	/// <summary>F
+	/// Логика взаимодействия для WpfMainControl.xaml
+	/// </summary>
+	public partial class WpfMainControl : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
         private readonly TcViewState _tcViewState;
 

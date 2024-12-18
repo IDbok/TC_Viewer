@@ -12,8 +12,8 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20241204111311_AddCoefficients")]
-    partial class AddCoefficients
+    [Migration("20241218075717_AddCoefficient")]
+    partial class AddCoefficient
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -272,6 +272,9 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Formula")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
 
@@ -299,6 +302,9 @@ namespace TcDbConnector.Migrations
 
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Formula")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
@@ -384,6 +390,9 @@ namespace TcDbConnector.Migrations
 
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Formula")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Note")
                         .HasColumnType("longtext");

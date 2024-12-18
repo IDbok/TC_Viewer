@@ -71,52 +71,6 @@ namespace TcModels.Models.IntermediateTables
             }
         }
 
-		/// <summary>
-		/// Вычисляет значение количества на основе формулы
-		/// </summary>
-		/// <returns>Вычисленное значение</returns>
-		public double CalculateQuantity()
-		{
-			if (string.IsNullOrWhiteSpace(Formula))
-				return Quantity; // Если формула не задана, возвращаем текущее значение
-
-			try
-			{
-				var coefficients = Parent?.Coefficients?.ToDictionary(c => c.Code, c => c.Value)
-								  ?? new Dictionary<string, double>();
-
-				string formula = Formula;
-
-				// Заменяем шифры коэффициентов в формуле на их значения
-				foreach (var coefficient in coefficients)
-				{
-					formula = formula.Replace(coefficient.Key, coefficient.Value.ToString());
-				}
-
-				// Вычисляем значение формулы
-				return EvaluateFormula(formula);
-			}
-			catch
-			{
-				// Если возникла ошибка при вычислении, возвращаем 0 (или выбрасываем исключение)
-				return 0;
-			}
-		}
-
-		/// <summary>
-		/// Вычисляет математическое выражение в строковом формате
-		/// </summary>
-		/// <param name="expression">Математическое выражение</param>
-		/// <returns>Результат вычисления</returns>
-		private double EvaluateFormula(string expression)
-		{
-			DataTable table = new DataTable();
-			table.Columns.Add("expression", typeof(string), expression);
-			DataRow row = table.NewRow();
-			table.Rows.Add(row);
-			return double.Parse((string)row["expression"]);
-		}
-
 		public override string ToString()
         {
             return $"{Order}.{Child.Name} (id: {ChildId}) {Quantity}";

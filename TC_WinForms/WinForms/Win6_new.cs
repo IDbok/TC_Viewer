@@ -7,6 +7,7 @@ using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
+using TC_WinForms.WinForms.Win6.Models;
 using TC_WinForms.WinForms.Work;
 using TcDbConnector;
 using TcModels.Models;

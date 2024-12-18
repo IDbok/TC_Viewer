@@ -4,6 +4,7 @@ using System.Data;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Services;
+using TC_WinForms.WinForms.Win6.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using Component = TcModels.Models.TcContent.Component;

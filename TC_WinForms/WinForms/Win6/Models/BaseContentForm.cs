@@ -1,14 +1,16 @@
 ﻿using Serilog;
 using System.ComponentModel;
+using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent.Work;
 
-namespace TC_WinForms.WinForms;
+namespace TC_WinForms.WinForms.Win6.Models;
 
-public abstract class BaseContentFormWithFormula<T, TIntermediate> : Form
+public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable
 	where T : BaseDisplayedEntity, new() //class, IFormulaItem, IIntermediateDisplayedEntity, INotifyPropertyChanged, new()
 	where TIntermediate : IIntermediateTableIds, IUpdatableEntity, new()
 {
@@ -26,7 +28,7 @@ public abstract class BaseContentFormWithFormula<T, TIntermediate> : Form
 
 	protected abstract DataGridView DgvMain { get; }
 	protected abstract Panel PnlControls { get; }
-	public BaseContentFormWithFormula()
+	public BaseContentForm()
 	{
 		
 	}
@@ -38,6 +40,15 @@ public abstract class BaseContentFormWithFormula<T, TIntermediate> : Form
 	protected virtual void InitializeDataGridViewColumns()
 	{
 		SetDGVColumnsSettings();
+	}
+	protected virtual void InitializeDataGridViewEvents()
+	{
+		var dgvEventService = new DGVEvents(DgvMain);
+		//dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
+
+		DgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
+		DgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
+		DgvMain.CellValueChanged += dgvMain_CellValueChanged;
 	}
 
 	// Метод для получения словаря коэффициентов
@@ -224,14 +235,18 @@ public abstract class BaseContentFormWithFormula<T, TIntermediate> : Form
 	protected virtual Dictionary<string, int> GetFixedColumnWidths(int pixels)
 	{
 		return new Dictionary<string, int>
+		{
+			{ nameof(BaseDisplayedEntity.Order), 1 * pixels },
+			{ nameof(BaseDisplayedEntity.Type), 4 * pixels },
+			{ nameof(BaseDisplayedEntity.Unit), 2 * pixels },
+			{ nameof(BaseDisplayedEntity.Formula), 3 * pixels },
+			{ nameof(BaseDisplayedEntity.Quantity), 3 * pixels },
+			{ nameof(BaseDisplayedEntity.ChildId), 2 * pixels }
+		};
+	}
+	protected virtual int GetNewObjectOrder()
 	{
-		{ nameof(BaseDisplayedEntity.Order), 1 * pixels },
-		{ nameof(BaseDisplayedEntity.Type), 4 * pixels },
-		{ nameof(BaseDisplayedEntity.Unit), 2 * pixels },
-		{ nameof(BaseDisplayedEntity.Formula), 3 * pixels },
-		{ nameof(BaseDisplayedEntity.Quantity), 3 * pixels },
-		{ nameof(BaseDisplayedEntity.ChildId), 2 * pixels }
-	};
+		return _bindingList.Any() ? (_bindingList.Select(o => o.Order).Max() + 1) : 1;
 	}
 
 	// Метод для получения списка редактируемых столбцов

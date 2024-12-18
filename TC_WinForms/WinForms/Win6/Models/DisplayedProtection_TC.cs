@@ -2,13 +2,13 @@
 
 namespace TC_WinForms.WinForms.Win6.Models;
 
-public class DisplayedMachine_TC : BaseDisplayedEntity
+public class DisplayedProtection_TC : BaseDisplayedEntity
 {
-	public DisplayedMachine_TC()
+	public DisplayedProtection_TC()
 	{
 
 	}
-	public DisplayedMachine_TC(Machine_TC obj)
+	public DisplayedProtection_TC(Protection_TC obj)
 	{
 		ChildId = obj.ChildId;
 		ParentId = obj.ParentId;
@@ -23,8 +23,8 @@ public class DisplayedMachine_TC : BaseDisplayedEntity
 		Description = obj.Child.Description;
 		Manufacturer = obj.Child.Manufacturer;
 		ClassifierCode = obj.Child.ClassifierCode;
-		Note = obj.Note;
 
 		IsReleased = obj.Child.IsReleased;
 	}
 }
+

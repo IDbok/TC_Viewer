@@ -3,6 +3,7 @@ using Serilog;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Windows.Forms;
+using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.TcContent;
 

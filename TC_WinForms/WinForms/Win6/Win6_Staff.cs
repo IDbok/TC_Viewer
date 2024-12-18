@@ -5,6 +5,7 @@ using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Interfaces;
+using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;

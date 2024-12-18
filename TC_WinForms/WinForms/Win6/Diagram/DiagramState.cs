@@ -1,4 +1,5 @@
-﻿using TcModels.Models.TcContent;
+﻿using TC_WinForms.WinForms.Win6.Models;
+using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram;
 

@@ -167,7 +167,7 @@
             Margin = new Padding(4, 4, 4, 4);
             Name = "Win6_Machine";
             Text = "Win6_Machine";
-            Load += Win6_Machine_Load;
+            Load += Win_Load;
             ((System.ComponentModel.ISupportInitialize)dgvMain).EndInit();
             pnlControls.ResumeLayout(false);
             pnlControlBtns.ResumeLayout(false);

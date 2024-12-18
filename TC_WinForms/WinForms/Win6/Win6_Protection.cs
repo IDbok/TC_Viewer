@@ -1,102 +1,75 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml.Style;
+﻿using Serilog;
 using System.ComponentModel;
 using System.Data;
-using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
-using TC_WinForms.Interfaces;
-using TC_WinForms.WinForms.Work;
+using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
-using TcModels.Models;
-using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
-using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Protection : Form, IViewModeable
-    {
-        private readonly TcViewState _tcViewState;
+	// при работе с дизайнером раскоментировать
+	//[DesignerCategory("Form")]
+	//public partial class Win6_Protection : Win6_Protection_Design
+	public partial class Win6_Protection : BaseContentForm<DisplayedProtection_TC, Protection_TC>
+	{		protected override DataGridView DgvMain => dgvMain;
+		protected override Panel PnlControls => pnlControls;
+		protected override IList<Protection_TC> TargetTable
+			=> _tcViewState.TechnologicalCard.Protection_TCs;
 
-        private bool _isViewMode;
-
-        private MyDbContext context;
+		private MyDbContext context;
         private int _tcId;
 
-        private BindingList<DisplayedProtection_TC> _bindingList;
-        private List<DisplayedProtection_TC> _changedObjects = new ();
-        private List<DisplayedProtection_TC> _newObjects = new ();
-        private List<DisplayedProtection_TC> _deletedObjects = new ();
-        private Dictionary<DisplayedProtection_TC, DisplayedProtection_TC> _replacedObjects = new();// add to UpdateMode
-
-        public bool CloseFormsNoSave { get; set; } = false;
         public Win6_Protection(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
         {
-            _tcViewState = tcViewState;
+			if (DesignMode)
+				return;
+
+			_logger = Log.Logger
+				.ForContext<Win6_Protection>()
+				.ForContext("TcId", _tcId);
+
+			_logger.Information("Инициализация формы. TcId={TcId}");
+
+			_tcViewState = tcViewState;
             this.context = context;
 
             _tcId = tcId;
 
             InitializeComponent();
 
-            var dgvEventService = new DGVEvents(dgvMain);
-            dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
+            InitializeDataGridViewEvents();
 
-            dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
-            dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
+			this.FormClosed += (sender, e) => {
+				_logger.Information("Форма закрыта");
+				this.Dispose();
+			};
+		}
 
-            this.FormClosed += (sender, e) => this.Dispose();
-        }
-
-        public void SetViewMode(bool? isViewMode = null)
+		protected override void LoadObjects()
         {
-            pnlControls.Visible = !_tcViewState.IsViewMode;
+            var tcList = TargetTable
+                .OrderBy(o => o.Order)
+                .Select(obj => new DisplayedProtection_TC(obj))
+                .ToList();
 
-            // make columns editable
-            dgvMain.Columns[nameof(DisplayedProtection_TC.Order)].ReadOnly = _tcViewState.IsViewMode;
-            dgvMain.Columns[nameof(DisplayedProtection_TC.Quantity)].ReadOnly = _tcViewState.IsViewMode;
-
-
-            dgvMain.Columns[nameof(DisplayedProtection_TC.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
-            dgvMain.Columns[nameof(DisplayedProtection_TC.Quantity)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
-
-            // update form
-            dgvMain.Refresh();
-
-        }
-        private void Win6_Protection_Load(object sender, EventArgs e)
-        {
-            LoadObjects();
-            DisplayedEntityHelper.SetupDataGridView<DisplayedProtection_TC>(dgvMain);
-
-            dgvMain.AllowUserToDeleteRows = false;
-
-            SetViewMode();
-        }
-        private void LoadObjects()
-        {
-            var tcList = _tcViewState.TechnologicalCard.Protection_TCs.Where(obj => obj.ParentId == _tcId)
-                                                                    .OrderBy(o => o.Order).ToList()
-                                                                    .Select(obj => new DisplayedProtection_TC(obj))
-                                                                    .ToList();
             _bindingList = new BindingList<DisplayedProtection_TC>(tcList);
             _bindingList.ListChanged += BindingList_ListChanged;
             dgvMain.DataSource = _bindingList;
 
-            SetDGVColumnsSettings();
-        }
+			InitializeDataGridViewColumns();
+		}
 
         public void AddNewObjects(List<Protection> newObjs)
         {
             foreach (var obj in newObjs)
             {
-                var newObj_TC = CreateNewObject(obj, _bindingList.Select(o => o.Order).Max() + 1);
+                var newObj_TC = CreateNewObject(obj, GetNewObjectOrder());
                 var protection = context.Protections.Where(s => s.Id == newObj_TC.ChildId).First();
 
                 context.Protections.Attach(protection);
-                _tcViewState.TechnologicalCard.Protection_TCs.Add(newObj_TC);
+                TargetTable.Add(newObj_TC);
 
                 newObj_TC.Child = protection;
                 newObj_TC.ChildId = protection.Id;
@@ -108,90 +81,16 @@ namespace TC_WinForms.WinForms
             dgvMain.Refresh();
         }
 
-        ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
 
-        void SetDGVColumnsSettings()
-        {
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // автоподбор ширины столбцов под ширину таблицы
-            dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
-            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvMain.RowHeadersWidth = 25;
+		protected override void SaveReplacedObjects() // add to UpdateMode
+		{
+			if (_replacedObjects.Count == 0)
+				return;
 
-            //// автоперенос в ячейках
-            dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-
-            //// ширина столбцов по содержанию
-            //var autosizeColumn = new List<string>
-            //{
-            //    nameof(DisplayedProtection_TC.Order),
-            //    nameof(DisplayedProtection_TC.Name),
-            //    nameof(DisplayedProtection_TC.Type),
-            //    nameof(DisplayedProtection_TC.Unit),
-            //    nameof(DisplayedProtection_TC.Quantity),
-            //};
-            //foreach (var column in autosizeColumn)
-            //{
-            //    dgvMain.Columns[column].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            //}
-
-            int pixels = 35;
-            // Минимальные ширины столбцов
-            Dictionary<string, int> fixColumnWidths = new Dictionary<string, int>
-            {
-                { nameof(DisplayedProtection_TC.Order), 1*pixels },
-                { nameof(DisplayedProtection_TC.Type), 4*pixels },
-                { nameof(DisplayedProtection_TC.Unit), 2*pixels },
-                { nameof(DisplayedProtection_TC.Quantity), 3*pixels },
-                { nameof(DisplayedProtection_TC.ChildId), 2*pixels },
-
-            };
-            foreach (var column in fixColumnWidths)
-            {
-                dgvMain.Columns[column.Key].Width = column.Value;
-                dgvMain.Columns[column.Key].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                dgvMain.Columns[column.Key].Resizable = DataGridViewTriState.False;
-            }
-
-            // make columns readonly
-            foreach (DataGridViewColumn column in dgvMain.Columns)
-            {
-                column.ReadOnly = true;
-            }
-            var changeableColumn = new List<string>
-            {
-                nameof(DisplayedProtection_TC.Order),
-                nameof(DisplayedProtection_TC.Quantity),
-            };
-            foreach (var column in changeableColumn)
-            {
-                dgvMain.Columns[column].ReadOnly = false;
-                dgvMain.Columns[column].DefaultCellStyle.BackColor = Color.LightGray;
-            }
-        }
-        private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            // Проверяем, что это не заголовок столбца и не новая строка
-            if (e.RowIndex >= 0 && e.RowIndex < dgvMain.Rows.Count)
-            {
-                var row = dgvMain.Rows[e.RowIndex];
-                var displayedStaff = row.DataBoundItem as DisplayedProtection_TC;
-                if (displayedStaff != null)
-                {
-                    // Меняем цвет строки в зависимости от значения свойства IsReleased
-                    if (!displayedStaff.IsReleased)
-                    {
-                        row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
-                    }
-                }
-            }
-        }
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
-        private void SaveReplacedObjects() // add to UpdateMode
-        {
-            var oldObjects = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();
+			var oldObjects = _replacedObjects.Select(dtc => CreateNewObject(dtc.Key)).ToList();
             var newObjects = _replacedObjects.Select(dtc => CreateNewObject(dtc.Value)).ToList();
 
             var obj_TCsIds = oldObjects.Select(t => t.ChildId).ToList();
@@ -214,14 +113,18 @@ namespace TC_WinForms.WinForms
                 var protection = context.Protections.Where(m => m.Id == newObjects[i].ChildId).First();
                 newObjects[i].Child = protection;
 
-                var oldProtection = _tcViewState.TechnologicalCard.Protection_TCs.Where(m => m.ChildId == oldObjects[i].ChildId).FirstOrDefault();
+                var oldProtection = TargetTable.Where(m => m.ChildId == oldObjects[i].ChildId).FirstOrDefault();
                 if(oldProtection != null)
-                _tcViewState.TechnologicalCard.Protection_TCs.Remove(oldProtection);
+                TargetTable.Remove(oldProtection);
             }
 
-            _tcViewState.TechnologicalCard.Protection_TCs.AddRange(newObjects);
+			foreach (var newObj in newObjects)
+			{
+				TargetTable
+					.Add(newObj);
+			}
 
-            foreach (var newTc in newObjects)
+			foreach (var newTc in newObjects)
             {
                 executionWorks.ForEach(ew => ew.Protections.Add(newTc));
             }
@@ -229,7 +132,7 @@ namespace TC_WinForms.WinForms
 
             _replacedObjects.Clear();
         }
-        private Protection_TC CreateNewObject(DisplayedProtection_TC dObj)
+		protected override Protection_TC CreateNewObject(BaseDisplayedEntity dObj)
         {
             return new Protection_TC
             {
@@ -238,7 +141,8 @@ namespace TC_WinForms.WinForms
                 Order = dObj.Order,
                 Quantity = dObj.Quantity ?? 0,
                 Note = dObj.Note,
-            };
+                Formula = dObj.Formula,
+			};
         }
         private Protection_TC CreateNewObject(Protection obj, int oreder)
         {
@@ -281,201 +185,12 @@ namespace TC_WinForms.WinForms
                     }
 
 
-                    var deletedObj = _tcViewState.TechnologicalCard.Protection_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
+                    var deletedObj = TargetTable.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
                     if(deletedObj != null)
-                        _tcViewState.TechnologicalCard.Protection_TCs.Remove(deletedObj);
+                        TargetTable.Remove(deletedObj);
                 }
 
                 _deletedObjects.Clear();
-            }
-
-        }
-
-        private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e) // todo - fix problem with selection replacing row (error while remove it)
-        {
-            ReorderRows(dgvMain, e, _bindingList);
-        }
-
-        private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
-        {
-            DisplayedEntityHelper.ListChangedEventHandlerIntermediate
-                (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
-
-            if (_changedObjects.Count != 0)
-            {
-                foreach (var obj in _changedObjects)
-                {
-                    var changedObject = _tcViewState.TechnologicalCard.Protection_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
-                    if (changedObject != null)
-                        changedObject.ApplyUpdates(CreateNewObject(obj));
-                }
-
-                _changedObjects.Clear();
-            }
-        }
-        private class DisplayedProtection_TC : INotifyPropertyChanged, IIntermediateDisplayedEntity, IOrderable, IPreviousOrderable, IReleasable
-        {
-            public Dictionary<string, string> GetPropertiesNames()
-            {
-                return new Dictionary<string, string>
-            {
-                { nameof(ChildId), "ID" },
-                { nameof(ParentId), "ID тех. карты" },
-                { nameof(Order), "№" },
-                { nameof(Quantity), "Кол-во" },
-                { nameof(Note), "Примечание" },
-
-                { nameof(Name), "Наименование" },
-                { nameof(Type), "Тип (исполнение)" },
-                { nameof(Unit), "Ед.изм." },
-                { nameof(Price), "Стоимость, руб. без НДС" },
-                { nameof(Description), "Описание" },
-                { nameof(Manufacturer), "Производители (поставщики)" },
-                { nameof(ClassifierCode), "Код в classifier" },
-            };
-            }
-            public List<string> GetPropertiesOrder()
-            {
-                return new List<string>
-                {
-                    //nameof(ParentId),
-                    nameof(Order),
-
-                    nameof(Name),
-                    nameof(Type),
-                    nameof(Unit),
-                    //nameof(Price),
-                    //nameof(Description),
-                    //nameof(Manufacturer),
-                    //nameof(ClassifierCode),
-
-                    nameof(Quantity),
-                    //nameof(Note),
-
-                    nameof(ChildId),
-
-                };
-            }
-            public List<string> GetRequiredFields()
-            {
-                return new List<string>
-                {
-                    nameof(ChildId) ,
-                    nameof(ParentId) ,
-                    nameof(Order),
-                };
-            }
-            public List<string> GetKeyFields()
-            {
-                return new List<string>
-                {
-                    nameof(ChildId),
-                    nameof(ParentId),
-                };
-            }
-
-            private int childId;
-            private int parentId;
-            private int order;
-            private double quantity;
-            private string? note;
-
-            public DisplayedProtection_TC()
-            {
-
-            }
-            public DisplayedProtection_TC(Protection_TC obj)
-            {
-                ChildId = obj.ChildId;
-                ParentId = obj.ParentId;
-                Order = obj.Order;
-
-                Name = obj.Child.Name;
-                Type = obj.Child.Type;
-
-                Unit = obj.Child.Unit;
-                Quantity = obj.Quantity;
-                Price = obj.Child.Price;
-                Description = obj.Child.Description;
-                Manufacturer = obj.Child.Manufacturer;
-                ClassifierCode = obj.Child.ClassifierCode;
-
-                IsReleased = obj.Child.IsReleased;
-
-                previousOrder = Order;
-            }
-
-            public int ChildId { get; set; }
-            public int ParentId { get; set; }
-            private int previousOrder;
-            public int Order
-            {
-                get => order;
-                set
-                {
-                    if (order != value)
-                    {
-                        previousOrder = order;
-                        order = value;
-                        OnPropertyChanged(nameof(Order));
-                    }
-                }
-            }
-
-            public int PreviousOrder => previousOrder;
-            public double? Quantity
-            {
-                get => quantity;
-                set
-                {
-                    if (quantity != value)
-                    {
-                        quantity = value ?? 0;
-                        OnPropertyChanged(nameof(Quantity));
-                    }
-                }
-            }
-            public string? Note
-            {
-                get => note;
-                set
-                {
-                    if (note != value)
-                    {
-                        note = value;
-                        OnPropertyChanged(nameof(Note));
-                    }
-                }
-            }
-
-            public string Name { get; set; }
-            public string? Type { get; set; }
-            public string Unit { get; set; }
-            public float? Price { get; set; }
-            public string? Description { get; set; }
-            public string? Manufacturer { get; set; }
-            //public List<LinkEntety> Links { get; set; } = new();
-            public string ClassifierCode { get; set; }
-
-            public bool IsReleased { get; set; } = false;
-
-
-            public event PropertyChangedEventHandler PropertyChanged;
-            protected virtual void OnPropertyChanged(string propertyName)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-
-            private Dictionary<string, object> oldValueDict = new Dictionary<string, object>();
-
-            public object GetOldValue(string propertyName)
-            {
-                if (oldValueDict.ContainsKey(propertyName))
-                {
-                    return oldValueDict[propertyName];
-                }
-
-                return null;
             }
 
         }

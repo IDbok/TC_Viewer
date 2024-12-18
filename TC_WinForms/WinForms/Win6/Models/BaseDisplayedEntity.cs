@@ -2,7 +2,7 @@
 using TC_WinForms.Interfaces;
 using TcModels.Models.Interfaces;
 
-namespace TC_WinForms.WinForms;
+namespace TC_WinForms.WinForms.Win6.Models;
 
 public interface IFormulaItem
 {

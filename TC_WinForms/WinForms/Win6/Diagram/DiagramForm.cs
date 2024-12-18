@@ -11,12 +11,13 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using TC_WinForms.Interfaces;
+using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.WinForms.Diagram
 {
-    public partial class DiagramForm : Form, ISaveEventForm, IViewModeable, IFormWithObjectId
+	public partial class DiagramForm : Form, ISaveEventForm, IViewModeable, IFormWithObjectId
     {
         private readonly TcViewState _tcViewState;
 

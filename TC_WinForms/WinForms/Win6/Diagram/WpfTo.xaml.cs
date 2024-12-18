@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using TC_WinForms.WinForms.Win6.Models;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram;

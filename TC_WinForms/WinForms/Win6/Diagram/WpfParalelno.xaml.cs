@@ -13,14 +13,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TC_WinForms.WinForms.Win6.Models;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram
 {
-    /// <summary>
-    /// Логика взаимодействия для WpfParalelno.xaml
-    /// </summary>
-    public partial class WpfParalelno : System.Windows.Controls.UserControl, INotifyPropertyChanged
+	/// <summary>
+	/// Логика взаимодействия для WpfParalelno.xaml
+	/// </summary>
+	public partial class WpfParalelno : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
         private readonly DiagramState _diagramState;
 

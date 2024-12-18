@@ -269,6 +269,9 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Formula")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
 
@@ -296,6 +299,9 @@ namespace TcDbConnector.Migrations
 
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Formula")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
@@ -381,6 +387,9 @@ namespace TcDbConnector.Migrations
 
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Formula")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Note")
                         .HasColumnType("longtext");

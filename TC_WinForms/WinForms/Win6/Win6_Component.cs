@@ -8,20 +8,14 @@ using TcDbConnector;
 using TcModels.Models.IntermediateTables;
 using Component = TcModels.Models.TcContent.Component;
 
-#if RELEASE
-using TC_WinForms.Interfaces;
-using static TC_WinForms.WinForms.Win6_Component;
-#endif
 
 namespace TC_WinForms.WinForms
 {
-	[DesignerCategory("Form")]
-#if DEBUG
-	public partial class Win6_Component : Win6_Component_Design
-#else
-    public partial class Win6_Component : BaseContentFormWithFormula<DisplayedComponent_TC, Component_TC>
-#endif
-	{
+	// при работе с дизайнером раскоментировать
+	//[DesignerCategory("Form")]
+	//public partial class Win6_Component : Win6_Component_Design
+	public partial class Win6_Component : BaseContentForm<DisplayedComponent_TC, Component_TC>
+    {
 		protected override DataGridView DgvMain => dgvMain;
         protected override Panel PnlControls => pnlControls;
 		protected override IList<Component_TC> TargetTable 
@@ -31,7 +25,6 @@ namespace TC_WinForms.WinForms
 		private MyDbContext context;
 
         private int _tcId;
-		public bool CloseFormsNoSave { get; set; } = false;
 
         public Win6_Component(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
         {
@@ -42,21 +35,15 @@ namespace TC_WinForms.WinForms
                 .ForContext<Win6_Component>()
                 .ForContext("TcId", _tcId);
 
-            _logger.Information("Инициализация формы Win6_Component TcId={TcId}");
+            _logger.Information("Инициализация формы. TcId={TcId}");
 
             _tcViewState = tcViewState;
             this.context = context;
-
-            InitializeComponent();
-
 			_tcId = tcId;
 
-            var dgvEventService = new DGVEvents(dgvMain);
-            dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
+			InitializeComponent();
 
-            dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
-            dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
-			dgvMain.CellValueChanged += dgvMain_CellValueChanged;
+			InitializeDataGridViewEvents();
 
 			this.FormClosed += (sender, e) => {
                 _logger.Information("Форма закрыта");
@@ -67,7 +54,7 @@ namespace TC_WinForms.WinForms
 		protected override void LoadObjects() // todo: можно перенести в BaseForm
 		{
             var tcList = TargetTable //_tcViewState.TechnologicalCard.Component_TCs
-                .Where(obj => obj.ParentId == _tcId)
+                //.Where(obj => obj.ParentId == _tcId)
                 .OrderBy(o => o.Order)
                 .Select(obj => new DisplayedComponent_TC(obj))
                 .ToList();
@@ -83,7 +70,7 @@ namespace TC_WinForms.WinForms
         {
             foreach (var obj in newObjs)
             {
-                var newObj_TC = CreateNewObject(obj, _bindingList.Select(o => o.Order).Max() + 1);
+                var newObj_TC = CreateNewObject(obj, GetNewObjectOrder());
                 var component = context.Components.Where(s => s.Id == newObj_TC.ChildId).First();
 
                 context.Components.Attach(component);
@@ -96,7 +83,6 @@ namespace TC_WinForms.WinForms
                 var displayedObj_TC = new DisplayedComponent_TC(newObj_TC);
                 _bindingList.Add(displayedObj_TC);
             }
-
 
             dgvMain.Refresh();
         }
@@ -161,11 +147,8 @@ namespace TC_WinForms.WinForms
                 TargetTable 
                     .Add(newObj);
             }
-			//_tcViewState.TechnologicalCard.Component_TCs
-   //             .AddRange(newObjects);
 
-            _changedObjects.Clear();
-
+			_replacedObjects.Clear();
         }
 
 		protected override Component_TC CreateNewObject(BaseDisplayedEntity dObj)
@@ -253,12 +236,12 @@ namespace TC_WinForms.WinForms
             }
 
             var selectedRow = dgvMain.SelectedRows[0];
-            var displayedComponent = selectedRow.DataBoundItem as DisplayedComponent_TC;
+            //var displayedComponent = selectedRow.DataBoundItem as DisplayedComponent_TC;
 
-            if (displayedComponent != null)
+            if (selectedRow.DataBoundItem is DisplayedComponent_TC dObj)
             {
 
-                if (displayedComponent.ChildId == updatedObject.Id)
+                if (dObj.ChildId == updatedObject.Id)
                 {
                     MessageBox.Show("Ошибка обновления объекта: ID объекта совпадает");
                     return false;
@@ -269,25 +252,25 @@ namespace TC_WinForms.WinForms
                     MessageBox.Show("Ошибка обновления объекта: объект с таким ID уже существует");
                     return false;
                 }
-                var newItem = CreateNewObject(updatedObject, displayedComponent.Order);
-                newItem.Quantity = displayedComponent.Quantity ?? 0;
-                newItem.Note = displayedComponent.Note;
+                var newItem = CreateNewObject(updatedObject, dObj.Order);
+                newItem.Quantity = dObj.Quantity ?? 0;
+                newItem.Note = dObj.Note;
 
                 var newDisplayedComponent = new DisplayedComponent_TC(newItem);
 
 
                 // замена displayedComponent в dgvMain на newDisplayedComponent
-                var index = _bindingList.IndexOf(displayedComponent);
+                var index = _bindingList.IndexOf(dObj);
                 _bindingList[index] = newDisplayedComponent;
 
                 // проверяем наличие объекта в списке измененных объектов в значениях replacedObjects
-                if (_replacedObjects.ContainsKey(displayedComponent))
+                if (_replacedObjects.ContainsKey(dObj))
                 {
-                    _replacedObjects[displayedComponent] = newDisplayedComponent;
+                    _replacedObjects[dObj] = newDisplayedComponent;
                 }
                 else
                 {
-                    _replacedObjects.Add(displayedComponent, newDisplayedComponent);
+                    _replacedObjects.Add(dObj, newDisplayedComponent);
                 }
 
                 SaveReplacedObjects();

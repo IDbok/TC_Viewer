@@ -1,10 +1,8 @@
-﻿#if DEBUG
-using TC_WinForms.WinForms;
-using TC_WinForms.WinForms.Win6.Models;
+﻿namespace TC_WinForms.WinForms.Win6.Models;
+#if DEBUG
 using TcModels.Models.IntermediateTables;
-using static TC_WinForms.WinForms.Win6_Component;
 
-public partial class Win6_Component_Design : BaseContentFormWithFormula<DisplayedComponent_TC, Component_TC>
+public partial class Win6_Component_Design : BaseContentForm<DisplayedComponent_TC, Component_TC>
 {
 	protected override DataGridView DgvMain => new DataGridView();
 	protected override Panel PnlControls => new Panel();
@@ -17,8 +15,4 @@ public partial class Win6_Component_Design : BaseContentFormWithFormula<Displaye
 		return new Component_TC();
 	}
 }
-
-
-
-
 #endif

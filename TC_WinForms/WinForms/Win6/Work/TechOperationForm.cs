@@ -9,6 +9,7 @@ using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
+using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;

@@ -1,11 +1,9 @@
 ﻿#if DEBUG
-using static TC_WinForms.WinForms.Win6_Tool;
 using TcModels.Models.IntermediateTables;
-using TC_WinForms.WinForms.Win6.Models;
 
-namespace TC_WinForms.WinForms;
+namespace TC_WinForms.WinForms.Win6.Models;
 
-public partial class Win6_Tool_Design : BaseContentFormWithFormula<DisplayedTool_TC, Tool_TC>
+public partial class Win6_Tool_Design : BaseContentForm<DisplayedTool_TC, Tool_TC>
 {
 	protected override DataGridView DgvMain => new DataGridView();
 	protected override Panel PnlControls => new Panel();

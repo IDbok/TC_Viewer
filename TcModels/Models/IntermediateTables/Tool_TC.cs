@@ -50,7 +50,12 @@ namespace TcModels.Models.IntermediateTables
 
         public int Order { get; set; }
         public double Quantity { get; set; }
-        public string? Note { get; set; }
+
+		/// <summary>
+		/// Формула для расчёта количества (Quantity)
+		/// </summary>
+		public string? Formula { get; set; }
+		public string? Note { get; set; }
 
         public List<TechOperationWork> TechOperationWorks { get; set; }
 
@@ -61,6 +66,7 @@ namespace TcModels.Models.IntermediateTables
                 Order = sourceCard.Order;
                 Quantity = sourceCard.Quantity;
                 Note = sourceCard.Note;
+                Formula = sourceCard.Formula;
             }
         }
         public override string ToString()

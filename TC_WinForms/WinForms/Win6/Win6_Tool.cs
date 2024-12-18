@@ -1,24 +1,18 @@
 ﻿using Serilog;
 using System.ComponentModel;
 using System.Data;
-using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
-#if RELEASE
-using TC_WinForms.Interfaces;
-using static TC_WinForms.WinForms.Win6_Tool;
-#endif
+
 namespace TC_WinForms.WinForms
 {
-	[DesignerCategory("Form")]
-#if DEBUG
-	public partial class Win6_Tool : Win6_Tool_Design
-#else
-    public partial class Win6_Tool : BaseContentFormWithFormula<DisplayedTool_TC, Tool_TC>, IViewModeable 
-#endif
+	// при работе с дизайнером раскоментировать
+	//[DesignerCategory("Form")]
+	//public partial class Win6_Tool : Win6_Tool_Design
+	public partial class Win6_Tool : BaseContentForm<DisplayedTool_TC, Tool_TC>
 	{
 		protected override DataGridView DgvMain => dgvMain;
 		protected override Panel PnlControls => pnlControls;
@@ -32,10 +26,10 @@ namespace TC_WinForms.WinForms
 		public Win6_Tool(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
 		{
 			_logger = Log.Logger
-				.ForContext<Win6_Component>()
+				.ForContext<Win6_Tool>()
 				.ForContext("TcId", _tcId);
 
-			_logger.Information("Инициализация формы Win6_Tool TcId={TcId}");
+			_logger.Information("Инициализация формы. TcId={TcId}");
 
 			_tcViewState = tcViewState;
             this.context = context;
@@ -44,14 +38,13 @@ namespace TC_WinForms.WinForms
 
             InitializeComponent();
 
-            var dgvEventService = new DGVEvents(dgvMain);
-            dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
+			InitializeDataGridViewEvents();
 
-            dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
-            dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
-
-            this.FormClosed += (sender, e) => this.Dispose();
-        }
+			this.FormClosed += (sender, e) => {
+				_logger.Information("Форма закрыта");
+				this.Dispose();
+			};
+		}
 
         protected override void LoadObjects()
         {
@@ -70,11 +63,11 @@ namespace TC_WinForms.WinForms
         {
             foreach (var obj in newObjs)
             {
-                var newObj_TC = CreateNewObject(obj, _bindingList.Select(o => o.Order).Max() + 1);
+                var newObj_TC = CreateNewObject(obj, GetNewObjectOrder());
                 var tool = context.Tools.Where(s => s.Id == newObj_TC.ChildId).First();
 
                 context.Tools.Attach(tool);
-                _tcViewState.TechnologicalCard.Tool_TCs.Add(newObj_TC);
+                TargetTable.Add(newObj_TC);
 
                 newObj_TC.Child = tool;
                 newObj_TC.ChildId = tool.Id;
@@ -119,13 +112,17 @@ namespace TC_WinForms.WinForms
             //Удялем старые компоненты из ТехКарты
             for (int i = 0; i < oldObjects.Count; i++)
             {
-                var oldTool = _tcViewState.TechnologicalCard.Tool_TCs.Where(m => m.ChildId == oldObjects[i].ChildId).First();
-                _tcViewState.TechnologicalCard.Tool_TCs.Remove(oldTool);
+                var oldTool = TargetTable.Where(m => m.ChildId == oldObjects[i].ChildId).First();
+				TargetTable.Remove(oldTool);
             }
 
-            _tcViewState.TechnologicalCard.Tool_TCs.AddRange(newObjects);
+			foreach (var newObj in newObjects)
+			{
+				TargetTable
+					.Add(newObj);
+			}
 
-            _changedObjects.Clear();
+			_replacedObjects.Clear();
         }
         protected override Tool_TC CreateNewObject(BaseDisplayedEntity dObj)
         {
@@ -136,16 +133,17 @@ namespace TC_WinForms.WinForms
                 Order = dObj.Order,
                 Quantity = dObj.Quantity ?? 0,
                 Note = dObj.Note,
-            };
+                Formula = dObj.Formula,
+			};
         }
-        private Tool_TC CreateNewObject(Tool obj, int oreder)
+        private Tool_TC CreateNewObject(Tool obj, int order)
         {
             return new Tool_TC
             {
                 ParentId = _tcId,
                 ChildId = obj.Id,
                 Child = obj,
-                Order = oreder,
+                Order = order,
                 Quantity = 0,
                 Note = "",
             };
