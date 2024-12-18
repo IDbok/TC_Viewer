@@ -161,7 +161,9 @@ namespace TC_WinForms.Services
 
                     if (blockedObject != null)
                     {
-                        blockedObject.TimeStamp = e.SignalTime;
+                        dbContext.BlockedConcurrencyObjects.Where(u => u.Id == blockedObject.Id)
+                                                           .ExecuteUpdate(b => b.SetProperty(u => u.TimeStamp, e.SignalTime));
+
                         dbContext.SaveChanges();
                         _logger.Debug("Таймер обновил метку времени для объекта {ObjectType} с ID={ObjectId} на {TimeStamp}", ObjectType, ObjectId, blockedObject.TimeStamp);
                     }
