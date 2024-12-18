@@ -175,6 +175,11 @@ namespace ExcelParsing.DataProcessing
         // Вспомогательный метод для расчёта высоты на основе текста и ширины ячейки
         private double CalculateRequiredHeight(string text, double cellWidth)
         {
+            double singleRowHeight = 14.5; // Подберите значение экспериментально
+
+            if (string.IsNullOrEmpty(text))
+                return singleRowHeight;
+
             // Приблизительный расчёт, нужно подстроить под ваш конкретный случай
             double approximateCharWidth = 1.1; // Подберите значение экспериментально
             double maxCharsPerRow = cellWidth / approximateCharWidth;
@@ -188,8 +193,6 @@ namespace ExcelParsing.DataProcessing
             }
 
             numRows = Math.Max(newLineCount, numRows);
-
-            double singleRowHeight = 14.5; // Подберите значение экспериментально
 
             return numRows * singleRowHeight; // Возвращает расчётную высоту
         }

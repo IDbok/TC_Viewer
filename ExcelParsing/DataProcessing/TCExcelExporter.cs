@@ -185,6 +185,8 @@ namespace ExcelParsing.DataProcessing
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
                 // Включаем перенос слов в ячейке
+                sheet.Cells[currentRow, columnNums[1]].Style.WrapText = true;
+                sheet.Cells[currentRow, columnNums[2]].Style.WrapText = true;
                 sheet.Cells[currentRow, columnNums[3]].Style.WrapText = true;
                 sheet.Cells[currentRow, columnNums[4]].Style.WrapText = true;
 
@@ -523,7 +525,7 @@ namespace ExcelParsing.DataProcessing
             };
 
             Dictionary<string, int> additinghHadersColumns = new Dictionary<string, int> 
-            { {"№ СЗ" ,1}, { "Примечание", 2 }, { "Рисунок", 3 }, { "конец", 4 } };
+            { {"№ СЗ" ,1}, { "Примечание", 2 }, { "Рисунок", 5 }, { "конец", 6 } };
 
             int lastColumn = headersColumns["Время этапа, мин."];
             var machineColumnNums = new List<int>();
@@ -593,6 +595,7 @@ namespace ExcelParsing.DataProcessing
                     ColorizeRange(sheet.Cells[currentRow, 4, currentRow, 7], _componentColor);
 
                     RowFormat();
+                    sheet.Cells[currentRow, headersColumns["Примечание"], currentRow, headersColumns["Рисунок"] - 1].Merge = true;
 
                     itemCount++;
                     NextRow();
@@ -609,6 +612,7 @@ namespace ExcelParsing.DataProcessing
                     ColorizeRange(sheet.Cells[currentRow, 4, currentRow, 7], _toolColor);
 
                     RowFormat();
+                    sheet.Cells[currentRow, headersColumns["Примечание"], currentRow, headersColumns["Рисунок"] - 1].Merge = true;
 
                     itemCount++;
                     NextRow();
