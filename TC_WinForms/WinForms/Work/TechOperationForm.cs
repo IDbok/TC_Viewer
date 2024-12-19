@@ -38,6 +38,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     public bool CloseFormsNoSave { get; set; } = false;
 
+    public List<ExecutionWork> GetAllRepeatExecutionWorks()
+    {
+        return TechOperationDataGridItems.Where(e => e.executionWorkItem != null && e.executionWorkItem.Repeat && !e.executionWorkItem.Delete).Select(e => e.executionWorkItem).ToList();
+    }
+
     public TechOperationForm(int tcId, TcViewState tcViewState, MyDbContext context)//,  bool viewerMode = false)
     {
         this._tcViewState = tcViewState;
@@ -1552,7 +1557,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
 
             vb.Delete = true;
-            TOWork.executionWorks.Remove(vb);
+            //TOWork.executionWorks.Remove(vb);
             context.Remove(vb);
         }
     }
