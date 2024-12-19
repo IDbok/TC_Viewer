@@ -1557,7 +1557,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             }
 
             vb.Delete = true;
-            TOWork.executionWorks.Remove(vb);
+            //TOWork.executionWorks.Remove(vb);
             context.Remove(vb);
         }
     }

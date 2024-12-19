@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Data;
+using System.Linq;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Services;
@@ -560,7 +561,7 @@ namespace TC_WinForms.WinForms.Work
                 {
 
                     var oldValue = wor.Coefficient;
-
+                    var oldCoef = wor.Value;
                     if (oldValue == gg)
                     {
                         return;
@@ -600,7 +601,7 @@ namespace TC_WinForms.WinForms.Work
                             UpdateLocalTP();
                         }));
 
-                        UpdateAllPovtorValue(wor);
+                        UpdateEWCoefficient(oldCoef, wor);
                         UpdateLocalTP();
                         TechOperationForm.UpdateGrid();
                     }
@@ -686,7 +687,7 @@ namespace TC_WinForms.WinForms.Work
                     Log.Information("Удаление ТП c GUID {TechTransitionGuid}", IddGuid);
 
                     TechOperationForm.DeleteTechTransit(IddGuid, work);
-                    UpdateAllPovtorValue(FindExecutionWorkById(IddGuid));
+                    UpdateRelatedReplays(FindExecutionWorkById(IddGuid));//Вызывается данная функция так как необходимо пересчитать связанные EW, но коэффициент этого EW не менялся
                     UpdateLocalTP();
 
                     foreach (DataGridViewRow dataGridViewRow in dataGridViewTPLocal.Rows)
@@ -779,7 +780,7 @@ namespace TC_WinForms.WinForms.Work
         {
             foreach (var techOperationWork in TechOperationForm.TechOperationWorksList)
             {
-                var executionWork = techOperationWork.executionWorks.SingleOrDefault(ew => ew.IdGuid == id);
+                var executionWork = techOperationWork.executionWorks.FirstOrDefault(ew => ew.IdGuid == id);
                 if (executionWork != null)
                 {
                     return executionWork;
@@ -2549,8 +2550,7 @@ namespace TC_WinForms.WinForms.Work
                         }
                     }
 
-                    RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
-                    UpdateAllPovtorValue(executionWorkPovtor);
+                    UpdateEWCoefficient(null, executionWorkPovtor);
 
                     // Перерисовать таблицу
                     dataGridViewPovtor.Invalidate();
@@ -2592,8 +2592,6 @@ namespace TC_WinForms.WinForms.Work
                             {
                                 existingRepeat.NewPosled = (string)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                             }
-
-                            RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
                         }
                     }
                     else
@@ -2603,8 +2601,7 @@ namespace TC_WinForms.WinForms.Work
 
                     }
 
-                    UpdateAllPovtorValue(executionWorkPovtor);
-                    UpdateLocalTP();
+                    UpdateEWCoefficient(null, executionWorkPovtor);
                     TechOperationForm.UpdateGrid();
 
                 }
@@ -2721,16 +2718,32 @@ namespace TC_WinForms.WinForms.Work
             executionWorkPovtor.Value = totalValue;
         }
 
-        private void UpdateAllPovtorValue(ExecutionWork updatedExecutionWork)
+        private void UpdateRelatedReplays(ExecutionWork updatedExecutionWork)
         {
             foreach (var executionWork in TechOperationForm.GetAllRepeatExecutionWorks())
             {
                 if (executionWork.Repeat && executionWork.ExecutionWorkRepeats.Select(e => e.ChildExecutionWorkId).Contains(updatedExecutionWork.Id))
                 {
-                    RecalculateExecutionWorkPovtorValue(executionWork);
-                    UpdateAllPovtorValue(executionWork);
+                    UpdateEWCoefficient(null, executionWork);
                 }
             }
+        }
+
+        private void UpdateEWCoefficient(double? oldCoefficient = null,ExecutionWork editedExecutionWork = null)
+        {
+            if(oldCoefficient != null && oldCoefficient != editedExecutionWork.Value)//конструкция если коэффициент уже посчитан в EW
+            {
+                UpdateRelatedReplays(editedExecutionWork);
+                return;
+            }
+
+            oldCoefficient = editedExecutionWork.Value;
+
+            RecalculateExecutionWorkPovtorValue(editedExecutionWork);
+
+            if (oldCoefficient != editedExecutionWork.Value)
+                UpdateRelatedReplays(editedExecutionWork);
+
         }
         #endregion
 
