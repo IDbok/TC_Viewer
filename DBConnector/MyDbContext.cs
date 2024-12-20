@@ -268,6 +268,20 @@ public class MyDbContext : DbContext
             .Property<string>("ParallelIndex")
             .HasColumnName("ParallelIndex");
 
-    }
+		// Настройка отношения ToolWork -> DiagramShagToolsComponent
+		modelBuilder.Entity<DiagramShagToolsComponent>()
+			.HasOne(dstc => dstc.toolWork)
+			.WithMany()
+			.HasForeignKey(dstc => dstc.toolWorkId)
+			.OnDelete(DeleteBehavior.Cascade);
+
+		// Настройка отношения ComponentWork -> DiagramShagToolsComponent
+		modelBuilder.Entity<DiagramShagToolsComponent>()
+			.HasOne(dstc => dstc.componentWork)
+			.WithMany()
+			.HasForeignKey(dstc => dstc.componentWorkId)
+			.OnDelete(DeleteBehavior.Cascade);
+
+	}
 
 }

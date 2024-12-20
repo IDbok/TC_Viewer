@@ -1528,13 +1528,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
             vb.IsDeleted = true;
             work.ComponentWorks.Remove(vb);
 
-            var relatedItems = context.DiagramShagToolsComponent.Where(s => s.componentWorkId == vb.Id).ToList();
+            var relatedItems = context.DiagramShagToolsComponent
+                .Where(s => s.componentWorkId == vb.Id).ToList();
+            
             foreach (var item in relatedItems)
             {
                 context.Remove(item);
             }
-        }
-    }
+		}
+	}
 
     public void DeleteTechTransit(Guid IdGuid, TechOperationWork techOperationWork) //todo - IdGuid используется только для удаления тех операций. Можно оптимизировать этот процесс и убрать поле IdGuid из ExecutionWork
     {
