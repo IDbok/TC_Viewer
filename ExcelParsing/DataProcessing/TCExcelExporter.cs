@@ -40,7 +40,7 @@ namespace ExcelParsing.DataProcessing
             {
                 { 1, 6.82 }, // № СЗ
                 { 2, 32 }, // Примечание
-                { 3, 6.82 }, // Обозначение, Рисунок
+                { 5, 6.82 }, // Обозначение, Рисунок
             };
 
         // Название столбцов для таблицы и их номер столбца в Excel для Механизмов, СЗ и Интсрументов
@@ -721,6 +721,9 @@ namespace ExcelParsing.DataProcessing
 
                 // Примечание
                 sheet.Cells[currentRow, headersColumns["Примечание"]].Value = executionWork.Comments;
+
+                // Рисунок
+                sheet.Cells[currentRow, headersColumns["Рисунок"]].Value = executionWork.PictureName;
 
                 // Объединение ячеек между столбцами
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
