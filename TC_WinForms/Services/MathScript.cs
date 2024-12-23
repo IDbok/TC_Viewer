@@ -19,7 +19,7 @@ public static class MathScript
 		try
 		{
 			if (string.IsNullOrWhiteSpace(coefficient)) // todo: возможно логичнее возврат defaultValue ?
-				throw new ArgumentException("Coefficient cannot be null or empty.", nameof(coefficient));
+				coefficient = "*1";
 
 			var firstChar = coefficient[0];
 

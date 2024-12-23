@@ -2576,14 +2576,13 @@ namespace TC_WinForms.WinForms.Work
                             {
                                 if (string.IsNullOrEmpty(cellValueStr))
                                 {
-									cell.Value = "*1";
-									existingRepeat.NewCoefficient = "*1";
+                                    existingRepeat.NewCoefficient = string.Empty;
                                 }
                                 else
                                 {
-									existingRepeat.NewCoefficient = cellValueStr;
-								}
-                            }
+                                    existingRepeat.NewCoefficient = cellValueStr;
+                                }
+							}
                             else if (e.ColumnIndex == 6)
                             {
                                 existingRepeat.NewEtap = cellValueStr;
