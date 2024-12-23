@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.IntermediateTables;
@@ -12,7 +13,7 @@ namespace TC_WinForms.WinForms
 	// при работе с дизайнером раскоментировать
 	//[DesignerCategory("Form")]
 	//public partial class Win6_Tool : Win6_Tool_Design
-	public partial class Win6_Tool : BaseContentForm<DisplayedTool_TC, Tool_TC>
+	public partial class Win6_Tool : BaseContentForm<DisplayedTool_TC, Tool_TC>, IFormWithObjectId
 	{
 		protected override DataGridView DgvMain => dgvMain;
 		protected override Panel PnlControls => pnlControls;
@@ -255,7 +256,10 @@ namespace TC_WinForms.WinForms
             return false;
         }// add to UpdateMode
 
-		
+		public int GetObjectId()
+		{
+			return _tcId;
+		}
 	}
 
 }

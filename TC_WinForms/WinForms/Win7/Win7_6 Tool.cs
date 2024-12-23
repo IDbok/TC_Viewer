@@ -14,7 +14,7 @@ using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms;
 
-public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl //, ISaveEventForm
+public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl, IFormWithObjectId
 {
     private readonly User.Role _accessLevel;
     private readonly int _minRowHeight = 20;
@@ -789,4 +789,9 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl 
     {
         dgvMain.ResizeRows(_minRowHeight);
     }
+
+	public int GetObjectId()
+	{
+		return _tcId ?? 0;
+	}
 }

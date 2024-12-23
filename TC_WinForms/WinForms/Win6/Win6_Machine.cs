@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.IntermediateTables;
@@ -14,7 +15,7 @@ namespace TC_WinForms.WinForms
 	//[DesignerCategory("Form")]
 	//public partial class Win6_Machine : Win6_Machine_Design
 
-	public partial class Win6_Machine : BaseContentForm<DisplayedMachine_TC, Machine_TC>
+	public partial class Win6_Machine : BaseContentForm<DisplayedMachine_TC, Machine_TC>, IFormWithObjectId
 	{
 		protected override DataGridView DgvMain => dgvMain;
 		protected override Panel PnlControls => pnlControls;
