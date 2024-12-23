@@ -93,7 +93,7 @@ public partial class Win6_Staff : Form, IViewModeable
     {
         foreach (var obj in newObjs)
         {
-            var newStaffTC = CreateNewObject(obj, _bindingList.Select(o => o.Order).Max() + 1);
+            var newStaffTC = CreateNewObject(obj, _bindingList.Count == 0 ? 1 : _bindingList.Select(o => o.Order).Max() + 1);
             var staff = context.Staffs.Where(s => s.Id == newStaffTC.ChildId).First();
 
             //Прикрепляем для отслеживания в БД объект Staff, используется для обхода ошибки добавления связанных объектов

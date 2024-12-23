@@ -1,4 +1,5 @@
-﻿namespace TC_WinForms.WinForms
+﻿
+namespace TC_WinForms.WinForms
 {
     partial class Win7_1_TCs_Window
     {
@@ -55,6 +56,7 @@
             lblName = new Label();
             cbxStatus = new ComboBox();
             lblStatus = new Label();
+            btnClone = new Button();
             panel1 = new Panel();
             panel1.SuspendLayout();
             SuspendLayout();
@@ -241,7 +243,7 @@
             // 
             btnSaveAndOpen.Location = new Point(23, 500);
             btnSaveAndOpen.Name = "btnSaveAndOpen";
-            btnSaveAndOpen.Size = new Size(209, 63);
+            btnSaveAndOpen.Size = new Size(170, 63);
             btnSaveAndOpen.TabIndex = 22;
             btnSaveAndOpen.Text = "Открыть";
             btnSaveAndOpen.UseVisualStyleBackColor = true;
@@ -249,13 +251,24 @@
             // 
             // btnSave
             // 
-            btnSave.Location = new Point(248, 500);
+            btnSave.Location = new Point(200, 500);
             btnSave.Name = "btnSave";
-            btnSave.Size = new Size(221, 63);
+            btnSave.Size = new Size(170, 63);
             btnSave.TabIndex = 23;
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Click;
+            // 
+            // btnClone
+            // 
+            btnClone.Location = new Point(410, 500);
+            btnClone.Name = "btnClone";
+            btnClone.Size = new Size(170, 63);
+            btnClone.TabIndex = 23;
+            btnClone.Text = "Копировать карту";
+            btnClone.UseVisualStyleBackColor = true;
+            btnClone.Visible = false;
+            btnClone.Click += btnClone_Click;
             // 
             // btnExportExcel
             // 
@@ -316,6 +329,7 @@
             panel1.Controls.Add(label3);
             panel1.Controls.Add(btnExportExcel);
             panel1.Controls.Add(label4);
+            panel1.Controls.Add(btnClone);
             panel1.Controls.Add(btnSave);
             panel1.Controls.Add(txtTechProcessType);
             panel1.Controls.Add(btnSaveAndOpen);
@@ -385,6 +399,7 @@
         private Label lblName;
         private ComboBox cbxStatus;
         private Label lblStatus;
+        private Button btnClone;
         private Panel panel1;
     }
 }

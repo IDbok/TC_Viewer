@@ -40,6 +40,33 @@ namespace TC_WinForms.Services
             }
             return null;
         }
-    }
+		/// <summary>
+		/// Ищет открытую форму типа <typeparamref name="T"/>.
+		/// </summary>
+		/// <typeparam name="T">
+		/// Тип формы, которую нужно найти. Должен наследовать <see cref="Form"/> 
+		/// и !!! НЕ !!! реализовывать <see cref="IFormWithObjectId"/>.
+		/// </typeparam>
+		/// <returns>
+		/// Найденная форма типа <typeparamref name="T"/> или <c>null</c>, если форма не найдена.
+		/// </returns>
+		public static T? FindOpenedForm<T>() where T : Form 
+            // todo: вынести в отдельный метод для открытия фом с id 
+		{
+			if (typeof(IFormWithObjectId).IsAssignableFrom(typeof(T)))
+			{
+				throw new InvalidOperationException($"Type {typeof(T).Name} implements IFormWithObjectId, which is not allowed.");
+			}
+
+			FormCollection fc = Application.OpenForms;
+
+			foreach (Form frm in fc)
+			{
+				if (frm is T matchingForm)
+					return matchingForm;
+			}
+			return null;
+		}
+	}
 
 }

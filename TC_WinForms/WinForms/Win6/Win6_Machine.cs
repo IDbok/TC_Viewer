@@ -266,6 +266,11 @@ namespace TC_WinForms.WinForms
 
             return false;
         }// add to UpdateMode
+
+        public int GetObjectId()
+        {
+            return _tcId;
+        }
     }
 
 }

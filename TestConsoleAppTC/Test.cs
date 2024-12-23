@@ -34,13 +34,110 @@ internal class Program
 
         // получить ТК по id
         TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
-        
-        
 
-        Console.ReadLine();
+        MapLogsToExcel();
+
+
+		Console.ReadLine();
     }
 
-    static void LoadLogsToSeq() // добавляет в seq логи из файла, но пока без параметров и указывает время добавление, а не из лога
+	static void MapLogsToExcel()
+	{
+		// Путь к файлу с логами
+		string logFilePath = "C:/Users/bokar/Downloads/log-20241219 (1).json"; // Замените на путь к вашему JSON-файлу
+		string excelFilePath = "C:/Users/bokar/Downloads/logs.xlsx";
+
+		// Чтение логов из файла
+		List<LogEntry> logEntries;
+		using (var reader = new StreamReader(logFilePath))
+		{
+			logEntries = reader
+				.ReadToEnd()
+				.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(line => JsonConvert.DeserializeObject<LogEntry>(line))
+				.ToList();
+		}
+
+		// установить лицензию для EPPlus
+		ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+		// Создание Excel-файла
+		using (var package = new ExcelPackage())
+		{
+			var worksheet = package.Workbook.Worksheets.Add("Logs");
+
+			// Заголовки столбцов
+			var headers = new[] { "Timestamp", "Level", "Message", "MachineName", "ClassName", "TcId", "Properties" };
+			for (int i = 0; i < headers.Length; i++)
+			{
+				worksheet.Cells[1, i + 1].Value = headers[i];
+				worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+				worksheet.Cells[1, i + 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+			}
+
+			// Заполнение данными
+			for (int row = 0; row < logEntries.Count; row++)
+			{
+				var entry = logEntries[row];
+
+				// Подстановка значений в MessageTemplate
+				string populatedMessage = PopulateMessageTemplate(entry.MessageTemplate, entry.Properties);
+
+				// Получение дополнительных полей из Properties
+				string machineName = entry.Properties != null && entry.Properties.ContainsKey("MachineName") ? entry.Properties["MachineName"].ToString() : "null";
+				string className = entry.Properties != null && entry.Properties.ContainsKey("ClassName") ? entry.Properties["ClassName"].ToString() : "null";
+				string tcId = entry.Properties != null && entry.Properties.ContainsKey("TcId") ? entry.Properties["TcId"].ToString() : "null";
+
+				worksheet.Cells[row + 2, 1].Value = entry.Timestamp;
+				worksheet.Cells[row + 2, 2].Value = entry.Level;
+				worksheet.Cells[row + 2, 3].Value = populatedMessage;
+				worksheet.Cells[row + 2, 4].Value = machineName;
+				worksheet.Cells[row + 2, 5].Value = className;
+				worksheet.Cells[row + 2, 6].Value = tcId;
+				worksheet.Cells[row + 2, 7].Value = JsonConvert.SerializeObject(entry.Properties, Formatting.Indented);
+
+				// Границы для ячеек
+				for (int col = 1; col <= headers.Length; col++)
+				{
+					worksheet.Cells[row + 2, col].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+				}
+			}
+
+			// Автоматическое изменение ширины столбцов
+			worksheet.Cells.AutoFitColumns();
+
+			// Сохранение файла
+			package.SaveAs(new FileInfo(excelFilePath));
+		}
+
+		Console.WriteLine($"Логи успешно экспортированы в файл: {excelFilePath}");
+	}
+
+	// Метод для подстановки значений в MessageTemplate
+	private static string PopulateMessageTemplate(string template, Dictionary<string, object> properties)
+	{
+		if (properties == null || string.IsNullOrEmpty(template))
+			return template;
+
+		foreach (var property in properties)
+		{
+			string placeholder = "{" + property.Key + "}";
+			template = template.Replace(placeholder, property.Value?.ToString() ?? "null");
+		}
+
+		return template;
+	}
+
+	// Модель данных для лога
+	public class LogEntry
+	{
+		public string Timestamp { get; set; }
+		public string Level { get; set; }
+		public string MessageTemplate { get; set; }
+		public Dictionary<string, object> Properties { get; set; }
+	}
+
+	static void LoadLogsToSeq() // добавляет в seq логи из файла, но пока без параметров и указывает время добавление, а не из лога
     {
         var seqLogger = new LoggerConfiguration()
             .WriteTo.Seq("http://localhost:8081") // Укажите URL Seq

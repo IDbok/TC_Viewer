@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TcDbConnector;
 
@@ -11,9 +12,11 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241216080236_ToolWorkNullableComment")]
+    partial class ToolWorkNullableComment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,9 +170,6 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Formula")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
 
@@ -269,9 +269,6 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Formula")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
 
@@ -299,9 +296,6 @@ namespace TcDbConnector.Migrations
 
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Formula")
-                        .HasColumnType("longtext");
 
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
@@ -388,9 +382,6 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Formula")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
 
@@ -434,43 +425,6 @@ namespace TcDbConnector.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BlockedConcurrencyObjects");
-                });
-
-            modelBuilder.Entity("TcModels.Models.TcContent.Coefficient", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("varchar(3)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<string>("ShortName")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<int>("TechnologicalCardId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Value")
-                        .HasColumnType("double");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TechnologicalCardId");
-
-                    b.HasIndex("Code", "TechnologicalCardId")
-                        .IsUnique();
-
-                    b.ToTable("Coefficients");
                 });
 
             modelBuilder.Entity("TcModels.Models.TcContent.Component", b =>
@@ -1509,17 +1463,6 @@ namespace TcDbConnector.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("TcModels.Models.TcContent.Coefficient", b =>
-                {
-                    b.HasOne("TcModels.Models.TechnologicalCard", "TechnologicalCard")
-                        .WithMany("Coefficients")
-                        .HasForeignKey("TechnologicalCardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TechnologicalCard");
-                });
-
             modelBuilder.Entity("TcModels.Models.TcContent.ComponentWork", b =>
                 {
                     b.HasOne("TcModels.Models.TcContent.Component", "component")
@@ -1609,13 +1552,11 @@ namespace TcDbConnector.Migrations
 
                     b.HasOne("TcModels.Models.TcContent.ComponentWork", "componentWork")
                         .WithMany()
-                        .HasForeignKey("componentWorkId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("componentWorkId");
 
                     b.HasOne("TcModels.Models.TcContent.ToolWork", "toolWork")
                         .WithMany()
-                        .HasForeignKey("toolWorkId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("toolWorkId");
 
                     b.Navigation("DiagramShag");
 
@@ -1847,8 +1788,6 @@ namespace TcDbConnector.Migrations
 
             modelBuilder.Entity("TcModels.Models.TechnologicalCard", b =>
                 {
-                    b.Navigation("Coefficients");
-
                     b.Navigation("Component_TCs");
 
                     b.Navigation("DiagamToWork");

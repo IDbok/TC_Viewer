@@ -114,7 +114,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         }
 
-        private void UpdateToolsComponentsList()
+        private void UpdateToolsComponentsList() // todo: зачем-то вызывается перед закрытием формы. Проверить нужно ли это
         {
 
             diagramShag.ListDiagramShagToolsComponent = new List<DiagramShagToolsComponent>();

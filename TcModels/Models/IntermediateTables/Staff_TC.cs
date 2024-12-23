@@ -1,12 +1,10 @@
-﻿
-using System.Xml.Linq;
-using TcModels.Models.Interfaces;
+﻿using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.IntermediateTables
 {
-    public class Staff_TC : IIntermediateTable<TechnologicalCard,Staff>, IDGViewable, IUpdatableEntity
+	public class Staff_TC : IIntermediateTable<TechnologicalCard,Staff>, IDGViewable, IUpdatableEntity
     {
         public static List<string> GetChangeablePropertiesNames { get; } = new List<string>
         {

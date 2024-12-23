@@ -4,6 +4,7 @@ using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TcDbConnector;
+using TcDbConnector.Repositories;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
@@ -107,7 +108,7 @@ namespace TC_WinForms.WinForms
             if (_accessLevel == User.Role.Lead)
             {
                 _logger.Information("Роль Lead: включение отображения статуса");
-
+                btnClone.Visible = true ;
                 cbxStatus.Visible = true;
                 lblStatus.Visible = true;
             }
@@ -263,6 +264,7 @@ namespace TC_WinForms.WinForms
                 if (openedForm != null)
                 {
                     openedForm.BringToFront();
+                    this.Close();
                     return;
                 }
 
@@ -378,5 +380,89 @@ namespace TC_WinForms.WinForms
         {
             return OriginCard.Id;
         }
-    }
+
+        public async Task<int?> CloneAsync()
+        {
+			_logger.Information("Начало копирования данных технологической карты");
+
+            LocalCard.Name = txtName.Text;
+            LocalCard.Article = txtArticle.Text + " (Копия)";
+            LocalCard.Type = cbxType.Text;
+            LocalCard.NetworkVoltage = float.Parse(cbxNetworkVoltage.Text);
+            LocalCard.TechnologicalProcessType = txtTechProcessType.Text;
+            LocalCard.TechnologicalProcessName = txtTechProcess.Text;
+            LocalCard.Parameter = txtParametr.Text;
+            LocalCard.FinalProduct = txtFinalProduct.Text;
+            LocalCard.Applicability = txtApplicability.Text;
+            LocalCard.Note = txtNote.Text;
+            LocalCard.IsCompleted = chbxIsCompleted.Checked;
+            LocalCard.Status = TechnologicalCardStatus.Draft;
+            
+
+            try
+            {
+                _logger.Information("Проверка уникальности данных технологической карты");
+                // проверка полей на уникальность
+                if (!await UniqueFieldChecker<TechnologicalCard>.IsPropertiesUnique(LocalCard))
+                {
+                    _logger.Warning("Нарушена уникальность полей технологической карты");
+                    return null;
+                }
+
+                _logger.Information("Создание репозитория для получения данных технологической карты");
+
+                TechnologicalCardRepository technologicalCardRepository = new TechnologicalCardRepository();
+                OriginCard = await technologicalCardRepository.GetTechnologicalCardAsync(OriginCard.Id);
+                OriginCard.ApplyUpdates(LocalCard); // Возможно данное действие лишнее.
+                                                    // Если пользователь захочет отменить какие-то изменения он переоткроет окно
+
+                _logger.Information("Копирование технологической карты");
+
+                TechnologicalCard newCard = OriginCard.CloneObject();
+                await dbCon.AddObjectAsync(newCard);
+
+                if (AfterSave != null)
+                {
+                    await AfterSave(newCard);
+                }
+
+                //OriginCard.Id = newCard.Id;
+
+                _logger.Information("Копирование и данных технологической карты выполнено успешно");
+                return newCard.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Ошибка при сохранении данных копированной технологической карты: {ExceptionMessage}", ex.Message);
+
+                MessageBox.Show(ex.Message);
+                return null;
+            }
+        }
+
+        private async void btnClone_Click(object sender, EventArgs e)
+        {
+            if (NoEmptiness())
+            {
+				var cloneTcId = await CloneAsync();
+				if (cloneTcId != null)
+                {
+                    var editorForm = new Win7_1_TCs_Window(cloneTcId, role: _accessLevel);
+                    editorForm.SetClonedView();
+                    this.Close();
+					editorForm.Show();
+					MessageBox.Show("Карта успешно скопирована!");
+				}
+            }
+        }
+
+        public void SetClonedView()
+        {
+			// скрыть кнопку клонировать
+			btnClone.Visible = false;
+			// изменить заголовок
+			this.Text = "Копия технологической карты";
+
+		}
+	}
 }

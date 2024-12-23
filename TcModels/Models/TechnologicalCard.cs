@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
+﻿using AutoMapper;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq.Expressions;
 using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -9,7 +9,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models
 {
-    public class TechnologicalCard: INameable, IUpdatableEntity, IValidatable, IHasUniqueConstraints<TechnologicalCard>
+	public class TechnologicalCard: INameable, IUpdatableEntity, IValidatable, IHasUniqueConstraints<TechnologicalCard>
     {
         public enum TechnologicalCardStatus
         {
@@ -351,6 +351,21 @@ namespace TcModels.Models
             //    x => x.Type == this.Type,
             //    "Поле 'Тип' должно быть уникальным."
             //);
+        }
+
+        public TechnologicalCard DeepCopyTC(TechnologicalCard sourceCard)
+        {
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new OpenProfile(0));
+            });
+            var newCard = new TechnologicalCard();
+
+            var mapper = config.CreateMapper();
+
+            newCard = mapper.Map<TechnologicalCard>(sourceCard);
+
+            return newCard;
         }
     }
 }

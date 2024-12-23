@@ -177,18 +177,17 @@ namespace TC_WinForms.WinForms
 		public void SetViewMode(bool? isViewMode = null)
 		{
 
-			if (concurrencyBlockServise.GetObjectUsedStatus())
-			{
-				tcViewState.IsViewMode = true;
-			}
-			else if (isViewMode != null && tcViewState.IsViewMode != isViewMode)
-			{
-				tcViewState.IsViewMode = (bool)isViewMode;
-				_logger.Information("Изменен режим просмотра: TcId={TcId}, IsViewMode={IsViewMode}", _tc.Id, isViewMode);
-				if (!tcViewState.IsViewMode)
-					concurrencyBlockServise.BlockObject();
-
-			}
+            if (concurrencyBlockServise.GetObjectUsedStatus())
+            {
+                tcViewState.IsViewMode = true;
+            }
+            else if (isViewMode != null && tcViewState.IsViewMode != isViewMode)
+            {
+                tcViewState.IsViewMode = (bool)isViewMode;
+                _logger.Information("Изменен режим просмотра: TcId={TcId}, IsViewMode={IsViewMode}", _tc.Id, isViewMode);
+                if (!tcViewState.IsViewMode)
+                    concurrencyBlockServise.BlockObject();
+            }
 
 			SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
 
@@ -396,20 +395,25 @@ namespace TC_WinForms.WinForms
 					concurrencyBlockServise.BlockObject();
 				}
 
-				SetTagsToButtons();
-				SetViewMode();
-				AccessInitialization();
-				SetTCStatusAccess();
-				UpdateFormTitle();
+                SetTagsToButtons();
+                AccessInitialization();
+                SetTCStatusAccess();
+                UpdateFormTitle();
 
-				_logger.Information("Форма загружена успешно для TcId={TcId}", _tcId);
-			}
-			catch (Exception ex)
-			{
-				_logger.Error(ex, "Ошибка при загрузке данных формы для TcId={TcId}", _tcId);
-				MessageBox.Show(ex.Message);
-				this.Close();
-			}
+                if (concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
+                    MessageBox.Show("Данная карта сейчас редактируется другим пользователем, ТК открыта в режиме просмотра");
+
+                SetViewMode();
+
+
+                _logger.Information("Форма загружена успешно для TcId={TcId}", _tcId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Ошибка при загрузке данных формы для TcId={TcId}", _tcId);
+                MessageBox.Show(ex.Message);
+                this.Close();
+            }
 
 			_logger.Information("Отображение формы для TcId={TcId}", _tcId);
 			try

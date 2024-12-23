@@ -8,7 +8,6 @@ using TcDbConnector;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService.User;
 using System.Text.Json;
-using System.Text;
 
 namespace TC_WinForms
 {
@@ -94,17 +93,6 @@ namespace TC_WinForms
                 throw new Exception("Строка подключения к БД не найдена в файле конфигурации.");
             }
 
-#if DEBUG
-			// Очистить таблицу блокировок в БД перед запуском в режиме debug
-			using (var context = new MyDbContext())
-			{
-				var blockedConcurrencyObjects = context.BlockedConcurrencyObjects.ToList();
-				context.BlockedConcurrencyObjects.RemoveRange(blockedConcurrencyObjects);
-				context.SaveChanges();
-			}
-
-#endif
-
 			bool isFirstRun = configuration.GetValue<bool>("IsFirstRun");
 
             if (isFirstRun)
@@ -114,10 +102,18 @@ namespace TC_WinForms
                 // Обновляем флаг в файле конфигурации
                 UpdateFirstRunFlag();
             }
-
-            
 #if DEBUG
-            RunDebugMode();
+			// Очистить таблицу блокировок в БД перед запуском в режиме debug
+			using (var context = new MyDbContext())
+			{
+				var blockedConcurrencyObjects = context.BlockedConcurrencyObjects.ToList();
+				context.BlockedConcurrencyObjects.RemoveRange(blockedConcurrencyObjects);
+				context.SaveChanges();
+			}
+#endif
+
+#if DEBUG
+			RunDebugMode();
 #else
             RunReleaseMode();
 #endif

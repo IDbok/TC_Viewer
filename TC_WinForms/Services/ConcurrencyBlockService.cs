@@ -17,6 +17,7 @@ namespace TC_WinForms.Services
         private int ObjectId;
         private string ObjectType;
         private int TimerInterval;//интервал работы таймера в милисекундах
+        private ObjectLocker blockedObject;
         public ConcurrencyBlockService(T obj, int timerInterval)
         {
             _logger = Log.Logger.ForContext<ConcurrencyBlockService<T>>();
@@ -29,7 +30,7 @@ namespace TC_WinForms.Services
         }
         public bool GetObjectUsedStatus() 
         {
-            if (IsObjectInUse == null)
+            if (blockedObject == null)
                 CheckAreObjectBlock();
 
             _logger.Information("Статус блокировки объекта {ObjectType} с ID={ObjectId}: {IsObjectInUse}", ObjectType, ObjectId, IsObjectInUse);
@@ -54,7 +55,7 @@ namespace TC_WinForms.Services
 
                         if (!isBlocked)
                         {
-                            var blockedObject = new ObjectLocker
+                            blockedObject = new ObjectLocker
                             {
                                 TimeStamp = DateTime.Now,
                                 ObjectId = ObjectId,
@@ -160,7 +161,9 @@ namespace TC_WinForms.Services
 
                     if (blockedObject != null)
                     {
-                        blockedObject.TimeStamp = e.SignalTime;
+                        dbContext.BlockedConcurrencyObjects.Where(u => u.Id == blockedObject.Id)
+                                                           .ExecuteUpdate(b => b.SetProperty(u => u.TimeStamp, e.SignalTime));
+
                         dbContext.SaveChanges();
                         _logger.Debug("Таймер обновил метку времени для объекта {ObjectType} с ID={ObjectId} на {TimeStamp}", ObjectType, ObjectId, blockedObject.TimeStamp);
                     }
