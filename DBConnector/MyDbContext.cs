@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -60,21 +61,24 @@ public class MyDbContext : DbContext
     //}
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
+	{
+		var connectString = TcDbConnector.StaticClass.ConnectString;
+		// Проверить, если TcDbConnector.StaticClass.ConnectString не пустой, то использовать его
+		// иначе, использовать строку подключения из appsettings.json
+		if (string.IsNullOrEmpty(connectString))
+		{
 #if DEBUG
-        optionsBuilder
-            .UseMySql("server=localhost;database=tavrida_db_main;user=root;password=root",
-            //"server=localhost;database=tavrida_db_v141;user=root;password=root",//
-            new MySqlServerVersion(new Version(5, 7, 24)));
+			connectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
 #else
-        optionsBuilder
-            .UseMySql(TcDbConnector.StaticClass.ConnectString,
-            //"server=localhost;database=tavrida_db_v141;user=root;password=root",//
-            new MySqlServerVersion(new Version(5, 7, 24)));
+            throw new Exception("Не задана строка подключения к БД");
 #endif
+		}
 
+		optionsBuilder
+			.UseMySql(connectString,
+			new MySqlServerVersion(new Version(5, 7, 24)));
 
-    }
+	}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -264,6 +268,20 @@ public class MyDbContext : DbContext
             .Property<string>("ParallelIndex")
             .HasColumnName("ParallelIndex");
 
-    }
+		// Настройка отношения ToolWork -> DiagramShagToolsComponent
+		modelBuilder.Entity<DiagramShagToolsComponent>()
+			.HasOne(dstc => dstc.toolWork)
+			.WithMany()
+			.HasForeignKey(dstc => dstc.toolWorkId)
+			.OnDelete(DeleteBehavior.Cascade);
+
+		// Настройка отношения ComponentWork -> DiagramShagToolsComponent
+		modelBuilder.Entity<DiagramShagToolsComponent>()
+			.HasOne(dstc => dstc.componentWork)
+			.WithMany()
+			.HasForeignKey(dstc => dstc.componentWorkId)
+			.OnDelete(DeleteBehavior.Cascade);
+
+	}
 
 }

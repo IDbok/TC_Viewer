@@ -7,9 +7,11 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Helpers;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TcDbConnector;
@@ -23,8 +25,9 @@ using static TcModels.Models.TechnologicalCard;
 namespace TC_WinForms.WinForms
 {
     public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//, ISaveEventForm
-    {
-        private readonly User.Role _accessLevel;
+	{
+		private readonly ILogger _logger;
+		private readonly User.Role _accessLevel;
         private readonly int _minRowHeight = 20;
 
         private DbConnector dbCon = new DbConnector();
@@ -54,8 +57,9 @@ namespace TC_WinForms.WinForms
         }
 
         public Win7_1_TCs(User.Role accessLevel)
-        {
-            Log.Information("Инициализация окна Win7_1_TCs для роли {AccessLevel}", accessLevel);
+		{
+			_logger = Log.Logger.ForContext< Win7_1_TCs>();
+			_logger.Information("Инициализация окна Win7_1_TCs для роли {AccessLevel}", accessLevel);
 
             _accessLevel = accessLevel;
 
@@ -101,7 +105,7 @@ namespace TC_WinForms.WinForms
         }
         private async void Win7_1_TCs_Load(object sender, EventArgs e)
         {
-            Log.Information("Загрузка формы Win7_1_TCs");
+			_logger.Information("Загрузка формы Win7_1_TCs");
 
             this.Enabled = false;
             dgvMain.Visible = false;
@@ -114,20 +118,20 @@ namespace TC_WinForms.WinForms
             {
                 if (!_isDataLoaded)
                 {
-                    Log.Information("Начало загрузки данных из базы");
+                    _logger.Information("Начало загрузки данных из базы");
                     await LoadDataAsync();
-                    Log.Information("Данные успешно загружены");
+                    _logger.Information("Данные успешно загружены");
                 }
             }
             catch (Exception ex)
             {
-                Log.Error("Ошибка при загрузке данных: {ExceptionMessage}", ex.Message);
+                _logger.Error("Ошибка при загрузке данных: {ExceptionMessage}", ex.Message);
                 MessageBox.Show("Ошибка загрузки данных: " + ex.Message);
             }
             finally
             {
                 stopwatch.Stop();
-                Log.Information("Данные загружены за {ElapsedMilliseconds} мс", stopwatch.ElapsedMilliseconds);
+                _logger.Information("Данные загружены за {ElapsedMilliseconds} мс", stopwatch.ElapsedMilliseconds);
 
                 progressBar.Visible = false;
                 _isDataLoaded = true;
@@ -137,8 +141,10 @@ namespace TC_WinForms.WinForms
 
                 SetupNetworkVoltageComboBox();
                 SetupTypeComboBox();
+                //SetupTcStatusComboBox();
 
-                dgvMain.RowPostPaint += dgvMain_RowPostPaint;
+
+				dgvMain.RowPostPaint += dgvMain_RowPostPaint;
 
 
                 dgvMain.ResizeRows(_minRowHeight);
@@ -149,7 +155,7 @@ namespace TC_WinForms.WinForms
         }
         public async Task LoadDataAsync()
         {
-            Log.Information("Начало асинхронной загрузки данных для Win7_1_TCs");
+            _logger.Information("Начало асинхронной загрузки данных для Win7_1_TCs");
 
             try
             {
@@ -171,7 +177,7 @@ namespace TC_WinForms.WinForms
             }
             catch (Exception e)
             {
-                Log.Error("Ошибка при загрузке данных: {ExceptionMessage}", e.Message);
+                _logger.Error("Ошибка при загрузке данных: {ExceptionMessage}", e.Message);
                 MessageBox.Show("Ошибка загрузки данных: " + e.Message);
             }
 
@@ -928,7 +934,41 @@ namespace TC_WinForms.WinForms
 
             cbxTypeFilter.DropDownWidth = cbxTypeFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxTypeFilter.Font).Width) + 20;
         }
+		private void SetupTcStatusComboBox()
+		{
+			// Получаем описания для значений enum
+			var statuses = EnumHelper.GetEnumDescriptions<TechnologicalCardStatus>();
 
+			// Добавляем пункт "Все"
+			var extendedStatuses = new Dictionary<TechnologicalCardStatus?, string>
+	        {
+		        { null, "Все" } // null означает выбор всех значений
+            };
+
+			foreach (var status in statuses)
+			{
+				extendedStatuses.Add(status.Key, status.Value);
+			}
+
+			// Заполняем ComboBox
+			cbxStatusFilter.DisplayMember = "Value"; // Отображаем текст описания
+			cbxStatusFilter.ValueMember = "Key";    // Используем значение enum как Key
+			cbxStatusFilter.DataSource = new BindingSource(statuses, null);
+
+			//var statuses = _displayedTechnologicalCards.Select(obj => obj.Status).Distinct().ToList();
+
+			//statuses.Sort();
+
+			//cbxStatusFilter.Items.Add("Все");
+			//foreach (var voltage in statuses)
+			//{
+			//	cbxStatusFilter.Items.Add(voltage);
+   //         }
+
+   //         cbxStatusFilter.SelectedIndex = 0; // Выбираем "Все" по умолчанию
+
+			cbxStatusFilter.DropDownWidth = cbxStatusFilter.Items.Cast<string>().Max(s => TextRenderer.MeasureText(s, cbxStatusFilter.Font).Width) + 20;
+		}
         private void cbxType_SelectedIndexChanged(object sender, EventArgs e)
         {
             FilterTechnologicalCards();

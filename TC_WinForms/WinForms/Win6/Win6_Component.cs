@@ -18,7 +18,7 @@ using Component = TcModels.Models.TcContent.Component;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Component : Form, IViewModeable
+    public partial class Win6_Component : Form, IViewModeable, IFormWithObjectId
     {
         private readonly ILogger _logger;
 
@@ -113,7 +113,7 @@ namespace TC_WinForms.WinForms
         {
             foreach (var obj in newObjs)
             {
-                var newObj_TC = CreateNewObject(obj, _bindingList.Count + 1);
+                var newObj_TC = CreateNewObject(obj, _bindingList.Count == 0? 1:  _bindingList.Select(o => o.Order).Max() + 1);
                 var component = context.Components.Where(s => s.Id == newObj_TC.ChildId).First();
 
                 context.Components.Attach(component);
@@ -563,6 +563,11 @@ namespace TC_WinForms.WinForms
             }
 
             return false;
+        }
+
+        public int GetObjectId()
+        {
+            return _tcId;
         }
     }
 

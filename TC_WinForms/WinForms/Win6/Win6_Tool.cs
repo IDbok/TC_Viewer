@@ -13,7 +13,7 @@ using static TC_WinForms.DataProcessing.DGVProcessing;
 
 namespace TC_WinForms.WinForms
 {
-    public partial class Win6_Tool : Form, IViewModeable
+    public partial class Win6_Tool : Form, IViewModeable, IFormWithObjectId
     {
         private readonly TcViewState _tcViewState;
 
@@ -93,7 +93,7 @@ namespace TC_WinForms.WinForms
         {
             foreach (var obj in newObjs)
             {
-                var newObj_TC = CreateNewObject(obj, _bindingList.Count + 1);
+                var newObj_TC = CreateNewObject(obj, _bindingList.Count == 0 ? 1 : _bindingList.Select(o => o.Order).Max() + 1);
                 var tool = context.Tools.Where(s => s.Id == newObj_TC.ChildId).First();
 
                 context.Tools.Attach(tool);
@@ -554,6 +554,11 @@ namespace TC_WinForms.WinForms
 
             return false;
         }// add to UpdateMode
+
+        public int GetObjectId()
+        {
+            return _tcId;
+        }
     }
 
 }

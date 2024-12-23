@@ -1,14 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CoreCLR-NCalc" Version="3.1.253" />
-    <PackageReference Include="EPPlus" Version="7.0.2" />
+    <PackageReference Include="EPPlus" Version="7.5.2" />
 	<ProjectReference Include="..\DBConnector\TcDbConnector.csproj" />
 	<ProjectReference Include="..\TcModels\TcModels.csproj" />
   </ItemGroup>

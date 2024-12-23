@@ -1,13 +1,12 @@
-﻿using System.Xml.Linq;
-using TcModels.Models.Helpers;
+﻿using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    //4. Требования к средствам защиты
-    public class Protection : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable, IReleasable,
+	//4. Требования к средствам защиты
+	public class Protection : IModelStructure, IClassifaerable, IDGViewable, IUpdatableEntity, ILinkable, IReleasable,
         IValidatable, IHasUniqueConstraints<Protection>
     {
 

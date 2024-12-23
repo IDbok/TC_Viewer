@@ -1,12 +1,10 @@
-﻿
-using System.Text.Json;
-using TcModels.Models.Helpers;
+﻿using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.TcContent
 {
-    public class TechOperation: IIdentifiable, IUpdatableEntity, IReleasable
+	public class TechOperation: IIdentifiable, IUpdatableEntity, IReleasable
         , IValidatable, IHasUniqueConstraints<TechOperation>
     {
         public int Id { get; set; }

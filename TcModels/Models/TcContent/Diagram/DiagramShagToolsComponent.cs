@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TcModels.Models.TcContent
+﻿namespace TcModels.Models.TcContent
 {
-    public class DiagramShagToolsComponent
+	public class DiagramShagToolsComponent
     {
         public int Id { get; set; }
 

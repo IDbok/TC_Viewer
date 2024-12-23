@@ -1,13 +1,9 @@
-﻿
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
-using System.Reflection.Metadata;
-using TcModels.Models.Interfaces;
+﻿using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models
 {
-    public class TechnologicalProcess: INameable, IUpdatableEntity
+	public class TechnologicalProcess: INameable, IUpdatableEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }

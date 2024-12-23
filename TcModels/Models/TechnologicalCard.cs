@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq.Expressions;
 using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -10,7 +9,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models
 {
-    public class TechnologicalCard: INameable, IUpdatableEntity, IValidatable, IHasUniqueConstraints<TechnologicalCard>
+	public class TechnologicalCard: INameable, IUpdatableEntity, IValidatable, IHasUniqueConstraints<TechnologicalCard>
     {
         public enum TechnologicalCardStatus
         {
