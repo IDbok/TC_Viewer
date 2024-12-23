@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Serilog;
 using System.ComponentModel;
@@ -13,8 +14,11 @@ using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Helpers;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
+using TcDbConnector;
+using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
+using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
 
@@ -41,7 +45,7 @@ namespace TC_WinForms.WinForms
 
         private bool isFiltered = false;
 
-        public string setSearch { get => txtSearch.Text;}
+        public string setSearch { get => txtSearch.Text; }
 
         PaginationControlService<DisplayedTechnologicalCard> paginationService;
 
@@ -145,7 +149,7 @@ namespace TC_WinForms.WinForms
 
                 dgvMain.ResizeRows(_minRowHeight);
                 dgvMain.Visible = true;
-                this.Enabled = true;
+                Enabled = true;
             }
 
         }
@@ -203,7 +207,7 @@ namespace TC_WinForms.WinForms
                 int id = Convert.ToInt32(selectedRow.Cells["Id"].Value);
 
                 var openedForm = CheckOpenFormService.FindOpenedForm<Win6_new>(id);
-                
+
                 if (openedForm != null)
                 {
                     openedForm.BringToFront();
@@ -233,6 +237,8 @@ namespace TC_WinForms.WinForms
             objEditor.AfterSave = async (createObj) => AddObjectInDataGridView(createObj);
 
             objEditor.Show();
+
+
         }
 
         private void btnUpdateTC_Click(object sender, EventArgs e)
@@ -303,7 +309,7 @@ namespace TC_WinForms.WinForms
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
 
         ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
 
@@ -377,7 +383,7 @@ namespace TC_WinForms.WinForms
                 MessageBox.Show("Выберите одну карту для редактирования.");
             }
         }
-        
+
         private void DeleteSelected()
         {
             if (dgvMain.SelectedRows.Count > 0)
@@ -858,6 +864,8 @@ namespace TC_WinForms.WinForms
 
                 FilterTechnologicalCards();
             }
+            else
+                AddObjectInDataGridView(modelObject);
 
         }
 
@@ -971,8 +979,6 @@ namespace TC_WinForms.WinForms
                 : width;
         }
 
-
-
         public void GoToNextPage()
         {
             paginationService.GoToNextPage();
@@ -983,14 +989,44 @@ namespace TC_WinForms.WinForms
         {
             paginationService.GoToPreviousPage();
             UpdateDisplayedData();
-            
+
         }
 
         private void Win7_1_TCs_SizeChanged(object sender, EventArgs e)
         {
             dgvMain.ResizeRows(_minRowHeight);
         }
+
+        //private async void button1_Click(object sender, EventArgs e)
+        //{
+        //    if (dgvMain.SelectedRows.Count == 1)
+        //    {
+        //        var selectedObj = dgvMain.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
+        //        var objId = Convert.ToInt32(selectedObj?.Cells["Id"].Value);
+
+        //        if (objId != 0)
+        //        {
+        //            CloneObjectService cloneObjectService = new CloneObjectService();
+        //            var newCard = cloneObjectService.CloneTC(objId);
+
+        //            using (MyDbContext dbContext = new MyDbContext())//
+        //            {
+        //                dbContext.TechnologicalCards.Add(newCard);
+        //                dbContext.SaveChanges();
+        //            }
+        //            MessageBox.Show("Карта скопированна.");
+        //        }
+        //        else
+        //        {
+        //            MessageBox.Show("Карта ещё не добавлена в БД.");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        MessageBox.Show("Выберите одну карту для редактирования.");
+        //    }
+        //}
     }
 
-    
+
 }
