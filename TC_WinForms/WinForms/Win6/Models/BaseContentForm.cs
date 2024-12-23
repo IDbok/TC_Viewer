@@ -70,6 +70,8 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 
 	protected async Task RecalculateQuantitiesAsync()
 	{
+		return; // метод не используется на этапе внедрения в мастер-ветку
+
 		if (_bindingList == null || _bindingList.Count == 0)
 			return;
 
@@ -97,6 +99,8 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 
 	protected void RecalculateQuantities()
 	{
+		return; // метод не используется на этапе внедрения в мастер-ветку
+
 		if (_bindingList == null || _bindingList.Count == 0)
 			return;
 
