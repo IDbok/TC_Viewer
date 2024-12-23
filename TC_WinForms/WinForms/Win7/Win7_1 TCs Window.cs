@@ -381,12 +381,12 @@ namespace TC_WinForms.WinForms
             return OriginCard.Id;
         }
 
-        public async Task<bool> CloneAsync()
+        public async Task<int?> CloneAsync()
         {
-            _logger.Information("Начало копирования данных технологической карты");
+			_logger.Information("Начало копирования данных технологической карты");
 
             LocalCard.Name = txtName.Text;
-            LocalCard.Article = txtArticle.Text + " (clone)";
+            LocalCard.Article = txtArticle.Text + " (Копия)";
             LocalCard.Type = cbxType.Text;
             LocalCard.NetworkVoltage = float.Parse(cbxNetworkVoltage.Text);
             LocalCard.TechnologicalProcessType = txtTechProcessType.Text;
@@ -406,14 +406,15 @@ namespace TC_WinForms.WinForms
                 if (!await UniqueFieldChecker<TechnologicalCard>.IsPropertiesUnique(LocalCard))
                 {
                     _logger.Warning("Нарушена уникальность полей технологической карты");
-                    return false;
+                    return null;
                 }
 
                 _logger.Information("Создание репозитория для получения данных технологической карты");
 
                 TechnologicalCardRepository technologicalCardRepository = new TechnologicalCardRepository();
                 OriginCard = await technologicalCardRepository.GetTechnologicalCardAsync(OriginCard.Id);
-                OriginCard.ApplyUpdates(LocalCard);
+                OriginCard.ApplyUpdates(LocalCard); // Возможно данное действие лишнее.
+                                                    // Если пользователь захочет отменить какие-то изменения он переоткроет окно
 
                 _logger.Information("Копирование технологической карты");
 
@@ -425,17 +426,17 @@ namespace TC_WinForms.WinForms
                     await AfterSave(newCard);
                 }
 
-                OriginCard.Id = newCard.Id;
+                //OriginCard.Id = newCard.Id;
 
                 _logger.Information("Копирование и данных технологической карты выполнено успешно");
-                return true;
+                return newCard.Id;
             }
             catch (Exception ex)
             {
                 _logger.Error("Ошибка при сохранении данных копированной технологической карты: {ExceptionMessage}", ex.Message);
 
                 MessageBox.Show(ex.Message);
-                return false;
+                return null;
             }
         }
 
@@ -443,15 +444,25 @@ namespace TC_WinForms.WinForms
         {
             if (NoEmptiness())
             {
-                if (await CloneAsync())
+				var cloneTcId = await CloneAsync();
+				if (cloneTcId != null)
                 {
-                    MessageBox.Show("Карта успешно скопирована!");
-                    var nn = OriginCard.Id;
-                    var editorForm = new Win6_new(nn, role: _accessLevel);
+                    var editorForm = new Win7_1_TCs_Window(cloneTcId, role: _accessLevel);
+                    editorForm.SetClonedView();
                     this.Close();
-                    editorForm.Show();
-                }
+					editorForm.Show();
+					MessageBox.Show("Карта успешно скопирована!");
+				}
             }
         }
-    }
+
+        public void SetClonedView()
+        {
+			// скрыть кнопку клонировать
+			btnClone.Visible = false;
+			// изменить заголовок
+			this.Text = "Копия технологической карты";
+
+		}
+	}
 }
