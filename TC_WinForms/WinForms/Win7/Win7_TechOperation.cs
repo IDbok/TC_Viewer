@@ -209,6 +209,7 @@ namespace TC_WinForms.WinForms
 
                     foreach (var dtc in selectedDTCs)
                     {
+                        _displayedObjects.Remove(dtc);
                         _bindingList.Remove(dtc);
                         //_deletedObjects.Add(dtc);
 
@@ -218,6 +219,8 @@ namespace TC_WinForms.WinForms
                         }
                     }
                 }
+
+                FilteringObjects();
 
                 dgvMain.Refresh();
             }

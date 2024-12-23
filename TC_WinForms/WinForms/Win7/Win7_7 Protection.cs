@@ -184,7 +184,9 @@ namespace TC_WinForms.WinForms
             //DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
             //    _bindingList, _newObjects, _deletedObjects);
             await DisplayedEntityHelper.DeleteSelectedObjectWithLinks<DisplayedProtection, Protection>(dgvMain,
-                _bindingList, _isFiltered ? _displayedObjects : null);
+                _bindingList, _displayedObjects);
+
+            FilteringObjects();
         }
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
 
