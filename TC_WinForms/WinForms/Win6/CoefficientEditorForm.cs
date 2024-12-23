@@ -117,7 +117,7 @@ public partial class CoefficientEditorForm : Form
 		var context = new ValidationContext(obj) { MemberName = propertyName };
 		var results = new List<ValidationResult>();
 
-				// Попытка валидации свойства
+		// Попытка валидации свойства
 		try
 		{
 			if (!Validator.TryValidateProperty(propertyValue, context, results))
@@ -170,8 +170,12 @@ public partial class CoefficientEditorForm : Form
 			MessageBox.Show(errorMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			// Отменяем изменение
 			e.Cancel = true;
-
 		}
 	}
 
+	private void dgvCoefficients_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+	{
+		// Выполнить пересчёт значений в открытых формах
+		_tcViewState.RecalculateValuesWithCoefficients();
+	}
 }

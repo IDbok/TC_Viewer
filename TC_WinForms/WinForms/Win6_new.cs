@@ -72,7 +72,7 @@ namespace TC_WinForms.WinForms
 			_logger = Log.Logger.ForContext<Win6_new>();
 			_logger.Information("Инициализация Win6_new: TcId={TcId}, Role={Role}, ViewMode={ViewMode}", tcId, role, viewMode);
 
-			tcViewState = new TcViewState(role);
+			tcViewState = new TcViewState(role, this);
 			tcViewState.IsViewMode = viewMode;
 			_tcId = tcId;
 			_accessLevel = role;
@@ -194,6 +194,9 @@ namespace TC_WinForms.WinForms
 
 			updateToolStripMenuItem.Text = tcViewState.IsViewMode ? "Редактировать" : "Просмотр";
 			actionToolStripMenuItem.Visible = !tcViewState.IsViewMode;
+
+			btnShowCoefficients.Visible = !tcViewState.IsViewMode;
+			toolStripShowCoefficients.Visible = !tcViewState.IsViewMode;
 
 
 			foreach (var form in _formsCache.Values)
@@ -708,7 +711,7 @@ namespace TC_WinForms.WinForms
 			btnShowProtections.Tag = EModelType.Protection;
 			btnShowTools.Tag = EModelType.Tool;
 			btnShowWorkSteps.Tag = EModelType.WorkStep;
-			btnCoefficients.Tag = EModelType.Coefficient;
+			btnShowCoefficients.Tag = EModelType.Coefficient;
 		}
 
 		private void SaveAllChanges()
@@ -957,8 +960,8 @@ namespace TC_WinForms.WinForms
 			}
 		}
 
-		private List<(string, string)> CanTCDraftStatusChange() 
-			// todo: произвести рефакторинг. много повторяющегося кода. Добавить описание. Дать отражающее суть название метода
+		private List<(string, string)> CanTCDraftStatusChange()
+		// todo: произвести рефакторинг. много повторяющегося кода. Добавить описание. Дать отражающее суть название метода
 		{
 			List<(string, string)> nameOfUmpablishedElements = new List<(string, string)>();
 
@@ -1139,35 +1142,37 @@ namespace TC_WinForms.WinForms
 			//actionDescription, _tcId);
 		}
 
-		private async void btnCoefficients_Click(object sender, EventArgs e)
+		private async void btnShowCoefficients_Click(object sender, EventArgs e)
 		{
 			LogUserAction("Отображение коэффициентов");
 			await ShowForm(EModelType.Coefficient);
+		}
 
-			//if (_activeForm != null)
-			//{
-			//	_activeForm.Hide();
-			//}
+		private void toolStripShowCoefficients_Click(object sender, EventArgs e)
+		{
+			LogUserAction("Отображение коэффициентов в отдельном окне");
 
-			//// Create ElementHost
-			//ElementHost host = new ElementHost
-			//{
-			//	Dock = DockStyle.Fill
-			//};
+			if (!_formsCache.TryGetValue(EModelType.Coefficient, out var diagramForm)
+				|| diagramForm.IsDisposed)
+			{
+				diagramForm = CreateForm(EModelType.Coefficient);
+				_formsCache[EModelType.Coefficient] = diagramForm;
+			}
+			diagramForm.Show();
+			diagramForm.BringToFront();
+		}
 
-			//// Load WPF UserControl
-			//var coefficientEditor = new CoefficientEditor();
-			//host.Child = coefficientEditor;
-
-			//// Add to WinForms Form
-			//pnlDataViewer.Controls.Clear();
-
-			//pnlDataViewer.Controls.Add(host);
-
-
+		public void RecalculateValuesWithCoefficientsInOpenForms()
+		{
+			foreach (var form in _formsCache.Values)
+			{
+				if (form is IOnActivationForm baseForm)
+				{
+					baseForm.OnActivate();
+				}
+			}
 		}
 	}
-
 
 }
 

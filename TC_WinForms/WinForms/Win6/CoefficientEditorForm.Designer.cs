@@ -66,6 +66,7 @@
 			dgvCoefficients.Size = new Size(1214, 386);
 			dgvCoefficients.TabIndex = 0;
 			dgvCoefficients.CellBeginEdit += dgvCoefficients_CellBeginEdit;
+			dgvCoefficients.CellEndEdit += dgvCoefficients_CellEndEdit;
 			dgvCoefficients.CellValidating += dgvCoefficients_CellValidating;
 			// 
 			// idDataGridViewTextBoxColumn

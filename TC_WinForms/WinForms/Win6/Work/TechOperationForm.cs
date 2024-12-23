@@ -19,7 +19,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TC_WinForms.WinForms.Work;
 
-public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
+public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IOnActivationForm
 {
     private readonly TcViewState _tcViewState;
 
@@ -1754,27 +1754,32 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable
 
     }
 
-    //public void HighlightExecutionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)
-    //{
-    //    if (executionWork == null)
-    //        return;
+	public void OnActivate()
+	{
+		_editForm?.OnActivate();
+	}
 
-    //    foreach (DataGridViewRow row in dgvMain.Rows)
-    //    {
-    //        if (row.Cells[0].Value is ExecutionWork currentWork 
-    //            && currentWork.Id == executionWork.Id 
-    //            && currentWork.techTransitionId == executionWork.techTransitionId
-    //            && currentWork.techOperationWorkId == executionWork.techOperationWorkId
-    //            )
-    //        {
-    //            dgvMain.ClearSelection(); // Снимите выделение со всех строк
-    //            row.Selected = true; // Выделите найденную строку
-    //            if (scrollToRow)
-    //            {
-    //                dgvMain.FirstDisplayedScrollingRowIndex = row.Index; // Прокрутите до выделенной строки
-    //            }
-    //            break;
-    //        }
-    //    }
-    //}
+	//public void HighlightExecutionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)
+	//{
+	//    if (executionWork == null)
+	//        return;
+
+	//    foreach (DataGridViewRow row in dgvMain.Rows)
+	//    {
+	//        if (row.Cells[0].Value is ExecutionWork currentWork 
+	//            && currentWork.Id == executionWork.Id 
+	//            && currentWork.techTransitionId == executionWork.techTransitionId
+	//            && currentWork.techOperationWorkId == executionWork.techOperationWorkId
+	//            )
+	//        {
+	//            dgvMain.ClearSelection(); // Снимите выделение со всех строк
+	//            row.Selected = true; // Выделите найденную строку
+	//            if (scrollToRow)
+	//            {
+	//                dgvMain.FirstDisplayedScrollingRowIndex = row.Index; // Прокрутите до выделенной строки
+	//            }
+	//            break;
+	//        }
+	//    }
+	//}
 }

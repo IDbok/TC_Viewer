@@ -49,9 +49,10 @@
 			btnShowTools = new Button();
 			btnShowWorkSteps = new Button();
 			pnlControls = new Panel();
+			btnShowCoefficients = new Button();
 			buttonDiagram = new Button();
 			pnlDataViewer = new Panel();
-			btnCoefficients = new Button();
+			toolStripShowCoefficients = new ToolStripButton();
 			toolStrip1.SuspendLayout();
 			pnlControls.SuspendLayout();
 			SuspendLayout();
@@ -59,7 +60,7 @@
 			// toolStrip1
 			// 
 			toolStrip1.ImageScalingSize = new Size(20, 20);
-			toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams });
+			toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients });
 			toolStrip1.Location = new Point(0, 0);
 			toolStrip1.Name = "toolStrip1";
 			toolStrip1.Padding = new Padding(0, 0, 3, 0);
@@ -234,7 +235,7 @@
 			// 
 			// pnlControls
 			// 
-			pnlControls.Controls.Add(btnCoefficients);
+			pnlControls.Controls.Add(btnShowCoefficients);
 			pnlControls.Controls.Add(buttonDiagram);
 			pnlControls.Controls.Add(btnShowWorkSteps);
 			pnlControls.Controls.Add(btnShowTools);
@@ -248,6 +249,18 @@
 			pnlControls.Name = "pnlControls";
 			pnlControls.Size = new Size(294, 533);
 			pnlControls.TabIndex = 34;
+			// 
+			// btnShowCoefficients
+			// 
+			btnShowCoefficients.Font = new Font("Segoe UI", 9F);
+			btnShowCoefficients.Location = new Point(6, 3);
+			btnShowCoefficients.Margin = new Padding(4, 3, 4, 3);
+			btnShowCoefficients.Name = "btnShowCoefficients";
+			btnShowCoefficients.Size = new Size(280, 70);
+			btnShowCoefficients.TabIndex = 34;
+			btnShowCoefficients.Text = "Коэффициенты";
+			btnShowCoefficients.UseVisualStyleBackColor = true;
+			btnShowCoefficients.Click += btnShowCoefficients_Click;
 			// 
 			// buttonDiagram
 			// 
@@ -270,17 +283,15 @@
 			pnlDataViewer.Size = new Size(1410, 533);
 			pnlDataViewer.TabIndex = 35;
 			// 
-			// btnCoefficients
+			// toolStripShowCoefficients
 			// 
-			btnCoefficients.Font = new Font("Segoe UI", 9F);
-			btnCoefficients.Location = new Point(6, 3);
-			btnCoefficients.Margin = new Padding(4, 3, 4, 3);
-			btnCoefficients.Name = "btnCoefficients";
-			btnCoefficients.Size = new Size(280, 70);
-			btnCoefficients.TabIndex = 34;
-			btnCoefficients.Text = "Коэффициенты";
-			btnCoefficients.UseVisualStyleBackColor = true;
-			btnCoefficients.Click += btnCoefficients_Click;
+			toolStripShowCoefficients.DisplayStyle = ToolStripItemDisplayStyle.Text;
+			toolStripShowCoefficients.Image = (Image)resources.GetObject("toolStripShowCoefficients.Image");
+			toolStripShowCoefficients.ImageTransparentColor = Color.Magenta;
+			toolStripShowCoefficients.Name = "toolStripShowCoefficients";
+			toolStripShowCoefficients.Size = new Size(139, 29);
+			toolStripShowCoefficients.Text = "Коэффициенты";
+			toolStripShowCoefficients.Click += toolStripShowCoefficients_Click;
 			// 
 			// Win6_new
 			// 
@@ -329,6 +340,7 @@
         private ToolStripButton toolStripDiagrams;
         private ToolStripMenuItem SetMachineCollumnModeToolStripMenuItem;
         private ToolStripMenuItem printBlockSchemeToolStripMenuItem;
-		private Button btnCoefficients;
+		private Button btnShowCoefficients;
+		private ToolStripButton toolStripShowCoefficients;
 	}
 }

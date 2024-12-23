@@ -6,6 +6,8 @@ namespace TC_WinForms.WinForms.Win6.Models
 {
 	public class TcViewState
 	{
+		private Win6_new _parentForm;
+
 		private bool _isViewMode = true;
 		private bool _isCommentViewMode = false;
 		public User.Role UserRole { get; }
@@ -13,9 +15,10 @@ namespace TC_WinForms.WinForms.Win6.Models
 		public TechnologicalCard TechnologicalCard { get; set; } // todo: make it readonly
 		public List<TechOperationWork> TechOperationWorksList { get; set; }
 		public List<DiagamToWork> DiagramToWorkList { get; set; }
-		public TcViewState(User.Role userRole)
+		public TcViewState(User.Role userRole, Win6_new parentForm)
 		{
 			UserRole = userRole;
+			_parentForm = parentForm;
 		}
 		public bool IsViewMode
 		{
@@ -52,6 +55,11 @@ namespace TC_WinForms.WinForms.Win6.Models
 		private void OnViewModeChanged()
 		{
 			ViewModeChanged?.Invoke();
+		}
+
+		public void RecalculateValuesWithCoefficients()
+		{
+			_parentForm.RecalculateValuesWithCoefficientsInOpenForms();
 		}
 	}
 }

@@ -27,7 +27,7 @@ public static class MathScript
 			if (coefficient.Length == 1 && IsMathSign(firstChar))
 				throw new ArgumentException("Коэффициент не может быть знаком.", nameof(coefficient));
 
-			// проверить нет ли в знака первым символом
+			// проверить нет ли знака в первом символе
 			// Определяем формат выражения
 			string expression;
 			if (string.IsNullOrWhiteSpace(defaultValue))

@@ -3,6 +3,7 @@ using Serilog;
 using System.Data;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win6.Models;
 using TcModels.Models.IntermediateTables;
@@ -12,7 +13,7 @@ using Machine = TcModels.Models.TcContent.Machine;
 
 namespace TC_WinForms.WinForms.Work
 {
-	public partial class AddEditTechOperationForm : Form
+	public partial class AddEditTechOperationForm : Form, IOnActivationForm
     {
         public TechOperationForm TechOperationForm { get; }
         private readonly TcViewState _tcViewState;
@@ -3003,5 +3004,10 @@ namespace TC_WinForms.WinForms.Work
         {
             this.Dispose();
         }
-    }
+
+		public void OnActivate()
+		{
+			MessageBox.Show("OnActivate");
+		}
+	}
 }

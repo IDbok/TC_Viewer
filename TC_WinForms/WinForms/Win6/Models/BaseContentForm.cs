@@ -10,7 +10,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TC_WinForms.WinForms.Win6.Models;
 
-public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable
+public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, IOnActivationForm
 	where T : BaseDisplayedEntity, new() //class, IFormulaItem, IIntermediateDisplayedEntity, INotifyPropertyChanged, new()
 	where TIntermediate : IIntermediateTableIds, IUpdatableEntity, new()
 {
