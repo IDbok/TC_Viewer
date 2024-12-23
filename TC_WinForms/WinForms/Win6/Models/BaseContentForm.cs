@@ -33,6 +33,12 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 		
 	}
 
+
+	private void CoefficientFormHide()
+	{
+		// скрывть столбец с коэффициентами
+		DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].Visible = false;
+	}
 	// Дочерние формы определят конкретную загрузку объектов
 	protected abstract void LoadObjects();
 
@@ -216,9 +222,11 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 
 		// make columns editable
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Order)].ReadOnly = _tcViewState.IsViewMode;
-		DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].ReadOnly = _tcViewState.IsViewMode;
+		//DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].ReadOnly = _tcViewState.IsViewMode;
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Quantity)].ReadOnly = _tcViewState.IsViewMode;
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Note)].ReadOnly = _tcViewState.IsViewMode;
+
+		CoefficientFormHide();
 
 
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;

@@ -41,12 +41,7 @@ namespace TC_WinForms.WinForms
 
             InitializeComponent();
 
-            var dgvEventService = new DGVEvents(dgvMain);
-            dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
-
-            dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
-            dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
-			dgvMain.CellValueChanged += dgvMain_CellValueChanged;
+            InitializeDataGridViewEvents();
 
 			this.FormClosed += (sender, e) => {
 				_logger.Information("Форма закрыта");

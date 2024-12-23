@@ -42,6 +42,7 @@
 			SetMachineCollumnModeToolStripMenuItem = new ToolStripMenuItem();
 			toolStripExecutionScheme = new ToolStripButton();
 			toolStripDiagrams = new ToolStripButton();
+			toolStripShowCoefficients = new ToolStripButton();
 			btnShowStaffs = new Button();
 			btnShowComponents = new Button();
 			btnShowMachines = new Button();
@@ -52,7 +53,6 @@
 			btnShowCoefficients = new Button();
 			buttonDiagram = new Button();
 			pnlDataViewer = new Panel();
-			toolStripShowCoefficients = new ToolStripButton();
 			toolStrip1.SuspendLayout();
 			pnlControls.SuspendLayout();
 			SuspendLayout();
@@ -161,10 +161,20 @@
 			toolStripDiagrams.Text = "Блок-схема";
 			toolStripDiagrams.Click += toolStripDiagrams_Click;
 			// 
+			// toolStripShowCoefficients
+			// 
+			toolStripShowCoefficients.DisplayStyle = ToolStripItemDisplayStyle.Text;
+			toolStripShowCoefficients.Image = (Image)resources.GetObject("toolStripShowCoefficients.Image");
+			toolStripShowCoefficients.ImageTransparentColor = Color.Magenta;
+			toolStripShowCoefficients.Name = "toolStripShowCoefficients";
+			toolStripShowCoefficients.Size = new Size(139, 29);
+			toolStripShowCoefficients.Text = "Коэффициенты";
+			toolStripShowCoefficients.Click += toolStripShowCoefficients_Click;
+			// 
 			// btnShowStaffs
 			// 
 			btnShowStaffs.Font = new Font("Segoe UI", 9F);
-			btnShowStaffs.Location = new Point(6, 74);
+			btnShowStaffs.Location = new Point(6, 3);
 			btnShowStaffs.Margin = new Padding(4, 3, 4, 3);
 			btnShowStaffs.Name = "btnShowStaffs";
 			btnShowStaffs.Size = new Size(280, 70);
@@ -176,7 +186,7 @@
 			// btnShowComponents
 			// 
 			btnShowComponents.Font = new Font("Segoe UI", 9F);
-			btnShowComponents.Location = new Point(6, 144);
+			btnShowComponents.Location = new Point(6, 79);
 			btnShowComponents.Margin = new Padding(4, 3, 4, 3);
 			btnShowComponents.Name = "btnShowComponents";
 			btnShowComponents.Size = new Size(280, 70);
@@ -188,7 +198,7 @@
 			// btnShowMachines
 			// 
 			btnShowMachines.Font = new Font("Segoe UI", 9F);
-			btnShowMachines.Location = new Point(6, 214);
+			btnShowMachines.Location = new Point(4, 155);
 			btnShowMachines.Margin = new Padding(4, 3, 4, 3);
 			btnShowMachines.Name = "btnShowMachines";
 			btnShowMachines.Size = new Size(280, 70);
@@ -200,7 +210,7 @@
 			// btnShowProtections
 			// 
 			btnShowProtections.Font = new Font("Segoe UI", 9F);
-			btnShowProtections.Location = new Point(6, 284);
+			btnShowProtections.Location = new Point(6, 231);
 			btnShowProtections.Margin = new Padding(4, 3, 4, 3);
 			btnShowProtections.Name = "btnShowProtections";
 			btnShowProtections.Size = new Size(280, 70);
@@ -212,7 +222,7 @@
 			// btnShowTools
 			// 
 			btnShowTools.Font = new Font("Segoe UI", 9F);
-			btnShowTools.Location = new Point(6, 354);
+			btnShowTools.Location = new Point(6, 307);
 			btnShowTools.Margin = new Padding(4, 3, 4, 3);
 			btnShowTools.Name = "btnShowTools";
 			btnShowTools.Size = new Size(280, 70);
@@ -224,7 +234,7 @@
 			// btnShowWorkSteps
 			// 
 			btnShowWorkSteps.Font = new Font("Segoe UI", 9F);
-			btnShowWorkSteps.Location = new Point(6, 424);
+			btnShowWorkSteps.Location = new Point(6, 383);
 			btnShowWorkSteps.Margin = new Padding(4, 3, 4, 3);
 			btnShowWorkSteps.Name = "btnShowWorkSteps";
 			btnShowWorkSteps.Size = new Size(280, 70);
@@ -247,13 +257,13 @@
 			pnlControls.Location = new Point(0, 34);
 			pnlControls.Margin = new Padding(4, 3, 4, 3);
 			pnlControls.Name = "pnlControls";
-			pnlControls.Size = new Size(294, 533);
+			pnlControls.Size = new Size(294, 642);
 			pnlControls.TabIndex = 34;
 			// 
 			// btnShowCoefficients
 			// 
 			btnShowCoefficients.Font = new Font("Segoe UI", 9F);
-			btnShowCoefficients.Location = new Point(6, 3);
+			btnShowCoefficients.Location = new Point(6, 535);
 			btnShowCoefficients.Margin = new Padding(4, 3, 4, 3);
 			btnShowCoefficients.Name = "btnShowCoefficients";
 			btnShowCoefficients.Size = new Size(280, 70);
@@ -265,7 +275,7 @@
 			// buttonDiagram
 			// 
 			buttonDiagram.Font = new Font("Segoe UI", 9F);
-			buttonDiagram.Location = new Point(6, 502);
+			buttonDiagram.Location = new Point(6, 459);
 			buttonDiagram.Margin = new Padding(4, 3, 4, 3);
 			buttonDiagram.Name = "buttonDiagram";
 			buttonDiagram.Size = new Size(280, 70);
@@ -280,24 +290,14 @@
 			pnlDataViewer.Location = new Point(294, 34);
 			pnlDataViewer.Margin = new Padding(4, 3, 4, 3);
 			pnlDataViewer.Name = "pnlDataViewer";
-			pnlDataViewer.Size = new Size(1410, 533);
+			pnlDataViewer.Size = new Size(1410, 642);
 			pnlDataViewer.TabIndex = 35;
-			// 
-			// toolStripShowCoefficients
-			// 
-			toolStripShowCoefficients.DisplayStyle = ToolStripItemDisplayStyle.Text;
-			toolStripShowCoefficients.Image = (Image)resources.GetObject("toolStripShowCoefficients.Image");
-			toolStripShowCoefficients.ImageTransparentColor = Color.Magenta;
-			toolStripShowCoefficients.Name = "toolStripShowCoefficients";
-			toolStripShowCoefficients.Size = new Size(139, 29);
-			toolStripShowCoefficients.Text = "Коэффициенты";
-			toolStripShowCoefficients.Click += toolStripShowCoefficients_Click;
 			// 
 			// Win6_new
 			// 
 			AutoScaleDimensions = new SizeF(10F, 25F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(1704, 567);
+			ClientSize = new Size(1704, 676);
 			Controls.Add(pnlDataViewer);
 			Controls.Add(pnlControls);
 			Controls.Add(toolStrip1);

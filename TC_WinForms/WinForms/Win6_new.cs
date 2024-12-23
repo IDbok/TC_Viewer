@@ -82,7 +82,17 @@ namespace TC_WinForms.WinForms
 			this.KeyDown += ControlSaveEvent;
 
 			FormClosed += (s, e) => ThisFormClosed();
+
+			CoefficientFormHide();
 		}
+
+		private void CoefficientFormHide()
+		{
+			// удалить кнопку вызова формы коэффициентов
+			btnShowCoefficients.Visible = false;
+			toolStripShowCoefficients.Visible = false;
+		}
+
 		private void ThisFormClosed()
 		{
 			_logger.Information("Закрытие формы. Очистка временных файлов для TcId={TcId}", _tc.Id);
@@ -194,8 +204,8 @@ namespace TC_WinForms.WinForms
 			updateToolStripMenuItem.Text = tcViewState.IsViewMode ? "Редактировать" : "Просмотр";
 			actionToolStripMenuItem.Visible = !tcViewState.IsViewMode;
 
-			btnShowCoefficients.Visible = !tcViewState.IsViewMode;
-			toolStripShowCoefficients.Visible = !tcViewState.IsViewMode;
+			//btnShowCoefficients.Visible = !tcViewState.IsViewMode;
+			//toolStripShowCoefficients.Visible = !tcViewState.IsViewMode;
 
 
 			foreach (var form in _formsCache.Values)

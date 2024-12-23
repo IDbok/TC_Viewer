@@ -52,6 +52,7 @@ namespace TC_WinForms.WinForms
             };
         }
 
+
 		protected override void LoadObjects() // todo: можно перенести в BaseForm
 		{
             var tcList = TargetTable //_tcViewState.TechnologicalCard.Component_TCs
@@ -71,7 +72,7 @@ namespace TC_WinForms.WinForms
         {
             foreach (var obj in newObjs)
             {
-                var newObj_TC = CreateNewObject(obj, _bindingList.Select(o => o.Order).Max() + 1);
+                var newObj_TC = CreateNewObject(obj, GetNewObjectOrder());
                 var component = context.Components.Where(s => s.Id == newObj_TC.ChildId).First();
 
                 context.Components.Attach(component);
