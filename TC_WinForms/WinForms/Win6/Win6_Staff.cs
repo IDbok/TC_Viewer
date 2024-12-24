@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.ComponentModel;
 using System.Data;
 using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
@@ -15,7 +17,8 @@ namespace TC_WinForms.WinForms;
 
 public partial class Win6_Staff : Form, IViewModeable
 {
-    private readonly TcViewState _tcViewState;
+	private ILogger _logger;
+	private readonly TcViewState _tcViewState;
 
     private bool _isViewMode;
 
@@ -30,12 +33,18 @@ public partial class Win6_Staff : Form, IViewModeable
     private int _tcId;
     public bool CloseFormsNoSave { get; set; } = false;
     public Win6_Staff(int tcId, TcViewState tcViewState, MyDbContext context) // bool viewerMode = false)
-    {
-        _tcViewState = tcViewState;
-        this.context = context;
+	{
+		_tcViewState = tcViewState;
+		this.context = context;
+		this._tcId = tcId;
 
-        InitializeComponent();
-        this._tcId = tcId;
+		_logger = Log.Logger
+			.ForContext<Win6_Staff>()
+			.ForContext("TcId", _tcId);
+        _logger.Information("Инициализация формы.");
+
+
+		InitializeComponent();
 
         AccessInitialization();
 
@@ -46,8 +55,12 @@ public partial class Win6_Staff : Form, IViewModeable
         dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
         dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
 
-        this.FormClosed += (sender, e) => this.Dispose();
-    }
+		this.FormClosed += (sender, e) =>
+		{
+			_logger.Information("Форма Win6_Staff закрыта.");
+			this.Dispose();
+		};
+	}
 
     private void AccessInitialization()
     {
@@ -71,8 +84,10 @@ public partial class Win6_Staff : Form, IViewModeable
     }
 
     private void Win6_Staff_Load(object sender, EventArgs e)
-    {
-        LoadObjects();
+	{
+		_logger.Information("Загрузка формы.");
+
+		LoadObjects();
 
         dgvMain.AllowUserToDeleteRows = false;
 
@@ -80,7 +95,9 @@ public partial class Win6_Staff : Form, IViewModeable
     }
     private void LoadObjects()
     {
-        var tcList = _tcViewState.TechnologicalCard.Staff_TCs
+		_logger.Information("Загрузка объектов.");
+
+		var tcList = _tcViewState.TechnologicalCard.Staff_TCs
             .Select(obj => new DisplayedStaff_TC(obj)).ToList();
         _bindingList = new BindingList<DisplayedStaff_TC>(tcList);
         _bindingList.ListChanged += BindingList_ListChanged;
@@ -91,7 +108,9 @@ public partial class Win6_Staff : Form, IViewModeable
 
     public void AddNewObjects(List<Staff> newObjs)
     {
-        foreach (var obj in newObjs)
+		_logger.Information("Добавление новых объектов. Количество: {Count}", newObjs.Count);
+
+		foreach (var obj in newObjs)
         {
             var newStaffTC = CreateNewObject(obj, _bindingList.Count == 0 ? 1 : _bindingList.Select(o => o.Order).Max() + 1);
             var staff = context.Staffs.Where(s => s.Id == newStaffTC.ChildId).First();
@@ -111,7 +130,9 @@ public partial class Win6_Staff : Form, IViewModeable
             _bindingList.Add(displayedStaffTC);
         }
         dgvMain.Refresh();
-    }
+
+		_logger.Information("Добавление новых объектов завершено.");
+	}
 
 
 
@@ -246,17 +267,20 @@ public partial class Win6_Staff : Form, IViewModeable
 
     ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
     private void btnAddNewObj_Click(object sender, EventArgs e)
-    {
-        // load new form Win7_3_Staff as dictonary
-        var newForm = new Win7_3_Staff(this, activateNewItemCreate: true, createdTCId: _tcId);
+	{
+		LogUserAction("Добавление нового объекта");
+		// load new form Win7_3_Staff as dictonary
+		var newForm = new Win7_3_Staff(this, activateNewItemCreate: true, createdTCId: _tcId);
         newForm.WindowState = FormWindowState.Maximized;
         //newForm.SetAsAddingForm();
         newForm.ShowDialog();
     }
 
     private void btnDeleteObj_Click(object sender, EventArgs e)
-    {
-        DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+	{
+		LogUserAction("Удаление выбранных объектов");
+
+		DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
             _bindingList, _newObjects, _deletedObjects);
 
         if(_deletedObjects.Count != 0)
@@ -269,18 +293,31 @@ public partial class Win6_Staff : Form, IViewModeable
                     {
                         var staffToRemove = evecutionWork.Staffs.Where(s => s.IdAuto == obj.IdAuto && s.ChildId == obj.ChildId).FirstOrDefault();
                         if (staffToRemove != null)
-                            evecutionWork.Staffs.Remove(staffToRemove);
+                        {
+							_logger.Debug("Удаление Staff из ExecutionWork: IDAuto={IdAuto}, ChildId={ChildId}", staffToRemove.IdAuto, staffToRemove.ChildId);
+							evecutionWork.Staffs.Remove(staffToRemove);
+						}
                     }
                 }
 
                 var deletedObj = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IdAuto == obj.IdAuto && s.ChildId == obj.ChildId).FirstOrDefault();
                 if (deletedObj != null)
-                    _tcViewState.TechnologicalCard.Staff_TCs.Remove(deletedObj);
+                {
+					_logger.Debug("Удаление объектов({ObjectType}}: {ObjectName} (ID={Id})",
+							deletedObj.GetType(), deletedObj.Child?.Name, deletedObj.ChildId);
+
+					_tcViewState.TechnologicalCard.Staff_TCs.Remove(deletedObj);
+				}
             }
 
-            _deletedObjects.Clear();
-        }
-    }
+			_logger.Information("Удалено объектов: {Count}", _deletedObjects.Count);
+			_deletedObjects.Clear();
+		}
+		else
+		{
+			_logger.Warning("Удаление не выполнено. Список удаляемых объектов пуст.");
+		}
+	}
 
 
     private bool CheckIfIsNewItems(DataGridViewRow row)
@@ -294,13 +331,13 @@ public partial class Win6_Staff : Form, IViewModeable
 
     private void btnMoveUp_Click(object sender, EventArgs e)
     {
-
-    }
+		_logger.Information("Клик по кнопке 'Переместить вверх'.");
+	}
 
     private void btnMoveDown_Click(object sender, EventArgs e)
     {
-
-    }
+		_logger.Information("Клик по кнопке 'Переместить вниз'.");
+	}
 
     private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
     {
@@ -344,7 +381,7 @@ public partial class Win6_Staff : Form, IViewModeable
     }
     private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
     {
-        DisplayedEntityHelper.ListChangedEventHandlerIntermediate
+		DisplayedEntityHelper.ListChangedEventHandlerIntermediate
             (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
 
         if(_changedObjects.Count != 0)
@@ -521,7 +558,10 @@ public partial class Win6_Staff : Form, IViewModeable
 
     }
 
-
+    private void LogUserAction(string message)
+    {
+        _logger?.LogUserAction(message, _tcId);
+	}
     private void AdjustColumnWidths()
     {
         int dgvWidth = dgvMain.ClientSize.Width - dgvMain.RowHeadersWidth;

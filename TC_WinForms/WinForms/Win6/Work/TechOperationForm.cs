@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
@@ -21,7 +23,9 @@ namespace TC_WinForms.WinForms.Work;
 
 public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IOnActivationForm
 {
-    private readonly TcViewState _tcViewState;
+	private ILogger _logger;
+
+	private readonly TcViewState _tcViewState;
 
     private bool _isViewMode;
     private bool _isCommentViewMode;
@@ -29,7 +33,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     public MyDbContext context { get; private set; }
 
-    public readonly int tcId;
+    public readonly int _tcId;
 
     private List<TechOperationDataGridItem> TechOperationDataGridItems = new List<TechOperationDataGridItem>();
     private AddEditTechOperationForm? _editForm;
@@ -43,9 +47,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     {
         this._tcViewState = tcViewState;
         this.context = context;
-        this.tcId = tcId;
-        //_isViewMode = viewerMode;
-        InitializeComponent();
+        this._tcId = tcId;
+
+		_logger = Log.Logger
+			.ForContext<TechOperationForm>()
+			.ForContext("TcId", _tcId);
+
+		_logger.Information("Инициализация формы.");
+
+		//_isViewMode = viewerMode;
+		InitializeComponent();
         dgvMain.CellPainting += DgvMain_CellPainting;
         dgvMain.CellFormatting += DgvMain_CellFormatting;
         dgvMain.CellEndEdit += DgvMain_CellEndEdit;
@@ -515,7 +526,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
 
             // проверить, открыта ли форма с БС и обновить ее
-            var bsForm = CheckOpenFormService.FindOpenedForm<DiagramForm>(tcId);
+            var bsForm = CheckOpenFormService.FindOpenedForm<DiagramForm>(_tcId);
             if (bsForm != null)
             {
                 bsForm.UpdateVisualData();
@@ -1564,8 +1575,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     private void button2_Click(object sender, EventArgs e)
     {
-        // в случае Режима просмотра форма не открывается
-        if (_tcViewState.IsViewMode)
+        _logger.LogUserAction("Редактирование хода работ.");
+
+		// в случае Режима просмотра форма не открывается
+		if (_tcViewState.IsViewMode)
             return;
 
         // Проверяем, была ли форма создана и не была ли закрыта

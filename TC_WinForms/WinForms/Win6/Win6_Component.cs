@@ -32,15 +32,15 @@ namespace TC_WinForms.WinForms
 			if (DesignMode)
 				return;
 
-			_logger = Log.Logger
-                .ForContext<Win6_Component>()
-                .ForContext("TcId", _tcId);
-
-            _logger.Information("Инициализация формы. TcId={TcId}");
-
             _tcViewState = tcViewState;
             this.context = context;
 			_tcId = tcId;
+
+			_logger = Log.Logger
+				.ForContext<Win6_Component>()
+				.ForContext("TcId", _tcId);
+
+			_logger.Information("Инициализация формы.");
 
 			InitializeComponent();
 
@@ -180,14 +180,17 @@ namespace TC_WinForms.WinForms
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
         {
-            // load new form Win7_3_Component as dictonary
-            var newForm = new Win7_4_Component(activateNewItemCreate: true, createdTCId: _tcId);
+			LogUserAction("Добавление нового объекта");
+			// load new form Win7_3_Component as dictonary
+			var newForm = new Win7_4_Component(activateNewItemCreate: true, createdTCId: _tcId);
             newForm.WindowState = FormWindowState.Maximized;
             newForm.ShowDialog();
         }
         private void btnDeleteObj_Click(object sender, EventArgs e)
         {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+			LogUserAction("Удаление выбранных объектов");
+
+			DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
                 _bindingList, _newObjects, _deletedObjects);
 
             if(_deletedObjects.Count != 0)
@@ -199,25 +202,36 @@ namespace TC_WinForms.WinForms
                         var deletableCompWork = tecjOperationWork.ComponentWorks.Where(m => m.componentId == obj.ChildId).FirstOrDefault();
                         if (deletableCompWork != null)
                         {
-                            tecjOperationWork.ComponentWorks.Remove(deletableCompWork);
-                        }
+							_logger.Debug("Удаление ComponentWork({Id}): TechOperationWorkID={TechOperationWorkId}, ChildObjectID={ChildObjectID}",
+								deletableCompWork.Id, deletableCompWork.techOperationWorkId, deletableCompWork.componentId);
+
+							tecjOperationWork.ComponentWorks.Remove(deletableCompWork);
+						}
 
                     }
 
                     var deletedObj = TargetTable //_tcViewState.TechnologicalCard.Component_TCs
                         .Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
                     if (deletedObj != null)
+                    {
+						_logger.Debug("Удаление объектов({ObjectType}}: {ObjectName} (ID={Id})",
+							deletedObj.GetType(), deletedObj.Child.Name, deletedObj.ChildId);
+
 						TargetTable //_tcViewState.TechnologicalCard.Component_TCs
-                            .Remove(deletedObj);
+							.Remove(deletedObj);
+					}
+						
                 }
 
-                _deletedObjects.Clear();
+				_logger.Information("Удалено объектов: {Count}", _deletedObjects.Count);
+				_deletedObjects.Clear();
             }
         }
         private void btnReplace_Click(object sender, EventArgs e) // add to UpdateMode
         {
-            // Выделение объекта выбранной строки
-            if (dgvMain.SelectedRows.Count != 1)
+            LogUserAction("Замена выбранных объектов");
+			// Выделение объекта выбранной строки
+			if (dgvMain.SelectedRows.Count != 1)
             {
                 MessageBox.Show("Выберите одну строку для редактирования");
                 return;

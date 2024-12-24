@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
+using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TcModels.Models.Interfaces;
@@ -151,6 +152,11 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 			userMessage += "\n\n" + innerError;
 
 		MessageBox.Show(userMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+	}
+
+	protected void LogUserAction(string message)
+	{
+		_logger?.LogUserAction(message);
 	}
 
 	protected void RecalculateQuantityForObject(T displayedObject)

@@ -30,16 +30,18 @@ namespace TC_WinForms.WinForms
 			if (DesignMode)
 				return;
 
+			_tcViewState = tcViewState;
+			this.context = context;
+
+			_tcId = tcId;
+
 			_logger = Log.Logger
 				.ForContext<Win6_Machine>()
 				.ForContext("TcId", _tcId);
 
-			_tcViewState = tcViewState;
-            this.context = context;
+            _logger.Information("Инициализация формы");
 
-            _tcId = tcId;
-
-            InitializeComponent();
+			InitializeComponent();
 
             InitializeDataGridViewEvents();
 
@@ -167,15 +169,19 @@ namespace TC_WinForms.WinForms
 
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
-        {
-            var newForm = new Win7_5_Machine(activateNewItemCreate: true, createdTCId: _tcId);
+		{
+			LogUserAction("Добавление нового объекта");
+
+			var newForm = new Win7_5_Machine(activateNewItemCreate: true, createdTCId: _tcId);
             newForm.WindowState = FormWindowState.Maximized;
             newForm.ShowDialog();
         }
 
         private void btnDeleteObj_Click(object sender, EventArgs e)
-        {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+		{
+			LogUserAction("Удаление выбранных объектов");
+
+			DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
                 _bindingList, _newObjects, _deletedObjects);
 
             if (_deletedObjects.Count != 0)
@@ -184,19 +190,28 @@ namespace TC_WinForms.WinForms
 
                 foreach (var obj in deletedObjects)
                 {
-                    var deletedObj = TargetTable.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
-                    TargetTable.Remove(deletedObj);
+					var deletedObj = TargetTable.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
+
+					if (deletedObj != null)
+                    {
+						_logger.Debug("Удаление объектов({ObjectType}}: {ComponentName} (ID={Id})",
+							deletedObj.GetType(), deletedObj.Child.Name, deletedObj.ChildId);
+
+						TargetTable.Remove(deletedObj);
+					}
+						
                 }
 
-                _deletedObjects.Clear();
-
+				_logger.Information("Удалено объектов: {Count}", _deletedObjects.Count);
+				_deletedObjects.Clear();
             }
 
         }
         private void btnReplace_Click(object sender, EventArgs e)
-        {
-            // Выделение объекта выбранной строки
-            if (dgvMain.SelectedRows.Count != 1)
+		{
+			LogUserAction("Замена выбранных объектов");
+			// Выделение объекта выбранной строки
+			if (dgvMain.SelectedRows.Count != 1)
             {
                 MessageBox.Show("Выберите одну строку для редактирования");
                 return;

@@ -263,17 +263,6 @@ namespace TC_WinForms.WinForms
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        //private async void btnTechCard_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TC).ConfigureAwait(false);
-        //private async void btnStaff_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Staff).ConfigureAwait(false);
-        //private async void btnComponent_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Component).ConfigureAwait(false);
-        //private async void btnMachine_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Machine).ConfigureAwait(false);
-        //private async void btnProtection_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Protection).ConfigureAwait(false);
-        //private async void btnTool_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Tool).ConfigureAwait(false);
-        //private async void btnTechOperation_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechOperation).ConfigureAwait(false);
-        //private async void btnWorkStep_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.TechTransition).ConfigureAwait(false);
-
-        //private async void btnProject_Click(object sender, EventArgs e) => await LoadFormInPanel(WinNumber.Project).ConfigureAwait(false);
-
         private async void btnTechCard_Click(object sender, EventArgs e)
         {
             _logger.LogUserAction("Открытие формы Технологические карты");
@@ -384,7 +373,8 @@ namespace TC_WinForms.WinForms
 
         private async void toolStripButton5_Click(object sender, EventArgs e)
         {
-            await Save();
+            _logger.Information("Вызвано сохранение данных");
+			await Save();
         }
 
         // Методы нигде не используются
@@ -423,6 +413,8 @@ namespace TC_WinForms.WinForms
 
         public void blockServiceToolStripButton_Click(object sender, EventArgs e)
         {
+			_logger.Information("Вызвано открытие окна блокировок");
+
 			var openedForm = CheckOpenFormService.FindOpenedForm<Win7_BLockService>();
 
 			if (openedForm != null)

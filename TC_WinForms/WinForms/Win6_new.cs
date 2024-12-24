@@ -69,13 +69,15 @@ namespace TC_WinForms.WinForms
 
 		public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
 		{
-			_logger = Log.Logger.ForContext<Win6_new>();
-			_logger.Information("Инициализация Win6_new: TcId={TcId}, Role={Role}, ViewMode={ViewMode}", tcId, role, viewMode);
-
-			tcViewState = new TcViewState(role, this);
 			tcViewState.IsViewMode = viewMode;
 			_tcId = tcId;
 			_accessLevel = role;
+
+			_logger = Log.Logger.ForContext<Win6_new>();
+			_logger.Information("Инициализация Win6_new: TcId={TcId}, Role={Role}, ViewMode={ViewMode}", tcId, role, viewMode);
+
+
+			tcViewState = new TcViewState(role, this);
 
 			InitializeComponent();
 
@@ -851,15 +853,14 @@ namespace TC_WinForms.WinForms
 
 		private void updateToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			LogUserAction("Изменение режима редактирования");
 
 			if (concurrencyBlockServise.GetObjectUsedStatus())
 			{
+				_logger.Information("Карта уже редактируется другим пользователем. Отмена переключения режима для TcId={TcId}", _tcId);
 				MessageBox.Show("Сейчас карта используется другим пользователем. Она доступна только для просмотра.");
 				return;
 			}
-
-			LogUserAction("Изменение режима редактирования");
-
 
 			if (tcViewState.IsViewMode == false)
 			{
@@ -867,11 +868,8 @@ namespace TC_WinForms.WinForms
 					return;
 			}
 
-
-
 			if (!tcViewState.IsViewMode && !concurrencyBlockServise.GetObjectUsedStatus())
 				concurrencyBlockServise.BlockObject();
-
 
 			SetViewMode(!tcViewState.IsViewMode);
 
@@ -896,7 +894,7 @@ namespace TC_WinForms.WinForms
 
 		private async void printDiagramToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			_logger.Information("Пользователь выбрал печать диаграммы для TcId={TcId}", _tcId);
+			LogUserAction("Печать диаграммы");
 
 			try
 			{
@@ -946,9 +944,11 @@ namespace TC_WinForms.WinForms
 		}
 		private async void setDraftStatusToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			LogUserAction("Выпуск технической карты");
+
 			await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Draft);
 			setDraftStatusToolStripMenuItem.Enabled = false;
-			MessageBox.Show("Техническая карта выпущена");
+			MessageBox.Show("Статус успешно обновлён.");
 		}
 
 		private string GetUnpublishedElementList(string typeName)

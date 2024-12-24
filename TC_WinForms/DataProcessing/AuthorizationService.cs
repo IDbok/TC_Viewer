@@ -1,15 +1,13 @@
-﻿using TcModels.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using Serilog;
+﻿using Serilog;
+using TcModels.Models;
 
 
 namespace TC_WinForms.DataProcessing;
 
 public class AuthorizationService
 {
-    private static readonly object locker = new object();
+	private static readonly ILogger _logger;
+	private static readonly object locker = new object();
 
     public static User CurrentUser { get; private set; }
 
@@ -18,7 +16,11 @@ public class AuthorizationService
 
     static AuthorizationService()
     {
-        InitializeUsers();
+
+		_logger = Log.Logger.ForContext<AuthorizationService>();
+		_logger.Information("Инициализация сервиса авторизации");
+
+		InitializeUsers();
     }
 
     private static void InitializeUsers()
@@ -43,7 +45,9 @@ public class AuthorizationService
 
     public static Author? AuthorizeUser(string login, string password)
     {
-        lock (locker)
+		_logger.Information("Попытка авторизации пользователя {Login}", login);
+
+		lock (locker)
         {
             if (Passwords.TryGetValue(login.ToLower(), out var storedPassword) && storedPassword == password)
             {
@@ -56,10 +60,11 @@ public class AuthorizationService
                     if (userRole == User.Role.Admin)
                     {
                         Program.IsTestMode = true;
-                    }
-                }
+						_logger.Debug("Режим тестирования активирован для администратора {Login}", login);
+					}
+				}
 
-                Log.Information("Пользователь {UserName} успешно авторизован с ролью {UserRole}", 
+				_logger.Information("Пользователь {UserName} успешно авторизован с ролью {UserRole}", 
                     user.Name(), userRole);
 
                 return new Author
@@ -70,9 +75,9 @@ public class AuthorizationService
                     AccessLevel = user.AccessLevel()
                 };
             }
-            Log.Error("Ошибка при авторизации пользователя {login}", login);
-            throw new UnauthorizedAccessException("Ошибка при авторизации пользователя.");
-        }
+			_logger.Warning("Неудачная попытка авторизации для пользователя {Login}", login);
+			throw new UnauthorizedAccessException("Ошибка при авторизации пользователя.");
+		}
     }
 
     public static string UserRoleConverter(User.Role role)

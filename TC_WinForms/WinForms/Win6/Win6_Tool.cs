@@ -26,16 +26,16 @@ namespace TC_WinForms.WinForms
 
 		public Win6_Tool(int tcId, TcViewState tcViewState, MyDbContext context)// bool viewerMode = false)
 		{
+			_tcViewState = tcViewState;
+			this.context = context;
+
+			_tcId = tcId;
+
 			_logger = Log.Logger
 				.ForContext<Win6_Tool>()
 				.ForContext("TcId", _tcId);
 
-			_logger.Information("Инициализация формы. TcId={TcId}");
-
-			_tcViewState = tcViewState;
-            this.context = context;
-
-            _tcId = tcId;
+			_logger.Information("Инициализация формы.");
 
             InitializeComponent();
 
@@ -152,16 +152,19 @@ namespace TC_WinForms.WinForms
 
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
-        {
-            // load new form Win7 Tool as dictonary
-            var newForm = new Win7_6_Tool(activateNewItemCreate: true, createdTCId: _tcId);
+		{
+			LogUserAction("Добавление нового объекта");
+			// load new form Win7 Tool as dictonary
+			var newForm = new Win7_6_Tool(activateNewItemCreate: true, createdTCId: _tcId);
             newForm.WindowState = FormWindowState.Maximized;
             newForm.ShowDialog();
         }
 
         private void btnDeleteObj_Click(object sender, EventArgs e)
-        {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+		{
+			LogUserAction("Удаление выбранных объектов");
+
+			DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
                 _bindingList, _newObjects, _deletedObjects);
 
             if (_deletedObjects.Count != 0)
@@ -170,19 +173,28 @@ namespace TC_WinForms.WinForms
                 {
                     foreach (var tecjOperationWork in _tcViewState.TechOperationWorksList)
                     {
-                        var deletableCompWork = tecjOperationWork.ToolWorks.Where(m => m.toolId == obj.ChildId).FirstOrDefault();
-                        if (deletableCompWork != null)
+                        var deletableObjWork = tecjOperationWork.ToolWorks.Where(m => m.toolId == obj.ChildId).FirstOrDefault();
+                        if (deletableObjWork != null)
                         {
-                            tecjOperationWork.ToolWorks.Remove(deletableCompWork);
+							_logger.Debug("Удаление ToolWork({Id}): TechOperationWorkID={TechOperationWorkId}, ChildObjectID={ChildObjectID}",
+								deletableObjWork.Id, deletableObjWork.techOperationWorkId, deletableObjWork.toolId);
+
+							tecjOperationWork.ToolWorks.Remove(deletableObjWork);
                         }
 
                     }
                     var deletedObj = _tcViewState.TechnologicalCard.Tool_TCs.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
                     if (deletedObj != null)
-                        _tcViewState.TechnologicalCard.Tool_TCs.Remove(deletedObj);
+                    {
+						_logger.Debug("Удаление объектов({ObjectType}}: {ObjectName} (ID={Id})",
+							deletedObj.GetType(), deletedObj.Child.Name, deletedObj.ChildId);
+
+						_tcViewState.TechnologicalCard.Tool_TCs.Remove(deletedObj);
+					}
                 }
 
-                _deletedObjects.Clear();
+				_logger.Information("Удалено объектов: {Count}", _deletedObjects.Count);
+				_deletedObjects.Clear();
             }
         }
 
