@@ -207,7 +207,9 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
     private async void btnDeleteObj_Click(object sender, EventArgs e)
     {
         await DisplayedEntityHelper.DeleteSelectedObjectWithLinks<DisplayedComponent, Component>(dgvMain,
-            _bindingList, _isFiltered ? _displayedObjects : null);
+            _bindingList, _displayedObjects);
+
+        FilteringObjects();
     }
 
     /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////

@@ -187,7 +187,8 @@ namespace TC_WinForms.WinForms
         private async void btnDeleteObj_Click(object sender, EventArgs e)
         {
             await DisplayedEntityHelper.DeleteSelectedObject<DisplayedTechTransition, TechTransition>(dgvMain,
-                _bindingList, _isFiltered ? _displayedObjects : null);
+                _bindingList, _displayedObjects);
+            FilteringObjects();
         }
         /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
         //public bool HasChanges => _changedObjects.Count + _newObjects.Count + _deletedObjects.Count != 0;

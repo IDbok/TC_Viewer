@@ -195,7 +195,10 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
     private async void btnDeleteObj_Click(object sender, EventArgs e)
     {
         await DisplayedEntityHelper.DeleteSelectedObject<DisplayedStaff, Staff>(dgvMain,
-        _bindingList, isFiltered ? _displayedObjects : null);
+        _bindingList, _displayedObjects);
+
+        FilteringObjects();
+
     }
 
     private Staff CreateNewObject(DisplayedStaff dObj)

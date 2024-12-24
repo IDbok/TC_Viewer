@@ -257,7 +257,7 @@ namespace TC_WinForms.WinForms
         {
             //DeleteSelected();
             await DisplayedEntityHelper.DeleteSelectedObject<DisplayedTechnologicalCard, TechnologicalCard>(dgvMain,
-                _bindingList, isFiltered ? _displayedTechnologicalCards : null);
+                _bindingList, _displayedTechnologicalCards);
         }
 
         private void dgvMain_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)

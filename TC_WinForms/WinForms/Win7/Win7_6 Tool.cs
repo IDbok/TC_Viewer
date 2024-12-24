@@ -177,8 +177,9 @@ public partial class Win7_6_Tool : Form, ILoadDataAsyncForm, IPaginationControl,
         //DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
         //    _bindingList, _newObjects, _deletedObjects);
         await DisplayedEntityHelper.DeleteSelectedObjectWithLinks<DisplayedTool, Tool>(dgvMain,
-            _bindingList, _isFiltered ? _displayedObjects : null);
+            _bindingList, _displayedObjects);
 
+        FilteringObjects();
     }
     /////////////////////////////////////////////// * SaveChanges * ///////////////////////////////////////////
 
