@@ -69,7 +69,6 @@ namespace TC_WinForms.WinForms
 
 		public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
 		{
-			tcViewState.IsViewMode = viewMode;
 			_tcId = tcId;
 			_accessLevel = role;
 
@@ -78,6 +77,7 @@ namespace TC_WinForms.WinForms
 
 
 			tcViewState = new TcViewState(role, this);
+			tcViewState.IsViewMode = viewMode;
 
 			InitializeComponent();
 
