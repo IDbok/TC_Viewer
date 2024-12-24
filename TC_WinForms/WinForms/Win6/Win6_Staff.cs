@@ -91,8 +91,16 @@ public partial class Win6_Staff : Form, IViewModeable
 
     public void AddNewObjects(List<Staff> newObjs)
     {
+        List<Staff> existedStaff = new List<Staff>();
+
         foreach (var obj in newObjs)
         {
+            if (_bindingList.Select(c => c.ChildId).Contains(obj.Id))
+            {
+                existedStaff.Add(obj);
+                continue;
+            }
+
             var newStaffTC = CreateNewObject(obj, _bindingList.Count == 0 ? 1 : _bindingList.Select(o => o.Order).Max() + 1);
             var staff = context.Staffs.Where(s => s.Id == newStaffTC.ChildId).First();
 
@@ -110,7 +118,19 @@ public partial class Win6_Staff : Form, IViewModeable
             var displayedStaffTC = new DisplayedStaff_TC(newStaffTC);
             _bindingList.Add(displayedStaffTC);
         }
+
         dgvMain.Refresh();
+
+        if (existedStaff.Count > 0)
+        {
+            string elements = "";
+            foreach (var staff in existedStaff)
+            {
+                elements += "Сотрудник: " + staff.Name + " ID: " + staff.Id + ".\n";
+            }
+
+            MessageBox.Show("Часть объектов уже присутствовала в требованиях. Они не были внесены: \n" + elements, "Дублирование элементов", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
     }
 
 
