@@ -70,8 +70,15 @@ namespace TC_WinForms.WinForms
 
 		public void AddNewObjects(List<Component> newObjs)
         {
+            List<Component> existedComponent = new List<Component>();
             foreach (var obj in newObjs)
             {
+                if(_bindingList.Select(c => c.ChildId).Contains(obj.Id))
+                {
+                    existedComponent.Add(obj);
+                    continue;
+                }
+
                 var newObj_TC = CreateNewObject(obj, GetNewObjectOrder());
                 var component = context.Components.Where(s => s.Id == newObj_TC.ChildId).First();
 
@@ -87,6 +94,17 @@ namespace TC_WinForms.WinForms
             }
 
             dgvMain.Refresh();
+
+            if (existedComponent.Count > 0)
+            {
+                string elements = "";
+                foreach (var component in existedComponent)
+                {
+                    elements += "Компонент: " + component.Name + " ID: " + component.Id + ".\n";
+                }
+
+                MessageBox.Show("Часть объектов уже присутствовала в требованиях. Они не были внесены: \n" + elements, "Дублирование элементов", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
 		////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////

@@ -65,9 +65,17 @@ namespace TC_WinForms.WinForms
 
         public void AddNewObjects(List<Machine> newObjs)
         {
+            List<Machine> existedMachine = new List<Machine>();
+
             foreach (var obj in newObjs)
 			{
-				var newObj_TC = CreateNewObject(obj, GetNewObjectOrder());
+                if (_bindingList.Select(c => c.ChildId).Contains(obj.Id))
+                {
+                    existedMachine.Add(obj);
+                    continue;
+                }
+
+                var newObj_TC = CreateNewObject(obj, GetNewObjectOrder());
 				var machine = context.Machines.Where(s => s.Id == newObj_TC.ChildId).First();
 
 				context.Machines.Attach(machine);
@@ -80,7 +88,19 @@ namespace TC_WinForms.WinForms
 				_bindingList.Add(displayedObj_TC);
 
 			}
+
 			dgvMain.Refresh();
+
+            if (existedMachine.Count > 0)
+            {
+                string elements = "";
+                foreach (var machine in existedMachine)
+                {
+                    elements += "Механизм: " + machine.Name + " ID: " + machine.Id + ".\n";
+                }
+
+                MessageBox.Show("Часть объектов уже присутствовала в требованиях. Они не были внесены: \n" + elements, "Дублирование элементов", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
 

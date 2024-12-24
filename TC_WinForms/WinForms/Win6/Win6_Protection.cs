@@ -64,8 +64,16 @@ namespace TC_WinForms.WinForms
 
         public void AddNewObjects(List<Protection> newObjs)
         {
+            List<Protection> existedProtection = new List<Protection>();
+
             foreach (var obj in newObjs)
             {
+                if (_bindingList.Select(c => c.ChildId).Contains(obj.Id))
+                {
+                    existedProtection.Add(obj);
+                    continue;
+                }
+
                 var newObj_TC = CreateNewObject(obj, GetNewObjectOrder());
                 var protection = context.Protections.Where(s => s.Id == newObj_TC.ChildId).First();
 
@@ -80,6 +88,17 @@ namespace TC_WinForms.WinForms
             }
 
             dgvMain.Refresh();
+
+            if (existedProtection.Count > 0)
+            {
+                string elements = "";
+                foreach (var protection in existedProtection)
+                {
+                    elements += "Средство защиты: " + protection.Name + " ID: " + protection.Id + ".\n";
+                }
+
+                MessageBox.Show("Часть объектов уже присутствовала в требованиях. Они не были внесены: \n" + elements, "Дублирование элементов", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
 		////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////

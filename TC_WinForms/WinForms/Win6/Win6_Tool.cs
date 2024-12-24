@@ -62,8 +62,16 @@ namespace TC_WinForms.WinForms
 
 		public void AddNewObjects(List<Tool> newObjs)
         {
+            List<Tool> existedTool = new List<Tool>();
+
             foreach (var obj in newObjs)
             {
+                if (_bindingList.Select(c => c.ChildId).Contains(obj.Id))
+                {
+                    existedTool.Add(obj);
+                    continue;
+                }
+
                 var newObj_TC = CreateNewObject(obj, GetNewObjectOrder());
                 var tool = context.Tools.Where(s => s.Id == newObj_TC.ChildId).First();
 
@@ -77,8 +85,18 @@ namespace TC_WinForms.WinForms
                 _bindingList.Add(displayedObj_TC);
             }
 
-
             dgvMain.Refresh();
+
+            if (existedTool.Count > 0)
+            {
+                string elements = "";
+                foreach (var tool in existedTool)
+                {
+                    elements += "Инструмент: " + tool.Name + " ID: " + tool.Id + ".\n";
+                }
+
+                MessageBox.Show("Часть объектов уже присутствовала в требованиях. Они не были внесены: \n" + elements, "Дублирование элементов", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         protected override void SaveReplacedObjects() // add to UpdateMode
