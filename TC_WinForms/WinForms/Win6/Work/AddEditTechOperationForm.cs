@@ -433,7 +433,7 @@ namespace TC_WinForms.WinForms.Work
                 {
                     if (newValue != techOperationWork.GetParallelIndex().ToString())
                     {
-                        if (newValue == "")
+                        if (string.IsNullOrEmpty(newValue))
                         {
                             techOperationWork.SetParallelIndex(0);
                         }
