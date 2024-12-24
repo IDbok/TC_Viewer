@@ -27,16 +27,16 @@ namespace TC_WinForms.WinForms
 			if (DesignMode)
 				return;
 
+			_tcViewState = tcViewState;
+			this.context = context;
+
+			_tcId = tcId;
+
 			_logger = Log.Logger
 				.ForContext<Win6_Protection>()
 				.ForContext("TcId", _tcId);
 
 			_logger.Information("Инициализация формы. TcId={TcId}");
-
-			_tcViewState = tcViewState;
-            this.context = context;
-
-            _tcId = tcId;
 
             InitializeComponent();
 
@@ -179,14 +179,18 @@ namespace TC_WinForms.WinForms
 
         ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
         private void btnAddNewObj_Click(object sender, EventArgs e)
-        {
-            var newForm = new Win7_7_Protection(activateNewItemCreate: true, createdTCId: _tcId);
+		{
+			LogUserAction("Добавление нового объекта");
+
+			var newForm = new Win7_7_Protection(activateNewItemCreate: true, createdTCId: _tcId);
             newForm.WindowState = FormWindowState.Maximized;
             newForm.ShowDialog();
         }
         private void btnDeleteObj_Click(object sender, EventArgs e)
-        {
-            DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+		{
+			LogUserAction("Удаление выбранных объектов");
+
+			DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
                 _bindingList, _newObjects, _deletedObjects);
 
             if (_deletedObjects.Count != 0)
@@ -207,7 +211,12 @@ namespace TC_WinForms.WinForms
 
                     var deletedObj = TargetTable.Where(s => s.ChildId == obj.ChildId).FirstOrDefault();
                     if(deletedObj != null)
-                        TargetTable.Remove(deletedObj);
+                    {
+						_logger.Debug("Удаление объектов({ObjectType}}: {ComponentName} (ID={Id})",
+							deletedObj.GetType(), deletedObj.Child.Name, deletedObj.ChildId);
+
+						TargetTable.Remove(deletedObj);
+					}
                 }
 
                 _deletedObjects.Clear();
@@ -216,9 +225,10 @@ namespace TC_WinForms.WinForms
         }
 
         private void btnReplace_Click(object sender, EventArgs e)
-        {
-            // Выделение объекта выбранной строки
-            if (dgvMain.SelectedRows.Count != 1)
+		{
+			LogUserAction("Замена выбранных объектов");
+			// Выделение объекта выбранной строки
+			if (dgvMain.SelectedRows.Count != 1)
             {
                 MessageBox.Show("Выберите одну строку для редактирования");
                 return;

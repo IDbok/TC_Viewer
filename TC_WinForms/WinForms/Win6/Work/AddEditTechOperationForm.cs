@@ -3,6 +3,7 @@ using Serilog;
 using System.Data;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win6.Models;
@@ -14,8 +15,10 @@ using Machine = TcModels.Models.TcContent.Machine;
 namespace TC_WinForms.WinForms.Work
 {
 	public partial class AddEditTechOperationForm : Form, IOnActivationForm
-    {
-        public TechOperationForm TechOperationForm { get; }
+	{
+		private ILogger _logger;
+
+		public TechOperationForm TechOperationForm { get; }
         private readonly TcViewState _tcViewState;
 		private List<TechOperation> allTO;
         private List<TechTransition> allTP;
@@ -33,19 +36,24 @@ namespace TC_WinForms.WinForms.Work
         }
 
         public AddEditTechOperationForm(TechOperationForm techOperationForm, TcViewState tcViewState)
-        {
-            Log.Information("Инициализация AddEditTechOperationForm для TechOperationForm");
+		{
+			TechOperationForm = techOperationForm;
+			_tcViewState = tcViewState;
+
+			_logger = Log.Logger
+				.ForContext<AddEditTechOperationForm>()
+				.ForContext("TcId", _tcViewState.TechnologicalCard.Id);
+
+			_logger.Information("Инициализация формы.");
 
             InitializeComponent();
-            TechOperationForm = techOperationForm;
-			_tcViewState = tcViewState;
 
 			this.Text = $"{TechOperationForm.TehCarta.Name} ({TechOperationForm.TehCarta.Article}) - Редактор хода работ";
 
-            Log.Information("Настройка событий DataGridView и ComboBox.");
+           _logger.Information("Настройка событий DataGridView и ComboBox.");
             SetupEventHandlers();
 
-            Log.Information("Загрузка всех ТО и локальных ТО.");
+           _logger.Information("Загрузка всех ТО и локальных ТО.");
             UpdateAllTO();
             UpdateLocalTO();
         }
@@ -152,7 +160,7 @@ namespace TC_WinForms.WinForms.Work
                 }
             };
 
-            Log.Information("Все события для элементов интерфейса настроены.");
+           _logger.Information("Все события для элементов интерфейса настроены.");
         }
 
         private void ComboBoxTT_SelectedIndexChanged(object? sender, EventArgs e)
@@ -238,9 +246,13 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var IddGuid = (TechOperation)dataGridViewAllTO.Rows[e.RowIndex].Cells[0].Value;
+                _logger.LogUserAction($"Щелчок по ячейке добавления ТО в строке {e.RowIndex}.");
 
-                AddTOWToGridLocalTO(IddGuid);
+				var IddGuid = (TechOperation)dataGridViewAllTO.Rows[e.RowIndex].Cells[0].Value;
+
+                _logger.Information("Добавление ТО: {TechOperation} (id: {Id})", IddGuid.Name, IddGuid.Id);
+
+				AddTOWToGridLocalTO(IddGuid);
             }
         }
 
@@ -263,7 +275,7 @@ namespace TC_WinForms.WinForms.Work
 
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                Log.Information("Щелчок по ячейке удаления ТО в строке {RowIndex}.", e.RowIndex);
+               _logger.LogUserAction($"Щелчок по ячейке удаления ТО в строке {e.RowIndex}.");
 
                 var result = MessageBox.Show("Вы уверены, что хотите удалить ТО?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
@@ -271,7 +283,7 @@ namespace TC_WinForms.WinForms.Work
                 {
                     var IddGuid = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
 
-                    Log.Information("Удаление ТО: {TechOperationWork} (id: {Id})", IddGuid.techOperation.Name, IddGuid.Id);
+                   _logger.Information("Удаление ТО: {TechOperationWork} (id: {Id})", IddGuid.techOperation.Name, IddGuid.Id);
                     TechOperationForm.DeleteTechOperation(IddGuid);
                     UpdateLocalTO();
 
@@ -289,7 +301,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateAllTO()
         {
-            Log.Information("Обновление списка всех технологических операций.");
+           _logger.Information("Обновление списка всех технологических операций.");
 
             try
             {
@@ -297,23 +309,23 @@ namespace TC_WinForms.WinForms.Work
 
                 dataGridViewAllTO.Rows.Clear();
 
-                Log.Information("Загрузка данных из контекста.");
+               _logger.Information("Загрузка данных из контекста.");
                 var context = TechOperationForm.context;
                 allTO = context
                     .TechOperations
                     .Include(t => t.techTransitionTypicals)
                     .ToList();
 
-                Log.Information("Фильтрация ТО по строке поиска: {SearchText}", textBoxPoiskTo.Text);
+               _logger.Information("Фильтрация ТО по строке поиска: {SearchText}", textBoxPoiskTo.Text);
                 var filteredOperations = FilterTechOperations(textBoxPoiskTo.Text);
                 DisplayTechOperations(filteredOperations);
 
                 RestoreScrollPosition(dataGridViewAllTO, offScroll);
-                Log.Information("Список всех ТО обновлен успешно.");
+               _logger.Information("Список всех ТО обновлен успешно.");
             }
             catch (Exception e)
             {
-                Log.Error(e, "Ошибка при обновлении списка всех технологических операций.");
+               _logger.Error(e, "Ошибка при обновлении списка всех технологических операций.");
             }
         }
         private IEnumerable<TechOperation> FilterTechOperations(string searchText)
@@ -359,7 +371,7 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateLocalTO()
         {
-            Log.Information("Обновление списка всех технологических переходов.");
+           _logger.Information("Обновление списка всех технологических переходов.");
             try
             {
                 // Сохранение текущего выделения
@@ -369,7 +381,7 @@ namespace TC_WinForms.WinForms.Work
                 dataGridViewTO.Rows.Clear();
 
 
-                Log.Information("Загрузка данных.");
+               _logger.Information("Загрузка данных.");
                 List<TechOperationWork> list = TechOperationForm.TechOperationWorksList
                     .Where(w => w.Delete == false)
                     .OrderBy(o => o.Order)
@@ -396,13 +408,13 @@ namespace TC_WinForms.WinForms.Work
                     }
                 }
 
-                Log.Information("Список всех ТП обновлен успешно.");
+               _logger.Information("Список всех ТП обновлен успешно.");
 
                 UpdateComboBoxTO();
             }
             catch (Exception e)
             {
-                Log.Error(e, "Ошибка при обновлении списка всех технологических переходов.");
+               _logger.Error(e, "Ошибка при обновлении списка всех технологических переходов.");
             }
         }
         private void AddTechOperationToGridLocalTO(TechOperationWork techOperationWork)
@@ -433,7 +445,7 @@ namespace TC_WinForms.WinForms.Work
                 {
                     if (newValue != techOperationWork.GetParallelIndex().ToString())
                     {
-                        if (newValue == "")
+                        if (string.IsNullOrEmpty(newValue))
                         {
                             techOperationWork.SetParallelIndex(0);
                         }
@@ -664,7 +676,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                Log.Information("Щелчок по ячейке удаления ТП в строке {RowIndex}.", e.RowIndex);
+               _logger.LogUserAction($"Щелчок по ячейке удаления ТП в строке {e.RowIndex}.");
 
                 var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
                 var IddGuid = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -673,7 +685,7 @@ namespace TC_WinForms.WinForms.Work
                 var result = MessageBox.Show("Вы уверены, что хотите удалить ТП?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
-                    Log.Information("Удаление ТП c GUID {TechTransitionGuid}", IddGuid);
+                   _logger.Information("Удаление ТП c GUID {TechTransitionGuid}", IddGuid);
 
                     TechOperationForm.DeleteTechTransit(IddGuid, work);
                     UpdateLocalTP();
@@ -781,7 +793,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                Log.Information("Щелчок по ячейке добавить ТП в строке {RowIndex}.", e.RowIndex);
+               _logger.LogUserAction($"Щелчок по ячейке добавить ТП в строке {e.RowIndex}.");
 
                 var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
                 var techTransition = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
@@ -792,7 +804,7 @@ namespace TC_WinForms.WinForms.Work
 
                     if (coefficient.ShowDialog() == DialogResult.OK)
                     {
-                        Log.Information("Добавление ТП: {TechOperation} (id: {Id})",
+                       _logger.Information("Добавление ТП: {TechOperation} (id: {Id})",
                             techTransition.Name, techTransition.Id);
 
                         TechOperationForm.AddTechTransition(techTransition, work, null, coefficient);
@@ -802,7 +814,7 @@ namespace TC_WinForms.WinForms.Work
                 }
                 else
                 {
-                    Log.Information("Добавление ТП: {TechOperation} (id: {Id})",
+                   _logger.Information("Добавление ТП: {TechOperation} (id: {Id})",
                             techTransition.Name, techTransition.Id);
 
                     TechOperationForm.AddTechTransition(techTransition, work, null, null);
@@ -1160,7 +1172,9 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var idd = (Staff)dataGridViewStaffAll.Rows[e.RowIndex].Cells[0].Value;
+                _logger.LogUserAction($"Щелчок по ячейке добавить персонал в строке {e.RowIndex}.");
+
+				var idd = (Staff)dataGridViewStaffAll.Rows[e.RowIndex].Cells[0].Value;
                 var vv = TechOperationForm.TehCarta.Staff_TCs;
 
                 if (idd != null)
@@ -1170,8 +1184,12 @@ namespace TC_WinForms.WinForms.Work
                     staffTc.Child = idd;
                     staffTc.Symbol = " ";
                     vv.Add(staffTc);
-                    // TechOperationForm.TehCarta.Staff_TCs.Add(staffTc);
-                    Task.Run(() =>
+
+                    _logger.Information("Добавление персонала: {Staff_TC} (symbol: {Synbol}, id: {Id})",
+						staffTc.Symbol, staffTc.Child?.Name, staffTc.IdAuto);
+
+					// TechOperationForm.TehCarta.Staff_TCs.Add(staffTc);
+					Task.Run(() =>
                     {
                         this.BeginInvoke((Action)(() => UpdateGridStaff()));
                     });
@@ -1185,7 +1203,7 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                Log.Information("Щелчок по ячейке удаления персонала в строке {RowIndex}.", e.RowIndex);
+               _logger.LogUserAction($"Щелчок по ячейке удаления персонала в строке {e.RowIndex}.");
 
                 var idd = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
 
@@ -1193,7 +1211,7 @@ namespace TC_WinForms.WinForms.Work
                 {
                     if (MessageBox.Show("Вы действительно хотите удалить данную роль из техкарты?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
                     {
-                        Log.Information("Удаление персонала: {Staff_TC} (symbol: {Synbol}, id: {Id})",
+                       _logger.Information("Удаление персонала: {Staff_TC} (symbol: {Synbol}, id: {Id})",
                             idd.Symbol, idd.Child?.Name, idd.IdAuto);
 
                         var vv = TechOperationForm.TehCarta.Staff_TCs;
@@ -1508,7 +1526,9 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
+                _logger.LogUserAction($"Щелчок по ячейке добавить СЗ в строке {e.RowIndex}.");
+
+				var work = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
                 var Idd = (Protection)dataGridViewAllSZ.Rows[e.RowIndex].Cells[0].Value;
 
                 var tehCardProtections = TechOperationForm.TehCarta.Protection_TCs;
@@ -1524,7 +1544,7 @@ namespace TC_WinForms.WinForms.Work
 
                 Protection_TC protectionTc = new Protection_TC();
                 protectionTc.Child = Idd;
-                protectionTc.ParentId = TechOperationForm.tcId;
+                protectionTc.ParentId = TechOperationForm._tcId;
                 protectionTc.Parent = tc;
                 protectionTc.Quantity = 1;
                 protectionTc.Order = orderMax + 1;
@@ -1532,9 +1552,10 @@ namespace TC_WinForms.WinForms.Work
 
                 tehCardProtections.Add(protectionTc);
 
+				_logger.Information("Добавление СЗ: {Protection_TC} (id: {Id})",
+					protectionTc.Child.Name, protectionTc.Child);
 
-
-                UpdateGridAllSZ();
+				UpdateGridAllSZ();
                 UpdateGridLocalSZ();
             }
         }
@@ -1543,7 +1564,9 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var idd = (Protection_TC)dataGridViewLocalSZ.Rows[e.RowIndex].Cells[0].Value;
+				_logger.LogUserAction($"Щелчок по ячейке удаления СЗ в строке {e.RowIndex}.");
+
+				var idd = (Protection_TC)dataGridViewLocalSZ.Rows[e.RowIndex].Cells[0].Value;
 
                 if (idd != null)
                 {
@@ -1553,7 +1576,11 @@ namespace TC_WinForms.WinForms.Work
                         var techCart = TechOperationForm.TehCarta.Protection_TCs;
                         techCart.Remove(idd);
 
-                        foreach (var techOperation in TechOperationForm.TechOperationWorksList)
+						_logger.Information("Удаление СЗ: {Protection_TC} (id: {Id})",
+							idd.Child.Name, idd.Child);
+
+
+						foreach (var techOperation in TechOperationForm.TechOperationWorksList)
                         {
                             foreach (var executionWork in techOperation.executionWorks)
                             {
@@ -1605,7 +1632,7 @@ namespace TC_WinForms.WinForms.Work
 
             var context = TechOperationForm.context;
 
-            var AllMyComponent = TechOperationForm.TehCarta.Component_TCs.Where(w => w.ParentId == TechOperationForm.tcId).OrderBy(x => x.Order).ToList();
+            var AllMyComponent = TechOperationForm.TehCarta.Component_TCs.Where(w => w.ParentId == TechOperationForm._tcId).OrderBy(x => x.Order).ToList();
 
             var AllComponent = context.Components.ToList();
 
@@ -1756,7 +1783,9 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
+				_logger.LogUserAction($"Щелчок по ячейке добавить компонент в строке {e.RowIndex}.");
+
+				var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (Component)dataGridViewComponentAll.Rows[e.RowIndex].Cells[0].Value;
 
                 var existedIdd = work.ComponentWorks.Where(c => c.componentId == Idd.Id && c.IsDeleted == true).FirstOrDefault();
@@ -1767,7 +1796,7 @@ namespace TC_WinForms.WinForms.Work
                     existedIdd.IsDeleted = false;
                     work.ComponentWorks.Remove(existedIdd);
                     work.ComponentWorks.Insert(work.ComponentWorks.Count, existedIdd);
-                }
+				}
                 else
                 {
                     ComponentWork componentWork = new ComponentWork();
@@ -1800,7 +1829,9 @@ namespace TC_WinForms.WinForms.Work
 
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
+                _logger.LogUserAction($"Щелчок по ячейке удаления компонента в строке {e.RowIndex}.");
+
+				var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
                 var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
 
                 TechOperationForm.MarkToDeleteComponentWork(work, Idd);
@@ -2024,7 +2055,9 @@ namespace TC_WinForms.WinForms.Work
         {
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+				_logger.LogUserAction($"Щелчок по ячейке добавить инструмент в строке {e.RowIndex}.");
+
+				var work = (TechOperationWork)comboBoxTO.SelectedItem;
 
                 if (work == null)
                 {
@@ -2075,7 +2108,9 @@ namespace TC_WinForms.WinForms.Work
 
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
-                var work = (TechOperationWork)comboBoxTO.SelectedItem;
+				_logger.LogUserAction($"Щелчок по ячейке удаления инструмента в строке {e.RowIndex}.");
+
+				var work = (TechOperationWork)comboBoxTO.SelectedItem;
                 if (work == null)
                 {
                     return;
@@ -2754,7 +2789,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Log.Information("Переключение на вкладку: {TabName}", tabControl1.SelectedTab.Name);
+           _logger.Information("Переключение на вкладку: {TabName}", tabControl1.SelectedTab.Name);
 
             switch (tabControl1.SelectedTab.Name)
             {
@@ -2809,7 +2844,7 @@ namespace TC_WinForms.WinForms.Work
                     break;
             }
 
-            Log.Information("Обновление данных для вкладки завершено.");
+           _logger.Information("Обновление данных для вкладки завершено.");
         }
 
         public void UpdateTable(int table)
@@ -2938,8 +2973,9 @@ namespace TC_WinForms.WinForms.Work
 
         private void btnCreateNewTP_Click(object sender, EventArgs e)
         {
-            // 1. Открытие формы по добавлению нового ТП с передачей номера ТК
-            var AddingForm = new Win7_TechTransitionEditor(new TechTransition() { CreatedTCId = TechOperationForm.tcId }, isNewObject: true);
+            _logger.LogUserAction("Создание нового ТП");
+			// 1. Открытие формы по добавлению нового ТП с передачей номера ТК
+			var AddingForm = new Win7_TechTransitionEditor(new TechTransition() { CreatedTCId = TechOperationForm._tcId }, isNewObject: true);
             AddingForm.AfterSave = async (createdObj) => AddNewTP(createdObj, SelectedTO);//AddNewObjectInDataGridView(createdObj);
             AddingForm.ShowDialog();
 
@@ -2947,7 +2983,8 @@ namespace TC_WinForms.WinForms.Work
 
         private void btnAddNewTO_Click(object sender, EventArgs e)
         {
-            var AddingForm = new Win7_TechOperation_Window(isTcEditingForm: true, createdTcId: TechOperationForm.tcId);
+			_logger.LogUserAction("Создание новой ТО");
+			var AddingForm = new Win7_TechOperation_Window(isTcEditingForm: true, createdTcId: TechOperationForm._tcId);
             AddingForm.AfterSave = async (createdObj) => AddTOWToGridLocalTO(createdObj, true);
             AddingForm.ShowDialog();
 
@@ -2956,7 +2993,9 @@ namespace TC_WinForms.WinForms.Work
 
         private void btnToChange_Click(object sender, EventArgs e)
         {
-            if (dataGridViewTO.SelectedRows.Count == 1 && dataGridViewAllTO.SelectedRows.Count == 1)
+			_logger.LogUserAction("Замена ТО");
+
+			if (dataGridViewTO.SelectedRows.Count == 1 && dataGridViewAllTO.SelectedRows.Count == 1)
             {
                 // Получаем выделенную строку из dataGridViewTO
                 var selectedRowTO = dataGridViewTO.SelectedRows[0];

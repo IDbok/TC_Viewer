@@ -3,6 +3,7 @@ using Serilog;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Windows.Forms;
+using TC_WinForms.Extensions;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.TcContent;
@@ -26,12 +27,15 @@ public partial class CoefficientEditorForm : Form
 
 	public CoefficientEditorForm(int tcId, TcViewState tcViewState, MyDbContext context)
 	{
-		_logger = Log.Logger.ForContext<CoefficientEditorForm>();
-		_logger.Information("Инициализация CoefficientEditorForm: TcId={TcId}", tcId);
-
 		_context = context;
 		_tcId = tcId;
 		_tcViewState = tcViewState;
+
+		_logger = Log.Logger
+				.ForContext<CoefficientEditorForm>()
+				.ForContext("TcId", _tcId);
+
+		_logger.Information("Инициализация форма.");
 
 		InitializeComponent();
 
@@ -49,6 +53,8 @@ public partial class CoefficientEditorForm : Form
 
 	private void btnAddCoefficient_Click(object sender, EventArgs e)
 	{
+		LogUserAction("Добавление коэффициента");
+
 		var count = _coefficients.Count;
 		if (count == maxCoefficientsCount)
 		{
@@ -177,5 +183,10 @@ public partial class CoefficientEditorForm : Form
 	{
 		// Выполнить пересчёт значений в открытых формах
 		_tcViewState.RecalculateValuesWithCoefficients();
+	}
+
+	private void LogUserAction(string action)
+	{
+		_logger.LogUserAction(action);
 	}
 }

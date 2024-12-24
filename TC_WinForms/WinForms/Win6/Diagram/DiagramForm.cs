@@ -25,44 +25,56 @@ namespace TC_WinForms.WinForms.Diagram
         private bool isViewMode;
 
         public WpfMainControl wpfDiagram;
+        private ElementHost elementHost;
 
-        public DiagramForm()
+
+		public DiagramForm()
         {
             InitializeComponent();
         }
 
         public DiagramForm(int tcId, TcViewState tcViewState, MyDbContext context)// bool isViewMode)
+		{
+			InitializeComponent();
+
+			_tcViewState = tcViewState;
+
+			this.tcId = tcId;
+
+			InitializeElementHost();
+
+			AddElementToElementHost(new WpfMainControl(tcId, this, _tcViewState, context));
+
+			this.FormClosed += (sender, elementHost) => this.Dispose();
+
+		}
+
+        private void CleanElementHost()
+		{
+			elementHost.Child = null;
+		}
+
+        public void ReloadElementHost(WpfMainControl wpfDiagram)
         {
-            InitializeComponent();
+			CleanElementHost();
+			AddElementToElementHost(wpfDiagram);
+		}
 
-            _tcViewState = tcViewState;
+		private void AddElementToElementHost(WpfMainControl wpfDiagram)
+		{
+			this.wpfDiagram = wpfDiagram;
+			elementHost.Child = wpfDiagram;
+		}
 
-            this.tcId = tcId;
-            //this.isViewMode = isViewMode;
+		private void InitializeElementHost()
+		{
+			elementHost = new ElementHost();
+			elementHost.Dock = DockStyle.Fill;
 
-            ElementHost elementHost = new ElementHost();
-            elementHost.Dock = DockStyle.Fill;
+			this.Controls.Add(elementHost);
+		}
 
-            this.Controls.Add(elementHost);
-
-
-            WpfMainControl wpfDiagram = new WpfMainControl(tcId, this, _tcViewState, context);
-            this.wpfDiagram = wpfDiagram;
-            elementHost.Child = wpfDiagram;
-
-            //this.KeyPreview = true;
-
-            //this.KeyDown += DiagramForm_KeyDown;
-
-            //wpfDiagram.KeyDown += WpfDiagram_KeyDown;
-
-            //AddButton();
-
-            this.FormClosed += (sender, elementHost) => this.Dispose();
-
-        }
-
-        public void UpdateVisualData() 
+		public void UpdateVisualData() 
         {
             wpfDiagram.ReinitializeForm();
         }

@@ -543,24 +543,11 @@ namespace TC_WinForms.WinForms.Diagram
         {
             try
             {
-                // Очистить текущие данные
-                Children.Clear();
+				// удалить текущие данные
+				Children.Clear();
 
-                // Заново инициализировать объект WpfMainControl с текущими параметрами
-                var parent = this.Parent as System.Windows.Controls.Panel;
-                if (parent == null)
-                {
-                    throw new InvalidOperationException("Parent container is not found.");
-                }
+				diagramForm.ReloadElementHost(new WpfMainControl(tcId, diagramForm, _tcViewState, context));
 
-                // Удаляем текущий элемент
-                parent.Children.Remove(this);
-
-                // Создаем новый экземпляр формы с актуальными данными
-                var newControl = new WpfMainControl(tcId, diagramForm, _tcViewState, context);
-
-                // Добавляем новый элемент в контейнер
-                parent.Children.Add(newControl);
             }
             catch (Exception ex)
             {

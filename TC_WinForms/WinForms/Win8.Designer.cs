@@ -154,7 +154,6 @@
             Name = "Win8";
             ShowIcon = false;
             Text = "Win8";
-            Load += Win8_Load;
             gbxAuthorizationForm.ResumeLayout(false);
             gbxAuthorizationForm.PerformLayout();
             ResumeLayout(false);
