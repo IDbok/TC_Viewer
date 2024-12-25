@@ -990,6 +990,8 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateLocalTP()
         {
+            if (dataGridViewTPLocal == null) return;
+
             var selectedTP = SelectedTP;
             var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
 
@@ -3124,15 +3126,15 @@ namespace TC_WinForms.WinForms.Work
 				string errorMessage = ex.InnerException?.Message ?? ex.Message;
 				MessageBox.Show(errorMessage, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
-			finally
-			{
-				// todo: реализовать обновление только ячейки времени выполнения, а не всей таблицы
-				BeginInvoke(new Action(() =>
-				{
-					UpdateLocalTP();
-				}));
-			}
-		}
+            finally
+            {
+                // todo: реализовать обновление только ячейки времени выполнения, а не всей таблицы
+                BeginInvoke(new Action(() =>
+                {
+                    UpdateLocalTP();
+                }));
+            }
+        }
         private void RecalculateAllRepeatsValues()
         {
 			try

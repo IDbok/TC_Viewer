@@ -1770,8 +1770,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	public void OnActivate()
 	{
-        if(_tcViewState.TechnologicalCard.IsDynamic)
-		    _editForm?.OnActivate();
+        if (_tcViewState.TechnologicalCard.IsDynamic 
+            && _editForm != null && !_editForm.IsDisposed)
+		    _editForm.OnActivate();
 	}
 
 	//public void HighlightExecutionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)
