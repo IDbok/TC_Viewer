@@ -8,6 +8,7 @@ using TcDbConnector;
 using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService.User;
 using System.Text.Json;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace TC_WinForms
 {
@@ -41,9 +42,9 @@ namespace TC_WinForms
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            // Читаем настройки пути временной папки и модифицируем путь для логов
-            var tempLogPath = Path.Combine(Path.GetTempPath(), "TC_Viewer", "logs", "log-.json");
-            configuration.GetSection("Serilog:WriteTo:0:Args")["path"] = tempLogPath;
+			// Читаем настройки пути временной папки и модифицируем путь для логов
+            var tempLogPath = Path.Combine("C:/tempLogs", "TC_Viewer", Environment.UserName, "logs", "log-.json");//Path.GetTempPath(), "TC_Viewer", "logs", "log-.json");
+			configuration.GetSection("Serilog:WriteTo:0:Args")["path"] = tempLogPath;
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
