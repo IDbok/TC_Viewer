@@ -4,8 +4,8 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models.IntermediateTables
 {
-    public class Tool_TC : IStructIntermediateTable<TechnologicalCard, Tool>, IDGViewable, IUpdatableEntity
-    {
+    public class Tool_TC : IStructIntermediateTable<TechnologicalCard, Tool>, IDGViewable, IUpdatableEntity, IDynamicValue
+	{
         public Dictionary<string, string> GetPropertiesNames { get; } = new Dictionary<string, string>
         {
             { nameof(ChildId), "ID Оборудование" },

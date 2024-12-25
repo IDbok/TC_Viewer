@@ -35,10 +35,10 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 	}
 
 
-	private void CoefficientFormHide()
+	private void UpdateDynamicCardParametrs()
 	{
 		// скрывть столбец с коэффициентами
-		DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].Visible = false;
+		DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].Visible = _tcViewState.IsViewMode ? false : _tcViewState.TechnologicalCard.IsDynamic;
 	}
 	// Дочерние формы определят конкретную загрузку объектов
 	protected abstract void LoadObjects();
@@ -66,13 +66,12 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 
 	public virtual async void OnActivate()
 	{
-		await RecalculateQuantitiesAsync();
+		if (_tcViewState.TechnologicalCard.IsDynamic)
+			await RecalculateQuantitiesAsync();
 	}
 
 	protected async Task RecalculateQuantitiesAsync()
 	{
-		return; // метод не используется на этапе внедрения в мастер-ветку
-
 		if (_bindingList == null || _bindingList.Count == 0)
 			return;
 
@@ -100,8 +99,6 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 
 	protected void RecalculateQuantities()
 	{
-		return; // метод не используется на этапе внедрения в мастер-ветку
-
 		if (_bindingList == null || _bindingList.Count == 0)
 			return;
 
@@ -230,19 +227,20 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 	{
 		PnlControls.Visible = !_tcViewState.IsViewMode;
 
+		DgvMain.Columns[nameof(BaseDisplayedEntity.ChildId)].Visible = !_tcViewState.IsViewMode;
+
 		// make columns editable
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Order)].ReadOnly = _tcViewState.IsViewMode;
 		//DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].ReadOnly = _tcViewState.IsViewMode;
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Quantity)].ReadOnly = _tcViewState.IsViewMode;
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Note)].ReadOnly = _tcViewState.IsViewMode;
 
-		CoefficientFormHide();
-
-
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Quantity)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Note)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+
+		UpdateDynamicCardParametrs();
 
 		// update form
 		RefreshDataGridView();
@@ -288,7 +286,8 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 
 		SetViewMode();
 
-		RecalculateQuantities();
+		if(_tcViewState.TechnologicalCard.IsDynamic)
+			RecalculateQuantities();
 	}
 	protected virtual void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
 	// todo - fix problem with selection replacing row (error while remove it)

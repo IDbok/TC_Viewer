@@ -8,6 +8,7 @@ namespace TcModels.Models.TcContent;
 [Index(nameof(Code), nameof(TechnologicalCardId), IsUnique = true)]
 public class Coefficient
 {
+	public const char FirstLetter = 'Q';
 	[Key]
 	public int Id { get; set; }
 
@@ -19,7 +20,7 @@ public class Coefficient
 	// Шифр коэффициента
 	[Required(ErrorMessage = "Код коэффициента обязателен")]
 	[MaxLength(3, ErrorMessage = "Код коэффициента не должен превышать 3 символов")]
-	[FirstLetter('Q')]
+	[FirstLetter(FirstLetter)]
 	[NumericTail(ErrorMessage = "Все символы после первого должны быть цифрами.")]
 	public string Code { get; set; }
 

@@ -53,6 +53,7 @@
 			btnShowCoefficients = new Button();
 			buttonDiagram = new Button();
 			pnlDataViewer = new Panel();
+			ChangeIsDynamicToolStripMenuItem = new ToolStripMenuItem();
 			toolStrip1.SuspendLayout();
 			pnlControls.SuspendLayout();
 			SuspendLayout();
@@ -108,7 +109,7 @@
 			// 
 			// actionToolStripMenuItem
 			// 
-			actionToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { setDraftStatusToolStripMenuItem, setApprovedStatusToolStripMenuItem });
+			actionToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { setDraftStatusToolStripMenuItem, setApprovedStatusToolStripMenuItem, ChangeIsDynamicToolStripMenuItem });
 			actionToolStripMenuItem.Name = "actionToolStripMenuItem";
 			actionToolStripMenuItem.Size = new Size(354, 34);
 			actionToolStripMenuItem.Text = "Действия";
@@ -116,14 +117,14 @@
 			// setDraftStatusToolStripMenuItem
 			// 
 			setDraftStatusToolStripMenuItem.Name = "setDraftStatusToolStripMenuItem";
-			setDraftStatusToolStripMenuItem.Size = new Size(255, 34);
+			setDraftStatusToolStripMenuItem.Size = new Size(304, 34);
 			setDraftStatusToolStripMenuItem.Text = "Выпустить ТК";
 			setDraftStatusToolStripMenuItem.Click += setDraftStatusToolStripMenuItem_Click;
 			// 
 			// setApprovedStatusToolStripMenuItem
 			// 
 			setApprovedStatusToolStripMenuItem.Name = "setApprovedStatusToolStripMenuItem";
-			setApprovedStatusToolStripMenuItem.Size = new Size(255, 34);
+			setApprovedStatusToolStripMenuItem.Size = new Size(304, 34);
 			setApprovedStatusToolStripMenuItem.Text = "Опубликовать ТК";
 			setApprovedStatusToolStripMenuItem.Click += SetApprovedStatusToolStripMenuItem_Click;
 			// 
@@ -293,6 +294,13 @@
 			pnlDataViewer.Size = new Size(1410, 642);
 			pnlDataViewer.TabIndex = 35;
 			// 
+			// ChangeIsDynamicToolStripMenuItem
+			// 
+			ChangeIsDynamicToolStripMenuItem.Name = "ChangeIsDynamicToolStripMenuItem";
+			ChangeIsDynamicToolStripMenuItem.Size = new Size(304, 34);
+			ChangeIsDynamicToolStripMenuItem.Text = "Сделать Динамической";
+			ChangeIsDynamicToolStripMenuItem.Click += ChangeIsDynamicToolStripMenuItem_Click;
+			// 
 			// Win6_new
 			// 
 			AutoScaleDimensions = new SizeF(10F, 25F);
@@ -342,5 +350,6 @@
         private ToolStripMenuItem printBlockSchemeToolStripMenuItem;
 		private Button btnShowCoefficients;
 		private ToolStripButton toolStripShowCoefficients;
+		private ToolStripMenuItem ChangeIsDynamicToolStripMenuItem;
 	}
 }
