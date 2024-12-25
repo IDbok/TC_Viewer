@@ -1207,10 +1207,12 @@ namespace TC_WinForms.WinForms
 			{
 				// Если карта динамическая, то
 				// 1. проверяем наличие коэфиициентов в карте
-				var coefficients = context.Coefficients.Where(c => c.TechnologicalCardId == _tc.Id).ToList();
+				var coefficients = _tc.Coefficients;
 				// 1.1. если коэффициенты присутствуют, то
-				if (coefficients.Count > 0) { }
+				if (coefficients != null && coefficients.Count > 0) 
 				{
+					var coefDict = coefficients.ToDictionary(c => c.Code, c => c.Value);
+
 					// 1.1.1 во всех сущностях, где они используются, заменяем на их значения
 					// Выделить в отдельный список все сущности, где используются коэффициенты
 					List<IDynamicValue> dynamicValues = new List<IDynamicValue>();
@@ -1235,24 +1237,45 @@ namespace TC_WinForms.WinForms
 							AddToDynamicList(dynamicValues, obj);
 					}
 
-					//
-					// 1.1.2 удаляем все коэффициенты
-					// 1.2. если коэффициенты отсутствуют, то дополнительно ничего делать не надо
+					var executionWorks = context.ExecutionWorks.Where(ew => ew.techOperationWork.TechnologicalCardId == _tc.Id).ToList();
+					var executionWorksWithCoefficients = executionWorks.Where(ew => !string.IsNullOrEmpty(ew.Coefficient) && ew.Coefficient.Contains(Coefficient.FirstLetter)).ToList();
 
-					// 2. изменяем статус на не динамический
-					// 3. закрываем доступ к коэффициентам
+					var executionWorksRepeats = context.ExecutionWorkRepeats.Where(ewr => ewr.ParentExecutionWork.techOperationWork.TechnologicalCardId == _tc.Id).ToList();
+					var executionWorkRepeatsWithCoefficients = executionWorksRepeats
+						.Where(ewr => !string.IsNullOrEmpty(ewr.NewCoefficient) && ewr.NewCoefficient.Contains(Coefficient.FirstLetter)).ToList();
+
+					// в объектах IDynamicValue удалить значение формулы
+					foreach (var obj in dynamicValues)
+					{
+						obj.Formula = null;
+					}
+
+					// в объектах ExecutionWork и ExecutionWorksRepeat заменить коэффициенты на их значения
+					foreach (var ew in executionWorksWithCoefficients)
+					{
+						ew.Coefficient = MathScript.ReplaceCoefficientsInFormula(ew.Coefficient!, coefDict);
+					}
+
+					foreach (var ewr in executionWorkRepeatsWithCoefficients)
+					{
+						ewr.NewCoefficient = MathScript.ReplaceCoefficientsInFormula(ewr.NewCoefficient!, coefDict);
+					}
 				}
-					// 1.2. если коэффициенты отсутствуют, то дополнительно ничего делать не надо
-					// 2. изменяем статус на не динамический
-					// 3. закрываем доступ к коэффициентам
-				}
+				// 1.2. если коэффициенты отсутствуют, то дополнительно ничего делать не надо
+				
+				// Удаляем все коэффициенты
+				_tc.Coefficients = null;
+				// 2. изменяем статус на не динамический
+				_tc.IsDynamic = false;
+				// 3. закрываем доступ к коэффициентам
+				SetDynamicCardParametrs(false);
+			}
 			else
 			{
 				// Если карта не динамическая, то изменяем данный статус на динамический
 				_tc.IsDynamic = true;
 				// и открываем доступ к коэффициентам
 				SetDynamicCardParametrs(true);
-
 			}
 
 			void AddToDynamicList(List<IDynamicValue> dynamicValues, IDynamicValue obj)

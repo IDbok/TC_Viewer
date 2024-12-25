@@ -184,4 +184,46 @@ public static class MathScript
 
 		return operators.Contains(name, StringComparer.OrdinalIgnoreCase);
 	}
+
+	/// <summary>
+	/// Заменяет в формуле (строке) все вхождения коэффициентов (переменных) из словаря на их числовые значения.
+	/// </summary>
+	/// <param name="formula">Строка формулы, содержащая коды коэффициентов (например, "Q1 + Q2 - 0.5").</param>
+	/// <param name="coefDict">Словарь коэффициентов (кодов переменных) и их числовых значений.</param>
+	/// <returns>Строка формулы, в которой коды коэффициентов заменены их числовыми значениями.</returns>
+	public static string ReplaceCoefficientsInFormula(string formula, Dictionary<string, double> coefDict)
+	{
+		if (string.IsNullOrWhiteSpace(formula))
+			return formula ?? string.Empty;
+
+		if (coefDict == null || coefDict.Count == 0)
+			return formula; // Нет словаря — нет замен.
+
+		// Приведём запятые к точкам
+		formula = formula.Replace(',', '.');
+
+		// Для поиска коэффициентов используем Regex,
+		// чтобы заменять только полные «слова» (учитывая, что переменные
+		// у нас идут как Q1, Q2, X5, и т.п.).
+		// \b — обозначает границу слова, [a-zA-Z_]\w* — шаблон идентификатора
+		// (первая буква — латинская, либо _, дальше — буквы, цифры, подчёркивание).
+		Regex regex = new Regex(@"\b[a-zA-Z_]\w*\b");
+
+		// Заменяем через MatchEvaluator, чтобы под каждый найденный код подставить значение из словаря (если есть)
+		string resultFormula = regex.Replace(formula, match =>
+		{
+			string variableName = match.Value;
+			// Если в словаре есть такая переменная, подставляем её значение
+			if (coefDict.TryGetValue(variableName, out double val))
+			{
+				// Приводим к CultureInfo.InvariantCulture, чтобы получить корректный формат (точка вместо запятой)
+				return val.ToString(System.Globalization.CultureInfo.InvariantCulture);
+			}
+			// Иначе оставляем как есть
+			return variableName;
+		});
+
+		return resultFormula;
+	}
+
 }
