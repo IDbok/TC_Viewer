@@ -93,7 +93,7 @@ namespace TC_WinForms.WinForms
 			//isCardDynamic = tcViewState.IsViewMode ? false : isCardDynamic;
 
 			// удалить кнопку вызова формы коэффициентов
-			btnShowCoefficients.Visible = isCardDynamic;
+			//btnShowCoefficients.Visible = isCardDynamic;
 			toolStripShowCoefficients.Visible = isCardDynamic;
 
 			// изменяем параметры для форм использующих коэффициенты
@@ -1216,22 +1216,22 @@ namespace TC_WinForms.WinForms
 					// 1.1.1 во всех сущностях, где они используются, заменяем на их значения
 					// Выделить в отдельный список все сущности, где используются коэффициенты
 					List<IDynamicValue> dynamicValues = new List<IDynamicValue>();
-					foreach (var obj  in context.Component_TCs.Where(c => c.ParentId == _tc.Id))
+					foreach (var obj  in _tc.Component_TCs)//.Where(c => c.ParentId == _tc.Id))
 					{
 						if(obj != null && obj is IDynamicValue)
 							AddToDynamicList(dynamicValues, obj);
 					}
-					foreach (var obj in context.Tool_TCs.Where(c => c.ParentId == _tc.Id))
+					foreach (var obj in _tc.Tool_TCs)//.Where(c => c.ParentId == _tc.Id))
 					{
 						if (obj != null && obj is IDynamicValue)
 							AddToDynamicList(dynamicValues, obj);
 					}
-					foreach (var obj in context.Protection_TCs.Where(c => c.ParentId == _tc.Id))
+					foreach (var obj in _tc.Protection_TCs)//.Where(c => c.ParentId == _tc.Id))
 					{
 						if (obj != null && obj is IDynamicValue)
 							AddToDynamicList(dynamicValues, obj);
 					}
-					foreach (var obj in context.Machine_TCs.Where(c => c.ParentId == _tc.Id))
+					foreach (var obj in _tc.Machine_TCs)//.Where(c => c.ParentId == _tc.Id))
 					{
 						if (obj != null && obj is IDynamicValue)
 							AddToDynamicList(dynamicValues, obj);
@@ -1264,19 +1264,33 @@ namespace TC_WinForms.WinForms
 				// 1.2. если коэффициенты отсутствуют, то дополнительно ничего делать не надо
 				
 				// Удаляем все коэффициенты
-				_tc.Coefficients = null;
+				_tc.Coefficients.Clear();
 				// 2. изменяем статус на не динамический
 				_tc.IsDynamic = false;
 				// 3. закрываем доступ к коэффициентам
-				SetDynamicCardParametrs(false);
+				
+
+				ChangeIsDynamicToolStripMenuItem.Text = "Сделать динамической";
 			}
 			else
 			{
 				// Если карта не динамическая, то изменяем данный статус на динамический
 				_tc.IsDynamic = true;
 				// и открываем доступ к коэффициентам
-				SetDynamicCardParametrs(true);
+
+				ChangeIsDynamicToolStripMenuItem.Text = "Сделать не динамической";
 			}
+
+			SetDynamicCardParametrs(_tc.IsDynamic);
+
+			foreach (var form in _formsCache.Values)
+			{
+				if (form is IDynamicForm dynamicForm)
+				{
+					dynamicForm.UpdateDynamicCardParametrs();
+				}
+			}
+
 
 			void AddToDynamicList(List<IDynamicValue> dynamicValues, IDynamicValue obj)
 			{

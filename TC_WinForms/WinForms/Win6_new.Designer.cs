@@ -38,8 +38,10 @@
 			actionToolStripMenuItem = new ToolStripMenuItem();
 			setDraftStatusToolStripMenuItem = new ToolStripMenuItem();
 			setApprovedStatusToolStripMenuItem = new ToolStripMenuItem();
+			ChangeIsDynamicToolStripMenuItem = new ToolStripMenuItem();
 			setRemarksModeToolStripMenuItem = new ToolStripMenuItem();
 			SetMachineCollumnModeToolStripMenuItem = new ToolStripMenuItem();
+			действияToolStripMenuItem = new ToolStripMenuItem();
 			toolStripExecutionScheme = new ToolStripButton();
 			toolStripDiagrams = new ToolStripButton();
 			toolStripShowCoefficients = new ToolStripButton();
@@ -53,7 +55,6 @@
 			btnShowCoefficients = new Button();
 			buttonDiagram = new Button();
 			pnlDataViewer = new Panel();
-			ChangeIsDynamicToolStripMenuItem = new ToolStripMenuItem();
 			toolStrip1.SuspendLayout();
 			pnlControls.SuspendLayout();
 			SuspendLayout();
@@ -72,7 +73,7 @@
 			// toolStripFile
 			// 
 			toolStripFile.DisplayStyle = ToolStripItemDisplayStyle.Text;
-			toolStripFile.DropDownItems.AddRange(new ToolStripItem[] { SaveChangesToolStripMenuItem, printToolStripMenuItem, printBlockSchemeToolStripMenuItem, updateToolStripMenuItem, actionToolStripMenuItem, setRemarksModeToolStripMenuItem, SetMachineCollumnModeToolStripMenuItem });
+			toolStripFile.DropDownItems.AddRange(new ToolStripItem[] { SaveChangesToolStripMenuItem, printToolStripMenuItem, printBlockSchemeToolStripMenuItem, updateToolStripMenuItem, actionToolStripMenuItem, setRemarksModeToolStripMenuItem, SetMachineCollumnModeToolStripMenuItem, действияToolStripMenuItem });
 			toolStripFile.Image = (Image)resources.GetObject("toolStripFile.Image");
 			toolStripFile.ImageTransparentColor = Color.Magenta;
 			toolStripFile.Name = "toolStripFile";
@@ -117,16 +118,23 @@
 			// setDraftStatusToolStripMenuItem
 			// 
 			setDraftStatusToolStripMenuItem.Name = "setDraftStatusToolStripMenuItem";
-			setDraftStatusToolStripMenuItem.Size = new Size(304, 34);
+			setDraftStatusToolStripMenuItem.Size = new Size(302, 34);
 			setDraftStatusToolStripMenuItem.Text = "Выпустить ТК";
 			setDraftStatusToolStripMenuItem.Click += setDraftStatusToolStripMenuItem_Click;
 			// 
 			// setApprovedStatusToolStripMenuItem
 			// 
 			setApprovedStatusToolStripMenuItem.Name = "setApprovedStatusToolStripMenuItem";
-			setApprovedStatusToolStripMenuItem.Size = new Size(304, 34);
+			setApprovedStatusToolStripMenuItem.Size = new Size(302, 34);
 			setApprovedStatusToolStripMenuItem.Text = "Опубликовать ТК";
 			setApprovedStatusToolStripMenuItem.Click += SetApprovedStatusToolStripMenuItem_Click;
+			// 
+			// ChangeIsDynamicToolStripMenuItem
+			// 
+			ChangeIsDynamicToolStripMenuItem.Name = "ChangeIsDynamicToolStripMenuItem";
+			ChangeIsDynamicToolStripMenuItem.Size = new Size(302, 34);
+			ChangeIsDynamicToolStripMenuItem.Text = "Сделать динамической";
+			ChangeIsDynamicToolStripMenuItem.Click += ChangeIsDynamicToolStripMenuItem_Click;
 			// 
 			// setRemarksModeToolStripMenuItem
 			// 
@@ -141,6 +149,12 @@
 			SetMachineCollumnModeToolStripMenuItem.Size = new Size(354, 34);
 			SetMachineCollumnModeToolStripMenuItem.Text = "Скрыть столбцы механизмов";
 			SetMachineCollumnModeToolStripMenuItem.Click += SetMachineCollumnModeToolStripMenuItem_Click;
+			// 
+			// действияToolStripMenuItem
+			// 
+			действияToolStripMenuItem.Name = "действияToolStripMenuItem";
+			действияToolStripMenuItem.Size = new Size(354, 34);
+			действияToolStripMenuItem.Text = "Действия";
 			// 
 			// toolStripExecutionScheme
 			// 
@@ -170,6 +184,7 @@
 			toolStripShowCoefficients.Name = "toolStripShowCoefficients";
 			toolStripShowCoefficients.Size = new Size(139, 29);
 			toolStripShowCoefficients.Text = "Коэффициенты";
+			toolStripShowCoefficients.Visible = false;
 			toolStripShowCoefficients.Click += toolStripShowCoefficients_Click;
 			// 
 			// btnShowStaffs
@@ -271,6 +286,7 @@
 			btnShowCoefficients.TabIndex = 34;
 			btnShowCoefficients.Text = "Коэффициенты";
 			btnShowCoefficients.UseVisualStyleBackColor = true;
+			btnShowCoefficients.Visible = false;
 			btnShowCoefficients.Click += btnShowCoefficients_Click;
 			// 
 			// buttonDiagram
@@ -293,13 +309,6 @@
 			pnlDataViewer.Name = "pnlDataViewer";
 			pnlDataViewer.Size = new Size(1410, 642);
 			pnlDataViewer.TabIndex = 35;
-			// 
-			// ChangeIsDynamicToolStripMenuItem
-			// 
-			ChangeIsDynamicToolStripMenuItem.Name = "ChangeIsDynamicToolStripMenuItem";
-			ChangeIsDynamicToolStripMenuItem.Size = new Size(304, 34);
-			ChangeIsDynamicToolStripMenuItem.Text = "Сделать Динамической";
-			ChangeIsDynamicToolStripMenuItem.Click += ChangeIsDynamicToolStripMenuItem_Click;
 			// 
 			// Win6_new
 			// 
@@ -351,5 +360,6 @@
 		private Button btnShowCoefficients;
 		private ToolStripButton toolStripShowCoefficients;
 		private ToolStripMenuItem ChangeIsDynamicToolStripMenuItem;
+		private ToolStripMenuItem действияToolStripMenuItem;
 	}
 }

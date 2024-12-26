@@ -11,7 +11,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TC_WinForms.WinForms.Win6.Models;
 
-public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, IOnActivationForm
+public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, IOnActivationForm, IDynamicForm
 	where T : BaseDisplayedEntity, new() //class, IFormulaItem, IIntermediateDisplayedEntity, INotifyPropertyChanged, new()
 	where TIntermediate : IIntermediateTableIds, IUpdatableEntity, new()
 {
@@ -35,10 +35,13 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 	}
 
 
-	private void UpdateDynamicCardParametrs()
+	public void UpdateDynamicCardParametrs()
 	{
 		// скрывть столбец с коэффициентами
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].Visible = _tcViewState.IsViewMode ? false : _tcViewState.TechnologicalCard.IsDynamic;
+		
+		if(_tcViewState.TechnologicalCard.IsDynamic && !_tcViewState.IsViewMode)
+			LoadObjects();
 	}
 	// Дочерние формы определят конкретную загрузку объектов
 	protected abstract void LoadObjects();
