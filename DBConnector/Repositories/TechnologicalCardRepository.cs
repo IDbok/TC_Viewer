@@ -72,7 +72,11 @@ public class TechnologicalCardRepository
                     .Where(st => st.ParentId == _tcId)
                     .ToListAsync();
 
-                return techCard;
+                var coefficients = await context.Coefficients
+					.Where(c => c.TechnologicalCardId == _tcId)
+					.ToListAsync();
+
+				return techCard;
             }
         }
         catch (Exception ex)

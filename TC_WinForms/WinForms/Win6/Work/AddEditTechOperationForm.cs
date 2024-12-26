@@ -9,6 +9,7 @@ using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win6.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using static Antlr4.Runtime.Atn.SemanticContext;
 using Component = TcModels.Models.TcContent.Component;
 using Machine = TcModels.Models.TcContent.Machine;
 
@@ -117,8 +118,10 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewPovtor.CellFormatting += dataGridViewPovtor_CellFormatting;
             dataGridViewPovtor.SelectionChanged += DataGridViewPovtor_SelectionChanged;
             dataGridViewPovtor.CellValidating += CellValidating;
+			dataGridViewPovtor.CellEndEdit += DataGridViewPovtor_CellEndEdit;
 
-            comboBoxFiltrCategor.SelectedIndexChanged += ComboBoxFiltrCategor_SelectedIndexChanged;
+
+			comboBoxFiltrCategor.SelectedIndexChanged += ComboBoxFiltrCategor_SelectedIndexChanged;
             comboBoxFilterComponent.SelectedIndexChanged += ComboBoxFilterComponent_SelectedIndexChanged;
 
             textBoxPoiskTo.TextChanged += TextBoxPoiskTo_TextChanged;
@@ -163,7 +166,41 @@ namespace TC_WinForms.WinForms.Work
            _logger.Information("Все события для элементов интерфейса настроены.");
         }
 
-        private void ComboBoxTT_SelectedIndexChanged(object? sender, EventArgs e)
+		private void DataGridViewPovtor_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+		{
+			// todo: реализовать пресчёт значения
+			if (e.ColumnIndex == 5 && e.RowIndex >= 0)
+			{
+				var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
+				var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[1].Value;
+
+				if (executionWorkPovtor != null)
+				{
+					var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
+						.FirstOrDefault(x => x.ChildExecutionWork == currentEW);
+
+
+					var cell = dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+					if (isSelected)
+					{
+
+						RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
+						TechOperationForm.UpdateGrid();
+					}
+					else
+					{
+						// отмена изменений
+						cell.Value = null;
+
+					}
+
+					UpdateLocalTP();
+				}
+			}
+		}
+
+		private void ComboBoxTT_SelectedIndexChanged(object? sender, EventArgs e)
         {
             HighlightTOTTRow(true);
 
@@ -571,13 +608,8 @@ namespace TC_WinForms.WinForms.Work
                 var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
                 if (wor != null)
                 {
-
                     var oldValue = wor.Coefficient;
 
-                    if (oldValue == gg)
-                    {
-                        return;
-                    }
                     try
 					{
 						wor.Coefficient = gg ?? "";
@@ -958,6 +990,8 @@ namespace TC_WinForms.WinForms.Work
 
         public void UpdateLocalTP()
         {
+            if (dataGridViewTPLocal == null) return;
+
             var selectedTP = SelectedTP;
             var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
 
@@ -2597,7 +2631,6 @@ namespace TC_WinForms.WinForms.Work
                     var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
                         .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
 
-
 					var cell = dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex];
 
 					if (isSelected)
@@ -3045,7 +3078,78 @@ namespace TC_WinForms.WinForms.Work
 
 		public void OnActivate()
 		{
-			MessageBox.Show("OnActivate");
+			// пересчитать значения для ТП и Повторов
+			RecalculateAllTPValues();
+            RecalculateAllRepeatsValues();
+
+			TechOperationForm.UpdateGrid();
+		}
+
+		private void RecalculateAllTPValues()
+		{
+			try
+			{
+
+				foreach (var techOperationWork in TechOperationForm.TechOperationWorksList)
+			    {
+				    foreach (var executionWork in techOperationWork.executionWorks)
+				    {
+                        try
+						{
+							var techTransition = executionWork.techTransition;
+
+							if (techTransition == null)
+								throw new Exception("Технологический переход не найден.");
+                            var time = techTransition.TimeExecution.ToString().Replace(",", ".");
+							var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+							var coefficient = executionWork.Coefficient;
+
+                            if(string.IsNullOrEmpty(coefficient))
+							{
+								executionWork.Value = double.TryParse(time, out var value) ? value : 0;
+								continue;
+							}
+							executionWork.Value = MathScript.EvaluateCoefficientExpression(coefficient, coefDict, time);
+						}
+						catch (Exception ex)
+						{
+							string errorMessage = ex.InnerException?.Message ?? ex.Message;
+							executionWork.Value = -1;
+							throw new Exception($"Ошибка при расчёте времени перехода:\n\n{errorMessage}");
+						}
+
+					}
+			    }
+			}
+			catch (Exception ex)
+			{
+				string errorMessage = ex.InnerException?.Message ?? ex.Message;
+				MessageBox.Show(errorMessage, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+            finally
+            {
+                // todo: реализовать обновление только ячейки времени выполнения, а не всей таблицы
+                BeginInvoke(new Action(() =>
+                {
+                    UpdateLocalTP();
+                }));
+            }
+        }
+        private void RecalculateAllRepeatsValues()
+        {
+			try
+			{
+                var allRepeats = TechOperationForm.TechOperationWorksList.SelectMany(w => w.executionWorks.Where(ew => ew.Repeat)).ToList();
+				foreach (var repeat in allRepeats)
+				{
+					RecalculateExecutionWorkPovtorValue(repeat);
+				}
+			}
+			catch (Exception ex)
+			{
+				string errorMessage = ex.InnerException?.Message ?? ex.Message;
+				MessageBox.Show(errorMessage, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 	}
 }

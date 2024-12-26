@@ -85,7 +85,10 @@ namespace TcModels.Models
             CreateMap<Machine_TC, Machine_TC>()
                         .ForMember(dest => dest.ParentId, opt => opt.Ignore());
 
-            CreateMap<TechnologicalCard, TechnologicalCard>()
+			CreateMap<Coefficient, Coefficient>()
+						.ForMember(dest => dest.Id, opt => opt.Ignore());
+
+			CreateMap<TechnologicalCard, TechnologicalCard>()
                         .ForMember(dest => dest.Id, opt => opt.Ignore())
                         .ForMember(dest => dest.TechOperationWorks, opt => opt.Ignore())
                         .ForMember(dest => dest.DiagamToWork, opt => opt.Ignore());

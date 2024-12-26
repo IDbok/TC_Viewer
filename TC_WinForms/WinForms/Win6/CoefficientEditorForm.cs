@@ -41,6 +41,10 @@ public partial class CoefficientEditorForm : Form
 
 		InitializeData();
 
+		this.FormClosed += (sender, e) => {
+			_logger.Information("Форма закрыта");
+			//this.Dispose();
+		};
 	}
 
 	private void InitializeData()

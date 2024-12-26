@@ -32,11 +32,13 @@ internal class Program
     {
         Console.WriteLine("Hello, World!");
 
-        // получить ТК по id
-        TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
+		// получить ТК по id
+		//TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
 
-        MapLogsToExcel();
+		//MapLogsToExcel();
 
+		// вывести в консоль имя пользователя windows
+		Console.WriteLine(Environment.UserName);
 
 		Console.ReadLine();
     }
