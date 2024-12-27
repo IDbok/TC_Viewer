@@ -84,27 +84,13 @@ namespace TC_WinForms.WinForms
 			this.KeyDown += ControlSaveEvent;
 
 			FormClosed += (s, e) => ThisFormClosed();
-
-			SetDynamicCardParametrs();
 		}
 
-		private void SetDynamicCardParametrs(bool isCardDynamic = false)
+		private void UpdateDynamicCardParametrs()
 		{
-			//isCardDynamic = tcViewState.IsViewMode ? false : isCardDynamic;
+			toolStripShowCoefficients.Visible = tcViewState.IsViewMode ? false : _tc.IsDynamic;
 
-			// удалить кнопку вызова формы коэффициентов
-			//btnShowCoefficients.Visible = isCardDynamic;
-			toolStripShowCoefficients.Visible = isCardDynamic;
-
-			// изменяем параметры для форм использующих коэффициенты
-			//foreach (var form in _formsCache.Values)
-			//{
-			//	// is form is ISaveEventForm
-			//	if (form is IViewModeable cashForms)
-			//	{
-			//		cashForms.SetViewMode(tcViewState.IsViewMode);
-			//	}
-			//}
+			UpdateIsDynamicButtonText();
 		}
 
 		private void ThisFormClosed()
@@ -130,6 +116,7 @@ namespace TC_WinForms.WinForms
 						setRemarksModeToolStripMenuItem.Enabled = false;
 					}
 					ChangeIsDynamicToolStripMenuItem.Visible = false;
+
 				},
 
 				[User.Role.ProjectManager] = () =>
@@ -228,7 +215,7 @@ namespace TC_WinForms.WinForms
 				}
 			}
 
-			SetDynamicCardParametrs(tcViewState.IsViewMode ? false : _tc.IsDynamic);
+			UpdateDynamicCardParametrs();
 		}
 
 		#region SetTcData
@@ -429,7 +416,7 @@ namespace TC_WinForms.WinForms
 
 				SetViewMode();
 
-				SetDynamicCardParametrs(tcViewState.IsViewMode ? false : _tc.IsDynamic);
+				UpdateDynamicCardParametrs();
 
 				_logger.Information("Форма загружена успешно для TcId={TcId}", _tcId);
 			}
@@ -1203,22 +1190,22 @@ namespace TC_WinForms.WinForms
 		private void ChangeIsDynamicToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			// Проверка существующего статуса
-			if(_tc.IsDynamic)
+			if (_tc.IsDynamic)
 			{
 				// Если карта динамическая, то
 				// 1. проверяем наличие коэфиициентов в карте
 				var coefficients = _tc.Coefficients;
 				// 1.1. если коэффициенты присутствуют, то
-				if (coefficients != null && coefficients.Count > 0) 
+				if (coefficients != null && coefficients.Count > 0)
 				{
 					var coefDict = coefficients.ToDictionary(c => c.Code, c => c.Value);
 
 					// 1.1.1 во всех сущностях, где они используются, заменяем на их значения
 					// Выделить в отдельный список все сущности, где используются коэффициенты
 					List<IDynamicValue> dynamicValues = new List<IDynamicValue>();
-					foreach (var obj  in _tc.Component_TCs)//.Where(c => c.ParentId == _tc.Id))
+					foreach (var obj in _tc.Component_TCs)//.Where(c => c.ParentId == _tc.Id))
 					{
-						if(obj != null && obj is IDynamicValue)
+						if (obj != null && obj is IDynamicValue)
 							AddToDynamicList(dynamicValues, obj);
 					}
 					foreach (var obj in _tc.Tool_TCs)//.Where(c => c.ParentId == _tc.Id))
@@ -1237,10 +1224,10 @@ namespace TC_WinForms.WinForms
 							AddToDynamicList(dynamicValues, obj);
 					}
 
-					var executionWorks = context.ExecutionWorks.Where(ew => ew.techOperationWork.TechnologicalCardId == _tc.Id).ToList();
+					var executionWorks = _tc.TechOperationWorks.SelectMany(tow => tow.executionWorks).ToList();
 					var executionWorksWithCoefficients = executionWorks.Where(ew => !string.IsNullOrEmpty(ew.Coefficient) && ew.Coefficient.Contains(Coefficient.FirstLetter)).ToList();
 
-					var executionWorksRepeats = context.ExecutionWorkRepeats.Where(ewr => ewr.ParentExecutionWork.techOperationWork.TechnologicalCardId == _tc.Id).ToList();
+					var executionWorksRepeats = executionWorks.SelectMany(ew => ew.ExecutionWorkRepeats).ToList();//context.ExecutionWorkRepeats.Where(ewr => ewr.ParentExecutionWork.techOperationWork.TechnologicalCardId == _tc.Id).ToList();
 					var executionWorkRepeatsWithCoefficients = executionWorksRepeats
 						.Where(ewr => !string.IsNullOrEmpty(ewr.NewCoefficient) && ewr.NewCoefficient.Contains(Coefficient.FirstLetter)).ToList();
 
@@ -1262,15 +1249,12 @@ namespace TC_WinForms.WinForms
 					}
 				}
 				// 1.2. если коэффициенты отсутствуют, то дополнительно ничего делать не надо
-				
+
 				// Удаляем все коэффициенты
 				_tc.Coefficients.Clear();
 				// 2. изменяем статус на не динамический
 				_tc.IsDynamic = false;
 				// 3. закрываем доступ к коэффициентам
-				
-
-				ChangeIsDynamicToolStripMenuItem.Text = "Сделать динамической";
 			}
 			else
 			{
@@ -1278,10 +1262,9 @@ namespace TC_WinForms.WinForms
 				_tc.IsDynamic = true;
 				// и открываем доступ к коэффициентам
 
-				ChangeIsDynamicToolStripMenuItem.Text = "Сделать не динамической";
 			}
 
-			SetDynamicCardParametrs(_tc.IsDynamic);
+			UpdateDynamicCardParametrs();
 
 			foreach (var form in _formsCache.Values)
 			{
@@ -1300,6 +1283,11 @@ namespace TC_WinForms.WinForms
 					dynamicValues.Add(obj);
 				}
 			}
+		}
+
+		private void UpdateIsDynamicButtonText()
+		{
+			ChangeIsDynamicToolStripMenuItem.Text = _tc.IsDynamic ? "Сделать не динамической" : "Сделать динамической";
 		}
 	}
 

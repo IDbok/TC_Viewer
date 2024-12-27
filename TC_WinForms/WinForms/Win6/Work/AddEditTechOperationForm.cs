@@ -2762,11 +2762,12 @@ namespace TC_WinForms.WinForms.Work
 		{
 			double totalValue = 0;
 			try
-            {
+			{
+				var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+
 				foreach (var repeat in executionWorkPovtor.ExecutionWorkRepeats)
 				{
 					var value = repeat.ChildExecutionWork.Value;
-					var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
 
 					totalValue += MathScript.EvaluateCoefficientExpression(repeat.NewCoefficient, coefDict, value.ToString());
 				}

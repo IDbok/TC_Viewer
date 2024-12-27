@@ -39,8 +39,13 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 	{
 		// скрывть столбец с коэффициентами
 		DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].Visible = _tcViewState.IsViewMode ? false : _tcViewState.TechnologicalCard.IsDynamic;
-		
-		if(_tcViewState.TechnologicalCard.IsDynamic && !_tcViewState.IsViewMode)
+
+		DgvMain.Columns[nameof(BaseDisplayedEntity.Quantity)].DefaultCellStyle.BackColor = 
+			_tcViewState.IsViewMode || _tcViewState.TechnologicalCard.IsDynamic ? Color.White : Color.LightGray;
+
+		DgvMain.Columns[nameof(BaseDisplayedEntity.Quantity)].ReadOnly = _tcViewState.IsViewMode || _tcViewState.TechnologicalCard.IsDynamic;
+
+		if (_tcViewState.TechnologicalCard.IsDynamic && !_tcViewState.IsViewMode)
 			LoadObjects();
 	}
 	// Дочерние формы определят конкретную загрузку объектов
