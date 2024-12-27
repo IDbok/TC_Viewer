@@ -36,7 +36,7 @@ namespace TC_WinForms.DataProcessing
                                 return;
                             }
                             var excelExporter = new DiagramExcelExporter();
-                            excelExporter.ExportDiadramToExel(tcID, saveFileDialog.FileName);
+                            await excelExporter.ExportDiadramToExel(tcID, saveFileDialog.FileName);
                         }
                         catch (Exception ex)
                         {
