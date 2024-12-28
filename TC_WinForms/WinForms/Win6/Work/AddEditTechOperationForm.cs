@@ -2798,8 +2798,10 @@ namespace TC_WinForms.WinForms.Work
 
         private void UpdateRelatedReplays(ExecutionWork updatedExecutionWork)
         {
-            var relatedReplays = TechOperationForm.context.ExecutionWorks.Where(ew => ew.Repeat && ew.ExecutionWorkRepeats.Any(r => r.ChildExecutionWorkId == updatedExecutionWork.Id)).ToList();
-            foreach (var executionWork in relatedReplays)
+            var allExecutionWorks = _tcViewState.GetAllExecutionWorks();
+            var allRepeats = allExecutionWorks.Where(ew => ew.Repeat && ew.ExecutionWorkRepeats.Any(e => e.ChildExecutionWorkId == updatedExecutionWork.Id));
+
+            foreach (var executionWork in allRepeats)
             {
                 CheckAreCoefficientUpdate(null, executionWork);
             }
