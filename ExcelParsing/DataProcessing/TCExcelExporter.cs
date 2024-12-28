@@ -1,13 +1,11 @@
-﻿using OfficeOpenXml.Style;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System.Drawing;
+using System.Text;
+using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
-using System.Text;
-using System;
-using TcDbConnector;
-using System.Reflection.PortableExecutable;
 
 namespace ExcelParsing.DataProcessing
 {
@@ -190,7 +188,9 @@ namespace ExcelParsing.DataProcessing
                 sheet.Cells[currentRow, columnNums[3]].Style.WrapText = true;
                 sheet.Cells[currentRow, columnNums[4]].Style.WrapText = true;
 
+                sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 sheet.Cells[currentRow, columnNums[4]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                sheet.Cells[currentRow, columnNums[5]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                 // Объединение ячеек между столбцами
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
@@ -268,6 +268,7 @@ namespace ExcelParsing.DataProcessing
                 sheet.Cells[currentRow, columnNums[2]].Style.WrapText = true;
 
                 sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                sheet.Cells[currentRow, columnNums[6]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                 // Объединение ячеек между столбцами
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
@@ -649,6 +650,7 @@ namespace ExcelParsing.DataProcessing
             _exporter.ColorizeEditableColumn(sheet, headersColumns["Примечание"], headRow + 1, currentRow - 1);
             sheet.Cells[headRow + 1, headersColumns["Примечание"], currentRow - 1, headersColumns["Примечание"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             _exporter.ColorizeEditableColumn(sheet, headersColumns["Рисунок"], headRow + 1, currentRow - 1);
+            sheet.Cells[headRow + 1, headersColumns["Рисунок"], currentRow - 1, headersColumns["Рисунок"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
             return currentRow;
 
@@ -1051,6 +1053,7 @@ namespace ExcelParsing.DataProcessing
 
             // Установка размера бумаги: A4
             printerSettings.PaperSize = ePaperSize.A4;
+            printerSettings.Scale = 85;
 
             // Установка полей страницы (в сантиметрах, если в дюймах - нужно умножить на 2.54)
             printerSettings.TopMargin = 1.0m / 2.54m;
