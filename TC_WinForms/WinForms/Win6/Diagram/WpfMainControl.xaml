@@ -7,11 +7,21 @@
              xmlns:converters="clr-namespace:TC_WinForms.WinForms.Diagram.Converters"
              mc:Ignorable="d" 
              Loaded="OnLoad">
+    <!--PreviewKeyDown="UserControl_PreviewKeyDown">-->
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
-    
-    <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+
+    <!--Контейнер для масштабирование БС-->
+    <!--<Grid>
+        <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+                  ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.LayoutTransform>
+                    <ScaleTransform x:Name="ContentScaleTransform" ScaleX="1" ScaleY="1" />
+                </Grid.LayoutTransform>-->
+
+                <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" 
                   ScrollViewer.VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <d:StackPanel HorizontalAlignment="Left">
@@ -42,4 +52,8 @@
             
         </StackPanel>
     </ScrollViewer>
+
+    <!--</Grid>
+    </ScrollViewer>
+    </Grid>-->
 </UserControl>

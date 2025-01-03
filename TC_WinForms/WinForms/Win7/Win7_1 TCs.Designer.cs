@@ -66,7 +66,7 @@
 			dgvMain.RowHeadersWidth = 51;
 			dgvMain.RowTemplate.Height = 29;
 			dgvMain.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-			dgvMain.Size = new Size(1430, 462);
+			dgvMain.Size = new Size(1430, 427);
 			dgvMain.TabIndex = 0;
 			// 
 			// pnlControls
@@ -77,7 +77,7 @@
 			pnlControls.Location = new Point(0, 0);
 			pnlControls.Margin = new Padding(4, 3, 4, 3);
 			pnlControls.Name = "pnlControls";
-			pnlControls.Size = new Size(1430, 101);
+			pnlControls.Size = new Size(1430, 136);
 			pnlControls.TabIndex = 1;
 			// 
 			// pnlFilters
@@ -94,7 +94,7 @@
 			pnlFilters.Location = new Point(0, 0);
 			pnlFilters.Margin = new Padding(4, 3, 4, 3);
 			pnlFilters.Name = "pnlFilters";
-			pnlFilters.Size = new Size(609, 101);
+			pnlFilters.Size = new Size(609, 136);
 			pnlFilters.TabIndex = 25;
 			// 
 			// lblStatusFilter
@@ -114,7 +114,7 @@
 			cbxStatusFilter.Name = "cbxStatusFilter";
 			cbxStatusFilter.Size = new Size(160, 33);
 			cbxStatusFilter.TabIndex = 28;
-			cbxStatusFilter.Visible = false;
+			cbxStatusFilter.SelectedIndexChanged += cbxStatusFilter_SelectedIndexChanged;
 			// 
 			// lblType
 			// 
@@ -179,7 +179,7 @@
 			pnlControlBtns.Location = new Point(609, 0);
 			pnlControlBtns.Margin = new Padding(4, 3, 4, 3);
 			pnlControlBtns.Name = "pnlControlBtns";
-			pnlControlBtns.Size = new Size(821, 101);
+			pnlControlBtns.Size = new Size(821, 136);
 			pnlControlBtns.TabIndex = 24;
 			// 
 			// btnViewMode
@@ -235,16 +235,16 @@
 			pnlDataViewer.Controls.Add(progressBar);
 			pnlDataViewer.Controls.Add(dgvMain);
 			pnlDataViewer.Dock = DockStyle.Fill;
-			pnlDataViewer.Location = new Point(0, 101);
+			pnlDataViewer.Location = new Point(0, 136);
 			pnlDataViewer.Margin = new Padding(4, 3, 4, 3);
 			pnlDataViewer.Name = "pnlDataViewer";
-			pnlDataViewer.Size = new Size(1430, 462);
+			pnlDataViewer.Size = new Size(1430, 427);
 			pnlDataViewer.TabIndex = 2;
 			// 
 			// progressBar
 			// 
 			progressBar.Anchor = AnchorStyles.None;
-			progressBar.Location = new Point(441, 83);
+			progressBar.Location = new Point(441, 65);
 			progressBar.MarqueeAnimationSpeed = 30;
 			progressBar.Name = "progressBar";
 			progressBar.Size = new Size(564, 33);

@@ -59,9 +59,10 @@ namespace TC_WinForms
             catch (Exception ex)
             {
                 Log.Fatal(ex, "Application crashed");
-                MessageBox.Show("Произошла ошибка при запуске приложения. Подробности в логах.",
-                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+
+				MessageBox.Show("Произошла ошибка при запуске приложения:" +"\n" + ex,
+					"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
             finally
             {
                 Log.Information("Application stopped");

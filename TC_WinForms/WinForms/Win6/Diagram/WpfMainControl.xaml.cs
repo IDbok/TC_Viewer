@@ -3,6 +3,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models;
@@ -555,7 +557,34 @@ namespace TC_WinForms.WinForms.Diagram
                 System.Windows.Forms.MessageBox.Show($"Ошибка переинициализации формы: {ex.Message}");
             }
         }
-    }
+		//private void UserControl_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+		//{
+		//	if (Keyboard.Modifiers == ModifierKeys.Control)
+		//	{
+		//		// Проверяем, является ли Transform ScaleTransform
+		//		if (ContentScaleTransform is ScaleTransform scaleTransform)
+		//		{
+		//			if (e.Key == Key.OemPlus || e.Key == Key.Add) // Ctrl + '+'
+		//			{
+		//				scaleTransform.ScaleX += 0.1;
+		//				scaleTransform.ScaleY += 0.1;
+		//				e.Handled = true;
+		//			}
+		//			else if (e.Key == Key.OemMinus || e.Key == Key.Subtract) // Ctrl + '-'
+		//			{
+		//				scaleTransform.ScaleX = Math.Max(0.1, scaleTransform.ScaleX - 0.1);
+		//				scaleTransform.ScaleY = Math.Max(0.1, scaleTransform.ScaleY - 0.1);
+		//				e.Handled = true;
+		//			}
+		//		}
+		//	}
+		//}
+
+
+
+
+
+	}
 
 
 
