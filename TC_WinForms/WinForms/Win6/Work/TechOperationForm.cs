@@ -1,11 +1,7 @@
-﻿using System.Data;
-using System.DirectoryServices.ActiveDirectory;
-using System.Drawing.Printing;
-using System.Linq;
-using System.Text;
-using ExcelParsing.DataProcessing;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Data;
+using System.Text;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
@@ -27,8 +23,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	private readonly TcViewState _tcViewState;
 
-    private bool _isViewMode;
-    private bool _isCommentViewMode;
+    //private bool _isViewMode;
+    //private bool _isCommentViewMode;
     private bool _isMachineViewMode;
 
     public MyDbContext context { get; private set; }
@@ -88,255 +84,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         this.Enabled = true;
     }
 
-    private async Task LoadDataAsync(int tcId)
-    {
-        // Загрузка в контекст данных о вложенных сущностях Staff
-        //context.Staff_TCs.Where(w => w.ParentId == this.tcId).Include(t => t.Child);
-
-        // подсчёт времени выполнения запроса
-        double tcLoad = 0;
-        double towLoad = 0;
-
-        var sw = new System.Diagnostics.Stopwatch();
-
-        TehCarta = await context.TechnologicalCards
-
-            .Include(t => t.Machines)
-            .Include(t => t.Machine_TCs)
-            .Include(t => t.Protection_TCs)
-            .Include(t => t.Tool_TCs)
-            .Include(t => t.Component_TCs)
-
-            .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
-
-            .FirstAsync(s => s.Id == tcId);
-
-        tcLoad = sw.Elapsed.TotalMilliseconds;
-
-        sw.Restart();
-
-        TechOperationWorksList = await context.TechOperationWorks
-            .Where(w => w.TechnologicalCardId == tcId)
-
-                .Include(i => i.techOperation)
-
-                .Include(r => r.executionWorks).ThenInclude(t => t.techTransition)
-                .Include(r => r.executionWorks).ThenInclude(t => t.Protections)
-                .Include(r => r.executionWorks).ThenInclude(t => t.Machines)
-                .Include(r => r.executionWorks).ThenInclude(t => t.Staffs)
-                .Include(r => r.executionWorks).ThenInclude(t => t.ExecutionWorkRepeats)
-
-                .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
-                .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
-
-            .ToListAsync();
-
-        towLoad = sw.Elapsed.TotalMilliseconds;
-        sw.Stop();
-
-        if (Program.IsTestMode)
-            MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
-    }
-
-    //private async Task LoadDataAsync6(int tcId)
-    //{
-    //    // Подсчёт времени выполнения запроса
-    //    double tcLoad = 0;
-    //    double towLoad = 0;
-
-    //    var sw = new System.Diagnostics.Stopwatch();
-    //    sw.Start();
-
-    //    TehCarta = await context.TechnologicalCards
-
-    //        .Include(t => t.Machines)
-    //        .Include(t => t.Machine_TCs)
-    //        .Include(t => t.Protection_TCs)
-    //        .Include(t => t.Tool_TCs)
-    //        .Include(t => t.Component_TCs)
-
-    //        .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
-
-    //        .FirstAsync(s => s.Id == tcId);
-
-    //    tcLoad = sw.Elapsed.TotalMilliseconds;
-    //    sw.Restart();
-
-    //    TechOperationWorksList = await context.TechOperationWorks
-    //        .Where(w => w.TechnologicalCardId == tcId)
-    //            .Include(i => i.techOperation)
-    //            .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
-    //            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
-    //        .ToListAsync();
-
-    //    foreach (var tow in TechOperationWorksList)
-    //    {
-    //        // Загружаем executionWorks для текущего tow по частям с жадной загрузкой связанных данных
-    //        tow.executionWorks = await context.ExecutionWorks
-    //            .Where(ew => ew.techOperationWorkId == tow.Id)
-    //            .Include(ew => ew.techTransition) 
-    //            .Include(ew => ew.Protections) 
-    //            .Include(ew => ew.Machines) 
-    //            .Include(ew => ew.Staffs) 
-    //            .Include(ew => ew.ExecutionWorkRepeats)
-            
-    //            .ToListAsync();
-    //    }
-
-    //    towLoad = sw.Elapsed.TotalMilliseconds;
-    //    sw.Stop();
-
-    //    // Выводим время выполнения (для режима тестирования)
-    //    if (Program.IsTestMode)
-    //        MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
-    //}
-    //private async Task LoadDataAsync7(int tcId)
-    //{
-    //    // Подсчёт времени выполнения запроса
-    //    double tcLoad = 0;
-    //    double towLoad = 0;
-
-    //    var sw = new System.Diagnostics.Stopwatch();
-    //    sw.Start();
-
-    //    // 1. Загружаем TehCarta с использованием менее тяжёлого запроса
-    //    TehCarta = await context.TechnologicalCards
-    //        .Include(t => t.Machines)
-    //        .Include(t => t.Machine_TCs)
-    //        .Include(t => t.Protection_TCs)
-    //        .Include(t => t.Tool_TCs)
-    //        .Include(t => t.Component_TCs)
-    //        .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
-    //        .FirstAsync(s => s.Id == tcId);
-
-    //    tcLoad = sw.Elapsed.TotalMilliseconds;
-    //    sw.Restart();
-
-    //    // 2. Загружаем TechOperationWorks отдельно
-    //    TechOperationWorksList = await context.TechOperationWorks
-    //        .Where(w => w.TechnologicalCardId == tcId)
-    //        .Include(i => i.techOperation)
-    //        .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
-    //        .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
-    //        .ToListAsync();
-
-    //    // 3. Используем параллельную загрузку executionWorks для каждого TechOperationWork
-    //    var loadExecutionWorksTasks = TechOperationWorksList.Select(async tow =>
-    //    {
-    //        // Загружаем executionWorks для текущего tow с жадной загрузкой связанных данных
-    //        tow.executionWorks = await context.ExecutionWorks
-    //            .Where(ew => ew.techOperationWorkId == tow.Id)
-    //            .Include(ew => ew.techTransition)
-    //            .Include(ew => ew.Protections)
-    //            .Include(ew => ew.Machines)
-    //            .Include(ew => ew.Staffs)
-    //            .Include(ew => ew.ExecutionWorkRepeats)
-    //            .ToListAsync();
-    //    });
-
-    //    // Ожидаем выполнения всех запросов параллельно
-    //    await Task.WhenAll(loadExecutionWorksTasks);
-
-    //    towLoad = sw.Elapsed.TotalMilliseconds;
-    //    sw.Stop();
-
-    //    //// Выводим время выполнения (для режима тестирования)
-    //    //if (Program.isTestMode)
-    //    //    MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
-    //}
-
-    private async Task LoadDataAsync8(int tcId)
-    {
-        // Подсчёт времени выполнения запроса
-        double tcLoad = 0;
-        double towLoad = 0;
-
-        var sw = new System.Diagnostics.Stopwatch();
-        sw.Start();
-
-        // 1. Загружаем TechnologicalCard отдельно без связанных данных
-        TehCarta = await context.TechnologicalCards
-            .FirstAsync(t => t.Id == tcId);
-
-        // 2. Загружаем все связанные данные отдельными запросами
-
-        // Machine_TCs
-        var machineTcs = await context.Machine_TCs
-            .Where(m => m.ParentId == tcId).Include(m => m.Child)
-            .ToListAsync();
-
-        // Protection_TCs
-        var protectionTcs = await context.Protection_TCs
-            .Where(pt => pt.ParentId == tcId).Include(m => m.Child)
-            .ToListAsync();
-
-        // Tool_TCs
-        var toolTcs = await context.Tool_TCs
-            .Where(tt => tt.ParentId == tcId).Include(m => m.Child)
-            .ToListAsync();
-
-        // Component_TCs
-        var componentTcs = await context.Component_TCs
-            .Where(ct => ct.ParentId == tcId).Include(m => m.Child)
-            .ToListAsync();
-
-        // Staff_TCs
-        var staffTcs = await context.Staff_TCs
-            .Where(st => st.ParentId == tcId).Include(m => m.Child)
-            .ToListAsync();
-
-        
-
-        tcLoad = sw.Elapsed.TotalMilliseconds;
-        sw.Restart();
-
-        // 3. Загружаем TechOperationWorks
-        TechOperationWorksList = await context.TechOperationWorks
-            .Where(w => w.TechnologicalCardId == tcId)
-            .Include(i => i.techOperation)
-            .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
-            .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
-            .ToListAsync();
-
-        // 4. Загружаем ExecutionWorks для всех TechOperationWorks
-        var techOperationWorkIds = TechOperationWorksList.Select(tow => tow.Id).ToList();
-
-        var executionWorks = await context.ExecutionWorks
-            .Where(ew => techOperationWorkIds.Contains(ew.techOperationWorkId))
-            .Include(ew => ew.techTransition)
-            .Include(ew => ew.Protections)
-            .Include(ew => ew.Machines)
-            .Include(ew => ew.Staffs)
-            .Include(ew => ew.ExecutionWorkRepeats)
-            .ToListAsync();
-
-
-        //// 5. Присваиваем загруженные данные вручную родительским объектам
-        //foreach (var tow in TechOperationWorksList)
-        //{
-        //    tow.executionWorks = executionWorks
-        //        .Where(ew => ew.techOperationWorkId == tow.Id)
-        //        .ToList();
-        //}
-
-        // Присваиваем другие связанные данные (например, машины) аналогичным образом
-        
-        TehCarta.Machine_TCs = machineTcs;
-        TehCarta.Protection_TCs = protectionTcs;
-        TehCarta.Tool_TCs = toolTcs;
-        TehCarta.Component_TCs = componentTcs;
-        TehCarta.Staff_TCs = staffTcs;
-
-        towLoad = sw.Elapsed.TotalMilliseconds;
-        sw.Stop();
-
-        // Выводим время выполнения (для режима тестирования)
-        if (Program.IsTestMode)
-            MessageBox.Show($"TC: {tcLoad} ms, TOW: {towLoad} ms");
-    }
-
-
-
     public void SetCommentViewMode()
     {
         var isCommentViewMode = _tcViewState.IsCommentViewMode;
@@ -371,21 +118,312 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         UpdateGrid();
     }
 
-    private void Form_KeyDown(object sender, KeyEventArgs e)
+	#region Обработка нажатия клавиш (Ctrl + C / V) + вывод информации о выделении
+
+	/// <summary>
+	/// Обработчик события нажатия клавиш в форме.
+	/// </summary>
+	private void Form_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Control && e.KeyCode == Keys.V)
         {
-            PasteClipboardValue();
+			// Вставка данных из буфера обмена только если не включёр режим просмотра
+			if (_tcViewState.IsViewMode)
+				PasteClipboardValue();
+			else
+				PasteCopiedData();
+			
             e.Handled = true;
-        }
-        else if (e.KeyCode == Keys.Delete)
+		}
+        // Новая обработка Ctrl + C
+		else if (e.Control && e.KeyCode == Keys.C)
+		{
+            if (_tcViewState.IsViewMode)
+				CopyClipboardValue();
+			else
+				CopyData();     // Выводим информацию о выделении
+			e.Handled = true;
+		}
+		else if (e.KeyCode == Keys.Delete)
         {
             DeleteCellValue();
             e.Handled = true;
         }
     }
 
-    private void DeleteCellValue()
+	/// <summary>
+	/// Копирует информацию о выделенном объекта в зависимости от того, какая ячейка или какие строки выделены.
+	/// </summary>
+	private void CopyData()
+	{
+		GetSelectedDataInfo(
+            out List<int> selectedRowIndices, 
+            out CopyScopeEnum? copyScope);
+
+		if (selectedRowIndices.Count == 0)
+			return;
+
+		try
+		{
+            // Копируем текст ячейки в буфер обмена
+			CopyClipboardValue();
+			// Если копируются данные не из текстовой облости, то сохраняем их в TcCopyData
+			if (copyScope != CopyScopeEnum.Text)
+				TcCopyData.SetCopyDate(selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList(), copyScope);
+		}
+		catch
+		(Exception ex)
+		{
+			MessageBox.Show(ex.Message);
+			return;
+		}
+	}
+
+    private int? GetColumnIndex(CopyScopeEnum copyScope)
+    {
+		switch (copyScope)
+		{
+			case CopyScopeEnum.Staff:
+				return dgvMain.Columns["Staff"].Index;
+			case CopyScopeEnum.Protections:
+				return dgvMain.Columns["Protection"].Index;
+			case CopyScopeEnum.Text:
+				return dgvMain.Columns["Text"].Index;
+			case CopyScopeEnum.Machines:
+				return dgvMain.Columns["Machine"].Index;
+			case CopyScopeEnum.TechOperation:
+				return dgvMain.Columns["TechOperation"].Index;
+			default:
+				return null;
+		}
+	}
+
+	private void GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? copyScope)
+	{
+		// Соберём все уникальные индексы строк, где есть выделенные ячейки.
+		var selectedRows = dgvMain.SelectedCells
+			.Cast<DataGridViewCell>()
+			.Distinct()
+			.ToList();
+
+		selectedRowIndices = selectedRows
+			.Select(c => c.RowIndex)
+			.Distinct()
+			.OrderBy(idx => idx)
+			.ToList();
+		
+		copyScope = null;
+		if (selectedRowIndices.Count == 1 && dgvMain.SelectedCells.Count == 1)
+		{
+			// Одна ячейка
+			var cell = dgvMain.SelectedCells[0];
+			copyScope = GetCopyScopeByCell(cell);
+		}
+        else if (selectedRowIndices.Count > 1)
+        {
+            copyScope = CopyScopeEnum.RowRange;
+		}
+	}
+
+	private void PasteCopiedData()
+    {
+		List<int> selectedRowIndices;
+		CopyScopeEnum? copyScope;
+
+		GetSelectedDataInfo(out selectedRowIndices, out copyScope);
+
+		if (selectedRowIndices.Count == 0)
+			return;
+
+		if (copyScope == null)
+        {
+            MessageBox.Show("Не удалось определить тип копирования.");
+            return;
+		}    
+
+        if(TcCopyData.GetCopyTcId() != _tcId && copyScope != CopyScopeEnum.Text)
+		{
+			MessageBox.Show("Данные не могут быть вставлены в другую ТК.");
+			return;
+		}
+
+		var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
+
+		if (copyScope == CopyScopeEnum.Staff)
+		{
+			// проверяем есть ли в скопированных данных информация
+			if (TcCopyData.CopyScope != CopyScopeEnum.Staff) { return; }
+
+			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Персонал."); }
+			var setectedEw = selectedItems[0].executionWorkItem;
+			if (setectedEw == null)
+			{
+				MessageBox.Show("В данной строке невозможно вставить связь с Персоналом");
+				return;
+			}
+
+            UpdateStaffInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Staffs);
+		}
+		else if (copyScope == CopyScopeEnum.Protections)
+		{
+			// проверяем есть ли в скопированных данных информация
+			if (TcCopyData.CopyScope != CopyScopeEnum.Protections) { return; }
+
+			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных СЗ."); }
+			var setectedEw = selectedItems[0].executionWorkItem;
+			if (setectedEw == null)
+			{
+				MessageBox.Show("В данной строке невозможно вставить связь с СЗ");
+				return;
+			}
+
+			UpdateProtectionsInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Protections);
+		}
+		else if (copyScope == CopyScopeEnum.ToolOrComponents)
+		{
+            //MessageBox.Show("Вставка компонента/инструмента");
+		}
+		else if(copyScope == CopyScopeEnum.Text)
+        {
+            PasteClipboardValue();
+		}
+	}
+
+	private void UpdateStaffInRow(int rowIndices, ExecutionWork setectedEw, List<Staff_TC> copiedStaff)
+	{
+		// проверка на наличие изменений
+		if (setectedEw.Staffs.Count == copiedStaff.Count)
+		{
+			foreach (var staff in copiedStaff)
+			{
+				if (!setectedEw.Staffs.Contains(staff))
+				{
+					return;
+				}
+			}
+		}
+
+		var currentCopyScope = CopyScopeEnum.Staff;
+		var columnIndex = GetColumnIndex(currentCopyScope) 
+            ?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
+		var newStaffSymbols = "";
+		setectedEw.Staffs.Clear();
+
+		if (copiedStaff.Count > 0)
+		{
+			foreach (var staff in copiedStaff)
+			{
+				setectedEw.Staffs.Add(staff);
+			}
+
+			newStaffSymbols = string.Join(",", setectedEw.Staffs.Select(s => s.Symbol));
+		}
+
+		UpdateCellValue(rowIndices, (int)columnIndex, newStaffSymbols);
+	}
+
+	private void UpdateProtectionsInRow(int rowIndices, ExecutionWork setectedEw, List<Protection_TC> copiedProtections)
+	{
+		var currentCopyScope = CopyScopeEnum.Protections;
+		var protectionsList = setectedEw.Protections;
+		// проверка на наличие изменений
+		if (protectionsList.Count == copiedProtections.Count)
+		{
+			foreach (var obj in copiedProtections)
+			{
+				if (!protectionsList.Contains(obj))
+				{
+					return;
+				}
+			}
+		}
+
+		var columnIndex = GetColumnIndex(currentCopyScope)
+			?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
+		var newCellValue = "";
+		protectionsList.Clear();
+
+		if (copiedProtections.Count > 0)
+		{
+			foreach (var obj in copiedProtections)
+			{
+				protectionsList.Add(obj);
+			}
+            
+            var objectOrderList = protectionsList.Select(s => s.Order).ToList();
+			newCellValue = ConvertListToRangeString(objectOrderList);
+		}
+
+		UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
+	}
+
+	/// <summary>
+	/// Возвращает тип копирования по ячейке.
+	/// </summary>
+	/// <param name="copyScope"></param>
+	/// <param name="cell"></param>
+	/// <returns></returns>
+	private CopyScopeEnum? GetCopyScopeByCell(DataGridViewCell cell)
+	{
+        CopyScopeEnum? copyScope = null;
+		string columnName = dgvMain.Columns[cell.ColumnIndex].HeaderText;
+        int cellRowIndex = cell.RowIndex;
+
+		var techOperationDataGridItem = TechOperationDataGridItems[cellRowIndex];
+
+		switch (columnName)
+		{
+			case "Исполнитель":
+				copyScope = CopyScopeEnum.Staff;
+				break;
+			case "№ СЗ":
+				copyScope = CopyScopeEnum.Protections;
+				break;
+			case "Технологические операции":
+				copyScope = CopyScopeEnum.TechOperation;
+				break;
+            case "Технологические переходы":
+				if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
+					copyScope = CopyScopeEnum.ToolOrComponents;
+				else
+					copyScope = CopyScopeEnum.Row;
+                break;
+			case "Примечание":
+			case "Рис.":
+            case "Замечание":
+			case "Ответ":
+				copyScope = CopyScopeEnum.Text;
+				break;
+		}
+
+		return copyScope;
+	}
+
+	/// <summary>
+	/// Копирование значения текущей ячейки (если она не пустая) в буфер обмена.
+	/// </summary>
+	private void CopyClipboardValue()
+	{
+		if (dgvMain.CurrentCell != null)
+		{
+			var cellValue = dgvMain.CurrentCell.Value?.ToString();
+			if (!string.IsNullOrEmpty(cellValue))
+			{
+				Clipboard.SetText(cellValue);
+                //TcCopyData.SetCopyText(cellValue);
+			}
+			else
+			{
+                //TcCopyData.Clear();
+				Clipboard.Clear(); 
+			}
+		}
+	}
+
+	/// <summary>
+	/// Удаление значения из текущей ячейки (у вас уже реализовано).
+	/// </summary>
+	private void DeleteCellValue()
     {
         if (dgvMain.CurrentCell != null && !dgvMain.CurrentCell.ReadOnly)
         {
@@ -397,7 +435,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
     }
 
-    private void PasteClipboardValue()
+	/// <summary>
+	/// Вставка значения из буфера обмена в текущую ячейку (ваша логика уже была, оставим как есть).
+	/// </summary>
+	private void PasteClipboardValue()
     {
         if (dgvMain.CurrentCell != null && !dgvMain.CurrentCell.ReadOnly)
         {
@@ -413,7 +454,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
     }
 
-    private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+	#endregion
+
+	private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
         // todo: ненадёжный способ определения столбцов с комментариями
         if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)//dgvMain.ColumnCount-1)
@@ -567,7 +610,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             i++;
         }
 
-        dgvMain.Columns.Add("", "№ СЗ");
+        dgvMain.Columns.Add("Protection", "№ СЗ");
         dgvMain.Columns.Add("CommentColumn", "Примечание");
         dgvMain.Columns.Add("PictureNameColumn", "Рис.");
         dgvMain.Columns.Add("RemarkColumn", "Замечание");
@@ -710,7 +753,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     Comments = executionWork.Comments,
                     Vopros = executionWork.Vopros,
                     Otvet = executionWork.Otvet,
-                    executionWorkItem = executionWork,
+                    executionWorkItem = executionWork, // todo: зачем хранить 2 ссылки на объект ТП?
 
                     PictureName = executionWork.PictureName,
                     IdTO = techOperationWork.techOperation.Id
@@ -1798,4 +1841,54 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	//        }
 	//    }
 	//}
+
+	/// <summary>
+	/// Добавляет новую строку в dgvMain по указанному индексу.
+	/// </summary>
+	/// <param name="rowIndex">Индекс, по которому следует вставить строку.</param>
+	/// <param name="values">Массив значений для новой строки.</param>
+	public void AddRowByIndex(int rowIndex, object[] values)
+	{
+		if (rowIndex < 0 || rowIndex > dgvMain.Rows.Count)
+			throw new ArgumentOutOfRangeException(nameof(rowIndex),
+				"Индекс строки вне допустимого диапазона.");
+
+		// Проверяем, совпадает ли количество значений с количеством столбцов
+		if (values.Length != dgvMain.Columns.Count)
+		{
+			throw new ArgumentException("Количество переданных значений " +
+										"не совпадает с количеством столбцов в dgvMain.");
+		}
+
+		dgvMain.Rows.Insert(rowIndex, values);
+
+		// Можно добавить дополнительную логику форматирования
+		// (например, назначить цвет фона для ячеек или выставить ReadOnly)
+		// DataGridViewRow insertedRow = dgvMain.Rows[rowIndex];
+		// insertedRow.Cells[...].Style.BackColor = Color.LightYellow;
+	}
+
+	/// <summary>
+	/// Обновляет значение ячейки таблицы dgvMain по указанным индексам.
+	/// </summary>
+	/// <param name="rowIndex">Индекс строки.</param>
+	/// <param name="columnIndex">Индекс столбца.</param>
+	/// <param name="newValue">Новое значение ячейки.</param>
+	public void UpdateCellValue(int rowIndex, int columnIndex, object newValue)
+	{
+		if (rowIndex < 0 || rowIndex >= dgvMain.Rows.Count)
+			throw new ArgumentOutOfRangeException(nameof(rowIndex),
+				"Индекс строки вне допустимого диапазона.");
+
+		if (columnIndex < 0 || columnIndex >= dgvMain.Columns.Count)
+			throw new ArgumentOutOfRangeException(nameof(columnIndex),
+				"Индекс столбца вне допустимого диапазона.");
+
+		dgvMain.Rows[rowIndex].Cells[columnIndex].Value = newValue;
+
+		// Если нужно сразу же отобразить изменения в интерфейсе,
+		// можно принудительно вызвать перерисовку:
+		// dgvMain.Invalidate();
+	}
+
 }

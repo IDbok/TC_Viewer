@@ -11,7 +11,7 @@
     </UserControl.Resources>
     
     <Grid>
-        <Border BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" VerticalAlignment="Center"  Margin="5">
+        <Border BorderThickness="2" BorderBrush="Brown" HorizontalAlignment="Left" VerticalAlignment="Center"  Margin="5">
             <StackPanel Orientation="Vertical">
                 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left"

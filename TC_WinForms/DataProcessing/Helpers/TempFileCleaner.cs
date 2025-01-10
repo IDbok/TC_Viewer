@@ -1,12 +1,17 @@
 ﻿namespace TC_WinForms.DataProcessing.Helpers;
+
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
+using TC_WinForms.WinForms;
 
 public static class TempFileCleaner
 {
-    private static readonly List<string> TempFiles = new List<string>();
+	private static readonly ILogger _logger = Log.Logger;
+
+	private static readonly List<string> TempFiles = new List<string>();
     private static readonly string TempDirectory = Path.Combine(Path.GetTempPath(), "TC_Viewer");// Path.GetTempPath();
 
     static TempFileCleaner()
@@ -14,7 +19,9 @@ public static class TempFileCleaner
         // Подписываемся на событие завершения приложения
         Application.ApplicationExit += OnApplicationExit;
         AppDomain.CurrentDomain.ProcessExit += (s, e) => CleanUpTempFiles();
-    }
+
+		CleanUpAllFilesInexecutionSchemesFolder();
+	}
 
     public static string CreateTempFile(long imageId, byte[] fileData)
     {
@@ -23,13 +30,23 @@ public static class TempFileCleaner
         // Сохраняем данные во временный файл
         File.WriteAllBytes(tempFilePath, fileData);
 
-        // Добавляем файл в список для последующей очистки
-        TempFiles.Add(tempFilePath);
+		// Добавляем файл в список для последующей очистки
+		AddTempFile(tempFilePath);
 
         return tempFilePath;
     }
 
-    public static string GetTempFilePath(long imageId)
+    private static void AddTempFile(string tempFilePath)
+	{
+		// проверяем наличие в списке временных файлов
+		if (!TempFiles.Contains(tempFilePath))
+		{
+			// Добавляем файл в список для последующей очистки
+			TempFiles.Add(tempFilePath);
+		}
+	}
+
+	public static string GetTempFilePath(long imageId)
     {
         // Определяем путь до директории ExecutionSchemes
         string executionSchemesPath = Path.Combine(TempDirectory, "ExecutionSchemes");
@@ -49,7 +66,28 @@ public static class TempFileCleaner
         CleanUpTempFiles();
     }
 
-    public static void CleanUpTempFiles()
+    private static void CleanUpAllFilesInexecutionSchemesFolder()
+	{
+        try{
+            _logger.Information("Очистка временных файлов в папке ExecutionSchemes");
+
+			string executionSchemesPath = Path.Combine(TempDirectory, "ExecutionSchemes");
+
+			if (Directory.Exists(executionSchemesPath))
+			{
+				Directory.Delete(executionSchemesPath, true);
+			}
+
+		}
+		catch (Exception ex)
+		{
+			_logger.Error($"Не удалось удалить временные файлы в папке ExecutionSchemes: {ex.Message}");
+		}
+
+		
+	}
+
+	public static void CleanUpTempFiles()
     {
         foreach (var tempFilePath in TempFiles)
         {
@@ -70,6 +108,7 @@ public static class TempFileCleaner
         // Очищаем список временных файлов
         TempFiles.Clear();
     }
+
     public static void CleanUpTempFiles( string filePath )
     {
         try

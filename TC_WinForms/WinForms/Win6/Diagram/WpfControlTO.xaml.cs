@@ -139,7 +139,7 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
         }
 
         ParallelButtonsVisibility(this.diagamToWork.ParallelIndex != null);
-        this._wpfMainControl.Nomeraciya();
+        this._wpfMainControl.UpdateNumbering();
         
     }
 
@@ -150,19 +150,33 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)
-    {
-        if (this.diagamToWork.techOperationWork == null)
-            return;
+	{
+		if (this.diagamToWork.techOperationWork == null)
+			return;
 
-        //ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));// this, _tcViewState));
-        Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));
-        _wpfMainControl.diagramForm.HasChanges = true;
-        _wpfMainControl.Nomeraciya();
+		AddNewShag();
+	}
 
-        _diagramState.HasChanges();
-    }
+	public void AddNewShag(int? index = null)
+	{
+        if (ComboBoxTO.SelectedItem == null)
+			return;
 
-    private void ComboBoxTO_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        if (index == null)
+        {
+            Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));
+        }
+        else
+        {
+			Children.Insert(index.Value, new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));
+		}
+
+		_wpfMainControl.UpdateNumbering();
+
+		_diagramState.HasChanges();
+	}
+
+	private void ComboBoxTO_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (ComboBoxTO.SelectedItem != null)
         {
@@ -244,14 +258,14 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
             else
             {
                 diagamToWork.techOperationWork = techOperationWork;
-                _wpfMainControl.technologicalCard.DiagamToWork.Add(diagamToWork);
+                _wpfMainControl._technologicalCard.DiagamToWork.Add(diagamToWork);
 
                 //ListWpfParalelno.Children.Clear();
                 //ListWpfParalelno.Children.Add(new WpfParalelno(techOperationWork, _diagramState));
                 Children.Clear();
                 Children.Add(new WpfParalelno(techOperationWork, _diagramState));
 
-                _wpfMainControl.diagramForm.HasChanges = true;
+                _wpfMainControl._diagramForm.HasChanges = true;
 
                 // todo : вопрос, как быть с объектами Component and Tool, которые привязаны к конкретному TechOperationWork
                 //ComboBoxTO.IsReadOnly = true;
@@ -276,11 +290,11 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
         //ListWpfParalelno.Children.Remove(paralelno);
         Children.Remove(paralelno);
 
-        _wpfMainControl.diagramForm.HasChanges = true;
+        _wpfMainControl._diagramForm.HasChanges = true;
 
         if (Children.Count == 0) //ListWpfParalelno.Children.Count == 0)
         {
-            _wpfMainControl.technologicalCard.DiagamToWork.Remove(diagamToWork);
+            _wpfMainControl._technologicalCard.DiagamToWork.Remove(diagamToWork);
             _wpfMainControl.DeleteControlTO(this);
         }
     }
@@ -289,7 +303,7 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
     {
         if (_wpfMainControl != null)
         {
-            _wpfMainControl.Nomeraciya();
+            _wpfMainControl.UpdateNumbering();
         }
     }
 
@@ -313,7 +327,7 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
                 Children.Remove(cv);
                 Children.Insert(ib, cv);
 
-                _wpfMainControl.Nomeraciya();
+                _wpfMainControl.UpdateNumbering();
             }
         }
 
@@ -333,7 +347,7 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
                 var cv = Children[ib];
                 Children.Remove(cv);
                 Children.Insert(ib - 1, cv);
-                _wpfMainControl.Nomeraciya();
+                _wpfMainControl.UpdateNumbering();
             }
         }
     }
@@ -355,7 +369,7 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
         if (result == DialogResult.No)
             return;
 
-        _wpfMainControl.diagramForm.HasChanges = true;
+        _wpfMainControl._diagramForm.HasChanges = true;
 
         diagamToWork.ParallelIndex = null;
         //_wpfMainControl.technologicalCard.DiagamToWork.Remove(diagamToWork);
