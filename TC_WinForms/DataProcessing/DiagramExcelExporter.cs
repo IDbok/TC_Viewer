@@ -7,6 +7,8 @@ using System.IO;
 using TcDbConnector;
 using TcModels.Models.TcContent;
 using System.Drawing.Imaging;
+using TcModels.Models;
+using System.Xml.Linq;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -17,12 +19,13 @@ namespace TC_WinForms.DataProcessing
 
         private List<DiagamToWork> _diagramToWorks;
 
+        private TechnologicalCard _technologicalCard;
+
         private int _pageCount;
         private int _currentParallelShag, _currentParallelTO;
         private int _allParallelShag, _allParallelTO;
         private int _startCollumn;
         private int _parallelToCount;
-
 
         private readonly int _currentPrintHeigth = 43;
         private readonly int _currentPrintWidgth = 18;
@@ -52,37 +55,26 @@ namespace TC_WinForms.DataProcessing
             _excelPackage = new ExcelPackage();
             _exporter = new ExcelExporter();
             _diagramToWorks = new List<DiagamToWork>();
+            _technologicalCard = new TechnologicalCard();
         }
 
-        public void ExportDiadramToExel(int tcId, string fileFolderPath)
+        public async Task ExportDiadramToExel(int tcId, string fileFolderPath)
         {
             string filePath = fileFolderPath;
 
             CreateNewFile(filePath);
-            var context = new MyDbContext();
+            await LoadDataAsync(tcId);
 
-            var technologicalCard = context.TechnologicalCards.Single(x => x.Id == tcId);
-            string article = technologicalCard.Article;
-
-            _diagramToWorks = context.DiagamToWork.Where(w => w.technologicalCard == technologicalCard)
-                                                        .Include(i => i.ListDiagramParalelno)
-                                                            .ThenInclude(ie => ie.techOperationWork)
-                                                        .Include(i => i.ListDiagramParalelno)
-                                                            .ThenInclude(i => i.ListDiagramPosledov)
-                                                            .ThenInclude(i => i.ListDiagramShag)
-                                                            .ThenInclude(i => i.ListDiagramShagToolsComponent)
-                                                        .OrderBy(o => o.Order)
-                                                        .ToList();
-
-
+            //Группируем диаграммы по индексу параллельности
             var dTOWGroups = _diagramToWorks
-                .GroupBy(g => g.ParallelIndex != null ? g.GetParallelIndex() : g.Order.ToString())
-                .ToList();
+                    .GroupBy(g => g.ParallelIndex != null ? g.GetParallelIndex() : g.Order.ToString())
+                    .ToList();
 
-            //// иначе, разделяем группу на единичные элементы
+            // Группируем по Order
             dTOWGroups = dTOWGroups.OrderBy(o => o.FirstOrDefault()!.Order).ToList();
 
-            var sheet = _excelPackage.Workbook.Worksheets[article] ?? _excelPackage.Workbook.Worksheets.Add(article);
+            //Создаем лист в Excel и настраиваем область печати
+            var sheet = _excelPackage.Workbook.Worksheets[_technologicalCard.Article] ?? _excelPackage.Workbook.Worksheets.Add(_technologicalCard.Article);
             sheet.PrinterSettings.Scale = 80;
             sheet.PrinterSettings.Orientation = eOrientation.Landscape;
             sheet.PrinterSettings.RightMargin = 0.3M / 2.54M; //выделение места для объявления столбца с номером листа печати
@@ -106,13 +98,28 @@ namespace TC_WinForms.DataProcessing
 
             MessageBox.Show("Блок схема сохранена");
         }
+        public async Task LoadDataAsync(int tcId)
+        {
+            using (MyDbContext dbContext = new MyDbContext())
+            {
+                _technologicalCard = await dbContext.TechnologicalCards.FirstOrDefaultAsync(x => x.Id == tcId);
+
+                _diagramToWorks = await dbContext.DiagamToWork.Where(w => w.technologicalCard == _technologicalCard)
+                                                            .Include(i => i.ListDiagramParalelno)
+                                                                .ThenInclude(ie => ie.techOperationWork)
+                                                            .Include(i => i.ListDiagramParalelno)
+                                                                .ThenInclude(i => i.ListDiagramPosledov)
+                                                                .ThenInclude(i => i.ListDiagramShag)
+                                                                .ThenInclude(i => i.ListDiagramShagToolsComponent)
+                                                            .OrderBy(o => o.Order)
+                                                            .ToListAsync();
+            }
+        }
 
         #region AddDiagramToExcel
 
-
         private int AddTODiadramsToExcel(List<DiagamToWork> diagramsTO, int currentRow, ExcelWorksheet sheet)
         {
-            // var context = new MyDbContext();// Зачем тут контекст?
             _startCollumn = 1;
             _currentParallelTO = 1;
             _parallelToCount = 1;
@@ -124,17 +131,19 @@ namespace TC_WinForms.DataProcessing
                                     .ToList();//получение списка последовательных ТО
 
             var currentStatus = isNextTOParallel;
-            if(toPosledovGroups.Count == 1 && toPosledovGroups[0].Key.Contains("_") 
+
+            //Подсчитываем все параллельные ТО
+            if (toPosledovGroups.Count == 1 && toPosledovGroups[0].Key.Contains("_") //Если только одна параллель
                 && toPosledovGroups[0].ToList().Count() > 1)
             {
                 isNextTOParallel = true;
                 _allParallelTO = toPosledovGroups[0].ToList().Count();
             }
-            else
+            else 
             {
                 isNextTOParallel = toPosledovGroups.Count > 1 ? true : false;
                 _allParallelTO = toPosledovGroups.Count;
-                if (toPosledovGroups[toPosledovGroups.Count - 1].Key.Contains("_"))
+                if (toPosledovGroups[toPosledovGroups.Count - 1].Key.Contains("_")) //Если имеется группировка соседних диаграмм
                 {
                     _allParallelTO = _allParallelTO - 1 + toPosledovGroups[toPosledovGroups.Count - 1].ToList().Count();
                 }
@@ -152,7 +161,6 @@ namespace TC_WinForms.DataProcessing
 
             return resultRow;
         }
-
         private int AddPoslsedDiagramTO(List<DiagamToWork> diagramsTO, int currentRow, ExcelWorksheet sheet)
         {
             var context = new MyDbContext();
@@ -161,65 +169,46 @@ namespace TC_WinForms.DataProcessing
             int pageCollumn = 1;
             var isTOListisPosledow = diagramsTO.ToList().All(g => g.GetSequenceIndex() != null);
 
-
             foreach (var diagram in diagramsTO)
             {
                 var techOperation = context.TechOperationWorks.Where(t => t.Id == diagram.techOperationWorkId)
                                                                 .Include(t => t.techOperation).FirstOrDefault();
 
-
-                if (_startCollumn > _currentPrintWidgth)
+                if (_startCollumn > _currentPrintWidgth)//Если печатаем со второй страницы(слево направо)
                 {
                     pageRow = Modulo(-currentRow, _currentPrintHeigth) + currentRow - _currentPrintHeigth + 2;
                     pageCollumn = Modulo(-_startCollumn, _currentPrintWidgth) + _startCollumn - _currentPrintWidgth + 1;
-
+                    
                     if (_parallelToCount > 1 && !isTOListisPosledow)
-                    {
-                        int tempColl = _startCollumn + ((_parallelToCount - 1) * 9);
-                        pageCollumn = Modulo(-tempColl, _currentPrintWidgth) + tempColl - _currentPrintWidgth + 1;
-
-                        if (_nextPagesLastCollumn.TryGetValue(pageCollumn, out int collCount))
-                            _startCollumn = collCount > _startCollumn ? collCount : _startCollumn;
-                        else
-                            _nextPagesLastCollumn.Add(pageCollumn, _startCollumn);
-                    }
+                        TryUpdateStartColumn(pageCollumn);//Если в диаграмме есть параллельные ТО, то попробовать пересчитать занятые столбцы для неё
 
                     pageCollumn = _startCollumn;
 
-                    if (_nextPagesLastRow.TryGetValue(pageCollumn, out int rowCount))
-                        pageRow = rowCount > pageRow ? rowCount : pageRow;
-                    else
-                        _nextPagesLastRow.Add(pageCollumn, pageRow);
+                    pageRow = UpdatePageData(pageCollumn, pageRow);
 
-                    pageRow = AddParallelesToExel(diagram.ListDiagramParalelno, pageRow, 
-                        techOperation.techOperation.Name, sheet);
+                    pageRow = AddParallelesToExel(diagram.ListDiagramParalelno, pageRow, techOperation.techOperation.Name, sheet);
                     _nextPagesLastRow[pageCollumn] = pageRow;
                 }
                 else
                 {
                     if (_parallelToCount > 1 && !isTOListisPosledow)
-                    {
-                        int tempColl = _startCollumn + ((_parallelToCount - 1) * 9);
-                        pageCollumn = Modulo(-tempColl, _currentPrintWidgth) + tempColl - _currentPrintWidgth + 1;
-
-                        if (_nextPagesLastCollumn.TryGetValue(pageCollumn, out int collCount))
-                            _startCollumn = collCount > _startCollumn ? collCount : _startCollumn;
-                        else
-                            _nextPagesLastCollumn.Add(pageCollumn, _startCollumn);
-                    }
+                        TryUpdateStartColumn(pageCollumn);//Если в диаграмме есть параллельные ТО, то попробовать пересчитать занятые столбцы для неё
 
                     workRow = AddParallelesToExel(diagram.ListDiagramParalelno, currentRow, 
                         techOperation.techOperation.Name, sheet);
+
                     resultRow = workRow > resultRow ? workRow : resultRow;
+                    
                     if (isTOListisPosledow)
                         currentRow = resultRow;
                 }
 
                 if (!isTOListisPosledow)
+                {
                     _startCollumn += 9;
-
-                if (isNextTOParallel && !isTOListisPosledow)
-                    _currentParallelTO++;
+                    if (isNextTOParallel)
+                        _currentParallelTO++;
+                }
             }
             
             if (isNextTOParallel)
@@ -227,29 +216,18 @@ namespace TC_WinForms.DataProcessing
                 _currentParallelTO++;
                 _startCollumn += 9;
             }
+
             return resultRow;
         }
-
         private int AddParallelesToExel(List<DiagramParalelno> parallelesList, int currentRow, string TOName, ExcelWorksheet sheet)
         {
             int resultRow = currentRow, workRow = currentRow;
             int currentCollumn = _startCollumn;
-            int pageRow = 1;
-            int pageCollumn = _startCollumn;
-            int pageCollumnindex = 0;
             isShagStatusPrinted = false;
 
             var centerCollumn = Modulo(-currentCollumn, _currentPrintWidgth) + currentCollumn - _currentPrintWidgth + 6;
 
-            // Сортировка по номеру шага
-            foreach (DiagramParalelno parallel in parallelesList)
-            {
-                foreach (DiagramPosledov posled in parallel.ListDiagramPosledov)
-                {
-                    posled.ListDiagramShag = posled.ListDiagramShag.OrderBy(x => x.Nomer).ToList();
-                }
-                parallel.ListDiagramPosledov = parallel.ListDiagramPosledov.OrderBy(o => o.ListDiagramShag.FirstOrDefault()?.Nomer).ToList();
-            }
+            SortParallels(parallelesList);
 
             parallelesList = parallelesList.OrderBy(o =>
                 o.ListDiagramPosledov.FirstOrDefault()?.ListDiagramShag.FirstOrDefault()?.Nomer).ToList();
@@ -259,65 +237,11 @@ namespace TC_WinForms.DataProcessing
                 _allParallelShag = parallel.ListDiagramPosledov.Count;
                 var currentStatus = isNextShagIsParallel;
                 isNextShagIsParallel = parallel.ListDiagramPosledov.Count > 1 ? true : false;
+
                 if(currentStatus != isNextShagIsParallel && !isNextShagIsParallel)
                     currentRow = AddParallelStatus(sheet, currentRow, centerCollumn);
-                foreach (DiagramPosledov posledov in parallel.ListDiagramPosledov)
-                {
-                    _currentParallelShag = posledov.Order;
 
-                    if (parallel.ListDiagramPosledov.Count == 1)
-                    {
-                        workRow = AddShagToExcel(posledov.ListDiagramShag, currentRow, _startCollumn, TOName, sheet, true);
-                        pageCollumn = _startCollumn;
-                    }
-                    else
-                    {
-                        _parallelToCount = parallel.ListDiagramPosledov.Count > _parallelToCount ? parallel.ListDiagramPosledov.Count : _parallelToCount;
-
-                        if (currentCollumn > _currentPrintWidgth)
-                        {
-                            pageRow = Modulo(-currentRow, _currentPrintHeigth) + currentRow - _currentPrintHeigth + 2;
-                            pageCollumn = Modulo(-currentCollumn, _currentPrintWidgth) + currentCollumn - _currentPrintWidgth + 1;
-                            pageCollumnindex = pageCollumn;
-
-                            if (_nextPagesLastCollumn.TryGetValue(pageCollumnindex, out int collCount))
-                                pageCollumn = collCount > pageCollumn ? collCount : pageCollumn;
-                            else
-                                _nextPagesLastCollumn.Add(pageCollumnindex, pageCollumn);
-
-                            if (_nextPagesLastRow.TryGetValue(pageCollumn, out int rowCount))
-                                pageRow = rowCount > pageRow ? rowCount : pageRow;
-                            else
-                                _nextPagesLastRow.Add(pageCollumn, pageRow);
-
-                            pageRow = Modulo(-currentRow, _currentPrintHeigth) + currentRow - _currentPrintHeigth + 2;
-                            
-                            pageRow = AddShagToExcel(posledov.ListDiagramShag, pageRow, pageCollumn, TOName, sheet, false);
-                            _nextPagesLastRow[pageCollumn] = pageRow;
-                        }
-                        else
-                        {
-                            workRow = AddShagToExcel(posledov.ListDiagramShag, currentRow, currentCollumn, TOName, sheet, false);
-                            pageCollumn = currentCollumn;
-                        }
-                        
-                    }
-
-                    currentCollumn = pageCollumn + 9;
-                    pageCollumn = Modulo(-currentCollumn, _currentPrintWidgth) + currentCollumn - _currentPrintWidgth + 1;
-
-                    if (_nextPagesLastCollumn.TryGetValue(pageCollumn, out int collumnCount))
-                    {
-                        currentCollumn = collumnCount > currentCollumn ? collumnCount : currentCollumn;
-                        pageCollumn = Modulo(-currentCollumn, _currentPrintWidgth) + currentCollumn - _currentPrintWidgth + 1;
-                        _nextPagesLastCollumn[pageCollumn] = currentCollumn;
-                    }
-                    else
-                        _nextPagesLastCollumn.Add(pageCollumn, currentCollumn);
-
-                    resultRow = workRow > resultRow ? workRow : resultRow;
-
-                }
+                resultRow = AddPosledovTOToExel(parallel, currentCollumn, currentRow, TOName, sheet);
 
                 currentRow = resultRow > currentRow ? resultRow : currentRow;
 
@@ -326,7 +250,61 @@ namespace TC_WinForms.DataProcessing
             return currentRow;
 
         }
+        private int AddPosledovTOToExel(DiagramParalelno parallel, int currentCollumn, int currentRow, string TOName, ExcelWorksheet sheet)
+        {
+            int workRow = currentRow, resultRow = currentRow;
+            int pageRow = 1, pageCollumn = _startCollumn;
 
+            foreach (DiagramPosledov posledov in parallel.ListDiagramPosledov)
+            {
+                _currentParallelShag = posledov.Order;
+
+                if (parallel.ListDiagramPosledov.Count == 1)
+                {
+                    workRow = AddShagToExcel(posledov.ListDiagramShag, currentRow, _startCollumn, TOName, sheet, true);
+                    pageCollumn = _startCollumn;
+                }
+                else
+                {
+                    _parallelToCount = parallel.ListDiagramPosledov.Count > _parallelToCount ? parallel.ListDiagramPosledov.Count : _parallelToCount;
+
+                    if(currentCollumn > _currentPrintWidgth)
+                    {
+                        pageRow = Modulo(-currentRow, _currentPrintHeigth) + currentRow - _currentPrintHeigth + 2;
+                        pageCollumn = Modulo(-currentCollumn, _currentPrintWidgth) + currentCollumn - _currentPrintWidgth + 1;
+
+                        pageCollumn = UpdateColumnData(pageCollumn, pageRow);
+                        pageRow = UpdatePageData(pageCollumn, pageRow);
+
+                        pageRow = Modulo(-currentRow, _currentPrintHeigth) + currentRow - _currentPrintHeigth + 2;
+                        pageRow = AddShagToExcel(posledov.ListDiagramShag, pageRow, pageCollumn, TOName, sheet, false);
+                    }
+                    else
+                    {
+                        workRow = AddShagToExcel(posledov.ListDiagramShag, currentRow, currentCollumn, TOName, sheet, false);
+                        pageCollumn = currentCollumn;
+                    }
+
+                    _nextPagesLastRow[pageCollumn] = pageRow;
+                }
+
+                currentCollumn = pageCollumn + 9;
+                pageCollumn = Modulo(-currentCollumn, _currentPrintWidgth) + currentCollumn - _currentPrintWidgth + 1;
+
+                if (_nextPagesLastCollumn.TryGetValue(pageCollumn, out int collumnCount))
+                {
+                    currentCollumn = collumnCount > currentCollumn ? collumnCount : currentCollumn;
+                    pageCollumn = Modulo(-currentCollumn, _currentPrintWidgth) + currentCollumn - _currentPrintWidgth + 1;
+                    _nextPagesLastCollumn[pageCollumn] = currentCollumn;
+                }
+                else
+                    _nextPagesLastCollumn.Add(pageCollumn, currentCollumn);
+
+                resultRow = workRow > resultRow ? workRow : resultRow;
+            }
+
+            return resultRow;
+        }
         private int AddShagToExcel(List<DiagramShag> shagList, int currentRow, int currentColumn, string TOName, ExcelWorksheet sheet, bool isOneParalell)
         {
             if (isOneParalell && !isNextTOParallel )
@@ -334,7 +312,7 @@ namespace TC_WinForms.DataProcessing
 
             foreach (DiagramShag shag in shagList)
             {
-                AddPageCount(currentRow, currentColumn, sheet);//проверка выполняется дважды
+                AddPageCount(currentRow, currentColumn, sheet);//проверка выполняется трижды
                 
                 currentRow = AddTONameToExcel(TOName, sheet, currentRow, currentColumn);
                 if(!isShagStatusPrinted && isNextShagIsParallel)
@@ -342,6 +320,7 @@ namespace TC_WinForms.DataProcessing
                     currentRow = AddParallelStatus(sheet, currentRow - 1, currentColumn);
                     isShagStatusPrinted = true;
                 }
+
                 if (!isOneParalell)
                     currentRow = AddCurrentParallelShagNum(sheet, currentRow-1, currentColumn);
                 if (isNextTOParallel && !isOneParalell)
@@ -350,7 +329,11 @@ namespace TC_WinForms.DataProcessing
                     currentRow = AddCurrentParallelTONum(sheet, currentRow - 1, currentColumn);
 
                 currentRow = AddShagDescriptionToExcel(shag, sheet, currentRow, currentColumn);
+                AddPageCount(currentRow, currentColumn, sheet);
+
                 currentRow = AddToolDataToExcel(shag, sheet, currentRow, currentColumn);
+                AddPageCount(currentRow, currentColumn, sheet);//проверка выполняется из-за возможного специфического отображения таблиц, так как они могут быть очень крупными и можно пропустить таблицу
+
                 currentRow = AddPictureToExcel(shag, sheet, currentRow, currentColumn, TOName);
 
                 AddPageCount(currentRow, currentColumn, sheet);
@@ -366,13 +349,13 @@ namespace TC_WinForms.DataProcessing
         private int AddTONameToExcel(String TOName, ExcelWorksheet sheet, int headRow, int currentColumn)
         {
             Color toColor;
+            int[] columnNums = { currentColumn + 1, currentColumn + 7 };
+
             var printScaleDifference = Modulo(-headRow, _currentPrintHeigth);
             if (printScaleDifference < 5) //Проверка наличия хотя бы 5 строк в конце листка, чтобы корректно отображались данные шага
             {
                 headRow = headRow + printScaleDifference + 2;
             }
-
-            int[] columnNums = { currentColumn+1, currentColumn + 7};
 
             sheet.Cells[headRow, columnNums[0]].Value = TOName;
 
@@ -383,7 +366,6 @@ namespace TC_WinForms.DataProcessing
 
             sheet.Cells[headRow, columnNums[0], headRow, columnNums[columnNums.Length - 1] - 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
             sheet.Cells[headRow, columnNums[0], headRow, columnNums[columnNums.Length - 1] - 1].Style.Fill.BackgroundColor.SetColor(toColor);
-
             AddStyleAlignment(headRow, columnNums, sheet);
 
             return headRow+2;
@@ -418,7 +400,7 @@ namespace TC_WinForms.DataProcessing
                 return headRow;
 
             List<DiagramShagToolsComponent> toolComponent_DiagramList = shag.ListDiagramShagToolsComponent;
-
+            
             Dictionary<string, int> headersColumns = new Dictionary<string, int>
             {
                 { "№", currentColumn },
@@ -436,7 +418,6 @@ namespace TC_WinForms.DataProcessing
             headRow = AddTableToolNumber(shag, sheet, headRow, currentColumn);
 
             _exporter.AddTableHeader(sheet, "Таблица с материалами, инструментами", headRow - 1, columnNums);
-
             _exporter.AddTableHeaders(sheet, headers, headRow, columnNums);
 
             int currentRow = headRow + 1;
@@ -465,7 +446,6 @@ namespace TC_WinForms.DataProcessing
                     sheet.Cells[currentRow, columnNums[4]].Value = item.Quantity;
                     sheet.Cells[currentRow, columnNums[5]].Value = item.Comment ?? "";
 
-
                     int[] cols = { columnNums[1], columnNums[2] };
                     int[] colsType = { columnNums[2], columnNums[3] };
                     int[] colsComment = { columnNums[5], columnNums[6] };
@@ -483,8 +463,6 @@ namespace TC_WinForms.DataProcessing
                         rowCount = GetRowsCountByData(item.Comment, sheet, colsComment);
                         rowCount = rowCount <= prevRes ? prevRes : rowCount;
                     }
-                    
-
 
                     // Форматирование ячеек
                     AddStyleAlignment(currentRow, columnNums, sheet);
@@ -493,7 +471,6 @@ namespace TC_WinForms.DataProcessing
                     sheet.Cells[currentRow, columnNums[1]].Style.WrapText = true;
                     sheet.Cells[currentRow, columnNums[2]].Style.WrapText = true;
                     sheet.Cells[currentRow, columnNums[5]].Style.WrapText = true;
-
 
                     sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
@@ -506,7 +483,6 @@ namespace TC_WinForms.DataProcessing
                         sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[5]].Style.Fill.BackgroundColor.SetColor(Color.Aquamarine);
                     else
                         sheet.Cells[currentRow, columnNums[0], currentRow + rowCount, columnNums[5]].Style.Fill.BackgroundColor.SetColor(Color.Salmon);
-
 
                     // Переход к следующей строке
                     currentRow = currentRow + rowCount + 1;
@@ -523,27 +499,27 @@ namespace TC_WinForms.DataProcessing
             {
                 return headRow;
             }
+
             int[] columnNums = { currentColumn, currentColumn + 8 };
             var rowHeightPixels = sheet.Row(headRow).Height / 72 * 96d;
 
             var bytepath = Convert.FromBase64String(shag.ImageBase64);
             Image bitmapImage = LoadImage(bytepath);
 
-            //var memoryStream = new MemoryStream();
             using(MemoryStream ms = new MemoryStream())
             {
                 try
                 {
-                    bitmapImage.Save(ms, ImageFormat.Png); //пытаемся сохранить изображение в MemoryStream
+                    bitmapImage.Save(ms, ImageFormat.Png); 
                 }
                 catch //Обход ошибки сохранения. Она связана с размером изображения и одновременным открытием изображения GDI+. Изображение будет с нуля отрисовано в копии и все сторонние процессы будут закрыты.
                 {
                     Bitmap bitmap = new Bitmap(bitmapImage, bitmapImage.Width, bitmapImage.Height); //Создаем копию текущего изображения
-                    Graphics g = Graphics.FromImage(bitmap); //создаем объект для отрисовки изображения в копии файла
-                    g.DrawImage(bitmapImage, 0f, 0f, (float)bitmapImage.Width, (float)bitmapImage.Height); // отрисовываем изображение
-                    g.Dispose(); //завершаем процесс объекта для отрисовки
+                    Graphics g = Graphics.FromImage(bitmap);
+                    g.DrawImage(bitmapImage, 0f, 0f, (float)bitmapImage.Width, (float)bitmapImage.Height); 
+                    g.Dispose(); 
                     bitmapImage.Dispose(); // завершаем процесс оригинального объекта, чтобы не было ошибки, связанной с уже изначально открытым процессом в GDI+
-                    bitmap.Save(ms, ImageFormat.Png); // повторно сохраняем изображение в MemoryStream
+                    bitmap.Save(ms, ImageFormat.Png);
                 }
 
                 ExcelPicture excelImage = null;
@@ -560,7 +536,6 @@ namespace TC_WinForms.DataProcessing
                 else
                     excelImage.SetSize(100); //задаем масштаб изображения по умолчанию
 
-
                 int printScaleDifference = Modulo(-headRow, _currentPrintHeigth);
                 var currentRow = (int)Math.Ceiling((excelImage.Size.Height / 9525) / rowHeightPixels) + 2;//Высота изображения с учетом вставки наименований в строках
 
@@ -572,7 +547,6 @@ namespace TC_WinForms.DataProcessing
                 }
 
                 currentRow = (int)Math.Ceiling((excelImage.Size.Height / 9525) / rowHeightPixels) + headRow + 2;//Текущая строка с учетом высоты изображения
-
 
                 excelImage.From.Column = columnNums[0] - 1;
                 excelImage.From.Row = headRow;
@@ -588,7 +562,50 @@ namespace TC_WinForms.DataProcessing
         #endregion
 
         #region SupportMethods
-       
+        private int UpdateColumnData(int pageCollumn, int pageRow)
+        {
+            var pageCollumnindex = pageCollumn;
+
+            if (_nextPagesLastCollumn.TryGetValue(pageCollumnindex, out int collCount))
+                pageCollumn = collCount > pageCollumn ? collCount : pageCollumn;
+            else
+                _nextPagesLastCollumn.Add(pageCollumnindex, pageCollumn);
+
+            return pageCollumn;
+        }
+        private int UpdatePageData(int pageCollumn, int pageRow)
+        {
+            if (_nextPagesLastRow.TryGetValue(pageCollumn, out int rowCount))
+                pageRow = rowCount > pageRow ? rowCount : pageRow;
+            else
+                _nextPagesLastRow.Add(pageCollumn, pageRow);
+
+            return pageRow;
+        }
+        private void TryUpdateStartColumn(int pageCollumn)
+        {
+            int tempColl = _startCollumn + ((_parallelToCount - 1) * 9);
+            pageCollumn = Modulo(-tempColl, _currentPrintWidgth) + tempColl - _currentPrintWidgth + 1;
+
+            if (_nextPagesLastCollumn.TryGetValue(pageCollumn, out int collCount))
+                _startCollumn = collCount > _startCollumn ? collCount : _startCollumn;
+            else
+                _nextPagesLastCollumn.Add(pageCollumn, _startCollumn);
+        }
+        private List<DiagramParalelno> SortParallels(List<DiagramParalelno> list)
+        {
+            // Сортировка по номеру шага
+            foreach (DiagramParalelno parallel in list)
+            {
+                foreach (DiagramPosledov posled in parallel.ListDiagramPosledov)
+                {
+                    posled.ListDiagramShag = posled.ListDiagramShag.OrderBy(x => x.Nomer).ToList();
+                }
+                parallel.ListDiagramPosledov = parallel.ListDiagramPosledov.OrderBy(o => o.ListDiagramShag.FirstOrDefault()?.Nomer).ToList();
+            }
+
+            return list;
+        }
         private int AddShagName(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn)
         {
             int[] columnNums = { currentColumn + 3, currentColumn + 5 };
