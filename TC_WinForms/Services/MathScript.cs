@@ -39,11 +39,16 @@ public static class MathScript
 				? $"{defaultValue}{coefficient}"
 				: $"{defaultValue}*({coefficient})";
 			}
-			
+
+			// Удаляем знак в начале выражения
+			var firstCharExpretion = expression[0];
+			if (IsMathSign(firstCharExpretion))
+				expression = expression.Substring(1); // todo: проверить, правильный ли выбран подход
 
 			double value = coefDict?.Count > 0
 				? EvaluateExpression(expression, coefDict)
 				: EvaluateExpression(expression);
+
 
 			return Math.Round(value, 2);
 		}
@@ -100,6 +105,7 @@ public static class MathScript
 	{
 		var formattedExpression = expression.Replace(',', '.');
 
+
 		// Создаем новое выражение
 		Expression e = new Expression(formattedExpression);
 
@@ -139,6 +145,8 @@ public static class MathScript
 		{
 			e.Parameters[variable.Key] = variable.Value;
 		}
+
+		// 
 
 		// Вычисляем результат
 		object result = e.Evaluate();

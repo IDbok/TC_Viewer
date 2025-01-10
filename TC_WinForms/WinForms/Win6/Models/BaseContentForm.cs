@@ -29,11 +29,7 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 
 	protected abstract DataGridView DgvMain { get; }
 	protected abstract Panel PnlControls { get; }
-	public BaseContentForm()
-	{
-		
-	}
-
+	public BaseContentForm() {	}
 
 	public void UpdateDynamicCardParametrs()
 	{

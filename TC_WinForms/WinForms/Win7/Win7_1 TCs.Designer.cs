@@ -105,16 +105,15 @@
 			lblStatusFilter.Size = new Size(67, 25);
 			lblStatusFilter.TabIndex = 29;
 			lblStatusFilter.Text = "Статус:";
-			lblStatusFilter.Visible = false;
 			// 
 			// cbxStatusFilter
 			// 
+			cbxStatusFilter.DropDownStyle = ComboBoxStyle.DropDownList;
 			cbxStatusFilter.FormattingEnabled = true;
 			cbxStatusFilter.Location = new Point(380, 92);
 			cbxStatusFilter.Name = "cbxStatusFilter";
 			cbxStatusFilter.Size = new Size(160, 33);
 			cbxStatusFilter.TabIndex = 28;
-			cbxStatusFilter.SelectedIndexChanged += cbxStatusFilter_SelectedIndexChanged;
 			// 
 			// lblType
 			// 
@@ -127,12 +126,12 @@
 			// 
 			// cbxTypeFilter
 			// 
+			cbxTypeFilter.DropDownStyle = ComboBoxStyle.DropDownList;
 			cbxTypeFilter.FormattingEnabled = true;
 			cbxTypeFilter.Location = new Point(380, 48);
 			cbxTypeFilter.Name = "cbxTypeFilter";
 			cbxTypeFilter.Size = new Size(160, 33);
 			cbxTypeFilter.TabIndex = 26;
-			cbxTypeFilter.SelectedIndexChanged += cbxType_SelectedIndexChanged;
 			// 
 			// lblVoltageFilter
 			// 
@@ -154,12 +153,12 @@
 			// 
 			// cbxNetworkVoltageFilter
 			// 
+			cbxNetworkVoltageFilter.DropDownStyle = ComboBoxStyle.DropDownList;
 			cbxNetworkVoltageFilter.FormattingEnabled = true;
 			cbxNetworkVoltageFilter.Location = new Point(380, 8);
 			cbxNetworkVoltageFilter.Name = "cbxNetworkVoltageFilter";
 			cbxNetworkVoltageFilter.Size = new Size(160, 33);
 			cbxNetworkVoltageFilter.TabIndex = 23;
-			cbxNetworkVoltageFilter.SelectedIndexChanged += cbxNetworkVoltageFilter_SelectedIndexChanged;
 			// 
 			// txtSearch
 			// 
@@ -188,7 +187,7 @@
 			btnViewMode.Location = new Point(50, 15);
 			btnViewMode.Margin = new Padding(4, 3, 4, 3);
 			btnViewMode.Name = "btnViewMode";
-			btnViewMode.Size = new Size(174, 75);
+			btnViewMode.Size = new Size(174, 65);
 			btnViewMode.TabIndex = 26;
 			btnViewMode.Text = "Просмотр";
 			btnViewMode.UseVisualStyleBackColor = true;
@@ -200,7 +199,7 @@
 			btnDeleteTC.Location = new Point(631, 15);
 			btnDeleteTC.Margin = new Padding(4, 3, 4, 3);
 			btnDeleteTC.Name = "btnDeleteTC";
-			btnDeleteTC.Size = new Size(174, 75);
+			btnDeleteTC.Size = new Size(174, 65);
 			btnDeleteTC.TabIndex = 25;
 			btnDeleteTC.Text = "Удалить";
 			btnDeleteTC.UseVisualStyleBackColor = true;
@@ -212,7 +211,7 @@
 			btnUpdateTC.Location = new Point(437, 15);
 			btnUpdateTC.Margin = new Padding(4, 3, 4, 3);
 			btnUpdateTC.Name = "btnUpdateTC";
-			btnUpdateTC.Size = new Size(174, 75);
+			btnUpdateTC.Size = new Size(174, 65);
 			btnUpdateTC.TabIndex = 24;
 			btnUpdateTC.Text = "Редактировать";
 			btnUpdateTC.UseVisualStyleBackColor = true;
@@ -224,7 +223,7 @@
 			btnCreateTC.Location = new Point(244, 15);
 			btnCreateTC.Margin = new Padding(4, 3, 4, 3);
 			btnCreateTC.Name = "btnCreateTC";
-			btnCreateTC.Size = new Size(174, 75);
+			btnCreateTC.Size = new Size(174, 65);
 			btnCreateTC.TabIndex = 23;
 			btnCreateTC.Text = "Добавить";
 			btnCreateTC.UseVisualStyleBackColor = true;
