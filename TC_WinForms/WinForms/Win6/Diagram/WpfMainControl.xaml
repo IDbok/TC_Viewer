@@ -80,15 +80,16 @@
             Grid.Row="0" Grid.Column="2">
             <TextBlock Text="Масштаб:" VerticalAlignment="Center" Margin="10,0" />
             <Slider x:Name="ZoomSlider"
-        Minimum="0.1" Maximum="2.1"
-        Value="1.0" 
-        TickFrequency="0.1"
-        IsSnapToTickEnabled="False"
-        VerticalAlignment="Center"
-        Width="200"
-        ValueChanged="ZoomSlider_ValueChanged"
-        Ticks="1.0"
-        TickPlacement="BottomRight"/>
+                Minimum="{Binding MinScaleValue}" 
+                    Maximum="{Binding MaxScaleValue}" 
+                Value="1.0" 
+                TickFrequency="0.1"
+                IsSnapToTickEnabled="False"
+                VerticalAlignment="Center"
+                Width="200"
+                ValueChanged="ZoomSlider_ValueChanged"
+                Ticks="1.0"
+                TickPlacement="BottomRight"/>   
 
             <TextBlock x:Name="ZoomValueText"
                Text="{Binding ElementName=ZoomSlider, Path=Value, StringFormat=0.0x}"

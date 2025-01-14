@@ -140,7 +140,7 @@ public partial class WpfToSequence : System.Windows.Controls.UserControl, INotif
             AddDiagramToWork();
 
             _diagramState.HasChanges();
-            _diagramState.WpfMainControl.Nomeraciya();
+            _diagramState.WpfMainControl.UpdateNumbering();
 
             UpdateParallelIndex();
         }
@@ -206,7 +206,7 @@ public partial class WpfToSequence : System.Windows.Controls.UserControl, INotif
         }
 
         if(hasChanges)
-            _diagramState.WpfMainControl.Nomeraciya();
+            _diagramState.WpfMainControl.UpdateNumbering();
     }
 
     public void SetSequenceIndex(string index)

@@ -111,7 +111,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             ListWpfShag.Children.Add(new WpfShag(selectedItem, _diagramState!));
             //this, _tcViewState));
-            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfParalelno.wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
 
             wpfParalelno.Nomeraciya();
         }
@@ -120,7 +120,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             ListWpfShag.Children.Remove(Item);            
 
-            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfParalelno.wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
 
             if (ListWpfShag.Children.Count==0)
             {
@@ -159,13 +159,13 @@ namespace TC_WinForms.WinForms.Diagram
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             wpfParalelno.Order(1, this);
-            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfParalelno.wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
             wpfParalelno.Order(2, this);
-            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfParalelno.wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
         }
 
         public void UpdateAllShag()
