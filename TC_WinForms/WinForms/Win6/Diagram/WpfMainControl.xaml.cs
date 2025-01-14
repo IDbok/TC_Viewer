@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -12,9 +10,11 @@ using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram
 {
-	/// <summary>F
-	/// Логика взаимодействия для WpfMainControl.xaml
+	/// <summary>
+	/// Основной контейнер для WPF форм диаграммы технологической карты.
+	/// Хранит в себе список WpfTo, отвечающих за отображение связанных ТО.
 	/// </summary>
+
 	public partial class WpfMainControl : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
         private readonly TcViewState _tcViewState;
@@ -557,28 +557,89 @@ namespace TC_WinForms.WinForms.Diagram
                 System.Windows.Forms.MessageBox.Show($"Ошибка переинициализации формы: {ex.Message}");
             }
         }
-		//private void UserControl_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-		//{
-		//	if (Keyboard.Modifiers == ModifierKeys.Control)
-		//	{
-		//		// Проверяем, является ли Transform ScaleTransform
-		//		if (ContentScaleTransform is ScaleTransform scaleTransform)
-		//		{
-		//			if (e.Key == Key.OemPlus || e.Key == Key.Add) // Ctrl + '+'
-		//			{
-		//				scaleTransform.ScaleX += 0.1;
-		//				scaleTransform.ScaleY += 0.1;
-		//				e.Handled = true;
-		//			}
-		//			else if (e.Key == Key.OemMinus || e.Key == Key.Subtract) // Ctrl + '-'
-		//			{
-		//				scaleTransform.ScaleX = Math.Max(0.1, scaleTransform.ScaleX - 0.1);
-		//				scaleTransform.ScaleY = Math.Max(0.1, scaleTransform.ScaleY - 0.1);
-		//				e.Handled = true;
-		//			}
-		//		}
-		//	}
-		//}
+        private void UserControl_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                // Проверяем, является ли Transform ScaleTransform
+                if (ContentScaleTransform is ScaleTransform scaleTransform)
+                {
+					// todo : установить лимиты по приближению/отдалению
+					// todo : установить событие на прокрутку колеса мыши
+					if (e.Key == Key.OemPlus || e.Key == Key.Add) // Ctrl + '+'
+                    {
+                        scaleTransform.ScaleX += 0.1;
+                        scaleTransform.ScaleY += 0.1;
+                        e.Handled = true;
+                    }
+                    else if (e.Key == Key.OemMinus || e.Key == Key.Subtract) // Ctrl + '-'
+                    {
+                        scaleTransform.ScaleX = Math.Max(0.1, scaleTransform.ScaleX - 0.1);
+                        scaleTransform.ScaleY = Math.Max(0.1, scaleTransform.ScaleY - 0.1);
+                        e.Handled = true;
+                    }
+                }
+            }
+        }
+
+		// todo : перенести в верх к using
+		// todo : + связать со значениями в XAML
+
+		private const double MinScale = 0.1; // Минимальный масштаб
+		private const double MaxScale = 2.0; // Максимальный масштаб
+
+		private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			if (ContentScaleTransform is ScaleTransform scaleTransform)
+			{
+				double scale = e.NewValue;
+				scaleTransform.ScaleX = scale;
+				scaleTransform.ScaleY = scale;
+			}
+		}
+
+		private System.Windows.Point _mouseStartPosition; // Начальная позиция мыши
+		private System.Windows.Point _scrollStartOffset; // Начальное смещение скролла
+		private bool _isMiddleButtonPressed = false; // Флаг для нажатия средней кнопки мыши
+
+		private void ScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			if (e.ChangedButton == MouseButton.Middle) // Проверяем, нажата ли средняя кнопка мыши
+			{
+				_isMiddleButtonPressed = true;
+				_mouseStartPosition = e.GetPosition(ZoomableScrollViewer); // Запоминаем позицию мыши
+				_scrollStartOffset = new System.Windows.Point(ZoomableScrollViewer.HorizontalOffset, ZoomableScrollViewer.VerticalOffset); // Запоминаем начальное смещение
+				
+                ZoomableScrollViewer.CaptureMouse(); // Захватываем мышь для отслеживания движения
+				ZoomableScrollViewer.Cursor = System.Windows.Input.Cursors.Hand; // Меняем курсор на "руку"
+				e.Handled = true;
+			}
+		}
+
+		private void ScrollViewer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+		{
+			if (_isMiddleButtonPressed) // Проверяем, удерживается ли средняя кнопка мыши
+			{
+				var currentMousePosition = e.GetPosition(ZoomableScrollViewer); // Получаем текущую позицию мыши
+				var delta = currentMousePosition - _mouseStartPosition; // Вычисляем смещение мыши
+
+				// Прокручиваем ScrollViewer в зависимости от смещения
+				ZoomableScrollViewer.ScrollToHorizontalOffset(_scrollStartOffset.X - delta.X);
+				ZoomableScrollViewer.ScrollToVerticalOffset(_scrollStartOffset.Y - delta.Y);
+				e.Handled = true;
+			}
+		}
+
+		private void ScrollViewer_MouseUp(object sender, MouseButtonEventArgs e)
+		{
+			if (e.ChangedButton == MouseButton.Middle) // Если отпущена средняя кнопка мыши
+			{
+				_isMiddleButtonPressed = false;
+				ZoomableScrollViewer.ReleaseMouseCapture(); // Освобождаем захват мыши
+				ZoomableScrollViewer.Cursor = System.Windows.Input.Cursors.Arrow; // Возвращаем стандартный курсор
+				e.Handled = true;
+			}
+		}
 
 
 
