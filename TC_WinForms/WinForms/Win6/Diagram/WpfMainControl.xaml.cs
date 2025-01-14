@@ -62,6 +62,28 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 	/// </summary>
 	public bool IsHiddenInViewMode => !IsViewMode;
 
+	private double _currentScale = 1;
+
+	public double CurrentScale
+	{
+		get => _currentScale;
+		set
+		{
+			if (_currentScale != value)
+			{
+				_currentScale = value;
+				OnPropertyChanged(nameof(CurrentScale));
+
+				if (ContentScaleTransform is ScaleTransform scaleTransform)
+				{
+					scaleTransform.ScaleX = _currentScale;
+					scaleTransform.ScaleY = _currentScale;
+				}
+			}
+		}
+	}
+
+
 	/// <summary>
 	/// Минимальное значение масштаба.
 	/// </summary>
@@ -150,27 +172,33 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 	{
 		if (Keyboard.Modifiers == ModifierKeys.Control)
 		{
-			// Проверяем, является ли Transform ScaleTransform
-			if (ContentScaleTransform is ScaleTransform scaleTransform)
+			// Ctrl + '+' || Ctrl + NumPad '+'
+			if (e.Key == Key.OemPlus || e.Key == Key.Add)
 			{
-				// todo : установить лимиты по приближению/отдалению
-				// todo : установить событие на прокрутку колеса мыши
-
-				// Ctrl + '+' || Ctrl + NumPad '+'
-				if (e.Key == Key.OemPlus || e.Key == Key.Add)
-				{
-					scaleTransform.ScaleX += 0.1;
-					scaleTransform.ScaleY += 0.1;
-					e.Handled = true;
-				}
-				// Ctrl + '-' || Ctrl + NumPad '-'
-				else if (e.Key == Key.OemMinus || e.Key == Key.Subtract)
-				{
-					scaleTransform.ScaleX = Math.Max(0.1, scaleTransform.ScaleX - 0.1);
-					scaleTransform.ScaleY = Math.Max(0.1, scaleTransform.ScaleY - 0.1);
-					e.Handled = true;
-				}
+				CurrentScale = Math.Clamp(CurrentScale + 0.1, MinScale, MaxScale);
+				e.Handled = true;
 			}
+			// Ctrl + '-' || Ctrl + NumPad '-'
+			else if (e.Key == Key.OemMinus || e.Key == Key.Subtract)
+			{
+				CurrentScale = Math.Clamp(CurrentScale - 0.1, MinScale, MaxScale);
+				e.Handled = true;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Обработчик прокрутки колеса мыши для изменения масштаба.
+	/// </summary>
+	private void UserControl_MouseWheel(object sender, MouseWheelEventArgs e)
+	{
+		if (Keyboard.Modifiers == ModifierKeys.Control)
+		{
+			double delta = e.Delta > 0 ? 0.1 : -0.1;
+
+			CurrentScale = Math.Clamp(CurrentScale + delta, MinScale, MaxScale);
+
+			e.Handled = true;
 		}
 	}
 
@@ -184,6 +212,8 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 		if (ContentScaleTransform is ScaleTransform scaleTransform)
 		{
 			double scale = e.NewValue;
+
+			//CurrentScale = Math.Clamp(scale, MinScale, MaxScale); // todo: почему устанавливает 0.1 загрузки формы?
 			scaleTransform.ScaleX = scale;
 			scaleTransform.ScaleY = scale;
 		}

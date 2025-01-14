@@ -7,7 +7,9 @@
              xmlns:converters="clr-namespace:TC_WinForms.WinForms.Diagram.Converters"
              mc:Ignorable="d" 
              Loaded="OnLoad"
-             PreviewKeyDown="UserControl_PreviewKeyDown">
+             PreviewKeyDown="UserControl_PreviewKeyDown"
+             PreviewMouseWheel="UserControl_MouseWheel"
+             >
     
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -82,7 +84,7 @@
             <Slider x:Name="ZoomSlider"
                 Minimum="{Binding MinScaleValue}" 
                     Maximum="{Binding MaxScaleValue}" 
-                Value="1.0" 
+                Value="{Binding CurrentScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                 TickFrequency="0.1"
                 IsSnapToTickEnabled="False"
                 VerticalAlignment="Center"
