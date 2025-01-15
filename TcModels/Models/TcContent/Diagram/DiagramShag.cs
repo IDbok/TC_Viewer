@@ -20,8 +20,8 @@ namespace TcModels.Models.TcContent
         public DiagramPosledov DiagramPosledov { get; set; }
         public int DiagramPosledovId { get; set; }
 
-        [NotMapped] public string? ParallelIndex { get; set; }
-		[NotMapped] public string? SequenceIndex { get; set; }
+  //      [NotMapped] public string? ParallelIndex { get; set; }
+		//[NotMapped] public string? SequenceIndex { get; set; }
 
 		public int Order { get; set; }
 

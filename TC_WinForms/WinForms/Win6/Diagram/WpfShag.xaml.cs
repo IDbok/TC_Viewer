@@ -226,18 +226,18 @@ namespace TC_WinForms.WinForms.Diagram
 
             CommentAccess();
 
-            SetIndxesToDiagramShag();
+            //SetIndxesToDiagramShag();
 
 		}
 
-        private void SetIndxesToDiagramShag()
-        {
-            if (wpfPosledovatelnost != null)
-            {
-                diagramShag.ParallelIndex = _diagramState?.WpfPosledovatelnost?.diagramPosledov.DiagramParalelnoId.ToString();
-                diagramShag.SequenceIndex = _diagramState?.WpfParalelno?.diagramParalelno.Id.ToString();
-			}
-        }
+		//     private void SetIndxesToDiagramShag()
+		//     {
+		//         if (_diagramState != null)
+		//         {
+		//             diagramShag.ParallelIndex = _diagramState?.WpfPosledovatelnost?.diagramPosledov.DiagramParalelnoId.ToString();
+		//             diagramShag.SequenceIndex = _diagramState?.WpfParalelno?.diagramParalelno.Id.ToString();
+		//}
+		//     }
 
 
 		public void UpdateDataGrids()
