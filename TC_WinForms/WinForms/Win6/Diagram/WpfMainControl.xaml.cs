@@ -72,6 +72,9 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 			if (_currentScale != value)
 			{
 				_currentScale = value;
+
+				_tcViewState.DiagramScale = value;
+
 				OnPropertyChanged(nameof(CurrentScale));
 
 				if (ContentScaleTransform is ScaleTransform scaleTransform)
@@ -119,6 +122,11 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
         this._tcId = tcId;
         this._diagramForm = _diagramForm;
         this._dbContext = context;
+
+		if (_tcViewState.DiagramScale != null)
+		{
+			CurrentScale = (double)_tcViewState.DiagramScale;
+		}
 
 		// Подпишемся на событие изменения режима просмотра
 		_tcViewState.ViewModeChanged += OnViewModeChanged;
