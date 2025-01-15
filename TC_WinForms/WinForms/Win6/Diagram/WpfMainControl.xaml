@@ -36,6 +36,8 @@
                 ScrollViewer.HorizontalScrollBarVisibility="Auto" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="4"
+                      
+                                  Margin="0 20 0 0"
                 MouseDown="ScrollViewer_MouseDown"
                 MouseMove="ScrollViewer_MouseMove"
                 MouseUp="ScrollViewer_MouseUp">

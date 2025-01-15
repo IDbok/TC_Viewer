@@ -150,19 +150,33 @@ public partial class WpfControlTO : System.Windows.Controls.UserControl, INotify
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)
-    {
-        if (this.diagamToWork.techOperationWork == null)
-            return;
+	{
+		if (this.diagamToWork.techOperationWork == null)
+			return;
 
-        //ListWpfParalelno.Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));// this, _tcViewState));
-        Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));
-        _wpfMainControl._diagramForm.HasChanges = true;
-        _wpfMainControl.UpdateNumbering();
+		AddNewShag();
+	}
 
-        _diagramState.HasChanges();
-    }
+	public void AddNewShag(int? index = null)
+	{
+        if (ComboBoxTO.SelectedItem == null)
+			return;
 
-    private void ComboBoxTO_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        if (index == null)
+        {
+            Children.Add(new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));
+        }
+        else
+        {
+			Children.Insert(index.Value, new WpfParalelno((TechOperationWork)ComboBoxTO.SelectedItem, _diagramState));
+		}
+
+		_wpfMainControl.UpdateNumbering();
+
+		_diagramState.HasChanges();
+	}
+
+	private void ComboBoxTO_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (ComboBoxTO.SelectedItem != null)
         {
