@@ -49,8 +49,25 @@ namespace TC_WinForms.WinForms
 				_logger.Information("Форма закрыта");
 				this.Dispose();
 			};
+            dgvMain.CellContentClick += DgvMain_CellContentClick;
 		}
-		protected override void LoadObjects()
+
+        private void DgvMain_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == 0 && e.RowIndex >= 0)
+            {
+                dgvMain.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+                var chech = (bool)dgvMain.Rows[e.RowIndex].Cells[0].Value;
+
+                var machineId = (int)dgvMain.Rows[e.RowIndex].Cells[1].Value;
+                var updatedMachine = _tcViewState.TechnologicalCard.Machine_TCs.Where(m => m.ChildId == machineId).FirstOrDefault();
+
+                updatedMachine.OutlayCount = chech;
+            }
+        }
+
+        protected override void LoadObjects()
 		{
 			var tcList = TargetTable
 				.OrderBy(o => o.Order)
@@ -105,11 +122,40 @@ namespace TC_WinForms.WinForms
 
 
 
-		////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////// * DGV settings * ////////////////////////////////////////////////////////////////////////////////////
+        protected override List<string> GetEditableColumns()
+        {
+            var baseList = base.GetEditableColumns();
+
+            baseList.Add(nameof(Machine_TC.OutlayCount));
+            return baseList;
+        }
+
+        public virtual void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
+        {
+            PnlControls.Visible = !_tcViewState.IsViewMode;
+
+            DgvMain.Columns[nameof(BaseDisplayedEntity.ChildId)].Visible = !_tcViewState.IsViewMode;
+
+            // make columns editable
+            //DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].ReadOnly = _tcViewState.IsViewMode;
+            DgvMain.Columns[nameof(BaseDisplayedEntity.Note)].ReadOnly = _tcViewState.IsViewMode;
+            DgvMain.Columns[nameof(Machine_TC.OutlayCount)].ReadOnly = _tcViewState.IsViewMode;
 
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		protected override void SaveReplacedObjects() // add to UpdateMode
+            DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+            DgvMain.Columns[nameof(BaseDisplayedEntity.Quantity)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+            DgvMain.Columns[nameof(BaseDisplayedEntity.Note)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+            DgvMain.Columns[nameof(Machine_TC.OutlayCount)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+
+            UpdateDynamicCardParametrs();
+
+            // update form
+            RefreshDataGridView();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        protected override void SaveReplacedObjects() // add to UpdateMode
         {
             if (_replacedObjects.Count == 0)
                 return;

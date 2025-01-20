@@ -47,6 +47,7 @@ public class MyDbContext : DbContext
 
     public DbSet<ImageStorage> ImageStorage { get; set; }
     public DbSet<ObjectLocker> BlockedConcurrencyObjects { get; set; } = null!;
+    public DbSet<Outlay> OutlaysTable { get; set; } = null!;
 
     public DbSet<Coefficient> Coefficients { get; set; } = null!;
 

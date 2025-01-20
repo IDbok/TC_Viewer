@@ -56,7 +56,7 @@ namespace TcModels.Models.IntermediateTables
 		public string? Note { get; set; }
 
         public List<ExecutionWork> ExecutionWorks { get; set; }
-
+        public bool OutlayCount { get; set; }
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is Machine_TC sourceCard)

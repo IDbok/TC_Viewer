@@ -227,7 +227,7 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 			}
 		}
 	}
-	public void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
+	public virtual void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
 	{
 		PnlControls.Visible = !_tcViewState.IsViewMode;
 

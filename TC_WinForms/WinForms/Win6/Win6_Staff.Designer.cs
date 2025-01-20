@@ -51,10 +51,11 @@ namespace TC_WinForms.WinForms
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 0);
+            dgvMain.Margin = new Padding(3, 2, 3, 2);
             dgvMain.Name = "dgvMain";
             dgvMain.RowHeadersWidth = 51;
             dgvMain.RowTemplate.Height = 29;
-            dgvMain.Size = new Size(1106, 382);
+            dgvMain.Size = new Size(970, 293);
             dgvMain.TabIndex = 0;
             dgvMain.CellEndEdit += dgvMain_CellEndEdit;
             // 
@@ -64,16 +65,18 @@ namespace TC_WinForms.WinForms
             pnlControls.Controls.Add(pnlControlBtns);
             pnlControls.Dock = DockStyle.Top;
             pnlControls.Location = new Point(0, 0);
+            pnlControls.Margin = new Padding(3, 2, 3, 2);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(1106, 60);
+            pnlControls.Size = new Size(970, 45);
             pnlControls.TabIndex = 1;
             // 
             // pnlFilters
             // 
             pnlFilters.Dock = DockStyle.Left;
             pnlFilters.Location = new Point(0, 0);
+            pnlFilters.Margin = new Padding(3, 2, 3, 2);
             pnlFilters.Name = "pnlFilters";
-            pnlFilters.Size = new Size(302, 60);
+            pnlFilters.Size = new Size(264, 45);
             pnlFilters.TabIndex = 25;
             // 
             // pnlControlBtns
@@ -83,17 +86,18 @@ namespace TC_WinForms.WinForms
             pnlControlBtns.Controls.Add(btnMoveUp);
             pnlControlBtns.Controls.Add(btnAddNewObj);
             pnlControlBtns.Dock = DockStyle.Right;
-            pnlControlBtns.Location = new Point(614, 0);
+            pnlControlBtns.Location = new Point(540, 0);
+            pnlControlBtns.Margin = new Padding(3, 2, 3, 2);
             pnlControlBtns.Name = "pnlControlBtns";
-            pnlControlBtns.Size = new Size(492, 60);
+            pnlControlBtns.Size = new Size(430, 45);
             pnlControlBtns.TabIndex = 24;
             // 
             // btnMoveDown
             // 
-            btnMoveDown.Location = new Point(458, 30);
+            btnMoveDown.Location = new Point(401, 22);
             btnMoveDown.Margin = new Padding(2);
             btnMoveDown.Name = "btnMoveDown";
-            btnMoveDown.Size = new Size(26, 26);
+            btnMoveDown.Size = new Size(23, 20);
             btnMoveDown.TabIndex = 1;
             btnMoveDown.Text = "▼";
             btnMoveDown.UseVisualStyleBackColor = true;
@@ -102,9 +106,10 @@ namespace TC_WinForms.WinForms
             // 
             // btnDeleteObj
             // 
-            btnDeleteObj.Location = new Point(321, 9);
+            btnDeleteObj.Location = new Point(281, 7);
+            btnDeleteObj.Margin = new Padding(3, 2, 3, 2);
             btnDeleteObj.Name = "btnDeleteObj";
-            btnDeleteObj.Size = new Size(114, 42);
+            btnDeleteObj.Size = new Size(100, 32);
             btnDeleteObj.TabIndex = 25;
             btnDeleteObj.Text = "Удалить";
             btnDeleteObj.UseVisualStyleBackColor = true;
@@ -112,10 +117,10 @@ namespace TC_WinForms.WinForms
             // 
             // btnMoveUp
             // 
-            btnMoveUp.Location = new Point(458, 0);
+            btnMoveUp.Location = new Point(401, 0);
             btnMoveUp.Margin = new Padding(2);
             btnMoveUp.Name = "btnMoveUp";
-            btnMoveUp.Size = new Size(26, 26);
+            btnMoveUp.Size = new Size(23, 20);
             btnMoveUp.TabIndex = 0;
             btnMoveUp.Text = "▲";
             btnMoveUp.UseVisualStyleBackColor = true;
@@ -124,9 +129,10 @@ namespace TC_WinForms.WinForms
             // 
             // btnAddNewObj
             // 
-            btnAddNewObj.Location = new Point(200, 9);
+            btnAddNewObj.Location = new Point(175, 7);
+            btnAddNewObj.Margin = new Padding(3, 2, 3, 2);
             btnAddNewObj.Name = "btnAddNewObj";
-            btnAddNewObj.Size = new Size(114, 42);
+            btnAddNewObj.Size = new Size(100, 32);
             btnAddNewObj.TabIndex = 23;
             btnAddNewObj.Text = "Добавить";
             btnAddNewObj.UseVisualStyleBackColor = true;
@@ -136,19 +142,21 @@ namespace TC_WinForms.WinForms
             // 
             pnlDataViewer.Controls.Add(dgvMain);
             pnlDataViewer.Dock = DockStyle.Fill;
-            pnlDataViewer.Location = new Point(0, 60);
+            pnlDataViewer.Location = new Point(0, 45);
+            pnlDataViewer.Margin = new Padding(3, 2, 3, 2);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(1106, 382);
+            pnlDataViewer.Size = new Size(970, 293);
             pnlDataViewer.TabIndex = 2;
             // 
             // Win6_Staff
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1106, 442);
+            ClientSize = new Size(970, 338);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
-            MinimumSize = new Size(1124, 489);
+            Margin = new Padding(3, 2, 3, 2);
+            MinimumSize = new Size(986, 377);
             Name = "Win6_Staff";
             Text = "Win6_Staff";
             Load += Win6_Staff_Load;
