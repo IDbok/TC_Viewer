@@ -41,7 +41,10 @@ namespace TcModels.Models.IntermediateTables
             nameof(Quantity),
             nameof(Note),
         };
-        public int ChildId { get; set; }
+
+		public Guid UniqueField { get; set; }
+
+		public int ChildId { get; set; }
         public Machine Child { get; set; }
 
         public int ParentId { get; set; }

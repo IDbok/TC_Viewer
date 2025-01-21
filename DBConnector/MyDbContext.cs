@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -78,7 +79,9 @@ public class MyDbContext : DbContext
 
 		optionsBuilder
 			.UseMySql(connectString,
-			new MySqlServerVersion(new Version(5, 7, 24)));
+			new MySqlServerVersion(new Version(5, 7, 24)))//;
+        .EnableSensitiveDataLogging() // Включает вывод параметров запросов
+		.LogTo(Console.WriteLine, LogLevel.Information); // Логирование в консоль
 
 	}
 
@@ -126,31 +129,70 @@ public class MyDbContext : DbContext
                     //j.ToTable("Instrument_kit");
                 });
 
-        modelBuilder
-            .Entity<TechnologicalCard>()
-            .HasMany(tc => tc.Staffs)
-            .WithMany(st => st.TechnologicalCards)
-            .UsingEntity<Staff_TC>(
-                j => j
-                    .HasOne(sttc => sttc.Child)
-                    .WithMany(st => st.Staff_TCs)
-                    .HasForeignKey(sttc => sttc.ChildId),
-                j => j
-                    .HasOne(sttc => sttc.Parent)
-                    .WithMany(st => st.Staff_TCs)
-                    .HasForeignKey(sttc => sttc.ParentId),
-                j =>
-                {
-                    j.Property(sttc => sttc.Symbol).HasDefaultValue("-");
+		//modelBuilder
+		//    .Entity<TechnologicalCard>()
+		//    .HasMany(tc => tc.Staffs)
+		//    .WithMany(st => st.TechnologicalCards)
+		//    .UsingEntity<Staff_TC>(
+		//        j => j
+		//            .HasOne(sttc => sttc.Child)
+		//            .WithMany(st => st.Staff_TCs)
+		//            .HasForeignKey(sttc => sttc.ChildId),
+		//        j => j
+		//            .HasOne(sttc => sttc.Parent)
+		//            .WithMany(st => st.Staff_TCs)
+		//            .HasForeignKey(sttc => sttc.ParentId),
+		//        j =>
+		//        {
+		//            j.Property(sttc => sttc.Symbol).HasDefaultValue("-");
+		//            j.Property(sttc => sttc.Order).HasDefaultValue(0);
+		//            j.Property(f => f.IdAuto).ValueGeneratedOnAdd();
+		//            j.HasKey(t => new {  t.IdAuto}); //t.ParentId, t.ChildId,
+		//            j.ToTable("Staff_TC");
+		//            // j.HasIndex(t => t.Symbol).IsUnique();
+		//        });
+		//modelBuilder.Entity<Staff_TC>()
+		//    .HasKey(st => st.IdAuto);
+
+		modelBuilder
+			.Entity<TechnologicalCard>()
+			.HasMany(tc => tc.Staffs)
+			.WithMany(st => st.TechnologicalCards)
+			.UsingEntity<Staff_TC>(
+				j => j
+					.HasOne(sttc => sttc.Child)
+					.WithMany(st => st.Staff_TCs)
+					.HasForeignKey(sttc => sttc.ChildId),
+				j => j
+					.HasOne(sttc => sttc.Parent)
+					.WithMany(st => st.Staff_TCs)
+					.HasForeignKey(sttc => sttc.ParentId),
+				j =>
+				{
+					// Первичный ключ
+					j.HasKey(t => t.IdAuto);
+					//j.HasKey(t => t.Id);
+
+					// Уникальное поле GUID
+					j.Property(sttc => sttc.UniqueField)
+						.HasColumnType("char(36)") // Хранение UUID в формате строки
+						.IsRequired()
+						.HasDefaultValueSql("UUID()"); // Генерация значения через MySQL
+
+					// Остальные настройки
+					j.Property(sttc => sttc.Symbol).HasDefaultValue("-");
                     j.Property(sttc => sttc.Order).HasDefaultValue(0);
                     j.Property(f => f.IdAuto).ValueGeneratedOnAdd();
-                    j.HasKey(t => new {  t.IdAuto}); //t.ParentId, t.ChildId,
-                    j.ToTable("Staff_TC");
-                    // j.HasIndex(t => t.Symbol).IsUnique();
-                });
-        //modelBuilder.Entity<Staff_TC>()
-        //    .HasKey(st => st.IdAuto);
-        modelBuilder
+
+                    //Если хотите, чтобы пары(ParentId, ChildId) были уникальны
+                    //(аналогично старому составному ключу), можете сделать индекс:
+                    //j.HasIndex(t => new { t.ParentId, t.ChildId }).IsUnique();
+                    j.HasIndex(t => t.UniqueField).IsUnique();
+
+					j.ToTable("Staff_TC");
+				});
+
+		modelBuilder
             .Entity<TechnologicalCard>()
             .HasMany(tc => tc.Components)
             .WithMany(st => st.TechnologicalCards)
@@ -170,28 +212,66 @@ public class MyDbContext : DbContext
                     j.HasKey(t => new { t.ParentId, t.ChildId});
                     j.ToTable("Component_TC");
                 });
-        modelBuilder
-            .Entity<TechnologicalCard>()
-            .HasMany(tc => tc.Machines)
-            .WithMany(st => st.TechnologicalCards)
-            .UsingEntity<Machine_TC>(
-                j => j
-                    .HasOne(sttc => sttc.Child)
-                    .WithMany(st => st.Machine_TCs)
-                    .HasForeignKey(sttc => sttc.ChildId),
-                j => j
-                    .HasOne(sttc => sttc.Parent)
-                    .WithMany(st => st.Machine_TCs)
-                    .HasForeignKey(sttc => sttc.ParentId),
-                j =>
-                {
-                    j.Property(sttc => sttc.Quantity).HasDefaultValue(0);
-                    j.Property(sttc => sttc.Order).HasDefaultValue(0);
-                    j.HasKey(t => new { t.ParentId, t.ChildId });
+        //modelBuilder
+        //    .Entity<TechnologicalCard>()
+        //    .HasMany(tc => tc.Machines)
+        //    .WithMany(st => st.TechnologicalCards)
+        //    .UsingEntity<Machine_TC>(
+        //        j => j
+        //            .HasOne(sttc => sttc.Child)
+        //            .WithMany(st => st.Machine_TCs)
+        //            .HasForeignKey(sttc => sttc.ChildId),
+        //        j => j
+        //            .HasOne(sttc => sttc.Parent)
+        //            .WithMany(st => st.Machine_TCs)
+        //            .HasForeignKey(sttc => sttc.ParentId),
+        //        j =>
+        //        {
+        //            j.Property(sttc => sttc.Quantity).HasDefaultValue(0);
+        //            j.Property(sttc => sttc.Order).HasDefaultValue(0);
+        //            j.HasKey(t => new { t.ParentId, t.ChildId });
+        //            j.ToTable("Machine_TC");
+        //        });
+
+		modelBuilder
+	        .Entity<TechnologicalCard>()
+	        .HasMany(tc => tc.Machines)
+	        .WithMany(st => st.TechnologicalCards)
+	        .UsingEntity<Machine_TC>(
+		        j => j
+			        .HasOne(sttc => sttc.Child)
+			        .WithMany(st => st.Machine_TCs)
+			        .HasForeignKey(sttc => sttc.ChildId),
+		        j => j
+			        .HasOne(sttc => sttc.Parent)
+			        .WithMany(st => st.Machine_TCs)
+			        .HasForeignKey(sttc => sttc.ParentId),
+		        j =>
+		        {
+					// Первичный ключ
+					j.HasKey(t => new { t.ParentId, t.ChildId });
+					//j.HasKey(t => t.Id);
+
+					// Уникальное поле GUID
+					j.Property(sttc => sttc.UniqueField)
+						.HasColumnType("char(36)") // Хранение UUID в формате строки
+						.IsRequired()
+						.HasDefaultValueSql("UUID()"); // Генерация значения через MySQL
+
+					// Остальные настройки
+					j.Property(sttc => sttc.Quantity).HasDefaultValue(0);
+			        j.Property(sttc => sttc.Order).HasDefaultValue(0);
+
+                    //Если хотите, чтобы пары(ParentId, ChildId) были уникальны
+                    //(аналогично старому составному ключу), можете сделать индекс:
+                    //j.HasIndex(t => new { t.ParentId, t.ChildId }).IsUnique();
+                    j.HasIndex(t => t.UniqueField).IsUnique();
+
                     j.ToTable("Machine_TC");
-                });
-        modelBuilder
-            .Entity<TechnologicalCard>()
+		        });
+
+		modelBuilder
+			.Entity<TechnologicalCard>()
             .HasMany(tc => tc.Protections)
             .WithMany(st => st.TechnologicalCards)
             .UsingEntity<Protection_TC>(
