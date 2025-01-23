@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TcDbConnector;
 
@@ -11,9 +12,11 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250114080140_OutlayTable")]
+    partial class OutlayTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -280,9 +283,6 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<bool>("OutlayCount")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<double>("Quantity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double")
@@ -364,9 +364,6 @@ namespace TcDbConnector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0);
-
-                    b.Property<bool>("OutlayCount")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<int>("ParentId")
                         .HasColumnType("int");
@@ -865,8 +862,8 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("OutlayUnitType")
                         .HasColumnType("int");
 
-                    b.Property<double>("OutlayValue")
-                        .HasColumnType("double");
+                    b.Property<int>("OutlayValue")
+                        .HasColumnType("int");
 
                     b.Property<int>("TcID")
                         .HasColumnType("int");

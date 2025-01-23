@@ -1,6 +1,8 @@
 ﻿using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using System.ComponentModel;
 using System.Drawing;
+using System.Reflection;
 using System.Text;
 using TcDbConnector;
 using TcModels.Models;
@@ -59,7 +61,7 @@ namespace ExcelParsing.DataProcessing
 
         public TCExcelExporter()
         {
-            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.Commercial;
             _excelPackage = new ExcelPackage();
             _exporter = new ExcelExporter();
         }
@@ -77,7 +79,7 @@ namespace ExcelParsing.DataProcessing
             }
         }
 
-        public void ExportTCtoFile(string fileFolderPath, TechnologicalCard tc)
+        public void ExportTCtoFile(string fileFolderPath, TechnologicalCard tc, List<Outlay> outlays)
         {
             string article = tc.Article;
             string filePath = fileFolderPath;// + article + ".xlsx";
@@ -107,6 +109,8 @@ namespace ExcelParsing.DataProcessing
 
             var headerWorkStepsRow = lastRow;
             lastRow = AddTechOperationDataToExcel(tc.TechOperationWorks.OrderBy(x => x.Order).ToList(), machine_TCs, sheet, lastRow + 1);
+
+            lastRow = AddOutlayDataToExel(sheet, lastRow + 1, outlays);
 
             // Скрытие столбцов механизмов в Таблице хода работ
             HideMachineColumns(sheet);
@@ -999,6 +1003,65 @@ namespace ExcelParsing.DataProcessing
             }
         }
         
+        public int AddOutlayDataToExel(ExcelWorksheet sheet, int headRow, List<Outlay> outlays)
+        {
+            Dictionary<string, int> headersColumns =
+                new Dictionary<string, int>
+                {
+                    { "№", 1 },
+                    { "Наименование", 2 },
+                    { "Ед. Изм.", 5 },
+                    { "Итого", 6 },
+                    { "конец", 7 }
+                };
+            // Добавление заголовков
+            string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
+            int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
+
+            _exporter.AddTableHeader(sheet, "7. Таблица затрат", headRow-1, columnNums);
+
+            _exporter.AddTableHeaders(sheet, headers, headRow, columnNums);
+
+            //// Добавление данных
+            int currentRow = headRow + 1;
+            var order = 1;
+            foreach (Outlay outlay in outlays)
+            {
+                sheet.Cells[currentRow, columnNums[0]].Value = order;
+                sheet.Cells[currentRow, columnNums[1]].Value = outlay.Name == null
+                                                               ? GetDescription(outlay.Type)
+                                                               : $"{GetDescription(outlay.Type)} ({outlay.Name})";
+                sheet.Cells[currentRow, columnNums[2]].Value = GetDescription(outlay.OutlayUnitType);
+                sheet.Cells[currentRow, columnNums[3]].Value = outlay.OutlayValue;
+
+                sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                // Включаем перенос слов в ячейке
+                sheet.Cells[currentRow, columnNums[1]].Style.WrapText = true;
+                sheet.Cells[currentRow, columnNums[2]].Style.WrapText = true;
+
+                sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+
+                _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
+                // Установка высоты строки
+                _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, _defaultRowHeight, _columnWidths, columnNums);
+
+                currentRow++;
+                order++;
+            }
+
+            // Высота строки заголовка
+            var row = sheet.Row(headRow);
+            row.CustomHeight = true;
+            row.Height = 33;
+
+            // Применяем стили для всех ячеек
+            _exporter.ApplyCellFormatting(sheet.Cells[headRow - 1, columnNums[0], currentRow - 1, columnNums[columnNums.Length - 1] - 1]);
+
+            return currentRow;
+        }
+
         public void AddExecutionSchemeToExcel(ExcelWorksheet sheet, long? executionSchemeImageId, int row, int column, int endRow)
         {
             if (executionSchemeImageId != null)
@@ -1088,6 +1151,21 @@ namespace ExcelParsing.DataProcessing
             cells.Style.Border.BorderAround(ExcelBorderStyle.Double);
             cells.Style.Fill.SetBackground(_lightGey);
 
+        }
+
+        public string GetDescription(Enum value)
+        {
+            FieldInfo fi = value.GetType().GetField(value.ToString());
+            DescriptionAttribute[] attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
+
+            if (attributes != null && attributes.Length > 0)
+            {
+                return attributes[0].Description;
+            }
+            else
+            {
+                return value.ToString();
+            }
         }
 
         public void Save()

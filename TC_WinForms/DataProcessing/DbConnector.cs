@@ -891,6 +891,15 @@ namespace TC_WinForms.DataProcessing
             }
         }
 
+        public async Task<List<Outlay>> GetOutlayListToExportAsync(int tcId)
+        {
+            using (var db = new MyDbContext())
+            {
+                var outlays = await db.OutlaysTable.Where(x => x.TcID == tcId).ToListAsync();
+
+                return outlays;
+            }
+        }
         //public List<T> GetObjectList<T>(bool includeLinks = false) where T : class, IIdentifiable
         //{
         //    try

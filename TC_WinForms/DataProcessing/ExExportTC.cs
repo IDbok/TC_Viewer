@@ -30,13 +30,14 @@ public class ExExportTC
                     try
                     {
                         var tc = await dbCon.GetTechnologicalCardToExportAsync(tcId);
+                        var outlays = await dbCon.GetOutlayListToExportAsync(tcId);
                         if (tc == null)
                         {
                             MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
                         var excelExporter = new TCExcelExporter();
-                        excelExporter.ExportTCtoFile(saveFileDialog.FileName, tc);
+                        excelExporter.ExportTCtoFile(saveFileDialog.FileName, tc, outlays);
 
                         MessageBox.Show($"Файл успешно сохранен", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
