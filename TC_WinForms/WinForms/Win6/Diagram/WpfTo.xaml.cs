@@ -106,7 +106,7 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
         if (Children.Count > 0)
         {
             parallelIndex ??= SetParallelIndex();
-            _wpfMainControl.diagramForm.HasChanges = true;
+            _wpfMainControl._diagramForm.HasChanges = true;
 
             //установить индекс параллельности для всех дочерних элементов
             foreach (var wpfSq in Children)
@@ -123,8 +123,8 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
         {
             AddDiagramToWork();
 
-            _wpfMainControl.diagramForm.HasChanges = true;
-            _wpfMainControl.Nomeraciya();
+            _wpfMainControl._diagramForm.HasChanges = true;
+            _wpfMainControl.UpdateNumbering();
         }
     }
     private void AddDiagramToWork(DiagamToWork? diagamToWork = null)
@@ -247,7 +247,7 @@ public partial class WpfTo : System.Windows.Controls.UserControl, INotifyPropert
                 break;
         }
 
-        _wpfMainControl.Nomeraciya();
+        _wpfMainControl.UpdateNumbering();
     }
 
     public string? GetParallelIndex()
