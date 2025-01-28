@@ -248,9 +248,16 @@
                                      IsReadOnly="{Binding IsViewMode}"
                                      />
                         </Grid>
-                </StackPanel>
-            </Border>            
-        </StackPanel>
+
+                       
+                    </StackPanel>
+            </Border>
+                <Button x:Name="btnAddNewShag" Content="Добавить ШАГ" HorizontalAlignment="Center"
+                         VerticalAlignment="Bottom" Margin="0,5,0,0" 
+                         Click="btnAddNewShag_Click"
+                         Visibility="{Binding IsHiddenInViewMode,
+                             Converter={StaticResource BoolToVisibilityConverter}}"/>
+            </StackPanel>
     </Border>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="14" 
                     Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"

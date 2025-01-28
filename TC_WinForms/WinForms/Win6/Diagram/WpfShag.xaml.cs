@@ -57,13 +57,6 @@ namespace TC_WinForms.WinForms.Diagram
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        // Отписка от событий, чтобы избежать утечек памяти
-        //~WpfShag()
-        //{
-        //    _tcViewState.CommentViewModeChanged -= OnCommentViewModeChanged;
-        //    _tcViewState.ViewModeChanged -= OnViewModeChanged;
-        //}
-
         public void SaveCollection()
         {
             if (diagramShag == null)
@@ -77,41 +70,6 @@ namespace TC_WinForms.WinForms.Diagram
             diagramShag.LeadComment = txtLeadComment.Text;
 
             UpdateToolsComponentsList();
-
-            //var allVB = AllItemGrid.Where(w => w.Add).ToList();
-            //diagramShag.ListDiagramShagToolsComponent = new List<DiagramShagToolsComponent>();
-            //foreach (var item in allVB)
-            //{
-            //    DiagramShagToolsComponent diagramShagToolsComponent = new DiagramShagToolsComponent();
-            //    if (item.toolWork != null)
-            //    {
-            //        diagramShagToolsComponent.toolWork = item.toolWork;
-            //    }
-            //    else
-            //    {
-            //        diagramShagToolsComponent.componentWork = item.componentWork;
-            //    }
-
-            //    try
-            //    {
-            //        diagramShagToolsComponent.Quantity = double.Parse(item.AddText);
-            //    }
-            //    catch (Exception)
-            //    {
-            //        diagramShagToolsComponent.Quantity = 0;
-            //    }
-
-            //    var prevComment = diagramShagToolsComponent.toolWork != null ? diagramShagToolsComponent.toolWork.Comments : diagramShagToolsComponent.componentWork.Comments;
-
-            //    if (prevComment != item.Comments)
-            //    {
-            //        diagramShagToolsComponent.Comment = item.Comments;
-            //    }
-
-            //    diagramShag.ListDiagramShagToolsComponent.Add(diagramShagToolsComponent);
-            //}
-
-
         }
 
         private void UpdateToolsComponentsList() // todo: зачем-то вызывается перед закрытием формы. Проверить нужно ли это
@@ -174,7 +132,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         public WpfShag(TechOperationWork selectedItem,
             DiagramState diagramState,
-            DiagramShag _diagramShag = null)
+            DiagramShag? _diagramShag = null)
             : this(selectedItem,
                 diagramState.WpfPosledovatelnost ?? throw new ArgumentNullException(nameof(diagramState.WpfPosledovatelnost)),
                 diagramState.TcViewState, _diagramShag)
@@ -266,15 +224,23 @@ namespace TC_WinForms.WinForms.Diagram
 
             wpfPosledovatelnost = _wpfPosledovatelnost;
 
-            //if (techOperationWork == null)
-            //    this.techOperationWork = selectedItem;
-
-
-            //UpdateDataGrids();
-
             CommentAccess();
-        }
-        public void UpdateDataGrids()
+
+            //SetIndxesToDiagramShag();
+
+		}
+
+		//     private void SetIndxesToDiagramShag()
+		//     {
+		//         if (_diagramState != null)
+		//         {
+		//             diagramShag.ParallelIndex = _diagramState?.WpfPosledovatelnost?.diagramPosledov.DiagramParalelnoId.ToString();
+		//             diagramShag.SequenceIndex = _diagramState?.WpfParalelno?.diagramParalelno.Id.ToString();
+		//}
+		//     }
+
+
+		public void UpdateDataGrids()
         {
             //var techOperationWork = this.techOperationWork;
 
@@ -603,7 +569,43 @@ namespace TC_WinForms.WinForms.Diagram
             }
         }
 
+        public void btnAddNewShag_Click(object sender, RoutedEventArgs e)
+		{
+			// проверить налиние более одного шага в последовательности
+			var diagramPosledovChildren = _diagramState.WpfPosledovatelnost?.ListWpfShag.Children;
+            if (diagramPosledovChildren == null) return;
+            if(diagramPosledovChildren.Count > 1)
+			{
+				// если более одного шага, то добавить новый шаг в последовательность, если это не последний шаг
+				if (diagramPosledovChildren[diagramPosledovChildren.Count - 1] != this)
+				{ 
+                    // получить позицию текущего шага в последовательности
+					var index = diagramPosledovChildren.IndexOf(this);
 
+					if (index == -1) return;
 
-    }
+					_diagramState.WpfPosledovatelnost?.AddNewShag(index: ++index);
+
+                    return;
+				}
+			}
+
+			// если шаг в последовательности один или это последний шаг в последовательности,
+			// то добавить новый шаг вне последовательности
+
+			var shagConteiner = _diagramState.WpfParalelno;
+			if (shagConteiner == null) return;
+			var shagConteinerIndex = _diagramState.WpfControlTO?.Children.IndexOf(shagConteiner);
+			if (shagConteinerIndex == null) return;
+
+            if (_diagramState.WpfControlTO?.Children.Count == shagConteinerIndex + 1)
+			{
+				_diagramState.WpfControlTO?.AddNewShag();
+			}
+            else
+            {
+                _diagramState.WpfControlTO?.AddNewShag(++shagConteinerIndex);
+            }
+		}
+	}
 }
