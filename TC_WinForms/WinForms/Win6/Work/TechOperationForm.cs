@@ -1798,4 +1798,54 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	//        }
 	//    }
 	//}
+
+	/// <summary>
+	/// Добавляет новую строку в dgvMain по указанному индексу.
+	/// </summary>
+	/// <param name="rowIndex">Индекс, по которому следует вставить строку.</param>
+	/// <param name="values">Массив значений для новой строки.</param>
+	public void AddRowByIndex(int rowIndex, object[] values)
+	{
+		if (rowIndex < 0 || rowIndex > dgvMain.Rows.Count)
+			throw new ArgumentOutOfRangeException(nameof(rowIndex),
+				"Индекс строки вне допустимого диапазона.");
+
+		// Проверяем, совпадает ли количество значений с количеством столбцов
+		if (values.Length != dgvMain.Columns.Count)
+		{
+			throw new ArgumentException("Количество переданных значений " +
+										"не совпадает с количеством столбцов в dgvMain.");
+		}
+
+		dgvMain.Rows.Insert(rowIndex, values);
+
+		// Можно добавить дополнительную логику форматирования
+		// (например, назначить цвет фона для ячеек или выставить ReadOnly)
+		// DataGridViewRow insertedRow = dgvMain.Rows[rowIndex];
+		// insertedRow.Cells[...].Style.BackColor = Color.LightYellow;
+	}
+
+	/// <summary>
+	/// Обновляет значение ячейки таблицы dgvMain по указанным индексам.
+	/// </summary>
+	/// <param name="rowIndex">Индекс строки.</param>
+	/// <param name="columnIndex">Индекс столбца.</param>
+	/// <param name="newValue">Новое значение ячейки.</param>
+	public void UpdateCellValue(int rowIndex, int columnIndex, object newValue)
+	{
+		if (rowIndex < 0 || rowIndex >= dgvMain.Rows.Count)
+			throw new ArgumentOutOfRangeException(nameof(rowIndex),
+				"Индекс строки вне допустимого диапазона.");
+
+		if (columnIndex < 0 || columnIndex >= dgvMain.Columns.Count)
+			throw new ArgumentOutOfRangeException(nameof(columnIndex),
+				"Индекс столбца вне допустимого диапазона.");
+
+		dgvMain.Rows[rowIndex].Cells[columnIndex].Value = newValue;
+
+		// Если нужно сразу же отобразить изменения в интерфейсе,
+		// можно принудительно вызвать перерисовку:
+		// dgvMain.Invalidate();
+	}
+
 }
