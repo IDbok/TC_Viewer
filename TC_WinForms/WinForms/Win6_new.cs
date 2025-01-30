@@ -563,23 +563,7 @@ namespace TC_WinForms.WinForms
 				return true;
 			}
 
-			//var hasUnsavedChanges = false;
-			//foreach (var fm in _formsCache.Values)
-			//{
-			//    if (fm is ISaveEventForm saveForm && saveForm.HasChanges || context.ChangeTracker.HasChanges())
-			//    {
-			//        hasUnsavedChanges = true;
-			//        break;
-			//    }
-			//}
-
-			// проверка на наличие изменений
-			var hasUnsavedChanges = _formsCache.Values.OfType<ISaveEventForm>()
-											  .Any(f => f.HasChanges)
-											  || context.ChangeTracker.HasChanges();
-
-
-			if (hasUnsavedChanges)
+			if (HasChanges())
 			{
 				_logger.Warning("Обнаружены несохраненные изменения для TcId={TcId}", _tcId);
 
@@ -602,6 +586,25 @@ namespace TC_WinForms.WinForms
 
 			_logger.Debug("Изменений не обнаружено для TcId={TcId}", _tcId);
 			return true;
+		}
+
+		private bool HasChanges()
+		{
+
+			//var hasUnsavedChanges = false;
+			//foreach (var fm in _formsCache.Values)
+			//{
+			//    if (fm is ISaveEventForm saveForm && saveForm.HasChanges || context.ChangeTracker.HasChanges())
+			//    {
+			//        hasUnsavedChanges = true;
+			//        break;
+			//    }
+			//}
+
+			// проверка на наличие изменений
+			return _formsCache.Values.OfType<ISaveEventForm>()
+											  .Any(f => f.HasChanges)
+											  || context.ChangeTracker.HasChanges();
 		}
 
 		private Form CreateForm(EModelType modelType)
@@ -1021,6 +1024,14 @@ namespace TC_WinForms.WinForms
 		{
 			LogUserAction("Опубликование технической карты");
 
+			// если есть несохраненые изменённыя, необходимо их сохранить, либо отменить
+			if (!CheckForChanges())
+			{
+				MessageBox.Show("Перед опубликованием карты необходимо сохранить изменения.");
+				return;
+			}
+
+
 			if (!CheckChangesForTcDraftStatusChanging()) { return; }
 
 			try
@@ -1047,6 +1058,11 @@ namespace TC_WinForms.WinForms
 				SetCommentViewMode(false);
 
 				_logger.Information("Техническая карта успешно опубликована для TcId={TcId}", _tcId);
+
+				var editorForm = new Win6_new(_tcId, role: _accessLevel);
+				this.Close();
+				editorForm.Show();
+
 				MessageBox.Show("Техническая карта опубликована.");
 			}
 			catch (Exception ex)
