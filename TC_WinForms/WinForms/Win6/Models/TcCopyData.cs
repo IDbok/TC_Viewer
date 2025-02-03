@@ -133,7 +133,7 @@ public enum CopyScopeEnum
 	/// <summary>
 	/// Копирование ячейки с машинами.
 	/// </summary>
-	Machines,
+	Machines, // todo: это не используется
 
 	/// <summary>
 	/// Копирование ячейки с СЗ.
