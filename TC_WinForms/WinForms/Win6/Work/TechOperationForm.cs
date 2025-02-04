@@ -23,8 +23,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	private readonly TcViewState _tcViewState;
 
-    private bool _isViewMode;
-    private bool _isCommentViewMode;
+    //private bool _isViewMode;
+    //private bool _isCommentViewMode;
     private bool _isMachineViewMode;
 
     public MyDbContext context { get; private set; }
@@ -127,16 +127,21 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     {
         if (e.Control && e.KeyCode == Keys.V)
         {
-            PasteCopiedData();
-
-			//PasteClipboardValue();
+			// Вставка данных из буфера обмена только если не включёр режим просмотра
+			if (_tcViewState.IsViewMode)
+				PasteClipboardValue();
+			else
+				PasteCopiedData();
+			
             e.Handled = true;
 		}
         // Новая обработка Ctrl + C
 		else if (e.Control && e.KeyCode == Keys.C)
 		{
-			CopyData();     // Выводим информацию о выделении
-			// CopyClipboardValue();    // Копируем
+            if (_tcViewState.IsViewMode)
+				CopyClipboardValue();
+			else
+				CopyData();     // Выводим информацию о выделении
 			e.Handled = true;
 		}
 		else if (e.KeyCode == Keys.Delete)
