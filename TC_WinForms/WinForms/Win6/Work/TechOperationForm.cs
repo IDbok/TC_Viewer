@@ -127,14 +127,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     {
         if (e.Control && e.KeyCode == Keys.V)
         {
-            PasteClipboardValue();
+            PasteCopiedData();
+
+			//PasteClipboardValue();
             e.Handled = true;
 		}
         // Новая обработка Ctrl + C
 		else if (e.Control && e.KeyCode == Keys.C)
 		{
-			ShowSelectionInfo();     // Выводим информацию о выделении
-			CopyClipboardValue();    // Копируем
+			CopyData();     // Выводим информацию о выделении
+			// CopyClipboardValue();    // Копируем
 			e.Handled = true;
 		}
 		else if (e.KeyCode == Keys.Delete)
@@ -145,103 +147,252 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     }
 
 	/// <summary>
-	/// Показывает сообщение о том, какая ячейка или какие строки выделены.
+	/// Копирует информацию о выделенном объекта в зависимости от того, какая ячейка или какие строки выделены.
 	/// </summary>
-	private void ShowSelectionInfo()
+	private void CopyData()
 	{
-		// Если выделено несколько строк (через DataGridView.SelectedRows или набор ячеек из разных строк)
-		// то выводим список номеров строк.
-		// В противном случае, если ровно одна ячейка – выводим название столбца и индекс строки.
+		GetSelectedDataInfo(
+            out List<int> selectedRowIndices, 
+            out CopyScopeEnum? copyScope);
 
+		if (selectedRowIndices.Count == 0)
+			return;
+
+		try
+		{
+            // Копируем текст ячейки в буфер обмена
+			CopyClipboardValue();
+			// Если копируются данные не из текстовой облости, то сохраняем их в TcCopyData
+			if (copyScope != CopyScopeEnum.Text)
+				TcCopyData.SetCopyDate(selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList(), copyScope);
+		}
+		catch
+		(Exception ex)
+		{
+			MessageBox.Show(ex.Message);
+			return;
+		}
+	}
+
+    private int? GetColumnIndex(CopyScopeEnum copyScope)
+    {
+		switch (copyScope)
+		{
+			case CopyScopeEnum.Staff:
+				return dgvMain.Columns["Staff"].Index;
+			case CopyScopeEnum.Protections:
+				return dgvMain.Columns["Protection"].Index;
+			case CopyScopeEnum.Text:
+				return dgvMain.Columns["Text"].Index;
+			case CopyScopeEnum.Machines:
+				return dgvMain.Columns["Machine"].Index;
+			case CopyScopeEnum.TechOperation:
+				return dgvMain.Columns["TechOperation"].Index;
+			default:
+				return null;
+		}
+	}
+
+	private void GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? copyScope)
+	{
 		// Соберём все уникальные индексы строк, где есть выделенные ячейки.
 		var selectedRows = dgvMain.SelectedCells
 			.Cast<DataGridViewCell>()
 			.Distinct()
 			.ToList();
 
-        //var selectedEW = selectedRows.Select(c => (ExecutionWork)dgvMain.Rows[c.RowIndex].Cells[0].Value).ToList();
-
-		var selectedRowIndices = selectedRows
+		selectedRowIndices = selectedRows
 			.Select(c => c.RowIndex)
 			.Distinct()
 			.OrderBy(idx => idx)
 			.ToList();
-
-        if (selectedRowIndices.Count == 0)
-            return;
-
-
-		CopyScopeEnum? copyScope = null;
-
+		
+		copyScope = null;
 		if (selectedRowIndices.Count == 1 && dgvMain.SelectedCells.Count == 1)
 		{
 			// Одна ячейка
 			var cell = dgvMain.SelectedCells[0];
-			string columnName = dgvMain.Columns[cell.ColumnIndex].HeaderText;
+			copyScope = GetCopyScopeByCell(cell);
+		}
+        else if (selectedRowIndices.Count > 1)
+        {
+            copyScope = CopyScopeEnum.RowRange;
+		}
+	}
 
-            switch (columnName)
-            {
-                case "Исполнитель":
-                    copyScope = CopyScopeEnum.Staff;
-					break;
-				case "№ СЗ":
-					copyScope = CopyScopeEnum.Protections;
-					break;
-                case "Примечание":
-                    copyScope = CopyScopeEnum.Text;
-                    break;
-				case "Рис.":
-					copyScope = CopyScopeEnum.Text;
-					break;
+	private void PasteCopiedData()
+    {
+		List<int> selectedRowIndices;
+		CopyScopeEnum? copyScope;
+
+		GetSelectedDataInfo(out selectedRowIndices, out copyScope);
+
+		if (selectedRowIndices.Count == 0)
+			return;
+
+		if (copyScope == null)
+        {
+            MessageBox.Show("Не удалось определить тип копирования.");
+            return;
+		}    
+
+        if(TcCopyData.GetCopyTcId() != _tcId && copyScope != CopyScopeEnum.Text)
+		{
+			MessageBox.Show("Данные не могут быть вставлены в другую ТК.");
+			return;
+		}
+
+		var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
+
+		if (copyScope == CopyScopeEnum.Staff)
+		{
+			// проверяем есть ли в скопированных данных информация
+			if (TcCopyData.CopyScope != CopyScopeEnum.Staff) { return; }
+
+			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Персонал."); }
+			var setectedEw = selectedItems[0].executionWorkItem;
+			if (setectedEw == null)
+			{
+				MessageBox.Show("В данной строке невозможно вставить связь с Персоналом");
+				return;
+			}
+
+            UpdateStaffInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Staffs);
+		}
+		else if (copyScope == CopyScopeEnum.Protections)
+		{
+			// проверяем есть ли в скопированных данных информация
+			if (TcCopyData.CopyScope != CopyScopeEnum.Protections) { return; }
+
+			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных СЗ."); }
+			var setectedEw = selectedItems[0].executionWorkItem;
+			if (setectedEw == null)
+			{
+				MessageBox.Show("В данной строке невозможно вставить связь с СЗ");
+				return;
+			}
+
+			UpdateProtectionsInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Protections);
+		}
+		else if (copyScope == CopyScopeEnum.ToolOrComponents)
+		{
+            //MessageBox.Show("Вставка компонента/инструмента");
+		}
+		else if(copyScope == CopyScopeEnum.Text)
+        {
+            PasteClipboardValue();
+		}
+	}
+
+	private void UpdateStaffInRow(int rowIndices, ExecutionWork setectedEw, List<Staff_TC> copiedStaff)
+	{
+		// проверка на наличие изменений
+		if (setectedEw.Staffs.Count == copiedStaff.Count)
+		{
+			foreach (var staff in copiedStaff)
+			{
+				if (!setectedEw.Staffs.Contains(staff))
+				{
+					return;
+				}
 			}
 		}
 
-        try
-        {
-            if (copyScope != CopyScopeEnum.Text)
-                TcCopyData.SetCopyDate(selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList(), copyScope);
-            else
-                CopyClipboardValue();
-		}
-        catch
-		(Exception ex)
+		var currentCopyScope = CopyScopeEnum.Staff;
+		var columnIndex = GetColumnIndex(currentCopyScope) 
+            ?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
+		var newStaffSymbols = "";
+		setectedEw.Staffs.Clear();
+
+		if (copiedStaff.Count > 0)
 		{
-			MessageBox.Show(ex.Message);
-            return;
+			foreach (var staff in copiedStaff)
+			{
+				setectedEw.Staffs.Add(staff);
+			}
+
+			newStaffSymbols = string.Join(",", setectedEw.Staffs.Select(s => s.Symbol));
 		}
 
-		var text = TcCopyData.CopyScope.ToString();
-		switch (TcCopyData.CopyScope)
+		UpdateCellValue(rowIndices, (int)columnIndex, newStaffSymbols);
+	}
+
+	private void UpdateProtectionsInRow(int rowIndices, ExecutionWork setectedEw, List<Protection_TC> copiedProtections)
+	{
+		var currentCopyScope = CopyScopeEnum.Protections;
+		var protectionsList = setectedEw.Protections;
+		// проверка на наличие изменений
+		if (protectionsList.Count == copiedProtections.Count)
 		{
-			case CopyScopeEnum.ToolOrComponents:
-				text = "Инструменты/Компоненты";
+			foreach (var obj in copiedProtections)
+			{
+				if (!protectionsList.Contains(obj))
+				{
+					return;
+				}
+			}
+		}
+
+		var columnIndex = GetColumnIndex(currentCopyScope)
+			?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
+		var newCellValue = "";
+		protectionsList.Clear();
+
+		if (copiedProtections.Count > 0)
+		{
+			foreach (var obj in copiedProtections)
+			{
+				protectionsList.Add(obj);
+			}
+            
+            var objectOrderList = protectionsList.Select(s => s.Order).ToList();
+			newCellValue = ConvertListToRangeString(objectOrderList);
+		}
+
+		UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
+	}
+
+	/// <summary>
+	/// Возвращает тип копирования по ячейке.
+	/// </summary>
+	/// <param name="copyScope"></param>
+	/// <param name="cell"></param>
+	/// <returns></returns>
+	private CopyScopeEnum? GetCopyScopeByCell(DataGridViewCell cell)
+	{
+        CopyScopeEnum? copyScope = null;
+		string columnName = dgvMain.Columns[cell.ColumnIndex].HeaderText;
+        int cellRowIndex = cell.RowIndex;
+
+		var techOperationDataGridItem = TechOperationDataGridItems[cellRowIndex];
+
+		switch (columnName)
+		{
+			case "Исполнитель":
+				copyScope = CopyScopeEnum.Staff;
 				break;
-			case CopyScopeEnum.RowRange:
-				text = "Несколько строк";
+			case "№ СЗ":
+				copyScope = CopyScopeEnum.Protections;
 				break;
-            case CopyScopeEnum.Row:
-				text = "Строка";
+			case "Технологические операции":
+				copyScope = CopyScopeEnum.TechOperation;
 				break;
-            case CopyScopeEnum.Staff:
-				text = "Исполнитель";
-				break;
-			case CopyScopeEnum.Protections:
-				text = "Защиты";
-				break;
-            case CopyScopeEnum.Machines:
-				text = "Машины";
-				break;
-            case CopyScopeEnum.TechOperation:
-				text = "Технологическая операция";
-				break;
-			case CopyScopeEnum.Text:
-				text = "Текст";
+            case "Технологические переходы":
+				if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
+					copyScope = CopyScopeEnum.ToolOrComponents;
+				else
+					copyScope = CopyScopeEnum.Row;
+                break;
+			case "Примечание":
+			case "Рис.":
+            case "Замечание":
+			case "Ответ":
+				copyScope = CopyScopeEnum.Text;
 				break;
 		}
 
-        MessageBox.Show(text);
-		
-    }
+		return copyScope;
+	}
 
 	/// <summary>
 	/// Копирование значения текущей ячейки (если она не пустая) в буфер обмена.
@@ -253,13 +404,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			var cellValue = dgvMain.CurrentCell.Value?.ToString();
 			if (!string.IsNullOrEmpty(cellValue))
 			{
-				//Clipboard.SetText(cellValue);
-                TcCopyData.SetCopyText(cellValue);
+				Clipboard.SetText(cellValue);
+                //TcCopyData.SetCopyText(cellValue);
 			}
 			else
 			{
-                TcCopyData.Clear();
-				//Clipboard.Clear(); // Или оставляем без изменений
+                //TcCopyData.Clear();
+				Clipboard.Clear(); 
 			}
 		}
 	}
@@ -454,7 +605,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             i++;
         }
 
-        dgvMain.Columns.Add("", "№ СЗ");
+        dgvMain.Columns.Add("Protection", "№ СЗ");
         dgvMain.Columns.Add("CommentColumn", "Примечание");
         dgvMain.Columns.Add("PictureNameColumn", "Рис.");
         dgvMain.Columns.Add("RemarkColumn", "Замечание");

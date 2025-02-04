@@ -4,6 +4,7 @@ namespace TC_WinForms.WinForms.Win6.Models;
 
 public static class TcCopyData
 {
+	private static int? _copyTcId = null;
 	/// <summary>
 	/// Список скопированных строк целиком (если пользователь выделил целиком).
 	/// </summary>
@@ -37,6 +38,11 @@ public static class TcCopyData
 		return null;
 	}
 
+	public static int? GetCopyTcId()
+	{
+		return _copyTcId;
+	}
+
 	public static void SetCopyText(string copyText)
 	{
 		CopyScope = CopyScopeEnum.Text;
@@ -50,6 +56,15 @@ public static class TcCopyData
 		{
 			return;
 		}
+
+		var tcId = items.First().TechOperationWork?.TechnologicalCardId;
+
+		if (tcId == null)
+		{
+			throw new Exception("Не удалось определить идентификатор технологической карты.");
+		}
+
+		_copyTcId = tcId.Value;
 
 		// Определение все ли строки одного типа
 		//var isAnyItemsToolOrComponent = ;
