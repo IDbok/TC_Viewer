@@ -719,11 +719,12 @@ namespace TC_WinForms.WinForms.Work
                 {
                    _logger.Information("Удаление ТП c GUID {TechTransitionGuid}", IddGuid);
 
-                    TechOperationForm.DeleteTechTransit(IddGuid, work); 
+                    TechOperationForm.DeleteTechTransit(IddGuid, work);
                     UpdateLocalTP();
 
                     foreach (DataGridViewRow dataGridViewRow in dataGridViewTPLocal.Rows)
                     {
+                        // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
                         IddGuid = (Guid)dataGridViewRow.Cells[0].Value;
 
                         var bg = work.executionWorks.SingleOrDefault(s => s.IdGuid == IddGuid);
@@ -731,9 +732,8 @@ namespace TC_WinForms.WinForms.Work
                     }
 
                     TechOperationForm.UpdateGrid();
-					// todo: реализовать удаление ТП так, чтобы небыло необходимости в обновлении основной таблицы
-				}
-			}
+                }
+            }
         }
 
         private void DataGridViewTPLocal_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
