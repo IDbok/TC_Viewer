@@ -112,6 +112,10 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 			// Настройка DataGridView после загрузки
 			SetDGVColumnsSettings();
 			DisplayedEntityHelper.SetupDataGridView<DisplayedTechnologicalCard>(dgvMain);
+			if (Program.IsTestMode) // В тестовом режиме показываем Id
+			{
+				dgvMain.Columns[nameof(DisplayedTechnologicalCard.Id)].Visible = true;
+			}
 
 			// Инициализация комбобоксов фильтра
 			SetupNetworkVoltageComboBox();
