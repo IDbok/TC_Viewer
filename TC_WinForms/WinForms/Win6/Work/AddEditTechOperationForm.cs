@@ -624,7 +624,7 @@ namespace TC_WinForms.WinForms.Work
 						var coefficient = wor.Coefficient;
 
 						wor.Value = MathScript.EvaluateCoefficientExpression(coefficient, coefDict, time);
-                        CheckAreCoefficientUpdate(oldValue, wor);
+                        UpdateCoefficient(wor, oldValue);
 
 					}
 					catch (Exception ex)
@@ -2611,7 +2611,7 @@ namespace TC_WinForms.WinForms.Work
                     }
 
 
-                    CheckAreCoefficientUpdate(null, executionWorkPovtor);
+                    UpdateCoefficient(executionWorkPovtor);
 
                     // Перерисовать таблицу
                     dataGridViewPovtor.Invalidate();
@@ -2674,7 +2674,7 @@ namespace TC_WinForms.WinForms.Work
 
                     }
 
-                    CheckAreCoefficientUpdate(null, executionWorkPovtor);
+                    UpdateCoefficient(executionWorkPovtor);
                     TechOperationForm.UpdateGrid();
                     //UpdateLocalTP();
                 }
@@ -2803,12 +2803,15 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (var executionWork in allRepeats)
             {
-                CheckAreCoefficientUpdate(null, executionWork);
+                UpdateCoefficient(executionWork);
             }
         }
 
-        private void CheckAreCoefficientUpdate(double? oldCoefficient = null, ExecutionWork editedExecutionWork = null)
+        private void UpdateCoefficient(ExecutionWork editedExecutionWork, double? oldCoefficient = null)
         {
+            if(editedExecutionWork == null)
+                return;
+
             if (oldCoefficient != null && oldCoefficient != editedExecutionWork.Value)
             {
                 UpdateRelatedReplays(editedExecutionWork);
