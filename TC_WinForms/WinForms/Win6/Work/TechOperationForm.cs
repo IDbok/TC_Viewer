@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Serilog;
+﻿using Serilog;
 using System.Data;
 using System.Text;
 using TC_WinForms.DataProcessing;
@@ -196,7 +195,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			default:
 				return null;
 		}
-	}
+	} 
 
 	private void GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? copyScope)
 	{
@@ -213,16 +212,20 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			.ToList();
 		
 		copyScope = null;
-		if (selectedRowIndices.Count == 1 && dgvMain.SelectedCells.Count == 1)
-		{
-			// Одна ячейка
-			var cell = dgvMain.SelectedCells[0];
-			copyScope = GetCopyScopeByCell(cell);
-		}
+        if (selectedRowIndices.Count == 1 && dgvMain.SelectedCells.Count == 1)
+        {
+            // Одна ячейка
+            var cell = dgvMain.SelectedCells[0];
+            copyScope = GetCopyScopeByCell(cell);
+        }
+        else if (selectedRowIndices.Count == 1)
+        {
+            copyScope = CopyScopeEnum.Row;
+        }
         else if (selectedRowIndices.Count > 1)
         {
             copyScope = CopyScopeEnum.RowRange;
-		}
+        }
 	}
 
 	private void PasteCopiedData()
@@ -249,47 +252,70 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
 
-		if (copyScope == CopyScopeEnum.Staff)
-		{
-			// проверяем есть ли в скопированных данных информация
-			if (TcCopyData.CopyScope != CopyScopeEnum.Staff) { return; }
+        if (copyScope == CopyScopeEnum.Staff)
+        {
+            // проверяем есть ли в скопированных данных информация
+            if (TcCopyData.CopyScope != CopyScopeEnum.Staff) { return; }
 
-			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Персонал."); }
-			var setectedEw = selectedItems[0].executionWorkItem;
-			if (setectedEw == null)
-			{
-				MessageBox.Show("В данной строке невозможно вставить связь с Персоналом");
-				return;
-			}
+            if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Персонал."); }
+            var setectedEw = selectedItems[0].executionWorkItem;
+            if (setectedEw == null)
+            {
+                MessageBox.Show("В данной строке невозможно вставить связь с Персоналом");
+                return;
+            }
 
             UpdateStaffInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Staffs);
-		}
-		else if (copyScope == CopyScopeEnum.Protections)
-		{
-			// проверяем есть ли в скопированных данных информация
-			if (TcCopyData.CopyScope != CopyScopeEnum.Protections) { return; }
+        }
+        else if (copyScope == CopyScopeEnum.Protections)
+        {
+            // проверяем есть ли в скопированных данных информация
+            if (TcCopyData.CopyScope != CopyScopeEnum.Protections) { return; }
 
-			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных СЗ."); }
-			var setectedEw = selectedItems[0].executionWorkItem;
-			if (setectedEw == null)
-			{
-				MessageBox.Show("В данной строке невозможно вставить связь с СЗ");
-				return;
-			}
+            if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных СЗ."); }
+            var setectedEw = selectedItems[0].executionWorkItem;
+            if (setectedEw == null)
+            {
+                MessageBox.Show("В данной строке невозможно вставить связь с СЗ");
+                return;
+            }
 
-			UpdateProtectionsInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Protections);
-		}
-		else if (copyScope == CopyScopeEnum.ToolOrComponents)
-		{
+            UpdateProtectionsInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Protections);
+        }
+        else if (copyScope == CopyScopeEnum.ToolOrComponents)
+        {
             //MessageBox.Show("Вставка компонента/инструмента");
+        }
+        else if (copyScope == CopyScopeEnum.Row)
+        {
+            var copiedItem = TcCopyData.FullItems[0];
+            //
+
+
+			var rowIndex = selectedRowIndices[0];
+			AddRowToDataGrid(TcCopyData.FullItems[0], rowIndex + 1);
 		}
-		else if(copyScope == CopyScopeEnum.Text)
+        else if (copyScope == CopyScopeEnum.RowRange)
+        {
+            //MessageBox.Show("Вставка компонента/инструмента");
+        }
+        else if (copyScope == CopyScopeEnum.Text)
         {
             PasteClipboardValue();
+        }
+        else
+        {
+			MessageBox.Show("Не удалось определить тип копирования.");
 		}
+
+		MessageBox.Show("Данные успешно вставленны.");
 	}
 
-	private void UpdateStaffInRow(int rowIndices, ExecutionWork setectedEw, List<Staff_TC> copiedStaff)
+    private void InsertNewRow(int newRowIndex, TechOperationDataGridItem setectedItem)
+    {
+		
+	}
+	private void UpdateStaffInRow(int rowIndex, ExecutionWork setectedEw, List<Staff_TC> copiedStaff)
 	{
 		// проверка на наличие изменений
 		if (setectedEw.Staffs.Count == copiedStaff.Count)
@@ -319,7 +345,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			newStaffSymbols = string.Join(",", setectedEw.Staffs.Select(s => s.Symbol));
 		}
 
-		UpdateCellValue(rowIndices, (int)columnIndex, newStaffSymbols);
+		UpdateCellValue(rowIndex, (int)columnIndex, newStaffSymbols);
 	}
 
 	private void UpdateProtectionsInRow(int rowIndices, ExecutionWork setectedEw, List<Protection_TC> copiedProtections)
@@ -1108,97 +1134,156 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void AddRowsToGrid()
     {
-        foreach (var techOperationDataGridItem in TechOperationDataGridItems)
-        {
-            var str = new List<object>();
-            var obj = context.Set<TechOperation>().Where(to => to.Id == techOperationDataGridItem.IdTO).FirstOrDefault();
+        foreach (var item in TechOperationDataGridItems) //techOperationDataGridItem
+		{
+			AddRowToDataGrid(item);
+			//var str = new List<object>();
+			//var obj = context.Set<TechOperation>().Where(to => to.Id == techOperationDataGridItem.IdTO).FirstOrDefault();
 
-            if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat)
-            {
-                var repeatNumList = techOperationDataGridItem.techWork.ExecutionWorkRepeats
-                    .Select(executionWorkRepeat => TechOperationDataGridItems.SingleOrDefault(s => s.techWork == executionWorkRepeat.ChildExecutionWork))
-                    .Where(bn => bn != null)
-                    .Select(bn => bn.Nomer)
-                    .ToList();
+			//if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat)
+			//{
+			//    var repeatNumList = techOperationDataGridItem.techWork.ExecutionWorkRepeats
+			//        .Select(executionWorkRepeat => TechOperationDataGridItems.SingleOrDefault(s => s.techWork == executionWorkRepeat.ChildExecutionWork))
+			//        .Where(bn => bn != null)
+			//        .Select(bn => bn.Nomer)
+			//        .ToList();
 
-                var strP = ConvertListToRangeString(repeatNumList);
+			//    var strP = ConvertListToRangeString(repeatNumList);
 
-                str.Add(techOperationDataGridItem.executionWorkItem);
-                str.Add(techOperationDataGridItem.Nomer.ToString());
-                str.Add(techOperationDataGridItem.TechOperation);
-                str.Add(techOperationDataGridItem.Staff);
-                str.Add("Повторить п." + strP);
-                str.Add(techOperationDataGridItem.TechTransitionValue);
-                str.Add(techOperationDataGridItem.TimeEtap);
+			//    str.Add(techOperationDataGridItem.executionWorkItem);
+			//    str.Add(techOperationDataGridItem.Nomer.ToString());
+			//    str.Add(techOperationDataGridItem.TechOperation);
+			//    str.Add(techOperationDataGridItem.Staff);
+			//    str.Add("Повторить п." + strP);
+			//    str.Add(techOperationDataGridItem.TechTransitionValue);
+			//    str.Add(techOperationDataGridItem.TimeEtap);
 
-                AddMachineColumns(techOperationDataGridItem, str);
+			//    AddMachineColumns(techOperationDataGridItem, str);
 
-                str.Add(techOperationDataGridItem.Protections);
-                str.Add(techOperationDataGridItem.techWork?.Comments ?? "");
+			//    str.Add(techOperationDataGridItem.Protections);
+			//    str.Add(techOperationDataGridItem.techWork?.Comments ?? "");
 
-                str.Add(techOperationDataGridItem.PictureName);
+			//    str.Add(techOperationDataGridItem.PictureName);
 
-                str.Add(techOperationDataGridItem.Vopros);
-                str.Add(techOperationDataGridItem.Otvet);
+			//    str.Add(techOperationDataGridItem.Vopros);
+			//    str.Add(techOperationDataGridItem.Otvet);
 
-                if (!obj.IsReleased)
-                {
-                    AddRowToGrid(str, Color.Yellow, Color.Yellow, Color.Pink);
-                }
-                else
-                    AddRowToGrid(str, Color.Yellow, Color.Yellow);
+			//    if (!obj.IsReleased)
+			//    {
+			//        AddRowToGrid(str, Color.Yellow, Color.Yellow, Color.Pink);
+			//    }
+			//    else
+			//        AddRowToGrid(str, Color.Yellow, Color.Yellow);
 
-                continue;
-            }
+			//    continue;
+			//}
 
-            str.Add(techOperationDataGridItem.executionWorkItem);
-            str.Add(techOperationDataGridItem.Nomer != -1 ? techOperationDataGridItem.Nomer.ToString() : "");
-            str.Add(techOperationDataGridItem.TechOperation);
-            str.Add(techOperationDataGridItem.Staff);
-            str.Add(techOperationDataGridItem.TechTransition);
-            str.Add(techOperationDataGridItem.TechTransitionValue);
-            str.Add(techOperationDataGridItem.TimeEtap);
+			//str.Add(techOperationDataGridItem.executionWorkItem);
+			//str.Add(techOperationDataGridItem.Nomer != -1 ? techOperationDataGridItem.Nomer.ToString() : "");
+			//str.Add(techOperationDataGridItem.TechOperation);
+			//str.Add(techOperationDataGridItem.Staff);
+			//str.Add(techOperationDataGridItem.TechTransition);
+			//str.Add(techOperationDataGridItem.TechTransitionValue);
+			//str.Add(techOperationDataGridItem.TimeEtap);
 
-            AddMachineColumns(techOperationDataGridItem, str);
+			//AddMachineColumns(techOperationDataGridItem, str);
 
-            str.Add(techOperationDataGridItem.Protections);
-            str.Add(techOperationDataGridItem.techWork?.Comments ?? techOperationDataGridItem.Comments);
+			//str.Add(techOperationDataGridItem.Protections);
+			//str.Add(techOperationDataGridItem.techWork?.Comments ?? techOperationDataGridItem.Comments);
 
-            str.Add(techOperationDataGridItem.PictureName);
+			//str.Add(techOperationDataGridItem.PictureName);
 
-            str.Add(techOperationDataGridItem.Vopros);
-            str.Add(techOperationDataGridItem.Otvet);
+			//str.Add(techOperationDataGridItem.Vopros);
+			//str.Add(techOperationDataGridItem.Otvet);
 
 
-            if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
-            {
-                AddRowToGrid(str, techOperationDataGridItem.ItsComponent ? Color.Salmon : Color.Aquamarine, techOperationDataGridItem.ItsComponent ? Color.Salmon : Color.Aquamarine);
-            }
-            else if(!obj.IsReleased && techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
-            {
-                AddRowToGrid(str, Color.Empty, Color.Pink, Color.Pink);
-            }
-            else if(!obj.IsReleased)
-            {
-                AddRowToGrid(str, Color.Empty, Color.Empty, Color.Pink);
-            }
-            else if (techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
-            {
-                AddRowToGrid(str, Color.Empty, Color.Pink);
-            }
-            else
-            {
-                AddRowToGrid(str, Color.Empty, Color.Empty);
-            }
-        }
-    }
+			//if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
+			//{
+			//    AddRowToGrid(str, techOperationDataGridItem.ItsComponent ? Color.Salmon : Color.Aquamarine, techOperationDataGridItem.ItsComponent ? Color.Salmon : Color.Aquamarine);
+			//}
+			//else if (!obj.IsReleased && techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
+			//{
+			//    AddRowToGrid(str, Color.Empty, Color.Pink, Color.Pink);
+			//}
+			//else if (!obj.IsReleased)
+			//{
+			//    AddRowToGrid(str, Color.Empty, Color.Empty, Color.Pink);
+			//}
+			//else if (techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
+			//{
+			//    AddRowToGrid(str, Color.Empty, Color.Pink);
+			//}
+			//else
+			//{
+			//    AddRowToGrid(str, Color.Empty, Color.Empty);
+			//}
+		}
+	}
 
-    /// <summary>
-    /// Добавляет данные о машинах в строки DataGridView на основе TechOperationDataGridItem.
-    /// </summary>
-    /// <param name="techOperationDataGridItem">Объект TechOperationDataGridItem, содержащий данные о текущей технологической операции.</param>
-    /// <param name="str">Список объектов, представляющий строку данных для добавления в DataGridView.</param>
-    private void AddMachineColumns(TechOperationDataGridItem techOperationDataGridItem, List<object> str)
+	private void AddRowToDataGrid(TechOperationDataGridItem item, int? rowIndex = null)
+	{
+		// Проверка, что индекс строки не выходит за границы
+		if (rowIndex != null && rowIndex < 0)
+		{
+			rowIndex = 0;
+		}
+		else if (rowIndex != null && rowIndex > dgvMain.Rows.Count)
+		{
+			rowIndex = dgvMain.Rows.Count;
+		}
+
+		// Находим TechOperation из контекста, чтобы проверить IsReleased
+		var obj = context.Set<TechOperation>()
+						 .FirstOrDefault(to => to.Id == item.IdTO);
+
+		// Определяем, какие цвета будем использовать в зависимости от условий
+		if (item.techWork != null && item.techWork.Repeat)
+		{
+
+			if (!obj.IsReleased)
+			{
+				// Повтор, но ТО не выпущена
+				AddRowToGrid(item, Color.Yellow, Color.Yellow, Color.Pink, insertIndex: rowIndex);
+			}
+			else
+				// Повтор с выпушенной ТО
+				AddRowToGrid(item, Color.Yellow, Color.Yellow, insertIndex: rowIndex);
+		}
+		else if (item.ItsTool || item.ItsComponent)
+		{
+			// Инструмент или компонент
+			AddRowToGrid(item,
+						 item.ItsComponent ? Color.Salmon : Color.Aquamarine,
+						 item.ItsComponent ? Color.Salmon : Color.Aquamarine, insertIndex: rowIndex);
+		}
+		else if (!obj.IsReleased && item.executionWorkItem != null && !item.executionWorkItem.techTransition.IsReleased)
+		{
+			// Тех.операция не выпущена (но переход выпущен или отсутствует)
+			AddRowToGrid(item, Color.Empty, Color.Pink, Color.Pink, insertIndex: rowIndex);
+		}
+		else if (!obj.IsReleased)
+		{
+			// Тех.операция не выпущена
+			AddRowToGrid(item, Color.Empty, Color.Empty, Color.Pink, insertIndex: rowIndex);
+		}
+		else if (item.executionWorkItem != null && !item.executionWorkItem.techTransition.IsReleased)
+		{
+			// Тех.операция выпущена, но переход не выпущен
+			AddRowToGrid(item, Color.Empty, Color.Pink, insertIndex: rowIndex);
+		}
+		else
+		{
+			// Всё выпущено
+			AddRowToGrid(item, Color.Empty, Color.Empty, insertIndex: rowIndex);
+		}
+	}
+
+	/// <summary>
+	/// Добавляет данные о машинах в строки DataGridView на основе TechOperationDataGridItem.
+	/// </summary>
+	/// <param name="techOperationDataGridItem">Объект TechOperationDataGridItem, содержащий данные о текущей технологической операции.</param>
+	/// <param name="str">Список объектов, представляющий строку данных для добавления в DataGridView.</param>
+	private void AddMachineColumns(TechOperationDataGridItem techOperationDataGridItem, List<object> str)
     {
         techOperationDataGridItem.listMachStr = new List<string>();
 
@@ -1259,7 +1344,101 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         //dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = backColor2;
     }
 
-    private void DgvMain_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+	/// <summary>
+	/// Добавляет одну строку в DataGridView на основе TechOperationDataGridItem.
+	/// </summary>
+	/// <param name="item">Экземпляр TechOperationDataGridItem, содержащий все данные для формирования строки.</param>
+	/// <param name="backColor1">Цвет фона для ячейки №3 (исполнитель).</param>
+	/// <param name="backColor2">Цвет фона для ячейки №4 (тех.переход).</param>
+	/// <param name="backColor3">Цвет фона для ячейки №2 (тех.операция).</param>
+	/// <param name="insertIndex">Индекс, по которому нужно вставить строку. Если не задан (null), строка добавляется в конец.</param>
+	private void AddRowToGrid(
+		TechOperationDataGridItem item,
+		Color? backColor1 = null,
+		Color? backColor2 = null,
+		Color? backColor3 = null,
+        int? insertIndex = null)
+	{
+		// Формируем список объектов для добавления в строку
+		var rowData = new List<object>();
+
+		// Проверяем, есть ли Repeat
+		if (item.techWork != null && item.techWork.Repeat)
+		{
+			// Формируем строку "Повторить п."
+			var repeatNumList = item.techWork.ExecutionWorkRepeats
+				.Select(r => TechOperationDataGridItems.SingleOrDefault(s => s.techWork == r.ChildExecutionWork))
+				.Where(bn => bn != null)
+				.Select(bn => bn.Nomer)
+				.ToList();
+
+			var strP = ConvertListToRangeString(repeatNumList);
+
+			rowData.Add(item.executionWorkItem);
+			rowData.Add(item.Nomer.ToString());
+			rowData.Add(item.TechOperation);
+			rowData.Add(item.Staff);
+			rowData.Add("Повторить п." + strP);
+			rowData.Add(item.TechTransitionValue);
+			rowData.Add(item.TimeEtap);
+		}
+		else
+		{
+			rowData.Add(item.executionWorkItem);
+			rowData.Add(item.Nomer != -1 ? item.Nomer.ToString() : "");
+			rowData.Add(item.TechOperation);
+			rowData.Add(item.Staff);
+			rowData.Add(item.TechTransition);
+			rowData.Add(item.TechTransitionValue);
+			rowData.Add(item.TimeEtap);
+		}
+
+		// Добавляем столбцы "машины" (через ваш метод AddMachineColumns)
+		AddMachineColumns(item, rowData);
+
+		// Добавляем оставшиеся ячейки (СЗ, комментарии, рисунок, замечание, ответ и т.д.)
+		rowData.Add(item.Protections);
+		// Если в techWork есть комментарий, используем его, иначе общий Comments
+		rowData.Add(item.techWork?.Comments ?? item.Comments);
+		rowData.Add(item.PictureName);
+		rowData.Add(item.Vopros);
+		rowData.Add(item.Otvet);
+
+		// Создаём DataGridViewRow и заполняем ячейки готовыми данными.
+		var newRow = new DataGridViewRow();
+		newRow.CreateCells(dgvMain, rowData.ToArray());
+
+		//  Добавляем/вставляем в dgvMain:
+		//    - если insertIndex не задан, добавляем в конец,
+		var actualIndex = insertIndex ?? dgvMain.Rows.Count;
+		dgvMain.Rows.Insert(actualIndex, newRow);
+
+		// Применяем цветовое оформление ячеек (если цвета заданы).
+		ApplyCellColors(newRow, backColor1, backColor2, backColor3);
+	}
+
+	/// <summary>
+	/// Применяет указанные цвета к ячейкам (3,4,2) строки newRow.
+	/// </summary>
+	/// <param name="row">Строка, к которой применяются цвета.</param>
+	/// <param name="color1">Цвет для ячейки [3].</param>
+	/// <param name="color2">Цвет для ячейки [4].</param>
+	/// <param name="color3">Цвет для ячейки [2].</param>
+	private void ApplyCellColors(
+		DataGridViewRow row,
+		Color? color1,
+		Color? color2,
+		Color? color3)
+	{
+		if (color1.HasValue)
+			row.Cells[3].Style.BackColor = color1.Value;
+		if (color2.HasValue)
+			row.Cells[4].Style.BackColor = color2.Value;
+		if (color3.HasValue)
+			row.Cells[2].Style.BackColor = color3.Value;
+	}
+
+	private void DgvMain_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
     {
         if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
         {
