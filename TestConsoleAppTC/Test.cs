@@ -17,6 +17,8 @@ using OfficeOpenXml.Style;
 using System.Drawing;
 using Serilog;
 using Serilog.Events;
+using Newtonsoft.Json.Linq;
+using Serilog.Parsing;
 
 namespace TestConsoleAppTC;
 
@@ -32,13 +34,15 @@ internal class Program
     {
         Console.WriteLine("Hello, World!");
 
-		// получить ТК по id
-		//TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
+        // получить ТК по id
+        //TcDbConnector.StaticClass.ConnectString = "server=localhost;database=tavrida_db_main;user=root;password=root";
 
-		//MapLogsToExcel();
+        //MapLogsToExcel();
+        LoadLogsToSeqNew();
+        //LoadLogsToSeqOldVersion();
 
-		// вывести в консоль имя пользователя windows
-		Console.WriteLine(Environment.UserName);
+        // вывести в консоль имя пользователя windows
+        Console.WriteLine(Environment.UserName);
 
 		Console.ReadLine();
     }
@@ -137,6 +141,214 @@ internal class Program
 		public string Level { get; set; }
 		public string MessageTemplate { get; set; }
 		public Dictionary<string, object> Properties { get; set; }
+	}
+
+	static void LoadLogsToSeqOldVersion()
+	{
+		var seqLogger = new LoggerConfiguration()
+			.WriteTo.Seq("http://localhost:8081") // URL Вашего Seq
+			.CreateLogger();
+
+		// Путь к папке, где лежат логи
+		var pathToLogs = @"C:\Users\bokar\Desktop\Логи для анализа";
+		// Имя файла лога
+		var fileName = "log-20250123.json";
+
+		using (var reader = new StreamReader(Path.Combine(pathToLogs, fileName)))
+		{
+			string? line;
+			while ((line = reader.ReadLine()) != null)
+			{
+				JObject log;
+				try
+				{
+					log = JsonConvert.DeserializeObject<JObject>(line);
+					if (log == null)
+					{
+						Console.WriteLine($"Неверный формат (пустой JSON): {line}");
+						continue;
+					}
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"Ошибка при десериализации: {ex.Message}");
+					continue;
+				}
+
+				// Проверяем обязательные поля
+				if (!log.ContainsKey("Timestamp") ||
+					!log.ContainsKey("Level") ||
+					!log.ContainsKey("MessageTemplate"))
+				{
+					Console.WriteLine($"Неверный формат лога (нет нужных полей): {line}");
+					continue;
+				}
+
+				// Считываем Timestamp, Level, MessageTemplate
+				var timestamp = log["Timestamp"]?.ToObject<DateTimeOffset?>();
+				var levelStr = log["Level"]?.ToString();
+				var messageTemplateStr = log["MessageTemplate"]?.ToString();
+
+				if (timestamp == null || levelStr == null || messageTemplateStr == null)
+				{
+					Console.WriteLine($"Неверный формат полей лога: {line}");
+					continue;
+				}
+
+				// Преобразуем строку уровня в Enum (LogEventLevel)
+				if (!Enum.TryParse(typeof(LogEventLevel), levelStr, true, out var parsedLevelObj))
+				{
+					Console.WriteLine($"Не удалось интерпретировать Level='{levelStr}'");
+					continue;
+				}
+				var parsedLevel = (LogEventLevel)parsedLevelObj;
+
+				// Собираем дополнительные свойства (TcId, ClassName, ...)
+				var propertiesObject = log["Properties"] as JObject;
+				var logEventProperties = new List<LogEventProperty>();
+
+				if (propertiesObject != null)
+				{
+					foreach (var prop in propertiesObject)
+					{
+						// Создаём LogEventProperty
+						// Простейший путь: всё превращаем в строку, 
+						// или, если уверены в типе, используем ScalarValue(<конкретный тип>)
+						// (можно и умнее - проверять JTokenType, как вы делали ранее)
+						var propValue = prop.Value.ToString();
+						var logEventProp = new LogEventProperty(
+							prop.Key,
+							new ScalarValue(propValue)
+						);
+						logEventProperties.Add(logEventProp);
+					}
+				}
+
+				// Парсим сам шаблон сообщения
+				// (чтобы Serilog мог корректно понимать {placeholders} и связывать их с properties)
+				var parser = new MessageTemplateParser();
+				var parsedTemplate = parser.Parse(messageTemplateStr);
+
+				// Теперь создаём свой LogEvent с нужным временем:
+				var logEvent = new LogEvent(
+					timestamp: timestamp.Value,    // <-- тут указываем именно ваше историческое время
+					level: parsedLevel,
+					exception: null,              // Если нужно, можно доставать из JSON
+					messageTemplate: parsedTemplate,
+					properties: logEventProperties
+				);
+
+				// Отправляем его в Seq
+				seqLogger.Write(logEvent);
+			}
+		}
+
+		seqLogger.Dispose();
+	}
+
+	static void LoadLogsToSeqNew()
+	{
+		var seqLogger = new LoggerConfiguration()
+			.WriteTo.Seq("http://localhost:8081") // Укажите URL Вашего Seq
+			.CreateLogger();
+
+		// Путь к папке, где лежат логи
+		var pathToLogs = @"C:\Users\bokar\Desktop\Логи для анализа";
+		// Имя файла лога
+		var fileName = "log-20250123.json";
+
+		using (var reader = new StreamReader(Path.Combine(pathToLogs, fileName)))
+		{
+			string line;
+			while ((line = reader.ReadLine()) != null)
+			{
+				// Преобразуем каждую строку в JObject для удобной работы
+				JObject log;
+				try
+				{
+					log = JsonConvert.DeserializeObject<JObject>(line);
+					if (log == null)
+					{
+						Console.WriteLine($"Неверный формат (пустой JSON): {line}");
+						continue;
+					}
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"Ошибка при десериализации: {ex.Message}");
+					continue;
+				}
+
+				// Проверяем обязательные поля
+				if (!log.ContainsKey("Timestamp") ||
+					!log.ContainsKey("Level") ||
+					!log.ContainsKey("MessageTemplate"))
+				{
+					Console.WriteLine($"Неверный формат лога (нет нужных полей): {line}");
+					continue;
+				}
+
+				// Считываем Timestamp (DateTimeOffset), Level (строка), MessageTemplate (строка)
+				var timestamp = log["Timestamp"]?.ToObject<DateTimeOffset>();
+				var level = log["Level"]?.ToString();
+				var messageTemplate = log["MessageTemplate"]?.ToString();
+
+				if (timestamp == null || level == null || messageTemplate == null)
+				{
+					Console.WriteLine($"Неверный формат полей лога: {line}");
+					continue;
+				}
+
+				// Получаем объект Properties (если есть)
+				var properties = log["Properties"] as JObject;
+
+				// Создаём «ветвь» логгера, в которую по очереди добавим все свойства
+				var contextLogger = seqLogger;
+				if (properties != null)
+				{
+					foreach (var prop in properties)
+					{
+						// prop.Key – название свойства (напр. "TcId", "ClassName")
+						// prop.Value – значение свойства (JToken)
+						// Можно привести к нужному типу, например int, string и т.д.
+						// Если не уверены в типе – можно просто передавать как строку или оставить as JToken
+						var token = prop.Value;
+						if (token.Type == JTokenType.Integer)
+						{
+							contextLogger = (Serilog.Core.Logger)contextLogger.ForContext(prop.Key, token.Value<int>());
+						}
+						else if (token.Type == JTokenType.Float)
+						{
+							contextLogger = (Serilog.Core.Logger)contextLogger.ForContext(prop.Key, token.Value<double>());
+						}
+						else if (token.Type == JTokenType.Boolean)
+						{
+							contextLogger = (Serilog.Core.Logger)contextLogger.ForContext(prop.Key, token.Value<bool>());
+						}
+						else
+						{
+							// Для всех остальных случаев (строка, объект и т.д.) передаём как есть
+							contextLogger = (Serilog.Core.Logger)contextLogger.ForContext(prop.Key, token.ToString());
+						}
+					}
+				}
+
+				// Теперь пишем лог в Seq, указывая оригинальный Timestamp
+				//contextLogger.Write(
+				//    (LogEventLevel)Enum.Parse(typeof(LogEventLevel), level, true),
+				//    timestamp.Value.ToString("o"), // Convert DateTimeOffset to string
+				//    messageTemplate
+				//);
+
+				contextLogger.Write(
+	                (LogEventLevel)Enum.Parse(typeof(LogEventLevel), level, true),
+	                //timestamp.Value, // <-- Важный момент: передаём DateTimeOffset как второй параметр
+	                messageTemplate
+                );
+			}
+		}
+
+		seqLogger.Dispose();
 	}
 
 	static void LoadLogsToSeq() // добавляет в seq логи из файла, но пока без параметров и указывает время добавление, а не из лога

@@ -110,7 +110,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             ListWpfPosledovatelnost.Children.Add(new WpfPosledovatelnost(selectedItem, _diagramState!));
                 //this, _tcViewState));
-            wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
             wpfControlTO.Nomeraciya();
         }
 
@@ -118,7 +118,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             ListWpfPosledovatelnost.Children.Remove(wpfPosledovatelnost);
             
-            wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
 
             if (ListWpfPosledovatelnost.Children.Count==0)
             {
@@ -166,13 +166,13 @@ namespace TC_WinForms.WinForms.Diagram
         {
             wpfControlTO.Order(1, this);
 
-            wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
             wpfControlTO.Order(2, this);
-            wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
         }
 
         public void UpdateAllShag()

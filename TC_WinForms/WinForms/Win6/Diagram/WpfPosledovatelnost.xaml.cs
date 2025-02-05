@@ -109,18 +109,30 @@ namespace TC_WinForms.WinForms.Diagram
         
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ListWpfShag.Children.Add(new WpfShag(selectedItem, _diagramState!));
-            //this, _tcViewState));
-            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
-
-            wpfParalelno.Nomeraciya();
+            AddNewShag();
         }
 
-        public void DeleteItem(WpfShag Item)
+        public void AddNewShag(DiagramShag? diagramShag = null, int? index = null)
+		{
+            if (index != null)
+            {
+                ListWpfShag.Children.Insert(index.Value, new WpfShag(selectedItem, _diagramState!, diagramShag));
+            }
+            else
+            {
+                ListWpfShag.Children.Add(new WpfShag(selectedItem, _diagramState!, diagramShag));
+            }
+
+			wpfParalelno.wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
+
+			wpfParalelno.Nomeraciya();
+		}
+
+		public void DeleteItem(WpfShag Item)
         {
             ListWpfShag.Children.Remove(Item);            
 
-            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfParalelno.wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
 
             if (ListWpfShag.Children.Count==0)
             {
@@ -159,13 +171,13 @@ namespace TC_WinForms.WinForms.Diagram
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             wpfParalelno.Order(1, this);
-            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfParalelno.wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
             wpfParalelno.Order(2, this);
-            wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
+            wpfParalelno.wpfControlTO._wpfMainControl._diagramForm.HasChanges = true;
         }
 
         public void UpdateAllShag()

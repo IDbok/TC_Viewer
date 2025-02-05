@@ -10,6 +10,9 @@ namespace TC_WinForms.WinForms.Win6.Models
 
 		private bool _isViewMode = true;
 		private bool _isCommentViewMode = false;
+
+		public double DiagramScale { get; set; } = 1;
+
 		public User.Role UserRole { get; }
 
 		public TechnologicalCard TechnologicalCard { get; set; } // todo: make it readonly
@@ -61,5 +64,18 @@ namespace TC_WinForms.WinForms.Win6.Models
 		{
 			_parentForm.RecalculateValuesWithCoefficientsInOpenForms();
 		}
-	}
+
+        public List<ExecutionWork> GetAllExecutionWorks()
+        {
+            List<ExecutionWork> allExecutionWorks = new List<ExecutionWork>();
+            foreach (var techOperationWork in TechOperationWorksList)
+            {
+                foreach(var ew in techOperationWork.executionWorks)
+				{
+					allExecutionWorks.Add(ew);
+                }
+            }
+            return allExecutionWorks;
+        }
+    }
 }

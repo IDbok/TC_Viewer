@@ -11,7 +11,7 @@
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
-    <Border BorderThickness="2" BorderBrush="Black"  Margin="5">
+    <Border BorderThickness="2" BorderBrush="Brown"  Margin="5">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -32,7 +32,7 @@
                 </StackPanel>
                 <Button VerticalAlignment="Center" Click="Button_Click"
                         Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="Добавить параллельность" TextWrapping="Wrap" Width="90" TextAlignment="Center" />
+                    <TextBlock Text="Добавить ШАГ параллельно" TextWrapping="Wrap" Width="90" TextAlignment="Center" />
                 </Button>
             </StackPanel>
             
