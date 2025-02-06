@@ -288,12 +288,55 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
         else if (copyScope == CopyScopeEnum.Row)
         {
-            var copiedItem = TcCopyData.FullItems[0];
-            //
+			var copiedItem = TcCopyData.FullItems[0];
+			var copiedEw = copiedItem.techWork;
+			var techTransition = copiedEw.techTransition;
+            var copiedFromTow = copiedItem.TechOperationWork;
 
+            var copyToTow = selectedItems[0].TechOperationWork;
+            var isTypicalTo = copyToTow.techOperation.IsTypical;
 
-			var rowIndex = selectedRowIndices[0];
-			AddRowToDataGrid(TcCopyData.FullItems[0], rowIndex + 1);
+			// для типовой ТО возможно вставить только повтор
+			if (isTypicalTo && !copiedEw.Repeat)
+			{
+				MessageBox.Show("В типовую операцию возможна вставта только повторов.");
+				return;
+			}
+
+            var newEw = new ExecutionWork
+			{
+				techOperationWork = copyToTow,
+				techOperationWorkId = copyToTow.Id,
+				techTransition = techTransition,
+				techTransitionId = techTransition?.Id,
+				Value = copiedEw.Value,
+				Comments = copiedEw.Comments,
+				Vopros = copiedEw.Vopros,
+				Otvet = copiedEw.Otvet,
+				PictureName = copiedEw.PictureName,
+				Order = copyToTow.executionWorks.Count + 1,
+				NewItem = true
+			};
+
+			// создать новый объект TechOperationDataGridItem
+			var newItem = CreateExecutionWorkItem(copyToTow, copiedEw, 0);
+
+			// определить в какой ТО вставляется строка
+			// если аналогичную скопированной строки, то оставляем инструменты и компоненты
+			if (copyToTow.techOperationId == copiedFromTow.techOperationId)
+            { 
+            }
+
+			// если нет, то проверяем, содержит ли новое ТО копируемые инструменты и компоненты
+			// и оставлем только те, которые есть в новом ТО
+			// что с механизмами?
+			// что с группами параллельности?
+
+			//var rowIndex = selectedRowIndices[0];
+   //         // определить положение в ТО
+			AddTechTransition(techTransition, copyToTow);
+
+			//AddRowToDataGrid(TcCopyData.FullItems[0], rowIndex + 1);
 		}
         else if (copyScope == CopyScopeEnum.RowRange)
         {
@@ -311,9 +354,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		MessageBox.Show("Данные успешно вставленны.");
 	}
 
-    private void InsertNewRow(int newRowIndex, TechOperationDataGridItem setectedItem)
+    public void InsertNewRow( TechTransition techTransition,  TechOperationWork techOperationWork,int? insertIndex = null )
     {
-		
+        var newEw = AddTechTransition(techTransition, techOperationWork);
+
+        var maxOrder = techOperationWork.executionWorks.Max(e => e.Order);
+
+		var newItem = CreateExecutionWorkItem(techOperationWork, newEw, maxOrder+1);
+
+        AddRowToDataGrid(newItem, maxOrder+1);
 	}
 	private void UpdateStaffInRow(int rowIndex, ExecutionWork setectedEw, List<Staff_TC> copiedStaff)
 	{
@@ -736,106 +785,152 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         int nomer = 1;
 
         foreach (var techOperationWork in techOperationWorksListLocal)
-        {
-            var executionWorks = techOperationWork.executionWorks.Where(w => !w.Delete).OrderBy(o => o.Order).ToList();
+		{
+			PopulateTechOperationDataGridItems(techOperationWork, ref nomer);
+		}
 
-            if (executionWorks.Count == 0)
-            {
-                TechOperationDataGridItems.Add(new TechOperationDataGridItem
-                {
-                    Nomer = -1,
-                    TechOperationWork = techOperationWork,
-                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                    IdTO = techOperationWork.techOperation.Id
-                });
-            }
-
-            foreach (var executionWork in executionWorks)
-            {
-                if (executionWork.IdGuid == Guid.Empty)
-                {
-                    executionWork.IdGuid = Guid.NewGuid();
-                }
-
-                var staffStr = string.Join(",", executionWork.Staffs.Select(s => s.Symbol));
-                var protectList = executionWork.Protections.Select(p => p.Order).ToList();
-                var protectStr = ConvertListToRangeString(protectList);
-                var mach = TehCarta.Machine_TCs.Select(tc => executionWork.Machines.Contains(tc)).ToList();
-
-                var itm = new TechOperationDataGridItem
-                {
-                    Nomer = nomer,
-                    Staff = staffStr,
-                    TechOperationWork = techOperationWork,
-                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                    TechTransition = executionWork.techTransition?.Name ?? "",
-                    TechTransitionValue = executionWork.Value.ToString(),
-                    Protections = protectStr,
-                    Etap = executionWork.Etap,
-                    Posled = executionWork.Posled,
-                    Work = true,
-                    techWork = executionWork,
-                    listMach = mach,
-                    Comments = executionWork.Comments,
-                    Vopros = executionWork.Vopros,
-                    Otvet = executionWork.Otvet,
-                    executionWorkItem = executionWork, // todo: зачем хранить 2 ссылки на объект ТП?
-
-                    PictureName = executionWork.PictureName,
-                    IdTO = techOperationWork.techOperation.Id
-                };
-
-                if (itm.TechTransitionValue == "-1")
-                {
-                    itm.TechTransitionValue = "Ошибка";
-                }
-
-                TechOperationDataGridItems.Add(itm);
-                nomer++;
-            }
-
-            foreach (var toolWork in techOperationWork.ToolWorks.Where(t => t.IsDeleted == false).ToList())
-            {
-                TechOperationDataGridItems.Add(new TechOperationDataGridItem
-                {
-                    Nomer = nomer,
-                    Staff = "",
-                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                    TechTransition = $"{toolWork.tool.Name}   {toolWork.tool.Type}    {toolWork.tool.Unit}",
-                    TechTransitionValue = toolWork.Quantity.ToString(),
-                    ItsTool = true,
-                    Comments = toolWork.Comments ?? "",
-                    TechOperationWork = techOperationWork
-                });
-                nomer++;
-            }
-
-            foreach (var componentWork in techOperationWork.ComponentWorks.Where(t => t.IsDeleted == false).ToList())
-            {
-                TechOperationDataGridItems.Add(new TechOperationDataGridItem
-                {
-                    Nomer = nomer,
-                    Staff = "",
-                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                    TechTransition = $"{componentWork.component.Name}   {componentWork.component.Type}    {componentWork.component.Unit}",
-                    TechTransitionValue = componentWork.Quantity.ToString(),
-                    ItsComponent = true,
-                    Comments = componentWork.Comments ?? "",
-                    TechOperationWork = techOperationWork
-                });
-                nomer++;
-            }
-        }
-
-        CalculateEtapTimes();// CalculateStageTimesUpdated();// CalculateEtapTimes();
+		CalculateEtapTimes();
         AddRowsToGrid();
     }
 
+	private void PopulateTechOperationDataGridItems(TechOperationWork techOperationWork, ref int nomer) // todo: вставка по индексу?
+	{
+		var executionWorks = techOperationWork.executionWorks.Where(w => !w.Delete).OrderBy(o => o.Order).ToList();
+
+		if (executionWorks.Count == 0)
+		{
+			var item = CreateEmptyExecutionWorkItem(techOperationWork);
+			TechOperationDataGridItems.Add(item);
+		}
+
+		foreach (var executionWork in executionWorks)
+		{
+			var item = CreateExecutionWorkItem(techOperationWork, executionWork, nomer);
+			TechOperationDataGridItems.Add(item);
+			nomer++;
+		}
+
+		foreach (var toolWork in techOperationWork.ToolWorks.Where(t => t.IsDeleted == false).ToList())
+		{
+			var item = CreateToolComponentWorkItem(techOperationWork, toolWork, nomer);
+			TechOperationDataGridItems.Add(item);
+			nomer++;
+		}
+
+		foreach (var componentWork in techOperationWork.ComponentWorks.Where(t => t.IsDeleted == false).ToList())
+		{
+			var item = CreateToolComponentWorkItem(techOperationWork, componentWork, nomer);
+			TechOperationDataGridItems.Add(item);
+			nomer++;
+		}
+	}
+
+	private TechOperationDataGridItem CreateExecutionWorkItem(
+	TechOperationWork techOperationWork,
+	ExecutionWork executionWork,
+	int nomer)
+	{
+		// Генерация Guid, если он не задан
+		if (executionWork.IdGuid == Guid.Empty)
+		{
+			executionWork.IdGuid = Guid.NewGuid();
+		}
+
+		// Строка со списком персонала
+		var staffStr = string.Join(",", executionWork.Staffs.Select(s => s.Symbol));
+
+		// Строка с "диапазоном" номеров защит
+		var protectList = executionWork.Protections.Select(p => p.Order).ToList();
+		var protectStr = ConvertListToRangeString(protectList);
+
+		// Список bool, отражающий, какие машины входят (пример в исходном коде)
+		var mach = TehCarta.Machine_TCs
+			.Select(tc => executionWork.Machines.Contains(tc))
+			.ToList();
+
+		// Создаём объект TechOperationDataGridItem
+		var item = new TechOperationDataGridItem
+		{
+			Nomer = nomer,
+			Staff = staffStr,
+			TechOperationWork = techOperationWork,
+			TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
+			TechTransition = executionWork.techTransition?.Name ?? "",
+			TechTransitionValue = executionWork.Value.ToString(),
+			Protections = protectStr,
+			Etap = executionWork.Etap,
+			Posled = executionWork.Posled,
+			Work = true,
+			techWork = executionWork,
+			listMach = mach,
+			Comments = executionWork.Comments,
+			Vopros = executionWork.Vopros,
+			Otvet = executionWork.Otvet,
+			executionWorkItem = executionWork, // в исходном коде есть комментарий, зачем 2 ссылки на один объект
+			PictureName = executionWork.PictureName,
+			IdTO = techOperationWork.techOperation.Id
+		};
+
+		// Дополнительная проверка значения
+		if (item.TechTransitionValue == "-1")
+		{
+			item.TechTransitionValue = "Ошибка";
+		}
+
+		return item;
+	}
+
+	private TechOperationDataGridItem CreateToolComponentWorkItem(
+	TechOperationWork techOperationWork,
+	ToolWork toolWork,
+	int nomer)
+	{
+		return new TechOperationDataGridItem
+		{
+			Nomer = nomer,
+			Staff = "",
+			TechOperationWork = techOperationWork,
+			TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
+			TechTransition = $"{toolWork.tool.Name}   {toolWork.tool.Type}    {toolWork.tool.Unit}",
+			TechTransitionValue = toolWork.Quantity.ToString(),
+			ItsTool = true,
+			Comments = toolWork.Comments ?? ""
+		};
+	}
+
+	private TechOperationDataGridItem CreateToolComponentWorkItem(
+	TechOperationWork techOperationWork,
+	ComponentWork componentWork,
+	int nomer)
+	{
+		return new TechOperationDataGridItem
+		{
+			Nomer = nomer,
+			Staff = "",
+			TechOperationWork = techOperationWork,
+			TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
+			TechTransition = $"{componentWork.component.Name}   {componentWork.component.Type}    {componentWork.component.Unit}",
+			TechTransitionValue = componentWork.Quantity.ToString(),
+			ItsComponent = true,
+			Comments = componentWork.Comments ?? ""
+		};
+	}
+
+	private TechOperationDataGridItem CreateEmptyExecutionWorkItem(TechOperationWork techOperationWork)
+	{
+		return new TechOperationDataGridItem
+		{
+			Nomer = -1,
+			TechOperationWork = techOperationWork,
+			TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
+			IdTO = techOperationWork.techOperation.Id
+		};
+	}
 
 
-    #region Расчёт времени этапов
+	#region Расчёт времени этапов
 
-    private void CalculateEtapTimes() 
+	private void CalculateEtapTimes() 
     {
         // Group items by ParallelIndex
         var parallelGroups = GroupByParallelIndex(TechOperationDataGridItems);
@@ -1659,9 +1754,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         TechOperationWorksList.Add(techOperationWork);
         context.TechOperationWorks.Add(techOperationWork);
 
-        if (TechOperat.Category == "Типовая ТО")
+        if (TechOperat.IsTypical)
         {
-            foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals)
+			if (TechOperat.techTransitionTypicals.Count == 0)
+			{
+                _logger.Warning($"Типовая ТО (id:{TechOperat.Id}) с пустым TechTransitionTypicals");
+				TechOperat.techTransitionTypicals = context.TechTransitionTypicals.Where(s => s.TechOperationId == TechOperat.Id).ToList();
+			}
+
+			foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals)
             {
                 var temp = item.TechTransition;
                 if (temp == null)
@@ -1673,24 +1774,30 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
     }
 
-    public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null, CoefficientForm coefficient = null)
-    {
+    public ExecutionWork AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null,
+        CoefficientForm coefficient = null, int? orderInTo = null) // todo: убрать CoefficientForm в качестве параметра и передать только коэффициент, а значение вычислять внутри метода
+	{
         TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
 
-        int max = 0;
-        if (TOWork.executionWorks.Count > 0)
-        {
-            max = TOWork.executionWorks.Max(w => w.Order);
-        }
+        if(orderInTo == null)
+		{
+			int max = 0;
+			if (TOWork.executionWorks.Count > 0)
+			{
+				max = TOWork.executionWorks.Max(w => w.Order);
+			}
 
+			orderInTo = max;
+		}
+		
         ExecutionWork techOpeWork = new ExecutionWork
         {
             IdGuid = Guid.NewGuid(),
             techOperationWork = TOWork,
             NewItem = true,
             techTransition = tech,
-            Order = ++max
-        };
+            Order = orderInTo!.Value // по сути nomer (порядоковый номер в таблице ХР)
+		};
 
         TOWork.executionWorks.Add(techOpeWork);
         context.ExecutionWorks.Add(techOpeWork);
@@ -1701,12 +1808,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
         else
         {
-            techOpeWork.Value = tech.TimeExecution;
             if (coefficient != null)
             {
                 techOpeWork.Coefficient = coefficient.GetCoefficient;
                 techOpeWork.Value = coefficient.GetValue;
             }
+            else
+            {
+                techOpeWork.Value = tech.TimeExecution;
+            }
+            
         }
 
         if (techTransitionTypical != null)
@@ -1721,7 +1832,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 : MathScript.EvaluateExpression(tech.TimeExecution + "*" + techTransitionTypical.Coefficient);
         }
 
-    }
+        return techOpeWork;
+
+	}
 
     public void DeleteTechOperation(TechOperationWork TechOperat)
     {
@@ -1781,7 +1894,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         if (vb != null)
         {
 
-            if (techOperationWork.techOperation.Category == "Типовая ТО")
+            if (techOperationWork.techOperation.IsTypical)
             {
                 if (vb.Repeat == false)
                 {

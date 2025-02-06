@@ -833,29 +833,26 @@ namespace TC_WinForms.WinForms.Work
                 var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
                 var techTransition = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
 
-                if (techTransition.Name != "Повторить п.")
-                {
-                    CoefficientForm coefficient = new CoefficientForm(techTransition);
+                CoefficientForm? coefficient = null;
 
-                    if (coefficient.ShowDialog() == DialogResult.OK)
+				if (techTransition.Name != "Повторить п.")
+				{
+					coefficient = new CoefficientForm(techTransition);
+					if (coefficient.ShowDialog() != DialogResult.OK)
                     {
-                       _logger.Information("Добавление ТП: {TechOperation} (id: {Id})",
-                            techTransition.Name, techTransition.Id);
-
-                        TechOperationForm.AddTechTransition(techTransition, work, null, coefficient);
-                        UpdateLocalTP();
-                        TechOperationForm.UpdateGrid();
-                    }
+						// Если пользователь закрыл форму без сохранения, то обнуляем коэффициент
+						coefficient = null;
+					}
                 }
-                else
-                {
-                   _logger.Information("Добавление ТП: {TechOperation} (id: {Id})",
-                            techTransition.Name, techTransition.Id);
 
-                    TechOperationForm.AddTechTransition(techTransition, work, null, null);
-                    UpdateLocalTP();
-                    TechOperationForm.UpdateGrid();
-                }
+				_logger.Information("Добавление ТП: {TechOperation} (id: {Id})",
+							techTransition.Name, techTransition.Id);
+
+				//TechOperationForm.AddTechTransition(techTransition, work, null, coefficient);
+				TechOperationForm.InsertNewRow(techTransition, work);
+				UpdateLocalTP();
+                //TechOperationForm.UpdateGrid();// todo: избавиться от обновления путём добавления в в таблицу вручную
+
             }
         }
 
