@@ -56,6 +56,7 @@ namespace TC_WinForms.WinForms
 
             ConfigureComboBox();
             ConfigureStatusComboBox();
+            ConfigureUnitComboBox();
 
             AllEllement.Add(txtArticle);
             AllEllement.Add(cbxType);
@@ -115,12 +116,16 @@ namespace TC_WinForms.WinForms
             }
         }
 
-
+        private void ConfigureUnitComboBox()
+        {
+            FillComboBoxWithEnumDescriptions(cbxUnit, typeof(TechnologicalCardUnit));
+        }
         public void load(TechnologicalCard LocalCard)
         {
             txtName.Text = LocalCard.Name;
             txtArticle.Text = LocalCard.Article;
             cbxType.Text = LocalCard.Type;
+            cbxUnit.SelectedItem = LocalCard.OutlayUnit.GetDescription();
             cbxNetworkVoltage.Text = LocalCard.NetworkVoltage.ToString();
             txtTechProcessType.Text = LocalCard.TechnologicalProcessType;
             txtTechProcess.Text = LocalCard.TechnologicalProcessName;
@@ -202,12 +207,21 @@ namespace TC_WinForms.WinForms
             if (_accessLevel == User.Role.Lead)
             {
                 var selectedDescription = cbxStatus.SelectedItem.ToString();
-                var enumValues = cbxStatus.Tag as List<Enum>;
+                var enumValuesStatus = cbxStatus.Tag as List<Enum>;
+                var selectedUnut = cbxUnit.SelectedItem.ToString();
+                var enumValuesUnit = cbxUnit.Tag as List<Enum>;
 
-                if (enumValues != null)
+                if (enumValuesStatus != null)
                 {
-                    var selectedEnumValue = enumValues.FirstOrDefault(e => e.GetDescription() == selectedDescription);
+                    var selectedEnumValue = enumValuesStatus.FirstOrDefault(e => e.GetDescription() == selectedDescription);
                     LocalCard.Status = (TechnologicalCardStatus)selectedEnumValue;
+                }
+
+
+                if (enumValuesUnit != null)
+                {
+                    var selectedEnumValue = enumValuesUnit.FirstOrDefault(e => e.GetDescription() == selectedUnut);
+                    LocalCard.OutlayUnit = (TechnologicalCardUnit)selectedEnumValue;
                 }
             }
 

@@ -54,13 +54,26 @@ public partial class Win6_Staff : Form, IViewModeable
 
         dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
         dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
+        dgvMain.CellContentClick += DgvMain_CellContentClick;
 
-		this.FormClosed += (sender, e) =>
+        this.FormClosed += (sender, e) =>
 		{
 			_logger.Information("Форма Win6_Staff закрыта.");
 			this.Dispose();
 		};
 	}
+
+    private void DgvMain_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+    {
+        if (dgvMain.Columns[e.ColumnIndex].Name == "IsInOutlay" && e.RowIndex >= 0)
+        {
+            dgvMain.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            var isInOutlay = (bool)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+            var staffId = (int)dgvMain.Rows[e.RowIndex].Cells["IdAuto"].Value;
+            var updatedStaff = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IdAuto == staffId).FirstOrDefault();
+            updatedStaff.IsInOutlay = isInOutlay;
+        }
+    }
 
     private void AccessInitialization()
     {
@@ -73,11 +86,11 @@ public partial class Win6_Staff : Form, IViewModeable
         // make columns editable
         dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = _tcViewState.IsViewMode;
         dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = _tcViewState.IsViewMode;
-
+        dgvMain.Columns[nameof(DisplayedStaff_TC.IsInOutlay)].ReadOnly = _tcViewState.IsViewMode;
 
         dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
         dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
-
+        dgvMain.Columns[nameof(DisplayedStaff_TC.IsInOutlay)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
         // update form
         dgvMain.Refresh();
 
@@ -146,8 +159,8 @@ public partial class Win6_Staff : Form, IViewModeable
             ParentId = dObj.ParentId,
             ChildId = dObj.ChildId,
             Order = dObj.Order,
-            Symbol = dObj.Symbol ?? "-"
-
+            Symbol = dObj.Symbol ?? "-",
+            IsInOutlay = dObj.IsInOutlay,
         };
     }
     private Staff_TC CreateNewObject(Staff obj, int oreder)
@@ -190,7 +203,9 @@ public partial class Win6_Staff : Form, IViewModeable
             { nameof(DisplayedStaff_TC.CombineResponsibility), 7*pixels },
             //{ nameof(DisplayedStaff_TC.Qualification), 13*pixels },//82+82+359
             { nameof(DisplayedStaff_TC.Symbol), 3*pixels },
-            {nameof(DisplayedStaff_TC.ChildId), 2*pixels }
+            {nameof(DisplayedStaff_TC.ChildId), 2*pixels },
+            {nameof(DisplayedStaff_TC.IsInOutlay), 3*pixels }
+
         };
         foreach (var column in fixColumnWidths)
         {
@@ -408,7 +423,7 @@ public partial class Win6_Staff : Form, IViewModeable
                 { nameof(ParentId), "ID тех. карты" },
                 { nameof(Order), "№" },
                 { nameof(Symbol), "Обозначение" },
-
+                { nameof(IsInOutlay), "Участвует в подсчете затрат" },
                 { nameof(Name), "Наименование" },
                 { nameof(Type), "Тип (исполнение)" },
                 { nameof(Functions), "Функции" },
@@ -427,7 +442,8 @@ public partial class Win6_Staff : Form, IViewModeable
                 nameof(CombineResponsibility),
                 nameof(Qualification),
                 nameof(Symbol),
-                nameof(ChildId)
+                nameof(ChildId),
+                nameof(IsInOutlay),
             };
         }
         public List<string> GetRequiredFields()
@@ -479,7 +495,7 @@ public partial class Win6_Staff : Form, IViewModeable
             ParentId = obj.ParentId;
             Order = obj.Order;
             Symbol = obj.Symbol;
-
+            IsInOutlay = obj.IsInOutlay;
             Name = obj.Child.Name;
             Type = obj.Child.Type;
             Functions = obj.Child.Functions;
@@ -490,7 +506,7 @@ public partial class Win6_Staff : Form, IViewModeable
 
             previousOrder = Order;
         }
-
+        public bool IsInOutlay { get; set; }
         public int IdAuto { get; set; }
         public int ChildId { get; set; }
         public int ParentId { get; set; }

@@ -10,8 +10,8 @@
         WorkStep,
         Diagram,
         ExecutionScheme,
-		Coefficient
-
-		// TechnologicalCard
-	}
+		Coefficient,
+        Outlay,
+        // TechnologicalCard
+    }
 }
