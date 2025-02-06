@@ -4,7 +4,8 @@ namespace TC_WinForms.WinForms.Win6.Models;
 
 public class DisplayedMachine_TC : BaseDisplayedEntity
 {
-	public DisplayedMachine_TC()
+    public bool IsInOutlay { get; set; }
+    public DisplayedMachine_TC()
 	{
 
 	}
@@ -16,8 +17,8 @@ public class DisplayedMachine_TC : BaseDisplayedEntity
 
 		Name = obj.Child.Name;
 		Type = obj.Child.Type;
-
-		Unit = obj.Child.Unit;
+        IsInOutlay = obj.IsInOutlay;
+        Unit = obj.Child.Unit;
 		Quantity = obj.Quantity;
 		Price = obj.Child.Price;
 		Description = obj.Child.Description;
@@ -27,4 +28,17 @@ public class DisplayedMachine_TC : BaseDisplayedEntity
 
 		IsReleased = obj.Child.IsReleased;
 	}
+
+    public override Dictionary<string, string> GetPropertiesNames()
+    {
+        var baseDict = base.GetPropertiesNames();
+        baseDict.Add(nameof(IsInOutlay), "Участвует в подсчете затрат");
+        return baseDict;
+    }
+    public override List<string> GetPropertiesOrder()
+    {
+        var baseList = base.GetPropertiesOrder();
+        baseList.Insert(7, nameof(IsInOutlay));
+        return baseList;
+    }
 }
