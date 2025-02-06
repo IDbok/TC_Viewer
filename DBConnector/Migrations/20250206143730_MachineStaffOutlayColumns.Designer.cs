@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TcDbConnector;
 
@@ -11,9 +12,11 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250206143730_MachineStaffOutlayColumns")]
+    partial class MachineStaffOutlayColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -859,9 +862,6 @@ namespace TcDbConnector.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ChildId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
@@ -872,6 +872,9 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("double");
 
                     b.Property<int>("TcId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChildId")
                         .HasColumnType("int");
 
                     b.Property<int>("Type")
@@ -1242,9 +1245,6 @@ namespace TcDbConnector.Migrations
 
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
-
-                    b.Property<int>("OutlayUnit")
-                        .HasColumnType("int");
 
                     b.Property<string>("Parameter")
                         .HasColumnType("longtext");
