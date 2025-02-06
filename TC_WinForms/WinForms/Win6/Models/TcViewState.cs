@@ -64,5 +64,18 @@ namespace TC_WinForms.WinForms.Win6.Models
 		{
 			_parentForm.RecalculateValuesWithCoefficientsInOpenForms();
 		}
-	}
+
+        public List<ExecutionWork> GetAllExecutionWorks()
+        {
+            List<ExecutionWork> allExecutionWorks = new List<ExecutionWork>();
+            foreach (var techOperationWork in TechOperationWorksList)
+            {
+                foreach(var ew in techOperationWork.executionWorks)
+				{
+					allExecutionWorks.Add(ew);
+                }
+            }
+            return allExecutionWorks;
+        }
+    }
 }
