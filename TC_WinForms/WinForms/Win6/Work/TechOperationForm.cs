@@ -1,5 +1,6 @@
 ﻿using Serilog;
 using System.Data;
+using System.Linq;
 using System.Text;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Extensions;
@@ -296,6 +297,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             var copyToTow = selectedItems[0].TechOperationWork;
             var isTypicalTo = copyToTow.techOperation.IsTypical;
 
+            if (techTransition == null) return;
+
 			// для типовой ТО возможно вставить только повтор
 			if (isTypicalTo && !copiedEw.Repeat)
 			{
@@ -303,42 +306,23 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				return;
 			}
 
-            var newEw = new ExecutionWork
-			{
-				techOperationWork = copyToTow,
-				techOperationWorkId = copyToTow.Id,
-				techTransition = techTransition,
-				techTransitionId = techTransition?.Id,
-				Value = copiedEw.Value,
-				Comments = copiedEw.Comments,
-				Vopros = copiedEw.Vopros,
-				Otvet = copiedEw.Otvet,
-				PictureName = copiedEw.PictureName,
-				Order = copyToTow.executionWorks.Count + 1,
-				NewItem = true
-			};
+            var rowIndex = selectedRowIndices[0];
 
-			// создать новый объект TechOperationDataGridItem
-			var newItem = CreateExecutionWorkItem(copyToTow, copiedEw, 0);
+            if (copiedEw.Repeat)
+            {
+                var repeatEws = copiedEw.ExecutionWorkRepeats.ToList();
 
-			// определить в какой ТО вставляется строка
-			// если аналогичную скопированной строки, то оставляем инструменты и компоненты
-			if (copyToTow.techOperationId == copiedFromTow.techOperationId)
-            { 
-            }
+				if (repeatEws != null && repeatEws.Count > 0)
+					InsertNewRow(techTransition, copyToTow, rowIndex + 1, repeatEws, coefficient: copiedEw.Coefficient);
+			}
+            else
+                InsertNewRow(techTransition, copyToTow, rowIndex + 1, coefficient: copiedEw.Coefficient);
 
-			// если нет, то проверяем, содержит ли новое ТО копируемые инструменты и компоненты
-			// и оставлем только те, которые есть в новом ТО
-			// что с механизмами?
-			// что с группами параллельности?
-
-			//var rowIndex = selectedRowIndices[0];
-   //         // определить положение в ТО
-			AddTechTransition(techTransition, copyToTow);
-
-			//AddRowToDataGrid(TcCopyData.FullItems[0], rowIndex + 1);
+			// todo: что с коэффициентом?
+			// todo: вставка staff и СЗ (вызовом методов UpdateStaffInRow и UpdateProtectionsInRow ??
+			// todo: что с механизмами? / что с группами параллельности?
 		}
-        else if (copyScope == CopyScopeEnum.RowRange)
+		else if (copyScope == CopyScopeEnum.RowRange)
         {
             //MessageBox.Show("Вставка компонента/инструмента");
         }
@@ -354,82 +338,140 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		MessageBox.Show("Данные успешно вставленны.");
 	}
 
-    public void InsertNewRow( TechTransition techTransition,  TechOperationWork techOperationWork,int? insertIndex = null )
-    {
-        var newEw = AddTechTransition(techTransition, techOperationWork);
-
-        var maxOrder = techOperationWork.executionWorks.Max(e => e.Order);
-
-		var newItem = CreateExecutionWorkItem(techOperationWork, newEw, maxOrder+1);
-
-        AddRowToDataGrid(newItem, maxOrder+1);
-	}
-	private void UpdateStaffInRow(int rowIndex, ExecutionWork setectedEw, List<Staff_TC> copiedStaff)
+    public void InsertNewRow(TechTransition techTransition,  TechOperationWork techOperationWork,
+        int? insertIndex = null, List<ExecutionWorkRepeat>? executionWorksRepeats = null,
+        string? coefficient = null)
 	{
-		// проверка на наличие изменений
-		if (setectedEw.Staffs.Count == copiedStaff.Count)
+		int? lastIndex = 0;
+		int? newEwOrder = null;
+
+        if (insertIndex != null)
+        {
+            // если индекс не null, то вставляем в указанное место
+
+            // определить положение в ТО
+            // находим последний элемент в ТО
+            var lastInTow = techOperationWork.executionWorks.LastOrDefault();
+            // если последний элемента нет, то вставляем в конец ТО
+            if (lastInTow == null)
+				newEwOrder = null; //AddNewExecutionWork(techTransition, techOperationWork);
+            else
+            {
+                // если есть, то определяем его индекс в таблице
+                lastIndex = lastInTow.RowOrder;
+
+                // сравниваем полученный индекс с индексом вставки
+                // если индекс вставки меньше чем индекс последнего элемента ТО
+                if (lastIndex > insertIndex.Value)
+                {
+                    // то его порядок будет меньше на разницу между индексом последнего элемента и индексом вставки
+                    newEwOrder = lastInTow.Order - (lastIndex - insertIndex.Value);
+
+                    // если этот порядок меньше 1 то устанавливаем его в 1
+                    if (newEwOrder < 1)
+                        newEwOrder = 1;
+                }
+                else
+                    newEwOrder = lastInTow.Order + 1;
+            }
+		}
+		// если индекс null, то вставляем в конец ТО newEwOrder = null
+
+		var newEw = AddNewExecutionWork(techTransition, techOperationWork, orderInTo: newEwOrder, coefficientValue: coefficient);
+
+		// если новый переход - повтор, то добавляем к нему повторяемые переходы
+		if (newEw != null && newEw.Repeat && executionWorksRepeats != null)
 		{
-			foreach (var staff in copiedStaff)
-			{
-				if (!setectedEw.Staffs.Contains(staff))
-				{
-					return;
-				}
+            foreach (var ewRepeat in executionWorksRepeats)
+            {
+                var newEwRepeat = new ExecutionWorkRepeat
+                {
+                    ParentExecutionWork = newEw,
+                    ChildExecutionWork = ewRepeat.ChildExecutionWork,
+                    NewCoefficient = ewRepeat.NewCoefficient,
+                    NewEtap = ewRepeat.NewEtap,
+                    NewPosled = ewRepeat.NewPosled
+                };
+				newEw.ExecutionWorkRepeats.Add(ewRepeat);
 			}
 		}
+
+		UpdateGrid(); // todo: заменить на вставку по индексу и пересчёт номеров строк. Сложность с повторами
+        // при замене номеров строк перебором Items,
+        // для повтором можно аналогично пересчитать название исходя из новых индексов входящий в него EW
+    }
+    public void UpdateStaffInRow(int rowIndex, ExecutionWork selectedEw, List<Staff_TC> copiedStaff)
+	{
+		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
+		if (copiedStaff == null) throw new ArgumentNullException(nameof(copiedStaff));
 
 		var currentCopyScope = CopyScopeEnum.Staff;
-		var columnIndex = GetColumnIndex(currentCopyScope) 
-            ?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
-		var newStaffSymbols = "";
-		setectedEw.Staffs.Clear();
+		var columnIndex = GetColumnIndex(currentCopyScope)
+			?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
 
-		if (copiedStaff.Count > 0)
+		var staffSet = new HashSet<Staff_TC>(copiedStaff);
+
+		// Удаляем объекты, которых нет в copiedStaff
+		selectedEw.Staffs.RemoveAll(staff => !staffSet.Contains(staff));
+
+		// Добавляем новые объекты из copiedStaff
+		foreach (var staff in copiedStaff)
 		{
-			foreach (var staff in copiedStaff)
-			{
-				setectedEw.Staffs.Add(staff);
-			}
-
-			newStaffSymbols = string.Join(",", setectedEw.Staffs.Select(s => s.Symbol));
+			if (!selectedEw.Staffs.Contains(staff))
+				selectedEw.Staffs.Add(staff);
 		}
 
+		// Формируем строку с символами
+		var newStaffSymbols = string.Join(",", selectedEw.Staffs.OrderBy(s => s.Symbol).Select(s => s.Symbol));
+
+		// Обновляем ячейку в таблице
 		UpdateCellValue(rowIndex, (int)columnIndex, newStaffSymbols);
 	}
 
-	private void UpdateProtectionsInRow(int rowIndices, ExecutionWork setectedEw, List<Protection_TC> copiedProtections)
+	public void UpdateProtectionsInRow(int rowIndices, ExecutionWork selectedEw, List<Protection_TC> copiedProtections)
 	{
-		var currentCopyScope = CopyScopeEnum.Protections;
-		var protectionsList = setectedEw.Protections;
-		// проверка на наличие изменений
-		if (protectionsList.Count == copiedProtections.Count)
-		{
-			foreach (var obj in copiedProtections)
-			{
-				if (!protectionsList.Contains(obj))
-				{
-					return;
-				}
-			}
-		}
+		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
+		if (copiedProtections == null) throw new ArgumentNullException(nameof(copiedProtections));
 
+		var currentCopyScope = CopyScopeEnum.Protections;
 		var columnIndex = GetColumnIndex(currentCopyScope)
 			?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
-		var newCellValue = "";
-		protectionsList.Clear();
 
-		if (copiedProtections.Count > 0)
+		var staffSet = new HashSet<Protection_TC>(copiedProtections);
+
+		// Удаляем объекты, которых нет в copiedStaff
+		selectedEw.Protections.RemoveAll(obj => !staffSet.Contains(obj));
+
+		// Добавляем новые объекты из copiedStaff
+		foreach (var protection in copiedProtections)
 		{
-			foreach (var obj in copiedProtections)
-			{
-				protectionsList.Add(obj);
-			}
-            
-            var objectOrderList = protectionsList.Select(s => s.Order).ToList();
-			newCellValue = ConvertListToRangeString(objectOrderList);
+			if (!selectedEw.Protections.Contains(protection))
+				selectedEw.Protections.Add(protection);
 		}
 
+		var protectionsList = selectedEw.Protections;
+
+		// Формируем строку с номерами СЗ
+		var objectOrderList = protectionsList.Select(s => s.Order).ToList();
+		var newCellValue = string.Join(",", ConvertListToRangeString(objectOrderList));
+
 		UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
+
+		//var newCellValue = "";
+		//protectionsList.Clear();
+
+		//if (copiedProtections.Count > 0)
+		//{
+		//	foreach (var obj in copiedProtections)
+		//	{
+		//		protectionsList.Add(obj);
+		//	}
+            
+  //          var objectOrderList = protectionsList.Select(s => s.Order).ToList();
+		//	newCellValue = ConvertListToRangeString(objectOrderList);
+		//}
+
+		//UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
 	}
 
 	/// <summary>
@@ -835,6 +877,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		{
 			executionWork.IdGuid = Guid.NewGuid();
 		}
+
+		// Установка порядкового номера строки
+		executionWork.RowOrder = nomer;
 
 		// Строка со списком персонала
 		var staffStr = string.Join(",", executionWork.Staffs.Select(s => s.Symbol));
@@ -1769,70 +1814,93 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 {
                     temp = context.TechTransitions.Single(s => s.Id == item.TechTransitionId);
                 }
-                AddTechTransition(temp, techOperationWork, item);
+                AddNewExecutionWork(temp, techOperationWork, item);
             }
         }
     }
 
-    public ExecutionWork AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null,
-        CoefficientForm coefficient = null, int? orderInTo = null) // todo: убрать CoefficientForm в качестве параметра и передать только коэффициент, а значение вычислять внутри метода
+    public ExecutionWork AddNewExecutionWork(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null,
+        CoefficientForm coefficient = null, int? orderInTo = null, string? coefficientValue = null) // todo: убрать CoefficientForm в качестве параметра и передать только коэффициент, а значение вычислять внутри метода
 	{
         TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
 
-        if(orderInTo == null)
-		{
-			int max = 0;
-			if (TOWork.executionWorks.Count > 0)
-			{
-				max = TOWork.executionWorks.Max(w => w.Order);
-			}
+        var prevEW = TOWork.executionWorks.OrderBy(e => e.Order).LastOrDefault();
+        var rowOrder = prevEW?.RowOrder+1;
 
-			orderInTo = max;
-		}
-		
-        ExecutionWork techOpeWork = new ExecutionWork
+        if (orderInTo == null)
+        {
+            orderInTo = prevEW?.Order + 1;
+        }
+        else
+        {
+            prevEW = TOWork.executionWorks.Where(w => w.Order == orderInTo).FirstOrDefault();
+			if (prevEW != null)
+			{
+				rowOrder = prevEW.RowOrder+1;
+			}
+			// Если порядковый номер уже есть в списке, то увеличиваем порядковый номер у всех последующих элементов
+			//if (TOWork.executionWorks.Any(w => w.Order == orderInTo))
+   //         {
+   //             foreach (var item in TOWork.executionWorks.Where(w => w.Order >= orderInTo))
+   //             {
+   //                 item.Order++;
+   //             }
+   //         }
+        }
+			// todo: если номер не последний в списке ТО, то нужно увеличить порядковый номер у всех последующих элементов
+
+		ExecutionWork newEw = new ExecutionWork
         {
             IdGuid = Guid.NewGuid(),
             techOperationWork = TOWork,
             NewItem = true,
             techTransition = tech,
-            Order = orderInTo!.Value // по сути nomer (порядоковый номер в таблице ХР)
+            Order = (int)orderInTo, // по сути nomer (порядоковый номер в таблице ХР)
+			RowOrder = rowOrder.Value,
 		};
 
-        TOWork.executionWorks.Add(techOpeWork);
-        context.ExecutionWorks.Add(techOpeWork);
+        TOWork.executionWorks.Add(newEw);
+        context.ExecutionWorks.Add(newEw);
 
         if (tech.Name == "Повторить" || tech.Name == "Повторить п.")
         {
-            techOpeWork.Repeat = true;
-        }
-        else
-        {
-            if (coefficient != null)
-            {
-                techOpeWork.Coefficient = coefficient.GetCoefficient;
-                techOpeWork.Value = coefficient.GetValue;
-            }
-            else
-            {
-                techOpeWork.Value = tech.TimeExecution;
-            }
-            
+            newEw.Repeat = true;
         }
 
-        if (techTransitionTypical != null)
-        {
-            techOpeWork.Etap = techTransitionTypical.Etap;
-            techOpeWork.Posled = techTransitionTypical.Posled;
-            techOpeWork.Coefficient = techTransitionTypical.Coefficient;
-            techOpeWork.Comments = techTransitionTypical.Comments ?? "";
+        if (coefficientValue != null)
+		{
+			newEw.Coefficient = coefficientValue;
+			var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+			newEw.Value = MathScript.EvaluateCoefficientExpression(coefficientValue,coefDict, tech.TimeExecution.ToString());
+		}
+		else
+		{
+			newEw.Value = tech.TimeExecution;
+		}
 
-            techOpeWork.Value = string.IsNullOrEmpty(techTransitionTypical.Coefficient) 
+		//if (coefficient != null)
+		//{
+		//    newEw.Coefficient = coefficient.GetCoefficient;
+		//    newEw.Value = coefficient.GetValue;
+		//}
+		//else
+		//{
+		//    newEw.Value = tech.TimeExecution;
+		//}
+
+		if (techTransitionTypical != null)
+        {
+            newEw.Etap = techTransitionTypical.Etap;
+            newEw.Posled = techTransitionTypical.Posled;
+            newEw.Coefficient = techTransitionTypical.Coefficient;
+            newEw.Comments = techTransitionTypical.Comments ?? "";
+
+            newEw.Value = string.IsNullOrEmpty(techTransitionTypical.Coefficient) 
                 ? tech.TimeExecution 
                 : MathScript.EvaluateExpression(tech.TimeExecution + "*" + techTransitionTypical.Coefficient);
         }
 
-        return techOpeWork;
+        return newEw;
 
 	}
 

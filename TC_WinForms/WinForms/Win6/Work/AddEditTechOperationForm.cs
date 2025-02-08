@@ -849,16 +849,19 @@ namespace TC_WinForms.WinForms.Work
 							techTransition.Name, techTransition.Id);
 
 				//TechOperationForm.AddTechTransition(techTransition, work, null, coefficient);
-				TechOperationForm.InsertNewRow(techTransition, work);
+                var coefficientValue = coefficient?.GetCoefficient;
+				TechOperationForm.InsertNewRow(techTransition, work, coefficient:coefficientValue);
 				UpdateLocalTP();
-                //TechOperationForm.UpdateGrid();// todo: избавиться от обновления путём добавления в в таблицу вручную
+				// выбрать новый ТП в комбобоксе
+				HighlightTOTTRow(true);
+				//TechOperationForm.UpdateGrid();// todo: избавиться от обновления путём добавления в в таблицу вручную
 
-            }
-        }
+			}
+		}
 
         private void AddNewTP(TechTransition TP, TechOperationWork TOW)
         {
-            TechOperationForm.AddTechTransition(TP, TOW);
+            TechOperationForm.AddNewExecutionWork(TP, TOW);
             UpdateLocalTP();
             TechOperationForm.UpdateGrid();
         }
@@ -1122,43 +1125,41 @@ namespace TC_WinForms.WinForms.Work
         public void ClickDataGridViewStaff()
         {
             bool updateTO = false;
-
-
             var AllStaff = TechOperationForm.TehCarta.Staff_TCs.ToList();
-            var ExecutionWorkBox = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
-            var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
+            //var ExecutionWorkBox = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
+            //var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
+            var LocalEw = SelectedTP;//TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
-            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
-
-            foreach (DataGridViewRow? row in dataGridViewStaff.Rows)
+            foreach (DataGridViewRow row in dataGridViewStaff.Rows)
             {
-                var idd = (Staff_TC)row.Cells[0].Value;
-                var chech = (bool)row.Cells[2].Value;
+				if (row?.Cells[0].Value is not Staff_TC staffInRow || row.Cells[2].Value is not bool isChecked)
+					continue;
 
-                var staf = LocalTP.Staffs.SingleOrDefault(s => s == idd);
-                if (chech)
+                var staffInEw = LocalEw.Staffs.SingleOrDefault(s => s == staffInRow);
+                if (isChecked && staffInEw == null)
                 {
-                    if (staf == null)
-                    {
-                        var sta = AllStaff.SingleOrDefault(s => s == idd);
-                        LocalTP.Staffs.Add(sta);
-                        updateTO = true;
-                    }
-                }
-                else
+					var addingStaff = AllStaff.SingleOrDefault(s => s == staffInRow);
+                    if(addingStaff == null)
+					{
+						_logger.Warning("Не удалось найти персонал с id {Id}", staffInRow.IdAuto);
+						continue;
+					}
+
+					LocalEw.Staffs.Add(addingStaff);
+					updateTO = true;
+				}
+                else if(!isChecked && staffInEw != null)
                 {
-                    if (staf != null)
-                    {
-                        var sta = LocalTP.Staffs.Remove(staf);
-                        updateTO = true;
-                    }
-                }
+					var sta = LocalEw.Staffs.Remove(staffInEw);
+					updateTO = true;
+				}
             }
 
             if (updateTO)
             {
-                TechOperationForm.UpdateGrid();
-            }
+                //TechOperationForm.UpdateGrid();// todo: заменить на обновление ячейки
+                TechOperationForm.UpdateStaffInRow(LocalEw.RowOrder - 1, LocalEw, LocalEw.Staffs);
+			}
 
         }
         private void DataGridViewStaff_CellBeginEdit(object? sender, DataGridViewCellCancelEventArgs e)
@@ -1198,8 +1199,10 @@ namespace TC_WinForms.WinForms.Work
                     this.BeginInvoke((Action)(() => UpdateGridStaff()));
                 });
 
-                TechOperationForm.UpdateGrid();
-            }
+                TechOperationForm.UpdateGrid();// todo: заменить на обновление ячейки
+				//TechOperationForm.UpdateStaffInRow
+
+			}
         }
 
         private void DataGridViewStaffAll_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -1259,12 +1262,11 @@ namespace TC_WinForms.WinForms.Work
                                 if (staffToDelete != null)
                                     executionWork.Staffs.Remove(staffToDelete);
                             }
-
                         }
 
                         UpdateGridStaff();
                         TechOperationForm.UpdateGrid();
-                    }
+					}
                 }
             }
         }
@@ -1391,45 +1393,45 @@ namespace TC_WinForms.WinForms.Work
         private void ClickDataGridViewSZ()
         {
             bool updateTO = false;
-
             var allSZ = TechOperationForm.TehCarta.Protection_TCs.ToList();
-            var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
-            var workF = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
+            //var work = SelectedTO;// (TechOperationWork)comboBoxTO.SelectedItem;
+            //var workF = SelectedTP;// (ExecutionWork)comboBoxTT.SelectedItem;
+            var localEw = SelectedTP;//TechOperationForm.TechOperationWorksList.Single(s => s == work)
+				//.executionWorks.Single(s => s.IdGuid == workF.IdGuid);
 
-            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work)
-                .executionWorks.Single(s => s.IdGuid == workF.IdGuid);
-
-
-            foreach (DataGridViewRow? row in dataGridViewLocalSZ.Rows)
+            foreach (DataGridViewRow row in dataGridViewLocalSZ.Rows)
             {
-                var idd = (Protection_TC)row.Cells[0].Value;
-                var check = (bool)row.Cells[2].Value;
-                var sz = LocalTP.Protections.SingleOrDefault(p => p == idd);
+				if (row?.Cells[0].Value is not Protection_TC protectionInRow || row.Cells[2].Value is not bool isChecked)
+					continue;
 
-                if (check)
+                var selectedProtection = localEw.Protections.SingleOrDefault(p => p == protectionInRow);
+
+                if (isChecked && selectedProtection == null)
                 {
-                    if (sz == null)
-                    {
-                        var szFromAll = allSZ.SingleOrDefault(s => s == idd);
-                        workF.Protections.Add(szFromAll);
-                        updateTO = true;
-                    }
-                }
-                else
-                {
-                    if (sz != null)
-                    {
-                        var szDel = workF.Protections.Remove(sz);
-                        updateTO = true;
-                    }
-                }
+					var szFromAll = allSZ.SingleOrDefault(s => s == protectionInRow);
+
+					if (szFromAll == null)
+					{
+						_logger.Warning("Не удалось найти СЗ с ParentId:{ParentId}, ChildId:{ChildId}", protectionInRow.ParentId, protectionInRow.ChildId);
+						continue;
+					}
+
+					localEw.Protections.Add(szFromAll);
+					updateTO = true;
+				}
+                else if(!isChecked && selectedProtection != null)
+				{
+					localEw.Protections.Remove(selectedProtection);
+					updateTO = true;
+				}
             }
 
             if (updateTO)
             {
-                TechOperationForm.UpdateGrid();
-            }
-        }
+				//TechOperationForm.UpdateGrid();
+				TechOperationForm.UpdateProtectionsInRow(localEw.RowOrder - 1, localEw, localEw.Protections);
+			}
+		}
         private void TextBoxPoiskSZ_TextChanged(object? sender, EventArgs e)
         {
             UpdateGridAllSZ();
@@ -2582,14 +2584,10 @@ namespace TC_WinForms.WinForms.Work
                                 ChildExecutionWorkId = currentEW.Id,
                                 NewCoefficient = "*1"
                             };
+
                             dataGridViewPovtor.Rows[e.RowIndex].Cells[5].Value = "*1";
-
                             executionWorkPovtor.ExecutionWorkRepeats.Add(newRepeat);
-
                             TechOperationForm.context.ExecutionWorkRepeats.Add(newRepeat);
-
-                            // TechOperationForm.UpdateGrid();
-
                         }
                     }
                     else
@@ -2597,13 +2595,8 @@ namespace TC_WinForms.WinForms.Work
                         if (existingRepeat != null)
                         {
                             dataGridViewPovtor.Rows[e.RowIndex].Cells[5].Value = "";
-
                             executionWorkPovtor.ExecutionWorkRepeats.Remove(existingRepeat);
-
                             TechOperationForm.context.ExecutionWorkRepeats.Remove(existingRepeat);
-
-                            // TechOperationForm.UpdateGrid();
-
                         }
                     }
 

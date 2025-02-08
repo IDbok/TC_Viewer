@@ -41,8 +41,9 @@ namespace TcModels.Models.TcContent
         [NotMapped] public bool Delete { get; set; }
         [NotMapped] public Guid IdGuid { get; set; }
         
-        public int Order { get; set; }
-        public string Etap { get; set; } = "";
+        public int Order { get; set; } // порядок выполнения в ТО
+        [NotMapped] public int RowOrder { get; set; } // порядковый номер в таблице ХР
+		public string Etap { get; set; } = "";
         public string Posled { get; set; } = "";
         [NotMapped] public double TempTimeExecution { get; set; }
 
