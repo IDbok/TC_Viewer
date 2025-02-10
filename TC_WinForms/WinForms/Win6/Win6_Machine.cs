@@ -127,7 +127,7 @@ namespace TC_WinForms.WinForms
             baseList.Add(nameof(Machine_TC.IsInOutlay));
             return baseList;
         }
-        public virtual void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
+        public override void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
         {
             DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].ReadOnly = _tcViewState.IsViewMode;
             DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
