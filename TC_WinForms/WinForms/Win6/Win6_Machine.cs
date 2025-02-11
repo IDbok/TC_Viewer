@@ -135,6 +135,17 @@ namespace TC_WinForms.WinForms
             base.SetViewMode(isViewMode);
         }
 
+        protected override void SetDGVColumnsSettings()
+        {
+            base.SetDGVColumnsSettings();
+
+            var pixels = 35;
+
+            DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].Width = 3 * pixels;
+            DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].Resizable = DataGridViewTriState.False;
+        }
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         protected override void SaveReplacedObjects() // add to UpdateMode
         {

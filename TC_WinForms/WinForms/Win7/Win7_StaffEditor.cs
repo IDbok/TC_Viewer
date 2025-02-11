@@ -93,6 +93,9 @@ public partial class Win7_StaffEditor : Form
     }
     private async void btnSave_Click(object sender, EventArgs e)
     {
+        if (staffBlockService != null)
+            staffBlockService.CleanBlockData();
+
         _editingObj.Name = txtName.Text;
         _editingObj.Type = txtType.Text;
         _editingObj.Functions = rtxtFunctions.Text;
