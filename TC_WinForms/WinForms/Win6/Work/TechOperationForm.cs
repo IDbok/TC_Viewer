@@ -213,13 +213,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			.ToList();
 		
 		copyScope = null;
-        if (selectedRowIndices.Count == 1 && dgvMain.SelectedCells.Count == 1)
-        {
-            // Одна ячейка
-            var cell = dgvMain.SelectedCells[0];
-            copyScope = GetCopyScopeByCell(cell);
-        }
-        else if (selectedRowIndices.Count == 1)
+
+		var cell = dgvMain.SelectedCells[0];
+		copyScope = GetCopyScopeByCell(cell);
+
+		if (copyScope == CopyScopeEnum.ToolOrComponents || (selectedRowIndices.Count == 1 && dgvMain.SelectedCells.Count == 1))
+		{
+            return;
+		}
+
+		if (selectedRowIndices.Count == 1)
         {
             copyScope = CopyScopeEnum.Row;
         }
@@ -287,11 +290,80 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
             UpdateProtectionsInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Protections);
         }
-        else if (selectedScope == CopyScopeEnum.ToolOrComponents)
+        else if (( selectedScope == CopyScopeEnum.ToolOrComponents || selectedScope == CopyScopeEnum.Row || selectedScope == CopyScopeEnum.RowRange) 
+            && TcCopyData.CopyScope == CopyScopeEnum.ToolOrComponents)
         {
-            //MessageBox.Show("Вставка компонента/инструмента");
-        }
-        else if (selectedScope == CopyScopeEnum.Row)
+
+            if (TcCopyData.CopyScope != CopyScopeEnum.ToolOrComponents) return;
+
+			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Инструменты/Компоненты."); }
+
+			var selectedTow = selectedItems[0].TechOperationWork;
+			if (selectedTow == null) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Инструменты/Компоненты."); }
+
+            var copiedRows = TcCopyData.FullItems;
+			// проверка все ли строки содержат являются компонентами или инструментами
+			if (copiedRows.Any(r => r.WorkItemType != WorkItemType.ToolWork && r.WorkItemType != WorkItemType.ComponentWork))
+			{
+				MessageBox.Show("Вставка возможна только для строк с инструментами или компонентами.");
+				return;
+			}
+            bool IsDGChanged = false;
+            var toolRows = copiedRows.Where(r => r.WorkItemType == WorkItemType.ToolWork).ToList();
+			var componentRows = copiedRows.Where(r => r.WorkItemType == WorkItemType.ComponentWork).ToList();
+
+            if (toolRows.Count > 0)
+            {
+                var toolWorks = toolRows.Select(r => r.WorkItem).Cast<ToolWork>().ToList();
+                var tools = toolWorks.Select(tw => tw.tool).ToList();
+				// добавляем скопированные инструменты, если их нет в ТО
+				foreach (var toolWork in toolWorks)
+				{
+					if (selectedTow.ToolWorks.Where(o => o.toolId == toolWork.toolId).Count() == 0)
+                    {
+						selectedTow.ToolWorks.Add(new ToolWork
+						{
+                            toolId = toolWork.toolId,
+							tool = toolWork.tool,
+							Quantity = toolWork.Quantity,
+							Comments = toolWork.Comments
+						});
+
+                        if(!IsDGChanged)
+                            IsDGChanged = true;
+					}
+						
+				}
+
+			}
+
+			if (componentRows.Count > 0)
+			{
+				var copiedComponentWorks = componentRows.Select(r => r.WorkItem).Cast<ComponentWork>().ToList();
+				var copiedComponents = copiedComponentWorks.Select(tw => tw.component).ToList();
+				// добавляем скопированные инструменты, если их нет в ТО
+				foreach (var componentWork in copiedComponentWorks)
+				{
+					if (selectedTow.ComponentWorks.Where(o => o.componentId == componentWork.componentId).Count() == 0)
+					{
+						selectedTow.ComponentWorks.Add(new ComponentWork
+						{
+							componentId = componentWork.componentId,
+							component = componentWork.component,
+							Quantity = componentWork.Quantity,
+							Comments = componentWork.Comments
+						});
+
+						if (!IsDGChanged)
+							IsDGChanged = true;
+					}
+				}
+			}
+
+			if (IsDGChanged)
+			    UpdateGrid();
+		}
+		else if (selectedScope == CopyScopeEnum.Row)
 		{
             if (TcCopyData.CopyScope != CopyScopeEnum.Row && TcCopyData.CopyScope != CopyScopeEnum.RowRange) 
                 return;
@@ -315,16 +387,18 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				UpdateGrid(); // todo: выяснить, почему не обновляется таблица после UpdateProtectionsInRow и UpdateStaffInRow
 			}
 		}
-        else if (selectedScope == CopyScopeEnum.Text)
-        {
-            PasteClipboardValue();
-        }
-        else
+		else if (TcCopyData.CopyScope == CopyScopeEnum.TechOperation)
+		{
+
+		}
+		else if (selectedScope == CopyScopeEnum.Text)
+		{
+			PasteClipboardValue();
+		}
+		else
         {
 			MessageBox.Show("Не удалось определить тип копирования.");
 		}
-
-		MessageBox.Show("Данные успешно вставленны.");
 	}
 
 	private void PasteAsNewRow(int rowIndex, TechOperationWork copyToTow, TechOperationDataGridItem copiedItem, bool updateDataGrid = false)
@@ -471,30 +545,35 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		var techOperationDataGridItem = TechOperationDataGridItems[cellRowIndex];
 
-		switch (columnName)
-		{
-			case "Исполнитель":
-				copyScope = CopyScopeEnum.Staff;
-				break;
-			case "№ СЗ":
-				copyScope = CopyScopeEnum.Protections;
-				break;
-			case "Технологические операции":
-				copyScope = CopyScopeEnum.TechOperation;
-				break;
-            case "Технологические переходы":
-				if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
-					copyScope = CopyScopeEnum.ToolOrComponents;
-				else
+        if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
+        { copyScope = CopyScopeEnum.ToolOrComponents; }
+        else
+        {
+			switch (columnName)
+			{
+				case "Исполнитель":
+					copyScope = CopyScopeEnum.Staff;
+					break;
+				case "№ СЗ":
+					copyScope = CopyScopeEnum.Protections;
+					break;
+				case "Технологические операции":
+					copyScope = CopyScopeEnum.TechOperation;
+					break;
+				case "Технологические переходы":
 					copyScope = CopyScopeEnum.Row;
-                break;
-			case "Примечание":
-			case "Рис.":
-            case "Замечание":
-			case "Ответ":
-				copyScope = CopyScopeEnum.Text;
-				break;
+					break;
+				case "Примечание":
+				case "Рис.":
+				case "Замечание":
+				case "Ответ":
+                case "№":
+					copyScope = CopyScopeEnum.Text;
+					break;
+			}
 		}
+
+		
 
 		return copyScope;
 	}
@@ -695,13 +774,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             dgvMain.Columns.RemoveAt(0);
         }
 
-        dgvMain.Columns.Add("", "");
-        dgvMain.Columns.Add("", "");
-        dgvMain.Columns.Add("", "");
+		dgvMain.Columns.Add("ExecutionWorkItem", "");
+        dgvMain.Columns.Add("Order", "");
+        dgvMain.Columns.Add("TechOperationName", "");
         dgvMain.Columns.Add("Staff", "Исполнитель");
         dgvMain.Columns.Add("TechTransitionName", "Технологические переходы");
-        dgvMain.Columns.Add("", "");
-        dgvMain.Columns.Add("", "");
+        dgvMain.Columns.Add("TimeValue", "");
+        dgvMain.Columns.Add("EtapValue", "");
 
         int i = 0;
         foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
@@ -824,8 +903,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		if (executionWorks.Count == 0)
 		{
-			var item = CreateEmptyExecutionWorkItem(techOperationWork);
-			TechOperationDataGridItems.Add(item);
+            TechOperationDataGridItems.Add(new TechOperationDataGridItem(techOperationWork));
 		}
 
 		foreach (var executionWork in executionWorks)
@@ -837,15 +915,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		foreach (var toolWork in techOperationWork.ToolWorks.Where(t => t.IsDeleted == false).ToList())
 		{
-			var item = CreateToolComponentWorkItem(techOperationWork, toolWork, nomer);
-			TechOperationDataGridItems.Add(item);
+			TechOperationDataGridItems.Add(new TechOperationDataGridItem(techOperationWork, toolWork, nomer));
 			nomer++;
 		}
 
 		foreach (var componentWork in techOperationWork.ComponentWorks.Where(t => t.IsDeleted == false).ToList())
 		{
-			var item = CreateToolComponentWorkItem(techOperationWork, componentWork, nomer);
-			TechOperationDataGridItems.Add(item);
+			TechOperationDataGridItems.Add(new TechOperationDataGridItem(techOperationWork,componentWork, nomer));
 			nomer++;
 		}
 	}
@@ -877,27 +953,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			.ToList();
 
 		// Создаём объект TechOperationDataGridItem
-		var item = new TechOperationDataGridItem
-		{
-			Nomer = nomer,
-			Staff = staffStr,
-			TechOperationWork = techOperationWork,
-			TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-			TechTransition = executionWork.techTransition?.Name ?? "",
-			TechTransitionValue = executionWork.Value.ToString(),
-			Protections = protectStr,
-			Etap = executionWork.Etap,
-			Posled = executionWork.Posled,
-			Work = true,
-			techWork = executionWork,
-			listMach = mach,
-			Comments = executionWork.Comments,
-			Vopros = executionWork.Vopros,
-			Otvet = executionWork.Otvet,
-			executionWorkItem = executionWork, // в исходном коде есть комментарий, зачем 2 ссылки на один объект
-			PictureName = executionWork.PictureName,
-			IdTO = techOperationWork.techOperation.Id
-		};
+        
+        var item = new TechOperationDataGridItem(techOperationWork, executionWork, nomer, staffStr, mach, protectStr);
 
 		// Дополнительная проверка значения
 		if (item.TechTransitionValue == "-1")
@@ -906,53 +963,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		}
 
 		return item;
-	}
-
-	private TechOperationDataGridItem CreateToolComponentWorkItem(
-	TechOperationWork techOperationWork,
-	ToolWork toolWork,
-	int nomer)
-	{
-		return new TechOperationDataGridItem
-		{
-			Nomer = nomer,
-			Staff = "",
-			TechOperationWork = techOperationWork,
-			TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-			TechTransition = $"{toolWork.tool.Name}   {toolWork.tool.Type}    {toolWork.tool.Unit}",
-			TechTransitionValue = toolWork.Quantity.ToString(),
-			ItsTool = true,
-			Comments = toolWork.Comments ?? ""
-		};
-	}
-
-	private TechOperationDataGridItem CreateToolComponentWorkItem(
-	TechOperationWork techOperationWork,
-	ComponentWork componentWork,
-	int nomer)
-	{
-		return new TechOperationDataGridItem
-		{
-			Nomer = nomer,
-			Staff = "",
-			TechOperationWork = techOperationWork,
-			TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-			TechTransition = $"{componentWork.component.Name}   {componentWork.component.Type}    {componentWork.component.Unit}",
-			TechTransitionValue = componentWork.Quantity.ToString(),
-			ItsComponent = true,
-			Comments = componentWork.Comments ?? ""
-		};
-	}
-
-	private TechOperationDataGridItem CreateEmptyExecutionWorkItem(TechOperationWork techOperationWork)
-	{
-		return new TechOperationDataGridItem
-		{
-			Nomer = -1,
-			TechOperationWork = techOperationWork,
-			TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-			IdTO = techOperationWork.techOperation.Id
-		};
 	}
 
 
@@ -1260,86 +1270,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         foreach (var item in TechOperationDataGridItems) //techOperationDataGridItem
 		{
 			AddRowToDataGrid(item);
-			//var str = new List<object>();
-			//var obj = context.Set<TechOperation>().Where(to => to.Id == techOperationDataGridItem.IdTO).FirstOrDefault();
-
-			//if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat)
-			//{
-			//    var repeatNumList = techOperationDataGridItem.techWork.ExecutionWorkRepeats
-			//        .Select(executionWorkRepeat => TechOperationDataGridItems.SingleOrDefault(s => s.techWork == executionWorkRepeat.ChildExecutionWork))
-			//        .Where(bn => bn != null)
-			//        .Select(bn => bn.Nomer)
-			//        .ToList();
-
-			//    var strP = ConvertListToRangeString(repeatNumList);
-
-			//    str.Add(techOperationDataGridItem.executionWorkItem);
-			//    str.Add(techOperationDataGridItem.Nomer.ToString());
-			//    str.Add(techOperationDataGridItem.TechOperation);
-			//    str.Add(techOperationDataGridItem.Staff);
-			//    str.Add("Повторить п." + strP);
-			//    str.Add(techOperationDataGridItem.TechTransitionValue);
-			//    str.Add(techOperationDataGridItem.TimeEtap);
-
-			//    AddMachineColumns(techOperationDataGridItem, str);
-
-			//    str.Add(techOperationDataGridItem.Protections);
-			//    str.Add(techOperationDataGridItem.techWork?.Comments ?? "");
-
-			//    str.Add(techOperationDataGridItem.PictureName);
-
-			//    str.Add(techOperationDataGridItem.Vopros);
-			//    str.Add(techOperationDataGridItem.Otvet);
-
-			//    if (!obj.IsReleased)
-			//    {
-			//        AddRowToGrid(str, Color.Yellow, Color.Yellow, Color.Pink);
-			//    }
-			//    else
-			//        AddRowToGrid(str, Color.Yellow, Color.Yellow);
-
-			//    continue;
-			//}
-
-			//str.Add(techOperationDataGridItem.executionWorkItem);
-			//str.Add(techOperationDataGridItem.Nomer != -1 ? techOperationDataGridItem.Nomer.ToString() : "");
-			//str.Add(techOperationDataGridItem.TechOperation);
-			//str.Add(techOperationDataGridItem.Staff);
-			//str.Add(techOperationDataGridItem.TechTransition);
-			//str.Add(techOperationDataGridItem.TechTransitionValue);
-			//str.Add(techOperationDataGridItem.TimeEtap);
-
-			//AddMachineColumns(techOperationDataGridItem, str);
-
-			//str.Add(techOperationDataGridItem.Protections);
-			//str.Add(techOperationDataGridItem.techWork?.Comments ?? techOperationDataGridItem.Comments);
-
-			//str.Add(techOperationDataGridItem.PictureName);
-
-			//str.Add(techOperationDataGridItem.Vopros);
-			//str.Add(techOperationDataGridItem.Otvet);
-
-
-			//if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
-			//{
-			//    AddRowToGrid(str, techOperationDataGridItem.ItsComponent ? Color.Salmon : Color.Aquamarine, techOperationDataGridItem.ItsComponent ? Color.Salmon : Color.Aquamarine);
-			//}
-			//else if (!obj.IsReleased && techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
-			//{
-			//    AddRowToGrid(str, Color.Empty, Color.Pink, Color.Pink);
-			//}
-			//else if (!obj.IsReleased)
-			//{
-			//    AddRowToGrid(str, Color.Empty, Color.Empty, Color.Pink);
-			//}
-			//else if (techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
-			//{
-			//    AddRowToGrid(str, Color.Empty, Color.Pink);
-			//}
-			//else
-			//{
-			//    AddRowToGrid(str, Color.Empty, Color.Empty);
-			//}
 		}
 	}
 
