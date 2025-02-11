@@ -232,20 +232,20 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	private void PasteCopiedData()
     {
 		List<int> selectedRowIndices;
-		CopyScopeEnum? copyScope;
+		CopyScopeEnum? selectedScope;
 
-		GetSelectedDataInfo(out selectedRowIndices, out copyScope);
+		GetSelectedDataInfo(out selectedRowIndices, out selectedScope);
 
 		if (selectedRowIndices.Count == 0)
 			return;
 
-		if (copyScope == null)
+		if (selectedScope == null)
         {
             MessageBox.Show("Не удалось определить тип копирования.");
             return;
 		}    
 
-        if(TcCopyData.GetCopyTcId() != _tcId && copyScope != CopyScopeEnum.Text)
+        if(TcCopyData.GetCopyTcId() != _tcId && selectedScope != CopyScopeEnum.Text)
 		{
 			MessageBox.Show("Данные не могут быть вставлены в другую ТК.");
 			return;
@@ -253,12 +253,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
 
-        if (copyScope == CopyScopeEnum.Staff)
+		if (selectedScope == CopyScopeEnum.Staff)
         {
             // проверяем есть ли в скопированных данных информация
             if (TcCopyData.CopyScope != CopyScopeEnum.Staff) { return; }
 
-            if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Персонал."); }
+			// todo: добавить возможность вставки данных из скопированного ТП
+
+			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Персонал."); }
             var setectedEw = selectedItems[0].executionWorkItem;
             if (setectedEw == null)
             {
@@ -268,10 +270,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
             UpdateStaffInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Staffs);
         }
-        else if (copyScope == CopyScopeEnum.Protections)
+        else if (selectedScope == CopyScopeEnum.Protections)
         {
             // проверяем есть ли в скопированных данных информация
             if (TcCopyData.CopyScope != CopyScopeEnum.Protections) { return; }
+
+            // todo: добавить возможность вставки данных из скопированного ТП
 
             if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных СЗ."); }
             var setectedEw = selectedItems[0].executionWorkItem;
@@ -283,50 +287,35 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
             UpdateProtectionsInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Protections);
         }
-        else if (copyScope == CopyScopeEnum.ToolOrComponents)
+        else if (selectedScope == CopyScopeEnum.ToolOrComponents)
         {
             //MessageBox.Show("Вставка компонента/инструмента");
         }
-        else if (copyScope == CopyScopeEnum.Row)
-        {
-			var copiedItem = TcCopyData.FullItems[0];
-			var copiedEw = copiedItem.techWork;
-			var techTransition = copiedEw.techTransition;
-            var copiedFromTow = copiedItem.TechOperationWork;
+        else if (selectedScope == CopyScopeEnum.Row)
+		{
+            if (TcCopyData.CopyScope != CopyScopeEnum.Row && TcCopyData.CopyScope != CopyScopeEnum.RowRange) 
+                return;
 
-            var copyToTow = selectedItems[0].TechOperationWork;
-            var isTypicalTo = copyToTow.techOperation.IsTypical;
+			var rowIndex = selectedRowIndices[0] + 1; // тавляем после выделенной строки
 
-            if (techTransition == null) return;
-
-			// для типовой ТО возможно вставить только повтор
-			if (isTypicalTo && !copiedEw.Repeat)
-			{
-				MessageBox.Show("В типовую операцию возможна вставта только повторов.");
-				return;
-			}
-
-            var rowIndex = selectedRowIndices[0];
-
-            if (copiedEw.Repeat)
+			if (TcCopyData.CopyScope == CopyScopeEnum.Row)
             {
-                var repeatEws = copiedEw.ExecutionWorkRepeats.ToList();
-
-				if (repeatEws != null && repeatEws.Count > 0)
-					InsertNewRow(techTransition, copyToTow, rowIndex + 1, repeatEws, coefficient: copiedEw.Coefficient);
+				PasteAsNewRow(rowIndex, selectedItems[0].TechOperationWork, TcCopyData.FullItems[0], updateDataGrid: true);
 			}
-            else
-                InsertNewRow(techTransition, copyToTow, rowIndex + 1, coefficient: copiedEw.Coefficient);
+			else if (TcCopyData.CopyScope == CopyScopeEnum.RowRange)
+			{
+				var iterator = 0;
+				foreach (var copiedItem in TcCopyData.FullItems)
+				{
+					PasteAsNewRow(rowIndex, selectedItems[0].TechOperationWork, copiedItem);
+					rowIndex++;
+					iterator++;
+				}
 
-			// todo: что с коэффициентом?
-			// todo: вставка staff и СЗ (вызовом методов UpdateStaffInRow и UpdateProtectionsInRow ??
-			// todo: что с механизмами? / что с группами параллельности?
+				UpdateGrid(); // todo: выяснить, почему не обновляется таблица после UpdateProtectionsInRow и UpdateStaffInRow
+			}
 		}
-		else if (copyScope == CopyScopeEnum.RowRange)
-        {
-            //MessageBox.Show("Вставка компонента/инструмента");
-        }
-        else if (copyScope == CopyScopeEnum.Text)
+        else if (selectedScope == CopyScopeEnum.Text)
         {
             PasteClipboardValue();
         }
@@ -338,49 +327,52 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		MessageBox.Show("Данные успешно вставленны.");
 	}
 
-    public void InsertNewRow(TechTransition techTransition,  TechOperationWork techOperationWork,
-        int? insertIndex = null, List<ExecutionWorkRepeat>? executionWorksRepeats = null,
-        string? coefficient = null)
+	private void PasteAsNewRow(int rowIndex, TechOperationWork copyToTow, TechOperationDataGridItem copiedItem, bool updateDataGrid = false)
 	{
-		int? lastIndex = 0;
-		int? newEwOrder = null;
+		var copiedEw = copiedItem.techWork;
+		var copiedFromTow = copiedItem.TechOperationWork;
 
-        if (insertIndex != null)
-        {
-            // если индекс не null, то вставляем в указанное место
-
-            // определить положение в ТО
-            // находим последний элемент в ТО
-            var lastInTow = techOperationWork.executionWorks.LastOrDefault();
-            // если последний элемента нет, то вставляем в конец ТО
-            if (lastInTow == null)
-				newEwOrder = null; //AddNewExecutionWork(techTransition, techOperationWork);
-            else
-            {
-                // если есть, то определяем его индекс в таблице
-                lastIndex = lastInTow.RowOrder;
-
-                // сравниваем полученный индекс с индексом вставки
-                // если индекс вставки меньше чем индекс последнего элемента ТО
-                if (lastIndex > insertIndex.Value)
-                {
-                    // то его порядок будет меньше на разницу между индексом последнего элемента и индексом вставки
-                    newEwOrder = lastInTow.Order - (lastIndex - insertIndex.Value);
-
-                    // если этот порядок меньше 1 то устанавливаем его в 1
-                    if (newEwOrder < 1)
-                        newEwOrder = 1;
-                }
-                else
-                    newEwOrder = lastInTow.Order + 1;
-            }
+		var isTypicalTo = copyToTow.techOperation.IsTypical;
+		// для типовой ТО возможно вставить только повтор
+		if (isTypicalTo && !copiedEw.Repeat)
+		{
+			MessageBox.Show("В типовую операцию возможна вставта только повторов.");
+			return;
 		}
-		// если индекс null, то вставляем в конец ТО newEwOrder = null
 
-		var newEw = AddNewExecutionWork(techTransition, techOperationWork, orderInTo: newEwOrder, coefficientValue: coefficient);
+		var techTransition = copiedEw.techTransition;
+		if (techTransition == null) return;
+
+		ExecutionWork newEw;
+
+		if (copiedEw.Repeat)
+		{
+			var repeatEws = copiedEw.ExecutionWorkRepeats.ToList();
+
+			if (repeatEws == null) throw new Exception("Ошибка при вставке повтора.");
+
+			newEw = InsertNewRow(techTransition, copyToTow, rowIndex, repeatEws, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid);
+		}
+		else
+            newEw = InsertNewRow(techTransition, copyToTow, rowIndex, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid);
+
+        UpdateProtectionsInRow(rowIndex, newEw, TcCopyData.FullItems[0].executionWorkItem.Protections, updateDataGrid: updateDataGrid);
+        UpdateStaffInRow(rowIndex, newEw, TcCopyData.FullItems[0].executionWorkItem.Staffs, updateDataGrid: updateDataGrid);
+		// todo: что с механизмами?
+		// todo: что с группой паралельности и последовательности?
+	}
+
+	public ExecutionWork InsertNewRow(TechTransition techTransition,  TechOperationWork techOperationWork,
+        int? insertIndex = null, List<ExecutionWorkRepeat>? executionWorksRepeats = null,
+        string? coefficient = null, bool updateDataGrid = true)
+
+	{
+		var newEw = AddNewExecutionWork(techTransition, techOperationWork, insertIndex: insertIndex, coefficientValue: coefficient);
+
+        if (newEw == null) throw new Exception("Ошибка при добавлении нового перехода.");
 
 		// если новый переход - повтор, то добавляем к нему повторяемые переходы
-		if (newEw != null && newEw.Repeat && executionWorksRepeats != null)
+		if (newEw.Repeat && executionWorksRepeats != null)
 		{
             foreach (var ewRepeat in executionWorksRepeats)
             {
@@ -396,11 +388,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			}
 		}
 
-		UpdateGrid(); // todo: заменить на вставку по индексу и пересчёт номеров строк. Сложность с повторами
+        if (updateDataGrid)
+		    UpdateGrid(); // todo: заменить на вставку по индексу и пересчёт номеров строк. Сложность с повторами
         // при замене номеров строк перебором Items,
         // для повтором можно аналогично пересчитать название исходя из новых индексов входящий в него EW
-    }
-    public void UpdateStaffInRow(int rowIndex, ExecutionWork selectedEw, List<Staff_TC> copiedStaff)
+
+        return newEw;
+	}
+    public void UpdateStaffInRow(int rowIndex, ExecutionWork selectedEw, List<Staff_TC> copiedStaff, bool updateDataGrid = true)
 	{
 		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
 		if (copiedStaff == null) throw new ArgumentNullException(nameof(copiedStaff));
@@ -421,14 +416,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				selectedEw.Staffs.Add(staff);
 		}
 
-		// Формируем строку с символами
-		var newStaffSymbols = string.Join(",", selectedEw.Staffs.OrderBy(s => s.Symbol).Select(s => s.Symbol));
+        if (updateDataGrid)
+		{
+			// Формируем строку с символами
+			var newStaffSymbols = string.Join(",", selectedEw.Staffs.OrderBy(s => s.Symbol).Select(s => s.Symbol));
 
-		// Обновляем ячейку в таблице
-		UpdateCellValue(rowIndex, (int)columnIndex, newStaffSymbols);
+			// Обновляем ячейку в таблице
+			UpdateCellValue(rowIndex, (int)columnIndex, newStaffSymbols);
+		}
 	}
 
-	public void UpdateProtectionsInRow(int rowIndices, ExecutionWork selectedEw, List<Protection_TC> copiedProtections)
+	public void UpdateProtectionsInRow(int rowIndices, ExecutionWork selectedEw, List<Protection_TC> copiedProtections, bool updateDataGrid = true)
 	{
 		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
 		if (copiedProtections == null) throw new ArgumentNullException(nameof(copiedProtections));
@@ -449,29 +447,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				selectedEw.Protections.Add(protection);
 		}
 
-		var protectionsList = selectedEw.Protections;
+		if (updateDataGrid)
+		{
+			// Формируем строку с номерами СЗ
+			var objectOrderList = selectedEw.Protections.Select(s => s.Order).ToList();
+			var newCellValue = string.Join(",", ConvertListToRangeString(objectOrderList));
 
-		// Формируем строку с номерами СЗ
-		var objectOrderList = protectionsList.Select(s => s.Order).ToList();
-		var newCellValue = string.Join(",", ConvertListToRangeString(objectOrderList));
-
-		UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
-
-		//var newCellValue = "";
-		//protectionsList.Clear();
-
-		//if (copiedProtections.Count > 0)
-		//{
-		//	foreach (var obj in copiedProtections)
-		//	{
-		//		protectionsList.Add(obj);
-		//	}
-            
-  //          var objectOrderList = protectionsList.Select(s => s.Order).ToList();
-		//	newCellValue = ConvertListToRangeString(objectOrderList);
-		//}
-
-		//UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
+			UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
+		}
 	}
 
 	/// <summary>
@@ -1820,34 +1803,65 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     }
 
     public ExecutionWork AddNewExecutionWork(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null,
-        CoefficientForm coefficient = null, int? orderInTo = null, string? coefficientValue = null) // todo: убрать CoefficientForm в качестве параметра и передать только коэффициент, а значение вычислять внутри метода
+        CoefficientForm coefficient = null, int? insertIndex = null, string? coefficientValue = null) // todo: убрать CoefficientForm в качестве параметра и передать только коэффициент, а значение вычислять внутри метода
 	{
-        TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
+
+		// Определяем порядковый номер нового ТП в ТО
+		var lastEwInTow = techOperationWork.executionWorks.OrderBy(ew => ew.RowOrder).LastOrDefault();
+		int lastEwOrder = lastEwInTow?.Order ?? 0;
+		int? newEwOrderInTo = null;
+
+		if (insertIndex != null && lastEwInTow != null)
+		{
+			// если индекс не null, то вставляем в указанное место
+
+			// определить положение в ТО
+			// если последний элемента нет, то вставляем в конец ТО
+			// если есть, то определяем его индекс в таблице
+			int lastEwIndex = lastEwInTow.RowOrder;
+
+			// сравниваем полученный индекс с индексом вставки
+			// если индекс вставки меньше чем индекс последнего элемента ТО
+			if (lastEwIndex > insertIndex.Value)
+			{
+				var firstInTow = techOperationWork.executionWorks.OrderBy(ew => ew.RowOrder).FirstOrDefault();
+				// то его порядок будет меньше на разницу между индексом последнего элемента и индексом вставки
+				newEwOrderInTo = firstInTow!.Order + (insertIndex.Value - firstInTow.RowOrder) + 1;
+
+				// если этот порядок меньше 1 то устанавливаем его в 1
+				if (newEwOrderInTo < 1)
+					newEwOrderInTo = 1;
+
+				//Если порядковый номер уже есть в списке, то увеличиваем порядковый номер у всех последующих элементов
+				foreach (var item in techOperationWork.executionWorks.Where(w => w.Order >= newEwOrderInTo))
+				{
+					item.Order++;
+				}
+			}
+			// если больше или равно, то вставляем последним 
+
+
+		}
+        else
+        {
+            if (lastEwInTow == null)
+			{
+                //todo: как быть, если в ТО нет элементов?
+                insertIndex = 0;
+			}
+			else 
+			    insertIndex = lastEwInTow?.RowOrder + 1;
+		}
+
+		// если индекс null, то вставляем в конец ТО newEwOrder = null
+		if (newEwOrderInTo == null) newEwOrderInTo = lastEwOrder + 1;
+
+		TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
 
         var prevEW = TOWork.executionWorks.OrderBy(e => e.Order).LastOrDefault();
         var rowOrder = prevEW?.RowOrder+1;
 
-        if (orderInTo == null)
-        {
-            orderInTo = prevEW?.Order + 1;
-        }
-        else
-        {
-            prevEW = TOWork.executionWorks.Where(w => w.Order == orderInTo).FirstOrDefault();
-			if (prevEW != null)
-			{
-				rowOrder = prevEW.RowOrder+1;
-			}
-			// Если порядковый номер уже есть в списке, то увеличиваем порядковый номер у всех последующих элементов
-			//if (TOWork.executionWorks.Any(w => w.Order == orderInTo))
-   //         {
-   //             foreach (var item in TOWork.executionWorks.Where(w => w.Order >= orderInTo))
-   //             {
-   //                 item.Order++;
-   //             }
-   //         }
-        }
-			// todo: если номер не последний в списке ТО, то нужно увеличить порядковый номер у всех последующих элементов
+        // todo: если номер не последний в списке ТО, то нужно увеличить порядковый номер у всех последующих элементов
 
 		ExecutionWork newEw = new ExecutionWork
         {
@@ -1855,8 +1869,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             techOperationWork = TOWork,
             NewItem = true,
             techTransition = tech,
-            Order = (int)orderInTo, // по сути nomer (порядоковый номер в таблице ХР)
-			RowOrder = rowOrder.Value,
+            Order = newEwOrderInTo.Value, // номер в ТО
+			RowOrder = insertIndex!.Value, // по сути nomer (порядоковый номер в таблице ХР)
 		};
 
         TOWork.executionWorks.Add(newEw);
