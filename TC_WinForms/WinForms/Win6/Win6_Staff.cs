@@ -207,7 +207,9 @@ public partial class Win6_Staff : Form, IViewModeable
             { nameof(DisplayedStaff_TC.CombineResponsibility), 7*pixels },
             //{ nameof(DisplayedStaff_TC.Qualification), 13*pixels },//82+82+359
             { nameof(DisplayedStaff_TC.Symbol), 3*pixels },
-            {nameof(DisplayedStaff_TC.ChildId), 2*pixels }
+            {nameof(DisplayedStaff_TC.ChildId), 2*pixels },
+            {nameof(DisplayedStaff_TC.IsInOutlay), 3*pixels }
+
         };
         foreach (var column in fixColumnWidths)
         {

@@ -259,6 +259,9 @@ public partial class Win7_TechOperation_Window : Form
     {
         try
         {
+            if (techOperationBlockService != null)
+                techOperationBlockService.CleanBlockData();
+
             // проверка полей на уникальность
             if (!await UniqueFieldChecker<TechOperation>.IsPropertiesUnique(techOperation))
                 return;
