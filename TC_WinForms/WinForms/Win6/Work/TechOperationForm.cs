@@ -168,8 +168,23 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             // Копируем текст ячейки в буфер обмена
 			CopyClipboardValue();
 			// Если копируются данные не из текстовой облости, то сохраняем их в TcCopyData
-			if (copyScope != CopyScopeEnum.Text)
+			if (copyScope != CopyScopeEnum.Text && copyScope != CopyScopeEnum.TechOperation)
 				TcCopyData.SetCopyDate(selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList(), copyScope);
+            else if (copyScope == CopyScopeEnum.TechOperation)
+			{
+                var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
+				// проверка, что выбраны строки из одной ТО
+				if (selectedItems.Select(i => i.TechOperationWork.Id).Distinct().Count() > 1)
+				{
+					MessageBox.Show("Выбраны строки из разных ТО. Выделите строки из одной ТО.");
+					return;
+				}
+                var selectedTow = selectedItems[0].TechOperationWork;
+
+                // выделяем скопированные ТП, и фильтруем инструменты и компоненты (их будем вставлять из ТО)
+				var copiedItems = TechOperationDataGridItems.Where(i => i.TechOperationWork.Id == selectedTow.Id).ToList();
+				TcCopyData.SetCopyDate(copiedItems, CopyScopeEnum.TechOperation);
+			}
 		}
 		catch
 		(Exception ex)
@@ -292,104 +307,66 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
         else if (( selectedScope == CopyScopeEnum.ToolOrComponents || selectedScope == CopyScopeEnum.Row || selectedScope == CopyScopeEnum.RowRange) 
             && TcCopyData.CopyScope == CopyScopeEnum.ToolOrComponents)
-        {
+		{
 
-            if (TcCopyData.CopyScope != CopyScopeEnum.ToolOrComponents) return;
+			if (TcCopyData.CopyScope != CopyScopeEnum.ToolOrComponents) return;
 
 			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Инструменты/Компоненты."); }
 
 			var selectedTow = selectedItems[0].TechOperationWork;
 			if (selectedTow == null) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Инструменты/Компоненты."); }
 
-            var copiedRows = TcCopyData.FullItems;
 			// проверка все ли строки содержат являются компонентами или инструментами
-			if (copiedRows.Any(r => r.WorkItemType != WorkItemType.ToolWork && r.WorkItemType != WorkItemType.ComponentWork))
-			{
-				MessageBox.Show("Вставка возможна только для строк с инструментами или компонентами.");
-				return;
-			}
-            bool IsDGChanged = false;
-            var toolRows = copiedRows.Where(r => r.WorkItemType == WorkItemType.ToolWork).ToList();
-			var componentRows = copiedRows.Where(r => r.WorkItemType == WorkItemType.ComponentWork).ToList();
-
-            if (toolRows.Count > 0)
-            {
-                var toolWorks = toolRows.Select(r => r.WorkItem).Cast<ToolWork>().ToList();
-                var tools = toolWorks.Select(tw => tw.tool).ToList();
-				// добавляем скопированные инструменты, если их нет в ТО
-				foreach (var toolWork in toolWorks)
-				{
-					if (selectedTow.ToolWorks.Where(o => o.toolId == toolWork.toolId).Count() == 0)
-                    {
-						selectedTow.ToolWorks.Add(new ToolWork
-						{
-                            toolId = toolWork.toolId,
-							tool = toolWork.tool,
-							Quantity = toolWork.Quantity,
-							Comments = toolWork.Comments
-						});
-
-                        if(!IsDGChanged)
-                            IsDGChanged = true;
-					}
-						
-				}
-
-			}
-
-			if (componentRows.Count > 0)
-			{
-				var copiedComponentWorks = componentRows.Select(r => r.WorkItem).Cast<ComponentWork>().ToList();
-				var copiedComponents = copiedComponentWorks.Select(tw => tw.component).ToList();
-				// добавляем скопированные инструменты, если их нет в ТО
-				foreach (var componentWork in copiedComponentWorks)
-				{
-					if (selectedTow.ComponentWorks.Where(o => o.componentId == componentWork.componentId).Count() == 0)
-					{
-						selectedTow.ComponentWorks.Add(new ComponentWork
-						{
-							componentId = componentWork.componentId,
-							component = componentWork.component,
-							Quantity = componentWork.Quantity,
-							Comments = componentWork.Comments
-						});
-
-						if (!IsDGChanged)
-							IsDGChanged = true;
-					}
-				}
-			}
-
-			if (IsDGChanged)
-			    UpdateGrid();
+			InsertToolAndComponent(selectedTow, TcCopyData.FullItems, updateDataGrid: true);
 		}
 		else if (selectedScope == CopyScopeEnum.Row)
 		{
-            if (TcCopyData.CopyScope != CopyScopeEnum.Row && TcCopyData.CopyScope != CopyScopeEnum.RowRange) 
+            if (TcCopyData.CopyScope != CopyScopeEnum.Row 
+                && TcCopyData.CopyScope != CopyScopeEnum.RowRange 
+                && TcCopyData.CopyScope != CopyScopeEnum.TechOperation) 
                 return;
 
 			var rowIndex = selectedRowIndices[0] + 1; // тавляем после выделенной строки
 
+            var selectedTow = selectedItems[0].TechOperationWork;
+
 			if (TcCopyData.CopyScope == CopyScopeEnum.Row)
             {
-				PasteAsNewRow(rowIndex, selectedItems[0].TechOperationWork, TcCopyData.FullItems[0], updateDataGrid: true);
+				PasteAsNewRow(rowIndex, selectedTow, TcCopyData.FullItems[0], updateDataGrid: true);
 			}
 			else if (TcCopyData.CopyScope == CopyScopeEnum.RowRange)
 			{
 				var iterator = 0;
 				foreach (var copiedItem in TcCopyData.FullItems)
 				{
-					PasteAsNewRow(rowIndex, selectedItems[0].TechOperationWork, copiedItem);
+					PasteAsNewRow(rowIndex, selectedTow, copiedItem, updateDataGrid: true);
 					rowIndex++;
 					iterator++;
 				}
 
 				UpdateGrid(); // todo: выяснить, почему не обновляется таблица после UpdateProtectionsInRow и UpdateStaffInRow
 			}
-		}
-		else if (TcCopyData.CopyScope == CopyScopeEnum.TechOperation)
-		{
+            else if (TcCopyData.CopyScope == CopyScopeEnum.TechOperation)
+			{
+				//  вставляем все ТП из скопированных данных в выделенную ТО
+				var iterator = 0;
+                var copiedEwItems = TcCopyData.FullItems.Where(i => i.WorkItemType == WorkItemType.ExecutionWork).ToList();
 
+				foreach (var copiedItem in copiedEwItems)
+				{
+					PasteAsNewRow(rowIndex, selectedTow, copiedItem, updateDataGrid: false);
+					rowIndex++;
+					iterator++;
+				}
+
+                var copiedToolandComponentItems = TcCopyData.FullItems.Where(i => i.WorkItemType == WorkItemType.ToolWork 
+                || i.WorkItemType == WorkItemType.ComponentWork)
+                    .ToList();
+
+				InsertToolAndComponent(selectedTow, copiedToolandComponentItems, updateDataGrid: false);
+
+				UpdateGrid();
+			}
 		}
 		else if (selectedScope == CopyScopeEnum.Text)
 		{
@@ -469,6 +446,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         return newEw;
 	}
+
     public void UpdateStaffInRow(int rowIndex, ExecutionWork selectedEw, List<Staff_TC> copiedStaff, bool updateDataGrid = true)
 	{
 		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
@@ -529,6 +507,70 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 			UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
 		}
+	}
+
+	private void InsertToolAndComponent(TechOperationWork selectedTow, List<TechOperationDataGridItem> copiedRows, bool updateDataGrid = false)
+	{
+		if (copiedRows.Any(r => r.WorkItemType != WorkItemType.ToolWork && r.WorkItemType != WorkItemType.ComponentWork))
+		{
+			MessageBox.Show("Вставка возможна только для строк с инструментами или компонентами.");
+			return;
+		}
+
+		bool IsDGChanged = false;
+
+		var toolRows = copiedRows.Where(r => r.WorkItemType == WorkItemType.ToolWork).ToList();
+
+		if (toolRows.Count > 0)
+		{
+			var toolWorks = toolRows.Select(r => r.WorkItem).Cast<ToolWork>().ToList();
+			var tools = toolWorks.Select(tw => tw.tool).ToList();
+			// добавляем скопированные инструменты, если их нет в ТО
+			foreach (var toolWork in toolWorks)
+			{
+				if (selectedTow.ToolWorks.Where(o => o.toolId == toolWork.toolId).Count() == 0)
+				{
+					selectedTow.ToolWorks.Add(new ToolWork
+					{
+						toolId = toolWork.toolId,
+						tool = toolWork.tool,
+						Quantity = toolWork.Quantity,
+						Comments = toolWork.Comments
+					});
+
+					if (!IsDGChanged)
+						IsDGChanged = true;
+				}
+			}
+		}
+
+		var componentRows = copiedRows.Where(r => r.WorkItemType == WorkItemType.ComponentWork).ToList();
+
+		if (componentRows.Count > 0)
+		{
+			var copiedComponentWorks = componentRows.Select(r => r.WorkItem).Cast<ComponentWork>().ToList();
+			var copiedComponents = copiedComponentWorks.Select(tw => tw.component).ToList();
+			// добавляем скопированные инструменты, если их нет в ТО
+			foreach (var componentWork in copiedComponentWorks)
+			{
+				if (selectedTow.ComponentWorks.Where(o => o.componentId == componentWork.componentId).Count() == 0)
+				{
+					selectedTow.ComponentWorks.Add(new ComponentWork
+					{
+						componentId = componentWork.componentId,
+						component = componentWork.component,
+						Quantity = componentWork.Quantity,
+						Comments = componentWork.Comments
+					});
+
+					if (!IsDGChanged)
+						IsDGChanged = true;
+				}
+			}
+		}
+
+		if (IsDGChanged && updateDataGrid)
+			UpdateGrid();
 	}
 
 	/// <summary>

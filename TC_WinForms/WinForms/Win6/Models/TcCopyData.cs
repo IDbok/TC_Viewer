@@ -66,6 +66,13 @@ public static class TcCopyData
 
 		_copyTcId = tcId.Value;
 
+		if (copyScope == CopyScopeEnum.TechOperation)
+		{
+			CopyScope = CopyScopeEnum.TechOperation;
+			FullItems = items;
+			return;
+		}
+
 		// Определение все ли строки одного типа
 		//var isAnyItemsToolOrComponent = ;
 		if (items.Any(x => x.ItsTool || x.ItsComponent))
