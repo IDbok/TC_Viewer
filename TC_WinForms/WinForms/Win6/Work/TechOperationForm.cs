@@ -263,7 +263,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             return;
 		}    
 
-        if(TcCopyData.GetCopyTcId() != _tcId && selectedScope != CopyScopeEnum.Text)
+        if(TcCopyData.GetCopyTcId() != _tcId && 
+            selectedScope != CopyScopeEnum.Text && 
+            selectedScope != CopyScopeEnum.Staff && 
+            selectedScope != CopyScopeEnum.Protections)
 		{
 			MessageBox.Show("Данные не могут быть вставлены в другую ТК.");
 			return;
@@ -456,6 +459,68 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		var columnIndex = GetColumnIndex(currentCopyScope)
 			?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
 
+		// если ТК копирования не совпадает с текущей ТК, то находим совпадабщие объекты и создаём новые
+        // Заменяем на сущствующий в случае совпадения id персонала и его символа.
+        // В других случаях заменяем на новый объект с новым символом.
+        // (Доп) Логика выбора символа: при отсутствии символа у сущ - х объектов добавляем новый с тем символом который был при копировании.
+        if (TcCopyData.GetCopyTcId() != _tcId)
+		{
+			copiedStaff = copiedStaff.ToList();
+
+			var copiedStaffData = copiedStaff.Select(s => new { ChildId = s.ChildId, Symbol = s.Symbol, Staff_TC = s }).ToList();
+            var existingStaff_tcs = TehCarta.Staff_TCs;
+            foreach (var copiedStc in copiedStaffData)
+            {
+                var existingStaff_tc = existingStaff_tcs
+                    .FirstOrDefault(st => st.ChildId == copiedStc.ChildId && st.Symbol == copiedStc.Symbol);
+
+				var oldCopiedStc = copiedStaff.Find(st => st == copiedStc.Staff_TC);
+				if (oldCopiedStc == null)
+                    { throw new Exception("Ошибка при копирования персонала. Ошибка 1246"); }
+
+				copiedStaff.Remove(oldCopiedStc);
+
+				if (existingStaff_tc == null)
+                {
+					// поиск существующего в ТК персонала по id
+					var addingStaff = existingStaff_tcs.Select(st => st.Child).FirstOrDefault(s => s.Id == copiedStc.ChildId);
+                    if (addingStaff == null)
+                    {
+						//addingStaff = context.Staffs.FirstOrDefault(s => s.Id == copiedStc.ChildId);
+						addingStaff = copiedStc.Staff_TC.Child;
+					}
+
+					// проверка на наличие символа
+					var addingSymbol = copiedStc.Symbol;
+                    if(existingStaff_tcs.Select(st => st.Symbol).Contains(addingSymbol))
+					{
+						addingSymbol = GetNewSymbol(existingStaff_tcs);
+					}
+
+					// если персонала нет в ТК, то добавляем его с новым символом
+					var newStaff = new Staff_TC
+                    {
+                        ParentId = TehCarta.Id,
+                        ChildId = copiedStc.ChildId,
+                        Child = addingStaff,
+                        Symbol = addingSymbol,
+
+                        Order = existingStaff_tcs.Count + 1
+                    };
+
+					copiedStaff.Add(newStaff);
+
+					// добавить персонал в ТК
+					TehCarta.Staff_TCs.Add(newStaff);
+				}
+				else
+				{
+					// если персонал уже есть в ТК, то заменяем на него объект в списке скопированного персонала
+					copiedStaff.Add(existingStaff_tc);
+				}
+			}
+		}
+
 		var staffSet = new HashSet<Staff_TC>(copiedStaff);
 
 		// Удаляем объекты, которых нет в copiedStaff
@@ -476,6 +541,20 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// Обновляем ячейку в таблице
 			UpdateCellValue(rowIndex, (int)columnIndex, newStaffSymbols);
 		}
+
+		static string GetNewSymbol(List<Staff_TC> existingStaff_tcs)
+		{
+            var existingSymbols = existingStaff_tcs.Select(st => st.Symbol).ToList();
+			//все символы которые начинаются на "Нов." и содержат в себе число
+			var newSymbols = existingSymbols.Where(s => s.StartsWith("Нов.") && int.TryParse(s.Replace("Нов.", ""), out _)).ToList();
+			// если нет символов начинающихся на "Нов." то добавляем "Нов.1"
+			if (newSymbols.Count == 0)
+				return "Нов.1";
+			// если есть символы начинающиеся на "Нов." то добавляем новый символ с максимальным числом
+			var maxNumber = newSymbols.Select(s => int.Parse(s.Replace("Нов.", ""))).Max();
+			return $"Нов.{maxNumber + 1}";
+		}
+
 	}
 
 	public void UpdateProtectionsInRow(int rowIndices, ExecutionWork selectedEw, List<Protection_TC> copiedProtections, bool updateDataGrid = true)
@@ -487,10 +566,54 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		var columnIndex = GetColumnIndex(currentCopyScope)
 			?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
 
-		var staffSet = new HashSet<Protection_TC>(copiedProtections);
+		if (TcCopyData.GetCopyTcId() != _tcId)
+        {
+			copiedProtections = copiedProtections.ToList();
+			var existingObject_tcs = TehCarta.Protection_TCs;
+            var newCopiedProtections = new List<Protection_TC>();
+			foreach (var copiedOtc in copiedProtections)
+			{
+				var existingObject_tc = existingObject_tcs
+					.FirstOrDefault(st => st.ChildId == copiedOtc.ChildId);
+
+				if (existingObject_tc == null)
+				{
+                    var addingObject = context.Protections.FirstOrDefault(s => s.Id == copiedOtc.ChildId); // todo: хочется уйти от контекста, чтобы вынести в сервис
+																										   // без контекста (при добавлении напрямую из copiedOtc.Child) выдаёт ошибку при сохранении
+					if (addingObject == null)
+                        { throw new Exception("Ошибка при копировании СЗ. Ошибка 1246"); }
+
+					// если персонала нет в ТК, то добавляем его с новым символом
+					var newObject_tc = new Protection_TC
+					{
+						ParentId = TehCarta.Id,
+						ChildId = copiedOtc.ChildId,
+						Child = addingObject,
+                        Quantity = copiedOtc.Quantity,
+						Note = copiedOtc.Note,
+
+						Order = existingObject_tcs.Count + 1
+					};
+
+					newCopiedProtections.Add(newObject_tc);
+
+					// добавить персонал в ТК
+					TehCarta.Protection_TCs.Add(newObject_tc);
+				}
+				else
+				{
+					// если персонал уже есть в ТК, то заменяем на него объект в списке скопированного персонала
+					newCopiedProtections.Add(existingObject_tc);
+				}
+			}
+
+			copiedProtections = newCopiedProtections;
+		}
+
+		var objectSet = new HashSet<Protection_TC>(copiedProtections);
 
 		// Удаляем объекты, которых нет в copiedStaff
-		selectedEw.Protections.RemoveAll(obj => !staffSet.Contains(obj));
+		selectedEw.Protections.RemoveAll(obj => !objectSet.Contains(obj));
 
 		// Добавляем новые объекты из copiedStaff
 		foreach (var protection in copiedProtections)
