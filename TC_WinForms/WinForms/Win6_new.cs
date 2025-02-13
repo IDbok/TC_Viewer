@@ -889,7 +889,7 @@ namespace TC_WinForms.WinForms
 			LogUserAction("Печать технологической карты");
 			try
 			{
-				var tcExporter = new ExExportTC();
+				var tcExporter = new DataExcelExport();
 				await tcExporter.SaveTCtoExcelFile(_tc.Article, _tc.Id);
 
 				_logger.Information("Печать успешно завершена для TcId={TcId}", _tcId);

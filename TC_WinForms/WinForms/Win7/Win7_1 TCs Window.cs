@@ -298,7 +298,7 @@ namespace TC_WinForms.WinForms
             // спрашиваем у пользователя о пути сохранения файла
             //await SaveTCtoExcelFile();
 
-            var tcExporter = new ExExportTC();
+            var tcExporter = new DataExcelExport();
 
             await tcExporter.SaveTCtoExcelFile(OriginCard.Article, OriginCard.Id);
 
