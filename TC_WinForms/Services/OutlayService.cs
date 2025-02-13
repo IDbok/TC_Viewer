@@ -176,7 +176,7 @@ namespace TC_WinForms.Services
             double staffOutlay = 0;
             foreach (var staff in tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IsInOutlay).ToList())
             {
-                foreach (var ew in staff.ExecutionWorks)
+                foreach (var ew in staff.ExecutionWorks.Where(e => !e.Delete && !e.techOperationWork.Delete).ToList())
                 {
                     staffOutlay += ew.Value;
                 }
@@ -214,8 +214,8 @@ namespace TC_WinForms.Services
             foreach (var machine in tcViewState.TechnologicalCard.Machine_TCs.Where(s => s.IsInOutlay).ToList())
             {
                 machineOutlay = machine.ExecutionWorks == null || machine.ExecutionWorks.Count == 0
-                    ? 1
-                    : CalculateEtapTimes(machine.ExecutionWorks);
+                    ? 0
+                    : CalculateEtapTimes(machine.ExecutionWorks.Where(e => !e.Delete && !e.techOperationWork.Delete).ToList());
 
                 machineOutlay = machineOutlay / 60;
 
@@ -235,7 +235,7 @@ namespace TC_WinForms.Services
             List<ExecutionWork> executionWorks = new List<ExecutionWork>();
             foreach (var tow in tcViewState.TechOperationWorksList)
             {
-                executionWorks.AddRange(tow.executionWorks);
+                executionWorks.AddRange(tow.executionWorks.Where(e => !e.Delete).ToList());
             }
 
             etapOutlay = CalculateEtapTimes(executionWorks);

@@ -1144,6 +1144,7 @@ namespace TC_WinForms.WinForms.Work
                     if (staf == null)
                     {
                         var sta = AllStaff.SingleOrDefault(s => s == idd);
+                        sta.ExecutionWorks.Add(LocalTP);
                         LocalTP.Staffs.Add(sta);
                         updateTO = true;
                     }
@@ -1153,6 +1154,7 @@ namespace TC_WinForms.WinForms.Work
                     if (staf != null)
                     {
                         var sta = LocalTP.Staffs.Remove(staf);
+                        staf.ExecutionWorks.Remove(LocalTP);
                         updateTO = true;
                     }
                 }
@@ -2394,8 +2396,11 @@ namespace TC_WinForms.WinForms.Work
                 var che = (bool)dataGridViewEtap.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
                 var id = (ExecutionWork)dataGridViewEtap.Rows[e.RowIndex].Cells[0].Value;
 
-                var allMsch = TechOperationForm.TehCarta.Machine_TCs.ToList();
+                var allMsch = _tcViewState.TechnologicalCard.Machine_TCs.ToList();
                 var mach = allMsch[e.ColumnIndex - 5];
+
+                if (mach.ExecutionWorks == null)
+                    mach.ExecutionWorks = new List<ExecutionWork>();
 
                 var bn = id.Machines.SingleOrDefault(s => s == mach);
                 if (che)
@@ -2403,6 +2408,7 @@ namespace TC_WinForms.WinForms.Work
                     if (bn == null)
                     {
                         id.Machines.Add(mach);
+                        mach.ExecutionWorks.Add(id);
                         TechOperationForm.UpdateGrid();
                     }
                 }
@@ -2411,6 +2417,7 @@ namespace TC_WinForms.WinForms.Work
                     if (bn != null)
                     {
                         id.Machines.Remove(bn);
+                        mach.ExecutionWorks.Remove(id);
                         TechOperationForm.UpdateGrid();
                     }
                 }
