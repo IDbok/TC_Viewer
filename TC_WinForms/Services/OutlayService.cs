@@ -141,6 +141,7 @@ namespace TC_WinForms.Services
         ///  Добавляет новую запись о затратах на основе данных редактируемой ТК в актуальный список затрат.
         /// </summary>
         private void AddNewOutlay(int tcId, OutlayType outlayType, UnitType unitType, double OutlayValue, string name = null, int? childId = null)
+
         {
             var newOutlay = new Outlay
             {
@@ -184,6 +185,7 @@ namespace TC_WinForms.Services
                 staffOutlay = staffOutlay / 60;
 
                 AddNewOutlay(tcViewState.TechnologicalCard.Id, OutlayType.Staff, UnitType.Hours, staffOutlay, $"{staff.Symbol} {staff.Child.Name}", staff.ChildId);
+
                 staffOutlay = 0;
             }
         }
@@ -221,6 +223,7 @@ namespace TC_WinForms.Services
                 machineOutlay = machineOutlay / 60;
 
                 AddNewOutlay(tcViewState.TechnologicalCard.Id, OutlayType.Mechine, UnitType.Hours, machineOutlay, machine.Child.Name, machine.Child.Id);
+
 
                 machineOutlay = 0;
             }
