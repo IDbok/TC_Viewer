@@ -58,11 +58,20 @@ namespace TC_WinForms.DataProcessing
             _technologicalCard = new TechnologicalCard();
         }
 
+        public DiagramExcelExporter(ExcelPackage excelPackage)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+            _excelPackage = excelPackage;
+            _exporter = new ExcelExporter();
+            _diagramToWorks = new List<DiagamToWork>();
+            _technologicalCard = new TechnologicalCard();
+        }
+
         public async Task ExportDiadramToExel(int tcId, string fileFolderPath)
         {
             string filePath = fileFolderPath;
 
-            CreateNewFile(filePath);
+            //CreateNewFile(filePath);
             await LoadDataAsync(tcId);
 
             //Группируем диаграммы по индексу параллельности
@@ -72,9 +81,10 @@ namespace TC_WinForms.DataProcessing
 
             // Группируем по Order
             dTOWGroups = dTOWGroups.OrderBy(o => o.FirstOrDefault()!.Order).ToList();
+            var article = _technologicalCard.Article + " Блок-схема";
 
             //Создаем лист в Excel и настраиваем область печати
-            var sheet = _excelPackage.Workbook.Worksheets[_technologicalCard.Article] ?? _excelPackage.Workbook.Worksheets.Add(_technologicalCard.Article);
+            var sheet = _excelPackage.Workbook.Worksheets[article] ?? _excelPackage.Workbook.Worksheets.Add(article);
             sheet.PrinterSettings.Scale = 80;
             sheet.PrinterSettings.Orientation = eOrientation.Landscape;
             sheet.PrinterSettings.RightMargin = 0.3M / 2.54M; //выделение места для объявления столбца с номером листа печати
@@ -93,10 +103,10 @@ namespace TC_WinForms.DataProcessing
                     
             }
 
-            Save();
-            Close();
+            //Save();
+            //Close();
 
-            MessageBox.Show("Блок схема сохранена");
+            //MessageBox.Show("Блок схема сохранена");
         }
         public async Task LoadDataAsync(int tcId)
         {
@@ -790,26 +800,26 @@ namespace TC_WinForms.DataProcessing
         }
         #endregion
 
-        public void CreateNewFile(string filePath)
-        {
-            // Создание нового файла Excel (если файл уже существует, он будет перезаписан)
-            var fileInfo = new FileInfo(filePath);
-            if (fileInfo.Exists)
-            {
-                fileInfo.Delete();
-            }
-            _excelPackage = new ExcelPackage(fileInfo);
-        }
-        public void Save()
-        {
-            // Сохраняет изменения в пакете Excel
-            _excelPackage.Save();
-        }
-        public void Close()
-        {
-            // Закрывает пакет и освобождает все связанные ресурсы
-            _excelPackage.Dispose();
-        }
+        //public void CreateNewFile(string filePath)
+        //{
+        //    // Создание нового файла Excel (если файл уже существует, он будет перезаписан)
+        //    var fileInfo = new FileInfo(filePath);
+        //    if (fileInfo.Exists)
+        //    {
+        //        fileInfo.Delete();
+        //    }
+        //    _excelPackage = new ExcelPackage(fileInfo);
+        //}
+        //public void Save()
+        //{
+        //    // Сохраняет изменения в пакете Excel
+        //    _excelPackage.Save();
+        //}
+        //public void Close()
+        //{
+        //    // Закрывает пакет и освобождает все связанные ресурсы
+        //    _excelPackage.Dispose();
+        //}
 
     }
 }

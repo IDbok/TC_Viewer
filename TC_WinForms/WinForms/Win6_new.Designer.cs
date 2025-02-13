@@ -108,7 +108,8 @@
 			// printBlockSchemeToolStripMenuItem
 			// 
 			printBlockSchemeToolStripMenuItem.Name = "printBlockSchemeToolStripMenuItem";
-			printBlockSchemeToolStripMenuItem.Size = new Size(354, 34);
+            printBlockSchemeToolStripMenuItem.Visible = false;
+            printBlockSchemeToolStripMenuItem.Size = new Size(354, 34);
 			printBlockSchemeToolStripMenuItem.Text = "Печать блок схемы";
 			printBlockSchemeToolStripMenuItem.Click += printDiagramToolStripMenuItem_Click;
 			// 
