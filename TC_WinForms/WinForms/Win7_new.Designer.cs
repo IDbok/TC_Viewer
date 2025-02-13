@@ -55,6 +55,7 @@
 			lblPageInfo = new Label();
 			btnPreviousPage = new Button();
 			btnNextPage = new Button();
+            btnSummaryOutlay = new Button();
 			pnlToolStrinp.SuspendLayout();
 			toolStrip1.SuspendLayout();
 			pnlNavigationBlok.SuspendLayout();
@@ -155,6 +156,7 @@
 			// 
 			// pnlNavigationBtns
 			// 
+            pnlNavigationBtns.Controls.Add(btnSummaryOutlay);
 			pnlNavigationBtns.Controls.Add(btnWorkStep);
 			pnlNavigationBtns.Controls.Add(btnTechOperation);
 			pnlNavigationBtns.Controls.Add(btnTool);
@@ -358,6 +360,18 @@
 			btnNextPage.UseVisualStyleBackColor = true;
 			btnNextPage.Click += btnNextPage_Click;
 			// 
+            // btnSummaryOutlay
+            // 
+            btnSummaryOutlay.Dock = DockStyle.Top;
+            btnSummaryOutlay.Location = new Point(0, 459);
+            btnSummaryOutlay.Margin = new Padding(3, 2, 3, 2);
+            btnSummaryOutlay.Name = "btnSummaryOutlay";
+            btnSummaryOutlay.Size = new Size(248, 85);
+            btnSummaryOutlay.TabIndex = 11;
+            btnSummaryOutlay.Text = "Сводные затраты";
+            btnSummaryOutlay.UseVisualStyleBackColor = true;
+            btnSummaryOutlay.Click += btnSummaryOutlay_Click;
+            // 
 			// Win7_new
 			// 
 			AutoScaleDimensions = new SizeF(10F, 25F);
@@ -417,5 +431,6 @@
         private Button btnPreviousPage;
         private Button btnNextPage;
         private Label lblPageInfo;
+        private Button btnSummaryOutlay;
     }
 }
