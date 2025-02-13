@@ -67,11 +67,16 @@ public partial class Win6_Staff : Form, IViewModeable
     {
         if (dgvMain.Columns[e.ColumnIndex].Name == "IsInOutlay" && e.RowIndex >= 0)
         {
-            dgvMain.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value =
+            !(bool)(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value ?? false); //инвертируем значение ячейки
+
             var isInOutlay = (bool)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
             var staffId = (int)dgvMain.Rows[e.RowIndex].Cells["IdAuto"].Value;
             var updatedStaff = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IdAuto == staffId).FirstOrDefault();
             updatedStaff.IsInOutlay = isInOutlay;
+
+            dgvMain.EndEdit();
+
         }
     }
 

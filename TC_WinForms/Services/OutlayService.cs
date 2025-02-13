@@ -140,6 +140,7 @@ namespace TC_WinForms.Services
         /// <summary>
         ///  Добавляет новую запись о затратах на основе данных редактируемой ТК в актуальный список затрат.
         /// </summary>
+
         private void AddNewOutlay(int tcId, OutlayType outlayType, UnitType unitType, double OutlayValue, string name = null, int? childId = null)
         {
             var newOutlay = new Outlay
@@ -177,13 +178,15 @@ namespace TC_WinForms.Services
             double staffOutlay = 0;
             foreach (var staff in tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IsInOutlay).ToList())
             {
-                foreach (var ew in staff.ExecutionWorks)
+                foreach (var ew in staff.ExecutionWorks.Where(e => !e.Delete && !e.techOperationWork.Delete).ToList())
                 {
                     staffOutlay += ew.Value;
                 }
                 staffOutlay = staffOutlay / 60;
 
+
                 AddNewOutlay(tcViewState.TechnologicalCard.Id, OutlayType.Staff, UnitType.Hours, staffOutlay, $"{staff.Symbol} {staff.Child.Name}", staff.ChildId);
+
                 staffOutlay = 0;
             }
         }
@@ -215,12 +218,13 @@ namespace TC_WinForms.Services
             foreach (var machine in tcViewState.TechnologicalCard.Machine_TCs.Where(s => s.IsInOutlay).ToList())
             {
                 machineOutlay = machine.ExecutionWorks == null || machine.ExecutionWorks.Count == 0
-                    ? 1
-                    : CalculateEtapTimes(machine.ExecutionWorks);
+                    ? 0
+                    : CalculateEtapTimes(machine.ExecutionWorks.Where(e => !e.Delete && !e.techOperationWork.Delete).ToList());
 
                 machineOutlay = machineOutlay / 60;
 
                 AddNewOutlay(tcViewState.TechnologicalCard.Id, OutlayType.Mechine, UnitType.Hours, machineOutlay, machine.Child.Name, machine.Child.Id);
+
 
                 machineOutlay = 0;
             }
@@ -236,7 +240,7 @@ namespace TC_WinForms.Services
             List<ExecutionWork> executionWorks = new List<ExecutionWork>();
             foreach (var tow in tcViewState.TechOperationWorksList)
             {
-                executionWorks.AddRange(tow.executionWorks);
+                executionWorks.AddRange(tow.executionWorks.Where(e => !e.Delete).ToList());
             }
 
             etapOutlay = CalculateEtapTimes(executionWorks);

@@ -69,11 +69,16 @@ namespace TC_WinForms.WinForms
         {
             if (dgvMain.Columns[e.ColumnIndex].Name == "IsInOutlay" && e.RowIndex >= 0)
             {
-                dgvMain.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value =
+               !(bool)(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value ?? false); //инвертируем значение ячейки
+
                 var IsInOutlay = (bool)dgvMain.Rows[e.RowIndex].Cells[0].Value;//Сохраняем в переменную новое значение CheckBox'a
                 var machineId = (int)dgvMain.Rows[e.RowIndex].Cells[1].Value;
                 var updatedMachine = _tcViewState.TechnologicalCard.Machine_TCs.Where(m => m.ChildId == machineId).FirstOrDefault();
                 updatedMachine.IsInOutlay = IsInOutlay;
+                
+                dgvMain.EndEdit();
+
             }
         }
 
@@ -127,7 +132,8 @@ namespace TC_WinForms.WinForms
             baseList.Add(nameof(Machine_TC.IsInOutlay));
             return baseList;
         }
-        public virtual void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
+
+        public override void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
         {
             DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].ReadOnly = _tcViewState.IsViewMode;
             DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
