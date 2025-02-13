@@ -76,8 +76,9 @@ namespace TC_WinForms.WinForms
                 var machineId = (int)dgvMain.Rows[e.RowIndex].Cells[1].Value;
                 var updatedMachine = _tcViewState.TechnologicalCard.Machine_TCs.Where(m => m.ChildId == machineId).FirstOrDefault();
                 updatedMachine.IsInOutlay = IsInOutlay;
-
+                
                 dgvMain.EndEdit();
+
             }
         }
 
@@ -131,6 +132,7 @@ namespace TC_WinForms.WinForms
             baseList.Add(nameof(Machine_TC.IsInOutlay));
             return baseList;
         }
+
         public override void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
         {
             DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].ReadOnly = _tcViewState.IsViewMode;

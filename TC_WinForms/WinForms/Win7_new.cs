@@ -5,6 +5,7 @@ using TC_WinForms.DataProcessing;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
+using TC_WinForms.WinForms.Win7;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -249,9 +250,16 @@ namespace TC_WinForms.WinForms
                     return new Win7_TechTransition(_accessLevel);
                 case WinNumber.Project:
                     return new Win7_Process(_accessLevel);
+                case WinNumber.SummaryOutlay:
+                    return new Win7_SummaryOutlay(_accessLevel);
                 default:
                     return null;
             }
+        }
+        private async void btnSummaryOutlay_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Технологические Переходы");
+            await LoadFormInPanel(WinNumber.SummaryOutlay).ConfigureAwait(false);
         }
 
         private void ClosingForms()
@@ -345,6 +353,7 @@ namespace TC_WinForms.WinForms
             btnTool.Tag = WinNumber.Tool;
             btnTechOperation.Tag = WinNumber.TechOperation;
             btnWorkStep.Tag = WinNumber.TechTransition;
+            btnSummaryOutlay.Tag = WinNumber.SummaryOutlay;
 
             //btnProcess.Tag = WinNumber.Process;
         }
@@ -545,7 +554,7 @@ namespace TC_WinForms.WinForms
 
             TechOperation = 8,
             TechTransition = 9,
-
+            SummaryOutlay = 10,
             //Process = 10
         }
 

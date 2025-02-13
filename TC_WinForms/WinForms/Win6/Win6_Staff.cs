@@ -76,6 +76,7 @@ public partial class Win6_Staff : Form, IViewModeable
             updatedStaff.IsInOutlay = isInOutlay;
 
             dgvMain.EndEdit();
+
         }
     }
 
