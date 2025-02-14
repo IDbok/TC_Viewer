@@ -75,7 +75,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         // спросить у пользователя, какой загрузкой воспользоваться
         TehCarta = _tcViewState.TechnologicalCard;
         TechOperationWorksList = _tcViewState.TechOperationWorksList;
-        //await LoadDataAsync8(tcId);
 
         UpdateGrid();
         SetCommentViewMode();
@@ -264,15 +263,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             return;
 		}    
 
-        if(TcCopyData.GetCopyTcId() != _tcId && 
-            selectedScope != CopyScopeEnum.Text && 
-            selectedScope != CopyScopeEnum.Staff && 
-            selectedScope != CopyScopeEnum.Protections &&
-			TcCopyData.CopyScope != CopyScopeEnum.ToolOrComponents)
-		{
-			MessageBox.Show("Данные не могут быть вставлены в другую ТК.");
-			return;
-		}
+  //      if(TcCopyData.GetCopyTcId() != _tcId && 
+  //          selectedScope != CopyScopeEnum.Text && 
+  //          selectedScope != CopyScopeEnum.Staff && 
+  //          selectedScope != CopyScopeEnum.Protections &&
+		//	TcCopyData.CopyScope != CopyScopeEnum.ToolOrComponents)
+		//{
+		//	MessageBox.Show("Данные не могут быть вставлены в другую ТК.");
+		//	return;
+		//}
 
 		var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
 
@@ -400,6 +399,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			return;
 		}
 
+		if (TcCopyData.GetCopyTcId() != _tcId)
+        {
+			// заменим скопированные объекты на существующие в данной контексте
+			copiedEw.techTransition = context.TechTransitions.FirstOrDefault(t => t.Id == copiedEw.techTransitionId);
+		}
+
 		var techTransition = copiedEw.techTransition;
 		if (techTransition == null) return;
 
@@ -408,6 +413,19 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (copiedEw.Repeat)
 		{
 			var repeatEws = copiedEw.ExecutionWorkRepeats.ToList();
+            if (TcCopyData.GetCopyTcId() != _tcId)
+            {
+                //MessageBox.Show("Вставка повтора из другой ТК не поддерживается.");
+                //return;
+                // заменим скопированные объекты на существующие в данной контексте
+                //foreach (var ewRepeat in repeatEws)
+                //            {
+                //                //var newEwRepeats = context.ExecutionWorks.FirstOrDefault(ew => ew.Id == ewRepeat.ChildExecutionWorkId);
+                //                //if (newEwRepeats == null) throw new Exception("Ошибка при вставке повтора.");
+                //                //ewRepeat.ChildExecutionWork = newEwRepeats;
+                //            }
+                repeatEws = new List<ExecutionWorkRepeat>();
+			}
 
 			if (repeatEws == null) throw new Exception("Ошибка при вставке повтора.");
 
@@ -416,8 +434,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		else
             newEw = InsertNewRow(techTransition, copyToTow, rowIndex, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid);
 
-        UpdateProtectionsInRow(rowIndex, newEw, TcCopyData.FullItems[0].executionWorkItem.Protections, updateDataGrid: updateDataGrid);
-        UpdateStaffInRow(rowIndex, newEw, TcCopyData.FullItems[0].executionWorkItem.Staffs, updateDataGrid: updateDataGrid);
+        UpdateProtectionsInRow(rowIndex, newEw, copiedEw.Protections, updateDataGrid: updateDataGrid);
+        UpdateStaffInRow(rowIndex, newEw, copiedEw.Staffs, updateDataGrid: updateDataGrid);
 		// todo: что с механизмами?
 		// todo: что с группой паралельности и последовательности?
 	}
