@@ -1,4 +1,5 @@
 ﻿using Serilog;
+using System;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -266,7 +267,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         if(TcCopyData.GetCopyTcId() != _tcId && 
             selectedScope != CopyScopeEnum.Text && 
             selectedScope != CopyScopeEnum.Staff && 
-            selectedScope != CopyScopeEnum.Protections)
+            selectedScope != CopyScopeEnum.Protections &&
+			TcCopyData.CopyScope != CopyScopeEnum.ToolOrComponents)
 		{
 			MessageBox.Show("Данные не могут быть вставлены в другую ТК.");
 			return;
@@ -383,8 +385,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	private void PasteAsNewRow(int rowIndex, TechOperationWork copyToTow, TechOperationDataGridItem copiedItem, bool updateDataGrid = false)
 	{
-		var copiedEw = copiedItem.techWork;
-		var copiedFromTow = copiedItem.TechOperationWork;
+		var copiedEw = copiedItem.WorkItem as ExecutionWork;
+
+		if (copiedItem.WorkItemType != WorkItemType.ExecutionWork || copiedEw == null)
+		{
+			throw new Exception("Ошибка при вставке данных. Обработка выделенных данных.");
+		}
 
 		var isTypicalTo = copyToTow.techOperation.IsTypical;
 		// для типовой ТО возможно вставить только повтор
@@ -644,22 +650,51 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		var toolRows = copiedRows.Where(r => r.WorkItemType == WorkItemType.ToolWork).ToList();
 
+
+
 		if (toolRows.Count > 0)
 		{
 			var toolWorks = toolRows.Select(r => r.WorkItem).Cast<ToolWork>().ToList();
-			var tools = toolWorks.Select(tw => tw.tool).ToList();
+
+
 			// добавляем скопированные инструменты, если их нет в ТО
 			foreach (var toolWork in toolWorks)
 			{
 				if (selectedTow.ToolWorks.Where(o => o.toolId == toolWork.toolId).Count() == 0)
 				{
+                    Tool addingObject = toolWork.tool;
+					if (TcCopyData.GetCopyTcId() != _tcId)
+					{
+						var existionObject = TehCarta.Tools.FirstOrDefault(o => o.Id == toolWork.toolId); 
+                        if (existionObject == null)
+						{
+							existionObject = context.Tools.FirstOrDefault(o => o.Id == toolWork.toolId);
+                            if (existionObject == null)
+							    throw new Exception("Ошибка при копировании инструментов. Ошибка 1246");
+
+							TehCarta.Tool_TCs.Add(new Tool_TC
+							{
+								ParentId = TehCarta.Id,
+								ChildId = toolWork.toolId,
+								Child = existionObject,
+								Quantity = toolWork.Quantity,
+								Note = toolWork.Comments,
+
+                                Order = TehCarta.Tool_TCs.Count + 1
+							});
+						}
+
+						addingObject = existionObject;
+					}
+
 					selectedTow.ToolWorks.Add(new ToolWork
 					{
 						toolId = toolWork.toolId,
-						tool = toolWork.tool,
+						tool = addingObject,
 						Quantity = toolWork.Quantity,
 						Comments = toolWork.Comments
 					});
+
 
 					if (!IsDGChanged)
 						IsDGChanged = true;
@@ -678,10 +713,35 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			{
 				if (selectedTow.ComponentWorks.Where(o => o.componentId == componentWork.componentId).Count() == 0)
 				{
+					Component addingObject = componentWork.component;
+					if (TcCopyData.GetCopyTcId() != _tcId)
+					{
+						var existionObject = TehCarta.Components.FirstOrDefault(o => o.Id == componentWork.componentId);
+						if (existionObject == null)
+						{
+							existionObject = context.Components.FirstOrDefault(o => o.Id == componentWork.componentId);
+							if (existionObject == null)
+								throw new Exception("Ошибка при копировании компонентов. Ошибка 1246");
+
+							TehCarta.Component_TCs.Add(new Component_TC
+							{
+								ParentId = TehCarta.Id,
+								ChildId = componentWork.componentId,
+								Child = existionObject,
+								Quantity = componentWork.Quantity,
+								Note = componentWork.Comments,
+
+								Order = TehCarta.Tool_TCs.Count + 1
+							});
+						}
+
+						addingObject = existionObject;
+					}
+
 					selectedTow.ComponentWorks.Add(new ComponentWork
 					{
 						componentId = componentWork.componentId,
-						component = componentWork.component,
+						component = addingObject,
 						Quantity = componentWork.Quantity,
 						Comments = componentWork.Comments
 					});
