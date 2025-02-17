@@ -361,16 +361,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		// Очищаем список вставленных данных
 		TcCopyData.PastedEw.Clear();
 
-		//      if(TcCopyData.GetCopyTcId() != _tcId && 
-		//          selectedScope != CopyScopeEnum.Text && 
-		//          selectedScope != CopyScopeEnum.Staff && 
-		//          selectedScope != CopyScopeEnum.Protections &&
-		//	TcCopyData.CopyScope != CopyScopeEnum.ToolOrComponents)
-		//{
-		//	MessageBox.Show("Данные не могут быть вставлены в другую ТК.");
-		//	return;
-		//}
-
 		var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
 
 		if (selectedScope == CopyScopeEnum.Staff)
@@ -506,7 +496,40 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (TcCopyData.GetCopyTcId() != _tcId)
         {
 			// заменим скопированные объекты на существующие в данной контексте
-			copiedEw.techTransition = context.TechTransitions.FirstOrDefault(t => t.Id == copiedEw.techTransitionId);
+            var copiedEwDuplicate = new ExecutionWork
+            {
+				IdGuid = copiedEw.IdGuid,
+				techTransitionId = copiedEw.techTransitionId,
+                techTransition = copiedEw.techTransition,
+
+                // пока отключаю поля, которые не используются
+
+                //techOperationWorkId = copiedEw.techOperationWorkId, 
+
+                //Etap = copiedEw.Etap,
+                //Posled = copiedEw.Posled,
+                //Vopros = copiedEw.Vopros,
+                //Otvet = copiedEw.Otvet,
+
+                TempGuid = copiedEw.TempGuid,
+
+				Order = copiedEw.Order,
+				RowOrder = copiedEw.RowOrder,
+
+				Coefficient = copiedEw.Coefficient,
+
+				Repeat = copiedEw.Repeat,
+				ExecutionWorkRepeats = copiedEw.ExecutionWorkRepeats,
+
+				Protections = copiedEw.Protections,
+				Staffs = copiedEw.Staffs,
+
+				//Comments = copiedEw.Comments,
+				//PictureName = copiedEw.PictureName,
+			};
+			copiedEwDuplicate.techTransition = context.TechTransitions.FirstOrDefault(t => t.Id == copiedEw.techTransitionId);
+
+			copiedEw = copiedEwDuplicate;
 		}
 
 		var techTransition = copiedEw.techTransition;
@@ -551,16 +574,19 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
             if (repeatEws == null) throw new Exception("Ошибка при вставке повтора.");
 
-            newEw = InsertNewRow(techTransition, copyToTow, rowIndex, repeatEws, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid);//, setGuid: copiedEw.IdGuid);
+            newEw = InsertNewRow(techTransition, copyToTow, rowIndex, repeatEws, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid,
+                comment: copiedEw.Comments, pictureName: copiedEw.PictureName);//, setGuid: copiedEw.IdGuid);
         }
         else
-            newEw = InsertNewRow(techTransition, copyToTow, rowIndex, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid);//, setGuid: copiedEw.IdGuid);
+            newEw = InsertNewRow(techTransition, copyToTow, rowIndex, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid,
+                comment: copiedEw.Comments, pictureName: copiedEw.PictureName);//, setGuid: copiedEw.IdGuid);
 
 		newEw.TempGuid = copiedEw.IdGuid;
 		TcCopyData.PastedEw.Add(newEw);
 
 		UpdateProtectionsInRow(rowIndex, newEw, copiedEw.Protections, updateDataGrid: updateDataGrid);
         UpdateStaffInRow(rowIndex, newEw, copiedEw.Staffs, updateDataGrid: updateDataGrid);
+
 		// todo: что с механизмами?
 		// todo: что с группой паралельности и последовательности?
 
@@ -569,10 +595,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	public ExecutionWork InsertNewRow(TechTransition techTransition,  TechOperationWork techOperationWork,
         int? insertIndex = null, List<ExecutionWorkRepeat>? executionWorksRepeats = null,
-        string? coefficient = null, bool updateDataGrid = true, Guid? setGuid = null)
+        string? coefficient = null, bool updateDataGrid = true,
+        string? comment = null, string? pictureName = null)
 
 	{
-		var newEw = AddNewExecutionWork(techTransition, techOperationWork, insertIndex: insertIndex, coefficientValue: coefficient);
+		var newEw = AddNewExecutionWork(techTransition, techOperationWork, insertIndex: insertIndex, coefficientValue: coefficient, comment: comment, pictureName: pictureName);
 
         if (newEw == null) throw new Exception("Ошибка при добавлении нового перехода.");
 
@@ -637,8 +664,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 					var addingStaff = existingStaff_tcs.Select(st => st.Child).FirstOrDefault(s => s.Id == copiedStc.ChildId);
                     if (addingStaff == null)
                     {
-						//addingStaff = context.Staffs.FirstOrDefault(s => s.Id == copiedStc.ChildId);
-						addingStaff = copiedStc.Staff_TC.Child;
+						addingStaff = context.Staffs.FirstOrDefault(s => s.Id == copiedStc.ChildId);
+						//addingStaff = copiedStc.Staff_TC.Child;
 					}
 
 					// проверка на наличие символа
@@ -2103,7 +2130,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     }
 
     public ExecutionWork AddNewExecutionWork(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null,
-        CoefficientForm coefficient = null, int? insertIndex = null, string? coefficientValue = null) // todo: убрать CoefficientForm в качестве параметра и передать только коэффициент, а значение вычислять внутри метода
+        int? insertIndex = null, string? coefficientValue = null, string? comment = null, string? pictureName = null)
 	{
 
 		// Определяем порядковый номер нового ТП в ТО
@@ -2171,6 +2198,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             techTransition = tech,
             Order = newEwOrderInTo.Value, // номер в ТО
 			RowOrder = insertIndex!.Value, // по сути nomer (порядоковый номер в таблице ХР)
+			Comments = comment ?? "",
+			PictureName = pictureName ?? "",
+			Repeat = false
 		};
 
         TOWork.executionWorks.Add(newEw);
