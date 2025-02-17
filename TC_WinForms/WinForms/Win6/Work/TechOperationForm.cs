@@ -3,6 +3,8 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Windows.Controls;
+using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
@@ -59,7 +61,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         dgvMain.CellEndEdit += DgvMain_CellEndEdit;
         dgvMain.CellMouseEnter += DgvMain_CellMouseEnter;
 
-        this.KeyPreview = true;
+		dgvMain.MouseDown += DataGridView_MouseDown;
+
+        SetContextMenuSetings();
+
+		this.KeyPreview = true;
         this.KeyDown += new KeyEventHandler(Form_KeyDown);
 
         _tcViewState.ViewModeChanged += OnViewModeChanged;
@@ -120,10 +126,99 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	#region Обработка нажатия клавиш (Ctrl + C / V) + вывод информации о выделении
 
-	/// <summary>
-	/// Обработчик события нажатия клавиш в форме.
-	/// </summary>
-	private void Form_KeyDown(object sender, KeyEventArgs e)
+	#region Отображение контекстного меню
+
+	private ContextMenuStrip contextMenu;
+	private void DataGridView_MouseDown(object sender, MouseEventArgs e)
+	{
+		if (e.Button == MouseButtons.Right)
+		{
+			// Получаем координаты ячейки, на которую кликнули ПКМ
+			var hitTestInfo = dgvMain.HitTest(e.X, e.Y);
+			if (hitTestInfo.RowIndex >= 0 && hitTestInfo.ColumnIndex >= 0)
+			{
+				dgvMain.ClearSelection();
+				dgvMain.Rows[hitTestInfo.RowIndex].Cells[hitTestInfo.ColumnIndex].Selected = true;
+				dgvMain.CurrentCell = dgvMain[hitTestInfo.ColumnIndex, hitTestInfo.RowIndex];
+
+				// Показываем контекстное меню
+				contextMenu.Show(dgvMain, e.Location);
+			}
+		}
+	}
+
+    private void SetContextMenuSetings()
+	{
+		// Инициализация контекстного меню
+		contextMenu = new ContextMenuStrip();
+		// Создаём пункты меню
+		ToolStripMenuItem copyElementItem = new ToolStripMenuItem("Копировать выбранный элемент");
+		//copyElementItem.Click += CopyElementItem_Click;
+
+		ToolStripMenuItem copyRowItem = new ToolStripMenuItem("Копировать выбранную строку");
+		//copyRowItem.Click += CopyRowItem_Click;
+
+		// Изначально пункты "Вставить" неактивны (серым цветом), 
+		// так как пока ничего не скопировано.
+		ToolStripMenuItem pasteElementItem = new ToolStripMenuItem
+        {
+			Name = "pasteElementItem",
+			Text = "Вставить выбранный(ые) элемент(ы)",
+			Enabled = false
+		};
+
+        //pasteElementItem.Click += PasteElementItem_Click;
+
+        ToolStripMenuItem pasteRowItem = new ToolStripMenuItem 
+        {
+			Name = "pasteRowItem",
+			Text = "Вставить выбранную(ые) строку(и)",
+			Enabled = false
+		};
+		//pasteRowItem.Click += PasteRowItem_Click;
+
+		// Добавляем пункты в контекстное меню
+		contextMenu.Items.Add(copyElementItem);
+		contextMenu.Items.Add(copyRowItem);
+		contextMenu.Items.Add(new ToolStripSeparator());
+		contextMenu.Items.Add(pasteElementItem);
+		contextMenu.Items.Add(pasteRowItem);
+	}
+
+	private void SetPasteElementMenuItemEnabled(bool isEnabled)
+	{
+		// Находим пункт меню по названию или индексу
+		// Поскольку индексы могут измениться, лучше искать по названию
+		foreach (ToolStripItem item in contextMenu.Items)
+		{
+			if (item is ToolStripMenuItem menuItem
+				&& menuItem.Text.StartsWith("Вставить выбранный(ые) элемент(ы)"))
+			{
+				menuItem.Enabled = isEnabled;
+				break;
+			}
+        }
+    }
+
+    private void SetPasteRowMenuItemEnabled(bool isEnabled)
+    {
+        foreach (ToolStripItem item in contextMenu.Items)
+        {
+            if (item is ToolStripMenuItem menuItem
+                && menuItem.Text.StartsWith("Вставить выбранную(ые) строку(и)"))
+            {
+                menuItem.Enabled = isEnabled;
+                break;
+            }
+        }
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Обработчик события нажатия клавиш в форме.
+    /// </summary>
+    private void Form_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Control && e.KeyCode == Keys.V)
         {
@@ -261,12 +356,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         {
             MessageBox.Show("Не удалось определить тип копирования.");
             return;
-		}    
+		}
 
-  //      if(TcCopyData.GetCopyTcId() != _tcId && 
-  //          selectedScope != CopyScopeEnum.Text && 
-  //          selectedScope != CopyScopeEnum.Staff && 
-  //          selectedScope != CopyScopeEnum.Protections &&
+		// Очищаем список вставленных данных
+		TcCopyData.PastedEw.Clear();
+
+		//      if(TcCopyData.GetCopyTcId() != _tcId && 
+		//          selectedScope != CopyScopeEnum.Text && 
+		//          selectedScope != CopyScopeEnum.Staff && 
+		//          selectedScope != CopyScopeEnum.Protections &&
 		//	TcCopyData.CopyScope != CopyScopeEnum.ToolOrComponents)
 		//{
 		//	MessageBox.Show("Данные не могут быть вставлены в другую ТК.");
@@ -340,10 +438,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			}
 			else if (TcCopyData.CopyScope == CopyScopeEnum.RowRange)
 			{
+				if (TcCopyData.GetCopyTcId() != _tcId && selectedTow.techOperation.IsTypical)
+				{
+					MessageBox.Show("Вставка строк из другой ТК в типовую операцию не поддерживается.");
+					return;
+				}
+
 				var iterator = 0;
 				foreach (var copiedItem in TcCopyData.FullItems)
 				{
-					PasteAsNewRow(rowIndex, selectedTow, copiedItem, updateDataGrid: true);
+					PasteAsNewRow(rowIndex, selectedTow, copiedItem, updateDataGrid: false);
 					rowIndex++;
 					iterator++;
 				}
@@ -410,39 +514,62 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		ExecutionWork newEw;
 
-		if (copiedEw.Repeat)
-		{
-			var repeatEws = copiedEw.ExecutionWorkRepeats.ToList();
+        if (copiedEw.Repeat)
+        {
+            var repeatEws = new List<ExecutionWorkRepeat>();
             if (TcCopyData.GetCopyTcId() != _tcId)
             {
                 //MessageBox.Show("Вставка повтора из другой ТК не поддерживается.");
                 //return;
+
+                bool isEmptyRepeat = false;
+                // ищим в уже существующих ТП ТП с аналогичным guidId
                 // заменим скопированные объекты на существующие в данной контексте
-                //foreach (var ewRepeat in repeatEws)
-                //            {
-                //                //var newEwRepeats = context.ExecutionWorks.FirstOrDefault(ew => ew.Id == ewRepeat.ChildExecutionWorkId);
-                //                //if (newEwRepeats == null) throw new Exception("Ошибка при вставке повтора.");
-                //                //ewRepeat.ChildExecutionWork = newEwRepeats;
-                //            }
-                repeatEws = new List<ExecutionWorkRepeat>();
-			}
+                foreach (var ewRepeat in copiedEw.ExecutionWorkRepeats)
+                {
+                    var newEwRepeats = TcCopyData.PastedEw.FirstOrDefault(ew => ew.TempGuid == ewRepeat.ChildExecutionWork.IdGuid);
+                    if (newEwRepeats == null) { 
+                        MessageBox.Show($"ТП Повторить (строка {copiedEw.RowOrder}) будет вставленны пустым, т.к. не все повторяемые переходы были выделенны при копировании.");
+                        // выйти из цикла
+                        isEmptyRepeat = true;
 
-			if (repeatEws == null) throw new Exception("Ошибка при вставке повтора.");
+						break;
+                    }
 
-			newEw = InsertNewRow(techTransition, copyToTow, rowIndex, repeatEws, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid);
-		}
-		else
-            newEw = InsertNewRow(techTransition, copyToTow, rowIndex, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid);
+					repeatEws.Add(new ExecutionWorkRepeat
+					{
+						ParentExecutionWork = new ExecutionWork(), // вренное значение. Должно быть заменено на новый созданный в InsertNewRow ТП Повтора
+						ChildExecutionWork = newEwRepeats,
+						NewCoefficient = ewRepeat.NewCoefficient,
+						NewEtap = ewRepeat.NewEtap,
+						NewPosled = ewRepeat.NewPosled
+					});
+                }
 
-        UpdateProtectionsInRow(rowIndex, newEw, copiedEw.Protections, updateDataGrid: updateDataGrid);
+                if (isEmptyRepeat) { repeatEws = new List<ExecutionWorkRepeat>(); }
+            }
+
+            if (repeatEws == null) throw new Exception("Ошибка при вставке повтора.");
+
+            newEw = InsertNewRow(techTransition, copyToTow, rowIndex, repeatEws, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid);//, setGuid: copiedEw.IdGuid);
+        }
+        else
+            newEw = InsertNewRow(techTransition, copyToTow, rowIndex, coefficient: copiedEw.Coefficient, updateDataGrid: updateDataGrid);//, setGuid: copiedEw.IdGuid);
+
+		newEw.TempGuid = copiedEw.IdGuid;
+		TcCopyData.PastedEw.Add(newEw);
+
+		UpdateProtectionsInRow(rowIndex, newEw, copiedEw.Protections, updateDataGrid: updateDataGrid);
         UpdateStaffInRow(rowIndex, newEw, copiedEw.Staffs, updateDataGrid: updateDataGrid);
 		// todo: что с механизмами?
 		// todo: что с группой паралельности и последовательности?
+
+
 	}
 
 	public ExecutionWork InsertNewRow(TechTransition techTransition,  TechOperationWork techOperationWork,
         int? insertIndex = null, List<ExecutionWorkRepeat>? executionWorksRepeats = null,
-        string? coefficient = null, bool updateDataGrid = true)
+        string? coefficient = null, bool updateDataGrid = true, Guid? setGuid = null)
 
 	{
 		var newEw = AddNewExecutionWork(techTransition, techOperationWork, insertIndex: insertIndex, coefficientValue: coefficient);

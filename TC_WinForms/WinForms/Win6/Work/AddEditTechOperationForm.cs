@@ -596,7 +596,7 @@ namespace TC_WinForms.WinForms.Work
                 if (wor != null)
                 {
                     wor.Comments = gg;
-                    TechOperationForm.UpdateGrid();
+                    TechOperationForm.UpdateGrid(); // todo: заменить на обновление ячейки
                 }
             }
             else if (e.ColumnIndex == dataGridViewTPLocal.Columns["Coefficient"].Index)
@@ -656,8 +656,8 @@ namespace TC_WinForms.WinForms.Work
                 if (wor != null)
                 {
                     wor.PictureName = gg;
-                    TechOperationForm.UpdateGrid();
-                }
+                    TechOperationForm.UpdateGrid(); // todo: заменить на обновление ячейки
+				}
             }
             else if (e.ColumnIndex == dataGridViewTPLocal.Columns["Order1"].Index)
             {
@@ -676,8 +676,10 @@ namespace TC_WinForms.WinForms.Work
                     return;
                 }
 
-                if (wor != null)
+                if (wor != null && wor.Order != newOrder)
                 {
+                    // todo: если ТП Повторить, то порядок не может быть ниже чем последний из повторяемых ТП
+
                     newOrder = newOrder <= 0 ? 1 : newOrder;
                     newOrder = newOrder > dataGridViewTPLocal.RowCount ? dataGridViewTPLocal.RowCount : newOrder;
 
@@ -697,9 +699,10 @@ namespace TC_WinForms.WinForms.Work
                             bg.Order = ord;
                         }
 
-                    }));
+						TechOperationForm.UpdateGrid();
 
-                    TechOperationForm.UpdateGrid();
+					}));
+
                 }
                 
             }

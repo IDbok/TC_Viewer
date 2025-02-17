@@ -526,7 +526,9 @@ namespace TC_WinForms.WinForms
 				_activeModelType = modelType;
 
 				if (form is TechOperationForm techForm)
-					techForm.UpdateGrid();
+				{
+					//techForm.UpdateGrid(); // todo: кажется бесполезный участок, тк данные обновляются при загрузке формы
+				}
 				else if (form is DiagramForm digramForm)
 					digramForm.Update();
 

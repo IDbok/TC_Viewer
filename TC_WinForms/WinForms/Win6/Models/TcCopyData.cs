@@ -1,4 +1,5 @@
 ﻿using TC_WinForms.WinForms.Work;
+using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Win6.Models;
 
@@ -9,7 +10,11 @@ public static class TcCopyData
 	/// Список скопированных строк целиком (если пользователь выделил целиком).
 	/// </summary>
 	public static List<TechOperationDataGridItem> FullItems { get; private set; } = new();
-
+	/// <summary>
+	/// Список вставленных ТП.
+	/// </summary>
+	[Obsolete("Временное решение")]
+	public static List<ExecutionWork> PastedEw { get; set; } = new();
 	/// <summary>
 	/// Список «частичных копий», где в каждой копии указано, какие поля/столбцы были взяты.
 	/// </summary>
