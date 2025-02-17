@@ -381,7 +381,7 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 
 		}
 
-		DeleteDiagramsFromContext(saveContext: true);
+		DeleteDiagramsFromContext(saveContext);
 
 	}
 
