@@ -65,18 +65,32 @@ public partial class Win6_Staff : Form, IViewModeable
 
     private void DgvMain_CellContentClick(object? sender, DataGridViewCellEventArgs e)
     {
-        if (dgvMain.Columns[e.ColumnIndex].Name == "IsInOutlay" && e.RowIndex >= 0)
+        if (dgvMain.Columns[e.ColumnIndex].Name != "IsInOutlay" || e.RowIndex < 0)
+            return;
+        
+        var isInOutlay = !(bool)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+        var staffSymbol = dgvMain.Rows[e.RowIndex].Cells[nameof(DisplayedStaff_TC.Symbol)].Value as string;
+        if (staffSymbol == null) return;
+
+        var relatedRows = dgvMain.Rows
+            .Cast<DataGridViewRow>().Where(row => !row.IsNewRow && (row.Cells[nameof(DisplayedStaff_TC.Symbol)].Value as string) == staffSymbol);
+        var idsToUpdate = new List<int>();
+
+        foreach (var row in relatedRows)
         {
-            dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value =
-            !(bool)(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value ?? false); //инвертируем значение ячейки
-
-            var isInOutlay = (bool)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-            var staffId = (int)dgvMain.Rows[e.RowIndex].Cells["IdAuto"].Value;
-            var updatedStaff = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IdAuto == staffId).FirstOrDefault();
-            updatedStaff.IsInOutlay = isInOutlay;
-
-            dgvMain.EndEdit();
+            row.Cells[e.ColumnIndex].Value = isInOutlay;
+            idsToUpdate.Add((int)row.Cells["IdAuto"].Value);
         }
+
+        var staffToUpdate = _tcViewState.TechnologicalCard.Staff_TCs
+            .Where(s => idsToUpdate.Contains(s.IdAuto));
+
+        foreach (var staff in staffToUpdate)
+        {
+            staff.IsInOutlay = isInOutlay;
+        }
+
+        dgvMain.EndEdit();
     }
 
     private void AccessInitialization()
