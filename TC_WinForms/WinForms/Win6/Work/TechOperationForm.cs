@@ -586,7 +586,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	private void PasteToolsOrRows(List<int> selectedRowIndices, CopyScopeEnum scope)
 	{
 		// Если копируем инструменты/компоненты
-		if (scope == CopyScopeEnum.ToolOrComponents &&
+		if ((scope == CopyScopeEnum.ToolOrComponents || scope == CopyScopeEnum.Row || scope == CopyScopeEnum.RowRange) &&
 			TcCopyData.CopyScope == CopyScopeEnum.ToolOrComponents)
 		{
 			if (selectedRowIndices.Count != 1)
@@ -883,7 +883,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			rowIndex,
 			copiedEw.Repeat ? copiedEw.ExecutionWorkRepeats : null,
 			coefficient: copiedEw.Coefficient,
-			updateDataGrid: false,
+			updateDataGrid: updateDataGrid,
 			comment: copiedEw.Comments,
 			pictureName: copiedEw.PictureName
 		);
@@ -1179,7 +1179,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			{
 				// Добавляем инструмент, если его ещё нет в selectedTow
 				bool alreadyExists = selectedTow.ToolWorks.Any(o => o.toolId == tw.toolId);
-				if (alreadyExists)
+				if (!alreadyExists)
 				{
                     Tool addingObject = ResolveToolInCurrentTc(tw);
 					selectedTow.ToolWorks.Add(new ToolWork
@@ -1200,17 +1200,18 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			var copiedComponentWorks = componentRows.Select(r => r.WorkItem).Cast<ComponentWork>().ToList();
 			var copiedComponents = copiedComponentWorks.Select(tw => tw.component).ToList();
 			// добавляем скопированные инструменты, если их нет в ТО
-			foreach (var componentWork in copiedComponentWorks)
+			foreach (var cw in copiedComponentWorks)
 			{
-				if (selectedTow.ComponentWorks.Where(o => o.componentId == componentWork.componentId).Count() == 0)
+				bool alreadyExists = selectedTow.ToolWorks.Any(o => o.toolId == cw.componentId);
+				if (!alreadyExists)
 				{
-					Component addingObject = ResolveComponentInCurrentTc(componentWork);
+					Component addingObject = ResolveComponentInCurrentTc(cw);
 					selectedTow.ComponentWorks.Add(new ComponentWork
 					{
-						componentId = componentWork.componentId,
+						componentId = cw.componentId,
 						component = addingObject,
-						Quantity = componentWork.Quantity,
-						Comments = componentWork.Comments
+						Quantity = cw.Quantity,
+						Comments = cw.Comments
 					});
 					isDGChanged = true;
 				}
@@ -1269,7 +1270,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 						Quantity = componentWork.Quantity,
 						Note = componentWork.Comments,
 
-						Order = TehCarta.Tool_TCs.Count + 1
+						Order = TehCarta.Component_TCs.Count + 1
 					});
 				}
 
