@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.DirectoryServices.ActiveDirectory;
+using System.Globalization;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
@@ -55,7 +56,7 @@ public partial class Win7_StaffEditor : Form
             rtxtFunctions.Text = _editingObj.Functions;
             rtxtQualification.Text = _editingObj.Qualification;
             rtxtComment.Text = _editingObj.Comment;
-
+            txtPrice.Text = _editingObj.Price.ToString();
             cbxIsReleased.Checked = _editingObj.IsReleased;
             txtClassifierCode.Text = _editingObj.ClassifierCode;
             
@@ -104,6 +105,18 @@ public partial class Win7_StaffEditor : Form
 
         _editingObj.IsReleased = cbxIsReleased.Checked;
         _editingObj.ClassifierCode = txtClassifierCode.Text;
+
+        try
+        {
+            _editingObj.Price = float.Parse(txtPrice.Text, CultureInfo.InvariantCulture.NumberFormat);
+        }
+        catch
+        {
+            MessageBox.Show("Цена должна быть указана в числовом формате!",
+                "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
 
         // проверка _editingObj на то, что все необходимые заполнены
         if (!AreRequiredPropertiesFilled())

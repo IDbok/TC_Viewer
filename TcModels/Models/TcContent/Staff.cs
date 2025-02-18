@@ -62,6 +62,7 @@ public class Staff : INameable, IDGViewable, IUpdatableEntity, IRequiredProperti
 
     }
 
+    public float Price { get; set; }
     public int Id { get; set; }
     public string Name { get; set; }
     public string Type { get; set; }
@@ -92,7 +93,7 @@ public class Staff : INameable, IDGViewable, IUpdatableEntity, IRequiredProperti
             Qualification = sourceCard.Qualification;
             Comment = sourceCard.Comment;
             CompareRelatedStaffs( sourceCard.RelatedStaffs);
-
+            Price = sourceCard.Price;
             IsReleased = sourceCard.IsReleased;
             CreatedTCId = sourceCard.CreatedTCId;
 

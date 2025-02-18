@@ -50,6 +50,8 @@
             flowLayoutPanel1 = new FlowLayoutPanel();
             panel1 = new Panel();
             panel2 = new Panel();
+            txtPrice = new TextBox();
+            lblPrice = new Label();
             ((System.ComponentModel.ISupportInitialize)dgvRelatedStaffs).BeginInit();
             flowLayoutPanel1.SuspendLayout();
             panel1.SuspendLayout();
@@ -116,7 +118,7 @@
             // 
             // rtxtComment
             // 
-            rtxtComment.Location = new Point(144, 340);
+            rtxtComment.Location = new Point(144, 374);
             rtxtComment.Margin = new Padding(2);
             rtxtComment.Name = "rtxtComment";
             rtxtComment.Size = new Size(386, 110);
@@ -135,7 +137,7 @@
             // lblCombineResponsibility
             // 
             lblCombineResponsibility.AutoSize = true;
-            lblCombineResponsibility.Location = new Point(12, 257);
+            lblCombineResponsibility.Location = new Point(12, 291);
             lblCombineResponsibility.Margin = new Padding(2, 0, 2, 0);
             lblCombineResponsibility.Name = "lblCombineResponsibility";
             lblCombineResponsibility.Size = new Size(86, 45);
@@ -145,7 +147,7 @@
             // lblComment
             // 
             lblComment.AutoSize = true;
-            lblComment.Location = new Point(12, 340);
+            lblComment.Location = new Point(12, 374);
             lblComment.Margin = new Padding(2, 0, 2, 0);
             lblComment.Name = "lblComment";
             lblComment.Size = new Size(87, 15);
@@ -190,7 +192,7 @@
             dgvRelatedStaffs.AllowUserToAddRows = false;
             dgvRelatedStaffs.AllowUserToDeleteRows = false;
             dgvRelatedStaffs.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvRelatedStaffs.Location = new Point(144, 257);
+            dgvRelatedStaffs.Location = new Point(144, 291);
             dgvRelatedStaffs.Margin = new Padding(2);
             dgvRelatedStaffs.Name = "dgvRelatedStaffs";
             dgvRelatedStaffs.ReadOnly = true;
@@ -202,7 +204,7 @@
             // 
             // btnAddRelatedStaff
             // 
-            btnAddRelatedStaff.Location = new Point(439, 257);
+            btnAddRelatedStaff.Location = new Point(439, 291);
             btnAddRelatedStaff.Margin = new Padding(2);
             btnAddRelatedStaff.Name = "btnAddRelatedStaff";
             btnAddRelatedStaff.Size = new Size(89, 20);
@@ -213,7 +215,7 @@
             // 
             // btnDeleteRelatedStaff
             // 
-            btnDeleteRelatedStaff.Location = new Point(439, 307);
+            btnDeleteRelatedStaff.Location = new Point(439, 341);
             btnDeleteRelatedStaff.Margin = new Padding(2);
             btnDeleteRelatedStaff.Name = "btnDeleteRelatedStaff";
             btnDeleteRelatedStaff.Size = new Size(89, 20);
@@ -245,7 +247,7 @@
             // lblClassifierCode
             // 
             lblClassifierCode.AutoSize = true;
-            lblClassifierCode.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            lblClassifierCode.Font = new Font("Segoe UI", 9F);
             lblClassifierCode.Location = new Point(12, 224);
             lblClassifierCode.Margin = new Padding(2, 0, 2, 0);
             lblClassifierCode.Name = "lblClassifierCode";
@@ -266,6 +268,8 @@
             // 
             // panel1
             // 
+            panel1.Controls.Add(lblPrice);
+            panel1.Controls.Add(txtPrice);
             panel1.Controls.Add(txtName);
             panel1.Controls.Add(txtClassifierCode);
             panel1.Controls.Add(lblName);
@@ -286,18 +290,34 @@
             panel1.Location = new Point(3, 2);
             panel1.Margin = new Padding(3, 2, 3, 2);
             panel1.Name = "panel1";
-            panel1.Size = new Size(545, 458);
+            panel1.Size = new Size(545, 489);
             panel1.TabIndex = 19;
             // 
             // panel2
             // 
             panel2.Controls.Add(btnSave);
             panel2.Controls.Add(btnClose);
-            panel2.Location = new Point(3, 464);
+            panel2.Location = new Point(3, 495);
             panel2.Margin = new Padding(3, 2, 3, 2);
             panel2.Name = "panel2";
             panel2.Size = new Size(545, 46);
             panel2.TabIndex = 20;
+            // 
+            // txtPrice
+            // 
+            txtPrice.Location = new Point(144, 257);
+            txtPrice.Name = "txtPrice";
+            txtPrice.Size = new Size(193, 23);
+            txtPrice.TabIndex = 24;
+            // 
+            // lblPrice
+            // 
+            lblPrice.AutoSize = true;
+            lblPrice.Location = new Point(12, 260);
+            lblPrice.Name = "lblPrice";
+            lblPrice.Size = new Size(70, 15);
+            lblPrice.TabIndex = 25;
+            lblPrice.Text = "Стоимость:";
             // 
             // Win7_StaffEditor
             // 
@@ -344,5 +364,7 @@
         private FlowLayoutPanel flowLayoutPanel1;
         private Panel panel1;
         private Panel panel2;
+        private Label lblPrice;
+        private TextBox txtPrice;
     }
 }

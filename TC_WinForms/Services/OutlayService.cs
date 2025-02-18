@@ -222,7 +222,7 @@ namespace TC_WinForms.Services
 
                 machineOutlay = machineOutlay / 60;
 
-                AddNewOutlay(tcViewState.TechnologicalCard.Id, OutlayType.Mechine, UnitType.Hours, machineOutlay, machine.Child.Name, machine.Child.Id);
+                AddNewOutlay(tcViewState.TechnologicalCard.Id, OutlayType.Mechine, UnitType.Hours, machineOutlay, $"{machine.Child.Name}({machine.Child.Type})", machine.Child.Id);
 
 
                 machineOutlay = 0;

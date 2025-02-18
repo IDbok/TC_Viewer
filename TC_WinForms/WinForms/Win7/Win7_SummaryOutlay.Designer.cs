@@ -31,6 +31,7 @@
             tbpnlMain = new TableLayoutPanel();
             pnlControls = new Panel();
             pnlButtons = new Panel();
+            btnShowMachine = new Button();
             btnSettings = new Button();
             btnPrint = new Button();
             cmbxUnit = new ComboBox();
@@ -72,28 +73,38 @@
             // 
             // pnlButtons
             // 
+            pnlButtons.Controls.Add(btnShowMachine);
             pnlButtons.Controls.Add(btnSettings);
             pnlButtons.Controls.Add(btnPrint);
             pnlButtons.Dock = DockStyle.Right;
-            pnlButtons.Location = new Point(531, 0);
+            pnlButtons.Location = new Point(405, 0);
             pnlButtons.Name = "pnlButtons";
-            pnlButtons.Size = new Size(263, 54);
+            pnlButtons.Size = new Size(389, 54);
             pnlButtons.TabIndex = 3;
+            // 
+            // btnShowMachine
+            // 
+            btnShowMachine.Location = new Point(3, 9);
+            btnShowMachine.Name = "btnShowMachine";
+            btnShowMachine.Size = new Size(122, 39);
+            btnShowMachine.TabIndex = 4;
+            btnShowMachine.Text = "Скрыть механизмы";
+            btnShowMachine.UseVisualStyleBackColor = true;
+            btnShowMachine.Click += btnShowMachine_Click;
             // 
             // btnSettings
             // 
-            btnSettings.Location = new Point(134, 9);
+            btnSettings.Location = new Point(258, 9);
             btnSettings.Name = "btnSettings";
             btnSettings.Size = new Size(122, 39);
             btnSettings.TabIndex = 3;
-            btnSettings.Visible = false;
             btnSettings.Text = "Настройки";
             btnSettings.UseVisualStyleBackColor = true;
             btnSettings.Click += btnSettings_Click;
             // 
             // btnPrint
             // 
-            btnPrint.Location = new Point(6, 9);
+            btnPrint.Location = new Point(130, 9);
             btnPrint.Name = "btnPrint";
             btnPrint.Size = new Size(122, 39);
             btnPrint.TabIndex = 2;
@@ -172,5 +183,6 @@
         private Button btnPrint;
         private Panel pnlButtons;
         private Button btnSettings;
+        private Button btnShowMachine;
     }
 }

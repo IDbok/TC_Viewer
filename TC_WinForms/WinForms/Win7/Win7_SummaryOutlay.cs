@@ -36,6 +36,7 @@ namespace TC_WinForms.WinForms.Win7
 
         private DbConnector dbCon = new DbConnector();
 
+        private bool isMachineViewMode = true;
         private readonly ILogger _logger;
 
         private List<Outlay> _allOutlays = new();
@@ -61,6 +62,7 @@ namespace TC_WinForms.WinForms.Win7
         #endregion
 
         #region Constructor
+
         public Win7_SummaryOutlay(User.Role accessLevel)
         {
             _logger = Log.Logger.ForContext<Win7_SummaryOutlay>();
@@ -72,6 +74,7 @@ namespace TC_WinForms.WinForms.Win7
 
             // Улучшаем производительность DataGridView, уменьшаем мерцание
             dgvMain.DoubleBuffered(true);
+            dgvMain.CellFormatting += DgvMain_CellFormatting;
         }
 
         #endregion
@@ -145,14 +148,24 @@ namespace TC_WinForms.WinForms.Win7
             {
                 var tcId = outlay.Key;
                 var outlayData = outlay.ToList();
-                List<(string MachineName, double MachineOutlay, int MachineId)> listMachStr = new List<(string MachineName, double MachineOutlay, int MachineId)>();
-                List<(string StaffName, double StaffOutlay)> listStaffStr = new List<(string StaffName, double StaffOutlay)>();
+                List<SummaryOutlayMachine> listMachStr = new List<SummaryOutlayMachine>();
+                List<SummaryOutlayStaff> listStaffStr = new List<SummaryOutlayStaff>();
 
                 foreach (var machine in outlayData.Where(x => x.Type == OutlayType.Mechine).ToList())
-                    listMachStr.Add((machine.Name, machine.OutlayValue, (int)machine.ChildId));
+                    listMachStr.Add(new SummaryOutlayMachine
+                    {
+                        MachineName = machine.Name,
+                        MachineOutlay = machine.OutlayValue,
+                        MachineId = (int)machine.ChildId,
+                    });
 
                 foreach (var staff in outlayData.Where(x => x.Type == OutlayType.Staff).ToList())
-                    listStaffStr.Add((staff.Name.Split(" ")[0], staff.OutlayValue));
+                    listStaffStr.Add(new SummaryOutlayStaff
+                    {
+                        StaffName = staff.Name.Split(" ")[0],
+                        StaffOutlay = staff.OutlayValue,
+                        StaffId = (int)staff.ChildId,
+                    });
 
                 _allOutlaysList.Add(new SummaryOutlayDataGridItem
                 {
@@ -174,9 +187,19 @@ namespace TC_WinForms.WinForms.Win7
                             if (techCard != null)
                             {
                                 x.TcName = techCard.Article;
-                                x.TechProcessType = techCard.TechnologicalProcessType;
+                                x.TechProcess = techCard.TechnologicalProcessName;
                                 x.Parameter = techCard.Parameter;
                                 x.UnitType = techCard.OutlayUnit;
+                                x.listMachStr.ForEach(
+                                    m =>
+                                    {
+                                         m.MachineCost = context.Machines.Where(mc => mc.Id == m.MachineId).Select(s => s.Price).Cast<double?>().FirstOrDefault();
+                                    });
+                                x.listStaffStr.ForEach(
+                                    m =>
+                                    {
+                                        m.StaffCost = context.Staffs.Where(mc => mc.Id == m.StaffId).Select(s => s.Price).Cast<double?>().FirstOrDefault();
+                                    });
                                 x.SummaryOutlayCost = CalculateSummaryOutlayCost(x);
                             }
                         }
@@ -228,7 +251,7 @@ namespace TC_WinForms.WinForms.Win7
             var typeFilter = cmbxUnit.SelectedItem?.ToString();
 
             return _allOutlaysList.Where(outlay => (searchText == "" || string.IsNullOrWhiteSpace(searchText) || (outlay.TcName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-                || (outlay.TechProcessType.Contains(searchText, StringComparison.OrdinalIgnoreCase)) || (outlay.Parameter.Contains(searchText, StringComparison.OrdinalIgnoreCase)))
+                || (outlay.TechProcess.Contains(searchText, StringComparison.OrdinalIgnoreCase)) || (outlay.Parameter.Contains(searchText, StringComparison.OrdinalIgnoreCase)))
                 && (typeFilter == "Все" || string.IsNullOrWhiteSpace(typeFilter) || outlay.UnitType.GetDescription() == typeFilter)).ToList();
         }
 
@@ -271,7 +294,38 @@ namespace TC_WinForms.WinForms.Win7
         #endregion
 
         #region UIEventHandlers
+        private void DgvMain_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dgvMain.Columns[e.ColumnIndex].Name.Contains("Machine"))
+            {
+                var machineId = Convert.ToInt32(dgvMain.Columns[e.ColumnIndex].Name.Split(' ')[1]);
+                var currentMachine = _allOutlaysList.Where(s => s.listMachStr.Any(m => m.MachineId == machineId)).SelectMany(s => s.listMachStr.Where(s => s.MachineId == machineId).Select(s => s)).FirstOrDefault();
+                if (currentMachine != null && (currentMachine.MachineCost == null || currentMachine.MachineCost == 0))
+                {
+                    dgvMain.Columns[e.ColumnIndex].DefaultCellStyle.BackColor = Color.Yellow;
+                }
+            }
+        }
+        private void btnShowMachine_Click(object sender, EventArgs e)
+        {
+            isMachineViewMode = !isMachineViewMode;
 
+            btnShowMachine.Text = isMachineViewMode ?
+                 "Скрыть механизмы" : "Показать механизмы";
+
+            SetMachineViewMode();
+        }
+
+        public void SetMachineViewMode()
+        {
+            foreach (DataGridViewColumn col in dgvMain.Columns)
+            {
+                if (col.Name.Contains("Machine"))
+                {
+                    col.Visible = isMachineViewMode;
+                }
+            }
+        }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             FilterObjects();
@@ -343,7 +397,7 @@ namespace TC_WinForms.WinForms.Win7
             var autosizeColumn = new List<string>
             {
                 nameof(SummaryOutlayDataGridItem.TcName),
-                nameof(SummaryOutlayDataGridItem.TechProcessType),
+                nameof(SummaryOutlayDataGridItem.TechProcess),
                 nameof(SummaryOutlayDataGridItem.Parameter),
                 nameof(SummaryOutlayDataGridItem.ComponentOutlay),
                 nameof(SummaryOutlayDataGridItem.UnitType),
@@ -379,7 +433,7 @@ namespace TC_WinForms.WinForms.Win7
             }
 
             dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.TcName), "Наименование ТК");
-            dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.TechProcessType), "Тип тех. процесса");
+            dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.TechProcess), "Тех. процесс");
             dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.Parameter), "Параметр");
 
             foreach (var staff in _allOutlays.Where(s => s.Type == OutlayType.Staff).Select(x => x.Name).Distinct())
@@ -389,22 +443,22 @@ namespace TC_WinForms.WinForms.Win7
                 if (dgvMain.Columns.Contains($"Staff{staffSymbol}"))
                     continue;
 
-                dgvMain.Columns.Add($"Staff{staffSymbol}", $"{staffSymbol}");
+                dgvMain.Columns.Add($"Staff{staffSymbol}", $"{staffSymbol}, ч.");
             }
 
-            dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.ComponentOutlay), "Материалы");
+            dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.ComponentOutlay), "Материалы, Руб. без НДС");
 
             foreach (var machine in _allOutlays.Where(s => s.Type == OutlayType.Mechine).Distinct())
             {
-                if (dgvMain.Columns.Contains($"Machine{machine.ChildId}"))
+                if (dgvMain.Columns.Contains($"Machine {machine.ChildId}"))
                     continue;
 
-                dgvMain.Columns.Add($"Machine{machine.ChildId}", $"{machine.Name}");
+                dgvMain.Columns.Add($"Machine {machine.ChildId}", $"{machine.Name}, ч.");
             }
 
-            dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.SummaryOutlay), "Общее время выполнения работ");
+            dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.SummaryOutlay), "Общее время выполнения работ, ч");
             dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.UnitType), "Составляющие затрат\n(ед. Измерения)");
-            dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.SummaryOutlayCost), "Составляющие затрат\n(стоимость)");
+            dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.SummaryOutlayCost), "Составляющие затрат\n(стоимость), Руб. без НДС");
 
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 
@@ -412,6 +466,7 @@ namespace TC_WinForms.WinForms.Win7
         private void AddRowsToGrid()
         {
             int rowCount = 0;
+
             foreach (var summaryOutlayDataGridItem in _displayedList)
             {
                 dgvMain.Rows.Add();
@@ -419,16 +474,16 @@ namespace TC_WinForms.WinForms.Win7
                 foreach (DataGridViewColumn column in dgvMain.Columns)
                 {
                     var containedStaff = summaryOutlayDataGridItem.listStaffStr.FirstOrDefault(stringToCheck => column.Name.Contains(stringToCheck.StaffName));
-                    var containedMachine = summaryOutlayDataGridItem.listMachStr.FirstOrDefault(stringToCheck => column.Name.Equals($"Machine{stringToCheck.MachineId}"));
+                    var containedMachine = summaryOutlayDataGridItem.listMachStr.FirstOrDefault(stringToCheck => column.Name.Equals($"Machine {stringToCheck.MachineId}"));
 
-                    if (containedStaff != (null, 0))
+                    if (containedStaff != null)
                     {
                         var value = dgvMain.Rows[rowCount].Cells[column.Index].Value == null || dgvMain.Rows[rowCount].Cells[column.Index].Value == " - "
                                         ? 0
                                         : (double)dgvMain.Rows[rowCount].Cells[column.Index].Value;
                         dgvMain.Rows[rowCount].Cells[column.Index].Value = value + containedStaff.StaffOutlay;
                     }
-                    else if (containedMachine != (null, 0, 0))
+                    else if (containedMachine != null)
                     {
                         dgvMain.Rows[rowCount].Cells[column.Index].Value = containedMachine.MachineOutlay;
                     }
@@ -437,17 +492,18 @@ namespace TC_WinForms.WinForms.Win7
                 }
 
                 dgvMain.Rows[rowCount].Cells["TcName"].Value = summaryOutlayDataGridItem.TcName;
-                dgvMain.Rows[rowCount].Cells["TechProcessType"].Value = summaryOutlayDataGridItem.TechProcessType;
+                dgvMain.Rows[rowCount].Cells["TechProcess"].Value = summaryOutlayDataGridItem.TechProcess;
                 dgvMain.Rows[rowCount].Cells["Parameter"].Value = summaryOutlayDataGridItem.Parameter;
                 dgvMain.Rows[rowCount].Cells["ComponentOutlay"].Value = summaryOutlayDataGridItem.ComponentOutlay;
                 dgvMain.Rows[rowCount].Cells["SummaryOutlay"].Value = summaryOutlayDataGridItem.SummaryOutlay;
                 dgvMain.Rows[rowCount].Cells["UnitType"].Value = summaryOutlayDataGridItem.UnitType.GetDescription();
-                dgvMain.Rows[rowCount].Cells["SummaryOutlayCost"].Value = CalculateSummaryOutlayCost(summaryOutlayDataGridItem);
+
+                dgvMain.Rows[rowCount].Cells["SummaryOutlayCost"].Value = CalculateSummaryOutlayCost(summaryOutlayDataGridItem).ToString("0.00");
 
                 rowCount++;
             }
 
-            
+
         }
 
         private double CalculateSummaryOutlayCost(SummaryOutlayDataGridItem summaryOutlayDataGridItem)
@@ -457,30 +513,40 @@ namespace TC_WinForms.WinForms.Win7
             string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
             SummaryOutlaySettings settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
 
-            foreach (var staff in summaryOutlayDataGridItem.listStaffStr)
-            {
-                if (staff.StaffName.Contains("ЭР1"))
-                    summaryOutlay += summaryOutlayDataGridItem.SummaryOutlay * settings.LeaderSallary;
-                else
-                    staffCount++;
-            }
+            var groupedStaff = summaryOutlayDataGridItem.listStaffStr.GroupBy(s => s.StaffName.Split(" ")[0]).ToList();
 
-            using (MyDbContext context = new MyDbContext())
+            foreach(var list in groupedStaff)
             {
-                foreach (var machine in summaryOutlayDataGridItem.listMachStr)
+                var key = list.Key;
+                var staffList = list.ToList();
+
+                var maxCost = staffList.Max(m => m.StaffCost);
+                if(maxCost == 0 || maxCost == null)
                 {
-                    var price = context.Machines.Where(s => s.Name == machine.MachineName).Select(s => s.Price).First();
-                    summaryOutlay += machine.MachineOutlay * (double)price;
+                    summaryOutlay += key.Equals("ЭР1")
+                        ? summaryOutlayDataGridItem.SummaryOutlay * settings.LeaderSallary
+                        : settings.RegularSallary * summaryOutlayDataGridItem.SummaryOutlay;
+                }
+                else
+                {
+                    summaryOutlay += summaryOutlayDataGridItem.SummaryOutlay * (double)maxCost;
                 }
             }
 
-            summaryOutlay += staffCount * summaryOutlayDataGridItem.SummaryOutlay * settings.RegularSallary;
+            foreach (var machine in summaryOutlayDataGridItem.listMachStr)
+            {
+                summaryOutlay += machine.MachineCost == null
+                    ? 0 * machine.MachineOutlay
+                    : machine.MachineOutlay * (double)machine.MachineCost;
+            }
+
+            //summaryOutlay += staffCount * summaryOutlayDataGridItem.SummaryOutlay * settings.RegularSallary;
             summaryOutlay += summaryOutlayDataGridItem.ComponentOutlay;
 
             return summaryOutlay;
         }
 
         #endregion
-
     }
 }
+

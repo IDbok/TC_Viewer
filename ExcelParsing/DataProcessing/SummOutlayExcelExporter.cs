@@ -11,6 +11,8 @@ using TC_WinForms.WinForms.Win7.Work;
 using TcModels.Models.IntermediateTables;
 using System.Collections;
 using OfficeOpenXml.Style;
+using TcDbConnector;
+using static TcModels.Models.TechnologicalCard;
 
 namespace ExcelParsing.DataProcessing
 {
@@ -21,39 +23,52 @@ namespace ExcelParsing.DataProcessing
         private ExcelPackage _excelPackage;
         private ExcelExporter _exporter;
 
-        private readonly Color _lightGreen = Color.FromArgb(197, 224, 180);
-
         private Dictionary<int, double> _columnWidths = new Dictionary<int, double>
             {
-                { 1, 3.45 },    // № Записи
-                { 2, 11 },      // Наименование ТК
-                { 4, 11  },    // Тип ТК
-                { 6, 6.82 },   // Параметр ТК
+                { 1, 6.82 },    // № Записи
+                { 2, 20 },      // Наименование ТК
+                { 3, 20  },    // Тип ТК
+                { 4, 20 },   // Параметр ТК
             };
 
         private Dictionary<int, double> _addingColumnWidths = new Dictionary<int, double>
             {
-                { 1, 6.82 }, // Стоимость материалов
-                { 3, 11 }, // Сводные затраты(ед изм.)
-                { 5, 11 }, // Сводные затраты(стоимость)
+                { 1, 11 }, // Стоимость материалов
+                { 2, 20 }, // Сводные затраты(ед изм.)
+                { 3, 20 }, // Сводные затраты(стоимость)
             };
 
         private readonly double _defaultRowHeight = 14.5;
-        private readonly double _defaultColumnWidth = 6.82;
+        private readonly double _defaultColumnWidth = 20;
 
         private List<string> _uniqueStaffName = new List<string>();
-        private List<(string MachineName, double MachineOutlay, int MachineId)> _uniqueMachines = new List<(string MachineName, double MachineOutlay, int MachineId)>();
+        private List<string> _uniqueMachines = new List<string>();
 
-        private Dictionary<string, int> machineColumnNumber = new Dictionary<string, int>();
-        private Dictionary<string, int> staffColumnNumber = new Dictionary<string, int>();
+        private Dictionary<string, int> staffHeaders = new Dictionary<string, int> //Список обязательных для вывода кодировок персонала
+            {
+                { "ЭР1 Затраты электромонтера", 1 },//0
+                { "ЭР2 Затраты электромонтера", 2 },//1
+                { "ЭР3 Затраты электромонтера", 3 },//2
+                { "ЭР4 Затраты электромонтера", 4 },//3
+                { "ЭР5 Затраты электромонтера", 5 },//4
+                { "М1 Затраты монтера", 6 },//5
+                { "М2 Затраты монтера", 7 },//6
+                { "М3 Затраты монтера", 8 },//7
+                { "А1 Затраты арматурщика", 9 },//8
+                { "А2 Затраты арматурщика", 10 },//9
+                { "С1 Затраты сварщика", 11 },//10
+                { "Г1 Затраты геодезиста", 12 },//11
+                { "Г2 Затраты геодезиста", 13 },//12
+                { "ПТО Затраты инженера", 14 },//13
 
+            };
         #endregion
 
         #region Constructor
 
         public SummOutlayExcelExporter()
         {
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.Commercial;
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
             _excelPackage = new ExcelPackage();
             _exporter = new ExcelExporter();
         }
@@ -62,22 +77,21 @@ namespace ExcelParsing.DataProcessing
 
         #region SetSheetSettings
 
-        private void CompliteColumnsWidth(int newColumnNum, int newColumnNum2)
+        private void CompliteColumnsWidth(int newColumnNum)
         {
             var lastColumn = _columnWidths.Keys.Max();
             for (int i = 1; i <= newColumnNum; i++)
             {
-                _columnWidths.Add(lastColumn + 2, _defaultColumnWidth);
-                lastColumn += 2;
-            }
-
-            lastColumn++;
-
-            for (int i = 1; i <= newColumnNum2; i++)
-            {
                 _columnWidths.Add(lastColumn + 1, _defaultColumnWidth);
-                lastColumn += 1;
+                lastColumn++;
             }
+
+            foreach (var columnWidth in staffHeaders)
+            {
+                _columnWidths.Add(columnWidth.Value + lastColumn, _defaultColumnWidth);
+            }
+
+            lastColumn = _columnWidths.Last().Key;
 
             foreach (var columnWidth in _addingColumnWidths)
             {
@@ -116,25 +130,23 @@ namespace ExcelParsing.DataProcessing
         public void ExportSummOutlayoFile(string fileFolderPath, List<SummaryOutlayDataGridItem> summaryOutlayDataGridItems)
         {
             string name = $"Сводная таблица затрат {DateTime.Today.ToString("yyyy-MM-dd")}";
-            string filePath = fileFolderPath;// + article + ".xlsx";
+            string filePath = fileFolderPath;
 
-            _uniqueMachines = summaryOutlayDataGridItems.Select(s => s.listMachStr)
-                                                        .SelectMany(innerList => innerList)
-                                                        .GroupBy(machine => (machine.MachineName, machine.MachineId))
-                                                        .Select(group => group.First())
-                                                        .ToList();
-
+            using (MyDbContext context = new MyDbContext())
+            {
+                _uniqueMachines = context.Machines.Select(m => $"{m.Name}({m.Type})").ToList();
+            }
+            
             _uniqueStaffName = summaryOutlayDataGridItems.Select(s => s.listStaffStr)
                                                          .SelectMany(innerList => innerList.Select(tuple => tuple.StaffName.Split(" ")[0]))
                                                          .Distinct()
-                                                         .ToList();
+                                                         .Except(staffHeaders.Keys.Select(s => s.Split(' ')[0]).ToList())
+                                                         .ToList();//Получаем список новых кодировок персонала, которые не указывались в забитом ранее списке
 
-            CompliteColumnsWidth(_uniqueMachines.Count(), _uniqueStaffName.Count());
-
+            CompliteColumnsWidth(_uniqueMachines.Count() + _uniqueStaffName.Count());
             CreateNewFile(filePath);
 
             var sheet = _excelPackage.Workbook.Worksheets[name] ?? _excelPackage.Workbook.Worksheets.Add(name);
-
             SetColumnWigth(sheet);
 
             AddSummaryOutlayDataToExcel(sheet, summaryOutlayDataGridItems, 2);
@@ -142,8 +154,8 @@ namespace ExcelParsing.DataProcessing
             // Установка параметров для вывода на печать
             SetPrinterSettings(sheet);
 
-            Save();
-            Close();
+            _excelPackage.Save();
+            _excelPackage.Dispose();
         }
 
         private void AddSummaryOutlayDataToExcel(ExcelWorksheet sheet, List<SummaryOutlayDataGridItem> summaryOutlayDataGridItems, int headRow)
@@ -155,18 +167,14 @@ namespace ExcelParsing.DataProcessing
             {
                 { "№", 1 },//0
                 { "Технологическая карта", 2 },//1
-                { "Тип тех. процесса", 4 },//2
-                { "Параметр", 6 },//3
+                { "Тип тех. процесса", 3 },//2
+                { "Параметр", 4 },//3
             };
 
             Dictionary<string, int> additinghHadersColumns = new Dictionary<string, int>
-            { {"Стоимость материалов" ,1}, { "Сводные затраты(ед. измерения)", 3 }, { "Сводные затраты(стоимость)", 5 }, { "конец", 7 } };
+            { {"Стоимость материалов" ,1}, { "Сводные затраты(ед. измерения)", 2 }, { "Сводные затраты(стоимость)", 3 }, { "конец", 4 } };
 
-            int lastColumn = headersColumns["Параметр"];
-            var machineColumnNums = new List<int>();
-
-            List<(int MachineColumnNum, int MachineChildId)> machinePairs = new List<(int MachineColumnNum, int MachineChildId)>();
-
+            int lastColumn = headersColumns.Last().Value;
             SetColumnHeaders();
 
             string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
@@ -183,48 +191,33 @@ namespace ExcelParsing.DataProcessing
             {
                 sheet.Cells[currentRow, headersColumns["№"]].Value = rowOrder;
                 sheet.Cells[currentRow, headersColumns["Технологическая карта"]].Value = item.TcName;
-                sheet.Cells[currentRow, headersColumns["Тип тех. процесса"]].Value = item.TechProcessType;
+                sheet.Cells[currentRow, headersColumns["Тип тех. процесса"]].Value = item.TechProcess;
                 sheet.Cells[currentRow, headersColumns["Параметр"]].Value = item.Parameter;
                 sheet.Cells[currentRow, headersColumns["Стоимость материалов"]].Value = item.ComponentOutlay;
-                sheet.Cells[currentRow, headersColumns["Сводные затраты(ед. измерения)"]].Value = item.UnitType.ToString();
+                sheet.Cells[currentRow, headersColumns["Сводные затраты(ед. измерения)"]].Value = GetDescriptionUnit(item.UnitType);
                 sheet.Cells[currentRow, headersColumns["Сводные затраты(стоимость)"]].Value = item.SummaryOutlayCost;
-
-                for (int i = headersColumns["Параметр"] + 1; i < headersColumns["Стоимость материалов"]; i++)
-                {
-                    sheet.Cells[currentRow, i].Value = " - ";
-                }
 
                 foreach (var staff in item.listStaffStr)
                 {
-                    if (headersColumns[staff.StaffName.Split(" ")[0]] != null)
-                    {
-                        sheet.Cells[currentRow, headersColumns[staff.StaffName.Split(" ")[0]]].Value = staff.StaffOutlay;
-                    }
+                    sheet.Cells[currentRow, FindValueByPartialKey(headersColumns, staff.StaffName.Split(" ")[0])].Value = staff.StaffOutlay;
                 }
 
                 foreach (var machine in item.listMachStr)
                 {
-                    var columnNum = machinePairs.Where(s => s.MachineChildId == machine.MachineId).FirstOrDefault();
-                    if (columnNum != (0, 0))
-                    {
-                        sheet.Cells[currentRow, columnNum.MachineColumnNum].Value = machine.MachineOutlay;
-                    }
+                    sheet.Cells[currentRow, FindValueByPartialKey(headersColumns, machine.MachineName)].Value = machine.MachineOutlay;
                 }
 
-                _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
                 _exporter.AutoFitRowHeightForMergedCells(sheet, currentRow, _defaultRowHeight, _columnWidths, columnNums);
                 RowFormat();
 
                 currentRow++;
                 rowOrder++;
-
             }
 
             void RowFormat()
             {
                 // Применяем стили для всех ячеек
                 _exporter.ApplyCellFormatting(sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1]);
-
                 FormatCells(sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1]);
                 sheet.Cells[currentRow, columnNums[1], currentRow, columnNums[4] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             }
@@ -241,20 +234,21 @@ namespace ExcelParsing.DataProcessing
             {
                 foreach (var machine in _uniqueMachines)
                 {
-                    var machineColumnNum = 2 + lastColumn;
-                    headersColumns.Add($"{machine.MachineName}(Id{machine.MachineId})", machineColumnNum); // todo: форматировать название механизма в соответствии с его склонением
-                    machineColumnNumber.Add($"{machine.MachineName}(Id{machine.MachineId})", machineColumnNum);
-                    machinePairs.Add((machineColumnNum, machine.MachineId));
-                    lastColumn = machineColumnNum;
+                    var machineColumnNum = ++lastColumn;
+                    headersColumns.Add(machine, machineColumnNum); 
                 }
 
-                lastColumn++;
+                foreach (var staff in staffHeaders)
+                {
+                    headersColumns.Add(staff.Key, staff.Value + lastColumn);
+                }
+
+                lastColumn = headersColumns.Last().Value;
 
                 foreach (var staff in _uniqueStaffName)
                 {
                     var staffColumnNum = ++lastColumn;
-                    headersColumns.Add(staff, staffColumnNum); // todo: форматировать название механизма в соответствии с его склонением
-                    staffColumnNumber.Add(staff, staffColumnNum);
+                    headersColumns.Add(staff, staffColumnNum);
                 }
 
                 foreach (var additinghHader in additinghHadersColumns)
@@ -268,11 +262,41 @@ namespace ExcelParsing.DataProcessing
 
         #region SupportMethods
 
-       
+        public int FindValueByPartialKey(Dictionary<string, int> headerColumns, string partialKey)
+        {
+            // Ищем ключ, который содержит partialKey
+            var match = headerColumns
+                .FirstOrDefault(x => x.Key.Contains(partialKey, StringComparison.OrdinalIgnoreCase));
 
+            // Если ключ найден, возвращаем значение
+            if (!string.IsNullOrEmpty(match.Key))
+            {
+                return match.Value;
+            }
+            else
+                return 0;
+        }
+
+        public string GetDescriptionUnit(TechnologicalCardUnit technologicalCardUnit)
+        {
+            switch(technologicalCardUnit)
+            {
+                case TechnologicalCardUnit.Pieces:
+                    return "Шт.";
+                case TechnologicalCardUnit.FiveHundredM:
+                    return "500 м.";
+                case TechnologicalCardUnit.OneHundredM:
+                    return "100 м.";
+                case TechnologicalCardUnit.Kilometer:
+                    return "1 км.";
+                default:
+                    return "NA";
+            }
+        }
         #endregion
 
         #region ExcelMethods
+
         public void CreateNewFile(string filePath)
         {
             // Создание нового файла Excel (если файл уже существует, он будет перезаписан)
@@ -282,16 +306,6 @@ namespace ExcelParsing.DataProcessing
                 fileInfo.Delete();
             }
             _excelPackage = new ExcelPackage(fileInfo);
-        }
-        public void Save()
-        {
-            // Сохраняет изменения в пакете Excel
-            _excelPackage.Save();
-        }
-        public void Close()
-        {
-            // Закрывает пакет и освобождает все связанные ресурсы
-            _excelPackage.Dispose();
         }
 
         #endregion
