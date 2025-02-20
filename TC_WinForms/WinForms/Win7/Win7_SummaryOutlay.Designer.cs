@@ -1,4 +1,4 @@
-﻿namespace TC_WinForms.WinForms.Win7
+﻿namespace TC_WinForms.WinForms
 {
     partial class Win7_SummaryOutlay
     {

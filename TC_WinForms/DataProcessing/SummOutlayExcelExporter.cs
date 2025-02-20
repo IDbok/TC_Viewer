@@ -1,20 +1,12 @@
-﻿using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TcModels.Models.TcContent;
-using TcModels.Models;
-using TC_WinForms.WinForms.Win7.Work;
-using TcModels.Models.IntermediateTables;
-using System.Collections;
+﻿using ExcelParsing;
+using ExcelParsing.DataProcessing;
+using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using TC_WinForms.WinForms.Win7.Work;
 using TcDbConnector;
 using static TcModels.Models.TechnologicalCard;
 
-namespace ExcelParsing.DataProcessing
+namespace TC_WinForms.DataProcessing
 {
     public class SummOutlayExcelExporter
     {
@@ -73,6 +65,13 @@ namespace ExcelParsing.DataProcessing
             _exporter = new ExcelExporter();
         }
 
+        public SummOutlayExcelExporter(ExcelPackage excelPackage)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+            _excelPackage = excelPackage;
+            _exporter = new ExcelExporter();
+        }
+
         #endregion
 
         #region SetSheetSettings
@@ -127,10 +126,9 @@ namespace ExcelParsing.DataProcessing
         #endregion
 
         #region ExportToExcel
-        public void ExportSummOutlayoFile(string fileFolderPath, List<SummaryOutlayDataGridItem> summaryOutlayDataGridItems)
+        public void ExportSummOutlayoFile(List<SummaryOutlayDataGridItem> summaryOutlayDataGridItems)
         {
             string name = $"Сводная таблица затрат {DateTime.Today.ToString("yyyy-MM-dd")}";
-            string filePath = fileFolderPath;
 
             using (MyDbContext context = new MyDbContext())
             {
@@ -144,7 +142,6 @@ namespace ExcelParsing.DataProcessing
                                                          .ToList();//Получаем список новых кодировок персонала, которые не указывались в забитом ранее списке
 
             CompliteColumnsWidth(_uniqueMachines.Count() + _uniqueStaffName.Count());
-            CreateNewFile(filePath);
 
             var sheet = _excelPackage.Workbook.Worksheets[name] ?? _excelPackage.Workbook.Worksheets.Add(name);
             SetColumnWigth(sheet);
@@ -194,7 +191,7 @@ namespace ExcelParsing.DataProcessing
                 sheet.Cells[currentRow, headersColumns["Тип тех. процесса"]].Value = item.TechProcess;
                 sheet.Cells[currentRow, headersColumns["Параметр"]].Value = item.Parameter;
                 sheet.Cells[currentRow, headersColumns["Стоимость материалов"]].Value = item.ComponentOutlay;
-                sheet.Cells[currentRow, headersColumns["Сводные затраты(ед. измерения)"]].Value = GetDescriptionUnit(item.UnitType);
+                sheet.Cells[currentRow, headersColumns["Сводные затраты(ед. измерения)"]].Value = item.UnitType.GetDescription();
                 sheet.Cells[currentRow, headersColumns["Сводные затраты(стоимость)"]].Value = item.SummaryOutlayCost;
 
                 foreach (var staff in item.listStaffStr)
@@ -277,38 +274,8 @@ namespace ExcelParsing.DataProcessing
                 return 0;
         }
 
-        public string GetDescriptionUnit(TechnologicalCardUnit technologicalCardUnit)
-        {
-            switch(technologicalCardUnit)
-            {
-                case TechnologicalCardUnit.Pieces:
-                    return "Шт.";
-                case TechnologicalCardUnit.FiveHundredM:
-                    return "500 м.";
-                case TechnologicalCardUnit.OneHundredM:
-                    return "100 м.";
-                case TechnologicalCardUnit.Kilometer:
-                    return "1 км.";
-                default:
-                    return "NA";
-            }
-        }
         #endregion
 
-        #region ExcelMethods
-
-        public void CreateNewFile(string filePath)
-        {
-            // Создание нового файла Excel (если файл уже существует, он будет перезаписан)
-            var fileInfo = new FileInfo(filePath);
-            if (fileInfo.Exists)
-            {
-                fileInfo.Delete();
-            }
-            _excelPackage = new ExcelPackage(fileInfo);
-        }
-
-        #endregion
 
     }
 }

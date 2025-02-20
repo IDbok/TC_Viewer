@@ -13,8 +13,8 @@ using System.Windows.Forms;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win7.Work;
 
-namespace TC_WinForms.WinForms.Win7
-{
+namespace TC_WinForms.WinForms
+{ 
     public partial class Win7_OutlaySettings : Form
     {
         private readonly ILogger _logger;
@@ -26,6 +26,15 @@ namespace TC_WinForms.WinForms.Win7
 
         private void button1_Click(object sender, EventArgs e)
         {
+            _logger.Information("Форма Win7_OutlaySettings инициалирована и открыта.");
+
+            if (!File.Exists("SummaryOutlaySettings.json"))
+            {
+                _logger.Warning("Файл SummaryOutlaySettings.json не был найден в папке проекта.");
+                MessageBox.Show("Файл с настройками для сводной таблицы не обнаружен", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Close();
+            }
+
             string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
             SummaryOutlaySettings settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
 
@@ -37,7 +46,7 @@ namespace TC_WinForms.WinForms.Win7
             }
             catch (Exception ex) 
             {
-                _logger.Error("Ошибка при обновлении данных настроек: {ExceptionMessage}", ex.Message);
+                _logger.Error($"Ошибка при обновлении данных настроек: {ex.Message}");
                 MessageBox.Show("Ошибка перезаписи данных: " + ex.Message);
                 return;
             }
@@ -51,12 +60,22 @@ namespace TC_WinForms.WinForms.Win7
             {
                 openedForm.LoadData();
                 MessageBox.Show("Данные перезаписаны, записи в таблице пересчитаны.", "Данные обновлены", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                _logger.Information($"Данные перезаписаны, новые данные: Оплата бригадира - {settings.LeaderSallary}; Оплата прочего персонала - {settings.RegularSallary}.");
                 return;
             }
         }
 
         private void Win7_OutlaySettings_Load(object sender, EventArgs e)
         {
+            _logger.Information("Форма Win7_OutlaySettings инициалирована и открыта.");
+
+            if (!File.Exists("SummaryOutlaySettings.json"))
+            {
+                _logger.Warning("Файл SummaryOutlaySettings.json не был найден в папке проекта.");
+                MessageBox.Show("Файл с настройками для сводной таблицы не обнаружен", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Close();
+            }
+
             string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
             SummaryOutlaySettings settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
 

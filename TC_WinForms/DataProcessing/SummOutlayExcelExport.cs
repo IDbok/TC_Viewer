@@ -1,6 +1,8 @@
-﻿using System;
+﻿using OfficeOpenXml;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ namespace ExcelParsing.DataProcessing
     public class SummOutlayExcelExport
     {
         private DbConnector dbCon = new DbConnector();
+        private ExcelPackage _excelPackage;
         public SummOutlayExcelExport()
         {
 
@@ -41,8 +44,10 @@ namespace ExcelParsing.DataProcessing
                                 MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
-                            var excelExporter = new SummOutlayExcelExporter();
-                            excelExporter.ExportSummOutlayoFile(saveFileDialog.FileName, summaryOutlayDataGridItems);
+                            CreateNewFile(saveFileDialog.FileName);
+
+                            var excelExporter = new SummOutlayExcelExporter(_excelPackage);
+                            excelExporter.ExportSummOutlayoFile(summaryOutlayDataGridItems);
 
                             MessageBox.Show($"Файл успешно сохранен", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
@@ -57,6 +62,26 @@ namespace ExcelParsing.DataProcessing
             catch (Exception ex)
             {
                 MessageBox.Show("Произошла ошибка при сохранении файла: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
+
+        private void CreateNewFile(string filePath)
+        {
+            try
+            {
+                // Создание нового файла Excel (если файл уже существует, он будет перезаписан)
+                var fileInfo = new FileInfo(filePath);
+                if (fileInfo.Exists)
+                {
+                    fileInfo.Delete();
+                }
+                _excelPackage = new ExcelPackage(fileInfo);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Произошла ошибка при создании файла: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
             }
 
         }

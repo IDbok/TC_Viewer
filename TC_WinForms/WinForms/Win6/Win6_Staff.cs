@@ -70,7 +70,11 @@ public partial class Win6_Staff : Form, IViewModeable
         
         var isInOutlay = !(bool)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
         var staffSymbol = dgvMain.Rows[e.RowIndex].Cells[nameof(DisplayedStaff_TC.Symbol)].Value as string;
-        if (staffSymbol == null) return;
+        if (staffSymbol == null)
+        {
+            MessageBox.Show("Чтобы персонал участвовал в подстече затрат у него должно быть обозначение.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
 
         var relatedRows = dgvMain.Rows
             .Cast<DataGridViewRow>().Where(row => !row.IsNewRow && (row.Cells[nameof(DisplayedStaff_TC.Symbol)].Value as string) == staffSymbol);

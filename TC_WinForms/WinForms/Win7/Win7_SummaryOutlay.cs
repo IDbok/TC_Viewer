@@ -25,7 +25,7 @@ using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TcContent.Outlay;
 
-namespace TC_WinForms.WinForms.Win7
+namespace TC_WinForms.WinForms
 {
     public partial class Win7_SummaryOutlay : Form, IPaginationControl
     {
@@ -88,8 +88,11 @@ namespace TC_WinForms.WinForms.Win7
             Enabled = false;
             dgvMain.Visible = false;
 
+            _logger.Information($"Проверка наличия файла SummaryOutlaySettings.json");
             // Проверяем наличие файла summaryoutlaysettings.json и создаем его с настройками по умолчанию, если он отсутствует
             EnsureOutlaySettingsExists();
+            _logger.Information($"Файл SummaryOutlaySettings.json существует, либо успешно создан");
+
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             try
@@ -129,6 +132,7 @@ namespace TC_WinForms.WinForms.Win7
         {
             try
             {
+                _logger.Information($"Начинается загрузка данных затрат из БД");
                 _allOutlays = dbCon.GetObjectList<Outlay>();
                 WriteSummaryOutlayData();
                 paginationService = new PaginationControlService<SummaryOutlayDataGridItem>(_linesPerPage, _allOutlaysList);
@@ -142,6 +146,8 @@ namespace TC_WinForms.WinForms.Win7
         }
         private void WriteSummaryOutlayData()
         {
+            _logger.Information($"Инициализация заполнения списка _allOutlaysList элементами SummaryOutlayDataGridItem");
+
             _allOutlaysList.Clear();
             var groupedOutlays = _allOutlays.GroupBy(x => x.TcId).ToList();
             foreach (var outlay in groupedOutlays)
@@ -151,20 +157,20 @@ namespace TC_WinForms.WinForms.Win7
                 List<SummaryOutlayMachine> listMachStr = new List<SummaryOutlayMachine>();
                 List<SummaryOutlayStaff> listStaffStr = new List<SummaryOutlayStaff>();
 
-                foreach (var machine in outlayData.Where(x => x.Type == OutlayType.Mechine).ToList())
+                foreach (var machineOutlay in outlayData.Where(x => x.Type == OutlayType.Mechine).ToList())
                     listMachStr.Add(new SummaryOutlayMachine
                     {
-                        MachineName = machine.Name,
-                        MachineOutlay = machine.OutlayValue,
-                        MachineId = (int)machine.ChildId,
+                        MachineName = machineOutlay.Name,
+                        MachineOutlay = machineOutlay.OutlayValue,
+                        MachineId = (int)machineOutlay.ChildId,
                     });
 
-                foreach (var staff in outlayData.Where(x => x.Type == OutlayType.Staff).ToList())
+                foreach (var staffOutlay in outlayData.Where(x => x.Type == OutlayType.Staff).ToList())
                     listStaffStr.Add(new SummaryOutlayStaff
                     {
-                        StaffName = staff.Name.Split(" ")[0],
-                        StaffOutlay = staff.OutlayValue,
-                        StaffId = (int)staff.ChildId,
+                        StaffName = staffOutlay.Name.Split(" ")[0],
+                        StaffOutlay = staffOutlay.OutlayValue,
+                        StaffId = (int)staffOutlay.ChildId,
                     });
 
                 _allOutlaysList.Add(new SummaryOutlayDataGridItem
@@ -177,36 +183,52 @@ namespace TC_WinForms.WinForms.Win7
                 });
             }
 
-            using (MyDbContext context = new MyDbContext())
+            _logger.Information($"Основные данные списка _allOutlaysList заполнены");
+
+            try
             {
-                _allOutlaysList.ForEach
-                    (
-                        x =>
-                        {
-                            var techCard = context.TechnologicalCards.Where(t => t.Id == x.TcId).FirstOrDefault();
-                            if (techCard != null)
+                _logger.Information($"Инициализация контекста для заполнения оставшихся данных _allOutlaysList");
+
+                using (MyDbContext context = new MyDbContext())
+                {
+                    _allOutlaysList.ForEach
+                        (
+                            x =>
                             {
-                                x.TcName = techCard.Article;
-                                x.TechProcess = techCard.TechnologicalProcessName;
-                                x.Parameter = techCard.Parameter;
-                                x.UnitType = techCard.OutlayUnit;
-                                x.listMachStr.ForEach(
-                                    m =>
-                                    {
-                                         m.MachineCost = context.Machines.Where(mc => mc.Id == m.MachineId).Select(s => s.Price).Cast<double?>().FirstOrDefault();
-                                    });
-                                x.listStaffStr.ForEach(
-                                    m =>
-                                    {
-                                        m.StaffCost = context.Staffs.Where(mc => mc.Id == m.StaffId).Select(s => s.Price).Cast<double?>().FirstOrDefault();
-                                    });
-                                x.SummaryOutlayCost = CalculateSummaryOutlayCost(x);
+                                var techCard = context.TechnologicalCards.Where(t => t.Id == x.TcId).FirstOrDefault();
+                                if (techCard != null)
+                                {
+                                    x.TcName = techCard.Article;
+                                    x.TechProcess = techCard.TechnologicalProcessName;
+                                    x.Parameter = techCard.Parameter;
+                                    x.UnitType = techCard.OutlayUnit;
+                                    x.listMachStr.ForEach(
+                                        m =>
+                                        {
+                                            m.MachineCost = context.Machines.Where(mc => mc.Id == m.MachineId).Select(s => s.Price).Cast<double?>().FirstOrDefault();
+                                        });
+                                    x.listStaffStr.ForEach(
+                                        m =>
+                                        {
+                                            m.StaffCost = context.Staffs.Where(mc => mc.Id == m.StaffId).Select(s => s.Price).Cast<double?>().FirstOrDefault();
+                                        });
+                                    x.SummaryOutlayCost = CalculateSummaryOutlayCost(x);
+                                }
                             }
-                        }
-                    );
+                        );
+                }
+
+                _logger.Information($"Список _allOutlaysList заполнен записями {_allOutlaysList.Count}");
             }
+            catch (Exception ex)
+            {
+                _logger.Error($"Ошибка при заполнении _allOutlaysList:\n {ex.Message}");
+                MessageBox.Show($"Ошибка запроса данных:\n {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            
         }
-        static void EnsureOutlaySettingsExists()
+        private static void EnsureOutlaySettingsExists()
         {
             if (!File.Exists("SummaryOutlaySettings.json"))
             {
@@ -231,13 +253,24 @@ namespace TC_WinForms.WinForms.Win7
 
         private void FilterObjects()
         {
-            if (!_isDataLoaded) { return; }
+            _logger.Information($"Инициализован процесс фильтрации информации на странице");
+
+            if (!_isDataLoaded) 
+            {
+                _logger.Information($"Данные не загружены, фильтрация страницы отменена");
+                return; 
+            }
 
             try
             {
                 var filteredList = ApplyFilters();
+                _logger.Information($"Применены фильтры, получен список из {filteredList.Count} элементов");
+
                 paginationService.SetAllObjectList(filteredList);
+                _logger.Information($"Задан список всех объектов для сервиса пагинации");
+
                 UpdateDisplayedData();
+
             }
             catch (Exception ex)
             {
@@ -261,21 +294,27 @@ namespace TC_WinForms.WinForms.Win7
 
         public void GoToNextPage()
         {
+            _logger.Information($"Попытка перехода на следующую страницу");
             paginationService.GoToNextPage();
             UpdateDisplayedData();
         }
 
         public void GoToPreviousPage()
         {
+            _logger.Information($"Попытка перехода на предыдущую страницу");
             paginationService.GoToPreviousPage();
             UpdateDisplayedData();
         }
 
         private void UpdateDisplayedData()
         {
+            _logger.Information($"Инициализировано обновление выводимых данных таблицы");
+
             var pageData = paginationService.GetPageData();
             if (pageData != null)
             {
+                _logger.Information($"Получена информация о данных на странице, происходит обновление. На старнице будет отображено {pageData.Count} записей");
+
                 _displayedList = pageData;
                 SetupDGV();
                 dgvMain.ResizeRows(_minRowHeight);
@@ -298,17 +337,26 @@ namespace TC_WinForms.WinForms.Win7
         {
             if (dgvMain.Columns[e.ColumnIndex].Name.Contains("Machine"))
             {
+                _logger.Information($"Инициализовано событие форматирования ячеек столбца механизма");
                 var machineId = Convert.ToInt32(dgvMain.Columns[e.ColumnIndex].Name.Split(' ')[1]);
-                var currentMachine = _allOutlaysList.Where(s => s.listMachStr.Any(m => m.MachineId == machineId)).SelectMany(s => s.listMachStr.Where(s => s.MachineId == machineId).Select(s => s)).FirstOrDefault();
+                var currentMachine = _allOutlaysList.Where(s => s.listMachStr.Any(m => m.MachineId == machineId))//Берем любой список, где участвует нужный механизм
+                                                    .SelectMany(
+                                                                s => s.listMachStr
+                                                                        .Where(s => s.MachineId == machineId)
+                                                                )//берем из списка объект с механизмом, у которого ID совпадает с machineId для просмотра его цены
+                                                    .FirstOrDefault();
                 if (currentMachine != null && (currentMachine.MachineCost == null || currentMachine.MachineCost == 0))
                 {
                     dgvMain.Columns[e.ColumnIndex].DefaultCellStyle.BackColor = Color.Yellow;
+                    _logger.Information($"У объекта {currentMachine.MachineName} отсутсвует цена. Колонка {e.ColumnIndex} таблицы отмечена цветом");
                 }
             }
         }
         private void btnShowMachine_Click(object sender, EventArgs e)
         {
             isMachineViewMode = !isMachineViewMode;
+
+            _logger.Information($"Видимость колонок механизмов установлена: {isMachineViewMode}");
 
             btnShowMachine.Text = isMachineViewMode ?
                  "Скрыть механизмы" : "Показать механизмы";
@@ -336,12 +384,16 @@ namespace TC_WinForms.WinForms.Win7
         }
         private async void btnPrint_Click(object sender, EventArgs e)
         {
+            _logger.Information($"Инициализована печать сводной таблицы");
+
             var tcExporter = new SummOutlayExcelExport();
 
             await tcExporter.SaveSummOutlaytoExcelFile(_allOutlaysList);
         }
         private void btnSettings_Click(object sender, EventArgs e)
         {
+            _logger.Information($"Вызвано открытие формы Win7_OutlaySettings");
+
             var openedForm = CheckOpenFormService.FindOpenedForm<Win7_OutlaySettings>();
             if (openedForm != null)
             {
@@ -384,6 +436,8 @@ namespace TC_WinForms.WinForms.Win7
         #region DgvSettings
         void SetDGVColumnsSettings()
         {
+            _logger.Information($"Настойка отображения таблицы");
+
             // Автоподбор ширины столбцов
             dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -425,6 +479,8 @@ namespace TC_WinForms.WinForms.Win7
         }
         private void InitializeDataGrid()
         {
+            _logger.Information($"Проиходит инициализация таблицы dgvMain");
+
             dgvMain.Rows.Clear();
 
             while (dgvMain.Columns.Count > 0)
@@ -445,6 +501,7 @@ namespace TC_WinForms.WinForms.Win7
 
                 dgvMain.Columns.Add($"Staff{staffSymbol}", $"{staffSymbol}, ч.");
             }
+            _logger.Information($"Добавлены столбцы персонала");
 
             dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.ComponentOutlay), "Материалы, Руб. без НДС");
 
@@ -455,6 +512,7 @@ namespace TC_WinForms.WinForms.Win7
 
                 dgvMain.Columns.Add($"Machine {machine.ChildId}", $"{machine.Name}, ч.");
             }
+            _logger.Information($"Добавлены столбцы механизмов");
 
             dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.SummaryOutlay), "Общее время выполнения работ, ч");
             dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.UnitType), "Составляющие затрат\n(ед. Измерения)");
@@ -465,6 +523,8 @@ namespace TC_WinForms.WinForms.Win7
         }
         private void AddRowsToGrid()
         {
+            _logger.Information($"Иницирован процесс добавления строк с таблицу");
+
             int rowCount = 0;
 
             foreach (var summaryOutlayDataGridItem in _displayedList)
@@ -501,6 +561,7 @@ namespace TC_WinForms.WinForms.Win7
                 dgvMain.Rows[rowCount].Cells["SummaryOutlayCost"].Value = CalculateSummaryOutlayCost(summaryOutlayDataGridItem).ToString("0.00");
 
                 rowCount++;
+                _logger.Information($"Добавлена строка {rowCount}, она содержит информацию о ТК: {summaryOutlayDataGridItem.TcName}");
             }
 
 
@@ -508,6 +569,8 @@ namespace TC_WinForms.WinForms.Win7
 
         private double CalculateSummaryOutlayCost(SummaryOutlayDataGridItem summaryOutlayDataGridItem)
         {
+            _logger.Information($"Иницирован расчет сводных затрат ТК {summaryOutlayDataGridItem.TcName}");
+
             double summaryOutlay = 0;
             int staffCount = 0;
             string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
