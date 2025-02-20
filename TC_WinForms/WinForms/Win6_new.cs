@@ -889,8 +889,21 @@ namespace TC_WinForms.WinForms
 			LogUserAction("Печать технологической карты");
 			try
 			{
-				var tcExporter = new DataExcelExport();
-				await tcExporter.SaveTCtoExcelFile(_tc.Article, _tc.Id);
+				using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+				{
+                    // Настройка диалога сохранения файла
+                    saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+                    saveFileDialog.FilterIndex = 1;
+                    saveFileDialog.RestoreDirectory = true;
+
+                    saveFileDialog.FileName = _tc.Article;
+
+					if (saveFileDialog.ShowDialog() == DialogResult.OK)
+					{
+                        var tcExporter = new DataExcelExport();
+                        await tcExporter.SaveTCtoExcelFile(saveFileDialog.FileName, _tcId);
+                    }
+                }
 
 				_logger.Information("Печать успешно завершена для TcId={TcId}", _tcId);
 			}

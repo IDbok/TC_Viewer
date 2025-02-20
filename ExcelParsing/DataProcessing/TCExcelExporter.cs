@@ -86,51 +86,45 @@ namespace ExcelParsing.DataProcessing
             }
         }
 
-        public void ExportTCtoFile(string fileFolderPath, TechnologicalCard tc, List<Outlay> outlays = null)
+        public static void ExportTCtoFile(ExcelPackage _excelPackage, TechnologicalCard tc)
         {
+            var tcExporter = new TCExcelExporter();
             string article = tc.Article;
-            string filePath = fileFolderPath;// + article + ".xlsx";
             var machine_TCs = tc.Machine_TCs.OrderBy(x => x.Order).ToList();
 
-            CompliteColumnsWidthWithMachines(machine_TCs.Count());
-
-            //CreateNewFile(filePath);
+            tcExporter.CompliteColumnsWidthWithMachines(machine_TCs.Count());
 
             // todo: add header of the table
             var sheet = _excelPackage.Workbook.Worksheets[article] ?? _excelPackage.Workbook.Worksheets.Add(article);
 
-            SetColumnWigth(sheet);
+            tcExporter.SetColumnWigth(sheet);
 
+            var lastRow = tcExporter.AddStaffDataToExcel(tc.Staff_TCs.OrderBy(x => x.Order).ToList(), sheet, 3);
 
-
-            var lastRow = AddStaffDataToExcel(tc.Staff_TCs.OrderBy(x => x.Order).ToList(), sheet, 3);
-
-            lastRow = AddComponentDataToExcel(tc.Component_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
+            lastRow = tcExporter.AddComponentDataToExcel(tc.Component_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
 
             var headerMachineRow = lastRow;
-            lastRow = AddMachineDataToExcel(machine_TCs, sheet, lastRow + 1);
+            lastRow = tcExporter.AddMachineDataToExcel(machine_TCs, sheet, lastRow + 1);
 
-            lastRow = AddProtectionDataToExcel(tc.Protection_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
+            lastRow = tcExporter.AddProtectionDataToExcel(tc.Protection_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
 
-            lastRow = AddToolDataToExcel(tc.Tool_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
+            lastRow = tcExporter.AddToolDataToExcel(tc.Tool_TCs.OrderBy(x => x.Order).ToList(), sheet, lastRow + 1);
 
             var headerWorkStepsRow = lastRow;
-            lastRow = AddTechOperationDataToExcel(tc.TechOperationWorks.OrderBy(x => x.Order).ToList(), machine_TCs, sheet, lastRow + 1);
+            lastRow = tcExporter.AddTechOperationDataToExcel(tc.TechOperationWorks.OrderBy(x => x.Order).ToList(), machine_TCs, sheet, lastRow + 1);
 
-            //if(outlays != null)
-            //    lastRow = AddOutlayDataToExel(sheet, lastRow + 1, outlays);
 
             // Скрытие столбцов механизмов в Таблице хода работ
-            HideMachineColumns(sheet);
+            tcExporter.HideMachineColumns(sheet);
 
             // Добавление схемы исполнения на уровне с таблицей механизмы
-            AddExecutionSchemeToExcel(sheet, tc.ExecutionSchemeImageId, headerMachineRow , structHeadersColumns.Values.Max(), headerWorkStepsRow - 1);
+            tcExporter.AddExecutionSchemeToExcel(sheet, tc.ExecutionSchemeImageId, headerMachineRow , tcExporter.structHeadersColumns.Values.Max(), headerWorkStepsRow - 1);
 
             // Установка заголовка (шапки) ТК
-            SetTCName(sheet, tc);
+            tcExporter.SetTCName(sheet, tc);
 
             // Установка параметров для вывода на печать
-            SetPrinterSettings(sheet);
+            tcExporter.SetPrinterSettings(sheet);
 
             //Save();
             //Close();

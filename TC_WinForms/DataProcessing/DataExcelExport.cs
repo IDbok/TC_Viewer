@@ -6,70 +6,49 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TcDbConnector.Repositories;
 
 namespace TC_WinForms.DataProcessing
 {
     public class DataExcelExport
     {
         private DbConnector dbCon = new DbConnector();
-        private ExcelPackage _excelPackage;
 
-        public DataExcelExport()
+        public DataExcelExport() 
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
-            _excelPackage = new ExcelPackage();
         }
 
-        public async Task SaveTCtoExcelFile(string tcArticle, int tcId)
+        public async Task SaveTCtoExcelFile(string filePath, int tcId)
         {
             try
             {
-                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+
+                TechnologicalCardRepository tcRepository = new TechnologicalCardRepository();
+                var tc = await tcRepository.GetTechnologicalCardToExportAsync(tcId);
+                var outlayList = await tcRepository.GetTCOutlayDataForPrint(tcId);
+                var dtwList = await tcRepository.GetDTWDataForPrint(tcId);
+
+                if (tc == null)
                 {
-                    // Настройка диалога сохранения файла
-                    saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
-                    saveFileDialog.FilterIndex = 1;
-                    saveFileDialog.RestoreDirectory = true;
-
-                    saveFileDialog.FileName = tcArticle;
-
-                    // Показ диалога пользователю и проверка, что он нажал кнопку "Сохранить"
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        try
-                        {
-                            var tc = await dbCon.GetTechnologicalCardToExportAsync(tcId);
-                            var outlays = await dbCon.GetOutlayListToExportAsync(tcId);
-
-                            if (tc == null)
-                            {
-                                MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return;
-                            }
-
-                            CreateNewFile(saveFileDialog.FileName);
-
-                            var tcExporter = new TCExcelExporter(_excelPackage);
-                            tcExporter.ExportTCtoFile(saveFileDialog.FileName, tc, outlays);
-
-                            var outlayExporter = new OutlayExcelExporter(_excelPackage);
-                            outlayExporter.ExportOutlatytoFile(saveFileDialog.FileName, tcArticle, outlays);
-
-                            var diagramExporter = new DiagramExcelExporter(_excelPackage);
-                            await diagramExporter.ExportDiadramToExel(tc.Id, saveFileDialog.FileName);
-
-                            Save();
-                            Close();
-
-                            MessageBox.Show($"Файл успешно сохранен", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Произошла ошибка при загрузке данных: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-
-                    }
+                    MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excelPackage = CreateNewExcelPackage(filePath);
+
+                TCExcelExporter.ExportTCtoFile(excelPackage, tc);
+                OutlayExcelExporter.ExportOutlatytoFile(excelPackage, outlayList);
+                DiagramExcelExporter.ExportDiadramToExel(excelPackage, tc, dtwList);
+
+                excelPackage.Save();
+                excelPackage.Dispose();
+
+                MessageBox.Show($"Файл успешно сохранен", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Нет доступа к директории.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
@@ -77,7 +56,9 @@ namespace TC_WinForms.DataProcessing
             }
 
         }
-        public void CreateNewFile(string filePath)
+
+
+        private ExcelPackage CreateNewExcelPackage(string filePath)
         {
             // Создание нового файла Excel (если файл уже существует, он будет перезаписан)
             var fileInfo = new FileInfo(filePath);
@@ -85,17 +66,7 @@ namespace TC_WinForms.DataProcessing
             {
                 fileInfo.Delete();
             }
-            _excelPackage = new ExcelPackage(fileInfo);
-        }
-        public void Save()
-        {
-            // Сохраняет изменения в пакете Excel
-            _excelPackage.Save();
-        }
-        public void Close()
-        {
-            // Закрывает пакет и освобождает все связанные ресурсы
-            _excelPackage.Dispose();
+            return new ExcelPackage(fileInfo);
         }
     }
 }

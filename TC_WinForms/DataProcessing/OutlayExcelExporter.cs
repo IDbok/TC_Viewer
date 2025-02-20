@@ -21,46 +21,41 @@ namespace TC_WinForms.DataProcessing
 
         private Dictionary<int, double> _columnWidths = new Dictionary<int, double>
             {
-                { 1, 3.45 },
-                { 2, 11 },
-                { 3, 4.27 },
-                { 4, 19.27 },
-                { 5, 16.27 },
-                { 6, 6.27 },
-                { 7, 6.82 },
+                { 1, 3.45 },    //Номер записи
+                { 2, 11 },      //Наименование
+                { 5, 16.27 },   //Ед. измерения
+                { 6, 6.27 },    //Итого
             };
 
         public OutlayExcelExporter()
         {
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.Commercial;
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
             _excelPackage = new ExcelPackage();
             _exporter = new ExcelExporter();
         }
 
         public OutlayExcelExporter(ExcelPackage excelPackage)
         {
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.Commercial;
             _excelPackage = excelPackage;
             _exporter = new ExcelExporter();
         }
 
-        public void ExportOutlatytoFile(string fileFolderPath, string tcArticle, List<Outlay> outlays)
+        public static void ExportOutlatytoFile(ExcelPackage excelPackage, List<Outlay> outlays)
         {
-            string article = tcArticle + " Таблица затрат";
-            string filePath = fileFolderPath;// + article + ".xlsx";
+            var outlayExporter = new OutlayExcelExporter();
+            string article = "Таблица затрат";
             // todo: add header of the table
-            var sheet = _excelPackage.Workbook.Worksheets[article] ?? _excelPackage.Workbook.Worksheets.Add(article);
+            var sheet = excelPackage.Workbook.Worksheets[article] ?? excelPackage.Workbook.Worksheets.Add(article);
 
-            var lastRow = 2;
-
-            lastRow = AddOutlayDataToExel(sheet, lastRow, outlays);
+            outlayExporter.AddOutlayDataToExel(sheet, outlays);
 
             // Установка параметров для вывода на печать
-            SetPrinterSettings(sheet);
+            outlayExporter.SetPrinterSettings(sheet);
         }
 
-        public int AddOutlayDataToExel(ExcelWorksheet sheet, int headRow, List<Outlay> outlays)
+        public void AddOutlayDataToExel(ExcelWorksheet sheet, List<Outlay> outlays)
         {
+            int headRow = 2;
             Dictionary<string, int> headersColumns =
                 new Dictionary<string, int>
                 {
@@ -104,7 +99,6 @@ namespace TC_WinForms.DataProcessing
             row.Height = 33;
             // Применяем стили для всех ячеек
             _exporter.ApplyCellFormatting(sheet.Cells[headRow - 1, columnNums[0], currentRow - 1, columnNums[columnNums.Length - 1] - 1]);
-            return currentRow;
         }
 
         private void SetPrinterSettings(ExcelWorksheet sheet)
@@ -131,10 +125,5 @@ namespace TC_WinForms.DataProcessing
             //// Повторение столбцов на каждой странице печати
             //printerSettings.RepeatColumns = sheet.Cells["A:A"];
         }
-        //public void Save()
-        //{
-        //    // Сохраняет изменения в пакете Excel
-        //    _excelPackage.Save();
-        //}
     }
 }

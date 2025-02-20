@@ -67,46 +67,41 @@ namespace TC_WinForms.DataProcessing
             _technologicalCard = new TechnologicalCard();
         }
 
-        public async Task ExportDiadramToExel(int tcId, string fileFolderPath)
+        public static void ExportDiadramToExel(ExcelPackage excelPackage, TechnologicalCard technologicalCard, List<DiagamToWork> diagamToWorks)
         {
-            string filePath = fileFolderPath;
+            var diagramExporter = new DiagramExcelExporter();
 
-            //CreateNewFile(filePath);
-            await LoadDataAsync(tcId);
+            diagramExporter._diagramToWorks = diagamToWorks;
+            diagramExporter._technologicalCard = technologicalCard;
 
             //Группируем диаграммы по индексу параллельности
-            var dTOWGroups = _diagramToWorks
+            var dTOWGroups = diagamToWorks
                     .GroupBy(g => g.ParallelIndex != null ? g.GetParallelIndex() : g.Order.ToString())
                     .ToList();
 
             // Группируем по Order
             dTOWGroups = dTOWGroups.OrderBy(o => o.FirstOrDefault()!.Order).ToList();
-            var article = _technologicalCard.Article + " Блок-схема";
+            var sheetName = " Блок-схема";
 
             //Создаем лист в Excel и настраиваем область печати
-            var sheet = _excelPackage.Workbook.Worksheets[article] ?? _excelPackage.Workbook.Worksheets.Add(article);
+            var sheet = excelPackage.Workbook.Worksheets[sheetName] ?? excelPackage.Workbook.Worksheets.Add(sheetName);
             sheet.PrinterSettings.Scale = 80;
             sheet.PrinterSettings.Orientation = eOrientation.Landscape;
             sheet.PrinterSettings.RightMargin = 0.3M / 2.54M; //выделение места для объявления столбца с номером листа печати
 
             var currentRow = 2; //стартовая строчка расположения диаграм
-            _pageCount = 1;//Присваиваем значение счетчику старниц, нумерация с 1 страницы
+            diagramExporter._pageCount = 1;//Присваиваем значение счетчику старниц, нумерация с 1 страницы
 
             foreach (var dTOWGroup in dTOWGroups)
             {
                 bool isNull = dTOWGroup.Key == null;
 
                 if (!isNull)
-                    currentRow = AddTODiadramsToExcel(dTOWGroup.OrderBy(x => x.Order).ToList(), currentRow, sheet);
+                    currentRow = diagramExporter.AddTODiadramsToExcel(dTOWGroup.OrderBy(x => x.Order).ToList(), currentRow, sheet);
                 else
-                    currentRow = AddTODiadramsToExcel(dTOWGroup.ToList(), currentRow, sheet);
+                    currentRow = diagramExporter.AddTODiadramsToExcel(dTOWGroup.ToList(), currentRow, sheet);
                     
             }
-
-            //Save();
-            //Close();
-
-            //MessageBox.Show("Блок схема сохранена");
         }
         public async Task LoadDataAsync(int tcId)
         {
