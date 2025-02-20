@@ -89,13 +89,13 @@ namespace ExcelParsing.DataProcessing
         public static void ExportTCtoFile(ExcelPackage _excelPackage, TechnologicalCard tc)
         {
             var tcExporter = new TCExcelExporter();
-            string article = tc.Article;
+            string sheetName = tc.Article;
             var machine_TCs = tc.Machine_TCs.OrderBy(x => x.Order).ToList();
 
             tcExporter.CompliteColumnsWidthWithMachines(machine_TCs.Count());
 
             // todo: add header of the table
-            var sheet = _excelPackage.Workbook.Worksheets[article] ?? _excelPackage.Workbook.Worksheets.Add(article);
+            var sheet = _excelPackage.Workbook.Worksheets[sheetName] ?? _excelPackage.Workbook.Worksheets.Add(sheetName);
 
             tcExporter.SetColumnWigth(sheet);
 

@@ -43,9 +43,9 @@ namespace TC_WinForms.DataProcessing
         public static void ExportOutlatytoFile(ExcelPackage excelPackage, List<Outlay> outlays)
         {
             var outlayExporter = new OutlayExcelExporter();
-            string article = "Таблица затрат";
+            string sheetName = "Таблица затрат";
             // todo: add header of the table
-            var sheet = excelPackage.Workbook.Worksheets[article] ?? excelPackage.Workbook.Worksheets.Add(article);
+            var sheet = excelPackage.Workbook.Worksheets[sheetName] ?? excelPackage.Workbook.Worksheets.Add(sheetName);
 
             outlayExporter.AddOutlayDataToExel(sheet, outlays);
 
