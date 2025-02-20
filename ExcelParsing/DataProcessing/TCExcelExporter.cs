@@ -2,6 +2,7 @@
 using OfficeOpenXml.Style;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using TcDbConnector;
@@ -1118,9 +1119,9 @@ namespace ExcelParsing.DataProcessing
             {
                 sheet.Cells[currentRow, columnNums[0]].Value = order;
                 sheet.Cells[currentRow, columnNums[1]].Value = outlay.Name == null
-                                                               ? GetDescription(outlay.Type)
-                                                               : $"{GetDescription(outlay.Type)} ({outlay.Name})";
-                sheet.Cells[currentRow, columnNums[2]].Value = GetDescription(outlay.OutlayUnitType);
+                                                               ? outlay.Type.GetDescription()
+                                                               : $"{outlay.Type.GetDescription()} ({outlay.Name})";
+                sheet.Cells[currentRow, columnNums[2]].Value = outlay.OutlayUnitType.GetDescription();
                 sheet.Cells[currentRow, columnNums[3]].Value = outlay.OutlayValue;
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
@@ -1143,19 +1144,6 @@ namespace ExcelParsing.DataProcessing
             return currentRow;
         }
 
-        public string GetDescription(Enum value)
-        {
-            FieldInfo fi = value.GetType().GetField(value.ToString());
-            DescriptionAttribute[] attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-            if (attributes != null && attributes.Length > 0)
-            {
-                return attributes[0].Description;
-            }
-            else
-            {
-                return value.ToString();
-            }
-        }
         public void Save()
         {
             // Сохраняет изменения в пакете Excel

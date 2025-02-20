@@ -30,6 +30,7 @@ namespace TC_WinForms.WinForms
 		private void InitializeComponent()
 		{
 			label1 = new Label();
+            labelUnit = new Label();
 			txtArticle = new TextBox();
 			label2 = new Label();
 			label3 = new Label();
@@ -48,6 +49,7 @@ namespace TC_WinForms.WinForms
 			label10 = new Label();
 			chbxIsCompleted = new CheckBox();
 			cbxType = new ComboBox();
+            cbxUnit = new ComboBox();
 			cbxNetworkVoltage = new ComboBox();
 			btnSaveAndOpen = new Button();
 			btnSave = new Button();
@@ -71,6 +73,17 @@ namespace TC_WinForms.WinForms
 			label1.TabIndex = 0;
 			label1.Text = "Артикул";
 			// 
+            // labelUnit
+            // 
+            labelUnit.AutoSize = true;
+            labelUnit.Font = new Font("Segoe UI", 9F);
+            labelUnit.Location = new Point(26, 572);
+            labelUnit.Margin = new Padding(2, 0, 2, 0);
+            labelUnit.Name = "labelUnit";
+            labelUnit.Size = new Size(129, 30);
+            labelUnit.TabIndex = 0;
+            labelUnit.Text = "Составляющие затрат\n\t(ед. измерения)";
+            // 
 			// txtArticle
 			// 
 			txtArticle.Location = new Point(241, 59);
@@ -230,6 +243,15 @@ namespace TC_WinForms.WinForms
 			cbxType.TabIndex = 3;
 			cbxType.SelectedIndexChanged += comboBoxType_SelectedIndexChanged;
 			// 
+            // cbxUnit
+            // 
+            cbxUnit.FormattingEnabled = true;
+            cbxUnit.Location = new Point(241, 569);
+            cbxUnit.Margin = new Padding(2, 2, 2, 2);
+            cbxUnit.Name = "cbxUnit";
+            cbxUnit.Size = new Size(225, 23);
+            cbxUnit.TabIndex = 20;
+            // 
 			// cbxNetworkVoltage
 			// 
 			cbxNetworkVoltage.FormattingEnabled = true;
@@ -241,7 +263,7 @@ namespace TC_WinForms.WinForms
 			// 
 			// btnSaveAndOpen
 			// 
-			btnSaveAndOpen.Location = new Point(26, 575);
+			btnSaveAndOpen.Location = new Point(26, 645);
 			btnSaveAndOpen.Name = "btnSaveAndOpen";
 			btnSaveAndOpen.Size = new Size(191, 72);
 			btnSaveAndOpen.TabIndex = 0;
@@ -251,7 +273,7 @@ namespace TC_WinForms.WinForms
 			// 
 			// btnSave
 			// 
-			btnSave.Location = new Point(225, 575);
+			btnSave.Location = new Point(225, 645);
 			btnSave.Name = "btnSave";
 			btnSave.Size = new Size(191, 72);
 			btnSave.TabIndex = 13;
@@ -261,7 +283,7 @@ namespace TC_WinForms.WinForms
 			// 
 			// btnExportExcel
 			// 
-			btnExportExcel.Location = new Point(664, 575);
+			btnExportExcel.Location = new Point(664, 645);
 			btnExportExcel.Name = "btnExportExcel";
 			btnExportExcel.Size = new Size(142, 72);
 			btnExportExcel.TabIndex = 15;
@@ -308,7 +330,7 @@ namespace TC_WinForms.WinForms
 			// 
 			// btnClone
 			// 
-			btnClone.Location = new Point(461, 575);
+			btnClone.Location = new Point(461, 645);
 			btnClone.Name = "btnClone";
 			btnClone.Size = new Size(191, 72);
 			btnClone.TabIndex = 14;
@@ -335,6 +357,7 @@ namespace TC_WinForms.WinForms
 			panel1.Controls.Add(btnSaveAndOpen);
 			panel1.Controls.Add(label5);
 			panel1.Controls.Add(cbxNetworkVoltage);
+            panel1.Controls.Add(cbxUnit);
 			panel1.Controls.Add(txtTechProcess);
 			panel1.Controls.Add(cbxType);
 			panel1.Controls.Add(label6);
@@ -346,6 +369,7 @@ namespace TC_WinForms.WinForms
 			panel1.Controls.Add(txtFinalProduct);
 			panel1.Controls.Add(label9);
 			panel1.Controls.Add(label8);
+            panel1.Controls.Add(labelUnit);
 			panel1.Controls.Add(txtApplicability);
 			panel1.Dock = DockStyle.Fill;
 			panel1.Location = new Point(0, 0);
@@ -372,6 +396,7 @@ namespace TC_WinForms.WinForms
 		#endregion
 
 		private Label label1;
+        private Label labelUnit;
         private TextBox txtArticle;
         private Label label2;
         private Label label3;
@@ -390,6 +415,7 @@ namespace TC_WinForms.WinForms
         private Label label10;
         private CheckBox chbxIsCompleted;
         private ComboBox cbxType;
+        private ComboBox cbxUnit;
         private ComboBox cbxNetworkVoltage;
         private Button btnSaveAndOpen;
         private Button button2;

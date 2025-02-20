@@ -32,6 +32,21 @@ namespace TcModels.Models
             Completed
         }
 
+        public enum TechnologicalCardUnit
+        {
+            [Description("Шт.")]
+            Pieces,
+
+            [Description("100 м")]
+            OneHundredM,
+
+            [Description("500 м")]
+            FiveHundredM,
+
+            [Description("1 км.")]
+            Kilometer,
+        }
+
         public static Dictionary<string, string> GetPropertiesNames()
         {
             return new Dictionary<string, string>
@@ -86,7 +101,7 @@ namespace TcModels.Models
         public string? Name { get; set; }
         public string? Description { get; set; }
         public string Version { get; set; } = "0.0.0.0";
-
+        public TechnologicalCardUnit OutlayUnit { get; set; } = TechnologicalCardUnit.Pieces;
         public string Type { get; set; } // Тип карты
         public float NetworkVoltage { get; set; } // Сеть, кВ
         public string? TechnologicalProcessType { get; set; } // Тип тех. процесса
@@ -211,7 +226,7 @@ namespace TcModels.Models
                 Data = sourceCard.Data;
                 TechnologicalProcess = sourceCard.TechnologicalProcess;
                 Status = sourceCard.Status;
-
+                OutlayUnit = sourceCard.OutlayUnit;
                 ExecutionSchemeImageId = sourceCard.ExecutionSchemeImageId;
             }
         }

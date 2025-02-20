@@ -4,9 +4,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TcModels.Models.Interfaces;
 namespace TcModels.Models.TcContent
 {
-    public class Outlay
+    public class Outlay: IIdentifiable
     {
         public enum OutlayType
         {
