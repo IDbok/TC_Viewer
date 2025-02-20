@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TcDbConnector;
 
@@ -11,9 +12,11 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250206140244_OutlayTable")]
+    partial class OutlayTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -272,9 +275,6 @@ namespace TcDbConnector.Migrations
                     b.Property<string>("Formula")
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("IsInOutlay")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
 
@@ -359,9 +359,6 @@ namespace TcDbConnector.Migrations
 
                     b.Property<int>("ChildId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsInOutlay")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<int>("Order")
                         .ValueGeneratedOnAdd()
@@ -869,6 +866,9 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("double");
 
                     b.Property<int>("TcId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChildId")
                         .HasColumnType("int");
 
                     b.Property<int>("Type")

@@ -522,6 +522,9 @@ namespace TC_WinForms.WinForms
                 await AfterSave(_editingObj);
             }
 
+            if (objectBlockService != null)
+                objectBlockService.CleanBlockData();
+
             this.Close();
         }
 
