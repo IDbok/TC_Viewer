@@ -547,18 +547,22 @@ namespace TC_WinForms.WinForms.Work
 
                     this.BeginInvoke(new MethodInvoker(() =>//используется для обхода рекурсивного вызова перемещения строк
                     {
-                        DGVProcessing.ReorderRows(dataGridViewTO.Rows[e.RowIndex], newOrder, dataGridViewTO);
-                    
+                        var currentOrder = techOperationWork.Order;
+						if (currentOrder == newOrder)
+							return;
 
+						DGVProcessing.ReorderRows(dataGridViewTO.Rows[e.RowIndex], newOrder, dataGridViewTO);
+                    
                         foreach (DataGridViewRow dataGridViewRow in dataGridViewTO.Rows)
                         {
                             // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
                             var techOperationWorkRow = (TechOperationWork)dataGridViewRow.Cells[0].Value;
                             techOperationWorkRow.Order = dataGridViewRow.Index + 1; // Обновляем свойство Order
                         }
-                    }));
 
-                    TechOperationForm.UpdateGrid();
+						TechOperationForm.UpdateGrid();
+					}));
+
                 }
             }
         }

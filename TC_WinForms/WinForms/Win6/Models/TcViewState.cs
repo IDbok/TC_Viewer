@@ -23,6 +23,7 @@ namespace TC_WinForms.WinForms.Win6.Models
 			UserRole = userRole;
 			_parentForm = parentForm;
 		}
+		public Guid FormGuid => _parentForm.FormGuid;
 		public bool IsViewMode
 		{
 			get => _isViewMode;

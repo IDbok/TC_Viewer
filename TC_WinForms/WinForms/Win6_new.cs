@@ -23,6 +23,7 @@ namespace TC_WinForms.WinForms
 	{
 		private readonly ILogger _logger;
 		private TcViewState tcViewState;
+		public readonly Guid FormGuid; // создан для проверки работы с одинаковым контекстом
 		private ConcurrencyBlockService<TechnologicalCard> concurrencyBlockServise;
 		//private static bool _isViewMode = true;
 		//private static bool _isCommentViewMode = false;
@@ -69,6 +70,8 @@ namespace TC_WinForms.WinForms
 
 		public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
 		{
+			FormGuid = Guid.NewGuid();
+
 			_tcId = tcId;
 			_accessLevel = role;
 

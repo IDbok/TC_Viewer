@@ -6,6 +6,8 @@ namespace TC_WinForms.WinForms.Win6.Models;
 public static class TcCopyData
 {
 	private static int? _copyTcId = null;
+	private static Guid? _copyFormGuid = null;
+
 	/// <summary>
 	/// Список скопированных строк целиком (если пользователь выделил целиком).
 	/// </summary>
@@ -23,7 +25,7 @@ public static class TcCopyData
 	/// <summary>
 	/// Может быть флаг или другой признак, что копируем именно строки/столбцы/ячейки и т.д.
 	/// </summary>
-	public static CopyScopeEnum CopyScope { get; private set; }
+	public static CopyScopeEnum CopyScope { get; private set; } = CopyScopeEnum.None;
 
 	public static void Clear()
 	{
@@ -31,7 +33,7 @@ public static class TcCopyData
 
 		Clipboard.Clear();
 
-		CopyScope = CopyScopeEnum.Text;
+		CopyScope = CopyScopeEnum.None;
 	}
 
 	public static string? GetCopyText()
@@ -43,9 +45,9 @@ public static class TcCopyData
 		return null;
 	}
 
-	public static int? GetCopyTcId()
+	public static Guid? GetCopyFormGuId()
 	{
-		return _copyTcId;
+		return _copyFormGuid;
 	}
 
 	public static void SetCopyText(string copyText)
@@ -54,13 +56,15 @@ public static class TcCopyData
 
 		Clipboard.SetText(copyText);
 	}
-	public static void SetCopyDate(List<TechOperationDataGridItem> items, CopyScopeEnum? copyScope = null)
+	public static void SetCopyDate(List<TechOperationDataGridItem> items, Guid formGuid, CopyScopeEnum? copyScope = null)
 	{
 		// Если пользователь не выделил ни одной строки, то ничего не делаем.
 		if (items.Count == 0)
 		{
 			return;
 		}
+
+		_copyFormGuid = formGuid;
 
 		var tcId = items.First().TechOperationWork?.TechnologicalCardId;
 
@@ -136,7 +140,11 @@ public static class TcCopyData
 }
 
 public enum CopyScopeEnum
-{
+{	
+	/// <summary>
+	/// Нет данных.
+	/// </summary>
+	None,
 	/// <summary>
 	/// Копирование набора строк целиком.
 	/// </summary>
@@ -177,4 +185,8 @@ public enum CopyScopeEnum
 	/// </summary>
 	TechOperation,
 
+	/// <summary>
+	/// Копирование ячейки с ТО.
+	/// </summary>
+	TechTransition,
 }
