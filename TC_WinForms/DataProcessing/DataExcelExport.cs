@@ -34,7 +34,6 @@ namespace TC_WinForms.DataProcessing
                     MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                ExcelPackage.LicenseContext = LicenseContext.Commercial;
                 var excelPackage = CreateNewExcelPackage(filePath);
 
                 TCExcelExporter.ExportTCtoFile(excelPackage, tc);
