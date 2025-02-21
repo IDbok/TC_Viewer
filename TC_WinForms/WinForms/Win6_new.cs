@@ -392,10 +392,11 @@ namespace TC_WinForms.WinForms
 		private async void Win6_new_Load(object sender, EventArgs e)
 		{
 			_logger.Information("Загрузка формы Win6_new для TcId={TcId}", _tcId);
-			// download TC from db
-			//var tcRepository = new TechnologicalCardRepository(); // не используется
 			try
 			{
+				// Блокировка формы при загрузки данных
+				this.Enabled = false;
+
 				await SetTcViewStateData();
 				_tc = tcViewState.TechnologicalCard;
 
@@ -412,13 +413,13 @@ namespace TC_WinForms.WinForms
 				SetTCStatusAccess();
 				UpdateFormTitle();
 
-
 				if (concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
 					MessageBox.Show("Данная карта сейчас редактируется другим пользователем, ТК открыта в режиме просмотра");
 
 				SetViewMode();
-
 				UpdateDynamicCardParametrs();
+
+				await ShowForm(EModelType.WorkStep);
 
 				_logger.Information("Форма загружена успешно для TcId={TcId}", _tcId);
 			}
@@ -428,21 +429,13 @@ namespace TC_WinForms.WinForms
 				MessageBox.Show(ex.Message);
 				this.Close();
 			}
-
-			_logger.Information("Отображение формы для TcId={TcId}", _tcId);
-			try
+			finally
 			{
-
-				await ShowForm(EModelType.WorkStep);
+				if (this != null && !this.IsDisposed && this.IsHandleCreated) // Проверяем, что форма не уничтожена
+				{
+					this.Enabled = true;
+				}
 			}
-			catch (Exception ex)
-			{
-				_logger.Error(ex, "Ошибка при отображении формы для TcId={TcId}.\n" +
-					"Форма закрыта!", _tcId);
-				MessageBox.Show("Ошибка загрузки формы: " + ex.Message);
-				this.Close();
-			}
-
 		}
 		private void UpdateFormTitle()
 		{
