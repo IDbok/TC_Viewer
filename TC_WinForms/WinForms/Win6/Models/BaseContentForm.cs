@@ -56,8 +56,8 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 	{
 		var dgvEventService = new DGVEvents(DgvMain);
 		//dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
-
-		DgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
+		DgvMain.RowPrePaint += dgvEventService.dgvMain_RowPrePaint;
+		//DgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
 		DgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
 		DgvMain.CellValueChanged += dgvMain_CellValueChanged;
 	}
@@ -298,7 +298,7 @@ public abstract class BaseContentForm<T, TIntermediate> : Form, IViewModeable, I
 	{
 		DGVProcessing.ReorderRows(DgvMain, e, _bindingList);
 	}
-	protected virtual void dgvMain_CellValueChanged(object sender, DataGridViewCellEventArgs e) // todo: можно перенести в BaseForm
+	protected virtual void dgvMain_CellValueChanged(object? sender, DataGridViewCellEventArgs e) // todo: можно перенести в BaseForm
 	{
 		if (e.RowIndex >= 0 && DgvMain.Columns[e.ColumnIndex].Name == nameof(BaseDisplayedEntity.Formula))
 		{
