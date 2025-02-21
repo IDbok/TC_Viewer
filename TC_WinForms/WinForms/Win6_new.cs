@@ -11,6 +11,7 @@ using TC_WinForms.WinForms.Win6;
 using TC_WinForms.WinForms.Win6.Models;
 using TC_WinForms.WinForms.Work;
 using TcDbConnector;
+using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -368,15 +369,15 @@ namespace TC_WinForms.WinForms
 			}
 		}
 
-
 		private async Task SetTcViewStateData()
 		{
 
 			try
 			{
-				tcViewState.TechnologicalCard = await GetTCDataAsync();
-				tcViewState.TechOperationWorksList = await GetTOWDataAsync();
-				tcViewState.DiagramToWorkList = await GetDTWDataAsync();
+				var rep = new TechnologicalCardRepository();
+				tcViewState.TechnologicalCard = await rep.GetTechnologicalCardToExportAsync(_tcId, context);
+                tcViewState.TechOperationWorksList = tcViewState.TechnologicalCard.TechOperationWorks;
+                tcViewState.DiagramToWorkList = await rep.GetDTWDataAsync(_tcId, context);
 
 				_logger.Information("Данные для TcViewState успешно загружены для TcId={TcId}", _tcId);
 			}

@@ -40,17 +40,16 @@ namespace TC_WinForms.DataProcessing
             _exporter = new ExcelExporter();
         }
 
-        public static void ExportOutlatytoFile(ExcelPackage excelPackage, List<Outlay> outlays)
+        public void ExportOutlatytoFile(ExcelPackage excelPackage, List<Outlay> outlays)
         {
-            var outlayExporter = new OutlayExcelExporter();
             string sheetName = "Таблица затрат";
             // todo: add header of the table
             var sheet = excelPackage.Workbook.Worksheets[sheetName] ?? excelPackage.Workbook.Worksheets.Add(sheetName);
 
-            outlayExporter.AddOutlayDataToExel(sheet, outlays);
+            AddOutlayDataToExel(sheet, outlays);
 
             // Установка параметров для вывода на печать
-            outlayExporter.SetPrinterSettings(sheet);
+            SetPrinterSettings(sheet);
         }
 
         public void AddOutlayDataToExel(ExcelWorksheet sheet, List<Outlay> outlays)

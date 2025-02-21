@@ -67,12 +67,10 @@ namespace TC_WinForms.DataProcessing
             _technologicalCard = new TechnologicalCard();
         }
 
-        public static void ExportDiadramToExel(ExcelPackage excelPackage, TechnologicalCard technologicalCard, List<DiagamToWork> diagamToWorks)
+        public void ExportDiadramToExel(ExcelPackage excelPackage, TechnologicalCard technologicalCard, List<DiagamToWork> diagamToWorks)
         {
-            var diagramExporter = new DiagramExcelExporter();
-
-            diagramExporter._diagramToWorks = diagamToWorks;
-            diagramExporter._technologicalCard = technologicalCard;
+            _diagramToWorks = diagamToWorks;
+            _technologicalCard = technologicalCard;
 
             //Группируем диаграммы по индексу параллельности
             var dTOWGroups = diagamToWorks
@@ -90,16 +88,16 @@ namespace TC_WinForms.DataProcessing
             sheet.PrinterSettings.RightMargin = 0.3M / 2.54M; //выделение места для объявления столбца с номером листа печати
 
             var currentRow = 2; //стартовая строчка расположения диаграм
-            diagramExporter._pageCount = 1;//Присваиваем значение счетчику старниц, нумерация с 1 страницы
+            _pageCount = 1;//Присваиваем значение счетчику старниц, нумерация с 1 страницы
 
             foreach (var dTOWGroup in dTOWGroups)
             {
                 bool isNull = dTOWGroup.Key == null;
 
                 if (!isNull)
-                    currentRow = diagramExporter.AddTODiadramsToExcel(dTOWGroup.OrderBy(x => x.Order).ToList(), currentRow, sheet);
+                    currentRow = AddTODiadramsToExcel(dTOWGroup.OrderBy(x => x.Order).ToList(), currentRow, sheet);
                 else
-                    currentRow = diagramExporter.AddTODiadramsToExcel(dTOWGroup.ToList(), currentRow, sheet);
+                    currentRow = AddTODiadramsToExcel(dTOWGroup.ToList(), currentRow, sheet);
                     
             }
         }

@@ -35,12 +35,14 @@ public class TechnologicalCardRepository
         return tc;
     }
 
-    public async Task<TechnologicalCard?> GetTechnologicalCardToExportAsync(int id)
+    public async Task<TechnologicalCard?> GetTechnologicalCardToExportAsync(int id, MyDbContext dbCon = null)
     {
-        using (var db = new MyDbContext())
+        bool isContextLocal = dbCon == null;
+        MyDbContext context = dbCon ?? new MyDbContext();
+
+        try
         {
-            
-            TechnologicalCard tc = await db.TechnologicalCards
+            TechnologicalCard tc = await context.TechnologicalCards
 
                 .Include(t => t.Machine_TCs).ThenInclude(tc => tc.Child)
                 .Include(t => t.Protection_TCs).ThenInclude(tc => tc.Child)
@@ -51,7 +53,7 @@ public class TechnologicalCardRepository
                 .FirstAsync(s => s.Id == id);
 
 
-            tc.TechOperationWorks = await db.TechOperationWorks
+            tc.TechOperationWorks = await context.TechOperationWorks
                 .Where(w => w.TechnologicalCardId == id)
                     .Include(i => i.techOperation)
                     .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
@@ -61,7 +63,7 @@ public class TechnologicalCardRepository
             foreach (var tow in tc.TechOperationWorks)
             {
                 // Загружаем executionWorks для текущего tow по частям с жадной загрузкой связанных данных
-                tow.executionWorks = await db.ExecutionWorks
+                tow.executionWorks = await context.ExecutionWorks
                     .Where(ew => ew.techOperationWorkId == tow.Id)
                     .Include(ew => ew.techTransition)
                     .Include(ew => ew.Protections)
@@ -71,8 +73,14 @@ public class TechnologicalCardRepository
 
                     .ToListAsync();
             }
-
             return tc;
+        }
+        finally
+        {
+            if (isContextLocal)
+            {
+                context.Dispose();
+            }
         }
     }
 
@@ -82,43 +90,43 @@ public class TechnologicalCardRepository
         {
             using (MyDbContext context = new MyDbContext())
             {
-                var techCard = await context.TechnologicalCards
+            var techCard = await context.TechnologicalCards
                     .FirstAsync(t => t.Id == _tcId);
 
 
-                // 2. Загружаем все связанные данные отдельными запросами
+            // 2. Загружаем все связанные данные отдельными запросами
 
-                // Machine_TCs
-                var machineTcs = await context.Machine_TCs
+            // Machine_TCs
+            var machineTcs = await context.Machine_TCs
                     .Where(m => m.ParentId == _tcId)
-                    .ToListAsync();
+                .ToListAsync();
 
-                //// Protection_TCs
-                var protectionTcs = await context.Protection_TCs
+            //// Protection_TCs
+            var protectionTcs = await context.Protection_TCs
                     .Where(pt => pt.ParentId == _tcId)
-                    .ToListAsync();
+                .ToListAsync();
 
-                // Tool_TCs
-                var toolTcs = await context.Tool_TCs
+            // Tool_TCs
+            var toolTcs = await context.Tool_TCs
                     .Where(tt => tt.ParentId == _tcId)
-                    .ToListAsync();
+                .ToListAsync();
 
-                // Component_TCs
-                var componentTcs = await context.Component_TCs
+            // Component_TCs
+            var componentTcs = await context.Component_TCs
                     .Where(ct => ct.ParentId == _tcId)
-                    .ToListAsync();
+                .ToListAsync();
 
-                // Staff_TCs
-                var staffTcs = await context.Staff_TCs
+            // Staff_TCs
+            var staffTcs = await context.Staff_TCs
                     .Where(st => st.ParentId == _tcId)
-                    .ToListAsync();
+                .ToListAsync();
 
-                var coefficients = await context.Coefficients
-					.Where(c => c.TechnologicalCardId == _tcId)
-					.ToListAsync();
+            var coefficients = await context.Coefficients
+                .Where(c => c.TechnologicalCardId == _tcId)
+                .ToListAsync();
 
-				return techCard;
-            }
+            return techCard;
+        }
         }
         catch (Exception ex)
         {
@@ -161,9 +169,12 @@ public class TechnologicalCardRepository
         }
     }
 
-    public async Task<List<DiagamToWork>> GetDTWDataAsync(int _tcId)
+    public async Task<List<DiagamToWork>> GetDTWDataAsync(int _tcId, MyDbContext dbCon = null)
     {
-        using (MyDbContext context = new MyDbContext())
+        bool isContextLocal = dbCon == null;
+        MyDbContext context = dbCon ?? new MyDbContext();
+
+        try
         {
 
             var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == _tcId)
@@ -185,7 +196,13 @@ public class TechnologicalCardRepository
                 .ToListAsync();
 
             return diagramToWorkList;
-
+        }
+        finally
+        {
+            if (isContextLocal)
+            {
+                context.Dispose();
+            }
         }
     }
 

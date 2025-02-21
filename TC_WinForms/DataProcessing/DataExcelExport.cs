@@ -36,9 +36,14 @@ namespace TC_WinForms.DataProcessing
 
                 var excelPackage = CreateNewExcelPackage(filePath);
 
-                TCExcelExporter.ExportTCtoFile(excelPackage, tc);
-                OutlayExcelExporter.ExportOutlatytoFile(excelPackage, outlayList);
-                DiagramExcelExporter.ExportDiadramToExel(excelPackage, tc, dtwList);
+                var tcExport = new TCExcelExporter();
+                tcExport.ExportTCtoFile(excelPackage, tc);
+
+                var outlayExport = new OutlayExcelExporter();
+                outlayExport.ExportOutlatytoFile(excelPackage, outlayList);
+
+                var diagramExport = new DiagramExcelExporter();
+                diagramExport.ExportDiadramToExel(excelPackage, tc, dtwList);
 
                 excelPackage.Save();
                 excelPackage.Dispose();
