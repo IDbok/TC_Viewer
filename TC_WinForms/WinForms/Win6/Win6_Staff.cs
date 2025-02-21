@@ -52,7 +52,8 @@ public partial class Win6_Staff : Form, IViewModeable
         var dgvEventService = new DGVEvents(dgvMain);
         dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
 
-        dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
+        dgvMain.RowPrePaint += dgvEventService.dgvMain_RowPrePaint;
+		//dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
         dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
         dgvMain.CellContentClick += DgvMain_CellContentClick;
 
