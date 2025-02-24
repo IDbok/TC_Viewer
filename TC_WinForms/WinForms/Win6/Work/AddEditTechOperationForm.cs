@@ -646,7 +646,7 @@ namespace TC_WinForms.WinForms.Work
 							UpdateLocalTP();
 						}));
 
-						TechOperationForm.UpdateGrid();
+						TechOperationForm.UpdateGrid(); // todo: обновлять только при изменении значений
 					}
                 }
             }
@@ -2821,7 +2821,8 @@ namespace TC_WinForms.WinForms.Work
             }
 
             oldCoefficient = editedExecutionWork.Value;
-            RecalculateExecutionWorkPovtorValue(editedExecutionWork);
+            if(editedExecutionWork.Repeat)
+                RecalculateExecutionWorkPovtorValue(editedExecutionWork);// todo: проверить, нужно ли это здесь вообще!
 
             if (oldCoefficient != editedExecutionWork.Value)
                 UpdateRelatedReplays(editedExecutionWork);
