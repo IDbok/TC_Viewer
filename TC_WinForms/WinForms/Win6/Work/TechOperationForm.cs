@@ -238,13 +238,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				// Пользователь кликнул ячейку "Исполнитель"
 				copyTextItem.Visible = true;
 				copyStaffItem.Visible = true;          // Можно копировать персонал
-				copyRowItem.Visible = true;  // И строку
+				//copyRowItem.Visible = true;  // И строку
 				break;
 
 			case CopyScopeEnum.Protections:
 				copyTextItem.Visible = true;
 				copyProtectionsItem.Visible = true;
-				copyRowItem.Visible = true;
+				//copyRowItem.Visible = true;
 				break;
 
 			case CopyScopeEnum.ToolOrComponents:
@@ -274,7 +274,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			case CopyScopeEnum.Text:
 				// Просто текстовая ячейка (Примечание, Рис., Замечание)
 				copyTextItem.Visible = true;
-				copyRowItem.Visible = true;
+				//copyRowItem.Visible = true;
 				break;
 		}
 
@@ -2497,7 +2497,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		var prevEW = currentEwInTow.OrderBy(e => e.Order).LastOrDefault();
 		var rowOrder = prevEW?.RowOrder + 1;
 
-		if (currentEwInTow.Count() == 0)
+		if (currentEwInTow.Count() == 0 && !TOWork.techOperation.IsTypical) 
+			// для типовых ТО insertIndex будет 0 т.к. вдальнейшем таблица обновляется и RowOrder будет выставлен автоматически
 		{
 			var towItemIndex = TechOperationDataGridItems.FindIndex(i => i.TechOperationWork == TOWork);
 			if (towItemIndex == -1)
