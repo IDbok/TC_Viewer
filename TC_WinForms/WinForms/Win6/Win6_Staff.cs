@@ -116,6 +116,7 @@ public partial class Win6_Staff : Form, IViewModeable
 		_logger.Information("Загрузка объектов.");
 
 		var tcList = _tcViewState.TechnologicalCard.Staff_TCs
+            .OrderBy(o => o.Order)
             .Select(obj => new DisplayedStaff_TC(obj)).ToList();
         _bindingList = new BindingList<DisplayedStaff_TC>(tcList);
         _bindingList.ListChanged += BindingList_ListChanged;
