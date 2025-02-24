@@ -44,7 +44,7 @@ namespace TcModels.Models.IntermediateTables
 
         public int ChildId { get; set; }
         public Staff? Child { get; set; }
-
+        public bool IsInOutlay { get; set; }
         public int ParentId { get; set; }
         public TechnologicalCard? Parent { get; set; }
 
@@ -58,6 +58,7 @@ namespace TcModels.Models.IntermediateTables
             {
                 Symbol = sourceCard.Symbol;
                 Order = sourceCard.Order;
+                IsInOutlay = sourceCard.IsInOutlay;
             }
         }
         public override string ToString()

@@ -7,6 +7,7 @@ using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
+using TC_WinForms.WinForms.Win6;
 using TC_WinForms.WinForms.Win6.Models;
 using TC_WinForms.WinForms.Work;
 using TcDbConnector;
@@ -67,8 +68,9 @@ namespace TC_WinForms.WinForms
 		private int _tcId;
 		private DbConnector db = new DbConnector();
 		private MyDbContext context = new MyDbContext();
+        private OutlayService calculateOutlayService = new OutlayService();
 
-		public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
+        public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
 		{
 			FormGuid = Guid.NewGuid();
 
@@ -490,9 +492,11 @@ namespace TC_WinForms.WinForms
 			{
 				// Блокировка формы при переключении
 				this.Enabled = false;
-				bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep || _activeModelType == EModelType.Diagram || modelType == EModelType.Diagram;
+                bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep 
+												|| _activeModelType == EModelType.Diagram || modelType == EModelType.Diagram 
+												|| _activeModelType == EModelType.Outlay || modelType == EModelType.Outlay;
 
-				if (isSwitchingFromOrToWorkStep)
+                if (isSwitchingFromOrToWorkStep)
 				{
 					// Удаляем формы из кеша для их обновления при следующем доступе
 					foreach (var formKey in _formsCache.Keys.ToList())
@@ -629,8 +633,9 @@ namespace TC_WinForms.WinForms
 																		  //    return new Win7_1_TCs_Window(_tcId, win6Format: true);
 				case EModelType.Coefficient:
 					return new CoefficientEditorForm(_tcId, tcViewState, context);
-
-				default:
+                case EModelType.Outlay:
+                    return new Win6_OutlayTable(tcViewState, calculateOutlayService);// _isViewMode);
+                default:
 					throw new ArgumentOutOfRangeException(nameof(modelType), "Неизвестный тип модели");
 			}
 		}
@@ -737,8 +742,9 @@ namespace TC_WinForms.WinForms
 			try
 			{
 				SaveTehCartaChanges();
+                calculateOutlayService.UpdateOutlay(tcViewState);
 
-				foreach (var form in _formsCache.Values)
+                foreach (var form in _formsCache.Values)
 				{
 					// is form is ISaveEventForm
 					if (form is ISaveEventForm saveForm)
@@ -1303,7 +1309,27 @@ namespace TC_WinForms.WinForms
 		{
 			ChangeIsDynamicToolStripMenuItem.Text = _tc.IsDynamic ? "Сделать не динамической" : "Сделать динамической";
 		}
-	}
+        private void toolStripOutlayTable_Click(object sender, EventArgs e)
+        {
+            _logger.Information("Вызвано открытие таблицы затрат");
+            var openedForm = CheckOpenFormService.FindOpenedForm<Win6_OutlayTable>();
+            if (openedForm != null)
+            {
+                openedForm.BringToFront();
+                return;
+            }
+            else
+            {
+                var outlayForm = new Win6_OutlayTable(tcViewState, calculateOutlayService);
+                outlayForm.Show();
+            }
+        }
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Отображение таблицы затрат");
+            await ShowForm(EModelType.Outlay);
+        }
+    }
 
 }
 

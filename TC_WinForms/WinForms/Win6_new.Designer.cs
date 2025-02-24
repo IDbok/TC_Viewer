@@ -31,7 +31,8 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Win6_new));
 			toolStrip1 = new ToolStrip();
 			toolStripFile = new ToolStripSplitButton();
-			SaveChangesToolStripMenuItem = new ToolStripMenuItem();
+            toolStripOutlayTable = new ToolStripButton();
+            SaveChangesToolStripMenuItem = new ToolStripMenuItem();
 			printToolStripMenuItem = new ToolStripMenuItem();
 			printBlockSchemeToolStripMenuItem = new ToolStripMenuItem();
 			updateToolStripMenuItem = new ToolStripMenuItem();
@@ -53,7 +54,8 @@
 			btnShowWorkSteps = new Button();
 			pnlControls = new Panel();
 			btnShowCoefficients = new Button();
-			buttonDiagram = new Button();
+            btnOutlay = new Button();
+            buttonDiagram = new Button();
 			pnlDataViewer = new Panel();
 			toolStrip1.SuspendLayout();
 			pnlControls.SuspendLayout();
@@ -62,17 +64,26 @@
 			// toolStrip1
 			// 
 			toolStrip1.ImageScalingSize = new Size(20, 20);
-			toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients });
+			toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients, toolStripOutlayTable });
 			toolStrip1.Location = new Point(0, 0);
 			toolStrip1.Name = "toolStrip1";
 			toolStrip1.Padding = new Padding(0, 0, 3, 0);
 			toolStrip1.Size = new Size(1704, 34);
 			toolStrip1.TabIndex = 19;
 			toolStrip1.Text = "toolStrip1";
-			// 
-			// toolStripFile
-			// 
-			toolStripFile.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            // 
+            // toolStripOutlayTable
+            // 
+            toolStripOutlayTable.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            toolStripOutlayTable.ImageTransparentColor = Color.Magenta;
+            toolStripOutlayTable.Name = "toolStripOutlayTable";
+            toolStripOutlayTable.Size = new Size(94, 22);
+            toolStripOutlayTable.Text = "Таблица затрат";
+            toolStripOutlayTable.Click += toolStripOutlayTable_Click;
+            // 
+            // toolStripFile
+            // 
+            toolStripFile.DisplayStyle = ToolStripItemDisplayStyle.Text;
 			toolStripFile.DropDownItems.AddRange(new ToolStripItem[] { SaveChangesToolStripMenuItem, printToolStripMenuItem, printBlockSchemeToolStripMenuItem, updateToolStripMenuItem, actionToolStripMenuItem, setRemarksModeToolStripMenuItem, SetMachineCollumnModeToolStripMenuItem, действияToolStripMenuItem });
 			toolStripFile.Image = (Image)resources.GetObject("toolStripFile.Image");
 			toolStripFile.ImageTransparentColor = Color.Magenta;
@@ -258,12 +269,24 @@
 			btnShowWorkSteps.Text = "Ход работ";
 			btnShowWorkSteps.UseVisualStyleBackColor = true;
 			btnShowWorkSteps.Click += btnShowWorkSteps_Click;
-			// 
-			// pnlControls
-			// 
-			pnlControls.Controls.Add(btnShowCoefficients);
+            // btnOutlay
+            // 
+            btnOutlay.Font = new Font("Segoe UI", 9F);
+            btnOutlay.Location = new Point(5, 459);
+            btnOutlay.Margin = new Padding(3, 2, 3, 2);
+            btnOutlay.Name = "btnOutlay";
+            btnOutlay.Size = new Size(280, 70);
+            btnOutlay.TabIndex = 35;
+            btnOutlay.Text = "Таблица затрат";
+            btnOutlay.UseVisualStyleBackColor = true;
+            btnOutlay.Click += button1_Click;
+            // 
+            // pnlControls
+            // 
+            pnlControls.Controls.Add(btnShowCoefficients);
 			pnlControls.Controls.Add(buttonDiagram);
-			pnlControls.Controls.Add(btnShowWorkSteps);
+            pnlControls.Controls.Add(btnOutlay);
+            pnlControls.Controls.Add(btnShowWorkSteps);
 			pnlControls.Controls.Add(btnShowTools);
 			pnlControls.Controls.Add(btnShowProtections);
 			pnlControls.Controls.Add(btnShowMachines);
@@ -273,13 +296,13 @@
 			pnlControls.Location = new Point(0, 34);
 			pnlControls.Margin = new Padding(4, 3, 4, 3);
 			pnlControls.Name = "pnlControls";
-			pnlControls.Size = new Size(294, 642);
+			pnlControls.Size = new Size(294, 742);
 			pnlControls.TabIndex = 34;
 			// 
 			// btnShowCoefficients
 			// 
 			btnShowCoefficients.Font = new Font("Segoe UI", 9F);
-			btnShowCoefficients.Location = new Point(6, 535);
+			btnShowCoefficients.Location = new Point(6, 609);
 			btnShowCoefficients.Margin = new Padding(4, 3, 4, 3);
 			btnShowCoefficients.Name = "btnShowCoefficients";
 			btnShowCoefficients.Size = new Size(280, 70);
@@ -292,7 +315,7 @@
 			// buttonDiagram
 			// 
 			buttonDiagram.Font = new Font("Segoe UI", 9F);
-			buttonDiagram.Location = new Point(6, 459);
+			buttonDiagram.Location = new Point(6, 534);
 			buttonDiagram.Margin = new Padding(4, 3, 4, 3);
 			buttonDiagram.Name = "buttonDiagram";
 			buttonDiagram.Size = new Size(280, 70);
@@ -314,7 +337,7 @@
 			// 
 			AutoScaleDimensions = new SizeF(10F, 25F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(1704, 676);
+			ClientSize = new Size(1704, 776);
 			Controls.Add(pnlDataViewer);
 			Controls.Add(pnlControls);
 			Controls.Add(toolStrip1);
@@ -344,6 +367,7 @@
         private Panel pnlControls;
         private Panel pnlDataViewer;
         private ToolStripSplitButton toolStripFile;
+        private ToolStripButton toolStripOutlayTable;
         private ToolStripMenuItem printToolStripMenuItem;
         private ToolStripMenuItem updateToolStripMenuItem;
         private ToolStripMenuItem SaveChangesToolStripMenuItem;
@@ -358,7 +382,8 @@
         private ToolStripMenuItem SetMachineCollumnModeToolStripMenuItem;
         private ToolStripMenuItem printBlockSchemeToolStripMenuItem;
 		private Button btnShowCoefficients;
-		private ToolStripButton toolStripShowCoefficients;
+        private Button btnOutlay;
+        private ToolStripButton toolStripShowCoefficients;
 		private ToolStripMenuItem ChangeIsDynamicToolStripMenuItem;
 		private ToolStripMenuItem действияToolStripMenuItem;
 	}

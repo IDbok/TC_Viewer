@@ -43,6 +43,7 @@ namespace TcModels.Models.IntermediateTables
         };
         public int ChildId { get; set; }
         public Machine Child { get; set; }
+        public bool IsInOutlay { get; set; }
 
         public int ParentId { get; set; }
         public TechnologicalCard Parent { get; set; }
@@ -65,6 +66,7 @@ namespace TcModels.Models.IntermediateTables
                 Quantity = sourceCard.Quantity;
                 Note = sourceCard.Note;
                 Formula = sourceCard.Formula;
+                IsInOutlay = sourceCard.IsInOutlay;
             }
         }
 
