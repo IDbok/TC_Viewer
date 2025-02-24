@@ -295,12 +295,31 @@ namespace TC_WinForms.WinForms
 
         private async void btnExportExcel_Click(object sender, EventArgs e)
         {
-            // спрашиваем у пользователя о пути сохранения файла
-            //await SaveTCtoExcelFile();
+            try
+            {
+                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+                {
+                    // Настройка диалога сохранения файла
+                    saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+                    saveFileDialog.FilterIndex = 1;
+                    saveFileDialog.RestoreDirectory = true;
 
-            var tcExporter = new ExExportTC();
+                    saveFileDialog.FileName = OriginCard.Article;
 
-            await tcExporter.SaveTCtoExcelFile(OriginCard.Article, OriginCard.Id);
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        var tcExporter = new DataExcelExport();
+                        await tcExporter.SaveTCtoExcelFile(saveFileDialog.FileName, OriginCard.Id);
+                    }
+                }
+
+                _logger.Information("Печать успешно завершена для TcId={TcId}", OriginCard.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Ошибка при печати для TcId={TcId}", OriginCard.Id);
+                MessageBox.Show(ex.Message);
+            }
 
         }
 
