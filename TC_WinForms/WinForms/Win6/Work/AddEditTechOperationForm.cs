@@ -80,7 +80,8 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewTPLocal.SelectionChanged += DataGridViewTPLocal_SelectionChanged;
             dataGridViewTPLocal.CellValidating += CellValidating;
 
-            dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
+
+			dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
             dataGridViewStaff.CellClick += DataGridViewStaff_CellClick;
             dataGridViewStaff.CellEndEdit += DataGridViewStaff_CellEndEdit;
             dataGridViewStaff.CellBeginEdit += DataGridViewStaff_CellBeginEdit;
@@ -166,6 +167,7 @@ namespace TC_WinForms.WinForms.Work
            _logger.Information("Все события для элементов интерфейса настроены.");
         }
 
+		
 		private void DataGridViewPovtor_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
 		{
 			// todo: реализовать пресчёт значения
@@ -768,7 +770,7 @@ namespace TC_WinForms.WinForms.Work
                 TechOperationForm.CellChangeReadOnly(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
             }
         }
-        private void DataGridViewTPLocal_SelectionChanged(object sender, EventArgs e)
+        private void DataGridViewTPLocal_SelectionChanged(object? sender, EventArgs e)
         {
             if (dataGridViewTPLocal.SelectedRows.Count > 0)
             {
