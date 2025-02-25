@@ -39,7 +39,7 @@ public partial class Win7_TechOperation_Window : Form
             textBox1.Text = techOperation.Name;
             cbxIsReleased.Checked = techOperation.IsReleased;
 
-            if (techOperation.Category == "Типовая ТО")
+            if (techOperation.IsTypical)
             {
                 checkBox1.Checked = true;
             }

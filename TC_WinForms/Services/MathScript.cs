@@ -54,10 +54,12 @@ public static class MathScript
 		}
 		catch (Exception e)
 		{
-			throw new Exception($"Ошибка в формуле!\n{e}", e);
-
-			//MessageBox.Show($"Ошибка в формуле!\n{e}", "Ошибка формулы!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			//return -1;
+#if DEBUG
+			throw new Exception($"Ошибка в формуле!\n{e}", e); // todo: добавить логгирование в класс
+#else
+			MessageBox.Show($"Ошибка в формуле!\n{e}", "Ошибка формулы!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			return -1;
+#endif
 		}
 
 		static bool IsMathSign(char firstChar)

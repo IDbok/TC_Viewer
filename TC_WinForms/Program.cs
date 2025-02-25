@@ -38,22 +38,8 @@ namespace TC_WinForms
         [STAThread]
         static void Main()
         {
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-
-			// Читаем настройки пути временной папки и модифицируем путь для логов
-            var tempLogPath = Path.Combine("C:/tempLogs", "TC_Viewer", Environment.UserName, "logs", "log-.json");//Path.GetTempPath(), "TC_Viewer", "logs", "log-.json");
-			configuration.GetSection("Serilog:WriteTo:0:Args")["path"] = tempLogPath;
-
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .Enrich.WithClassName()
-                .CreateLogger();
-
             try
             {
-				Log.Information("Application started");
                 ApplicationStart();
             }
             catch (Exception ex)
@@ -73,16 +59,30 @@ namespace TC_WinForms
 
         static void ApplicationStart()
         {
+			var configuration = new ConfigurationBuilder()
+				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+				.Build();
 
-            ApplicationConfiguration.Initialize();
+            var logPath = configuration.GetValue<string>("LogsFolder");
+
+            if (logPath == null)
+                logPath = "C:/tempLogs";
+
+			// Читаем настройки пути временной папки и модифицируем путь для логов
+			var tempLogPath = Path.Combine(logPath, "TC_Viewer", Environment.UserName, "logs", "log-.json");//Path.GetTempPath(), "TC_Viewer", "logs", "log-.json");
+			configuration.GetSection("Serilog:WriteTo:0:Args")["path"] = tempLogPath;
+
+			Log.Logger = new LoggerConfiguration()
+				.ReadFrom.Configuration(configuration)
+				.Enrich.WithClassName()
+				.CreateLogger();
+
+			Log.Information("Application started");
+
+			ApplicationConfiguration.Initialize();
 
             // Проверяем наличие файла appsettings.json и создаем его с настройками по умолчанию, если он отсутствует
             EnsureAppSettingsExists();
-
-            // Загружаем конфигурацию
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            IConfigurationRoot configuration = builder.Build();
 
             // Устанавливаем строку подключения к БД
             var connectionString = configuration.GetValue<string>("Config:ConnectionString");
