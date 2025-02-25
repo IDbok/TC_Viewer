@@ -54,23 +54,18 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		_logger.Information("Инициализация формы.");
 
-		//_isViewMode = viewerMode;
 		InitializeComponent();
+
         dgvMain.CellPainting += DgvMain_CellPainting;
         dgvMain.CellFormatting += DgvMain_CellFormatting;
         dgvMain.CellEndEdit += DgvMain_CellEndEdit;
         dgvMain.CellMouseEnter += DgvMain_CellMouseEnter;
-
 		dgvMain.MouseDown += DataGridView_MouseDown;
-
-        SetContextMenuSetings();
-
+		_tcViewState.ViewModeChanged += OnViewModeChanged;
 		this.KeyPreview = true;
-        this.KeyDown += new KeyEventHandler(Form_KeyDown);
+		this.KeyDown += new KeyEventHandler(Form_KeyDown);
 
-        _tcViewState.ViewModeChanged += OnViewModeChanged;
-
-        //this.FormClosed += (sender, e) => this.Dispose();
+		SetContextMenuSetings();
     }
 
     private void TechOperationForm_Load(object sender, EventArgs e)
@@ -90,15 +85,22 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         this.Enabled = true;
     }
 
-    public void SetCommentViewMode()
+	/// <summary>
+	/// Переключает отображение колонок "Замечание" и "Ответ" 
+	/// в соответствии с режимом отображения замечаний в _tcViewState.
+	/// </summary>
+	public void SetCommentViewMode()
     {
-        var isCommentViewMode = _tcViewState.IsCommentViewMode;
-
-        dgvMain.Columns["RemarkColumn"].Visible = isCommentViewMode;
-        dgvMain.Columns["ResponseColumn"].Visible = isCommentViewMode;
+        dgvMain.Columns["RemarkColumn"].Visible = _tcViewState.IsCommentViewMode;
+        dgvMain.Columns["ResponseColumn"].Visible = _tcViewState.IsCommentViewMode;
     }
 
-    public void SetMachineViewMode(bool? isMachineViewMode = null)
+	/// <summary>
+	/// Включает или выключает видимость столбцов механизмов,
+	/// исходя из флага <paramref name="isMachineViewMode"/> 
+	/// либо глобального состояния Win6_new.isMachineViewMode.
+	/// </summary>
+	public void SetMachineViewMode(bool? isMachineViewMode = null)
     {
         if (isMachineViewMode != null)
             _isMachineViewMode = (bool)isMachineViewMode;
@@ -114,12 +116,25 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
     }
 
-    public void SetViewMode(bool? isViewMode = null)
+	/// <summary>
+	/// Устанавливает или обновляет общий «режим просмотра» 
+	/// (скрытие/отображение управляющей панели <c>pnlControls</c>).
+	/// </summary>
+	/// <param name="isViewMode">
+	/// Если передано значение не испозуется, 
+	/// берётся текущее состояние <c>_tcViewState.IsViewMode</c>.
+	/// </param>
+	public void SetViewMode(bool? isViewMode = null)
     {
         pnlControls.Visible = !_tcViewState.IsViewMode;
     }
 
-    private void OnViewModeChanged()
+	/// <summary>
+	/// Обработчик события изменения режима просмотра 
+	/// (вызывается при переключении <c>_tcViewState.IsViewMode</c>).
+	/// Производит обновление грида.
+	/// </summary>
+	private void OnViewModeChanged()
     {
         UpdateGrid();
     }
@@ -200,6 +215,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		contextMenu.Items.Add(pasteTextItem);
 	}
 
+	/// <summary>
+	/// Настраивает видимость и доступность пунктов контекстного меню 
+	/// (копировать/вставить) в зависимости от выбранной области копирования.
+	/// </summary>
+	/// <param name="selectedScope">
+	/// Если null — пункты меню скрываются по умолчанию.
+	/// </param>
 	private void UpdateContextMenuItems(CopyScopeEnum? selectedScope) // ?? добавить параметр поле readonly ??
 	{
 		// Скрываем или делаем Disabled все пункты
@@ -377,7 +399,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	#region Обработка клика правой кнопкой (контекстное меню)
 
-	private void DataGridView_MouseDown(object sender, MouseEventArgs e)
+	/// <summary>
+	/// Обработчик события нажатия ПКМ (MouseDown) в DataGridView. 
+	/// Определяет, куда кликнули, выделяет нужную ячейку и отображает контекстное меню.
+	/// </summary>
+	private void DataGridView_MouseDown(object? sender, MouseEventArgs e)
 	{
 		if (e.Button == MouseButtons.Right)
 		{
@@ -402,10 +428,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 					dgvMain.CurrentCell = clickedCell;
 				}
 
-				//dgvMain.ClearSelection();
-				//dgvMain.Rows[hitTestInfo.RowIndex].Cells[hitTestInfo.ColumnIndex].Selected = true;
-				//dgvMain.CurrentCell = dgvMain[hitTestInfo.ColumnIndex, hitTestInfo.RowIndex];
-
 				// Вычисляем scope
 				GetSelectedDataInfo(out _, out CopyScopeEnum? scope);
 
@@ -426,10 +448,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	/// <summary>
 	/// Обработчик события нажатия клавиш в форме.
 	/// </summary>
-	private void Form_KeyDown(object sender, KeyEventArgs e)
+	private void Form_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Control && e.KeyCode == Keys.V)
         {
+			_logger.Debug("Нажаты Ctrl+V: запуск операции вставки (Paste).");
 			// Вставка данных из буфера обмена только если не включёр режим просмотра
 			if (_tcViewState.IsViewMode)
 				PasteClipboardValue();
@@ -441,19 +464,20 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         // Новая обработка Ctrl + C
 		else if (e.Control && e.KeyCode == Keys.C)
 		{
-            if (_tcViewState.IsViewMode)
+			_logger.Debug("Нажаты Ctrl+C: запуск операции копирования (Copy).");
+			if (_tcViewState.IsViewMode)
 				CopyClipboardValue();
 			else
 				CopyData();
 			e.Handled = true;
 		}
 		else if (e.KeyCode == Keys.Delete)
-        {
-            DeleteCellValue(); // очистить текущее значение ячейки
+		{
+			_logger.Debug("Нажата клавиша Delete: очистка значения ячейки.");
+			DeleteCellValue(); // очистить текущее значение ячейки
 			e.Handled = true;
         }
     }
-
 
 	#endregion
 
@@ -464,16 +488,27 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	/// </summary>
 	private void CopyData()
 	{
+		_logger.Debug("Начато копирование данных (CopyData).");
+
 		GetSelectedDataInfo(
             out List<int> selectedRowIndices, 
             out CopyScopeEnum? selectedScope);
 
 		if (selectedRowIndices.Count == 0)
+		{
+			_logger.Debug("Не выбрано ни одной строки для копирования. Операция копирования прервана.");
 			return;
+		}
 
 		try
 		{
-            // Копируем текст ячейки в буфер обмена
+			if (selectedScope.HasValue)
+			{
+				_logger.Information("Выполняется копирование. Scope: {Scope}. Количество выбранных строк: {RowsCount}",
+									selectedScope.Value, selectedRowIndices.Count);
+			}
+
+			// Копируем текст ячейки в буфер обмена
 			CopyClipboardValue();
 
 			// Если копируется НЕ просто текст, то сохраняем объекты в TcCopyData
@@ -506,9 +541,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 					break;
 			}
 		}
-		catch
-		(Exception ex)
+		catch (Exception ex)
 		{
+			_logger.Error(ex, "Ошибка при копировании данных (CopyData).");
 			MessageBox.Show(ex.Message);
 			return;
 		}
@@ -566,41 +601,58 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// Основной метод вставки ранее скопированных объектов (Shift + Insert / Ctrl + V).
     /// </summary>
     private void PasteCopiedData()
-    {
-        GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? selectedScope);
-        if (selectedRowIndices.Count == 0 || selectedScope == null) return;
+	{
+		_logger.Debug("Начато вставление данных (PasteCopiedData).");
 
-        // Очищаем список вставленных данных
-        TcCopyData.PastedEw.Clear();
+		GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? selectedScope);
+		if (selectedRowIndices.Count == 0 || selectedScope == null)
+		{
+			_logger.Debug("Не выбрано ни одной строки или неопределён Scope для вставки. Операция вставки прервана.");
+			return;
+		}
 
-        var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
+		_logger.Information("Выполняется вставка. Target Scope: {Scope}. Количество выделенных строк: {RowsCount}",
+						   selectedScope.Value, selectedRowIndices.Count);
 
-        // Смотрим, что у нас лежит в TcCopyData
-        switch (selectedScope)
-        {
-            case CopyScopeEnum.Staff:
-                PasteStaffScope(selectedRowIndices);
-                break;
-            case CopyScopeEnum.Protections:
-                PasteProtectionsScope(selectedRowIndices);
-                break;
-            case CopyScopeEnum.ToolOrComponents:
-			case CopyScopeEnum.TechTransition:
-			case CopyScopeEnum.Row:
-            case CopyScopeEnum.RowRange:
-                PasteToolsOrRows(selectedRowIndices, selectedScope.Value);
-                break;
-            case CopyScopeEnum.TechOperation:
-                PasteWholeTechOperation(selectedRowIndices);
-                break;
-            case CopyScopeEnum.Text:
-                PasteClipboardValue(); // просто вставка текста
-                break;
-            default:
-                MessageBox.Show("Не удалось определить тип вставки.");
-                break;
-        }
-    }
+		try
+		{
+			// Очищаем список вставленных данных
+			TcCopyData.PastedEw.Clear();
+
+			var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
+
+			// Смотрим, что у нас лежит в TcCopyData
+			switch (selectedScope)
+			{
+				case CopyScopeEnum.Staff:
+					PasteStaffScope(selectedRowIndices);
+					break;
+				case CopyScopeEnum.Protections:
+					PasteProtectionsScope(selectedRowIndices);
+					break;
+				case CopyScopeEnum.ToolOrComponents:
+				case CopyScopeEnum.TechTransition:
+				case CopyScopeEnum.Row:
+				case CopyScopeEnum.RowRange:
+					PasteToolsOrRows(selectedRowIndices, selectedScope.Value);
+					break;
+				case CopyScopeEnum.TechOperation:
+					PasteWholeTechOperation(selectedRowIndices);
+					break;
+				case CopyScopeEnum.Text:
+					PasteClipboardValue(); // просто вставка текста
+					break;
+				default:
+					MessageBox.Show("Не удалось определить тип вставки.");
+					break;
+			}
+		}
+		catch (Exception ex)
+		{
+			_logger.Error(ex, "Ошибка при вставке данных (PasteCopiedData).");
+			MessageBox.Show($"Ошибка при вставке: {ex.Message}");
+		}
+	}
 
 	/// <summary>
 	/// Вставляет персонал (Staff) в текущую строку.
@@ -783,12 +835,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	#region Удаление значения ячейки
 
 	/// <summary>
-	/// Удаление значения из текущей ячейки (у вас уже реализовано).
+	/// Удаление значения из текущей ячейки.
 	/// </summary>
 	private void DeleteCellValue()
 	{
 		if (dgvMain.CurrentCell != null && !dgvMain.CurrentCell.ReadOnly)
 		{
+			_logger.Debug("Очищаем значение ячейки (DeleteCellValue). Ячейка: {RowIndex}-{ColIndex}, Предыдущее значение: {Value}",
+						  dgvMain.CurrentCell.RowIndex,
+						  dgvMain.CurrentCell.ColumnIndex,
+						  dgvMain.CurrentCell.Value);
+
 			dgvMain.CurrentCell.Value = string.Empty;
 
 			// Вызов события CellEndEdit вручную
@@ -1346,6 +1403,30 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		}
 	}
 
+	/// <summary>
+	/// Создаёт новый переход (ExecutionWork) в указанной технологической операции
+	/// и при необходимости обновляет DataGridView.
+	/// </summary>
+	/// <param name="techTransition">Технологический переход, на базе которого создаётся новая строка.</param>
+	/// <param name="techOperationWork">TechOperationWork, в который добавляется новый переход.</param>
+	/// <param name="insertIndex">
+	/// (Необязательный) индекс, по которому вставляется строка в общем списке. 
+	/// Если null – добавляется в конец.
+	/// </param>
+	/// <param name="executionWorksRepeats">
+	/// Список повторяемых переходов (если новый переход является "Повторить").
+	/// </param>
+	/// <param name="coefficient">
+	/// Строка с коэффициентом для расчёта времени. 
+	/// Если не задана, берётся исходное значение времени <paramref name="techTransition"/>.
+	/// </param>
+	/// <param name="updateDataGrid">
+	/// Нужно ли вызывать <c>UpdateGrid()</c> после вставки.
+	/// </param>
+	/// <param name="comment">Начальный комментарий к новому переходу.</param>
+	/// <param name="pictureName">Имя рисунка для нового перехода.</param>
+	/// <returns>Созданный объект <see cref="ExecutionWork"/>.</returns>
+	/// <exception cref="Exception">Если создать новый переход не удалось.</exception>
 	public ExecutionWork InsertNewRow(TechTransition techTransition,  TechOperationWork techOperationWork,
         int? insertIndex = null, List<ExecutionWorkRepeat>? executionWorksRepeats = null,
         string? coefficient = null, bool updateDataGrid = true,
@@ -1381,11 +1462,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         return newEw;
 	}
 
-
 	#endregion
 
 	#endregion
 
+	/// <summary>
+	/// Обработчик завершения редактирования ячейки <c>dgvMain</c>. 
+	/// Присваивает соответствующим свойствам ExecutionWork (или Tool/Component) новое значение.
+	/// </summary>
 	private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
         // todo: ненадёжный способ определения столбцов с комментариями
@@ -1483,10 +1567,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         return HasChanges;
     }
 
-
-    public void UpdateGrid()
+	/// <summary>
+	/// Обновляет DataGridView: очищает и заново заполняет все строки/колонки,
+	/// затем при необходимости восстанавливает позицию прокрутки и, если открыта,
+	/// обновляет форму диаграмм (DiagramForm) в оконном режиме.
+	/// </summary>
+	public void UpdateGrid()
     {
-        try // временная заглушка от ошибки возникающей при переключении на другую форму в процессе загрузки данных
+		_logger.Debug("Начато обновление грида (UpdateGrid).");
+
+		try // временная заглушка от ошибки возникающей при переключении на другую форму в процессе загрузки данных
         {
             var offScroll = dgvMain.FirstDisplayedScrollingRowIndex;
 
@@ -1502,14 +1592,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             var bsForm = CheckOpenFormService.FindOpenedForm<DiagramForm>(_tcId);
             if (bsForm != null)
             {
-                bsForm.UpdateVisualData();
+				_logger.Debug("Обновляем DiagramForm открытое в оконном режиме (UpdateVisualData).");
+				bsForm.UpdateVisualData();
             }
-        }
-        catch (Exception ex)
-        {
-            //MessageBox.Show(ex.Message);
-        }
 
+			_logger.Debug("Грид обновлён успешно (UpdateGrid завершён).");
+		}
+        catch (Exception ex)
+		{
+			_logger.Error(ex, "Ошибка при обновлении грида (UpdateGrid).");
+		}
     }
 
     /// <summary>
@@ -1517,7 +1609,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void ClearAndInitializeGrid()
     {
-        dgvMain.Rows.Clear();
+		_logger.Debug("Очищаем строки и колонки DataGridView, инициализируем новые (ClearAndInitializeGrid).");
+
+		dgvMain.Rows.Clear();
         TechOperationDataGridItems.Clear();
 
         while (dgvMain.Columns.Count > 0)
@@ -1602,7 +1696,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvMain.Columns[2].Frozen = true;
 
-    }
+		_logger.Debug("DataGridView инициализирован: {ColumnCount} столбцов.",
+				 dgvMain.Columns.Count);
+	}
 
     private float GetFillWeight(string FieldName)
     {
@@ -1635,21 +1731,31 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void PopulateDataGrid()
     {
-        var techOperationWorksListLocal = 
+		_logger.Debug("Заполняем DataGridView данными (PopulateDataGrid).");
+
+		var techOperationWorksListLocal = 
             TechOperationWorksList.Where(w => !w.Delete).OrderBy(o => o.Order).ToList();
         int nomer = 1;
 
-        foreach (var techOperationWork in techOperationWorksListLocal)
+		_logger.Debug("Найдено {Count} TechOperationWorks для вывода.", techOperationWorksListLocal.Count);
+
+		foreach (var techOperationWork in techOperationWorksListLocal)
 		{
 			PopulateTechOperationDataGridItems(techOperationWork, ref nomer);
 		}
 
 		CalculateEtapTimes();
         AddRowsToGrid();
-    }
+
+		_logger.Debug("PopulateDataGrid завершён. Итоговое число строк для отображения: {RowCount}",
+				 TechOperationDataGridItems.Count);
+	}
 
 	private void PopulateTechOperationDataGridItems(TechOperationWork techOperationWork, ref int nomer) // todo: вставка по индексу?
 	{
+		_logger.Debug("Пополняем TechOperationDataGridItems для TechOperationWork (Id={Id}).",
+				  techOperationWork.Id);
+
 		var executionWorks = techOperationWork.executionWorks.Where(w => !w.Delete).OrderBy(o => o.Order).ToList();
 
 		if (executionWorks.Count == 0)
@@ -1703,8 +1809,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			.Select(tc => executionWork.Machines.Contains(tc))
 			.ToList();
 
-		// Создаём объект TechOperationDataGridItem
-        
         var item = new TechOperationDataGridItem(techOperationWork, executionWork, nomer, staffStr, mach, protectStr);
 
 		// Дополнительная проверка значения
@@ -1715,7 +1819,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		return item;
 	}
-
 
 	#region Расчёт времени этапов
 
@@ -2242,7 +2345,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			row.Cells[2].Style.BackColor = color3.Value;
 	}
 
-	private void DgvMain_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+	private void DgvMain_CellMouseEnter(object? sender, DataGridViewCellEventArgs e)
     {
         if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
         {
@@ -2698,13 +2801,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         HasChanges = true; // todo: Устанавливаем флаг изменений если реально были изменения
     }
 
-    private void button1_Click_1(object sender, EventArgs e)
-    {
-        //context = new MyDbContext();
-        //context.ChangeTracker.Clear();
+    private void button1_Click_1(object sender, EventArgs e) //  Перенести в метод SaveChanges
+	{
+		_logger.Information("Cохранение изменений Ход работ.");
 
-        // TehCarta.Staff_TCs = Staff_TC;
-        DbConnector dbCon = new DbConnector();
+		//context = new MyDbContext();
+		//context.ChangeTracker.Clear();
+
+		// TehCarta.Staff_TCs = Staff_TC;
+		DbConnector dbCon = new DbConnector();
 
         List<TechOperationWork> AllDele = TechOperationWorksList.Where(w => w.Delete == true).ToList();
         foreach (TechOperationWork techOperationWork in AllDele)
@@ -2792,11 +2897,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         try
         {
             context.SaveChanges();
-            // MessageBox.Show("Успешно сохранено");
-        }
-        catch (Exception exception)
+			_logger.Information("Данные успешно сохранены в БД (TechOperationForm).");
+		}
+		catch (Exception exception)
         {
-            MessageBox.Show(exception.Message + "\n" + exception.InnerException);
+			_logger.Error(exception, "Ошибка при сохранении данных Ход работ.");
+			MessageBox.Show(exception.Message + "\n" + exception.InnerException);
         }
     }
 
@@ -2852,7 +2958,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     private void TechOperationForm_FormClosing(object sender, FormClosingEventArgs e)
     {
-        _editForm?.Close();
+		_logger.Information("Форма TechOperationForm закрывается. Запрошено закрытие со статусом: {CloseReason}", e.CloseReason);
+		_editForm?.Close();
     }
 
 
