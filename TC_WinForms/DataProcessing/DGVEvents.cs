@@ -114,8 +114,7 @@ namespace TC_WinForms.DataProcessing
             {
                 if (EventsObj is AddEditTechOperationForm)
                 {
-                    ((AddEditTechOperationForm)EventsObj).UpdateTable(Table);
-
+                    //((AddEditTechOperationForm)EventsObj).UpdateTable(Table);
                 }
                 else
                 {

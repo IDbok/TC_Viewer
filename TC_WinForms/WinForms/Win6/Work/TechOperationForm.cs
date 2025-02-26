@@ -152,7 +152,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	private ToolStripMenuItem copyProtectionsItem;
 	private ToolStripMenuItem copyRowItem;
 
-	private ToolStripSeparator separatorItem;
+	private ToolStripSeparator separatorItem1;
+
+	private ToolStripMenuItem openEditFormItem;
+
+	private ToolStripSeparator separatorItem2;
 
 	// Пункты для вставки
 	private ToolStripMenuItem pasteTextItem;
@@ -196,7 +200,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		pasteProtectionsItem.Click += (s, e) => PasteCopiedData();
 
 		// 3) Разделитель
-		separatorItem = new ToolStripSeparator();
+		separatorItem1 = new ToolStripSeparator();
+		separatorItem2 = new ToolStripSeparator();
+
+
+		openEditFormItem = new ToolStripMenuItem("Открыть в редакторе");
+		openEditFormItem.Click += (s, e) => OpenEditForm();
 
 		// Добавляем все пункты (или группируем в под-меню).
 		contextMenu.Items.Add(copyStaffItem);
@@ -205,7 +214,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		contextMenu.Items.Add(copyRowItem);
 		contextMenu.Items.Add(copyTextItem);
 
-		contextMenu.Items.Add(separatorItem);
+		contextMenu.Items.Add(separatorItem1);
+
+		contextMenu.Items.Add(openEditFormItem);
+
+		contextMenu.Items.Add(separatorItem2);
 
 		contextMenu.Items.Add(pasteStaffItem);
 
@@ -231,7 +244,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		copyTechOperationItem.Visible = false;
 		copyProtectionsItem.Visible = false;
 
-		separatorItem.Visible = true;
+		separatorItem1.Visible = false;
+		openEditFormItem.Visible = false;
+		separatorItem2.Visible = true;
 
 		pasteTextItem.Visible = false;
 		pasteStaffItem.Visible = false;
@@ -244,7 +259,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		pasteRowItem.Enabled = false;
 		pasteTechOperationItem.Enabled = false;
 		pasteProtectionsItem.Enabled = false;
-
 
 		copyRowItem.Text = "Копировать строку";
 		pasteRowItem.Text = "Вставить строку";
@@ -260,12 +274,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				// Пользователь кликнул ячейку "Исполнитель"
 				copyTextItem.Visible = true;
 				copyStaffItem.Visible = true;          // Можно копировать персонал
+				separatorItem1.Visible = true;
+				openEditFormItem.Visible = true;
 				//copyRowItem.Visible = true;  // И строку
 				break;
 
 			case CopyScopeEnum.Protections:
 				copyTextItem.Visible = true;
 				copyProtectionsItem.Visible = true;
+				separatorItem1.Visible = true;
+				openEditFormItem.Visible = true;
 				//copyRowItem.Visible = true;
 				break;
 
@@ -278,6 +296,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			case CopyScopeEnum.TechTransition:
 				copyTextItem.Visible = true;
 				copyRowItem.Visible = true;
+				separatorItem1.Visible = true;
+				openEditFormItem.Visible = true;
 				break;
 			case CopyScopeEnum.Row:
 				copyRowItem.Visible = true;
@@ -291,6 +311,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				// Клик по ячейке "Технологические операции"
 				copyRowItem.Visible = true;
 				copyTechOperationItem.Visible = true;
+				separatorItem1.Visible = true;
+				openEditFormItem.Visible = true;
 				break;
 
 			case CopyScopeEnum.Text:
@@ -367,7 +389,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				case CopyScopeEnum.Text:
 					if (selectedScope == CopyScopeEnum.Row)
 					{
-						separatorItem.Visible = false;
+						separatorItem2.Visible = false;
 						break;
 					}
 
@@ -380,7 +402,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 				default:
 					// Ничего не копировали
-					separatorItem.Visible = false;
+					separatorItem2.Visible = false;
 					break;
 			}
 
@@ -477,7 +499,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			DeleteCellValue(); // очистить текущее значение ячейки
 			e.Handled = true;
         }
-    }
+		else if (e.Control && e.KeyCode == Keys.O)
+		{
+			if (!_tcViewState.IsViewMode)
+				OpenEditForm();
+			e.Handled = true;
+		}
+
+	}
 
 	#endregion
 
@@ -3059,5 +3088,51 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		// можно принудительно вызвать перерисовку:
 		// dgvMain.Invalidate();
 	}
+	private void OpenEditForm()
+	{
+		GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? selectedScope);
 
+		if (selectedScope == null) return;
+
+		var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
+
+		if (_editForm == null || _editForm.IsDisposed)
+		{
+			_editForm = new AddEditTechOperationForm(this, _tcViewState);
+		}
+
+		_editForm.Show();
+		_editForm.Enabled = false;
+		_editForm.BringToFront(); // не выделяется необходимая строка при 
+
+		switch (selectedScope)
+		{
+			case CopyScopeEnum.TechOperation:
+				_editForm.SelectPageTab("tabPageTO"); ;
+				_editForm.SelectTO(selectedItems[0].TechOperationWork);
+				break;
+			case CopyScopeEnum.TechTransition:
+				_editForm.SelectPageTab("tabPageTP");
+				if(selectedItems[0].WorkItemType == WorkItemType.ExecutionWork 
+					&& selectedItems[0].WorkItem is ExecutionWork selectedTP)
+					_editForm.SelectTP(selectedTP);
+				break;
+			case CopyScopeEnum.Staff:
+				_editForm.SelectPageTab("tabPageStaff"); ;
+				if (selectedItems[0].WorkItemType == WorkItemType.ExecutionWork
+					&& selectedItems[0].WorkItem is ExecutionWork selectedTPStaff)
+					_editForm.SelectTP(selectedTPStaff);
+				break;
+			case CopyScopeEnum.Protections:
+				_editForm.SelectPageTab("tabPageProtection"); ;
+				if (selectedItems[0].WorkItemType == WorkItemType.ExecutionWork
+					&& selectedItems[0].WorkItem is ExecutionWork selectedTPProtections)
+					_editForm.SelectTP(selectedTPProtections);
+				break;
+			default:
+				break;
+		}
+
+		_editForm.Enabled = true;
+	}
 }

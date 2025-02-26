@@ -748,6 +748,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPLocal_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
+            // todo: прерделать на метод по отрисовке строк, а не ячеек
 
             if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index
                 || e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index
@@ -775,7 +776,8 @@ namespace TC_WinForms.WinForms.Work
                 TechOperationForm.CellChangeReadOnly(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
             }
         }
-        private void DataGridViewTPLocal_SelectionChanged(object sender, EventArgs e)
+
+        private void DataGridViewTPLocal_SelectionChanged(object? sender, EventArgs e)
         {
             if (dataGridViewTPLocal.SelectedRows.Count > 0)
             {
@@ -786,11 +788,11 @@ namespace TC_WinForms.WinForms.Work
 
                 HighlightTOTTRow(true);
 
-
                 // Смена выбора в комбобоксе
                 comboBoxTT.SelectedItem = executionWork;
             }
         }
+
         private void DataGridViewTO_SelectionChanged(object sender, EventArgs e)
         {
             if (dataGridViewTO.SelectedRows.Count > 0)
@@ -2833,6 +2835,7 @@ namespace TC_WinForms.WinForms.Work
 
         private void HighlightTOTTRow(bool HighlightTT = false, ExecutionWork exWork = null)
         {
+            // todo: слишком часто вызывается местод (при переключениии минимум 2 раза)
             if (SelectedTO == null || SelectedTP == null
                 || (highlightRowData == (SelectedTO.techOperationId, SelectedTO.Order, null, null) && !HighlightTT && exWork == null)
                 || (exWork == null && highlightRowData == (SelectedTO.techOperationId, SelectedTO.Order, SelectedTP.techTransitionId, SelectedTP.Order))
@@ -2861,191 +2864,213 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
-        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-           _logger.Information("Переключение на вкладку: {TabName}", tabControl1.SelectedTab.Name);
+		private void tabControl1_SelectedIndexChanged(object? sender, EventArgs? e)
+		{
+			_logger.Information("Переключение на вкладку: {TabName}", tabControl1.SelectedTab?.Name);
 
-            switch (tabControl1.SelectedTab.Name)
-            {
-                case "tabPageTO":
-                    UpdateLocalTO();
-                    //UpdateGridAllTP();
-                    comboBoxTO.Visible = false;
-                    comboBoxTT.Visible = false;
-                    break;
-                case "tabPageTP":
-                    UpdateLocalTP();
-                    UpdateGridAllTP();
-                    comboBoxTO.Visible = true;
-                    comboBoxTT.Visible = false;
-                    break;
-                case "tabPageStaff":
-                    UpdateComboBoxTT();
-                    UpdateGridStaff();
-                    UpdateGridStaffAll();
-                    comboBoxTO.Visible = true;
-                    comboBoxTT.Visible = true;
-                    break;
-                case "tabPageComponent":
-                    UpdateComponentLocal();
-                    UpdateComponentAll();
-                    comboBoxTO.Visible = true;
-                    comboBoxTT.Visible = false;
-                    break;
-                case "tabPageTool":
-                    UpdateInstrumentLocal();
-                    UpdateInstrumentAll();
-                    comboBoxTO.Visible = true;
-                    comboBoxTT.Visible = false;
-                    break;
-                case "tabPageProtection":
-                    UpdateComboBoxTT();
-                    UpdateGridLocalSZ();
-                    UpdateGridAllSZ();
-                    comboBoxTO.Visible = true;
-                    comboBoxTT.Visible = true;
-                    break;
-                case "tabPageStage":
-                    dataGridViewEtapUpdate();
-                    dataGridViewMehaUpdate();
-                    comboBoxTO.Visible = false;
-                    comboBoxTT.Visible = false;
-                    break;
-                case "tabPageRepeat":
-                    UpdatePovtor();
-                    comboBoxTO.Visible = false;
-                    comboBoxTT.Visible = false;
-                    break;
-            }
+			switch (tabControl1.SelectedTab?.Name)
+			{
+				case "tabPageTO":
+					UpdateLocalTO();
+					//UpdateGridAllTP();
+					SetComboBoxesVisibility(false, false);
+					break;
 
-           _logger.Information("Обновление данных для вкладки завершено.");
-        }
+				case "tabPageTP":
+					UpdateLocalTP();
+					UpdateGridAllTP();
+					SetComboBoxesVisibility(true, false);
+					break;
 
-        public void UpdateTable(int table)
-        {
-            if (table == 1)
-            {
-                var list = dataGridViewTO.Rows;
-                foreach (DataGridViewRow dataGridViewRow in list)
+				case "tabPageStaff":
+					UpdateComboBoxTT();
+					UpdateGridStaff();
+					UpdateGridStaffAll();
+					SetComboBoxesVisibility(true, true);
+					break;
 
-                {
-                    // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
-                    //var techOperationWork = (TechOperationWork)dataGridViewRow.Cells[0].Value; 
-                    //techOperationWork.Order = dataGridViewRow.Index; // Обновляем свойство Order
+				case "tabPageComponent":
+					UpdateComponentLocal();
+					UpdateComponentAll();
+					SetComboBoxesVisibility(true, false);
+					break;
 
-                    var idd = (TechOperationWork)dataGridViewRow.Cells[0].Value;
-                    var ord = (int)dataGridViewRow.Cells["Order"].Value;
-                    TechOperationWork TechOperat = TechOperationForm.TechOperationWorksList.SingleOrDefault(s => s == idd);
+				case "tabPageTool":
+					UpdateInstrumentLocal();
+					UpdateInstrumentAll();
+					SetComboBoxesVisibility(true, false);
+					break;
 
-                    if (TechOperat != null)
-                    {
-                        TechOperat.Order = ord;
-                    }
+				case "tabPageProtection":
+					UpdateComboBoxTT();
+					UpdateGridLocalSZ();
+					UpdateGridAllSZ();
+					SetComboBoxesVisibility(true, true);
+					break;
 
-                }
+				case "tabPageStage":
+					dataGridViewEtapUpdate();
+					dataGridViewMehaUpdate();
+					SetComboBoxesVisibility(false, false);
+					break;
 
-                // Обновляем comboBoxTO
-                UpdateComboBoxTO();
+				case "tabPageRepeat":
+					UpdatePovtor();
+					SetComboBoxesVisibility(false, false);
+					break;
 
-                TechOperationForm.UpdateGrid();
-            }
+					// todo: добавить обработку по умолчанию, если требуется
+			}
 
-            if (table == 2)
-            {
-                var list = dataGridViewTPLocal.Rows;
-                var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
+			_logger.Information("Обновление данных для вкладки завершено.");
+		}
 
-                foreach (DataGridViewRow dataGridViewRow in list)
-                {
-                    var IddGuid = (Guid)dataGridViewRow.Cells[0].Value;
-                    var ord = (int)dataGridViewRow.Cells["Order1"].Value;
+		private void SetComboBoxesVisibility(bool toVisible, bool ttVisible)
+		{
+			comboBoxTO.Visible = toVisible;
+			comboBoxTT.Visible = ttVisible;
+		}
 
-                    var bg = work.executionWorks.SingleOrDefault(s => s.IdGuid == IddGuid);
-                    bg.Order = ord;
+		//public void UpdateTable(int table) // метод не используется
+  //      {
+  //          if (table == 1)
+  //          {
+  //              var list = dataGridViewTO.Rows;
+  //              foreach (DataGridViewRow dataGridViewRow in list)
 
-                }
-                TechOperationForm.UpdateGrid();
-            }
+  //              {
+  //                  // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
+  //                  //var techOperationWork = (TechOperationWork)dataGridViewRow.Cells[0].Value; 
+  //                  //techOperationWork.Order = dataGridViewRow.Index; // Обновляем свойство Order
 
-        }
+  //                  var idd = (TechOperationWork)dataGridViewRow.Cells[0].Value;
+  //                  var ord = (int)dataGridViewRow.Cells["Order"].Value;
+  //                  TechOperationWork TechOperat = TechOperationForm.TechOperationWorksList.SingleOrDefault(s => s == idd);
+
+  //                  if (TechOperat != null)
+  //                  {
+  //                      TechOperat.Order = ord;
+  //                  }
+
+  //              }
+
+  //              // Обновляем comboBoxTO
+  //              UpdateComboBoxTO();
+
+  //              TechOperationForm.UpdateGrid();
+  //          }
+
+  //          if (table == 2)
+  //          {
+  //              var list = dataGridViewTPLocal.Rows;
+  //              var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
+
+  //              foreach (DataGridViewRow dataGridViewRow in list)
+  //              {
+  //                  var IddGuid = (Guid)dataGridViewRow.Cells[0].Value;
+  //                  var ord = (int)dataGridViewRow.Cells["Order1"].Value;
+
+  //                  var bg = work.executionWorks.SingleOrDefault(s => s.IdGuid == IddGuid);
+  //                  bg.Order = ord;
+
+  //              }
+  //              TechOperationForm.UpdateGrid();
+  //          }
+
+  //      }
         private void UpdateComboBoxTO()
-        {
-            // Сохраняем текущий выбранный TechOperationWork из dataGridViewTO
-            TechOperationWork selectedTechOperationWork = null;
-            if (dataGridViewTO.SelectedRows.Count > 0)
-            {
-                selectedTechOperationWork = (TechOperationWork)dataGridViewTO.SelectedRows[0].Cells[0].Value;
-            }
+		{
+			ReloadComboBoxTODataSource();
 
-            // Создаем новый список TechOperationWork в текущем порядке
-            List<TechOperationWork> currentOrderList = new List<TechOperationWork>();
-            foreach (DataGridViewRow row in dataGridViewTO.Rows)
-            {
-                var techOperationWork = (TechOperationWork)row.Cells[0].Value;
-                currentOrderList.Add(techOperationWork);
-            }
+			// Сохраняем текущий выбранный TechOperationWork из dataGridViewTO
+			TechOperationWork? selectedTechOperationWork = null;
+			if (dataGridViewTO.SelectedRows.Count > 0)
+			{
+				selectedTechOperationWork = (TechOperationWork)dataGridViewTO.SelectedRows[0].Cells[0].Value;
+			}
 
-            // Временно отключаем обновление интерфейса ComboBox
-            comboBoxTO.BeginUpdate();
-            try
-            {
-                // Обновляем DataSource для comboBoxTO
-                comboBoxTO.DataSource = null;
-                comboBoxTO.DataSource = currentOrderList;
+			SelectComboboxItem(selectedTechOperationWork);
+			UpdateComboBoxTT();
+		}
 
-                // Устанавливаем выбранный элемент в comboBoxTO
-                if (selectedTechOperationWork != null && currentOrderList.Contains(selectedTechOperationWork))
-                {
-                    comboBoxTO.SelectedItem = selectedTechOperationWork;
-                }
+		private void ReloadComboBoxTODataSource()
+		{
+            // todo: не выполнять метод, если выбранное ТО соответствует отправленному в метод
+			// Создаем новый список TechOperationWork в текущем порядке
+			List<TechOperationWork> towInGrid = new List<TechOperationWork>();
+			foreach (DataGridViewRow row in dataGridViewTO.Rows)
+			{
+				var techOperationWork = (TechOperationWork)row.Cells[0].Value;
+				towInGrid.Add(techOperationWork);
+			}
 
-                // обновить comboBoxTT
-                UpdateComboBoxTT();
-            }
-            finally
-            {
-                // Включаем обновление интерфейса ComboBox
-                comboBoxTO.EndUpdate();
-            }
-        }
-        private void UpdateComboBoxTT()
-        {
-            // Сохраняем текущий выбранный TechOperationWork из dataGridViewTPLocal
-            ExecutionWork selectedTP = SelectedTP;
+			// Временно отключаем обновление интерфейса ComboBox
+			comboBoxTO.BeginUpdate();
+			try
+			{
+				// Обновляем DataSource для comboBoxTO
+				comboBoxTO.DataSource = null;
+				comboBoxTO.DataSource = towInGrid;
+			}
+			finally
+			{
+				// Включаем обновление интерфейса ComboBox
+				comboBoxTO.EndUpdate();
+			}
+		}
 
-            var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
+		private void SelectComboboxItem(TechOperationWork? selectedTechOperationWork)
+		{
+            if ( comboBoxTO.DataSource is List<TechOperationWork> currentComboBoxToList)
+			    // Устанавливаем выбранный элемент в comboBoxTO
+			    if (selectedTechOperationWork != null && currentComboBoxToList.Contains(selectedTechOperationWork))
+			    {
+				    comboBoxTO.SelectedItem = selectedTechOperationWork;
+			    }
+		}
 
-            if (work == null)
-                return;
+		private void UpdateComboBoxTT()
+		{
+			// Сохраняем текущий выбранный TechOperationWork из dataGridViewTPLocal
+			ExecutionWork selectedTP = SelectedTP;
 
-            var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work)
-                .executionWorks.Where(w => w.Delete == false)
-                .OrderBy(o => o.Order).ToList();
+			SetSelectedTP(selectedTP);
+		}
 
-            comboBoxTT.BeginUpdate();
-            try
-            {
-                var listExecutionWork = new List<ExecutionWork>(LocalTPs);
-                comboBoxTT.DataSource = null;
+		private void SetSelectedTP(ExecutionWork selectedTP)
+		{
+			var work = SelectedTO;//(TechOperationWork)comboBoxTO.SelectedItem;
+            if (SelectedTP == selectedTP 
+                || work == null 
+                || work != selectedTP.techOperationWork)
+				return;
 
-                comboBoxTT.DataSource = listExecutionWork;
+			var LocalTPs = TechOperationForm.TechOperationWorksList.Single(s => s == work)
+				.executionWorks.Where(w => w.Delete == false)
+				.OrderBy(o => o.Order).ToList();
 
-                // Устанавливаем выбранный элемент в comboBoxTO
-                if (selectedTP != null && listExecutionWork.Contains(selectedTP))
-                {
-                    comboBoxTT.SelectedItem = selectedTP;
-                }
+			comboBoxTT.BeginUpdate();
+			try
+			{
+				var listExecutionWork = new List<ExecutionWork>(LocalTPs);
+				comboBoxTT.DataSource = null;
 
-            }
-            finally
-            {
-                // Включаем обновление интерфейса ComboBox
-                comboBoxTT.EndUpdate();
-            }
+				comboBoxTT.DataSource = listExecutionWork;
 
-        }
+				// Устанавливаем выбранный элемент в comboBoxTO
+				if (selectedTP != null && listExecutionWork.Contains(selectedTP))
+				{
+					comboBoxTT.SelectedItem = selectedTP;
+				}
+			}
+			finally
+			{
+				// Включаем обновление интерфейса ComboBox
+				comboBoxTT.EndUpdate();
+			}
+		}
 
-        private void btnCreateNewTP_Click(object sender, EventArgs e)
+		private void btnCreateNewTP_Click(object sender, EventArgs e)
         {
             _logger.LogUserAction("Создание нового ТП");
 			// 1. Открытие формы по добавлению нового ТП с передачей номера ТК
@@ -3191,6 +3216,65 @@ namespace TC_WinForms.WinForms.Work
 				string errorMessage = ex.InnerException?.Message ?? ex.Message;
 				MessageBox.Show(errorMessage, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
+		}
+
+        public void SelectPageTab(string tabPageName)
+		{
+			tabControl1.SelectTab(tabPageName);
+            tabControl1_SelectedIndexChanged(null, null);
+		}
+
+        public void SelectTO(TechOperationWork techOperationWork)
+        {
+			if (techOperationWork == null)
+				return;
+			var index = TechOperationForm.TechOperationWorksList.IndexOf(techOperationWork);
+			if (index == -1)
+				return;
+			dataGridViewTO.ClearSelection();
+			dataGridViewTO.Rows[index].Selected = true;
+			dataGridViewTO.FirstDisplayedScrollingRowIndex = index;
+
+			SetComboBoxesVisibility(false, false);
+		}
+
+        public void SelectTP(ExecutionWork executionWork)
+        {
+			if (executionWork == null)
+				return;
+
+			SetComboBoxesVisibility(true, false);
+
+			SelectComboboxItem(executionWork.techOperationWork);
+            SetSelectedTP(executionWork);
+            SelectDataGridTPLocalItem(executionWork);
+		}
+
+        private void SelectDataGridTPLocalItem(ExecutionWork executionWork)
+        {
+			if (executionWork == null)
+				return;
+			var index = GetRowIndexByGuid(executionWork.IdGuid); //Cells[0].Value
+			if (index == -1)
+				return;
+
+			dataGridViewTPLocal.ClearSelection();
+			dataGridViewTPLocal.Rows[index].Selected = true;
+			dataGridViewTPLocal.FirstDisplayedScrollingRowIndex = index;
+		}
+
+        private int GetRowIndexByGuid(Guid guid)
+		{
+            DataGridView dataGridView = dataGridViewTPLocal;
+
+			foreach (DataGridViewRow row in dataGridView.Rows)
+			{
+				if ((Guid)row.Cells[0].Value == guid)
+				{
+					return row.Index;
+				}
+			}
+			return -1;
 		}
 	}
 }
