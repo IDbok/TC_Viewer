@@ -47,6 +47,12 @@ namespace TC_WinForms.WinForms.Work
 
             _logger.Information("Инициализация формы.");
 
+            if (_tcViewState.IsViewMode) 
+            {
+				_logger.Warning("Закрытие формы. Попытка открыть формы в режиме редактирования.");
+				this.Close();
+			}
+
             InitializeComponent();
 
             this.Text = $"{TechOperationForm.TehCarta.Name} ({TechOperationForm.TehCarta.Article}) - Редактор хода работ";

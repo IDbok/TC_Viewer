@@ -267,6 +267,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (selectedScope == null)
 			return;
 
+		var isNonVisibleInViewMode = _tcViewState.IsViewMode ? false : true;
+
 		// --- Показываем/прячем пункты КОПИРОВАНИЯ в зависимости от scope ---
 		switch (selectedScope)
 		{
@@ -274,16 +276,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				// Пользователь кликнул ячейку "Исполнитель"
 				copyTextItem.Visible = true;
 				copyStaffItem.Visible = true;          // Можно копировать персонал
-				separatorItem1.Visible = true;
-				openEditFormItem.Visible = true;
+				separatorItem1.Visible = isNonVisibleInViewMode;
+				openEditFormItem.Visible = isNonVisibleInViewMode;
 				//copyRowItem.Visible = true;  // И строку
 				break;
 
 			case CopyScopeEnum.Protections:
 				copyTextItem.Visible = true;
 				copyProtectionsItem.Visible = true;
-				separatorItem1.Visible = true;
-				openEditFormItem.Visible = true;
+				separatorItem1.Visible = isNonVisibleInViewMode;
+				openEditFormItem.Visible = isNonVisibleInViewMode;
 				//copyRowItem.Visible = true;
 				break;
 
@@ -296,8 +298,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			case CopyScopeEnum.TechTransition:
 				copyTextItem.Visible = true;
 				copyRowItem.Visible = true;
-				separatorItem1.Visible = true;
-				openEditFormItem.Visible = true;
+				separatorItem1.Visible = isNonVisibleInViewMode;
+				openEditFormItem.Visible = isNonVisibleInViewMode;
 				break;
 			case CopyScopeEnum.Row:
 				copyRowItem.Visible = true;
@@ -311,8 +313,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				// Клик по ячейке "Технологические операции"
 				copyRowItem.Visible = true;
 				copyTechOperationItem.Visible = true;
-				separatorItem1.Visible = true;
-				openEditFormItem.Visible = true;
+				separatorItem1.Visible = isNonVisibleInViewMode;
+				openEditFormItem.Visible = isNonVisibleInViewMode;
 				break;
 
 			case CopyScopeEnum.Text:
@@ -430,7 +432,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (e.Button == MouseButtons.Right)
 		{
 			// Если включён режим просмотра, то контекстное меню не показываем
-			if (_tcViewState.IsViewMode) return;
+			if (_tcViewState.IsViewMode  &&
+				( _tcViewState.UserRole == AuthorizationService.User.Role.User
+				|| _tcViewState.UserRole == AuthorizationService.User.Role.ProjectManager)
+				) return;
 
 			// Получаем координаты ячейки, на которую кликнули ПКМ
 			var hitTestInfo = dgvMain.HitTest(e.X, e.Y);
@@ -471,9 +476,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	/// Обработчик события нажатия клавиш в форме.
 	/// </summary>
 	private void Form_KeyDown(object? sender, KeyEventArgs e)
-    {
-        if (e.Control && e.KeyCode == Keys.V)
-        {
+	{
+		if (e.Control && e.KeyCode == Keys.V)
+		{
 			_logger.Debug("Нажаты Ctrl+V: запуск операции вставки (Paste).");
 			// Вставка данных из буфера обмена только если не включёр режим просмотра
 			if (_tcViewState.IsViewMode)
@@ -483,11 +488,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 			e.Handled = true;
 		}
-        // Новая обработка Ctrl + C
+		// Новая обработка Ctrl + C
 		else if (e.Control && e.KeyCode == Keys.C)
 		{
 			_logger.Debug("Нажаты Ctrl+C: запуск операции копирования (Copy).");
-			if (_tcViewState.IsViewMode)
+			if (_tcViewState.IsViewMode 
+				|| _tcViewState.UserRole == AuthorizationService.User.Role.User 
+				|| _tcViewState.UserRole == AuthorizationService.User.Role.ProjectManager)
 				CopyClipboardValue();
 			else
 				CopyData();
@@ -3092,6 +3099,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	}
 	private void OpenEditForm()
 	{
+		if (_tcViewState.IsViewMode) return;
+
 		GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? selectedScope);
 
 		if (selectedScope == null) return;
