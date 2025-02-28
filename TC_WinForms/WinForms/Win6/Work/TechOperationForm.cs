@@ -699,17 +699,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (selectedRowIndices.Count != 1)
 			throw new Exception("Ошибка: для вставки персонала выделите ровно одну строку.");
 
-		var selectedItem = TechOperationDataGridItems[selectedRowIndices[0]];
-        var ew = selectedItem.WorkItem as ExecutionWork;
-        if (ew == null)
+        if (TechOperationDataGridItems[selectedRowIndices[0]].WorkItem is not ExecutionWork ew)
         {
             MessageBox.Show("В данной строке невозможно вставить связь с Персоналом");
             return;
         }
 
         // Обновляем связь ExecutionWork -> Staffs
-        var copiedEw = TcCopyData.FullItems[0].WorkItem as ExecutionWork;
-		if (copiedEw == null)
+		if (TcCopyData.FullItems[0].WorkItem is not ExecutionWork copiedEw)
 		{
 			MessageBox.Show("Ошибка при вставке данных. Некоректный скопированный объект");
 			return;
@@ -731,15 +728,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (selectedRowIndices.Count != 1)
 			throw new Exception("Ошибка: для вставки СИЗ выделите ровно одну строку.");
 
-		var selectedItem = TechOperationDataGridItems[selectedRowIndices[0]];
-		var ew = selectedItem.WorkItem as ExecutionWork;
-		if (ew == null)
+		if (TechOperationDataGridItems[selectedRowIndices[0]].WorkItem is not ExecutionWork ew)
 		{
 			MessageBox.Show("В данной строке невозможно вставить связь с СЗ");
 			return;
 		}
-		var copiedEw = TcCopyData.FullItems[0].WorkItem as ExecutionWork;
-		if (copiedEw == null)
+		if (TcCopyData.FullItems[0].WorkItem is not ExecutionWork copiedEw)
 		{
 			MessageBox.Show("Ошибка при вставке данных. Некоректный скопированный объект");
 			return;
@@ -792,11 +786,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 					return;
 				}
 
-				int iterator = 0;
-				foreach (var copiedItem in TcCopyData.FullItems)
+				for (int i = 0; i < TcCopyData.FullItems.Count; i++)
 				{
-					PasteAsNewRow(rowIndex + iterator, selectedTow, copiedItem, updateDataGrid: false);
-					iterator++;
+					PasteAsNewRow(rowIndex + i, selectedTow, TcCopyData.FullItems[i], updateDataGrid: false);
 				}
 				UpdateGrid();
 			}
@@ -2393,8 +2385,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             // Проверка имени столбца
             if (columnName == "Время действ., мин.")
             {
-                var executionWork = dgvMain.Rows[e.RowIndex].Cells[0].Value as ExecutionWork;
-                if (executionWork != null)
+                if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork executionWork)
                 {
                     if (!string.IsNullOrEmpty(executionWork.Coefficient) && executionWork.techTransition != null)
                         dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = executionWork.techTransition.TimeExecution + executionWork.Coefficient;

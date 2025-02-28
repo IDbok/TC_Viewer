@@ -154,14 +154,11 @@ namespace TC_WinForms.DataProcessing
 			if (e.RowIndex >= 0)
 			{
 				var row = _dgv.Rows[e.RowIndex];
-				var displayedObject = row.DataBoundItem as IReleasable;
-				if (displayedObject != null)
+				//var displayedObject = row.DataBoundItem as IReleasable;
+				if (row.DataBoundItem is IReleasable displayedObject && !displayedObject.IsReleased)
 				{
 					// Меняем цвет строки в зависимости от значения свойства IsReleased
-					if (!displayedObject.IsReleased)
-					{
-						row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
-					}
+					row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
 				}
 			}
 		}
