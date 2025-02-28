@@ -1354,7 +1354,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// добавляем скопированные инструменты, если их нет в ТО
 			foreach (var cw in copiedComponentWorks)
 			{
-				bool alreadyExists = selectedTow.ToolWorks.Any(o => o.toolId == cw.componentId);
+				bool alreadyExists = selectedTow.ComponentWorks.Any(o => o.componentId == cw.componentId);
 				if (!alreadyExists)
 				{
 					Component addingObject = ResolveComponentInCurrentTc(cw);
@@ -1386,16 +1386,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 					if (existionObject == null)
 						throw new Exception("Ошибка при копировании инструментов. Ошибка 1246");
 
-					TehCarta.Tool_TCs.Add(new Tool_TC
-					{
-						ParentId = TehCarta.Id,
-						ChildId = tw.toolId,
-						Child = existionObject,
-						Quantity = tw.Quantity,
-						Note = tw.Comments,
+					if(!TehCarta.Tool_TCs.Any(o => o.ChildId == existionObject.Id))
+						TehCarta.Tool_TCs.Add(new Tool_TC
+						{
+							ParentId = TehCarta.Id,
+							ChildId = tw.toolId,
+							Child = existionObject,
+							Quantity = tw.Quantity,
+							Note = tw.Comments,
 
-						Order = TehCarta.Tool_TCs.Count + 1
-					});
+							Order = TehCarta.Tool_TCs.Count + 1
+						});
 				}
                 return existionObject;
 			}
@@ -1414,16 +1415,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 					if (existionObject == null)
 						throw new Exception("Ошибка при копировании компонентов. Ошибка 1246");
 
-					TehCarta.Component_TCs.Add(new Component_TC
-					{
-						ParentId = TehCarta.Id,
-						ChildId = componentWork.componentId,
-						Child = existionObject,
-						Quantity = componentWork.Quantity,
-						Note = componentWork.Comments,
+					if (!TehCarta.Component_TCs.Any(o => o.ChildId == existionObject.Id))
+						TehCarta.Component_TCs.Add(new Component_TC
+						{
+							ParentId = TehCarta.Id,
+							ChildId = componentWork.componentId,
+							Child = existionObject,
+							Quantity = componentWork.Quantity,
+							Note = componentWork.Comments,
 
-						Order = TehCarta.Component_TCs.Count + 1
-					});
+							Order = TehCarta.Component_TCs.Count + 1
+						});
 				}
 
 				return existionObject;
