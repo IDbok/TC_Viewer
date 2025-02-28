@@ -2992,7 +2992,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     }
 
 
-    public void SelectCurrentRow(TechOperationWork work, ExecutionWork executionWork = null)
+    public void SelectCurrentRow(TechOperationWork work, ExecutionWork? executionWork = null)
     {
         if (work == null)
             return;
@@ -3003,7 +3003,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         if (dgvItem != null)
         {
             dgvMain.ClearSelection();
-            dgvMain.FirstDisplayedScrollingRowIndex = TechOperationDataGridItems.IndexOf(dgvItem);
+            //dgvMain.FirstDisplayedScrollingRowIndex = TechOperationDataGridItems.IndexOf(dgvItem);
             dgvMain.Rows[TechOperationDataGridItems.IndexOf(dgvItem)].Selected = true;
         }
 
@@ -3101,38 +3101,53 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			_editForm = new AddEditTechOperationForm(this, _tcViewState);
 		}
 
-		_editForm.Show();
 		_editForm.Enabled = false;
+		_editForm.Show();
 		_editForm.BringToFront(); // не выделяется необходимая строка при 
+
+		var selectedItem = selectedItems[0];
 
 		switch (selectedScope)
 		{
 			case CopyScopeEnum.TechOperation:
-				_editForm.SelectPageTab("tabPageTO"); ;
-				_editForm.SelectTO(selectedItems[0].TechOperationWork);
+				_editForm.SelectTO(selectedItem.TechOperationWork);
+				_editForm.SelectPageTab("tabPageTO");
+				break;
+			case CopyScopeEnum.Row:
+				if(!SetTransitionAndOpenPage(selectedItem, "tabPageTP"))
+				{
+					_editForm.SelectTO(selectedItem.TechOperationWork);
+					_editForm.SelectPageTab("tabPageTO");
+				};
 				break;
 			case CopyScopeEnum.TechTransition:
-				_editForm.SelectPageTab("tabPageTP");
-				if(selectedItems[0].WorkItemType == WorkItemType.ExecutionWork 
-					&& selectedItems[0].WorkItem is ExecutionWork selectedTP)
-					_editForm.SelectTP(selectedTP);
+				SetTransitionAndOpenPage(selectedItem, "tabPageTP");
 				break;
 			case CopyScopeEnum.Staff:
-				_editForm.SelectPageTab("tabPageStaff"); ;
-				if (selectedItems[0].WorkItemType == WorkItemType.ExecutionWork
-					&& selectedItems[0].WorkItem is ExecutionWork selectedTPStaff)
-					_editForm.SelectTP(selectedTPStaff);
+				SetTransitionAndOpenPage(selectedItem, "tabPageStaff");				
 				break;
 			case CopyScopeEnum.Protections:
-				_editForm.SelectPageTab("tabPageProtection"); ;
-				if (selectedItems[0].WorkItemType == WorkItemType.ExecutionWork
-					&& selectedItems[0].WorkItem is ExecutionWork selectedTPProtections)
-					_editForm.SelectTP(selectedTPProtections);
+				SetTransitionAndOpenPage(selectedItem, "tabPageProtection");
 				break;
 			default:
 				break;
 		}
-
 		_editForm.Enabled = true;
+
+		bool SetTransitionAndOpenPage(TechOperationDataGridItem selectedItem, string pageName)
+		{
+			if (_editForm == null || _editForm.IsDisposed) throw new Exception();
+
+			if (selectedItem.WorkItemType == WorkItemType.ExecutionWork
+								&& selectedItem.WorkItem is ExecutionWork selectedTPRow)
+			{
+				_editForm.SelectTP(selectedTPRow);
+				_editForm.SelectPageTab(pageName);
+
+				return true;
+			}
+
+			return false;
+		}
 	}
 }
