@@ -1,25 +1,14 @@
 ﻿using ExcelParsing.DataProcessing;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using OfficeOpenXml.Style;
 using Serilog;
-using Serilog.Filters;
-using System.ComponentModel;
 using System.Data;
-using System.DirectoryServices.ActiveDirectory;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Security.Cryptography;
 using System.Text.Json;
-using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win7.Work;
-using TC_WinForms.WinForms.Work;
 using TcDbConnector;
 using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -31,7 +20,7 @@ namespace TC_WinForms.WinForms
     {
         #region Fields
 
-        private readonly User.Role _accessLevel;
+        //private readonly User.Role _accessLevel;
         private readonly int _minRowHeight = 20;
 
         private DbConnector dbCon = new DbConnector();
@@ -68,7 +57,7 @@ namespace TC_WinForms.WinForms
             _logger = Log.Logger.ForContext<Win7_SummaryOutlay>();
             _logger.Information("Инициализация окна Win7_1_TCs для роли {AccessLevel}", accessLevel);
 
-            _accessLevel = accessLevel;
+            //_accessLevel = accessLevel;
 
             InitializeComponent();
 
@@ -439,8 +428,8 @@ namespace TC_WinForms.WinForms
             _logger.Information($"Настойка отображения таблицы");
 
             // Автоподбор ширины столбцов
-            dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            //dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMain.RowHeadersWidth = 25;
 
             //// автоперенос в ячейках
@@ -465,6 +454,44 @@ namespace TC_WinForms.WinForms
                     dgvMain.Columns[column.Name].SortMode = DataGridViewColumnSortMode.Automatic;
                 else
                     dgvMain.Columns[column.Name].SortMode = DataGridViewColumnSortMode.NotSortable;
+            }
+
+            foreach(DataGridViewColumn col in dgvMain.Columns)
+            {
+                col.FillWeight = col.Name.Contains("Staff") || col.Name.Contains("Machine")
+                    ? GetFillWeight(col.Name.Split(" ")[0])
+                    : GetFillWeight(col.Name);
+                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                col.MinimumWidth = col.Name.Contains("Staff") ? 60 : (int)col.FillWeight;
+                col.MinimumWidth = col.Name.Contains("Machine") ? 180 : (int)col.FillWeight;
+
+                col.Resizable = DataGridViewTriState.True;
+            }
+            dgvMain.Columns[nameof(SummaryOutlayDataGridItem.TcName)].Frozen = true;
+            dgvMain.Columns[nameof(SummaryOutlayDataGridItem.TechProcess)].Frozen = true;
+            dgvMain.Columns[nameof(SummaryOutlayDataGridItem.Parameter)].Frozen = true;
+            dgvMain.ScrollBars = ScrollBars.Both;
+        }
+
+        private float GetFillWeight(string FieldName)
+        {
+            switch (FieldName)
+            {
+                case "Staff":
+                    return 75;
+                case "Machine":
+                    return 220;
+                case "ComponentOutlay":
+                case "SummaryOutlay":
+                case "UnitType":
+                case "SummaryOutlayCost":
+                    return 190;
+                case "TcName":
+                case "TechProcess":
+                case "Parameter":
+                    return 170;
+                default:
+                    return 100;
             }
         }
         #endregion
@@ -496,7 +523,7 @@ namespace TC_WinForms.WinForms
             {
                 var staffSymbol = staff.Split(" ")[0];
 
-                if (dgvMain.Columns.Contains($"Staff{staffSymbol}"))
+                if (dgvMain.Columns.Contains($"Staff {staffSymbol}"))
                     continue;
 
                 dgvMain.Columns.Add($"Staff{staffSymbol}", $"{staffSymbol}, ч.");
