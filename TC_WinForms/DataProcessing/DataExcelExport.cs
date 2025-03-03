@@ -34,7 +34,7 @@ namespace TC_WinForms.DataProcessing
                     MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                var excelPackage = CreateNewExcelPackage(filePath);
+                var excelPackage = new ExcelPackage();
 
                 var tcExport = new TCExcelExporter();
                 tcExport.ExportTCtoFile(excelPackage, tc);
@@ -45,6 +45,7 @@ namespace TC_WinForms.DataProcessing
                 var diagramExport = new DiagramExcelExporter();
                 diagramExport.ExportDiadramToExel(excelPackage, tc, dtwList);
 
+                excelPackage.File = new FileInfo(filePath);//после того, как создание/обновление всех листов происходит(в случае ошибок создания листов мы не дойдем до этого места) мы присваиваем адрес excelPackage, это обеспечивает перезаписывание файла без его удаления
                 excelPackage.Save();
                 excelPackage.Dispose();
 
@@ -59,18 +60,6 @@ namespace TC_WinForms.DataProcessing
                 MessageBox.Show("Произошла ошибка при сохранении файла: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-        }
-
-
-        private ExcelPackage CreateNewExcelPackage(string filePath)
-        {
-            // Создание нового файла Excel (если файл уже существует, он будет перезаписан)
-            var fileInfo = new FileInfo(filePath);
-            if (fileInfo.Exists)
-            {
-                fileInfo.Delete();
-            }
-            return new ExcelPackage(fileInfo);
         }
     }
 }
