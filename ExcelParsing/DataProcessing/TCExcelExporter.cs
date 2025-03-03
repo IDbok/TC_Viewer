@@ -88,7 +88,7 @@ namespace ExcelParsing.DataProcessing
 
         public void ExportTCtoFile(ExcelPackage _excelPackage, TechnologicalCard tc)
         {
-            string sheetName = tc.Article;
+            string sheetName = "Требования и Ход работ";
             var machine_TCs = tc.Machine_TCs.OrderBy(x => x.Order).ToList();
 
             CompliteColumnsWidthWithMachines(machine_TCs.Count());
