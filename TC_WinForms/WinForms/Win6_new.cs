@@ -375,7 +375,7 @@ namespace TC_WinForms.WinForms
 			try
 			{
 				var rep = new TechnologicalCardRepository();
-				tcViewState.TechnologicalCard = await rep.GetTechnologicalCardToExportAsync(_tcId, context);
+				tcViewState.TechnologicalCard = await rep.GetTCDataAsync(_tcId, context);
                 tcViewState.TechOperationWorksList = tcViewState.TechnologicalCard.TechOperationWorks;
                 tcViewState.DiagramToWorkList = await rep.GetDTWDataAsync(_tcId, context);
 

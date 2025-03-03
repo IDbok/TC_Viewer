@@ -25,9 +25,9 @@ namespace TC_WinForms.DataProcessing
             {
 
                 TechnologicalCardRepository tcRepository = new TechnologicalCardRepository();
-                var tc = await tcRepository.GetTechnologicalCardToExportAsync(tcId);
-                var outlayList = await tcRepository.GetTCOutlayDataForPrint(tcId);
-                var dtwList = await tcRepository.GetDTWDataForPrint(tcId);
+                var tc = await tcRepository.GetTCDataAsync(tcId);
+                var outlayList = await tcRepository.GetOutlayDataAsync(tcId);
+                var dtwList = await tcRepository.GetDTWDataAsync(tcId);
 
                 if (tc == null)
                 {

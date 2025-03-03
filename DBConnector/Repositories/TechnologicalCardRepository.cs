@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TcModels.Models;
 using TcModels.Models.TcContent;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TcDbConnector.Repositories;
 
@@ -23,7 +22,7 @@ public class TechnologicalCardRepository
 
     public async Task<TechnologicalCard> GetTechnologicalCardAsync(int id)
     {
-        var tc = await GetTCDataAsync(id);
+        var tc = await GetTCDataAsyncCopy(id);
         tc.TechOperationWorks = await GetTOWDataAsync(id);
         tc.DiagamToWork = await GetDTWDataAsync(id);
 
@@ -35,7 +34,7 @@ public class TechnologicalCardRepository
         return tc;
     }
 
-    public async Task<TechnologicalCard?> GetTechnologicalCardToExportAsync(int id, MyDbContext dbCon = null)
+    public async Task<TechnologicalCard?> GetTCDataAsync(int id, MyDbContext dbCon = null)
     {
         bool isContextLocal = dbCon == null;
         MyDbContext context = dbCon ?? new MyDbContext();
@@ -84,7 +83,7 @@ public class TechnologicalCardRepository
         }
     }
 
-    public async Task<TechnologicalCard> GetTCDataAsync(int _tcId)
+    public async Task<TechnologicalCard> GetTCDataAsyncCopy(int _tcId)//метод отличается другой структурой запроса, которая используется только для копирования карты
     {
         try
         {
@@ -206,30 +205,30 @@ public class TechnologicalCardRepository
         }
     }
 
-    public async Task<List<DiagamToWork>> GetDTWDataForPrint(int tcId)
-    {
-        using (MyDbContext context = new MyDbContext())
-        {
-            var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == tcId)
-                                                                       .Include(ie => ie.techOperationWork)
-                                                                       .ToListAsync();
+    //public async Task<List<DiagamToWork>> GetDTWDataForPrint(int tcId)
+    //{
+    //    using (MyDbContext context = new MyDbContext())
+    //    {
+    //        var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == tcId)
+    //                                                                   .Include(ie => ie.techOperationWork)
+    //                                                                   .ToListAsync();
 
-            var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
-                                                                        .Include(t => t.techOperationWork)
-                                                                        .ToListAsync();
+    //        var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
+    //                                                                    .Include(t => t.techOperationWork)
+    //                                                                    .ToListAsync();
 
-            var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
-                                                                   .ToListAsync();
+    //        var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
+    //                                                               .ToListAsync();
 
-            var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
-                .Include(q => q.ListDiagramShagToolsComponent)
-                .ToListAsync();
+    //        var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
+    //            .Include(q => q.ListDiagramShagToolsComponent)
+    //            .ToListAsync();
 
-            return diagramToWorkList.OrderBy(o => o.Order).ToList();
-        }
-    }
+    //        return diagramToWorkList.OrderBy(o => o.Order).ToList();
+    //    }
+    //}
 
-    public async Task<List<Outlay>> GetTCOutlayDataForPrint(int tcId)
+    public async Task<List<Outlay>> GetOutlayDataAsync(int tcId)
     {
         using (MyDbContext context = new MyDbContext())
         {
