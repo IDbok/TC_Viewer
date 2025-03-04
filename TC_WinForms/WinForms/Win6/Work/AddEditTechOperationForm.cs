@@ -122,7 +122,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewPovtor.CellContentClick += DataGridViewPovtor_CellContentClick;
             dataGridViewPovtor.CellValueChanged += DataGridViewPovtor_CellValueChanged;
             dataGridViewPovtor.CellFormatting += dataGridViewPovtor_CellFormatting;
-            dataGridViewPovtor.SelectionChanged += DataGridViewPovtor_SelectionChanged;
+            //dataGridViewPovtor.SelectionChanged += DataGridViewPovtor_SelectionChanged;
             dataGridViewPovtor.CellValidating += CellValidating;
             dataGridViewPovtor.CellEndEdit += DataGridViewPovtor_CellEndEdit;
 
@@ -165,7 +165,7 @@ namespace TC_WinForms.WinForms.Work
                 if (e.ListItem is ExecutionWork ew)
                 {
                     // Задайте формат отображения текста
-                    e.Value = $"№{ew.Order} {ew.techTransition.Name}";
+                    e.Value = $"№{ew.Order} {ew.techTransition?.Name ?? ""}";
                 }
             };
 
@@ -210,7 +210,9 @@ namespace TC_WinForms.WinForms.Work
         {
             HighlightTOTTRow(true);
 
-            switch (tabControl1.SelectedTab.Name)
+			if (tabControl1.SelectedTab == null) return;
+
+			switch (tabControl1.SelectedTab.Name)
             {
                 case "tabPageStaff":
                     UpdateGridStaff();
@@ -226,6 +228,8 @@ namespace TC_WinForms.WinForms.Work
         private void ComboBoxTO_SelectedIndexChanged(object? sender, EventArgs e)
         {
             //HighlightTOTTRow();
+
+            if (tabControl1.SelectedTab == null) return;
 
             switch (tabControl1.SelectedTab.Name)
             {
@@ -257,7 +261,74 @@ namespace TC_WinForms.WinForms.Work
 
         }
 
-        private void CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
+		public void RefreshActiveTabData()
+		{
+			// Определяем текущую активную вкладку
+			var activeTab = tabControl1.SelectedTab;
+			if (activeTab == null)
+				return;
+
+			string tabName = activeTab.Name;
+			_logger.Information($"Обновление данных для активной вкладки: {tabName}");
+
+			// Выбираем действия в зависимости от имени активной вкладки
+			switch (tabName)
+			{
+				case "tabPageTO":
+					// Обновление данных для вкладки "Все ТО" (технологические операции)
+					//UpdateAllTO();
+					//UpdateLocalTO();
+					//_logger.Information("Вкладка ТО обновлена (список всех и локальных ТО).");
+					break;
+				case "tabPageTP":
+					// Обновление данных для вкладки "ТП" (технологические переходы)
+					UpdateGridAllTP();
+					UpdateLocalTP();
+					_logger.Information("Вкладка ТП обновлена (список всех и локальных переходов).");
+					break;
+				case "tabPageStaff":
+					// Обновление данных для вкладки "Персонал"
+					UpdateGridStaff();
+					UpdateGridStaffAll();
+					_logger.Information("Вкладка персонала обновлена (локальный и общий списки).");
+					break;
+				case "tabPageComponent":
+					// Обновление данных для вкладки "Комплектующие/Компоненты"
+					UpdateComponentLocal();
+					UpdateComponentAll();
+					_logger.Information("Вкладка компонентов обновлена (локальный и общий списки).");
+					break;
+				case "tabPageTool":
+					// Обновление данных для вкладки "Инструменты"
+					UpdateInstrumentLocal();
+					UpdateInstrumentAll();
+					_logger.Information("Вкладка инструментов обновлена (локальный и общий списки).");
+					break;
+				case "tabPageProtection":
+					// Обновление данных для вкладки "Средства защиты"
+					UpdateGridLocalSZ();
+					UpdateGridAllSZ();
+					_logger.Information("Вкладка средств защиты обновлена (локальный и общий списки).");
+					break;
+				case "tabPageStage":
+					// Обновление данных для вкладки "Этапы"
+					dataGridViewEtapUpdate();
+					_logger.Information("Вкладка этапов обновлена.");
+					break;
+				case "tabPageRepeat":
+					// Обновление данных для вкладки "Повторить" (если требуется логика обновления)
+					//dataGridViewPovtor.Rows.Clear();
+					//_logger.Information("Вкладка повторов обновлена.");
+					break;
+				default:
+					// На случай непредвиденного имени вкладки
+					_logger.Warning($"Неизвестная вкладка: {tabName}. Обновление пропущено.");
+					break;
+			}
+		}
+
+
+		private void CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
         {
             var Left = Keyboard.IsKeyDown(System.Windows.Input.Key.Left);
             var Right = Keyboard.IsKeyDown(System.Windows.Input.Key.Right);
@@ -265,7 +336,7 @@ namespace TC_WinForms.WinForms.Work
             var Down = Keyboard.IsKeyDown(System.Windows.Input.Key.Down);
 
             var currentGrid = sender as DataGridView;
-            if (currentGrid.CurrentCell.IsInEditMode && (Left || Right || Up || Down))
+            if (currentGrid != null && currentGrid.CurrentCell.IsInEditMode && (Left || Right || Up || Down))
             {
                 e.Cancel = true;
             }
@@ -568,7 +639,7 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
-        private void DataGridViewTO_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        private void DataGridViewTO_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.ColumnIndex == dataGridViewTO.Columns["ParallelIndex"].Index
                 || e.ColumnIndex == dataGridViewTO.Columns["SequenceGroupIndex"].Index
@@ -750,7 +821,7 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
-        private void DataGridViewTPLocal_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        private void DataGridViewTPLocal_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
             // todo: прерделать на метод по отрисовке строк, а не ячеек
 
@@ -795,7 +866,7 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
-        private void DataGridViewTO_SelectionChanged(object sender, EventArgs e)
+        private void DataGridViewTO_SelectionChanged(object? sender, EventArgs e)
         {
             if (dataGridViewTO.SelectedRows.Count > 0)
             {
@@ -2502,20 +2573,20 @@ namespace TC_WinForms.WinForms.Work
         //        }
         //    }
         //}
-        private void DataGridViewPovtor_SelectionChanged(object sender, EventArgs e)
+        private void DataGridViewPovtor_SelectionChanged(object? sender, EventArgs e)
         {
             if (dataGridViewPovtor.SelectedRows.Count > 0)
             {
                 // Получаем выделенную строку
-                var selectedRow = dataGridViewPovtor.SelectedRows[0];
-                var executionWork = (ExecutionWork)selectedRow.Cells[0].Value;
+                //var selectedRow = dataGridViewPovtor.SelectedRows[0];
+                //var executionWork = (ExecutionWork)selectedRow.Cells[0].Value;
 
                 // Вызываем метод для выделения строки
                 //TechOperationForm.HighlightExecutionWorkRow(executionWork, false);
             }
         }
 
-        private void dataGridViewPovtor_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        private void dataGridViewPovtor_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
             if (executionWorkPovtor == null) return;
 

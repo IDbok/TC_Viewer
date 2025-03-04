@@ -682,6 +682,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 					MessageBox.Show("Не удалось определить тип вставки.");
 					break;
 			}
+			if (_editForm != null && !_editForm.IsDisposed)
+			{
+				_editForm.RefreshActiveTabData();
+			}
 		}
 		catch (Exception ex)
 		{
