@@ -11,6 +11,7 @@ using TC_WinForms.WinForms.Win6;
 using TC_WinForms.WinForms.Win6.Models;
 using TC_WinForms.WinForms.Work;
 using TcDbConnector;
+using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
@@ -368,15 +369,15 @@ namespace TC_WinForms.WinForms
 			}
 		}
 
-
 		private async Task SetTcViewStateData()
 		{
 
 			try
 			{
-				tcViewState.TechnologicalCard = await GetTCDataAsync();
-				tcViewState.TechOperationWorksList = await GetTOWDataAsync();
-				tcViewState.DiagramToWorkList = await GetDTWDataAsync();
+				var rep = new TechnologicalCardRepository();
+				tcViewState.TechnologicalCard = await rep.GetTCDataAsync(_tcId, context);
+                tcViewState.TechOperationWorksList = tcViewState.TechnologicalCard.TechOperationWorks;
+                tcViewState.DiagramToWorkList = await rep.GetDTWDataAsync(_tcId, context);
 
 				_logger.Information("Данные для TcViewState успешно загружены для TcId={TcId}", _tcId);
 			}
@@ -392,10 +393,11 @@ namespace TC_WinForms.WinForms
 		private async void Win6_new_Load(object sender, EventArgs e)
 		{
 			_logger.Information("Загрузка формы Win6_new для TcId={TcId}", _tcId);
-			// download TC from db
-			//var tcRepository = new TechnologicalCardRepository(); // не используется
 			try
 			{
+				// Блокировка формы при загрузки данных
+				this.Enabled = false;
+
 				await SetTcViewStateData();
 				_tc = tcViewState.TechnologicalCard;
 
@@ -412,13 +414,13 @@ namespace TC_WinForms.WinForms
 				SetTCStatusAccess();
 				UpdateFormTitle();
 
-
 				if (concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
 					MessageBox.Show("Данная карта сейчас редактируется другим пользователем, ТК открыта в режиме просмотра");
 
 				SetViewMode();
-
 				UpdateDynamicCardParametrs();
+
+				await ShowForm(EModelType.WorkStep);
 
 				_logger.Information("Форма загружена успешно для TcId={TcId}", _tcId);
 			}
@@ -428,21 +430,13 @@ namespace TC_WinForms.WinForms
 				MessageBox.Show(ex.Message);
 				this.Close();
 			}
-
-			_logger.Information("Отображение формы для TcId={TcId}", _tcId);
-			try
+			finally
 			{
-
-				await ShowForm(EModelType.WorkStep);
+				if (this != null && !this.IsDisposed && this.IsHandleCreated) // Проверяем, что форма не уничтожена
+				{
+					this.Enabled = true;
+				}
 			}
-			catch (Exception ex)
-			{
-				_logger.Error(ex, "Ошибка при отображении формы для TcId={TcId}.\n" +
-					"Форма закрыта!", _tcId);
-				MessageBox.Show("Ошибка загрузки формы: " + ex.Message);
-				this.Close();
-			}
-
 		}
 		private void UpdateFormTitle()
 		{
@@ -889,8 +883,21 @@ namespace TC_WinForms.WinForms
 			LogUserAction("Печать технологической карты");
 			try
 			{
-				var tcExporter = new ExExportTC();
-				await tcExporter.SaveTCtoExcelFile(_tc.Article, _tc.Id);
+				using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+				{
+                    // Настройка диалога сохранения файла
+                    saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+                    saveFileDialog.FilterIndex = 1;
+                    saveFileDialog.RestoreDirectory = true;
+
+                    saveFileDialog.FileName = _tc.Article;
+
+					if (saveFileDialog.ShowDialog() == DialogResult.OK)
+					{
+                        var tcExporter = new DataExcelExport();
+                        await tcExporter.SaveTCtoExcelFile(saveFileDialog.FileName, _tcId);
+                    }
+                }
 
 				_logger.Information("Печать успешно завершена для TcId={TcId}", _tcId);
 			}
