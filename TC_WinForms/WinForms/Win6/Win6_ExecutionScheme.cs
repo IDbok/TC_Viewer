@@ -42,7 +42,7 @@ namespace TC_WinForms.WinForms
 			InitializeComponent();
 			SetupFormTitle();
 			RegisterViewModeEvents();
-		}
+        }
 
 		private void SetupFormTitle()
 		{
@@ -84,7 +84,29 @@ namespace TC_WinForms.WinForms
 			finally
 			{
 				stopwatch.Stop();
-			}
+				SetupTxtBox();
+            }
+		}
+
+		private void SetupTxtBox()
+		{
+            string noInfoString = "N/A";
+
+            txtArticle.Text = $" {_tcViewState.TechnologicalCard.Article}";
+            txtNote.Text = $" {(string.IsNullOrEmpty(_tcViewState.TechnologicalCard.Note)
+                ? noInfoString
+                : _tcViewState.TechnologicalCard.Note)}";
+
+            txtTechInfo.Text = $"{(string.IsNullOrEmpty(_tcViewState.TechnologicalCard.TechnologicalProcessName)
+                ? noInfoString
+                : _tcViewState.TechnologicalCard.TechnologicalProcessName)}: {(string.IsNullOrEmpty(_tcViewState.TechnologicalCard.Parameter)
+                                                                                ? noInfoString
+                                                                                : _tcViewState.TechnologicalCard.Parameter)}";
+
+
+			txtNote.Enabled = false;
+			txtArticle.Enabled = false;
+			txtTechInfo.Enabled = false;
 		}
 
 		private void OnViewModeChanged()

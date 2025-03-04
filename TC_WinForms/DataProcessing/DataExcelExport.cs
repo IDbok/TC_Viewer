@@ -28,13 +28,16 @@ namespace TC_WinForms.DataProcessing
                 var tc = await tcRepository.GetTCDataAsync(tcId);
                 var outlayList = await tcRepository.GetOutlayDataAsync(tcId);
                 var dtwList = await tcRepository.GetDTWDataAsync(tcId);
-
+                var imageBase64 = await tcRepository.GetImageBase64Async((long)tc.ExecutionSchemeImageId);
                 if (tc == null)
                 {
                     MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
                 var excelPackage = new ExcelPackage();
+
+                var coverExport = new TcCoverExcelExporter();
+                coverExport.ExportCoverToExcel(excelPackage, tc, imageBase64);
 
                 var tcExport = new TCExcelExporter();
                 tcExport.ExportTCtoFile(excelPackage, tc);
