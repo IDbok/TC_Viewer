@@ -92,19 +92,20 @@
             // 
             printToolStripMenuItem.Name = "printToolStripMenuItem";
 			printToolStripMenuItem.Size = new Size(354, 34);
-            printToolStripMenuItem.Text = "Печать";
-            printToolStripMenuItem.Click += printToolStripMenuItem_Click;
-            // 
-            // printBlockSchemeToolStripMenuItem
-            // 
-            printBlockSchemeToolStripMenuItem.Name = "printBlockSchemeToolStripMenuItem";
-			printBlockSchemeToolStripMenuItem.Size = new Size(354, 34);
-            printBlockSchemeToolStripMenuItem.Text = "Печать блок схемы";
-            printBlockSchemeToolStripMenuItem.Click += printDiagramToolStripMenuItem_Click;
-            // 
-            // updateToolStripMenuItem
-            // 
-            updateToolStripMenuItem.Name = "updateToolStripMenuItem";
+			printToolStripMenuItem.Text = "Печать";
+			printToolStripMenuItem.Click += printToolStripMenuItem_Click;
+			// 
+			// printBlockSchemeToolStripMenuItem
+			// 
+			printBlockSchemeToolStripMenuItem.Name = "printBlockSchemeToolStripMenuItem";
+            printBlockSchemeToolStripMenuItem.Visible = false;
+            printBlockSchemeToolStripMenuItem.Size = new Size(354, 34);
+			printBlockSchemeToolStripMenuItem.Text = "Печать блок схемы";
+			printBlockSchemeToolStripMenuItem.Click += printDiagramToolStripMenuItem_Click;
+			// 
+			// updateToolStripMenuItem
+			// 
+			updateToolStripMenuItem.Name = "updateToolStripMenuItem";
 			updateToolStripMenuItem.Size = new Size(354, 34);
             updateToolStripMenuItem.Text = "Редактировать";
             updateToolStripMenuItem.Click += updateToolStripMenuItem_Click;

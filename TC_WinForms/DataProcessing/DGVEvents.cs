@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.DirectoryServices.ActiveDirectory;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TC_WinForms.Interfaces;
+﻿using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Work;
-using static TC_WinForms.WinForms.Win6_Staff;
 using TcModels.Models.Interfaces;
+using static TC_WinForms.WinForms.Win6_Staff;
 
 namespace TC_WinForms.DataProcessing
 {
-    public class DGVEvents
+	public class DGVEvents
     {
 
         private int rowIndexFromMouseDown;
@@ -155,24 +149,43 @@ namespace TC_WinForms.DataProcessing
             DGVProcessing.SelectRows(selectedRows, _dgv);
         }
 
-        public void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        public void dgvMain_RowPrePaint(object? sender, DataGridViewRowPrePaintEventArgs e)
+		{
+			// Отрисовка индекса строки
+			if (e.RowIndex >= 0)
+			{
+				var row = _dgv.Rows[e.RowIndex];
+				var displayedObject = row.DataBoundItem as IReleasable;
+				if (displayedObject != null)
+				{
+					// Меняем цвет строки в зависимости от значения свойства IsReleased
+					if (!displayedObject.IsReleased)
+					{
+						row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
+					}
+				}
+			}
+		}
+
+        [Obsolete("Метод вызывается слишком часто. Вместо него лучше использовать dgvMain_RowPrePaint")]
+		public void dgvMain_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
         {
             // Проверяем, что это не заголовок столбца и не новая строка
             if (e.RowIndex >= 0 && e.RowIndex < _dgv.Rows.Count)
             {
                 var row = _dgv.Rows[e.RowIndex];
-                var displayedStaff = row.DataBoundItem as IReleasable;
-                if (displayedStaff != null)
+                var displayedObject = row.DataBoundItem as IReleasable;
+                if (displayedObject != null)
                 {
-                    // Меняем цвет строки в зависимости от значения свойства IsReleased
-                    if (!displayedStaff.IsReleased)
+					// Меняем цвет строки в зависимости от значения свойства IsReleased
+					if (!displayedObject.IsReleased)
                     {
                         row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
                     }
                 }
             }
         }
-        public void dgvMain_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        public void dgvMain_CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
         {
             // Проверяем, редактируется ли столбец "Order"
             if (_dgv.Columns[e.ColumnIndex].Name == nameof(DisplayedStaff_TC.Order))

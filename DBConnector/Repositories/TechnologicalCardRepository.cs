@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TcModels.Models;
 using TcModels.Models.TcContent;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TcDbConnector.Repositories;
 
@@ -23,7 +22,7 @@ public class TechnologicalCardRepository
 
     public async Task<TechnologicalCard> GetTechnologicalCardAsync(int id)
     {
-        var tc = await GetTCDataAsync(id);
+        var tc = await GetTCDataAsyncCopy(id);
         tc.TechOperationWorks = await GetTOWDataAsync(id);
         tc.DiagamToWork = await GetDTWDataAsync(id);
 
@@ -35,49 +34,98 @@ public class TechnologicalCardRepository
         return tc;
     }
 
-    public async Task<TechnologicalCard> GetTCDataAsync(int _tcId)
+    public async Task<TechnologicalCard?> GetTCDataAsync(int id, MyDbContext dbCon = null)
+    {
+        bool isContextLocal = dbCon == null;
+        MyDbContext context = dbCon ?? new MyDbContext();
+
+        try
+        {
+            TechnologicalCard tc = await context.TechnologicalCards
+
+                .Include(t => t.Machine_TCs).ThenInclude(tc => tc.Child)
+                .Include(t => t.Protection_TCs).ThenInclude(tc => tc.Child)
+                .Include(t => t.Tool_TCs).ThenInclude(tc => tc.Child)
+                .Include(t => t.Component_TCs).ThenInclude(tc => tc.Child)
+                .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+
+                .FirstAsync(s => s.Id == id);
+
+
+            tc.TechOperationWorks = await context.TechOperationWorks
+                .Where(w => w.TechnologicalCardId == id)
+                    .Include(i => i.techOperation)
+                    .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+                    .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+                .ToListAsync();
+
+            foreach (var tow in tc.TechOperationWorks)
+            {
+                // Загружаем executionWorks для текущего tow по частям с жадной загрузкой связанных данных
+                tow.executionWorks = await context.ExecutionWorks
+                    .Where(ew => ew.techOperationWorkId == tow.Id)
+                    .Include(ew => ew.techTransition)
+                    .Include(ew => ew.Protections)
+                    .Include(ew => ew.Machines)
+                    .Include(ew => ew.Staffs)
+                    .Include(ew => ew.ExecutionWorkRepeats)
+
+                    .ToListAsync();
+            }
+            return tc;
+        }
+        finally
+        {
+            if (isContextLocal)
+            {
+                context.Dispose();
+            }
+        }
+    }
+
+    public async Task<TechnologicalCard> GetTCDataAsyncCopy(int _tcId)//метод отличается другой структурой запроса, которая используется только для копирования карты
     {
         try
         {
             using (MyDbContext context = new MyDbContext())
             {
-                var techCard = await context.TechnologicalCards
+            var techCard = await context.TechnologicalCards
                     .FirstAsync(t => t.Id == _tcId);
 
 
-                // 2. Загружаем все связанные данные отдельными запросами
+            // 2. Загружаем все связанные данные отдельными запросами
 
-                // Machine_TCs
-                var machineTcs = await context.Machine_TCs
+            // Machine_TCs
+            var machineTcs = await context.Machine_TCs
                     .Where(m => m.ParentId == _tcId)
-                    .ToListAsync();
+                .ToListAsync();
 
-                //// Protection_TCs
-                var protectionTcs = await context.Protection_TCs
+            //// Protection_TCs
+            var protectionTcs = await context.Protection_TCs
                     .Where(pt => pt.ParentId == _tcId)
-                    .ToListAsync();
+                .ToListAsync();
 
-                // Tool_TCs
-                var toolTcs = await context.Tool_TCs
+            // Tool_TCs
+            var toolTcs = await context.Tool_TCs
                     .Where(tt => tt.ParentId == _tcId)
-                    .ToListAsync();
+                .ToListAsync();
 
-                // Component_TCs
-                var componentTcs = await context.Component_TCs
+            // Component_TCs
+            var componentTcs = await context.Component_TCs
                     .Where(ct => ct.ParentId == _tcId)
-                    .ToListAsync();
+                .ToListAsync();
 
-                // Staff_TCs
-                var staffTcs = await context.Staff_TCs
+            // Staff_TCs
+            var staffTcs = await context.Staff_TCs
                     .Where(st => st.ParentId == _tcId)
-                    .ToListAsync();
+                .ToListAsync();
 
-                var coefficients = await context.Coefficients
-					.Where(c => c.TechnologicalCardId == _tcId)
-					.ToListAsync();
+            var coefficients = await context.Coefficients
+                .Where(c => c.TechnologicalCardId == _tcId)
+                .ToListAsync();
 
-				return techCard;
-            }
+            return techCard;
+        }
         }
         catch (Exception ex)
         {
@@ -120,9 +168,12 @@ public class TechnologicalCardRepository
         }
     }
 
-    public async Task<List<DiagamToWork>> GetDTWDataAsync(int _tcId)
+    public async Task<List<DiagamToWork>> GetDTWDataAsync(int _tcId, MyDbContext dbCon = null)
     {
-        using (MyDbContext context = new MyDbContext())
+        bool isContextLocal = dbCon == null;
+        MyDbContext context = dbCon ?? new MyDbContext();
+
+        try
         {
 
             var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == _tcId)
@@ -144,9 +195,47 @@ public class TechnologicalCardRepository
                 .ToListAsync();
 
             return diagramToWorkList;
-
+        }
+        finally
+        {
+            if (isContextLocal)
+            {
+                context.Dispose();
+            }
         }
     }
+
+    //public async Task<List<DiagamToWork>> GetDTWDataForPrint(int tcId)
+    //{
+    //    using (MyDbContext context = new MyDbContext())
+    //    {
+    //        var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == tcId)
+    //                                                                   .Include(ie => ie.techOperationWork)
+    //                                                                   .ToListAsync();
+
+    //        var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
+    //                                                                    .Include(t => t.techOperationWork)
+    //                                                                    .ToListAsync();
+
+    //        var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
+    //                                                               .ToListAsync();
+
+    //        var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
+    //            .Include(q => q.ListDiagramShagToolsComponent)
+    //            .ToListAsync();
+
+    //        return diagramToWorkList.OrderBy(o => o.Order).ToList();
+    //    }
+    //}
+
+    public async Task<List<Outlay>> GetOutlayDataAsync(int tcId)
+    {
+        using (MyDbContext context = new MyDbContext())
+        {
+            return context.OutlaysTable.Where(o => o.TcId == tcId).ToList();
+        }
+    }
+
     public void DeleteInnerEntitiesAsync(string article)
     {
         var tc = _db.TechnologicalCards.Where(tc => tc.Article == article)
