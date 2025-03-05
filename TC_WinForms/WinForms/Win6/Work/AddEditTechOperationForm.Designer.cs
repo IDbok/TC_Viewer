@@ -2502,27 +2502,6 @@
 			((System.ComponentModel.ISupportInitialize)dataGridView6).EndInit();
 			ResumeLayout(false);
 		}
-            ((System.ComponentModel.ISupportInitialize)dataGridViewAllSZ).EndInit();
-            ((System.ComponentModel.ISupportInitialize)dataGridViewLocalSZ).EndInit();
-            tabPageStage.ResumeLayout(false);
-            tlpnlStages.ResumeLayout(false);
-            groupBox7.ResumeLayout(false);
-            groupBox7.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)dataGridViewMeha).EndInit();
-            ((System.ComponentModel.ISupportInitialize)dataGridViewEtap).EndInit();
-            tabPageRepeat.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dataGridViewPovtor).EndInit();
-            tableLayoutPanel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)dataGridView2).EndInit();
-            ((System.ComponentModel.ISupportInitialize)dataGridView3).EndInit();
-            ((System.ComponentModel.ISupportInitialize)dataGridView4).EndInit();
-            tableLayoutPanel7.ResumeLayout(false);
-            tableLayoutPanel10.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dataGridView5).EndInit();
-            ((System.ComponentModel.ISupportInitialize)dataGridView6).EndInit();
-            ResumeLayout(false);
-        }
 
 		#endregion
 		private Panel pnlSelectionTOandTP;
