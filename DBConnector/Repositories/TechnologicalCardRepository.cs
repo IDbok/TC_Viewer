@@ -48,7 +48,7 @@ public class TechnologicalCardRepository
                 .Include(t => t.Tool_TCs).ThenInclude(tc => tc.Child)
                 .Include(t => t.Component_TCs).ThenInclude(tc => tc.Child)
                 .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
-
+                .Include(t => t.Coefficients)
                 .FirstAsync(s => s.Id == id);
 
 
