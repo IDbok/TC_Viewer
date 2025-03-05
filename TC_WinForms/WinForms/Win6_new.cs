@@ -1311,21 +1311,7 @@ namespace TC_WinForms.WinForms
 		{
 			ChangeIsDynamicToolStripMenuItem.Text = _tc.IsDynamic ? "Сделать не динамической" : "Сделать динамической";
 		}
-        private void toolStripOutlayTable_Click(object sender, EventArgs e)
-        {
-            _logger.Information("Вызвано открытие таблицы затрат");
-            var openedForm = CheckOpenFormService.FindOpenedForm<Win6_OutlayTable>();
-            if (openedForm != null)
-            {
-                openedForm.BringToFront();
-                return;
-            }
-            else
-            {
-                var outlayForm = new Win6_OutlayTable(tcViewState, calculateOutlayService);
-                outlayForm.Show();
-            }
-        }
+
         private async void button1_Click(object sender, EventArgs e)
         {
             LogUserAction("Отображение таблицы затрат");

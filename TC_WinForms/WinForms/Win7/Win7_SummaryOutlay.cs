@@ -45,6 +45,7 @@ namespace TC_WinForms.WinForms
         private List<SummaryOutlayDataGridItem> _displayedList = new List<SummaryOutlayDataGridItem>();
         PaginationControlService<SummaryOutlayDataGridItem> paginationService;
 
+        private readonly SummaryOutlaySettings _settings = new SummaryOutlaySettings { LeaderSallary = 1134, RegularSallary = 794 };//На случай отсуствия доступа к файлу настроек можно считать данные из этого объекта
 
         public bool _isDataLoaded = false;
 
@@ -232,18 +233,25 @@ namespace TC_WinForms.WinForms
         {
             if (!File.Exists("SummaryOutlaySettings.json"))
             {
-                var defaultConfig = new SummaryOutlaySettings
+                try
                 {
-                    LeaderSallary = 1134,
-                    RegularSallary = 794
-                };
+                    var defaultConfig = new SummaryOutlaySettings
+                    {
+                        LeaderSallary = 1134,
+                        RegularSallary = 794
+                    };
 
-                // Сериализация в JSON
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                var json = JsonSerializer.Serialize(defaultConfig, options);
+                    // Сериализация в JSON
+                    var options = new JsonSerializerOptions { WriteIndented = true };
+                    var json = JsonSerializer.Serialize(defaultConfig, options);
 
-                // Запись в файл
-                File.WriteAllText("SummaryOutlaySettings.json", json);
+                    // Запись в файл
+                    File.WriteAllText("SummaryOutlaySettings.json", json);
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show($"Ошибка создания файла настроек:\n{ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -573,8 +581,36 @@ namespace TC_WinForms.WinForms
 
             double summaryOutlay = 0;
             int staffCount = 0;
-            string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
-            SummaryOutlaySettings settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
+            SummaryOutlaySettings settings;
+            try
+            {
+                string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
+                settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
+            }
+            catch (FileNotFoundException fe)
+            {
+                _logger.Error($"Ошибка при загрузке данных настроек, файл не найден: {fe.Message}");
+                MessageBox.Show("Ошибка при загрузке данных настроек, файл не найден: \n" + fe.Message);
+                settings = _settings;
+            }
+            catch (IOException io)
+            {
+                _logger.Error($"Ошибка ввода-вывода. Файл может быть недоступен: {io.Message}");
+                MessageBox.Show("Ошибка ввода-вывода. Файл может быть недоступен: \n" + io.Message);
+                settings = _settings;
+            }
+            catch (UnauthorizedAccessException un)
+            {
+                _logger.Error($"Нет прав доступа к файлу: {un.Message}");
+                MessageBox.Show("Нет прав доступа к файлу.");
+                settings = _settings;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Ошибка при загрузке данных настроек: {ex.Message}");
+                MessageBox.Show("Ошибка загрузки данных настроек: " + ex.Message);
+                settings = _settings;
+            }
 
             var groupedStaff = summaryOutlayDataGridItem.listStaffStr.GroupBy(s => s.StaffName.Split(" ")[0]).ToList();
 

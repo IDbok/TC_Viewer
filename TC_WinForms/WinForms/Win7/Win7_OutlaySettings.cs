@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace TC_WinForms.WinForms
     public partial class Win7_OutlaySettings : Form
     {
         private readonly ILogger _logger;
+        private readonly SummaryOutlaySettings _settings = new SummaryOutlaySettings { LeaderSallary = 1134, RegularSallary = 794 };//На случай отсуствия доступа к файлу настроек можно считать данные из этого объекта
 
         public Win7_OutlaySettings()
         {
@@ -35,14 +37,17 @@ namespace TC_WinForms.WinForms
                 Close();
             }
 
-            string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
-            SummaryOutlaySettings settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
-
+            SummaryOutlaySettings settings;
             try
             {
+                string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
+                settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
                 // Обновление настроек
                 settings.LeaderSallary = (float)Convert.ToDouble(txtLead.Text);
                 settings.RegularSallary = (float)Convert.ToDouble(txtRegular.Text);
+                // Перезапись файла
+                jsonString = JsonSerializer.Serialize(settings);
+                File.WriteAllText("SummaryOutlaySettings.json", jsonString);
             }
             catch (Exception ex) 
             {
@@ -50,10 +55,6 @@ namespace TC_WinForms.WinForms
                 MessageBox.Show("Ошибка перезаписи данных: " + ex.Message);
                 return;
             }
-
-            // Перезапись файла
-            jsonString = JsonSerializer.Serialize(settings);
-            File.WriteAllText("SummaryOutlaySettings.json", jsonString);
 
             var openedForm = CheckOpenFormService.FindOpenedForm<Win7_SummaryOutlay>();
             if (openedForm != null)
@@ -76,8 +77,36 @@ namespace TC_WinForms.WinForms
                 Close();
             }
 
-            string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
-            SummaryOutlaySettings settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
+            SummaryOutlaySettings settings = new SummaryOutlaySettings();
+            try
+            {
+                string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
+                settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
+            }
+            catch (FileNotFoundException fe)
+            {
+                _logger.Error($"Ошибка при загрузке данных настроек, файл не найден: {fe.Message}");
+                MessageBox.Show("Ошибка при загрузке данных настроек, файл не найден: \n" + fe.Message);
+                sender = _settings;
+            }
+            catch (IOException io)
+            {
+                _logger.Error($"Ошибка ввода-вывода. Файл может быть недоступен: {io.Message}");
+                MessageBox.Show("Ошибка ввода-вывода. Файл может быть недоступен: \n" + io.Message);
+                sender = _settings;
+            }
+            catch (UnauthorizedAccessException un)
+            {
+                _logger.Error($"Нет прав доступа к файлу: {un.Message}");
+                MessageBox.Show("Нет прав доступа к файлу.");
+                sender = _settings;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Ошибка при загрузке данных настроек: {ex.Message}");
+                MessageBox.Show("Ошибка загрузки данных настроек: " + ex.Message);
+                sender = _settings;
+            }
 
             txtLead.Text = settings.LeaderSallary.ToString();
             txtRegular.Text = settings.RegularSallary.ToString();
