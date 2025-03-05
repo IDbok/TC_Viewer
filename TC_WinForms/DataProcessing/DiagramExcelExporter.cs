@@ -9,6 +9,7 @@ using TcModels.Models.TcContent;
 using System.Drawing.Imaging;
 using TcModels.Models;
 using System.Xml.Linq;
+using System.Windows;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -90,6 +91,8 @@ namespace TC_WinForms.DataProcessing
             var currentRow = 2; //стартовая строчка расположения диаграм
             _pageCount = 1;//Присваиваем значение счетчику старниц, нумерация с 1 страницы
 
+            currentRow = AddTCName(sheet, currentRow, 6);
+
             foreach (var dTOWGroup in dTOWGroups)
             {
                 bool isNull = dTOWGroup.Key == null;
@@ -151,7 +154,6 @@ namespace TC_WinForms.DataProcessing
                     _allParallelTO = _allParallelTO - 1 + toPosledovGroups[toPosledovGroups.Count - 1].ToList().Count();
                 }
             }
-
             if (currentStatus != isNextTOParallel)
                 currentRow = AddTOParallel(sheet, currentRow, Modulo(-_startCollumn, _currentPrintWidgth) + _startCollumn - _currentPrintWidgth + 6);
             //Вывод статуса отображения TO - паралелльно или последовательно
@@ -565,6 +567,15 @@ namespace TC_WinForms.DataProcessing
         #endregion
 
         #region SupportMethods
+        private int AddTCName(ExcelWorksheet sheet, int headRow, int currentColumn)
+        {
+            int[] columnNums = { currentColumn, currentColumn + 8 };
+            sheet.Cells[headRow, columnNums[0]].Value = $"{_technologicalCard.Name}({_technologicalCard.Article})";
+            sheet.Cells[headRow, columnNums[0]].Style.Fill.PatternType = ExcelFillStyle.Solid;
+            sheet.Cells[headRow, columnNums[0]].Style.Fill.BackgroundColor.SetColor(Color.GreenYellow);
+            AddStyleAlignment(headRow, columnNums, sheet);
+            return headRow + 2;
+        }
         private int UpdateColumnData(int pageCollumn, int pageRow)
         {
             var pageCollumnindex = pageCollumn;
