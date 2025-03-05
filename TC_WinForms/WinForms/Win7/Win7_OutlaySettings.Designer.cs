@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             pnlMain = new Panel();
-            button1 = new Button();
+            btnRewrite = new Button();
             txtRegular = new TextBox();
             txtLead = new TextBox();
             lblRegular = new Label();
@@ -40,7 +40,7 @@
             // 
             // pnlMain
             // 
-            pnlMain.Controls.Add(button1);
+            pnlMain.Controls.Add(btnRewrite);
             pnlMain.Controls.Add(txtRegular);
             pnlMain.Controls.Add(txtLead);
             pnlMain.Controls.Add(lblRegular);
@@ -54,13 +54,13 @@
             // 
             // button1
             // 
-            button1.Location = new Point(12, 143);
-            button1.Name = "button1";
-            button1.Size = new Size(134, 30);
-            button1.TabIndex = 1;
-            button1.Text = "Перезаписать";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            btnRewrite.Location = new Point(12, 143);
+            btnRewrite.Name = "button1";
+            btnRewrite.Size = new Size(134, 30);
+            btnRewrite.TabIndex = 1;
+            btnRewrite.Text = "Перезаписать";
+            btnRewrite.UseVisualStyleBackColor = true;
+            btnRewrite.Click += btnRewrite_Click;
             // 
             // txtRegular
             // 
@@ -124,7 +124,7 @@
         private Label lblRegular;
         private Label lblLead;
         private Label lblDescription;
-        private Button button1;
+        private Button btnRewrite;
         private TextBox txtRegular;
         private TextBox txtLead;
     }

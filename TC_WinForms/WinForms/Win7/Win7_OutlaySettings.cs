@@ -19,14 +19,15 @@ namespace TC_WinForms.WinForms
     public partial class Win7_OutlaySettings : Form
     {
         private readonly ILogger _logger;
-        private readonly SummaryOutlaySettings _settings = new SummaryOutlaySettings { LeaderSallary = 1134, RegularSallary = 794 };//На случай отсуствия доступа к файлу настроек можно считать данные из этого объекта
+        private SummaryOutlaySettings _settings = new SummaryOutlaySettings { LeaderSallary = 1134, RegularSallary = 794 };//На случай отсуствия доступа к файлу настроек можно считать данные из этого объекта
 
         public Win7_OutlaySettings()
         {
+            _logger = Log.Logger.ForContext<Win7_OutlaySettings>();
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnRewrite_Click(object sender, EventArgs e)
         {
             _logger.Information("Форма Win7_OutlaySettings инициалирована и открыта.");
 
@@ -37,16 +38,14 @@ namespace TC_WinForms.WinForms
                 Close();
             }
 
-            SummaryOutlaySettings settings;
+            SummaryOutlaySettings settings = new SummaryOutlaySettings();
             try
             {
-                string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
-                settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
                 // Обновление настроек
                 settings.LeaderSallary = (float)Convert.ToDouble(txtLead.Text);
                 settings.RegularSallary = (float)Convert.ToDouble(txtRegular.Text);
                 // Перезапись файла
-                jsonString = JsonSerializer.Serialize(settings);
+                string jsonString = JsonSerializer.Serialize(settings);
                 File.WriteAllText("SummaryOutlaySettings.json", jsonString);
             }
             catch (Exception ex) 
@@ -81,35 +80,31 @@ namespace TC_WinForms.WinForms
             try
             {
                 string jsonString = File.ReadAllText("SummaryOutlaySettings.json");
-                settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
+                _settings = JsonSerializer.Deserialize<SummaryOutlaySettings>(jsonString);
             }
             catch (FileNotFoundException fe)
             {
                 _logger.Error($"Ошибка при загрузке данных настроек, файл не найден: {fe.Message}");
                 MessageBox.Show("Ошибка при загрузке данных настроек, файл не найден: \n" + fe.Message);
-                sender = _settings;
             }
             catch (IOException io)
             {
                 _logger.Error($"Ошибка ввода-вывода. Файл может быть недоступен: {io.Message}");
                 MessageBox.Show("Ошибка ввода-вывода. Файл может быть недоступен: \n" + io.Message);
-                sender = _settings;
             }
             catch (UnauthorizedAccessException un)
             {
                 _logger.Error($"Нет прав доступа к файлу: {un.Message}");
                 MessageBox.Show("Нет прав доступа к файлу.");
-                sender = _settings;
             }
             catch (Exception ex)
             {
                 _logger.Error($"Ошибка при загрузке данных настроек: {ex.Message}");
                 MessageBox.Show("Ошибка загрузки данных настроек: " + ex.Message);
-                sender = _settings;
             }
 
-            txtLead.Text = settings.LeaderSallary.ToString();
-            txtRegular.Text = settings.RegularSallary.ToString();
+            txtLead.Text = _settings.LeaderSallary.ToString();
+            txtRegular.Text = _settings.RegularSallary.ToString();
         }
     }
 }
