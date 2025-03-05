@@ -300,7 +300,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (selectedScope == null)
 			return;
 
-		var isNonVisibleInViewMode = _tcViewState.IsViewMode ? false : true;
+		var isVisibleOrViewMode = _tcViewState.IsViewMode ? false : true;
 
 		// --- Показываем/прячем пункты КОПИРОВАНИЯ в зависимости от scope ---
 		switch (selectedScope)
@@ -309,16 +309,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				// Пользователь кликнул ячейку "Исполнитель"
 				copyTextItem.Visible = true;
 				copyStaffItem.Visible = true;          // Можно копировать персонал
-				separatorItem1.Visible = isNonVisibleInViewMode;
-				openEditFormItem.Visible = isNonVisibleInViewMode;
+				ShowOpenEditFormItem();
 				//copyRowItem.Visible = true;  // И строку
 				break;
 
 			case CopyScopeEnum.Protections:
 				copyTextItem.Visible = true;
 				copyProtectionsItem.Visible = true;
-				separatorItem1.Visible = isNonVisibleInViewMode;
-				openEditFormItem.Visible = isNonVisibleInViewMode;
+				ShowOpenEditFormItem();
 				//copyRowItem.Visible = true;
 				break;
 
@@ -326,13 +324,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				// Инструменты/компоненты
 				copyTextItem.Visible = true;
 				copyRowItem.Visible = true;
+				ShowOpenEditFormItem();
 				break;
 
 			case CopyScopeEnum.TechTransition:
 				copyTextItem.Visible = true;
 				copyRowItem.Visible = true;
-				separatorItem1.Visible = isNonVisibleInViewMode;
-				openEditFormItem.Visible = isNonVisibleInViewMode;
+				ShowOpenEditFormItem();
 				break;
 			case CopyScopeEnum.Row:
 				copyRowItem.Visible = true;
@@ -346,8 +344,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				// Клик по ячейке "Технологические операции"
 				copyRowItem.Visible = true;
 				copyTechOperationItem.Visible = true;
-				separatorItem1.Visible = isNonVisibleInViewMode;
-				openEditFormItem.Visible = isNonVisibleInViewMode;
+				ShowOpenEditFormItem();
 				break;
 
 			case CopyScopeEnum.Text:
@@ -449,6 +446,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			pasteRowItem.Visible = false;
 			pasteTechOperationItem.Visible = false;
 			pasteProtectionsItem.Visible = false;
+		}
+
+		void ShowOpenEditFormItem()
+		{
+			separatorItem1.Visible = isVisibleOrViewMode;
+			openEditFormItem.Visible = isVisibleOrViewMode;
 		}
 	}
 
@@ -3160,6 +3163,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (selectedScope == null) return;
 
 		var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
+		var selectedItem = selectedItems[0];
+
+		if (selectedItem == null) return;
 
 		if (_editForm == null || _editForm.IsDisposed)
 		{
@@ -3170,34 +3176,39 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		_editForm.Show();
 		_editForm.BringToFront(); // не выделяется необходимая строка при 
 
-		var selectedItem = selectedItems[0];
-
 		switch (selectedScope)
 		{
 			case CopyScopeEnum.TechOperation:
-				_editForm.SelectTO(selectedItem.TechOperationWork);
-				_editForm.SelectPageTab("tabPageTO");
+				_ = SetOperationAndOpenPage(selectedItem, "tabPageTO");
 				break;
 			case CopyScopeEnum.Row:
 				if(!SetTransitionAndOpenPage(selectedItem, "tabPageTP"))
 				{
-					_editForm.SelectTO(selectedItem.TechOperationWork);
-					_editForm.SelectPageTab("tabPageTO");
+					_ = SetOperationAndOpenPage(selectedItem, "tabPageTO");
 				};
 				break;
 			case CopyScopeEnum.TechTransition:
-				SetTransitionAndOpenPage(selectedItem, "tabPageTP");
+				_ = SetTransitionAndOpenPage(selectedItem, "tabPageTP");
 				break;
 			case CopyScopeEnum.Staff:
-				SetTransitionAndOpenPage(selectedItem, "tabPageStaff");				
+				_ = SetTransitionAndOpenPage(selectedItem, "tabPageStaff");				
 				break;
 			case CopyScopeEnum.Protections:
-				SetTransitionAndOpenPage(selectedItem, "tabPageProtection");
+				_ = SetTransitionAndOpenPage(selectedItem, "tabPageProtection");
+				break;
+			case CopyScopeEnum.ToolOrComponents:
+				var isTool = selectedItem.WorkItemType == WorkItemType.ToolWork;
+				_ = SetOperationAndOpenPage(selectedItem, selectedItem.ItsTool ? "tabPageTool" : "tabPageComponent");
+				if (selectedItem.WorkItemType == WorkItemType.ComponentWork && selectedItem.WorkItem is ComponentWork compWork)
+					_editForm.HighlighComponentLocalRow(compWork);
+				else if (selectedItem.WorkItemType == WorkItemType.ToolWork && selectedItem.WorkItem is ToolWork toolWork)
+					_editForm.HighlightInstrumentLocalRow(toolWork);
 				break;
 			default:
 				break;
 		}
 		_editForm.Enabled = true;
+		_editForm.Activate();
 
 		bool SetTransitionAndOpenPage(TechOperationDataGridItem selectedItem, string pageName)
 		{
@@ -3207,6 +3218,21 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 								&& selectedItem.WorkItem is ExecutionWork selectedTPRow)
 			{
 				_editForm.SelectTP(selectedTPRow);
+				_editForm.SelectPageTab(pageName);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		bool SetOperationAndOpenPage(TechOperationDataGridItem selectedItem, string pageName)
+		{
+			if (_editForm == null || _editForm.IsDisposed) throw new Exception();
+
+			if (selectedItem.TechOperationWork != null)
+			{
+				_editForm.SelectTO(selectedItem.TechOperationWork);
 				_editForm.SelectPageTab(pageName);
 
 				return true;

@@ -3318,10 +3318,10 @@ namespace TC_WinForms.WinForms.Work
 			SelectComboBoxTOItem(executionWork.techOperationWork);
 
 			UpdateComboBoxTT(executionWork);
-            SelectDataGridTPLocalItem(executionWork);
+            HighlightDataGridTPLocalItem(executionWork);
 		}
 
-        private void SelectDataGridTPLocalItem(ExecutionWork executionWork)
+        private void HighlightDataGridTPLocalItem(ExecutionWork executionWork)
         {
 			if (executionWork == null)
 				return;
@@ -3334,7 +3334,76 @@ namespace TC_WinForms.WinForms.Work
 			dataGridViewTPLocal.FirstDisplayedScrollingRowIndex = index;
 		}
 
-        private int GetRowIndexByGuid(Guid guid)
+		/// <summary>
+		/// Ищет в dataGridViewComponentLocal строку, связанную с переданным ComponentWork,
+		/// и выделяет её. Если ничего не найдено, выделение сбрасывается.
+		/// </summary>
+		/// <param name="compWork">Объект ComponentWork, по которому идёт поиск.</param>
+		public void HighlighComponentLocalRow(ComponentWork compWork)
+		{
+			// Снимаем текущее выделение
+			dataGridViewComponentLocal.ClearSelection();
+
+			if (compWork == null)
+				return;
+
+			// Проходим по всем строкам dataGridViewInstrumentLocal
+			for (int i = 0; i < dataGridViewComponentLocal.Rows.Count; i++)
+			{
+				var cellValue = dataGridViewComponentLocal.Rows[i].Cells[0].Value;
+				if (cellValue is ComponentWork obj)
+				{
+					// Сравниваем идентификаторы инструмента и компонента.
+					if (obj.componentId == compWork.componentId)
+					{
+						HighlighDataGridViewRowByIndex(i, dataGridViewComponentLocal);
+						break;
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Ищет в dataGridViewInstrumentLocal строку, связанную с переданным ToolWork,
+		/// и выделяет её. Если ничего не найдено, выделение сбрасывается.
+		/// </summary>
+		/// <param name="toolWork">Объект ToolWork, по которому идёт поиск.</param>
+		public void HighlightInstrumentLocalRow(ToolWork toolWork)
+		{
+			// Снимаем текущее выделение
+			dataGridViewInstrumentLocal.ClearSelection();
+
+			if (toolWork == null)
+				return;
+
+			// Проходим по всем строкам dataGridViewInstrumentLocal
+			for (int i = 0; i < dataGridViewInstrumentLocal.Rows.Count; i++)
+			{
+				// Предположим, что в первой ячейке лежит объект типа ToolWork
+				// (или иной класс, где есть toolId).
+				var cellValue = dataGridViewInstrumentLocal.Rows[i].Cells[0].Value;
+				if (cellValue is ToolWork obj)
+				{
+					if (obj.toolId == toolWork.toolId)
+					{
+                        HighlighDataGridViewRowByIndex(i, dataGridViewInstrumentLocal);
+						break;
+					}
+				}
+			}
+		}
+
+		private void HighlighDataGridViewRowByIndex(int i, DataGridView dataGridView)
+		{
+			// Если это нужная строка – выделяем её
+			dataGridView.Rows[i].Selected = true;
+			// Прокрутка грида так, чтобы выделенная строка была видна
+			dataGridView.FirstDisplayedScrollingRowIndex = i;
+		}
+
+
+
+		private int GetRowIndexByGuid(Guid guid)
 		{
             DataGridView dataGridView = dataGridViewTPLocal;
 
