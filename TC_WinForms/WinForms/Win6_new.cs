@@ -749,13 +749,15 @@ namespace TC_WinForms.WinForms
                 foreach (var form in _formsCache.Values)
 				{
 					// is form is ISaveEventForm
-					if (form is ISaveEventForm saveForm)
-					{
+					if (form is ISaveEventForm saveForm)//todo: пересмотреть логику работы интерфейса сохранения
+                    {
 						saveForm.SaveChanges();
 					}
 				}
 
-				_logger.Information("Изменения успешно сохранены для TcId={TcId}", _tcId);
+                context.SaveChanges();
+
+                _logger.Information("Изменения успешно сохранены для TcId={TcId}", _tcId);
 				MessageBox.Show("Изменения сохранены");
 			}
 			catch (Exception ex)
@@ -846,16 +848,6 @@ namespace TC_WinForms.WinForms
 						Comp.Quantity = componentWork.Quantity;
 						tcViewState.TechnologicalCard.Component_TCs.Add(Comp);
 					}
-				}
-
-				try
-				{
-					context.SaveChanges();
-					// MessageBox.Show("Успешно сохранено");
-				}
-				catch (Exception exception)
-				{
-					MessageBox.Show(exception.Message + "\n" + exception.InnerException);
 				}
 			}
 		}
