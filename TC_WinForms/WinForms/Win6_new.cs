@@ -226,7 +226,7 @@ namespace TC_WinForms.WinForms
 
 		#region SetTcData
 
-		private async Task<TechnologicalCard> GetTCDataAsync()
+		private async Task<TechnologicalCard> GetTCDataAsync() // зачем остались данные методы, если они не используются?
 		{
 			_logger.Information("Загрузка данных технологической карты для TcId={TcId}", _tcId);
 			// зафиксировать время начала загрузки
@@ -378,7 +378,8 @@ namespace TC_WinForms.WinForms
 			try
 			{
 				var rep = new TechnologicalCardRepository();
-				tcViewState.TechnologicalCard = await rep.GetTCDataAsync(_tcId, context);
+
+				tcViewState.TechnologicalCard = await rep.GetTCDataAsync(_tcId, context) ?? throw new Exception("Не получилось загрузить данные ТК.");
                 tcViewState.TechOperationWorksList = tcViewState.TechnologicalCard.TechOperationWorks;
                 tcViewState.DiagramToWorkList = await rep.GetDTWDataAsync(_tcId, context);
 
