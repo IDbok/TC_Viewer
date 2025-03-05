@@ -459,6 +459,7 @@ namespace TC_WinForms.WinForms
 			// проверка на наличие изменений во всех формах
 			if (!CheckForChanges()) // если false, то отменяем переключение
 			{
+				_logger.Warning("Закрытие формы без сохранения (CloseFormsNoSave=true).");
 				e.Cancel = true;
 				return;
 			}

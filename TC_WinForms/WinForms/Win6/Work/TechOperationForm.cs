@@ -180,11 +180,26 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		copyTechOperationItem = new ToolStripMenuItem("Копировать техоперацию");
 		copyProtectionsItem = new ToolStripMenuItem("Копировать СИЗ");
 
-		copyTextItem.Click += (s, e) => CopyClipboardValue();
-		copyStaffItem.Click += (s, e) => CopyData();// CopyStaff_Click;// TODO: или использовать метод CopyData()
-		copyRowItem.Click += (s, e) => CopyData();
-		copyTechOperationItem.Click += (s, e) => CopyData();
-		copyProtectionsItem.Click += (s, e) => CopyData();
+		copyTextItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Копировать текст' в контекстном меню.");
+			CopyClipboardValue();
+		};
+		copyStaffItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Копировать персонал' в контекстном меню.");
+			CopyData();
+		};
+		copyRowItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Копировать строку' в контекстном меню.");
+			CopyData();
+		};
+		copyTechOperationItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Копировать техоперацию' в контекстном меню.");
+			CopyData();
+		};
+		copyProtectionsItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Копировать СИЗ' в контекстном меню.");
+			CopyData();
+		};
 
 		// 2) Пункты "Вставить"
 		pasteTextItem = new ToolStripMenuItem("Вставить текст");
@@ -193,11 +208,26 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		pasteTechOperationItem = new ToolStripMenuItem("Вставить техоперацию");
 		pasteProtectionsItem = new ToolStripMenuItem("Вставить СИЗ");
 
-		pasteTextItem.Click += (s, e) => PasteClipboardValue();
-		pasteStaffItem.Click += (s, e) => PasteCopiedData();// PasteStaff_Click;
-		pasteRowItem.Click += (s, e) => PasteCopiedData();
-		pasteTechOperationItem.Click += (s, e) => PasteCopiedData();
-		pasteProtectionsItem.Click += (s, e) => PasteCopiedData();
+		pasteTextItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Вставить текст' в контекстном меню.");
+			PasteClipboardValue();
+		};
+		pasteStaffItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Вставить персонал' в контекстном меню.");
+			PasteCopiedData();
+		};
+		pasteRowItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Вставить строку' в контекстном меню.");
+			PasteCopiedData();
+		};
+		pasteTechOperationItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Вставить техоперацию' в контекстном меню.");
+			PasteCopiedData();
+		}		;
+		pasteProtectionsItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Вставить СИЗ' в контекстном меню.");
+			PasteCopiedData();
+		};
 
 		// 3) Разделитель
 		separatorItem1 = new ToolStripSeparator();
@@ -205,7 +235,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 
 		openEditFormItem = new ToolStripMenuItem("Открыть в редакторе");
-		openEditFormItem.Click += (s, e) => OpenEditForm();
+		openEditFormItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Открыть в редакторе' в контекстном меню.");
+			OpenEditFormBySelectedObject();
+		};
 
 		// Добавляем все пункты (или группируем в под-меню).
 		contextMenu.Items.Add(copyStaffItem);
@@ -479,7 +512,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	{
 		if (e.Control && e.KeyCode == Keys.V)
 		{
-			_logger.Debug("Нажаты Ctrl+V: запуск операции вставки (Paste).");
+			_logger.Debug("Пользователь нажал Ctrl+V (строка { RowIndex}, столбец { ColumnIndex}).",
+				dgvMain.CurrentCell?.RowIndex,
+				dgvMain.CurrentCell?.ColumnIndex);
 			// Вставка данных из буфера обмена только если не включёр режим просмотра
 			if (_tcViewState.IsViewMode)
 				PasteClipboardValue();
@@ -491,7 +526,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		// Новая обработка Ctrl + C
 		else if (e.Control && e.KeyCode == Keys.C)
 		{
-			_logger.Debug("Нажаты Ctrl+C: запуск операции копирования (Copy).");
+			_logger.Debug("Пользователь нажал Ctrl+C для копирования в строке {RowIndex}, столбце {ColumnIndex}.",
+					   dgvMain.CurrentCell?.RowIndex,
+					   dgvMain.CurrentCell?.ColumnIndex);
+
 			if (_tcViewState.IsViewMode 
 				|| _tcViewState.UserRole == AuthorizationService.User.Role.User 
 				|| _tcViewState.UserRole == AuthorizationService.User.Role.ProjectManager)
@@ -502,17 +540,21 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		}
 		else if (e.KeyCode == Keys.Delete)
 		{
-			_logger.Debug("Нажата клавиша Delete: очистка значения ячейки.");
+			_logger.Debug("Пользователь нажал Delete: очистка значения ячейки (строка {RowIndex}, столбец {ColumnIndex}).",
+				dgvMain.CurrentCell?.RowIndex,
+				dgvMain.CurrentCell?.ColumnIndex);
 			DeleteCellValue(); // очистить текущее значение ячейки
 			e.Handled = true;
         }
 		else if (e.Control && e.KeyCode == Keys.O)
 		{
+			_logger.Debug("Пользователь нажал Ctrl+O для открытия редактора ХР (строка {RowIndex}, столбец {ColumnIndex}).",
+				dgvMain.CurrentCell?.RowIndex,
+				dgvMain.CurrentCell?.ColumnIndex);
 			if (!_tcViewState.IsViewMode)
-				OpenEditForm();
+				OpenEditFormBySelectedObject();
 			e.Handled = true;
 		}
-
 	}
 
 	#endregion
@@ -649,6 +691,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		_logger.Information("Выполняется вставка. Target Scope: {Scope}. Количество выделенных строк: {RowsCount}",
 						   selectedScope.Value, selectedRowIndices.Count);
+		_logger.Information("Содержимое буфера TcCopyData: Scope={CopyScope}, Кол-во FullItems={FullItemsCount}",
+				   TcCopyData.CopyScope, TcCopyData.FullItems.Count);
 
 		try
 		{
@@ -1026,7 +1070,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (techTransition == null) return;
 
 		// Вставляем новую строку
-		var newEw = InsertNewRow(
+		var newEw = InsertNewExecutionWork(
 			copiedEw.techTransition ?? throw new Exception("Ошибка при вставке: нет TechTransition в скопированном объектке."),
 			selectedToTow,
 			rowIndex,
@@ -1461,7 +1505,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	/// <param name="pictureName">Имя рисунка для нового перехода.</param>
 	/// <returns>Созданный объект <see cref="ExecutionWork"/>.</returns>
 	/// <exception cref="Exception">Если создать новый переход не удалось.</exception>
-	public ExecutionWork InsertNewRow(TechTransition techTransition,  TechOperationWork techOperationWork,
+	public ExecutionWork InsertNewExecutionWork(TechTransition techTransition,  TechOperationWork techOperationWork,
         int? insertIndex = null, List<ExecutionWorkRepeat>? executionWorksRepeats = null,
         string? coefficient = null, bool updateDataGrid = true,
         string? comment = null, string? pictureName = null)
@@ -1469,7 +1513,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	{
 		var newEw = AddNewExecutionWork(techTransition, techOperationWork, insertIndex: insertIndex, coefficientValue: coefficient, comment: comment, pictureName: pictureName);
 
-        if (newEw == null) throw new Exception("Ошибка при добавлении нового перехода.");
+        if (newEw == null) {
+			_logger.Error("InsertNewExecutionWork: AddNewExecutionWork вернул null! Бросаем исключение.");
+			throw new Exception("Ошибка при добавлении нового перехода.");
+		}
+
+		_logger.Debug("Создан новый ExecutionWork IdGuid={Guid}, Order={Order}, Repeat={Repeat}.",
+				  newEw.IdGuid, newEw.Order, newEw.Repeat);
 
 		// если новый переход - повтор, то добавляем к нему повторяемые переходы
 		if (newEw.Repeat && executionWorksRepeats != null)
@@ -2622,6 +2672,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     public ExecutionWork AddNewExecutionWork(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null,
         int? insertIndex = null, string? coefficientValue = null, string? comment = null, string? pictureName = null)
 	{
+		_logger.Information("Добавление нового ExecutionWork в TO '{TechOpName}' (ID={TechOpId}) на позицию {Index}. " +
+					  "Transition='{TransitionName}' (ID={TransitionId}).",
+			techOperationWork.techOperation.Name,
+			techOperationWork.techOperation.Id,
+			insertIndex ?? -1,
+			tech.Name,
+			tech.Id
+		);
+
 		// Определяем порядковый номер нового ТП в ТО
 		TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
 
@@ -3092,7 +3151,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		// можно принудительно вызвать перерисовку:
 		// dgvMain.Invalidate();
 	}
-	private void OpenEditForm()
+	private void OpenEditFormBySelectedObject()
 	{
 		if (_tcViewState.IsViewMode) return;
 

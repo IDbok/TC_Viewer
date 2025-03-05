@@ -938,7 +938,7 @@ namespace TC_WinForms.WinForms.Work
 
                 //TechOperationForm.AddTechTransition(techTransition, work, null, coefficient);
                 var coefficientValue = coefficient?.GetCoefficient;
-                TechOperationForm.InsertNewRow(techTransition, work, coefficient: coefficientValue);
+                TechOperationForm.InsertNewExecutionWork(techTransition, work, coefficient: coefficientValue);
                 UpdateLocalTP();
                 // выбрать новый ТП в комбобоксе
                 //HighlightTOTTRow(true);
