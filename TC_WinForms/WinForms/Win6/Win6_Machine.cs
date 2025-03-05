@@ -131,6 +131,7 @@ namespace TC_WinForms.WinForms
             baseList.Add(nameof(Machine_TC.IsInOutlay));
             return baseList;
         }
+
         public override void SetViewMode(bool? isViewMode = null)// todo: можно перенести в BaseForm
         {
             DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].ReadOnly = _tcViewState.IsViewMode;

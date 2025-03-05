@@ -2,6 +2,7 @@
 using OfficeOpenXml.Style;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using TcDbConnector;
@@ -1166,5 +1167,6 @@ namespace ExcelParsing.DataProcessing
         //    // Закрывает пакет и освобождает все связанные ресурсы
         //    _excelPackage.Dispose();
         //}
+
     }
 }
