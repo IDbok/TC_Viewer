@@ -385,7 +385,7 @@
 			Margin = new Padding(4);
 			MinimumSize = new Size(1437, 1006);
 			Name = "Win7_new";
-			Text = "Form1";
+			Text = "Главное меню";
 			WindowState = FormWindowState.Maximized;
 			FormClosing += Win7_FormClosing;
 			Load += Win7_new_Load;

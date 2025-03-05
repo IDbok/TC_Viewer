@@ -179,7 +179,7 @@
             ClientSize = new Size(707, 295);
             Controls.Add(tlpnlBlockService);
             Name = "Win7_BLockService";
-            Text = "Win7_BLockService";
+            Text = "Сервис заблокированных объектов";
             Load += Win7_BLockService_Load;
             tlpnlBlockService.ResumeLayout(false);
             pnlControls.ResumeLayout(false);
