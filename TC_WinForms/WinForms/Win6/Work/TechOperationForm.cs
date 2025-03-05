@@ -1,7 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Serilog;
+﻿using Serilog;
+using System;
 using System.Data;
+using System.Linq;
 using System.Text;
+using System.Windows.Controls;
+using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
@@ -31,7 +34,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     public readonly int _tcId;
 
-    private List<TechOperationDataGridItem> TechOperationDataGridItems = new List<TechOperationDataGridItem>();
+	private List<TechOperationDataGridItem> TechOperationDataGridItems = new List<TechOperationDataGridItem>();
     private AddEditTechOperationForm? _editForm;
 
     public List<TechOperationWork> TechOperationWorksList = null!;
@@ -41,7 +44,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     public TechOperationForm(int tcId, TcViewState tcViewState, MyDbContext context)//,  bool viewerMode = false)
     {
-        this._tcViewState = tcViewState;
+		this._tcViewState = tcViewState;
         this.context = context;
         this._tcId = tcId;
 
@@ -51,19 +54,18 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		_logger.Information("Инициализация формы.");
 
-		//_isViewMode = viewerMode;
 		InitializeComponent();
+
         dgvMain.CellPainting += DgvMain_CellPainting;
         dgvMain.CellFormatting += DgvMain_CellFormatting;
         dgvMain.CellEndEdit += DgvMain_CellEndEdit;
         dgvMain.CellMouseEnter += DgvMain_CellMouseEnter;
+		dgvMain.MouseDown += DataGridView_MouseDown;
+		_tcViewState.ViewModeChanged += OnViewModeChanged;
+		this.KeyPreview = true;
+		this.KeyDown += new KeyEventHandler(Form_KeyDown);
 
-        this.KeyPreview = true;
-        this.KeyDown += new KeyEventHandler(Form_KeyDown);
-
-        _tcViewState.ViewModeChanged += OnViewModeChanged;
-
-        //this.FormClosed += (sender, e) => this.Dispose();
+		SetContextMenuSetings();
     }
 
     private void TechOperationForm_Load(object sender, EventArgs e)
@@ -74,7 +76,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         // спросить у пользователя, какой загрузкой воспользоваться
         TehCarta = _tcViewState.TechnologicalCard;
         TechOperationWorksList = _tcViewState.TechOperationWorksList;
-        //await LoadDataAsync8(tcId);
 
         UpdateGrid();
         SetCommentViewMode();
@@ -84,15 +85,22 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         this.Enabled = true;
     }
 
-    public void SetCommentViewMode()
+	/// <summary>
+	/// Переключает отображение колонок "Замечание" и "Ответ" 
+	/// в соответствии с режимом отображения замечаний в _tcViewState.
+	/// </summary>
+	public void SetCommentViewMode()
     {
-        var isCommentViewMode = _tcViewState.IsCommentViewMode;
-
-        dgvMain.Columns["RemarkColumn"].Visible = isCommentViewMode;
-        dgvMain.Columns["ResponseColumn"].Visible = isCommentViewMode;
+        dgvMain.Columns["RemarkColumn"].Visible = _tcViewState.IsCommentViewMode;
+        dgvMain.Columns["ResponseColumn"].Visible = _tcViewState.IsCommentViewMode;
     }
 
-    public void SetMachineViewMode(bool? isMachineViewMode = null)
+	/// <summary>
+	/// Включает или выключает видимость столбцов механизмов,
+	/// исходя из флага <paramref name="isMachineViewMode"/> 
+	/// либо глобального состояния Win6_new.isMachineViewMode.
+	/// </summary>
+	public void SetMachineViewMode(bool? isMachineViewMode = null)
     {
         if (isMachineViewMode != null)
             _isMachineViewMode = (bool)isMachineViewMode;
@@ -108,295 +116,543 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
     }
 
-    public void SetViewMode(bool? isViewMode = null)
+	/// <summary>
+	/// Устанавливает или обновляет общий «режим просмотра» 
+	/// (скрытие/отображение управляющей панели <c>pnlControls</c>).
+	/// </summary>
+	/// <param name="isViewMode">
+	/// Если передано значение не испозуется, 
+	/// берётся текущее состояние <c>_tcViewState.IsViewMode</c>.
+	/// </param>
+	public void SetViewMode(bool? isViewMode = null)
     {
         pnlControls.Visible = !_tcViewState.IsViewMode;
     }
 
-    private void OnViewModeChanged()
+	/// <summary>
+	/// Обработчик события изменения режима просмотра 
+	/// (вызывается при переключении <c>_tcViewState.IsViewMode</c>).
+	/// Производит обновление грида.
+	/// </summary>
+	private void OnViewModeChanged()
     {
         UpdateGrid();
     }
 
 	#region Обработка нажатия клавиш (Ctrl + C / V) + вывод информации о выделении
 
+	#region Инициализация контекстного меню и его элементов
+
+	private ContextMenuStrip contextMenu;
+
+	// Пункты для копирования
+	private ToolStripMenuItem copyTextItem;
+	private ToolStripMenuItem copyStaffItem;
+	private ToolStripMenuItem copyTechOperationItem;
+	private ToolStripMenuItem copyProtectionsItem;
+	private ToolStripMenuItem copyRowItem;
+
+	private ToolStripSeparator separatorItem1;
+
+	private ToolStripMenuItem openEditFormItem;
+
+	private ToolStripSeparator separatorItem2;
+
+	// Пункты для вставки
+	private ToolStripMenuItem pasteTextItem;
+	private ToolStripMenuItem pasteStaffItem;
+	private ToolStripMenuItem pasteRowItem;
+	private ToolStripMenuItem pasteTechOperationItem;
+	private ToolStripMenuItem pasteProtectionsItem;
+
+
+	/// <summary>
+	/// Настраивает контекстное меню для DataGridView (копировать/вставить).
+	/// </summary>
+	private void SetContextMenuSetings()
+	{
+		contextMenu = new ContextMenuStrip();
+
+		// 1) Пункты "Копировать"
+		copyTextItem = new ToolStripMenuItem("Копировать текст");
+		copyStaffItem = new ToolStripMenuItem("Копировать персонал");
+		copyRowItem = new ToolStripMenuItem("Копировать строку");
+		copyTechOperationItem = new ToolStripMenuItem("Копировать техоперацию");
+		copyProtectionsItem = new ToolStripMenuItem("Копировать СИЗ");
+
+		copyTextItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Копировать текст' в контекстном меню.");
+			CopyClipboardValue();
+		};
+		copyStaffItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Копировать персонал' в контекстном меню.");
+			CopyData();
+		};
+		copyRowItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Копировать строку' в контекстном меню.");
+			CopyData();
+		};
+		copyTechOperationItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Копировать техоперацию' в контекстном меню.");
+			CopyData();
+		};
+		copyProtectionsItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Копировать СИЗ' в контекстном меню.");
+			CopyData();
+		};
+
+		// 2) Пункты "Вставить"
+		pasteTextItem = new ToolStripMenuItem("Вставить текст");
+		pasteStaffItem = new ToolStripMenuItem("Вставить персонал");
+		pasteRowItem = new ToolStripMenuItem("Вставить строку");
+		pasteTechOperationItem = new ToolStripMenuItem("Вставить техоперацию");
+		pasteProtectionsItem = new ToolStripMenuItem("Вставить СИЗ");
+
+		pasteTextItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Вставить текст' в контекстном меню.");
+			PasteClipboardValue();
+		};
+		pasteStaffItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Вставить персонал' в контекстном меню.");
+			PasteCopiedData();
+		};
+		pasteRowItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Вставить строку' в контекстном меню.");
+			PasteCopiedData();
+		};
+		pasteTechOperationItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Вставить техоперацию' в контекстном меню.");
+			PasteCopiedData();
+		}		;
+		pasteProtectionsItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Вставить СИЗ' в контекстном меню.");
+			PasteCopiedData();
+		};
+
+		// 3) Разделитель
+		separatorItem1 = new ToolStripSeparator();
+		separatorItem2 = new ToolStripSeparator();
+
+
+		openEditFormItem = new ToolStripMenuItem("Открыть в редакторе");
+		openEditFormItem.Click += (s, e) => {
+			_logger.LogUserAction("Выбрал пункт меню 'Открыть в редакторе' в контекстном меню.");
+			OpenEditFormBySelectedObject();
+		};
+
+		// Добавляем все пункты (или группируем в под-меню).
+		contextMenu.Items.Add(copyStaffItem);
+		contextMenu.Items.Add(copyTechOperationItem);
+		contextMenu.Items.Add(copyProtectionsItem);
+		contextMenu.Items.Add(copyRowItem);
+		contextMenu.Items.Add(copyTextItem);
+
+		contextMenu.Items.Add(separatorItem1);
+
+		contextMenu.Items.Add(openEditFormItem);
+
+		contextMenu.Items.Add(separatorItem2);
+
+		contextMenu.Items.Add(pasteStaffItem);
+
+		contextMenu.Items.Add(pasteRowItem);
+		contextMenu.Items.Add(pasteTechOperationItem);
+		contextMenu.Items.Add(pasteProtectionsItem);
+		contextMenu.Items.Add(pasteTextItem);
+	}
+
+	/// <summary>
+	/// Настраивает видимость и доступность пунктов контекстного меню 
+	/// (копировать/вставить) в зависимости от выбранной области копирования.
+	/// </summary>
+	/// <param name="selectedScope">
+	/// Если null — пункты меню скрываются по умолчанию.
+	/// </param>
+	private void UpdateContextMenuItems(CopyScopeEnum? selectedScope) // ?? добавить параметр поле readonly ??
+	{
+		// Скрываем или делаем Disabled все пункты
+		copyTextItem.Visible = false;
+		copyStaffItem.Visible = false;
+		copyRowItem.Visible = false;
+		copyTechOperationItem.Visible = false;
+		copyProtectionsItem.Visible = false;
+
+		separatorItem1.Visible = false;
+		openEditFormItem.Visible = false;
+		separatorItem2.Visible = true;
+
+		pasteTextItem.Visible = false;
+		pasteStaffItem.Visible = false;
+		pasteRowItem.Visible = false;
+		pasteTechOperationItem.Visible = false;
+		pasteProtectionsItem.Visible = false;
+
+		pasteTextItem.Enabled = false;
+		pasteStaffItem.Enabled = false;
+		pasteRowItem.Enabled = false;
+		pasteTechOperationItem.Enabled = false;
+		pasteProtectionsItem.Enabled = false;
+
+		copyRowItem.Text = "Копировать строку";
+		pasteRowItem.Text = "Вставить строку";
+
+		// Если кликнули "мимо" (scope == null), контекстное меню может быть пустым
+		if (selectedScope == null)
+			return;
+
+		var isVisibleOrViewMode = _tcViewState.IsViewMode ? false : true;
+
+		// --- Показываем/прячем пункты КОПИРОВАНИЯ в зависимости от scope ---
+		switch (selectedScope)
+		{
+			case CopyScopeEnum.Staff:
+				// Пользователь кликнул ячейку "Исполнитель"
+				copyTextItem.Visible = true;
+				copyStaffItem.Visible = true;          // Можно копировать персонал
+				ShowOpenEditFormItem();
+				//copyRowItem.Visible = true;  // И строку
+				break;
+
+			case CopyScopeEnum.Protections:
+				copyTextItem.Visible = true;
+				copyProtectionsItem.Visible = true;
+				ShowOpenEditFormItem();
+				//copyRowItem.Visible = true;
+				break;
+
+			case CopyScopeEnum.ToolOrComponents:
+				// Инструменты/компоненты
+				copyTextItem.Visible = true;
+				copyRowItem.Visible = true;
+				ShowOpenEditFormItem();
+				break;
+
+			case CopyScopeEnum.TechTransition:
+				copyTextItem.Visible = true;
+				copyRowItem.Visible = true;
+				ShowOpenEditFormItem();
+				break;
+			case CopyScopeEnum.Row:
+				copyRowItem.Visible = true;
+				break;
+			case CopyScopeEnum.RowRange:
+				copyRowItem.Visible = true;
+				copyRowItem.Text = "Копировать строки";
+				break;
+
+			case CopyScopeEnum.TechOperation:
+				// Клик по ячейке "Технологические операции"
+				copyRowItem.Visible = true;
+				copyTechOperationItem.Visible = true;
+				ShowOpenEditFormItem();
+				break;
+
+			case CopyScopeEnum.Text:
+				// Просто текстовая ячейка (Примечание, Рис., Замечание)
+				copyTextItem.Visible = true;
+				//copyRowItem.Visible = true;
+				break;
+		}
+
+		// --- Проверяем, что лежит в буфере TcCopyData, 
+		//     и какие пункты "ВСТАВИТЬ" имеет смысл включить ---
+		var copiedScope = TcCopyData.CopyScope;
+
+		if (selectedScope != CopyScopeEnum.RowRange)
+			switch (copiedScope)
+			{
+				case CopyScopeEnum.Staff:
+					// В буфере лежит персонал
+					// Если текущая ячейка позволяет вставлять персонал (например, scope == Staff),
+					// то делаем видимым пункт "Вставить персонал"
+					if (selectedScope == CopyScopeEnum.Staff)
+					{
+						pasteStaffItem.Visible = true;
+						pasteStaffItem.Enabled = true;
+					}
+
+					// Или хотим, чтобы при scope == Row тоже был доступен "Вставить персонал"?
+					// Можно добавить это условие при необходимости.
+					break;
+
+				case CopyScopeEnum.TechTransition:
+				case CopyScopeEnum.Row:
+				case CopyScopeEnum.RowRange:
+				case CopyScopeEnum.ToolOrComponents:
+					// В буфере одна или несколько строк
+					// Если текущая ячейка позволяет вставлять строки — включаем пункт
+					if (selectedScope == CopyScopeEnum.TechTransition
+					 || selectedScope == CopyScopeEnum.Row
+					 || selectedScope == CopyScopeEnum.RowRange
+					 || selectedScope == CopyScopeEnum.ToolOrComponents) // если хотим «вставить» в инструменты/компоненты
+					{
+						pasteRowItem.Visible = true;
+						pasteRowItem.Enabled = true;
+
+						if (copiedScope == CopyScopeEnum.RowRange)
+							pasteRowItem.Text = "Вставить строки";
+
+						if (copiedScope == CopyScopeEnum.ToolOrComponents)
+							pasteRowItem.Text = "Вставить инструменты/компоненты";
+					}
+					break;
+
+				case CopyScopeEnum.TechOperation:
+					// Полная технологическая операция
+					// Вставить имеет смысл, если текущая ячейка — это Row / RowRange / Staff / TechOperation
+					// (по вашим правилам)
+					if (selectedScope == CopyScopeEnum.TechOperation
+					 || selectedScope == CopyScopeEnum.Row)
+					{
+						pasteTechOperationItem.Visible = true;
+						pasteTechOperationItem.Enabled = true;
+					}
+					break;
+
+				case CopyScopeEnum.Protections:
+					// В буфере СИЗ
+					if (selectedScope == CopyScopeEnum.Protections)
+					{
+						pasteProtectionsItem.Visible = true;
+						pasteProtectionsItem.Enabled = true;
+					}
+					break;
+
+				case CopyScopeEnum.Text:
+					if (selectedScope == CopyScopeEnum.Row)
+					{
+						separatorItem2.Visible = false;
+						break;
+					}
+
+					pasteTextItem.Visible = true;
+					if(selectedScope == CopyScopeEnum.Text)
+						pasteTextItem.Enabled = true;
+					// Просто текст. Обычно "Вставить" доступно только для текстовых колонок
+					// Если scope == Text, можно показывать пункт "Вставить текст" (или общий).
+					break;
+
+				default:
+					// Ничего не копировали
+					separatorItem2.Visible = false;
+					break;
+			}
+
+		// Пример: можно также проверять, включён ли режим просмотра:
+		if (_tcViewState.IsViewMode)
+		{
+			// Если режим только для просмотра, то пункты "Вставить" отключаем
+			pasteStaffItem.Visible = false;
+			pasteRowItem.Visible = false;
+			pasteTechOperationItem.Visible = false;
+			pasteProtectionsItem.Visible = false;
+		}
+
+		void ShowOpenEditFormItem()
+		{
+			separatorItem1.Visible = isVisibleOrViewMode;
+			openEditFormItem.Visible = isVisibleOrViewMode;
+		}
+	}
+
+	#endregion
+
+	#region Обработка клика правой кнопкой (контекстное меню)
+
+	/// <summary>
+	/// Обработчик события нажатия ПКМ (MouseDown) в DataGridView. 
+	/// Определяет, куда кликнули, выделяет нужную ячейку и отображает контекстное меню.
+	/// </summary>
+	private void DataGridView_MouseDown(object? sender, MouseEventArgs e)
+	{
+		if (e.Button == MouseButtons.Right)
+		{
+			// Если включён режим просмотра, то контекстное меню не показываем
+			if (_tcViewState.IsViewMode  &&
+				( _tcViewState.UserRole == AuthorizationService.User.Role.User
+				|| _tcViewState.UserRole == AuthorizationService.User.Role.ProjectManager)
+				) return;
+
+			// Получаем координаты ячейки, на которую кликнули ПКМ
+			var hitTestInfo = dgvMain.HitTest(e.X, e.Y);
+			if (hitTestInfo.RowIndex >= 0 && hitTestInfo.ColumnIndex >= 0)
+			{
+
+				var clickedCell = dgvMain.Rows[hitTestInfo.RowIndex].Cells[hitTestInfo.ColumnIndex];
+
+				// Проверяем, входит ли эта ячейка в текущее выделение
+				bool alreadySelected = clickedCell.Selected;
+
+				// Если не входит – снимаем всё и выделяем только её
+				if (!alreadySelected)
+				{
+					dgvMain.ClearSelection();
+					clickedCell.Selected = true;
+					dgvMain.CurrentCell = clickedCell;
+				}
+
+				// Вычисляем scope
+				GetSelectedDataInfo(out _, out CopyScopeEnum? scope);
+
+				// Настраиваем видимость/активность пунктов контекстного меню
+				UpdateContextMenuItems(scope);
+
+				// Показываем контекстное меню
+				if(scope != null)
+					contextMenu.Show(dgvMain, e.Location);
+			}
+		}
+	}
+
+	#endregion
+
+	#region Обработка нажатия клавиш (Ctrl + C/V/Delete)
+
 	/// <summary>
 	/// Обработчик события нажатия клавиш в форме.
 	/// </summary>
-	private void Form_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Control && e.KeyCode == Keys.V)
-        {
+	private void Form_KeyDown(object? sender, KeyEventArgs e)
+	{
+		if (e.Control && e.KeyCode == Keys.V)
+		{
+			_logger.Debug("Пользователь нажал Ctrl+V (строка { RowIndex}, столбец { ColumnIndex}).",
+				dgvMain.CurrentCell?.RowIndex,
+				dgvMain.CurrentCell?.ColumnIndex);
 			// Вставка данных из буфера обмена только если не включёр режим просмотра
 			if (_tcViewState.IsViewMode)
 				PasteClipboardValue();
 			else
-				PasteCopiedData();
-			
-            e.Handled = true;
+				PasteCopiedData();// вставляет объекты (строки, инструменты, компоненты)
+
+			e.Handled = true;
 		}
-        // Новая обработка Ctrl + C
+		// Новая обработка Ctrl + C
 		else if (e.Control && e.KeyCode == Keys.C)
 		{
-            if (_tcViewState.IsViewMode)
+			_logger.Debug("Пользователь нажал Ctrl+C для копирования в строке {RowIndex}, столбце {ColumnIndex}.",
+					   dgvMain.CurrentCell?.RowIndex,
+					   dgvMain.CurrentCell?.ColumnIndex);
+
+			if (_tcViewState.IsViewMode 
+				|| _tcViewState.UserRole == AuthorizationService.User.Role.User 
+				|| _tcViewState.UserRole == AuthorizationService.User.Role.ProjectManager)
 				CopyClipboardValue();
 			else
-				CopyData();     // Выводим информацию о выделении
+				CopyData();
 			e.Handled = true;
 		}
 		else if (e.KeyCode == Keys.Delete)
-        {
-            DeleteCellValue();
-            e.Handled = true;
+		{
+			_logger.Debug("Пользователь нажал Delete: очистка значения ячейки (строка {RowIndex}, столбец {ColumnIndex}).",
+				dgvMain.CurrentCell?.RowIndex,
+				dgvMain.CurrentCell?.ColumnIndex);
+			DeleteCellValue(); // очистить текущее значение ячейки
+			e.Handled = true;
         }
-    }
+		else if (e.Control && e.KeyCode == Keys.O)
+		{
+			_logger.Debug("Пользователь нажал Ctrl+O для открытия редактора ХР (строка {RowIndex}, столбец {ColumnIndex}).",
+				dgvMain.CurrentCell?.RowIndex,
+				dgvMain.CurrentCell?.ColumnIndex);
+			if (!_tcViewState.IsViewMode)
+				OpenEditFormBySelectedObject();
+			e.Handled = true;
+		}
+	}
+
+	#endregion
+
+	#region Копирование данных
 
 	/// <summary>
-	/// Копирует информацию о выделенном объекта в зависимости от того, какая ячейка или какие строки выделены.
+	/// Основной метод копирования данных: определяем, что именно копируем (ячейку, строку, диапазон, инструмент, персонал).
 	/// </summary>
 	private void CopyData()
 	{
+		_logger.Debug("Начато копирование данных (CopyData).");
+
 		GetSelectedDataInfo(
             out List<int> selectedRowIndices, 
-            out CopyScopeEnum? copyScope);
+            out CopyScopeEnum? selectedScope);
 
 		if (selectedRowIndices.Count == 0)
+		{
+			_logger.Debug("Не выбрано ни одной строки для копирования. Операция копирования прервана.");
 			return;
+		}
 
 		try
 		{
-            // Копируем текст ячейки в буфер обмена
+			if (selectedScope.HasValue)
+			{
+				_logger.Information("Выполняется копирование. Scope: {Scope}. Количество выбранных строк: {RowsCount}",
+									selectedScope.Value, selectedRowIndices.Count);
+			}
+
+			// Копируем текст ячейки в буфер обмена
 			CopyClipboardValue();
-			// Если копируются данные не из текстовой облости, то сохраняем их в TcCopyData
-			if (copyScope != CopyScopeEnum.Text)
-				TcCopyData.SetCopyDate(selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList(), copyScope);
+
+			// Если копируется НЕ просто текст, то сохраняем объекты в TcCopyData
+			// Для примера: инструменты, компоненты, строки, вся TechOperation
+			switch (selectedScope)
+			{
+				case CopyScopeEnum.TechOperation:
+					// Если копируем всю ТО (как тип операции), например
+					// Или просто текст – тогда уже скопировали в Clipboard. 
+					// Для CopyScopeEnum.TechOperation — реализуем логику ниже.
+					CopyTechOperationIfNeeded(selectedRowIndices, selectedScope.Value);
+					break;
+				case CopyScopeEnum.TechTransition:
+				case CopyScopeEnum.Row:
+				case CopyScopeEnum.RowRange:
+				case CopyScopeEnum.ToolOrComponents:
+				case CopyScopeEnum.Staff:
+				case CopyScopeEnum.Protections:
+				case CopyScopeEnum.Text:
+					TcCopyData.SetCopyDate(
+						selectedRowIndices
+							.Select(i => TechOperationDataGridItems[i])
+							.ToList(),
+						_tcViewState.FormGuid,
+						selectedScope.Value
+					);
+					break;
+				default:
+					// Нет подходящего варианта – выходим
+					break;
+			}
 		}
-		catch
-		(Exception ex)
+		catch (Exception ex)
 		{
+			_logger.Error(ex, "Ошибка при копировании данных (CopyData).");
 			MessageBox.Show(ex.Message);
 			return;
 		}
 	}
 
-    private int? GetColumnIndex(CopyScopeEnum copyScope)
-    {
-		switch (copyScope)
-		{
-			case CopyScopeEnum.Staff:
-				return dgvMain.Columns["Staff"].Index;
-			case CopyScopeEnum.Protections:
-				return dgvMain.Columns["Protection"].Index;
-			case CopyScopeEnum.Text:
-				return dgvMain.Columns["Text"].Index;
-			case CopyScopeEnum.Machines:
-				return dgvMain.Columns["Machine"].Index;
-			case CopyScopeEnum.TechOperation:
-				return dgvMain.Columns["TechOperation"].Index;
-			default:
-				return null;
-		}
-	}
-
-	private void GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? copyScope)
-	{
-		// Соберём все уникальные индексы строк, где есть выделенные ячейки.
-		var selectedRows = dgvMain.SelectedCells
-			.Cast<DataGridViewCell>()
-			.Distinct()
-			.ToList();
-
-		selectedRowIndices = selectedRows
-			.Select(c => c.RowIndex)
-			.Distinct()
-			.OrderBy(idx => idx)
-			.ToList();
-		
-		copyScope = null;
-		if (selectedRowIndices.Count == 1 && dgvMain.SelectedCells.Count == 1)
-		{
-			// Одна ячейка
-			var cell = dgvMain.SelectedCells[0];
-			copyScope = GetCopyScopeByCell(cell);
-		}
-        else if (selectedRowIndices.Count > 1)
-        {
-            copyScope = CopyScopeEnum.RowRange;
-		}
-	}
-
-	private void PasteCopiedData()
-    {
-		List<int> selectedRowIndices;
-		CopyScopeEnum? copyScope;
-
-		GetSelectedDataInfo(out selectedRowIndices, out copyScope);
-
-		if (selectedRowIndices.Count == 0)
-			return;
-
-		if (copyScope == null)
-        {
-            MessageBox.Show("Не удалось определить тип копирования.");
-            return;
-		}    
-
-        if(TcCopyData.GetCopyTcId() != _tcId && copyScope != CopyScopeEnum.Text)
-		{
-			MessageBox.Show("Данные не могут быть вставлены в другую ТК.");
-			return;
-		}
-
-		var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
-
-		if (copyScope == CopyScopeEnum.Staff)
-		{
-			// проверяем есть ли в скопированных данных информация
-			if (TcCopyData.CopyScope != CopyScopeEnum.Staff) { return; }
-
-			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных Персонал."); }
-			var setectedEw = selectedItems[0].executionWorkItem;
-			if (setectedEw == null)
-			{
-				MessageBox.Show("В данной строке невозможно вставить связь с Персоналом");
-				return;
-			}
-
-            UpdateStaffInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Staffs);
-		}
-		else if (copyScope == CopyScopeEnum.Protections)
-		{
-			// проверяем есть ли в скопированных данных информация
-			if (TcCopyData.CopyScope != CopyScopeEnum.Protections) { return; }
-
-			if (selectedItems.Count != 1) { throw new Exception("Ошибка при вставке данных. Обработка выделенных данных СЗ."); }
-			var setectedEw = selectedItems[0].executionWorkItem;
-			if (setectedEw == null)
-			{
-				MessageBox.Show("В данной строке невозможно вставить связь с СЗ");
-				return;
-			}
-
-			UpdateProtectionsInRow(selectedRowIndices[0], setectedEw, TcCopyData.FullItems[0].executionWorkItem.Protections);
-		}
-		else if (copyScope == CopyScopeEnum.ToolOrComponents)
-		{
-            //MessageBox.Show("Вставка компонента/инструмента");
-		}
-		else if(copyScope == CopyScopeEnum.Text)
-        {
-            PasteClipboardValue();
-		}
-	}
-
-	private void UpdateStaffInRow(int rowIndices, ExecutionWork setectedEw, List<Staff_TC> copiedStaff)
-	{
-		// проверка на наличие изменений
-		if (setectedEw.Staffs.Count == copiedStaff.Count)
-		{
-			foreach (var staff in copiedStaff)
-			{
-				if (!setectedEw.Staffs.Contains(staff))
-				{
-					return;
-				}
-			}
-		}
-
-		var currentCopyScope = CopyScopeEnum.Staff;
-		var columnIndex = GetColumnIndex(currentCopyScope) 
-            ?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
-		var newStaffSymbols = "";
-		setectedEw.Staffs.Clear();
-
-		if (copiedStaff.Count > 0)
-		{
-			foreach (var staff in copiedStaff)
-			{
-				setectedEw.Staffs.Add(staff);
-			}
-
-			newStaffSymbols = string.Join(",", setectedEw.Staffs.Select(s => s.Symbol));
-		}
-
-		UpdateCellValue(rowIndices, (int)columnIndex, newStaffSymbols);
-	}
-
-	private void UpdateProtectionsInRow(int rowIndices, ExecutionWork setectedEw, List<Protection_TC> copiedProtections)
-	{
-		var currentCopyScope = CopyScopeEnum.Protections;
-		var protectionsList = setectedEw.Protections;
-		// проверка на наличие изменений
-		if (protectionsList.Count == copiedProtections.Count)
-		{
-			foreach (var obj in copiedProtections)
-			{
-				if (!protectionsList.Contains(obj))
-				{
-					return;
-				}
-			}
-		}
-
-		var columnIndex = GetColumnIndex(currentCopyScope)
-			?? throw new Exception($"Не найден столбец соответствующий типу {currentCopyScope}");
-		var newCellValue = "";
-		protectionsList.Clear();
-
-		if (copiedProtections.Count > 0)
-		{
-			foreach (var obj in copiedProtections)
-			{
-				protectionsList.Add(obj);
-			}
-            
-            var objectOrderList = protectionsList.Select(s => s.Order).ToList();
-			newCellValue = ConvertListToRangeString(objectOrderList);
-		}
-
-		UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
-	}
-
 	/// <summary>
-	/// Возвращает тип копирования по ячейке.
+	/// Отдельного метода для копирования всей TechOperation целиком
 	/// </summary>
-	/// <param name="copyScope"></param>
-	/// <param name="cell"></param>
-	/// <returns></returns>
-	private CopyScopeEnum? GetCopyScopeByCell(DataGridViewCell cell)
+	private void CopyTechOperationIfNeeded(List<int> selectedRowIndices, CopyScopeEnum copyScope)
 	{
-        CopyScopeEnum? copyScope = null;
-		string columnName = dgvMain.Columns[cell.ColumnIndex].HeaderText;
-        int cellRowIndex = cell.RowIndex;
+		if (copyScope != CopyScopeEnum.TechOperation) return;
 
-		var techOperationDataGridItem = TechOperationDataGridItems[cellRowIndex];
+		var selectedItems = selectedRowIndices
+			.Select(i => TechOperationDataGridItems[i])
+			.ToList();
 
-		switch (columnName)
+		// Проверяем, что все выбранные строки относятся к одной и той же ТО
+		if (selectedItems.Select(i => i.TechOperationWork.Id).Distinct().Count() > 1)
 		{
-			case "Исполнитель":
-				copyScope = CopyScopeEnum.Staff;
-				break;
-			case "№ СЗ":
-				copyScope = CopyScopeEnum.Protections;
-				break;
-			case "Технологические операции":
-				copyScope = CopyScopeEnum.TechOperation;
-				break;
-            case "Технологические переходы":
-				if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
-					copyScope = CopyScopeEnum.ToolOrComponents;
-				else
-					copyScope = CopyScopeEnum.Row;
-                break;
-			case "Примечание":
-			case "Рис.":
-            case "Замечание":
-			case "Ответ":
-				copyScope = CopyScopeEnum.Text;
-				break;
+			MessageBox.Show("Выбраны строки из разных ТО. Выделите строки из одной ТО.");
+			return;
 		}
 
-		return copyScope;
+		var selectedTow = selectedItems[0].TechOperationWork;
+		var allItemsInThisTo = TechOperationDataGridItems
+			.Where(i => i.TechOperationWork.Id == selectedTow.Id)
+			.ToList();
+		TcCopyData.SetCopyDate(allItemsInThisTo, _tcViewState.FormGuid, CopyScopeEnum.TechOperation);
 	}
 
 	/// <summary>
@@ -409,53 +665,898 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			var cellValue = dgvMain.CurrentCell.Value?.ToString();
 			if (!string.IsNullOrEmpty(cellValue))
 			{
-				Clipboard.SetText(cellValue);
-                //TcCopyData.SetCopyText(cellValue);
+				TcCopyData.SetCopyText(cellValue);
 			}
 			else
 			{
-                //TcCopyData.Clear();
-				Clipboard.Clear(); 
+				TcCopyData.Clear();
+			}
+		}
+	}
+
+	#endregion
+
+    #region Вставка данных
+
+    /// <summary>
+    /// Основной метод вставки ранее скопированных объектов (Shift + Insert / Ctrl + V).
+    /// </summary>
+    private void PasteCopiedData()
+	{
+		_logger.Debug("Начато вставление данных (PasteCopiedData).");
+
+		GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? selectedScope);
+		if (selectedRowIndices.Count == 0 || selectedScope == null)
+		{
+			_logger.Debug("Не выбрано ни одной строки или неопределён Scope для вставки. Операция вставки прервана.");
+			return;
+		}
+
+		_logger.Information("Выполняется вставка. Target Scope: {Scope}. Количество выделенных строк: {RowsCount}",
+						   selectedScope.Value, selectedRowIndices.Count);
+		_logger.Information("Содержимое буфера TcCopyData: Scope={CopyScope}, Кол-во FullItems={FullItemsCount}",
+				   TcCopyData.CopyScope, TcCopyData.FullItems.Count);
+
+		try
+		{
+			// Очищаем список вставленных данных
+			TcCopyData.PastedEw.Clear();
+
+			var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
+
+			// Смотрим, что у нас лежит в TcCopyData
+			switch (selectedScope)
+			{
+				case CopyScopeEnum.Staff:
+					PasteStaffScope(selectedRowIndices);
+					break;
+				case CopyScopeEnum.Protections:
+					PasteProtectionsScope(selectedRowIndices);
+					break;
+				case CopyScopeEnum.ToolOrComponents:
+				case CopyScopeEnum.TechTransition:
+				case CopyScopeEnum.Row:
+				case CopyScopeEnum.RowRange:
+					PasteToolsOrRows(selectedRowIndices, selectedScope.Value);
+					break;
+				case CopyScopeEnum.TechOperation:
+					PasteWholeTechOperation(selectedRowIndices);
+					break;
+				case CopyScopeEnum.Text:
+					PasteClipboardValue(); // просто вставка текста
+					break;
+				default:
+					MessageBox.Show("Не удалось определить тип вставки.");
+					break;
+			}
+			if (_editForm != null && !_editForm.IsDisposed)
+			{
+				_editForm.RefreshActiveTabData();
+			}
+		}
+		catch (Exception ex)
+		{
+			_logger.Error(ex, "Ошибка при вставке данных (PasteCopiedData).");
+			MessageBox.Show($"Ошибка при вставке: {ex.Message}");
+		}
+	}
+
+	/// <summary>
+	/// Вставляет персонал (Staff) в текущую строку.
+	/// </summary>
+	private void PasteStaffScope(List<int> selectedRowIndices)
+	{
+		if (TcCopyData.CopyScope != CopyScopeEnum.Staff) return;
+		if (selectedRowIndices.Count != 1)
+			throw new Exception("Ошибка: для вставки персонала выделите ровно одну строку.");
+
+        if (TechOperationDataGridItems[selectedRowIndices[0]].WorkItem is not ExecutionWork ew)
+        {
+            MessageBox.Show("В данной строке невозможно вставить связь с Персоналом");
+            return;
+        }
+
+        // Обновляем связь ExecutionWork -> Staffs
+		if (TcCopyData.FullItems[0].WorkItem is not ExecutionWork copiedEw)
+		{
+			MessageBox.Show("Ошибка при вставке данных. Некоректный скопированный объект");
+			return;
+		}
+
+		UpdateStaffInRow(
+			selectedRowIndices[0],
+			ew!,
+			copiedEw.Staffs
+		);
+	}
+
+	/// <summary>
+	/// Вставляет средства защиты (Protections) в текущую строку.
+	/// </summary>
+	private void PasteProtectionsScope(List<int> selectedRowIndices)
+	{
+		if (TcCopyData.CopyScope != CopyScopeEnum.Protections) return;
+		if (selectedRowIndices.Count != 1)
+			throw new Exception("Ошибка: для вставки СИЗ выделите ровно одну строку.");
+
+		if (TechOperationDataGridItems[selectedRowIndices[0]].WorkItem is not ExecutionWork ew)
+		{
+			MessageBox.Show("В данной строке невозможно вставить связь с СЗ");
+			return;
+		}
+		if (TcCopyData.FullItems[0].WorkItem is not ExecutionWork copiedEw)
+		{
+			MessageBox.Show("Ошибка при вставке данных. Некоректный скопированный объект");
+			return;
+		}
+		UpdateProtectionsInRow(
+			selectedRowIndices[0],
+			ew,
+			copiedEw.Protections
+		);
+	}
+
+	/// <summary>
+	/// Вставляет инструменты/компоненты либо новые строки (ExecutionWork).
+	/// </summary>
+	private void PasteToolsOrRows(List<int> selectedRowIndices, CopyScopeEnum selectedScope)
+	{
+		// Если копируем инструменты/компоненты
+		if ((selectedScope == CopyScopeEnum.ToolOrComponents || selectedScope == CopyScopeEnum.TechTransition || selectedScope == CopyScopeEnum.Row || selectedScope == CopyScopeEnum.RowRange) &&
+			TcCopyData.CopyScope == CopyScopeEnum.ToolOrComponents)
+		{
+			if (selectedRowIndices.Count != 1)
+				throw new Exception("Ошибка: для вставки инструментов/компонентов выделите ровно одну строку (ячейку).");
+
+			var tow = TechOperationDataGridItems[selectedRowIndices[0]].TechOperationWork;
+			InsertToolAndComponent(tow, TcCopyData.FullItems, updateDataGrid: true);
+			return;
+		}
+
+		// Если копируем одну или несколько строк (Row / RowRange)
+		if ((selectedScope == CopyScopeEnum.TechTransition || selectedScope == CopyScopeEnum.Row || selectedScope == CopyScopeEnum.RowRange) &&
+			(TcCopyData.CopyScope == CopyScopeEnum.TechTransition || 
+			TcCopyData.CopyScope == CopyScopeEnum.Row ||
+			 TcCopyData.CopyScope == CopyScopeEnum.RowRange ||
+			 TcCopyData.CopyScope == CopyScopeEnum.TechOperation))
+		{
+			var rowIndex = selectedRowIndices[0] + 1; // вставляем после текущей строки
+			var selectedTow = TechOperationDataGridItems[selectedRowIndices[0]].TechOperationWork;
+
+			// Вставка одного шага (одной строки)
+			if (TcCopyData.CopyScope == CopyScopeEnum.Row || TcCopyData.CopyScope == CopyScopeEnum.TechTransition)
+			{
+				PasteAsNewRow(rowIndex, selectedTow, TcCopyData.FullItems[0], updateDataGrid: true);
+			}
+			// Вставка нескольких шагов сразу
+			else if (TcCopyData.CopyScope == CopyScopeEnum.RowRange)
+			{
+				if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid && selectedTow.techOperation.IsTypical)
+				{
+					MessageBox.Show("Вставка строк из другой ТК в типовую операцию не поддерживается.");
+					return;
+				}
+
+				for (int i = 0; i < TcCopyData.FullItems.Count; i++)
+				{
+					PasteAsNewRow(rowIndex + i, selectedTow, TcCopyData.FullItems[i], updateDataGrid: false);
+				}
+				UpdateGrid();
+			}
+            else if (TcCopyData.CopyScope == CopyScopeEnum.TechOperation)
+            {
+                PasteWholeTechOperation(selectedRowIndices);
 			}
 		}
 	}
 
 	/// <summary>
-	/// Удаление значения из текущей ячейки (у вас уже реализовано).
+	/// Вставляет сразу все данные из скопированной Технологической операции в другую (CopyScopeEnum.TechOperation).
 	/// </summary>
-	private void DeleteCellValue()
-    {
-        if (dgvMain.CurrentCell != null && !dgvMain.CurrentCell.ReadOnly)
-        {
-            dgvMain.CurrentCell.Value = string.Empty;
+	private void PasteWholeTechOperation(List<int> selectedRowIndices)
+	{
+		// У нас уже CopyScopeEnum.TechOperation
+		// проверяем, совпадает ли с TcCopyData.CopyScope
+		if (TcCopyData.CopyScope != CopyScopeEnum.TechOperation) return;
+		if (selectedRowIndices.Count != 1)
+			throw new Exception("Ошибка: выделите ровно одну строку для вставки ТО.");
 
-            // Вызов события CellEndEdit вручную
-            var args = new DataGridViewCellEventArgs(dgvMain.CurrentCell.ColumnIndex, dgvMain.CurrentCell.RowIndex);
-            DgvMain_CellEndEdit(dgvMain, args);
-        }
-    }
+		var rowIndex = selectedRowIndices[0] + 1;
+		var selectedTow = TechOperationDataGridItems[selectedRowIndices[0]].TechOperationWork;
+
+		// Сначала вставим все ExecutionWork (обычные переходы)
+		var copiedEwItems = TcCopyData.FullItems
+			.Where(i => i.WorkItemType == WorkItemType.ExecutionWork)
+			.ToList();
+
+		int iterator = 0;
+		foreach (var copiedItem in copiedEwItems)
+		{
+			PasteAsNewRow(rowIndex + iterator, selectedTow, copiedItem, updateDataGrid: false);
+			iterator++;
+		}
+
+		// Вставим инструменты и компоненты
+		var copiedToolCompItems = TcCopyData.FullItems
+			.Where(i => i.WorkItemType == WorkItemType.ToolWork
+					 || i.WorkItemType == WorkItemType.ComponentWork)
+			.ToList();
+
+		InsertToolAndComponent(selectedTow, copiedToolCompItems, updateDataGrid: false);
+
+		UpdateGrid();
+	}
 
 	/// <summary>
 	/// Вставка значения из буфера обмена в текущую ячейку (ваша логика уже была, оставим как есть).
 	/// </summary>
 	private void PasteClipboardValue()
-    {
-        if (dgvMain.CurrentCell != null && !dgvMain.CurrentCell.ReadOnly)
-        {
-            var clipboardText = Clipboard.GetText();
-            if (!string.IsNullOrEmpty(clipboardText))
-            {
-                dgvMain.CurrentCell.Value = clipboardText;
+	{
+		if (dgvMain.CurrentCell != null && !dgvMain.CurrentCell.ReadOnly)
+		{
+			var clipboardText = Clipboard.GetText();
+			if (!string.IsNullOrEmpty(clipboardText))
+			{
+				dgvMain.CurrentCell.Value = clipboardText;
 
-                // Вызов события CellEndEdit вручную
-                var args = new DataGridViewCellEventArgs(dgvMain.CurrentCell.ColumnIndex, dgvMain.CurrentCell.RowIndex);
-                DgvMain_CellEndEdit(dgvMain, args);
-            }
-        }
-    }
+				// Вызов события CellEndEdit вручную
+				var args = new DataGridViewCellEventArgs(
+                    dgvMain.CurrentCell.ColumnIndex, 
+                    dgvMain.CurrentCell.RowIndex
+                );
+				DgvMain_CellEndEdit(dgvMain, args);
+			}
+		}
+	}
 
 	#endregion
 
+	#region Удаление значения ячейки
+
+	/// <summary>
+	/// Удаление значения из текущей ячейки.
+	/// </summary>
+	private void DeleteCellValue()
+	{
+		if (dgvMain.CurrentCell != null && !dgvMain.CurrentCell.ReadOnly)
+		{
+			_logger.Debug("Очищаем значение ячейки (DeleteCellValue). Ячейка: {RowIndex}-{ColIndex}, Предыдущее значение: {Value}",
+						  dgvMain.CurrentCell.RowIndex,
+						  dgvMain.CurrentCell.ColumnIndex,
+						  dgvMain.CurrentCell.Value);
+
+			dgvMain.CurrentCell.Value = string.Empty;
+
+			// Вызов события CellEndEdit вручную
+			var args = new DataGridViewCellEventArgs(dgvMain.CurrentCell.ColumnIndex, dgvMain.CurrentCell.RowIndex);
+			DgvMain_CellEndEdit(dgvMain, args);
+		}
+	}
+
+	#endregion
+
+	#region Методы-helpers для определения области копирования / вставки
+
+	/// <summary>
+	/// Возвращает список выделенных строк (индексы) и предполагаемый тип копирования (scope).
+	/// </summary>
+	private void GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? copyScope)
+	{
+		// Соберём все уникальные индексы строк, где есть выделенные ячейки.
+		var selectedCells = dgvMain.SelectedCells
+			.Cast<DataGridViewCell>()
+			.Distinct()
+			.ToList();
+
+		var selectedRows = dgvMain.SelectedRows
+			.Cast<DataGridViewRow>()
+			.Distinct()
+			.ToList();
+
+		selectedRowIndices = selectedCells
+			.Select(c => c.RowIndex)
+			.Distinct()
+			.OrderBy(idx => idx)
+			.ToList();
+
+		if (!selectedRowIndices.Any())
+		{
+			copyScope = null;
+			return;
+		}
+
+		if (selectedRows.Count == 1)
+		{
+			copyScope = CopyScopeEnum.Row;
+			return;
+		}
+		else if (selectedRows.Count > 1)
+		{
+			copyScope = CopyScopeEnum.RowRange;
+			return;
+		}
+
+		if (selectedCells.Count == 1)
+		{
+			var cell = selectedCells[0];
+			copyScope = GetCopyScopeByCell(cell);
+			return;
+		}
+		// в случае выделения нескольких ячеек
+		copyScope = null;
+	}
+
+	/// <summary>
+	/// Определяем тип копирования по названию столбца и типу строки (WorkItemType).
+	/// </summary>
+	private CopyScopeEnum? GetCopyScopeByCell(DataGridViewCell cell)
+	{
+		string columnName = dgvMain.Columns[cell.ColumnIndex].HeaderText;
+		int rowIndex = cell.RowIndex;
+
+		var item = TechOperationDataGridItems[rowIndex];
+
+		var isToolOrComponent = item.ItsTool || item.ItsComponent;
+		// Если это инструмент / компонент:
+		//if (item.ItsTool || item.ItsComponent)
+		//	return CopyScopeEnum.ToolOrComponents;
+
+		// Иначе смотрим по названию столбца
+		return columnName switch
+		{
+			"Исполнитель" => isToolOrComponent ? CopyScopeEnum.ToolOrComponents : CopyScopeEnum.Staff,
+			"№ СЗ" => isToolOrComponent ? CopyScopeEnum.ToolOrComponents : CopyScopeEnum.Protections,
+			"Технологические операции" => CopyScopeEnum.TechOperation,
+			"Технологические переходы" => isToolOrComponent ? CopyScopeEnum.ToolOrComponents : CopyScopeEnum.TechTransition,
+			"Примечание" or "Рис."
+			  or "Замечание" or "Ответ" or "№"
+											=> CopyScopeEnum.Text,
+			_ => null
+		};
+	}
+
+	/// <summary>
+	/// Возвращает индекс столбца по типу копирования (Staff, Protections, и т.д.).
+	/// </summary>
+	private int? GetColumnIndex(CopyScopeEnum copyScope)
+	{
+		return copyScope switch
+		{
+			CopyScopeEnum.Staff => dgvMain.Columns["Staff"].Index,
+			CopyScopeEnum.Protections => dgvMain.Columns["Protection"].Index,
+			CopyScopeEnum.Text => dgvMain.Columns["Text"].Index,           // TODO: проверить, есть ли реально "Text" в колонках
+			CopyScopeEnum.Machines => dgvMain.Columns["Machine"].Index,
+			CopyScopeEnum.TechOperation => dgvMain.Columns["TechOperation"].Index, 
+			_ => null
+		};
+	}
+
+	#endregion
+
+	#region Методы вставки (PasteAsNewRow, UpdateStaff, UpdateProtections, InsertToolAndComponent)
+
+	/// <summary>
+	/// Вставляет данные (ExecutionWork) как новую строку в указанную TechOperationWork.
+	/// </summary>
+	private void PasteAsNewRow(int rowIndex, TechOperationWork selectedToTow, TechOperationDataGridItem copiedItem, bool updateDataGrid = false)
+	{
+		// Проверка на тип WorkItem
+		if (copiedItem.WorkItemType != WorkItemType.ExecutionWork
+			|| copiedItem.WorkItem is not ExecutionWork copiedEw)
+		{
+			throw new Exception("Ошибка при вставке: не ExecutionWork или пустое значение.");
+		}
+
+		// Для типовых ТО возможно вставлять только повторы
+		if (selectedToTow.techOperation.IsTypical && !copiedEw.Repeat)
+		{
+			MessageBox.Show("В типовую операцию можно вставлять только 'Повторить'.");
+			return;
+		}
+
+		// Если выбранная ТО пустая (без ТП), заменяем строку с ТО на новую с ТП  
+		if (selectedToTow.executionWorks.Count == 0)
+		{
+			var towItemIndex = TechOperationDataGridItems.FindIndex(i => i.TechOperationWork == selectedToTow);
+			if (towItemIndex == -1)
+			{
+				throw new Exception("Ошибка при вставке: некоректная ссылка на выбранное ТО.");
+			}
+			rowIndex = towItemIndex;
+		}
+
+		// Создаём дубликат, если копируем из другой ТК
+		if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid)
+			copiedEw = CloneExecutionWorkForAnotherTC(copiedEw);
+
+		var techTransition = copiedEw.techTransition;
+		if (techTransition == null) return;
+
+		// Вставляем новую строку
+		var newEw = InsertNewExecutionWork(
+			copiedEw.techTransition ?? throw new Exception("Ошибка при вставке: нет TechTransition в скопированном объектке."),
+			selectedToTow,
+			rowIndex,
+			copiedEw.Repeat ? copiedEw.ExecutionWorkRepeats : null,
+			coefficient: copiedEw.Coefficient,
+			updateDataGrid: updateDataGrid,
+			comment: copiedEw.Comments,
+			pictureName: copiedEw.PictureName
+		);
+
+		newEw.TempGuid = copiedEw.IdGuid;
+		TcCopyData.PastedEw.Add(newEw);
+
+		try
+		{
+			UpdateProtectionsInRow(rowIndex, newEw, copiedEw.Protections, updateDataGrid: updateDataGrid);
+			UpdateStaffInRow(rowIndex, newEw, copiedEw.Staffs, updateDataGrid: updateDataGrid);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show($"Ошибка при вставке: {ex.Message}");
+		}
+		// todo: что с механизмами?
+		// todo: что с группой паралельности и последовательности?
+	}
+
+	/// <summary>
+	/// Создаёт дубликат ExecutionWork, если скопировано из другой ТК.
+	/// </summary>
+	private ExecutionWork CloneExecutionWorkForAnotherTC(ExecutionWork copiedEw)
+	{
+		var newEw = new ExecutionWork
+		{
+			// пока отключаю поля, которые не используются
+			IdGuid = copiedEw.IdGuid,
+			techTransitionId = copiedEw.techTransitionId,
+			//techTransition = copiedEw.techTransition,
+
+			//techOperationWorkId = copiedEw.techOperationWorkId, 
+
+			//Etap = copiedEw.Etap,
+			//Posled = copiedEw.Posled,
+
+			TempGuid = copiedEw.TempGuid,
+
+			Order = copiedEw.Order,
+			RowOrder = copiedEw.RowOrder,
+
+			Coefficient = copiedEw.Coefficient,
+
+			Repeat = copiedEw.Repeat,
+			ExecutionWorkRepeats = copiedEw.ExecutionWorkRepeats,
+
+			Protections = copiedEw.Protections,
+			Staffs = copiedEw.Staffs,
+
+            Comments = copiedEw.Comments,
+            PictureName = copiedEw.PictureName,
+            //Vopros = copiedEw.Vopros,
+            //Otvet = copiedEw.Otvet,
+        };
+
+        // При необходимости подтянуть нужные объекты из текущего контекста
+        newEw.techTransition = context.TechTransitions
+            .FirstOrDefault(t => t.Id == copiedEw.techTransitionId);
+
+		if (copiedEw.Repeat)
+		{
+			var repeatEws = new List<ExecutionWorkRepeat>();
+			bool isEmptyRepeat = false;
+			// ищим в уже существующих ТП ТП с аналогичным guidId
+			// заменим скопированные объекты на существующие в данной контексте
+			foreach (var ewRepeat in copiedEw.ExecutionWorkRepeats)
+			{
+				var newEwRepeats = TcCopyData.PastedEw.FirstOrDefault(ew => ew.TempGuid == ewRepeat.ChildExecutionWork.IdGuid);
+				if (newEwRepeats == null)
+				{
+					MessageBox.Show($"ТП Повторить (строка {copiedEw.RowOrder}) будет вставленны пустым, т.к. не все повторяемые переходы были выделенны при копировании.");
+					// выйти из цикла
+					isEmptyRepeat = true;
+
+					break;
+				}
+
+				repeatEws.Add(new ExecutionWorkRepeat
+				{
+					ParentExecutionWork = new ExecutionWork(), // вренное значение. Должно быть заменено на новый созданный в InsertNewRow ТП Повтора
+					ChildExecutionWork = newEwRepeats,
+					NewCoefficient = ewRepeat.NewCoefficient,
+					NewEtap = ewRepeat.NewEtap,
+					NewPosled = ewRepeat.NewPosled
+				});
+			}
+
+			if (isEmptyRepeat) { repeatEws = new List<ExecutionWorkRepeat>(); }
+
+            newEw.ExecutionWorkRepeats = repeatEws;
+		}
+
+		return newEw;
+	}
+
+	/// <summary>
+	/// Обновляет (вставляет) персонал в указанный ExecutionWork.
+	/// </summary>
+	public void UpdateStaffInRow(int rowIndex, ExecutionWork selectedEw, List<Staff_TC> copiedStaff, bool updateDataGrid = true)
+	{
+		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
+		if (copiedStaff == null) throw new ArgumentNullException(nameof(copiedStaff));
+
+		var columnIndex = GetColumnIndex(CopyScopeEnum.Staff)
+			?? throw new Exception("Не найден столбец под персонал (Staff).");
+
+		// если ТК копирования не совпадает с текущей ТК, то находим совпадабщие объекты и создаём новые
+		// Заменяем на сущствующий в случае совпадения id персонала и его символа.
+		// В других случаях заменяем на новый объект с новым символом.
+		// (Доп) Логика выбора символа: при отсутствии символа у сущ - х объектов добавляем новый с тем символом который был при копировании.
+		if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid)
+			copiedStaff = MergeStaffFromAnotherTc(copiedStaff);
+
+		// Удаляем из списка персонала тех, кого нет в скопированном списке и добавляем новых
+		var staffSet = new HashSet<Staff_TC>(copiedStaff);
+		selectedEw.Staffs.RemoveAll(staff => !staffSet.Contains(staff));
+		foreach (var staff in copiedStaff)
+		{
+			if (!selectedEw.Staffs.Contains(staff))
+				selectedEw.Staffs.Add(staff);
+		}
+
+		if (updateDataGrid)
+		{
+			// Формируем строку с символами
+			var newStaffSymbols = string.Join(",", selectedEw.Staffs.OrderBy(s => s.Symbol).Select(s => s.Symbol));
+			// Обновляем ячейку в таблице
+			UpdateCellValue(rowIndex, (int)columnIndex, newStaffSymbols);
+		}
+
+		List<Staff_TC> MergeStaffFromAnotherTc(List<Staff_TC> copiedStaff)
+		{
+			copiedStaff = copiedStaff.ToList();
+
+			var copiedStaffData = copiedStaff.Select(s => new { ChildId = s.ChildId, Symbol = s.Symbol, Staff_TC = s }).ToList();
+			var existingStaff_tcs = TehCarta.Staff_TCs;
+			foreach (var copiedStc in copiedStaffData)
+			{
+				var existingStaff_tc = existingStaff_tcs
+					.FirstOrDefault(st => st.ChildId == copiedStc.ChildId && st.Symbol == copiedStc.Symbol);
+
+				var oldCopiedStc = copiedStaff.Find(st => st == copiedStc.Staff_TC);
+				if (oldCopiedStc == null)
+				{ throw new Exception("Ошибка при копирования персонала. Ошибка 1246"); }
+
+				copiedStaff.Remove(oldCopiedStc);
+
+				if (existingStaff_tc == null)
+				{
+					// поиск существующего в ТК персонала по id
+					var addingStaff = existingStaff_tcs.Select(st => st.Child).FirstOrDefault(s => s.Id == copiedStc.ChildId);
+					if (addingStaff == null)
+					{
+						addingStaff = context.Staffs.FirstOrDefault(s => s.Id == copiedStc.ChildId);
+						//addingStaff = copiedStc.Staff_TC.Child;
+					}
+
+					// проверка на наличие символа
+					var addingSymbol = copiedStc.Symbol;
+					if (existingStaff_tcs.Select(st => st.Symbol).Contains(addingSymbol))
+					{
+						addingSymbol = GetNewSymbol(existingStaff_tcs);
+					}
+
+					// если персонала нет в ТК, то добавляем его с новым символом
+					var newStaff = new Staff_TC
+					{
+						ParentId = TehCarta.Id,
+						ChildId = copiedStc.ChildId,
+						Child = addingStaff,
+						Symbol = addingSymbol,
+
+						Order = existingStaff_tcs.Count + 1
+					};
+
+					copiedStaff.Add(newStaff);
+
+					// добавить персонал в ТК
+					TehCarta.Staff_TCs.Add(newStaff);
+				}
+				else
+				{
+					// если персонал уже есть в ТК, то заменяем на него объект в списке скопированного персонала
+					copiedStaff.Add(existingStaff_tc);
+				}
+			}
+
+			return copiedStaff;
+
+
+			static string GetNewSymbol(List<Staff_TC> existingStaff_tcs)
+			{
+				var existingSymbols = existingStaff_tcs.Select(st => st.Symbol).ToList();
+				//все символы которые начинаются на "Нов." и содержат в себе число
+				var newSymbols = existingSymbols.Where(s => s.StartsWith("Нов.") && int.TryParse(s.Replace("Нов.", ""), out _)).ToList();
+				// если нет символов начинающихся на "Нов." то добавляем "Нов.1"
+				if (newSymbols.Count == 0)
+					return "Нов.1";
+				// если есть символы начинающиеся на "Нов." то добавляем новый символ с максимальным числом
+				var maxNumber = newSymbols.Select(s => int.Parse(s.Replace("Нов.", ""))).Max();
+				return $"Нов.{maxNumber + 1}";
+			}
+		}
+	}
+
+	/// <summary>
+	/// Обновляет (вставляет) СИЗ (Protections) в указанный ExecutionWork
+	/// </summary>
+	public void UpdateProtectionsInRow(int rowIndices, ExecutionWork selectedEw, List<Protection_TC> copiedProtections, bool updateDataGrid = true)
+	{
+		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
+		if (copiedProtections == null) throw new ArgumentNullException(nameof(copiedProtections));
+
+		var columnIndex = GetColumnIndex(CopyScopeEnum.Protections)
+		    ?? throw new Exception("Не найден столбец для СИЗ.");
+
+
+		if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid)
+			copiedProtections = MergeProtectionsFromAnotherTc(copiedProtections);
+
+		var protSet = new HashSet<Protection_TC>(copiedProtections);
+		selectedEw.Protections.RemoveAll(obj => !protSet.Contains(obj));
+		foreach (var protection in copiedProtections)
+		{
+			if (!selectedEw.Protections.Contains(protection))
+				selectedEw.Protections.Add(protection);
+		}
+
+		if (updateDataGrid)
+		{
+			// Формируем строку с номерами СЗ
+			var objectOrderList = selectedEw.Protections.Select(s => s.Order).ToList();
+			var newCellValue = string.Join(",", ConvertListToRangeString(objectOrderList));
+			UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
+		}
+
+		List<Protection_TC> MergeProtectionsFromAnotherTc(List<Protection_TC> copiedProtections)
+		{
+			copiedProtections = copiedProtections.ToList();
+			var existingObject_tcs = TehCarta.Protection_TCs;
+			var newCopiedProtections = new List<Protection_TC>();
+			foreach (var copiedOtc in copiedProtections)
+			{
+				var existingObject_tc = existingObject_tcs
+					.FirstOrDefault(st => st.ChildId == copiedOtc.ChildId);
+
+				if (existingObject_tc == null)
+				{
+					var addingObject = context.Protections.FirstOrDefault(s => s.Id == copiedOtc.ChildId); // todo: хочется уйти от контекста, чтобы вынести в сервис
+																										   // без контекста (при добавлении напрямую из copiedOtc.Child) выдаёт ошибку при сохранении
+					if (addingObject == null)
+					{ throw new Exception("Ошибка при копировании СЗ. Ошибка 1246"); }
+
+					// если персонала нет в ТК, то добавляем его с новым символом
+					var newObject_tc = new Protection_TC
+					{
+						ParentId = TehCarta.Id,
+						ChildId = copiedOtc.ChildId,
+						Child = addingObject,
+						Quantity = copiedOtc.Quantity,
+						Note = copiedOtc.Note,
+
+						Order = existingObject_tcs.Count + 1
+					};
+
+					newCopiedProtections.Add(newObject_tc);
+
+					// добавить персонал в ТК
+					TehCarta.Protection_TCs.Add(newObject_tc);
+				}
+				else
+				{
+					// если персонал уже есть в ТК, то заменяем на него объект в списке скопированного персонала
+					newCopiedProtections.Add(existingObject_tc);
+				}
+			}
+
+			copiedProtections = newCopiedProtections;
+			return copiedProtections;
+		}
+	}
+
+	/// <summary>
+	/// Вставляет инструменты и компоненты из списка copiedRows в выбранную TechOperationWork.
+	/// </summary>
+	private void InsertToolAndComponent(TechOperationWork selectedTow, List<TechOperationDataGridItem> copiedRows, bool updateDataGrid = false)
+	{
+		var toolRows = copiedRows.Where(r => r.WorkItemType == WorkItemType.ToolWork).ToList();
+		var componentRows = copiedRows.Where(r => r.WorkItemType == WorkItemType.ComponentWork).ToList();
+
+		bool isDGChanged = false;
+
+		// === Инструменты ===
+		if (toolRows.Count > 0)
+		{
+			var toolWorks = toolRows.Select(r => r.WorkItem).Cast<ToolWork>().ToList();
+			foreach (var tw in toolWorks)
+			{
+				// Добавляем инструмент, если его ещё нет в selectedTow
+				bool alreadyExists = selectedTow.ToolWorks.Any(o => o.toolId == tw.toolId);
+				if (!alreadyExists)
+				{
+                    Tool addingObject = ResolveToolInCurrentTc(tw);
+					selectedTow.ToolWorks.Add(new ToolWork
+					{
+						toolId = tw.toolId,
+						tool = addingObject,
+						Quantity = tw.Quantity,
+						Comments = tw.Comments
+					});
+					isDGChanged = true;
+				}
+			}
+		}
+
+		// === Компоненты ===
+		if (componentRows.Count > 0)
+		{
+			var copiedComponentWorks = componentRows.Select(r => r.WorkItem).Cast<ComponentWork>().ToList();
+			var copiedComponents = copiedComponentWorks.Select(tw => tw.component).ToList();
+			// добавляем скопированные инструменты, если их нет в ТО
+			foreach (var cw in copiedComponentWorks)
+			{
+				bool alreadyExists = selectedTow.ComponentWorks.Any(o => o.componentId == cw.componentId);
+				if (!alreadyExists)
+				{
+					Component addingObject = ResolveComponentInCurrentTc(cw);
+					selectedTow.ComponentWorks.Add(new ComponentWork
+					{
+						componentId = cw.componentId,
+						component = addingObject,
+						Quantity = cw.Quantity,
+						Comments = cw.Comments
+					});
+					isDGChanged = true;
+				}
+			}
+		}
+
+		if (isDGChanged && updateDataGrid)
+			UpdateGrid();
+
+		Tool ResolveToolInCurrentTc(ToolWork tw)
+		{
+			if (TcCopyData.GetCopyFormGuId() == _tcViewState.FormGuid)
+				return tw.tool;
+            else
+            {
+				var existionObject = TehCarta.Tools.FirstOrDefault(o => o.Id == tw.toolId);
+				if (existionObject == null)
+				{
+					existionObject = context.Tools.FirstOrDefault(o => o.Id == tw.toolId);
+					if (existionObject == null)
+						throw new Exception("Ошибка при копировании инструментов. Ошибка 1246");
+
+					if(!TehCarta.Tool_TCs.Any(o => o.ChildId == existionObject.Id))
+						TehCarta.Tool_TCs.Add(new Tool_TC
+						{
+							ParentId = TehCarta.Id,
+							ChildId = tw.toolId,
+							Child = existionObject,
+							Quantity = tw.Quantity,
+							Note = tw.Comments,
+
+							Order = TehCarta.Tool_TCs.Count + 1
+						});
+				}
+                return existionObject;
+			}
+		}
+
+		Component ResolveComponentInCurrentTc(ComponentWork componentWork)
+		{
+			if (TcCopyData.GetCopyFormGuId() == _tcViewState.FormGuid)
+				return componentWork.component;
+            else
+            {
+				var existionObject = TehCarta.Components.FirstOrDefault(o => o.Id == componentWork.componentId);
+				if (existionObject == null)
+				{
+					existionObject = context.Components.FirstOrDefault(o => o.Id == componentWork.componentId);
+					if (existionObject == null)
+						throw new Exception("Ошибка при копировании компонентов. Ошибка 1246");
+
+					if (!TehCarta.Component_TCs.Any(o => o.ChildId == existionObject.Id))
+						TehCarta.Component_TCs.Add(new Component_TC
+						{
+							ParentId = TehCarta.Id,
+							ChildId = componentWork.componentId,
+							Child = existionObject,
+							Quantity = componentWork.Quantity,
+							Note = componentWork.Comments,
+
+							Order = TehCarta.Component_TCs.Count + 1
+						});
+				}
+
+				return existionObject;
+			}
+			
+		}
+	}
+
+	/// <summary>
+	/// Создаёт новый переход (ExecutionWork) в указанной технологической операции
+	/// и при необходимости обновляет DataGridView.
+	/// </summary>
+	/// <param name="techTransition">Технологический переход, на базе которого создаётся новая строка.</param>
+	/// <param name="techOperationWork">TechOperationWork, в который добавляется новый переход.</param>
+	/// <param name="insertIndex">
+	/// (Необязательный) индекс, по которому вставляется строка в общем списке. 
+	/// Если null – добавляется в конец.
+	/// </param>
+	/// <param name="executionWorksRepeats">
+	/// Список повторяемых переходов (если новый переход является "Повторить").
+	/// </param>
+	/// <param name="coefficient">
+	/// Строка с коэффициентом для расчёта времени. 
+	/// Если не задана, берётся исходное значение времени <paramref name="techTransition"/>.
+	/// </param>
+	/// <param name="updateDataGrid">
+	/// Нужно ли вызывать <c>UpdateGrid()</c> после вставки.
+	/// </param>
+	/// <param name="comment">Начальный комментарий к новому переходу.</param>
+	/// <param name="pictureName">Имя рисунка для нового перехода.</param>
+	/// <returns>Созданный объект <see cref="ExecutionWork"/>.</returns>
+	/// <exception cref="Exception">Если создать новый переход не удалось.</exception>
+	public ExecutionWork InsertNewExecutionWork(TechTransition techTransition,  TechOperationWork techOperationWork,
+        int? insertIndex = null, List<ExecutionWorkRepeat>? executionWorksRepeats = null,
+        string? coefficient = null, bool updateDataGrid = true,
+        string? comment = null, string? pictureName = null)
+
+	{
+		var newEw = AddNewExecutionWork(techTransition, techOperationWork, insertIndex: insertIndex, coefficientValue: coefficient, comment: comment, pictureName: pictureName);
+
+        if (newEw == null) {
+			_logger.Error("InsertNewExecutionWork: AddNewExecutionWork вернул null! Бросаем исключение.");
+			throw new Exception("Ошибка при добавлении нового перехода.");
+		}
+
+		_logger.Debug("Создан новый ExecutionWork IdGuid={Guid}, Order={Order}, Repeat={Repeat}.",
+				  newEw.IdGuid, newEw.Order, newEw.Repeat);
+
+		// если новый переход - повтор, то добавляем к нему повторяемые переходы
+		if (newEw.Repeat && executionWorksRepeats != null)
+		{
+            foreach (var ewRepeat in executionWorksRepeats)
+            {
+                var newEwRepeat = new ExecutionWorkRepeat
+                {
+                    ParentExecutionWork = newEw,
+                    ChildExecutionWork = ewRepeat.ChildExecutionWork,
+                    NewCoefficient = ewRepeat.NewCoefficient,
+                    NewEtap = ewRepeat.NewEtap,
+                    NewPosled = ewRepeat.NewPosled
+                };
+				newEw.ExecutionWorkRepeats.Add(ewRepeat);
+			}
+		}
+
+        if (updateDataGrid)
+		    UpdateGrid(); // todo: заменить на вставку по индексу и пересчёт номеров строк. Сложность с повторами
+        // при замене номеров строк перебором Items,
+        // для повтором можно аналогично пересчитать название исходя из новых индексов входящий в него EW
+
+        return newEw;
+	}
+
+	#endregion
+
+	#endregion
+
+	/// <summary>
+	/// Обработчик завершения редактирования ячейки <c>dgvMain</c>. 
+	/// Присваивает соответствующим свойствам ExecutionWork (или Tool/Component) новое значение.
+	/// </summary>
 	private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
         // todo: ненадёжный способ определения столбцов с комментариями
@@ -553,10 +1654,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         return HasChanges;
     }
 
-
-    public void UpdateGrid()
+	/// <summary>
+	/// Обновляет DataGridView: очищает и заново заполняет все строки/колонки,
+	/// затем при необходимости восстанавливает позицию прокрутки и, если открыта,
+	/// обновляет форму диаграмм (DiagramForm) в оконном режиме.
+	/// </summary>
+	public void UpdateGrid()
     {
-        try // временная заглушка от ошибки возникающей при переключении на другую форму в процессе загрузки данных
+		_logger.Debug("Начато обновление грида (UpdateGrid).");
+
+		try // временная заглушка от ошибки возникающей при переключении на другую форму в процессе загрузки данных
         {
             var offScroll = dgvMain.FirstDisplayedScrollingRowIndex;
 
@@ -572,14 +1679,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             var bsForm = CheckOpenFormService.FindOpenedForm<DiagramForm>(_tcId);
             if (bsForm != null)
             {
-                bsForm.UpdateVisualData();
+				_logger.Debug("Обновляем DiagramForm открытое в оконном режиме (UpdateVisualData).");
+				bsForm.UpdateVisualData();
             }
-        }
-        catch (Exception ex)
-        {
-            //MessageBox.Show(ex.Message);
-        }
 
+			_logger.Debug("Грид обновлён успешно (UpdateGrid завершён).");
+		}
+        catch (Exception ex)
+		{
+			_logger.Error(ex, "Ошибка при обновлении грида (UpdateGrid).");
+		}
     }
 
     /// <summary>
@@ -587,7 +1696,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void ClearAndInitializeGrid()
     {
-        dgvMain.Rows.Clear();
+		_logger.Debug("Очищаем строки и колонки DataGridView, инициализируем новые (ClearAndInitializeGrid).");
+
+		dgvMain.Rows.Clear();
         TechOperationDataGridItems.Clear();
 
         while (dgvMain.Columns.Count > 0)
@@ -595,13 +1706,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             dgvMain.Columns.RemoveAt(0);
         }
 
-        dgvMain.Columns.Add("", "");
-        dgvMain.Columns.Add("", "");
-        dgvMain.Columns.Add("", "");
+		dgvMain.Columns.Add("ExecutionWorkItem", "");
+        dgvMain.Columns.Add("Order", "");
+        dgvMain.Columns.Add("TechOperationName", "");
         dgvMain.Columns.Add("Staff", "Исполнитель");
         dgvMain.Columns.Add("TechTransitionName", "Технологические переходы");
-        dgvMain.Columns.Add("", "");
-        dgvMain.Columns.Add("", "");
+        dgvMain.Columns.Add("TimeValue", "");
+        dgvMain.Columns.Add("EtapValue", "");
 
         int i = 0;
         foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
@@ -672,7 +1783,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvMain.Columns[2].Frozen = true;
 
-    }
+		_logger.Debug("DataGridView инициализирован: {ColumnCount} столбцов.",
+				 dgvMain.Columns.Count);
+	}
 
     private float GetFillWeight(string FieldName)
     {
@@ -705,111 +1818,98 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void PopulateDataGrid()
     {
-        var techOperationWorksListLocal = 
+		_logger.Debug("Заполняем DataGridView данными (PopulateDataGrid).");
+
+		var techOperationWorksListLocal = 
             TechOperationWorksList.Where(w => !w.Delete).OrderBy(o => o.Order).ToList();
         int nomer = 1;
 
-        foreach (var techOperationWork in techOperationWorksListLocal)
-        {
-            var executionWorks = techOperationWork.executionWorks.Where(w => !w.Delete).OrderBy(o => o.Order).ToList();
+		_logger.Debug("Найдено {Count} TechOperationWorks для вывода.", techOperationWorksListLocal.Count);
 
-            if (executionWorks.Count == 0)
-            {
-                TechOperationDataGridItems.Add(new TechOperationDataGridItem
-                {
-                    Nomer = -1,
-                    TechOperationWork = techOperationWork,
-                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                    IdTO = techOperationWork.techOperation.Id
-                });
-            }
+		foreach (var techOperationWork in techOperationWorksListLocal)
+		{
+			PopulateTechOperationDataGridItems(techOperationWork, ref nomer);
+		}
 
-            foreach (var executionWork in executionWorks)
-            {
-                if (executionWork.IdGuid == Guid.Empty)
-                {
-                    executionWork.IdGuid = Guid.NewGuid();
-                }
-
-                var staffStr = string.Join(",", executionWork.Staffs.Select(s => s.Symbol));
-                var protectList = executionWork.Protections.Select(p => p.Order).ToList();
-                var protectStr = ConvertListToRangeString(protectList);
-                var mach = TehCarta.Machine_TCs.Select(tc => executionWork.Machines.Contains(tc)).ToList();
-
-                var itm = new TechOperationDataGridItem
-                {
-                    Nomer = nomer,
-                    Staff = staffStr,
-                    TechOperationWork = techOperationWork,
-                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                    TechTransition = executionWork.techTransition?.Name ?? "",
-                    TechTransitionValue = executionWork.Value.ToString(),
-                    Protections = protectStr,
-                    Etap = executionWork.Etap,
-                    Posled = executionWork.Posled,
-                    Work = true,
-                    techWork = executionWork,
-                    listMach = mach,
-                    Comments = executionWork.Comments,
-                    Vopros = executionWork.Vopros,
-                    Otvet = executionWork.Otvet,
-                    executionWorkItem = executionWork, // todo: зачем хранить 2 ссылки на объект ТП?
-
-                    PictureName = executionWork.PictureName,
-                    IdTO = techOperationWork.techOperation.Id
-                };
-
-                if (itm.TechTransitionValue == "-1")
-                {
-                    itm.TechTransitionValue = "Ошибка";
-                }
-
-                TechOperationDataGridItems.Add(itm);
-                nomer++;
-            }
-
-            foreach (var toolWork in techOperationWork.ToolWorks.Where(t => t.IsDeleted == false).ToList())
-            {
-                TechOperationDataGridItems.Add(new TechOperationDataGridItem
-                {
-                    Nomer = nomer,
-                    Staff = "",
-                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                    TechTransition = $"{toolWork.tool.Name}   {toolWork.tool.Type}    {toolWork.tool.Unit}",
-                    TechTransitionValue = toolWork.Quantity.ToString(),
-                    ItsTool = true,
-                    Comments = toolWork.Comments ?? "",
-                    TechOperationWork = techOperationWork
-                });
-                nomer++;
-            }
-
-            foreach (var componentWork in techOperationWork.ComponentWorks.Where(t => t.IsDeleted == false).ToList())
-            {
-                TechOperationDataGridItems.Add(new TechOperationDataGridItem
-                {
-                    Nomer = nomer,
-                    Staff = "",
-                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                    TechTransition = $"{componentWork.component.Name}   {componentWork.component.Type}    {componentWork.component.Unit}",
-                    TechTransitionValue = componentWork.Quantity.ToString(),
-                    ItsComponent = true,
-                    Comments = componentWork.Comments ?? "",
-                    TechOperationWork = techOperationWork
-                });
-                nomer++;
-            }
-        }
-
-        CalculateEtapTimes();// CalculateStageTimesUpdated();// CalculateEtapTimes();
+		CalculateEtapTimes();
         AddRowsToGrid();
-    }
 
+		_logger.Debug("PopulateDataGrid завершён. Итоговое число строк для отображения: {RowCount}",
+				 TechOperationDataGridItems.Count);
+	}
 
+	private void PopulateTechOperationDataGridItems(TechOperationWork techOperationWork, ref int nomer) // todo: вставка по индексу?
+	{
+		_logger.Debug("Пополняем TechOperationDataGridItems для TechOperationWork (Id={Id}).",
+				  techOperationWork.Id);
 
-    #region Расчёт времени этапов
+		var executionWorks = techOperationWork.executionWorks.Where(w => !w.Delete).OrderBy(o => o.Order).ToList();
 
-    private void CalculateEtapTimes() 
+		if (executionWorks.Count == 0)
+		{
+            TechOperationDataGridItems.Add(new TechOperationDataGridItem(techOperationWork));
+		}
+
+		foreach (var executionWork in executionWorks)
+		{
+			var item = CreateExecutionWorkItem(techOperationWork, executionWork, nomer);
+			TechOperationDataGridItems.Add(item);
+			nomer++;
+		}
+
+		foreach (var toolWork in techOperationWork.ToolWorks.Where(t => t.IsDeleted == false).ToList())
+		{
+			TechOperationDataGridItems.Add(new TechOperationDataGridItem(techOperationWork, toolWork, nomer));
+			nomer++;
+		}
+
+		foreach (var componentWork in techOperationWork.ComponentWorks.Where(t => t.IsDeleted == false).ToList())
+		{
+			TechOperationDataGridItems.Add(new TechOperationDataGridItem(techOperationWork,componentWork, nomer));
+			nomer++;
+		}
+	}
+
+	private TechOperationDataGridItem CreateExecutionWorkItem(
+	TechOperationWork techOperationWork,
+	ExecutionWork executionWork,
+	int nomer)
+	{
+		// Генерация Guid, если он не задан
+		if (executionWork.IdGuid == Guid.Empty)
+		{
+			executionWork.IdGuid = Guid.NewGuid();
+		}
+
+		// Установка порядкового номера строки
+		executionWork.RowOrder = nomer;
+
+		// Строка со списком персонала
+		var staffStr = string.Join(",", executionWork.Staffs.Select(s => s.Symbol));
+
+		// Строка с "диапазоном" номеров защит
+		var protectList = executionWork.Protections.Select(p => p.Order).ToList();
+		var protectStr = ConvertListToRangeString(protectList);
+
+		// Список bool, отражающий, какие машины входят (пример в исходном коде)
+		var mach = TehCarta.Machine_TCs
+			.Select(tc => executionWork.Machines.Contains(tc))
+			.ToList();
+
+        var item = new TechOperationDataGridItem(techOperationWork, executionWork, nomer, staffStr, mach, protectStr);
+
+		// Дополнительная проверка значения
+		if (item.TechTransitionValue == "-1")
+		{
+			item.TechTransitionValue = "Ошибка";
+		}
+
+		return item;
+	}
+
+	#region Расчёт времени этапов
+
+	private void CalculateEtapTimes() 
     {
         // Group items by ParallelIndex
         var parallelGroups = GroupByParallelIndex(TechOperationDataGridItems);
@@ -1108,97 +2208,76 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void AddRowsToGrid()
     {
-        foreach (var techOperationDataGridItem in TechOperationDataGridItems)
-        {
-            var str = new List<object>();
-            var obj = context.Set<TechOperation>().Where(to => to.Id == techOperationDataGridItem.IdTO).FirstOrDefault();
+        foreach (var item in TechOperationDataGridItems) //techOperationDataGridItem
+		{
+			AddRowToDataGrid(item);
+		}
+	}
 
-            if (techOperationDataGridItem.techWork != null && techOperationDataGridItem.techWork.Repeat)
-            {
-                var repeatNumList = techOperationDataGridItem.techWork.ExecutionWorkRepeats
-                    .Select(executionWorkRepeat => TechOperationDataGridItems.SingleOrDefault(s => s.techWork == executionWorkRepeat.ChildExecutionWork))
-                    .Where(bn => bn != null)
-                    .Select(bn => bn.Nomer)
-                    .ToList();
+	private void AddRowToDataGrid(TechOperationDataGridItem item, int? rowIndex = null)
+	{
+		// Проверка, что индекс строки не выходит за границы
+		if (rowIndex != null && rowIndex < 0)
+		{
+			rowIndex = 0;
+		}
+		else if (rowIndex != null && rowIndex > dgvMain.Rows.Count)
+		{
+			rowIndex = dgvMain.Rows.Count;
+		}
 
-                var strP = ConvertListToRangeString(repeatNumList);
+		// Находим TechOperation из контекста, чтобы проверить IsReleased
+		var obj = context.Set<TechOperation>()
+						 .FirstOrDefault(to => to.Id == item.IdTO);
 
-                str.Add(techOperationDataGridItem.executionWorkItem);
-                str.Add(techOperationDataGridItem.Nomer.ToString());
-                str.Add(techOperationDataGridItem.TechOperation);
-                str.Add(techOperationDataGridItem.Staff);
-                str.Add("Повторить п." + strP);
-                str.Add(techOperationDataGridItem.TechTransitionValue);
-                str.Add(techOperationDataGridItem.TimeEtap);
+		// Определяем, какие цвета будем использовать в зависимости от условий
+		if (item.techWork != null && item.techWork.Repeat)
+		{
 
-                AddMachineColumns(techOperationDataGridItem, str);
+			if (!obj.IsReleased)
+			{
+				// Повтор, но ТО не выпущена
+				AddRowToGrid(item, Color.Yellow, Color.Yellow, Color.Pink, insertIndex: rowIndex);
+			}
+			else
+				// Повтор с выпушенной ТО
+				AddRowToGrid(item, Color.Yellow, Color.Yellow, insertIndex: rowIndex);
+		}
+		else if (item.ItsTool || item.ItsComponent)
+		{
+			// Инструмент или компонент
+			AddRowToGrid(item,
+						 item.ItsComponent ? Color.Salmon : Color.Aquamarine,
+						 item.ItsComponent ? Color.Salmon : Color.Aquamarine, insertIndex: rowIndex);
+		}
+		else if (!obj.IsReleased && item.executionWorkItem != null && !item.executionWorkItem.techTransition.IsReleased)
+		{
+			// Тех.операция не выпущена (но переход выпущен или отсутствует)
+			AddRowToGrid(item, Color.Empty, Color.Pink, Color.Pink, insertIndex: rowIndex);
+		}
+		else if (!obj.IsReleased)
+		{
+			// Тех.операция не выпущена
+			AddRowToGrid(item, Color.Empty, Color.Empty, Color.Pink, insertIndex: rowIndex);
+		}
+		else if (item.executionWorkItem != null && !item.executionWorkItem.techTransition.IsReleased)
+		{
+			// Тех.операция выпущена, но переход не выпущен
+			AddRowToGrid(item, Color.Empty, Color.Pink, insertIndex: rowIndex);
+		}
+		else
+		{
+			// Всё выпущено
+			AddRowToGrid(item, Color.Empty, Color.Empty, insertIndex: rowIndex);
+		}
+	}
 
-                str.Add(techOperationDataGridItem.Protections);
-                str.Add(techOperationDataGridItem.techWork?.Comments ?? "");
-
-                str.Add(techOperationDataGridItem.PictureName);
-
-                str.Add(techOperationDataGridItem.Vopros);
-                str.Add(techOperationDataGridItem.Otvet);
-
-                if (!obj.IsReleased)
-                {
-                    AddRowToGrid(str, Color.Yellow, Color.Yellow, Color.Pink);
-                }
-                else
-                    AddRowToGrid(str, Color.Yellow, Color.Yellow);
-
-                continue;
-            }
-
-            str.Add(techOperationDataGridItem.executionWorkItem);
-            str.Add(techOperationDataGridItem.Nomer != -1 ? techOperationDataGridItem.Nomer.ToString() : "");
-            str.Add(techOperationDataGridItem.TechOperation);
-            str.Add(techOperationDataGridItem.Staff);
-            str.Add(techOperationDataGridItem.TechTransition);
-            str.Add(techOperationDataGridItem.TechTransitionValue);
-            str.Add(techOperationDataGridItem.TimeEtap);
-
-            AddMachineColumns(techOperationDataGridItem, str);
-
-            str.Add(techOperationDataGridItem.Protections);
-            str.Add(techOperationDataGridItem.techWork?.Comments ?? techOperationDataGridItem.Comments);
-
-            str.Add(techOperationDataGridItem.PictureName);
-
-            str.Add(techOperationDataGridItem.Vopros);
-            str.Add(techOperationDataGridItem.Otvet);
-
-
-            if (techOperationDataGridItem.ItsTool || techOperationDataGridItem.ItsComponent)
-            {
-                AddRowToGrid(str, techOperationDataGridItem.ItsComponent ? Color.Salmon : Color.Aquamarine, techOperationDataGridItem.ItsComponent ? Color.Salmon : Color.Aquamarine);
-            }
-            else if(!obj.IsReleased && techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
-            {
-                AddRowToGrid(str, Color.Empty, Color.Pink, Color.Pink);
-            }
-            else if(!obj.IsReleased)
-            {
-                AddRowToGrid(str, Color.Empty, Color.Empty, Color.Pink);
-            }
-            else if (techOperationDataGridItem.executionWorkItem != null && !techOperationDataGridItem.executionWorkItem.techTransition.IsReleased)
-            {
-                AddRowToGrid(str, Color.Empty, Color.Pink);
-            }
-            else
-            {
-                AddRowToGrid(str, Color.Empty, Color.Empty);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Добавляет данные о машинах в строки DataGridView на основе TechOperationDataGridItem.
-    /// </summary>
-    /// <param name="techOperationDataGridItem">Объект TechOperationDataGridItem, содержащий данные о текущей технологической операции.</param>
-    /// <param name="str">Список объектов, представляющий строку данных для добавления в DataGridView.</param>
-    private void AddMachineColumns(TechOperationDataGridItem techOperationDataGridItem, List<object> str)
+	/// <summary>
+	/// Добавляет данные о машинах в строки DataGridView на основе TechOperationDataGridItem.
+	/// </summary>
+	/// <param name="techOperationDataGridItem">Объект TechOperationDataGridItem, содержащий данные о текущей технологической операции.</param>
+	/// <param name="str">Список объектов, представляющий строку данных для добавления в DataGridView.</param>
+	private void AddMachineColumns(TechOperationDataGridItem techOperationDataGridItem, List<object> str)
     {
         techOperationDataGridItem.listMachStr = new List<string>();
 
@@ -1259,7 +2338,101 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         //dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = backColor2;
     }
 
-    private void DgvMain_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+	/// <summary>
+	/// Добавляет одну строку в DataGridView на основе TechOperationDataGridItem.
+	/// </summary>
+	/// <param name="item">Экземпляр TechOperationDataGridItem, содержащий все данные для формирования строки.</param>
+	/// <param name="backColor1">Цвет фона для ячейки №3 (исполнитель).</param>
+	/// <param name="backColor2">Цвет фона для ячейки №4 (тех.переход).</param>
+	/// <param name="backColor3">Цвет фона для ячейки №2 (тех.операция).</param>
+	/// <param name="insertIndex">Индекс, по которому нужно вставить строку. Если не задан (null), строка добавляется в конец.</param>
+	private void AddRowToGrid(
+		TechOperationDataGridItem item,
+		Color? backColor1 = null,
+		Color? backColor2 = null,
+		Color? backColor3 = null,
+        int? insertIndex = null)
+	{
+		// Формируем список объектов для добавления в строку
+		var rowData = new List<object>();
+
+		// Проверяем, есть ли Repeat
+		if (item.techWork != null && item.techWork.Repeat)
+		{
+			// Формируем строку "Повторить п."
+			var repeatNumList = item.techWork.ExecutionWorkRepeats
+				.Select(r => TechOperationDataGridItems.SingleOrDefault(s => s.techWork == r.ChildExecutionWork))
+				.Where(bn => bn != null)
+				.Select(bn => bn.Nomer)
+				.ToList();
+
+			var strP = ConvertListToRangeString(repeatNumList);
+
+			rowData.Add(item.executionWorkItem);
+			rowData.Add(item.Nomer.ToString());
+			rowData.Add(item.TechOperation);
+			rowData.Add(item.Staff);
+			rowData.Add("Повторить п." + strP);
+			rowData.Add(item.TechTransitionValue);
+			rowData.Add(item.TimeEtap);
+		}
+		else
+		{
+			rowData.Add(item.executionWorkItem);
+			rowData.Add(item.Nomer != -1 ? item.Nomer.ToString() : "");
+			rowData.Add(item.TechOperation);
+			rowData.Add(item.Staff);
+			rowData.Add(item.TechTransition);
+			rowData.Add(item.TechTransitionValue);
+			rowData.Add(item.TimeEtap);
+		}
+
+		// Добавляем столбцы "машины" (через ваш метод AddMachineColumns)
+		AddMachineColumns(item, rowData);
+
+		// Добавляем оставшиеся ячейки (СЗ, комментарии, рисунок, замечание, ответ и т.д.)
+		rowData.Add(item.Protections);
+		// Если в techWork есть комментарий, используем его, иначе общий Comments
+		rowData.Add(item.techWork?.Comments ?? item.Comments);
+		rowData.Add(item.PictureName);
+		rowData.Add(item.Vopros);
+		rowData.Add(item.Otvet);
+
+		// Создаём DataGridViewRow и заполняем ячейки готовыми данными.
+		var newRow = new DataGridViewRow();
+		newRow.CreateCells(dgvMain, rowData.ToArray());
+
+		//  Добавляем/вставляем в dgvMain:
+		//    - если insertIndex не задан, добавляем в конец,
+		var actualIndex = insertIndex ?? dgvMain.Rows.Count;
+		dgvMain.Rows.Insert(actualIndex, newRow);
+
+		// Применяем цветовое оформление ячеек (если цвета заданы).
+		ApplyCellColors(newRow, backColor1, backColor2, backColor3);
+	}
+
+	/// <summary>
+	/// Применяет указанные цвета к ячейкам (3,4,2) строки newRow.
+	/// </summary>
+	/// <param name="row">Строка, к которой применяются цвета.</param>
+	/// <param name="color1">Цвет для ячейки [3].</param>
+	/// <param name="color2">Цвет для ячейки [4].</param>
+	/// <param name="color3">Цвет для ячейки [2].</param>
+	private void ApplyCellColors(
+		DataGridViewRow row,
+		Color? color1,
+		Color? color2,
+		Color? color3)
+	{
+		if (color1.HasValue)
+			row.Cells[3].Style.BackColor = color1.Value;
+		if (color2.HasValue)
+			row.Cells[4].Style.BackColor = color2.Value;
+		if (color3.HasValue)
+			row.Cells[2].Style.BackColor = color3.Value;
+	}
+
+	private void DgvMain_CellMouseEnter(object? sender, DataGridViewCellEventArgs e)
     {
         if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
         {
@@ -1269,8 +2442,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             // Проверка имени столбца
             if (columnName == "Время действ., мин.")
             {
-                var executionWork = dgvMain.Rows[e.RowIndex].Cells[0].Value as ExecutionWork;
-                if (executionWork != null)
+                if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork executionWork)
                 {
                     if (!string.IsNullOrEmpty(executionWork.Coefficient) && executionWork.techTransition != null)
                         dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = executionWork.techTransition.TimeExecution + executionWork.Coefficient;
@@ -1480,69 +2652,157 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         TechOperationWorksList.Add(techOperationWork);
         context.TechOperationWorks.Add(techOperationWork);
 
-        if (TechOperat.Category == "Типовая ТО")
+        if (TechOperat.IsTypical)
         {
-            foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals)
+			if (TechOperat.techTransitionTypicals.Count == 0)
+			{
+                _logger.Warning($"Типовая ТО (id:{TechOperat.Id}) с пустым TechTransitionTypicals");
+				TechOperat.techTransitionTypicals = context.TechTransitionTypicals.Where(s => s.TechOperationId == TechOperat.Id).ToList();
+			}
+
+			foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals)
             {
                 var temp = item.TechTransition;
                 if (temp == null)
                 {
                     temp = context.TechTransitions.Single(s => s.Id == item.TechTransitionId);
                 }
-                AddTechTransition(temp, techOperationWork, item);
+                AddNewExecutionWork(temp, techOperationWork, item);
             }
         }
     }
 
-    public void AddTechTransition(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null, CoefficientForm coefficient = null)
-    {
-        TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
+    public ExecutionWork AddNewExecutionWork(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null,
+        int? insertIndex = null, string? coefficientValue = null, string? comment = null, string? pictureName = null)
+	{
+		_logger.Information("Добавление нового ExecutionWork в TO '{TechOpName}' (ID={TechOpId}) на позицию {Index}. " +
+					  "Transition='{TransitionName}' (ID={TransitionId}).",
+			techOperationWork.techOperation.Name,
+			techOperationWork.techOperation.Id,
+			insertIndex ?? -1,
+			tech.Name,
+			tech.Id
+		);
 
-        int max = 0;
-        if (TOWork.executionWorks.Count > 0)
+		// Определяем порядковый номер нового ТП в ТО
+		TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
+
+		var currentEwInTow = TOWork.executionWorks.Where(ew => !ew.Delete);
+		var lastEwInTow = currentEwInTow.LastOrDefault();
+		int lastEwOrder = lastEwInTow?.Order ?? 0;
+		int? newEwOrderInTo = null;
+
+		var prevEW = currentEwInTow.OrderBy(e => e.Order).LastOrDefault();
+		var rowOrder = prevEW?.RowOrder + 1;
+
+		if (currentEwInTow.Count() == 0 && !TOWork.techOperation.IsTypical) 
+			// для типовых ТО insertIndex будет 0 т.к. вдальнейшем таблица обновляется и RowOrder будет выставлен автоматически
+		{
+			var towItemIndex = TechOperationDataGridItems.FindIndex(i => i.TechOperationWork == TOWork);
+			if (towItemIndex == -1)
+			{
+				throw new Exception("Ошибка при вставке");
+			}
+			insertIndex = towItemIndex;
+			rowOrder = towItemIndex + 1;
+			newEwOrderInTo = 1;
+		}
+		else if (insertIndex != null && lastEwInTow != null)
+		{
+			// если индекс не null, то вставляем в указанное место
+
+			// определить положение в ТО
+			// если последний элемента нет, то вставляем в конец ТО
+			// если есть, то определяем его индекс в таблице
+			int lastEwIndex = lastEwInTow.RowOrder;
+
+			// сравниваем полученный индекс с индексом вставки
+			// если индекс вставки меньше чем индекс последнего элемента ТО
+			if (lastEwIndex > insertIndex.Value)
+			{
+				var firstInTow = currentEwInTow.OrderBy(ew => ew.RowOrder).FirstOrDefault();
+				// то его порядок будет меньше на разницу между индексом последнего элемента и индексом вставки
+				newEwOrderInTo = firstInTow!.Order + (insertIndex.Value - firstInTow.RowOrder) + 1;
+
+				// если этот порядок меньше 1 то устанавливаем его в 1
+				if (newEwOrderInTo < 1)
+					newEwOrderInTo = 1;
+
+				//Если порядковый номер уже есть в списке, то увеличиваем порядковый номер у всех последующих элементов
+				foreach (var item in currentEwInTow.Where(w => w.Order >= newEwOrderInTo))
+				{
+					item.Order++;
+				}
+			}
+			// если больше или равно, то вставляем последним 
+		}
+        else
         {
-            max = TOWork.executionWorks.Max(w => w.Order);
-        }
+            if (lastEwInTow == null)
+			{
+				insertIndex = 0;
+			}
+			else 
+			    insertIndex = lastEwInTow?.RowOrder + 1;
+		}
 
-        ExecutionWork techOpeWork = new ExecutionWork
+		// если индекс null, то вставляем в конец ТО newEwOrder = null
+		if (newEwOrderInTo == null) newEwOrderInTo = lastEwOrder + 1;
+
+		// Если номер не последний в списке ТО, то нужно увеличить порядковый номер у всех последующих элементов
+		var ewWithGreaterOrder = currentEwInTow.Where(ew => ew.Order >= newEwOrderInTo);
+		foreach (var ew in ewWithGreaterOrder)
+		{
+			ew.Order++;
+		}
+
+		ExecutionWork newEw = new ExecutionWork
         {
             IdGuid = Guid.NewGuid(),
             techOperationWork = TOWork,
             NewItem = true,
             techTransition = tech,
-            Order = ++max
-        };
+            Order = newEwOrderInTo.Value, // номер в ТО
+			RowOrder = insertIndex!.Value, // по сути nomer (порядоковый номер в таблице ХР)
+			Comments = comment ?? "",
+			PictureName = pictureName ?? "",
+			Repeat = false
+		};
 
-        TOWork.executionWorks.Add(techOpeWork);
-        context.ExecutionWorks.Add(techOpeWork);
+        TOWork.executionWorks.Add(newEw);
+        context.ExecutionWorks.Add(newEw);
 
         if (tech.Name == "Повторить" || tech.Name == "Повторить п.")
         {
-            techOpeWork.Repeat = true;
-        }
-        else
-        {
-            techOpeWork.Value = tech.TimeExecution;
-            if (coefficient != null)
-            {
-                techOpeWork.Coefficient = coefficient.GetCoefficient;
-                techOpeWork.Value = coefficient.GetValue;
-            }
+            newEw.Repeat = true;
         }
 
-        if (techTransitionTypical != null)
-        {
-            techOpeWork.Etap = techTransitionTypical.Etap;
-            techOpeWork.Posled = techTransitionTypical.Posled;
-            techOpeWork.Coefficient = techTransitionTypical.Coefficient;
-            techOpeWork.Comments = techTransitionTypical.Comments ?? "";
+        if (coefficientValue != null)
+		{
+			newEw.Coefficient = coefficientValue;
+			var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+			newEw.Value = MathScript.EvaluateCoefficientExpression(coefficientValue,coefDict, tech.TimeExecution.ToString());
+		}
+		else
+		{
+			newEw.Value = tech.TimeExecution;
+		}
 
-            techOpeWork.Value = string.IsNullOrEmpty(techTransitionTypical.Coefficient) 
+		if (techTransitionTypical != null)
+        {
+            newEw.Etap = techTransitionTypical.Etap;
+            newEw.Posled = techTransitionTypical.Posled;
+            newEw.Coefficient = techTransitionTypical.Coefficient;
+            newEw.Comments = techTransitionTypical.Comments ?? "";
+
+            newEw.Value = string.IsNullOrEmpty(techTransitionTypical.Coefficient) 
                 ? tech.TimeExecution 
                 : MathScript.EvaluateExpression(tech.TimeExecution + "*" + techTransitionTypical.Coefficient);
         }
 
-    }
+        return newEw;
+
+	}
 
     public void DeleteTechOperation(TechOperationWork TechOperat)
     {
@@ -1602,7 +2862,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         if (vb != null)
         {
 
-            if (techOperationWork.techOperation.Category == "Типовая ТО")
+            if (techOperationWork.techOperation.IsTypical)
             {
                 if (vb.Repeat == false)
                 {
@@ -1636,13 +2896,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         HasChanges = true; // todo: Устанавливаем флаг изменений если реально были изменения
     }
 
-    private void button1_Click_1(object sender, EventArgs e)
-    {
-        //context = new MyDbContext();
-        //context.ChangeTracker.Clear();
+    private void button1_Click_1(object sender, EventArgs e) //  Перенести в метод SaveChanges
+	{
+		_logger.Information("Cохранение изменений Ход работ.");
 
-        // TehCarta.Staff_TCs = Staff_TC;
-        DbConnector dbCon = new DbConnector();
+		//context = new MyDbContext();
+		//context.ChangeTracker.Clear();
+
+		// TehCarta.Staff_TCs = Staff_TC;
+		DbConnector dbCon = new DbConnector();
 
         List<TechOperationWork> AllDele = TechOperationWorksList.Where(w => w.Delete == true).ToList();
         foreach (TechOperationWork techOperationWork in AllDele)
@@ -1730,11 +2992,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         try
         {
             context.SaveChanges();
-            // MessageBox.Show("Успешно сохранено");
-        }
-        catch (Exception exception)
+			_logger.Information("Данные успешно сохранены в БД (TechOperationForm).");
+		}
+		catch (Exception exception)
         {
-            MessageBox.Show(exception.Message + "\n" + exception.InnerException);
+			_logger.Error(exception, "Ошибка при сохранении данных Ход работ.");
+			MessageBox.Show(exception.Message + "\n" + exception.InnerException);
         }
     }
 
@@ -1790,11 +3053,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     private void TechOperationForm_FormClosing(object sender, FormClosingEventArgs e)
     {
-        _editForm?.Close();
+		_logger.Information("Форма TechOperationForm закрывается. Запрошено закрытие со статусом: {CloseReason}", e.CloseReason);
+		_editForm?.Close();
     }
 
 
-    public void SelectCurrentRow(TechOperationWork work, ExecutionWork executionWork = null)
+    public void SelectCurrentRow(TechOperationWork work, ExecutionWork? executionWork = null)
     {
         if (work == null)
             return;
@@ -1805,7 +3069,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         if (dgvItem != null)
         {
             dgvMain.ClearSelection();
-            dgvMain.FirstDisplayedScrollingRowIndex = TechOperationDataGridItems.IndexOf(dgvItem);
+            //dgvMain.FirstDisplayedScrollingRowIndex = TechOperationDataGridItems.IndexOf(dgvItem);
             dgvMain.Rows[TechOperationDataGridItems.IndexOf(dgvItem)].Selected = true;
         }
 
@@ -1818,7 +3082,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		    _editForm.OnActivate();
 	}
 
-	//public void HighlightExecutionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)
+	//public void HighlightExecut  ionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)
 	//{
 	//    if (executionWork == null)
 	//        return;
@@ -1890,5 +3154,91 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		// можно принудительно вызвать перерисовку:
 		// dgvMain.Invalidate();
 	}
+	private void OpenEditFormBySelectedObject()
+	{
+		if (_tcViewState.IsViewMode) return;
 
+		GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? selectedScope);
+
+		if (selectedScope == null) return;
+
+		var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
+		var selectedItem = selectedItems[0];
+
+		if (selectedItem == null) return;
+
+		if (_editForm == null || _editForm.IsDisposed)
+		{
+			_editForm = new AddEditTechOperationForm(this, _tcViewState);
+		}
+
+		_editForm.Enabled = false;
+		_editForm.Show();
+		_editForm.BringToFront(); // не выделяется необходимая строка при 
+
+		switch (selectedScope)
+		{
+			case CopyScopeEnum.TechOperation:
+				_ = SetOperationAndOpenPage(selectedItem, "tabPageTO");
+				break;
+			case CopyScopeEnum.Row:
+				if(!SetTransitionAndOpenPage(selectedItem, "tabPageTP"))
+				{
+					_ = SetOperationAndOpenPage(selectedItem, "tabPageTO");
+				};
+				break;
+			case CopyScopeEnum.TechTransition:
+				_ = SetTransitionAndOpenPage(selectedItem, "tabPageTP");
+				break;
+			case CopyScopeEnum.Staff:
+				_ = SetTransitionAndOpenPage(selectedItem, "tabPageStaff");				
+				break;
+			case CopyScopeEnum.Protections:
+				_ = SetTransitionAndOpenPage(selectedItem, "tabPageProtection");
+				break;
+			case CopyScopeEnum.ToolOrComponents:
+				var isTool = selectedItem.WorkItemType == WorkItemType.ToolWork;
+				_ = SetOperationAndOpenPage(selectedItem, selectedItem.ItsTool ? "tabPageTool" : "tabPageComponent");
+				if (selectedItem.WorkItemType == WorkItemType.ComponentWork && selectedItem.WorkItem is ComponentWork compWork)
+					_editForm.HighlighComponentLocalRow(compWork);
+				else if (selectedItem.WorkItemType == WorkItemType.ToolWork && selectedItem.WorkItem is ToolWork toolWork)
+					_editForm.HighlightInstrumentLocalRow(toolWork);
+				break;
+			default:
+				break;
+		}
+		_editForm.Enabled = true;
+		_editForm.Activate();
+
+		bool SetTransitionAndOpenPage(TechOperationDataGridItem selectedItem, string pageName)
+		{
+			if (_editForm == null || _editForm.IsDisposed) throw new Exception();
+
+			if (selectedItem.WorkItemType == WorkItemType.ExecutionWork
+								&& selectedItem.WorkItem is ExecutionWork selectedTPRow)
+			{
+				_editForm.SelectTP(selectedTPRow);
+				_editForm.SelectPageTab(pageName);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		bool SetOperationAndOpenPage(TechOperationDataGridItem selectedItem, string pageName)
+		{
+			if (_editForm == null || _editForm.IsDisposed) throw new Exception();
+
+			if (selectedItem.TechOperationWork != null)
+			{
+				_editForm.SelectTO(selectedItem.TechOperationWork);
+				_editForm.SelectPageTab(pageName);
+
+				return true;
+			}
+
+			return false;
+		}
+	}
 }

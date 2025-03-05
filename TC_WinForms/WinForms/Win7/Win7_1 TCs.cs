@@ -279,6 +279,7 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 
 	private void dgvMain_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
 	{
+		// todo: выяснить, почему работает метод даже при работе с win6 (при открытии формы редактора ХР)
 		var row = dgvMain.Rows[e.RowIndex];
 
 		if (row.DataBoundItem is not DisplayedTechnologicalCard displayedCard)

@@ -1,4 +1,5 @@
-﻿using TcModels.Models.Helpers;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent.Work;
 
@@ -15,8 +16,12 @@ namespace TcModels.Models.TcContent
         public List<TechOperationWork> techOperationWorks { get; set; } = new List<TechOperationWork> { };
 
         public List<TechTransitionTypical> techTransitionTypicals { get; set; } = new List<TechTransitionTypical> { };
+        
+        public bool IsTypical => Category == "Типовая ТО";
 
-        public bool IsReleased { get; set; } = false;
+
+
+		public bool IsReleased { get; set; } = false;
         public int? CreatedTCId { get; set; } = null;
 
         public void ApplyUpdates(IUpdatableEntity source)

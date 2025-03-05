@@ -313,7 +313,7 @@
 			pnlSelectionTOandTP.Location = new Point(0, 0);
 			pnlSelectionTOandTP.Margin = new Padding(2);
 			pnlSelectionTOandTP.Name = "pnlSelectionTOandTP";
-			pnlSelectionTOandTP.Size = new Size(1020, 46);
+			pnlSelectionTOandTP.Size = new Size(1182, 46);
 			pnlSelectionTOandTP.TabIndex = 2;
 			// 
 			// comboBoxTO
@@ -548,7 +548,7 @@
 			tabControl1.Margin = new Padding(3, 2, 3, 2);
 			tabControl1.Name = "tabControl1";
 			tabControl1.SelectedIndex = 0;
-			tabControl1.Size = new Size(1020, 428);
+			tabControl1.Size = new Size(1182, 707);
 			tabControl1.TabIndex = 1;
 			tabControl1.SelectedIndexChanged += tabControl1_SelectedIndexChanged;
 			// 
@@ -1018,7 +1018,7 @@
 			tabPageTP.Margin = new Padding(3, 2, 3, 2);
 			tabPageTP.Name = "tabPageTP";
 			tabPageTP.Padding = new Padding(3, 2, 3, 2);
-			tabPageTP.Size = new Size(1012, 395);
+			tabPageTP.Size = new Size(1174, 674);
 			tabPageTP.TabIndex = 1;
 			tabPageTP.Text = "Технологические переходы";
 			tabPageTP.UseVisualStyleBackColor = true;
@@ -1039,7 +1039,7 @@
 			tlpnlTP.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
 			tlpnlTP.RowStyles.Add(new RowStyle(SizeType.Percent, 44.44444F));
 			tlpnlTP.RowStyles.Add(new RowStyle(SizeType.Absolute, 14F));
-			tlpnlTP.Size = new Size(1006, 391);
+			tlpnlTP.Size = new Size(1168, 670);
 			tlpnlTP.TabIndex = 1;
 			// 
 			// dataGridViewTPLocal
@@ -1054,7 +1054,8 @@
 			dataGridViewTPLocal.Margin = new Padding(2);
 			dataGridViewTPLocal.Name = "dataGridViewTPLocal";
 			dataGridViewTPLocal.RowHeadersWidth = 51;
-			dataGridViewTPLocal.Size = new Size(1002, 174);
+			dataGridViewTPLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+			dataGridViewTPLocal.Size = new Size(1164, 329);
 			dataGridViewTPLocal.TabIndex = 1;
 			// 
 			// dataGridViewTextBoxColumn7
@@ -1134,10 +1135,10 @@
 			pnlTPAdditional.Controls.Add(btnCreateNewTP);
 			pnlTPAdditional.Controls.Add(groupBox10);
 			pnlTPAdditional.Controls.Add(groupBox5);
-			pnlTPAdditional.Location = new Point(3, 180);
+			pnlTPAdditional.Location = new Point(3, 335);
 			pnlTPAdditional.Margin = new Padding(3, 2, 3, 2);
 			pnlTPAdditional.Name = "pnlTPAdditional";
-			pnlTPAdditional.Size = new Size(1000, 66);
+			pnlTPAdditional.Size = new Size(1162, 66);
 			pnlTPAdditional.TabIndex = 7;
 			// 
 			// btnCreateNewTP
@@ -1197,7 +1198,7 @@
 			splitContainer1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			splitContainer1.BackColor = Color.Silver;
 			splitContainer1.BorderStyle = BorderStyle.Fixed3D;
-			splitContainer1.Location = new Point(3, 250);
+			splitContainer1.Location = new Point(3, 405);
 			splitContainer1.Margin = new Padding(3, 2, 3, 2);
 			splitContainer1.Name = "splitContainer1";
 			// 
@@ -1210,8 +1211,8 @@
 			// 
 			splitContainer1.Panel2.BackColor = Color.White;
 			splitContainer1.Panel2.Controls.Add(flowLayoutPanel1);
-			splitContainer1.Size = new Size(1000, 139);
-			splitContainer1.SplitterDistance = 719;
+			splitContainer1.Size = new Size(1162, 263);
+			splitContainer1.SplitterDistance = 835;
 			splitContainer1.SplitterWidth = 10;
 			splitContainer1.TabIndex = 2;
 			// 
@@ -1229,7 +1230,7 @@
 			dataGridViewTPAll.ReadOnly = true;
 			dataGridViewTPAll.RowHeadersWidth = 51;
 			dataGridViewTPAll.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-			dataGridViewTPAll.Size = new Size(715, 135);
+			dataGridViewTPAll.Size = new Size(831, 259);
 			dataGridViewTPAll.TabIndex = 0;
 			// 
 			// dataGridViewTextBoxColumn5
@@ -1281,7 +1282,7 @@
 			flowLayoutPanel1.Location = new Point(0, 0);
 			flowLayoutPanel1.Margin = new Padding(3, 2, 3, 2);
 			flowLayoutPanel1.Name = "flowLayoutPanel1";
-			flowLayoutPanel1.Size = new Size(267, 135);
+			flowLayoutPanel1.Size = new Size(313, 259);
 			flowLayoutPanel1.TabIndex = 1;
 			// 
 			// label1
@@ -1300,7 +1301,7 @@
 			label6.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
 			label6.Location = new Point(3, 23);
 			label6.Name = "label6";
-			label6.Size = new Size(235, 46);
+			label6.Size = new Size(271, 46);
 			label6.TabIndex = 2;
 			label6.Text = "Правила расчета времени тех. перехода:";
 			// 
@@ -2422,13 +2423,12 @@
 			// 
 			AutoScaleDimensions = new SizeF(8F, 20F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(1020, 474);
+			ClientSize = new Size(1182, 753);
 			Controls.Add(tabControl1);
 			Controls.Add(pnlSelectionTOandTP);
 			FormBorderStyle = FormBorderStyle.SizableToolWindow;
 			Margin = new Padding(3, 2, 3, 2);
 			Name = "AddEditTechOperationForm";
-			StartPosition = FormStartPosition.CenterParent;
 			Text = "AddEditTechOperationForm";
 			FormClosed += AddEditTechOperationForm_FormClosed;
 			pnlSelectionTOandTP.ResumeLayout(false);
@@ -2502,6 +2502,27 @@
 			((System.ComponentModel.ISupportInitialize)dataGridView6).EndInit();
 			ResumeLayout(false);
 		}
+            ((System.ComponentModel.ISupportInitialize)dataGridViewAllSZ).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewLocalSZ).EndInit();
+            tabPageStage.ResumeLayout(false);
+            tlpnlStages.ResumeLayout(false);
+            groupBox7.ResumeLayout(false);
+            groupBox7.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewMeha).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewEtap).EndInit();
+            tabPageRepeat.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridViewPovtor).EndInit();
+            tableLayoutPanel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView2).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView3).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView4).EndInit();
+            tableLayoutPanel7.ResumeLayout(false);
+            tableLayoutPanel10.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridView5).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView6).EndInit();
+            ResumeLayout(false);
+        }
 
 		#endregion
 		private Panel pnlSelectionTOandTP;

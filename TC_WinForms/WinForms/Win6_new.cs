@@ -25,6 +25,7 @@ namespace TC_WinForms.WinForms
 	{
 		private readonly ILogger _logger;
 		private TcViewState tcViewState;
+		public readonly Guid FormGuid; // создан для проверки работы с одинаковым контекстом
 		private ConcurrencyBlockService<TechnologicalCard> concurrencyBlockServise;
 		//private static bool _isViewMode = true;
 		//private static bool _isCommentViewMode = false;
@@ -72,6 +73,8 @@ namespace TC_WinForms.WinForms
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
 		{
+			FormGuid = Guid.NewGuid();
+
 			_tcId = tcId;
 			_accessLevel = role;
 
@@ -457,6 +460,7 @@ namespace TC_WinForms.WinForms
 			// проверка на наличие изменений во всех формах
 			if (!CheckForChanges()) // если false, то отменяем переключение
 			{
+				_logger.Warning("Закрытие формы без сохранения (CloseFormsNoSave=true).");
 				e.Cancel = true;
 				return;
 			}
@@ -524,7 +528,9 @@ namespace TC_WinForms.WinForms
 				_activeModelType = modelType;
 
 				if (form is TechOperationForm techForm)
-					techForm.UpdateGrid();
+				{
+					//techForm.UpdateGrid(); // todo: кажется бесполезный участок, тк данные обновляются при загрузке формы
+				}
 				else if (form is DiagramForm digramForm)
 					digramForm.Update();
 

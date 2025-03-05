@@ -450,7 +450,7 @@ namespace TC_WinForms.WinForms
             {
                 Id = obj.Id;
                 Name = obj.Name;
-                Category = obj.Category == "Типовая ТО" ? true : false;
+                Category = obj.IsTypical;
 
                 IsReleased = obj.IsReleased;
                 CreatedTCId = obj.CreatedTCId;

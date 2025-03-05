@@ -1,55 +1,121 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TcModels.Models.TcContent;
+﻿using TcModels.Models.TcContent;
 
-namespace TC_WinForms.WinForms.Work
+namespace TC_WinForms.WinForms.Work;
+
+public class TechOperationDataGridItem
 {
-    public class TechOperationDataGridItem
-    {
-        public int Nomer { get; set; }
-        public int IdTO { get; set; }
-        public string TechOperation { get; set; } = null!; // todo - изменить на более понятное имя (например, TechOperationName)
+	public int Nomer { get; set; }
+	public int IdTO => TechOperationWork.techOperation.Id;
 
-        public string Staff { get; set; } = "";
+	public string TechOperation { get; set; } = null!; // todo - изменить на более понятное имя (например, TechOperationName)
 
-        public string TechTransition { get; set; } = ""; // todo - изменить на более понятное имя
+	public string Staff { get; set; } = "";
 
-        public string TechTransitionValue { get; set; } = "";
+	public string TechTransition { get; set; } = ""; // todo - изменить на более понятное имя
 
-        public TechOperationWork TechOperationWork;
+	public string TechTransitionValue { get; set; } = "";
 
-        public string Protections { get; set; } = "";
+	public TechOperationWork TechOperationWork;
 
-        public bool ItsTool = false;
+	public string Protections { get; set; } = "";
 
-        public bool ItsComponent = false;
+	public bool ItsTool = false;
+
+	public bool ItsComponent = false;
 
 
-        public string Etap = "";
-        public string Posled = "";
+	public string Etap = "";
+	public string Posled = "";
 
-        public string TimeEtap = "";
+	public string TimeEtap = "";
 
-        public bool Work = false;
-        public ExecutionWork techWork;
-        public List<bool> listMach = new List<bool>();
-        public List<string> listMachStr = new List<string>();
+	public bool Work = false;
 
-        public string Comments = "";
+	[Obsolete($"Поле усторело, используйте {nameof(WorkItem)}")]
+	public ExecutionWork? techWork;
+	public List<bool> listMach = new List<bool>();
+	public List<string> listMachStr = new List<string>();
 
-        public string Vopros = "";
-        public string Otvet = "";
+	public string Comments = "";
 
-        public string PictureName = "";
+	public string Vopros = "";
+	public string Otvet = "";
 
-        public ExecutionWork executionWorkItem=null;
+	public string PictureName = "";
 
-        public double TotalTime { get; set; } 
-        public double TimeEtapValue { get; set; }
+	[Obsolete($"Поле усторело, используйте {nameof(WorkItem)}")]
+	public ExecutionWork? executionWorkItem=null;
 
-    }
+	public double TotalTime { get; set; } 
+	public double TimeEtapValue { get; set; }
+
+	public WorkItemType WorkItemType { get; set; } = WorkItemType.None;
+	public object? WorkItem { get; set; } // поле для хранения объекта, связанного с работой (например, ToolWork, ComponentWork, ExecutionWork)
+
+	public TechOperationDataGridItem(TechOperationWork techOperationWork, int order)
+	{
+		Nomer = order;
+		TechOperationWork = techOperationWork;
+		TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}";
+	}
+	public TechOperationDataGridItem(TechOperationWork techOperationWork) : this(techOperationWork, -1) { }
+
+	public TechOperationDataGridItem(TechOperationWork techOperationWork, ExecutionWork executionWork, int order, string staffStr,  List<bool> mach, string protectStr) 
+		: this(techOperationWork, order)
+	{
+		Staff = staffStr;
+		Protections = protectStr; 
+		listMach = mach;
+
+		WorkItem = executionWork;
+		WorkItemType = WorkItemType.ExecutionWork;
+
+		// todo: старый способ работы с ExecutionWork, убрать после перехода на WorkItem
+		Work = true;
+		techWork = executionWork;
+		executionWorkItem = executionWork; //  зачем 2 ссылки на один объект ??
+
+		TechTransition = executionWork.techTransition?.Name ?? "";
+		TechTransitionValue = executionWork.Value.ToString();
+		Etap = executionWork.Etap;
+		Posled = executionWork.Posled;
+		Comments = executionWork.Comments ?? "";
+		Vopros = executionWork.Vopros;
+		Otvet = executionWork.Otvet;
+		PictureName = executionWork.PictureName ?? "";
+	}
+
+	public TechOperationDataGridItem(TechOperationWork techOperationWork, ToolWork toolWork, int order) 
+		: this(techOperationWork, order)
+	{
+		WorkItem = toolWork;
+		WorkItemType = WorkItemType.ToolWork;
+
+		ItsTool = true;
+		
+		TechTransition = $"{toolWork.tool.Name}   {toolWork.tool.Type}    {toolWork.tool.Unit}";
+		TechTransitionValue = toolWork.Quantity.ToString();
+		Comments = toolWork.Comments ?? "";
+	}
+
+	public TechOperationDataGridItem(TechOperationWork techOperationWork, ComponentWork componentWork, int order) 
+		: this(techOperationWork, order)
+	{
+		WorkItem = componentWork;
+		WorkItemType = WorkItemType.ComponentWork;
+
+		ItsComponent = true;
+
+		TechTransition = $"{componentWork.component.Name}   {componentWork.component.Type}    {componentWork.component.Unit}";
+		TechTransitionValue = componentWork.Quantity.ToString();
+		Comments = componentWork.Comments ?? "";
+	}
+}
+
+public enum WorkItemType
+{
+	None,
+	ExecutionWork,
+	ComponentWork,
+	ToolWork
 }
