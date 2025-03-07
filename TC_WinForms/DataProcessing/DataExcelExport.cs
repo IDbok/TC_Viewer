@@ -28,7 +28,10 @@ namespace TC_WinForms.DataProcessing
                 var tc = await tcRepository.GetTCDataAsync(tcId);
                 var outlayList = await tcRepository.GetOutlayDataAsync(tcId);
                 var dtwList = await tcRepository.GetDTWDataAsync(tcId);
-                var imageBase64 = await tcRepository.GetImageBase64Async((long)tc.ExecutionSchemeImageId);
+                string imageBase64 = "";
+                if(tc.ExecutionSchemeImageId != null)
+                    imageBase64 = await tcRepository.GetImageBase64Async((long)tc.ExecutionSchemeImageId);
+
                 if (tc == null)
                 {
                     MessageBox.Show("Ошибка при загрузки данных из БД", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);

@@ -165,7 +165,7 @@
             toolStripExecutionScheme.ImageTransparentColor = Color.Magenta;
             toolStripExecutionScheme.Name = "toolStripExecutionScheme";
 			toolStripExecutionScheme.Size = new Size(167, 29);
-            toolStripExecutionScheme.Text = "Схема исполнения";
+            toolStripExecutionScheme.Text = "Обложка тех. карты";
             toolStripExecutionScheme.Click += toolStripExecutionScheme_Click;
             // 
             // toolStripDiagrams
