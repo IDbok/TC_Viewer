@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TC_WinForms": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "MYAPP_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
