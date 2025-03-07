@@ -20,7 +20,7 @@ namespace TC_WinForms
         public static bool IsTestMode = false;
 #endif
         //public static ILogger Logger { get; set; } = new Logger();
-        public static Form MainForm { get; set; }
+        public static Form MainForm { get; set; } = null!;
         public static List<Form> FormsBack { get; set; } = new List<Form>();
         public static List<Form> FormsForward { get; set; } = new List<Form>();
         public static List<TechnologicalCard> ExistingCatds { get; set; } = new List<TechnologicalCard>();
@@ -59,33 +59,47 @@ namespace TC_WinForms
 
         static void ApplicationStart()
         {
-			var configuration = new ConfigurationBuilder()
-				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+			var environment = Environment.GetEnvironmentVariable("MYAPP_ENVIRONMENT") ?? "Production";
+
+			// Проверяем наличие файла appsettings.json и создаем его с настройками по умолчанию, если он отсутствует
+			EnsureAppSettingsExists();
+
+			IConfiguration config = new ConfigurationBuilder()
+				.SetBasePath(AppContext.BaseDirectory) // Папка, где лежит exe
+				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+				.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
 				.Build();
 
-            var logPath = configuration.GetValue<string>("LogsFolder");
+			var connectionString = config["Config:ConnectionString"];
+			var isFirstRun = bool.Parse(config["IsFirstRun"] ?? "false");
+
+            var logPath = config.GetValue<string>("LogsFolder");
 
             if (logPath == null)
                 logPath = "C:/tempLogs";
 
 			// Читаем настройки пути временной папки и модифицируем путь для логов
 			var tempLogPath = Path.Combine(logPath, "TC_Viewer", Environment.UserName, "logs", "log-.json");//Path.GetTempPath(), "TC_Viewer", "logs", "log-.json");
-			configuration.GetSection("Serilog:WriteTo:0:Args")["path"] = tempLogPath;
+			config.GetSection("Serilog:WriteTo:0:Args")["path"] = tempLogPath;
 
 			Log.Logger = new LoggerConfiguration()
-				.ReadFrom.Configuration(configuration)
+				.ReadFrom.Configuration(config)
 				.Enrich.WithClassName()
 				.CreateLogger();
 
-			Log.Information("Application started");
+            Log.Information("Application started");
+
+            Log.Information($"Окружение: {environment}\n" +
+                               $"ConnectionString: {config["Config:ConnectionString"]}\n" +
+                               $"IsFirstRun: {config["IsFirstRun"]}\n" +
+                               $"LogsFolder: {config["LogsFolder"]}\n");
 
 			ApplicationConfiguration.Initialize();
 
-            // Проверяем наличие файла appsettings.json и создаем его с настройками по умолчанию, если он отсутствует
-            EnsureAppSettingsExists();
+            
 
             // Устанавливаем строку подключения к БД
-            var connectionString = configuration.GetValue<string>("Config:ConnectionString");
+            //var connectionString = configuration.GetValue<string>("Config:ConnectionString");
             if (connectionString != null)
             {
                 TcDbConnector.StaticClass.ConnectString = connectionString;
@@ -95,15 +109,23 @@ namespace TC_WinForms
                 throw new Exception("Строка подключения к БД не найдена в файле конфигурации.");
             }
 
-			bool isFirstRun = configuration.GetValue<bool>("IsFirstRun");
-
             if (isFirstRun)
             {
                 ApplyMigrationsIfNecessary();
 
                 // Обновляем флаг в файле конфигурации
-                UpdateFirstRunFlag();
-            }
+                try
+                {
+                    UpdateFirstRunFlag();
+                }
+                catch (Exception ex)
+                {
+					Log.Error(ex, "Ошибка обновления флага первого запуска.");
+
+					MessageBox.Show("Ошибка обновления флага первого запуска: " + ex.Message,
+						"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+			}
 #if DEBUG
 			// Очистить таблицу блокировок в БД перед запуском в режиме debug
 			using (var context = new MyDbContext())
@@ -147,63 +169,91 @@ namespace TC_WinForms
                 }
             }
         }
-        
-        static void EnsureAppSettingsExists()
-        {
-            if (!File.Exists("appsettings.json"))
-            {
-                // Создаем настройки по умолчанию
-                var defaultConfig = new
-                {
-                    connectionString = "server=10.1.100.142;database=tcvdb_main;user=tavrida;password=tavrida$555",
-                    IsFirstRun = true,
-                    Serilog = new
-                    {
-                        Using = Array.Empty<string>(),
-                        MinimumLevel = new
-                        {
-                            Default = "Debug",
-                            Override = new
-                            {
-                                Microsoft = "Warning",
-                                System = "Warning"
-                            }
-                        },
-                        Enrich = new[] { "FromLogContext", "WithMachineName", "WhithProcessId", "WhithThreadId" },
-                        WriteTo = new[]
-                        {
-                            new
-                            {
-                                Name = "File",
-                                Args = new
-                                {
-                                    path = "logs/log-.json",
-                                    formatter = "Serilog.Formatting.Json.JsonFormatter, Serilog",
-                                    rollingInterval = "Day"
-                                }
-                            }
-                        }
-                    }
-                };
 
-                // Сериализация в JSON
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                var json = JsonSerializer.Serialize(defaultConfig, options);
+		static void EnsureAppSettingsExists()
+		{
+			// Определяем окружение (по умолчанию - Production)
+			var environment = Environment.GetEnvironmentVariable("MYAPP_ENVIRONMENT") ?? "Production";
+			var configFileName = $"appsettings.{environment}.json";
 
-                // Запись в файл
-                File.WriteAllText("appsettings.json", json);
-            }
-        }
+			// Проверяем наличие основного файла конфигурации
+			if (!File.Exists("appsettings.json"))
+			{
+				Log.Information("Основной appsettings.json отсутствует. Создаём файл с настройками по умолчанию...");
+				CreateDefaultAppSettings("appsettings.json");
+			}
 
+			// Проверяем наличие окружного файла (appsettings.Development.json или appsettings.Production.json)
+			if (!File.Exists(configFileName))
+			{
+				Log.Information($"Файл {configFileName} отсутствует. Создаём файл с настройками по умолчанию...");
+				CreateDefaultAppSettings(configFileName);
+			}
+		}
 
-        static void UpdateFirstRunFlag()
-        {
-            var json = File.ReadAllText("appsettings.json");
-            dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
-            jsonObj["IsFirstRun"] = false;
-            string output = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText("appsettings.json", output);
-        }
+		static void CreateDefaultAppSettings(string fileName)
+		{
+			var defaultConfig = new
+			{
+				Config = new
+				{
+					ConnectionString = "server=10.1.100.142;database=tcvdb_main;user=tavrida;password=tavrida$555"
+				},
+				IsFirstRun = true,
+				LogsFolder = "C:/tempLogs",
+				Serilog = new
+				{
+					Using = Array.Empty<string>(),
+					MinimumLevel = new
+					{
+						Default = "Debug",
+						Override = new
+						{
+							Microsoft = "Warning",
+							System = "Warning"
+						}
+					},
+					Enrich = new[] { "FromLogContext", "WithMachineName", "WhithProcessId", "WhithThreadId" },
+					WriteTo = new[]
+					{
+				new
+				{
+					Name = "File",
+					Args = new
+					{
+						path = "logs/log-.json",
+						formatter = "Serilog.Formatting.Json.JsonFormatter, Serilog",
+						rollingInterval = "Day",
+						retainedFileCountLimit = 7
+					}
+				}
+			}
+				}
+			};
+
+			// Сериализация в JSON с красивым форматированием
+			var options = new JsonSerializerOptions { WriteIndented = true };
+			var json = JsonSerializer.Serialize(defaultConfig, options);
+
+			// Запись в файл
+			File.WriteAllText(fileName, json);
+			Log.Information($"Файл {fileName} создан.");
+		}
+
+		static void UpdateFirstRunFlag()
+		{
+			var environment = Environment.GetEnvironmentVariable("MYAPP_ENVIRONMENT") ?? "Production";
+			var configFileName = $"appsettings.{environment}.json";
+			var json = File.ReadAllText(configFileName);
+			var jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
+			if (jsonObj == null)
+			{
+				throw new Exception("Ошибка чтения файла конфигурации.");
+			}
+			jsonObj["IsFirstRun"] = false;
+			string output = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented);
+			File.WriteAllText(configFileName, output);
+		}
 
 #if DEBUG
         static void RunDebugMode()
@@ -261,12 +311,12 @@ namespace TC_WinForms
             }
 
 
-            void PrintTechnologicalCard(int tcId)
-            {
-                var tcExporter = new ExExportTC();
+            //void PrintTechnologicalCard(int tcId)
+            //{
+            //    var tcExporter = new ExExportTC();
 
-                tcExporter.SaveTCtoExcelFile("TestTC", tcId).Wait();
-            }
+            //    tcExporter.SaveTCtoExcelFile("TestTC", tcId).Wait();
+            //}
 
             void LoadTechnologicalCardEditor(int tcId, bool isViewMode = false)
             {
