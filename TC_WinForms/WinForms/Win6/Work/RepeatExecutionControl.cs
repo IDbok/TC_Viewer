@@ -51,6 +51,7 @@ public partial class RepeatExecutionControl : UserControl
 	// Основное обновление данных грида
 	public void RefreshData()
 	{
+		_executionWorks = _tcViewState.GetAllExecutionWorks();
 		UpdatePovtor();
 	}
 	public void UpdatePovtor()

@@ -924,7 +924,9 @@ namespace TC_WinForms.WinForms.Work
                     if (coefficient.ShowDialog() != DialogResult.OK)
                     {
                         // Если пользователь закрыл форму без сохранения, то обнуляем коэффициент
-                        coefficient = null;
+                        //coefficient = null;
+						_logger.LogUserAction("Отмена добавления ТП.");
+						return;
                     }
                 }
 

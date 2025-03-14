@@ -22,10 +22,11 @@ namespace TcModels.Models.TcContent
 
         //public List<ExecutionWork> WorkRepeat { get; set; } = new List<ExecutionWork>();
         public bool Repeat { get; set; } = false;
+        public long? RepeatsTCId { get; set; }
 
-        // public ExecutionWorkRepeat? executionWorkRepeat { get; set; }
+		// public ExecutionWorkRepeat? executionWorkRepeat { get; set; }
 
-        [NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();
+		[NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();
         [NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>(); // adding repeat items
         public List<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = new List<ExecutionWorkRepeat>();
 
