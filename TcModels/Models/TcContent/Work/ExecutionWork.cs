@@ -68,7 +68,7 @@ namespace TcModels.Models.TcContent
                 }
                else
                {
-                   return base.ToString();
+                   return base.ToString() ?? "";
                 }
 
            }

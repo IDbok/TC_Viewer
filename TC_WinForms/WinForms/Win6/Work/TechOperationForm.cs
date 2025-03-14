@@ -1661,6 +1661,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	/// </summary>
 	public void UpdateGrid()
     {
+		// todo: лишнее обновление грида при первой загрузки странички редактирования
 		_logger.Debug("Начато обновление грида (UpdateGrid).");
 
 		try // временная заглушка от ошибки возникающей при переключении на другую форму в процессе загрузки данных
