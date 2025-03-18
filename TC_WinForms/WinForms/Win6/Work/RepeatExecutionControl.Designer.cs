@@ -28,6 +28,8 @@ partial class RepeatExecutionControl
 	/// </summary>
 	private void InitializeComponent()
 	{
+		pnlControls = new Panel();
+		panel2 = new Panel();
 		dataGridViewRepeats = new DataGridView();
 		dgvRepeatsEwObject = new DataGridViewTextBoxColumn();
 		dgvRepeatsSelected = new DataGridViewCheckBoxColumn();
@@ -37,8 +39,27 @@ partial class RepeatExecutionControl
 		dgvRepeatsCoefficient = new DataGridViewTextBoxColumn();
 		dgvRepeatsEtap = new DataGridViewTextBoxColumn();
 		dgvRepeatsPosled = new DataGridViewTextBoxColumn();
+		panel2.SuspendLayout();
 		((System.ComponentModel.ISupportInitialize)dataGridViewRepeats).BeginInit();
 		SuspendLayout();
+		// 
+		// pnlControls
+		// 
+		pnlControls.Dock = DockStyle.Top;
+		pnlControls.Location = new Point(0, 0);
+		pnlControls.Name = "pnlControls";
+		pnlControls.Size = new Size(1192, 125);
+		pnlControls.TabIndex = 0;
+		pnlControls.Visible = false;
+		// 
+		// panel2
+		// 
+		panel2.Controls.Add(dataGridViewRepeats);
+		panel2.Dock = DockStyle.Fill;
+		panel2.Location = new Point(0, 125);
+		panel2.Name = "panel2";
+		panel2.Size = new Size(1192, 494);
+		panel2.TabIndex = 1;
 		// 
 		// dataGridViewRepeats
 		// 
@@ -52,8 +73,8 @@ partial class RepeatExecutionControl
 		dataGridViewRepeats.MultiSelect = false;
 		dataGridViewRepeats.Name = "dataGridViewRepeats";
 		dataGridViewRepeats.RowHeadersWidth = 51;
-		dataGridViewRepeats.Size = new Size(1192, 619);
-		dataGridViewRepeats.TabIndex = 3;
+		dataGridViewRepeats.Size = new Size(1192, 494);
+		dataGridViewRepeats.TabIndex = 5;
 		// 
 		// dgvRepeatsEwObject
 		// 
@@ -128,15 +149,19 @@ partial class RepeatExecutionControl
 		// 
 		AutoScaleDimensions = new SizeF(8F, 20F);
 		AutoScaleMode = AutoScaleMode.Font;
-		Controls.Add(dataGridViewRepeats);
+		Controls.Add(panel2);
+		Controls.Add(pnlControls);
 		Name = "RepeatExecutionControl";
 		Size = new Size(1192, 619);
+		panel2.ResumeLayout(false);
 		((System.ComponentModel.ISupportInitialize)dataGridViewRepeats).EndInit();
 		ResumeLayout(false);
 	}
 
 	#endregion
 
+	private Panel pnlControls;
+	private Panel panel2;
 	private DataGridView dataGridViewRepeats;
 	private DataGridViewTextBoxColumn dgvRepeatsEwObject;
 	private DataGridViewCheckBoxColumn dgvRepeatsSelected;

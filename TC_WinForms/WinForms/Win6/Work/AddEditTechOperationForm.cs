@@ -899,7 +899,6 @@ namespace TC_WinForms.WinForms.Work
                 }
             }
             return null;
-
         }
         private void DataGridViewTPAll_CellClick(object? sender, DataGridViewCellEventArgs e)
         {

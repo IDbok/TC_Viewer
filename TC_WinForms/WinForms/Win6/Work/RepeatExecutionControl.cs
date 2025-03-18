@@ -2,13 +2,18 @@
 using System.Data;
 using System.Windows.Input;
 using TC_WinForms.Services;
+using TC_WinForms.WinForms.Controls;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
+using TcModels.Models;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Work;
 public partial class RepeatExecutionControl : UserControl
 {
+	// todo: для повтора в соответствии с ТК добавить выбот ТК в отдельной панели, которая будет отображаться только для ТК с повтором другой ТК
+	// todo: реализовать выбор по средствам "поиска" с выпадением списка совпадений по вводимому тексту (+ поиск по id)
+
 	// todo: добавить логгирование
 	private ILogger _logger;
 
@@ -28,6 +33,16 @@ public partial class RepeatExecutionControl : UserControl
 		_context = myDbContext;
 		_tcViewState = tcViewState;
 		_executionWorks = _tcViewState.GetAllExecutionWorks();
+
+		if (true)
+		{
+			pnlControls.Visible = true;
+			// добавление SearchBox в панель
+			var searchBox = new SearchBox<TechnologicalCard>();
+			// добавить в панель pnlControls
+			pnlControls.Controls.Add(searchBox);
+		}
+
 
 		// Пример: настройка dataGridViewRepeats (элемента внутри этого UserControl)
 		dataGridViewRepeats.AutoGenerateColumns = false;
