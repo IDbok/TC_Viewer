@@ -1,12 +1,14 @@
 ﻿using Serilog;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Common;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
+using TC_WinForms.WinForms.Controls;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -72,7 +74,6 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 		// Улучшаем производительность DataGridView, уменьшаем мерцание
 		dgvMain.DoubleBuffered(true);
 	}
-
 
 	#endregion
 

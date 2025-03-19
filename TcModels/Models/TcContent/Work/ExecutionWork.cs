@@ -20,16 +20,12 @@ namespace TcModels.Models.TcContent
 
         public List<Machine_TC> Machines { get; set; } = new List<Machine_TC>(); // если присутствует machine_tc значит участвует в этапе
 
-        //public List<ExecutionWork> WorkRepeat { get; set; } = new List<ExecutionWork>();
         public bool Repeat { get; set; } = false;
-        public long? RepeatsTCId { get; set; }
+        public long? RepeatsTCId { get; set; } // при добавлении устанавливаем 0 и потом меняем на id тех. карты для тп "Выполнить в соответствии с ТК"
 
-		// public ExecutionWorkRepeat? executionWorkRepeat { get; set; }
-
-		[NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();
-        [NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>(); // adding repeat items
+		//[NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();
+		[NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>(); // adding repeat items
         public List<ExecutionWorkRepeat> ExecutionWorkRepeats { get; set; } = new List<ExecutionWorkRepeat>();
-
 
         public Guid? sumEw { get; set; } // не актуально
         public Guid? maxEw { get; set; } // не акутально
@@ -49,7 +45,6 @@ namespace TcModels.Models.TcContent
         public string Posled { get; set; } = "";
         [NotMapped] public double TempTimeExecution { get; set; }
 
-
         public string Vopros { get; set; } = "";
         public string Otvet { get; set; } = "";
 
@@ -66,15 +61,12 @@ namespace TcModels.Models.TcContent
                if (Repeat)
                {
                    return "Повторить";
-                }
+               }
                else
                {
                    return base.ToString() ?? "";
-                }
-
+               }
            }
         }
-
-        
     }
 }

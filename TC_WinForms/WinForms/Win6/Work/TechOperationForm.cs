@@ -2773,9 +2773,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         TOWork.executionWorks.Add(newEw);
         context.ExecutionWorks.Add(newEw);
 
-        if (tech.Name == "Повторить" || tech.Name == "Повторить п.")
+        if (tech.Id == 133 //"Повторить п." 
+						   //tech.Name == "Повторить" || 
+						   //tech.Name == "Повторить п." 
+			|| tech.Id == 134) // Выполнить в соответствии с ТК
         {
             newEw.Repeat = true;
+			if (tech.Id == 134)
+				newEw.RepeatsTCId = 0;
         }
 
         if (coefficientValue != null)
@@ -3069,11 +3074,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         if (dgvItem != null)
         {
-            dgvMain.ClearSelection();
-            //dgvMain.FirstDisplayedScrollingRowIndex = TechOperationDataGridItems.IndexOf(dgvItem);
-            dgvMain.Rows[TechOperationDataGridItems.IndexOf(dgvItem)].Selected = true;
+			int index = TechOperationDataGridItems.IndexOf(dgvItem);
+			if (index >= 0 && index < dgvMain.Rows.Count)
+			{
+				dgvMain.ClearSelection();
+				dgvMain.Rows[index].Selected = true;
+			}
         }
-
     }
 
 	public void OnActivate()

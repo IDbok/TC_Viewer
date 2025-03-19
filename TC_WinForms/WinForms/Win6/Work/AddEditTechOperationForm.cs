@@ -57,9 +57,23 @@ namespace TC_WinForms.WinForms.Work
 
             InitializeComponent();
 
-            // Создать экземпляр
-            repeatExecutionControl = new RepeatExecutionControl(TechOperationForm.context, _tcViewState);//.GetAllExecutionWorks());
+			//         // Создать экземпляр
+			//         repeatExecutionControl = new RepeatExecutionControl(TechOperationForm.context, _tcViewState);//.GetAllExecutionWorks());
+			//repeatExecutionControl.Dock = DockStyle.Fill;
+
+			//// Подписаться на событие
+			//repeatExecutionControl.DataChanged += (s, e) =>
+			//{
+			//	TechOperationForm.UpdateGrid();
+			//};
+
+			//// Добавить на вкладку
+			//tabPageRepeat.Controls.Add(repeatExecutionControl);
+
+			// Создать экземпляр
+			repeatExecutionControl = new RepeatExecutionControl(TechOperationForm.context, _tcViewState);//.GetAllExecutionWorks());
 			repeatExecutionControl.Dock = DockStyle.Fill;
+            _ = repeatExecutionControl.SetSearchBoxParamsAsync();
 
 			// Подписаться на событие
 			repeatExecutionControl.DataChanged += (s, e) =>
@@ -69,19 +83,6 @@ namespace TC_WinForms.WinForms.Work
 
 			// Добавить на вкладку
 			tabPageRepeat.Controls.Add(repeatExecutionControl);
-
-			// Создать экземпляр
-			repeatAsInTcExecutionControl = new RepeatExecutionControl(TechOperationForm.context, _tcViewState);//.GetAllExecutionWorks());
-			repeatAsInTcExecutionControl.Dock = DockStyle.Fill;
-
-			// Подписаться на событие
-			repeatAsInTcExecutionControl.DataChanged += (s, e) =>
-			{
-				TechOperationForm.UpdateGrid();
-			};
-
-			// Добавить на вкладку
-			tabPageRepeatsAsInTc.Controls.Add(repeatAsInTcExecutionControl);
 
 			this.Text = $"{TechOperationForm.TehCarta.Name} ({TechOperationForm.TehCarta.Article}) - Редактор хода работ";
 
@@ -917,7 +918,7 @@ namespace TC_WinForms.WinForms.Work
 
                 CoefficientForm? coefficient = null;
 
-                if (techTransition.Name != "Повторить п.")
+                if (techTransition.Id != 133 && techTransition.Id != 134)// techTransition.Name != "Повторить п.")
                 {
                     coefficient = new CoefficientForm(techTransition);
                     if (coefficient.ShowDialog() != DialogResult.OK)
@@ -1095,7 +1096,7 @@ namespace TC_WinForms.WinForms.Work
 
                 if (executionWork.Repeat)
                 {
-                    listItem.Add("Повторить");
+                    listItem.Add(executionWork.RepeatsTCId == null ? "Повторить" : "В соответствии с ТК");
                     listItem.Add(executionWork.Order);
                     listItem.Add("");
 
@@ -2990,14 +2991,23 @@ namespace TC_WinForms.WinForms.Work
                     break;
 
                 case "tabPageRepeat":
-					//UpdatePovtor();
-					repeatExecutionControl.SetParentExecutionWork(SelectedTP);
+					if (SelectedTP == null)
+					{
+						_logger.Warning("Не выбрано ТП. Обновление данных для вкладки невозможно.");
+						return;
+					}
+					_ = repeatExecutionControl.SetParentExecutionWorkAsync(SelectedTP);
 					SetComboBoxesVisibility(false, false);
                     break;
-				case "tabPageRepeatsAsInTc": //tabControl1.SelectedTab == tabPageRepeatsAsInTc
-					repeatAsInTcExecutionControl.SetParentExecutionWork(SelectedTP);
-					SetComboBoxesVisibility(false, false);
-					break;
+				//case "tabPageRepeatsAsInTc": //tabControl1.SelectedTab == tabPageRepeatsAsInTc
+				//	if (SelectedTP == null)
+				//	{
+				//		_logger.Warning("Не выбрано ТП. Обновление данных для вкладки невозможно.");
+				//		return;
+				//	}
+				//	_ = repeatAsInTcExecutionControl.SetParentExecutionWorkAsync(SelectedTP);
+				//	SetComboBoxesVisibility(false, false);
+				//	break;
 
 					// todo: добавить обработку по умолчанию, если требуется
 			}

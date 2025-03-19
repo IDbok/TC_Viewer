@@ -28,8 +28,7 @@ partial class RepeatExecutionControl
 	/// </summary>
 	private void InitializeComponent()
 	{
-		pnlControls = new Panel();
-		panel2 = new Panel();
+		pnlTable = new Panel();
 		dataGridViewRepeats = new DataGridView();
 		dgvRepeatsEwObject = new DataGridViewTextBoxColumn();
 		dgvRepeatsSelected = new DataGridViewCheckBoxColumn();
@@ -39,27 +38,19 @@ partial class RepeatExecutionControl
 		dgvRepeatsCoefficient = new DataGridViewTextBoxColumn();
 		dgvRepeatsEtap = new DataGridViewTextBoxColumn();
 		dgvRepeatsPosled = new DataGridViewTextBoxColumn();
-		panel2.SuspendLayout();
+		pnlControls = new Panel();
+		pnlTable.SuspendLayout();
 		((System.ComponentModel.ISupportInitialize)dataGridViewRepeats).BeginInit();
 		SuspendLayout();
 		// 
-		// pnlControls
+		// pnlTable
 		// 
-		pnlControls.Dock = DockStyle.Top;
-		pnlControls.Location = new Point(0, 0);
-		pnlControls.Name = "pnlControls";
-		pnlControls.Size = new Size(1192, 125);
-		pnlControls.TabIndex = 0;
-		pnlControls.Visible = false;
-		// 
-		// panel2
-		// 
-		panel2.Controls.Add(dataGridViewRepeats);
-		panel2.Dock = DockStyle.Fill;
-		panel2.Location = new Point(0, 125);
-		panel2.Name = "panel2";
-		panel2.Size = new Size(1192, 494);
-		panel2.TabIndex = 1;
+		pnlTable.Controls.Add(dataGridViewRepeats);
+		pnlTable.Dock = DockStyle.Fill;
+		pnlTable.Location = new Point(0, 58);
+		pnlTable.Name = "pnlTable";
+		pnlTable.Size = new Size(1192, 561);
+		pnlTable.TabIndex = 1;
 		// 
 		// dataGridViewRepeats
 		// 
@@ -73,7 +64,7 @@ partial class RepeatExecutionControl
 		dataGridViewRepeats.MultiSelect = false;
 		dataGridViewRepeats.Name = "dataGridViewRepeats";
 		dataGridViewRepeats.RowHeadersWidth = 51;
-		dataGridViewRepeats.Size = new Size(1192, 494);
+		dataGridViewRepeats.Size = new Size(1192, 561);
 		dataGridViewRepeats.TabIndex = 5;
 		// 
 		// dgvRepeatsEwObject
@@ -145,23 +136,30 @@ partial class RepeatExecutionControl
 		dgvRepeatsPosled.Visible = false;
 		dgvRepeatsPosled.Width = 150;
 		// 
+		// pnlControls
+		// 
+		pnlControls.Dock = DockStyle.Top;
+		pnlControls.Location = new Point(0, 0);
+		pnlControls.Name = "pnlControls";
+		pnlControls.Size = new Size(1192, 58);
+		pnlControls.TabIndex = 3;
+		pnlControls.Visible = false;
+		// 
 		// RepeatExecutionControl
 		// 
 		AutoScaleDimensions = new SizeF(8F, 20F);
 		AutoScaleMode = AutoScaleMode.Font;
-		Controls.Add(panel2);
+		Controls.Add(pnlTable);
 		Controls.Add(pnlControls);
 		Name = "RepeatExecutionControl";
 		Size = new Size(1192, 619);
-		panel2.ResumeLayout(false);
+		pnlTable.ResumeLayout(false);
 		((System.ComponentModel.ISupportInitialize)dataGridViewRepeats).EndInit();
 		ResumeLayout(false);
 	}
 
 	#endregion
-
-	private Panel pnlControls;
-	private Panel panel2;
+	private Panel pnlTable;
 	private DataGridView dataGridViewRepeats;
 	private DataGridViewTextBoxColumn dgvRepeatsEwObject;
 	private DataGridViewCheckBoxColumn dgvRepeatsSelected;
@@ -171,4 +169,5 @@ partial class RepeatExecutionControl
 	private DataGridViewTextBoxColumn dgvRepeatsCoefficient;
 	private DataGridViewTextBoxColumn dgvRepeatsEtap;
 	private DataGridViewTextBoxColumn dgvRepeatsPosled;
+	private Panel pnlControls;
 }

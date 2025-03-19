@@ -31,8 +31,9 @@
 			dgvMain = new DataGridView();
 			pnlControls = new Panel();
 			pnlFilters = new Panel();
-			lblStatusFilter = new Label();
+			pnlFilterAdditional = new Panel();
 			cbxStatusFilter = new ComboBox();
+			lblStatusFilter = new Label();
 			lblType = new Label();
 			cbxTypeFilter = new ComboBox();
 			lblVoltageFilter = new Label();
@@ -46,13 +47,12 @@
 			btnCreateTC = new Button();
 			pnlDataViewer = new Panel();
 			progressBar = new ProgressBar();
-			pnlFilterAdditional = new Panel();
 			((System.ComponentModel.ISupportInitialize)dgvMain).BeginInit();
 			pnlControls.SuspendLayout();
 			pnlFilters.SuspendLayout();
+			pnlFilterAdditional.SuspendLayout();
 			pnlControlBtns.SuspendLayout();
 			pnlDataViewer.SuspendLayout();
-			pnlFilterAdditional.SuspendLayout();
 			SuspendLayout();
 			// 
 			// dgvMain
@@ -66,9 +66,8 @@
 			dgvMain.Name = "dgvMain";
 			dgvMain.ReadOnly = true;
 			dgvMain.RowHeadersWidth = 51;
-			dgvMain.RowTemplate.Height = 29;
 			dgvMain.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-			dgvMain.Size = new Size(1287, 393);
+			dgvMain.Size = new Size(1144, 341);
 			dgvMain.TabIndex = 0;
 			// 
 			// pnlControls
@@ -79,7 +78,7 @@
 			pnlControls.Location = new Point(0, 0);
 			pnlControls.Margin = new Padding(4, 3, 4, 3);
 			pnlControls.Name = "pnlControls";
-			pnlControls.Size = new Size(1287, 125);
+			pnlControls.Size = new Size(1144, 109);
 			pnlControls.TabIndex = 1;
 			// 
 			// pnlFilters
@@ -95,33 +94,43 @@
 			pnlFilters.Location = new Point(0, 0);
 			pnlFilters.Margin = new Padding(4, 3, 4, 3);
 			pnlFilters.Name = "pnlFilters";
-			pnlFilters.Size = new Size(548, 125);
+			pnlFilters.Size = new Size(487, 109);
 			pnlFilters.TabIndex = 25;
 			// 
-			// lblStatusFilter
+			// pnlFilterAdditional
 			// 
-			lblStatusFilter.AutoSize = true;
-			lblStatusFilter.Location = new Point(273, 5);
-			lblStatusFilter.Name = "lblStatusFilter";
-			lblStatusFilter.Size = new Size(64, 23);
-			lblStatusFilter.TabIndex = 29;
-			lblStatusFilter.Text = "Статус:";
+			pnlFilterAdditional.Controls.Add(cbxStatusFilter);
+			pnlFilterAdditional.Controls.Add(lblStatusFilter);
+			pnlFilterAdditional.Dock = DockStyle.Bottom;
+			pnlFilterAdditional.Location = new Point(0, 71);
+			pnlFilterAdditional.Name = "pnlFilterAdditional";
+			pnlFilterAdditional.Size = new Size(487, 38);
+			pnlFilterAdditional.TabIndex = 30;
 			// 
 			// cbxStatusFilter
 			// 
 			cbxStatusFilter.DropDownStyle = ComboBoxStyle.DropDownList;
 			cbxStatusFilter.FormattingEnabled = true;
-			cbxStatusFilter.Location = new Point(342, 3);
+			cbxStatusFilter.Location = new Point(304, 3);
 			cbxStatusFilter.Name = "cbxStatusFilter";
-			cbxStatusFilter.Size = new Size(144, 31);
+			cbxStatusFilter.Size = new Size(128, 28);
 			cbxStatusFilter.TabIndex = 28;
+			// 
+			// lblStatusFilter
+			// 
+			lblStatusFilter.AutoSize = true;
+			lblStatusFilter.Location = new Point(243, 4);
+			lblStatusFilter.Name = "lblStatusFilter";
+			lblStatusFilter.Size = new Size(55, 20);
+			lblStatusFilter.TabIndex = 29;
+			lblStatusFilter.Text = "Статус:";
 			// 
 			// lblType
 			// 
 			lblType.AutoSize = true;
-			lblType.Location = new Point(292, 47);
+			lblType.Location = new Point(260, 41);
 			lblType.Name = "lblType";
-			lblType.Size = new Size(43, 23);
+			lblType.Size = new Size(38, 20);
 			lblType.TabIndex = 27;
 			lblType.Text = "Тип:";
 			// 
@@ -129,26 +138,26 @@
 			// 
 			cbxTypeFilter.DropDownStyle = ComboBoxStyle.DropDownList;
 			cbxTypeFilter.FormattingEnabled = true;
-			cbxTypeFilter.Location = new Point(342, 44);
+			cbxTypeFilter.Location = new Point(304, 38);
 			cbxTypeFilter.Name = "cbxTypeFilter";
-			cbxTypeFilter.Size = new Size(144, 31);
+			cbxTypeFilter.Size = new Size(128, 28);
 			cbxTypeFilter.TabIndex = 26;
 			// 
 			// lblVoltageFilter
 			// 
 			lblVoltageFilter.AutoSize = true;
-			lblVoltageFilter.Location = new Point(227, 7);
+			lblVoltageFilter.Location = new Point(202, 6);
 			lblVoltageFilter.Name = "lblVoltageFilter";
-			lblVoltageFilter.Size = new Size(115, 23);
+			lblVoltageFilter.Size = new Size(102, 20);
 			lblVoltageFilter.TabIndex = 25;
 			lblVoltageFilter.Text = "Напряжение:";
 			// 
 			// lblSearch
 			// 
 			lblSearch.AutoSize = true;
-			lblSearch.Location = new Point(11, 23);
+			lblSearch.Location = new Point(10, 20);
 			lblSearch.Name = "lblSearch";
-			lblSearch.Size = new Size(62, 23);
+			lblSearch.Size = new Size(55, 20);
 			lblSearch.TabIndex = 24;
 			lblSearch.Text = "Поиск:";
 			// 
@@ -156,16 +165,16 @@
 			// 
 			cbxNetworkVoltageFilter.DropDownStyle = ComboBoxStyle.DropDownList;
 			cbxNetworkVoltageFilter.FormattingEnabled = true;
-			cbxNetworkVoltageFilter.Location = new Point(342, 7);
+			cbxNetworkVoltageFilter.Location = new Point(304, 6);
 			cbxNetworkVoltageFilter.Name = "cbxNetworkVoltageFilter";
-			cbxNetworkVoltageFilter.Size = new Size(144, 31);
+			cbxNetworkVoltageFilter.Size = new Size(128, 28);
 			cbxNetworkVoltageFilter.TabIndex = 23;
 			// 
 			// txtSearch
 			// 
-			txtSearch.Location = new Point(11, 47);
+			txtSearch.Location = new Point(10, 41);
 			txtSearch.Name = "txtSearch";
-			txtSearch.Size = new Size(202, 30);
+			txtSearch.Size = new Size(180, 27);
 			txtSearch.TabIndex = 22;
 			txtSearch.TextChanged += txtSearch_TextChanged;
 			// 
@@ -176,19 +185,19 @@
 			pnlControlBtns.Controls.Add(btnUpdateTC);
 			pnlControlBtns.Controls.Add(btnCreateTC);
 			pnlControlBtns.Dock = DockStyle.Right;
-			pnlControlBtns.Location = new Point(548, 0);
+			pnlControlBtns.Location = new Point(487, 0);
 			pnlControlBtns.Margin = new Padding(4, 3, 4, 3);
 			pnlControlBtns.Name = "pnlControlBtns";
-			pnlControlBtns.Size = new Size(739, 125);
+			pnlControlBtns.Size = new Size(657, 109);
 			pnlControlBtns.TabIndex = 24;
 			// 
 			// btnViewMode
 			// 
 			btnViewMode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-			btnViewMode.Location = new Point(45, 14);
+			btnViewMode.Location = new Point(40, 12);
 			btnViewMode.Margin = new Padding(4, 3, 4, 3);
 			btnViewMode.Name = "btnViewMode";
-			btnViewMode.Size = new Size(157, 60);
+			btnViewMode.Size = new Size(140, 52);
 			btnViewMode.TabIndex = 26;
 			btnViewMode.Text = "Просмотр";
 			btnViewMode.UseVisualStyleBackColor = true;
@@ -197,10 +206,10 @@
 			// btnDeleteTC
 			// 
 			btnDeleteTC.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-			btnDeleteTC.Location = new Point(568, 14);
+			btnDeleteTC.Location = new Point(505, 12);
 			btnDeleteTC.Margin = new Padding(4, 3, 4, 3);
 			btnDeleteTC.Name = "btnDeleteTC";
-			btnDeleteTC.Size = new Size(157, 60);
+			btnDeleteTC.Size = new Size(140, 52);
 			btnDeleteTC.TabIndex = 25;
 			btnDeleteTC.Text = "Удалить";
 			btnDeleteTC.UseVisualStyleBackColor = true;
@@ -209,10 +218,10 @@
 			// btnUpdateTC
 			// 
 			btnUpdateTC.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-			btnUpdateTC.Location = new Point(393, 14);
+			btnUpdateTC.Location = new Point(349, 12);
 			btnUpdateTC.Margin = new Padding(4, 3, 4, 3);
 			btnUpdateTC.Name = "btnUpdateTC";
-			btnUpdateTC.Size = new Size(157, 60);
+			btnUpdateTC.Size = new Size(140, 52);
 			btnUpdateTC.TabIndex = 24;
 			btnUpdateTC.Text = "Редактировать";
 			btnUpdateTC.UseVisualStyleBackColor = true;
@@ -221,10 +230,10 @@
 			// btnCreateTC
 			// 
 			btnCreateTC.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-			btnCreateTC.Location = new Point(220, 14);
+			btnCreateTC.Location = new Point(196, 12);
 			btnCreateTC.Margin = new Padding(4, 3, 4, 3);
 			btnCreateTC.Name = "btnCreateTC";
-			btnCreateTC.Size = new Size(157, 60);
+			btnCreateTC.Size = new Size(140, 52);
 			btnCreateTC.TabIndex = 23;
 			btnCreateTC.Text = "Добавить";
 			btnCreateTC.UseVisualStyleBackColor = true;
@@ -235,38 +244,28 @@
 			pnlDataViewer.Controls.Add(progressBar);
 			pnlDataViewer.Controls.Add(dgvMain);
 			pnlDataViewer.Dock = DockStyle.Fill;
-			pnlDataViewer.Location = new Point(0, 125);
+			pnlDataViewer.Location = new Point(0, 109);
 			pnlDataViewer.Margin = new Padding(4, 3, 4, 3);
 			pnlDataViewer.Name = "pnlDataViewer";
-			pnlDataViewer.Size = new Size(1287, 393);
+			pnlDataViewer.Size = new Size(1144, 341);
 			pnlDataViewer.TabIndex = 2;
 			// 
 			// progressBar
 			// 
 			progressBar.Anchor = AnchorStyles.None;
-			progressBar.Location = new Point(397, 60);
+			progressBar.Location = new Point(353, 51);
 			progressBar.MarqueeAnimationSpeed = 30;
 			progressBar.Name = "progressBar";
-			progressBar.Size = new Size(508, 30);
+			progressBar.Size = new Size(452, 26);
 			progressBar.Style = ProgressBarStyle.Marquee;
 			progressBar.TabIndex = 1;
 			progressBar.Visible = false;
 			// 
-			// pnlFilterAdditional
-			// 
-			pnlFilterAdditional.Controls.Add(cbxStatusFilter);
-			pnlFilterAdditional.Controls.Add(lblStatusFilter);
-			pnlFilterAdditional.Dock = DockStyle.Bottom;
-			pnlFilterAdditional.Location = new Point(0, 81);
-			pnlFilterAdditional.Name = "pnlFilterAdditional";
-			pnlFilterAdditional.Size = new Size(548, 44);
-			pnlFilterAdditional.TabIndex = 30;
-			// 
 			// Win7_1_TCs
 			// 
-			AutoScaleDimensions = new SizeF(9F, 23F);
+			AutoScaleDimensions = new SizeF(8F, 20F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(1287, 518);
+			ClientSize = new Size(1144, 450);
 			Controls.Add(pnlDataViewer);
 			Controls.Add(pnlControls);
 			Margin = new Padding(4, 3, 4, 3);
@@ -278,10 +277,10 @@
 			pnlControls.ResumeLayout(false);
 			pnlFilters.ResumeLayout(false);
 			pnlFilters.PerformLayout();
-			pnlControlBtns.ResumeLayout(false);
-			pnlDataViewer.ResumeLayout(false);
 			pnlFilterAdditional.ResumeLayout(false);
 			pnlFilterAdditional.PerformLayout();
+			pnlControlBtns.ResumeLayout(false);
+			pnlDataViewer.ResumeLayout(false);
 			ResumeLayout(false);
 		}
 

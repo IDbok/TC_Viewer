@@ -29,32 +29,23 @@ partial class SearchBox<T>
 	private void InitializeComponent()
 	{
 		textBoxSearch = new TextBox();
-		listBoxSuggestions = new ListBox();
 		SuspendLayout();
 		// 
 		// textBoxSearch
 		// 
-		textBoxSearch.Location = new Point(0, 3);
+		//textBoxSearch.Location = new Point(0, 3);
 		textBoxSearch.Name = "textBoxSearch";
-		textBoxSearch.Size = new Size(292, 27);
+		//textBoxSearch.Size = new Size(292, 27);
 		textBoxSearch.TabIndex = 0;
-		// 
-		// listBoxSuggestions
-		// 
-		listBoxSuggestions.FormattingEnabled = true;
-		listBoxSuggestions.Location = new Point(3, 27);
-		listBoxSuggestions.Name = "listBoxSuggestions";
-		listBoxSuggestions.Size = new Size(289, 104);
-		listBoxSuggestions.TabIndex = 1;
+		textBoxSearch.Dock = DockStyle.Top;
 		// 
 		// SearchBox
 		// 
 		AutoScaleDimensions = new SizeF(8F, 20F);
 		AutoScaleMode = AutoScaleMode.Font;
-		Controls.Add(listBoxSuggestions);
 		Controls.Add(textBoxSearch);
 		Name = "SearchBox";
-		Size = new Size(292, 133);
+		Size = new Size(292, 203);
 		ResumeLayout(false);
 		PerformLayout();
 	}
@@ -62,5 +53,4 @@ partial class SearchBox<T>
 	#endregion
 
 	private TextBox textBoxSearch;
-	private ListBox listBoxSuggestions;
 }

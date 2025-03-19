@@ -1,6 +1,8 @@
-﻿using Serilog;
+﻿using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Data;
 using System.Windows.Input;
+using TC_WinForms.DataProcessing;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Controls;
 using TC_WinForms.WinForms.Win6.Models;
@@ -14,6 +16,8 @@ public partial class RepeatExecutionControl : UserControl
 	// todo: для повтора в соответствии с ТК добавить выбот ТК в отдельной панели, которая будет отображаться только для ТК с повтором другой ТК
 	// todo: реализовать выбор по средствам "поиска" с выпадением списка совпадений по вводимому тексту (+ поиск по id)
 
+	// todo: разместить повтор и повтор в соответствии с ТК в одной вкладке
+
 	// todo: добавить логгирование
 	private ILogger _logger;
 
@@ -21,9 +25,11 @@ public partial class RepeatExecutionControl : UserControl
 	private List<ExecutionWork> _executionWorks;
 	private readonly TcViewState _tcViewState;
 	private readonly MyDbContext _context;
-
+	private readonly List<TechnologicalCard> _technologicalCards;
 	// todo: обновляется при изменения выбора в повторе (трижды при снятии, дважды при установки)
-	public event EventHandler? DataChanged;	// Событие, если надо сообщать «внешнему» коду, что данные изменились
+	public event EventHandler? DataChanged; // Событие, если надо сообщать «внешнему» коду, что данные изменились
+
+	private SearchBox<TechnologicalCard>? searchBox;
 
 	// Конструктор
 	public RepeatExecutionControl(MyDbContext myDbContext, TcViewState tcViewState)// List<ExecutionWork> executionWorks)
@@ -34,15 +40,7 @@ public partial class RepeatExecutionControl : UserControl
 		_tcViewState = tcViewState;
 		_executionWorks = _tcViewState.GetAllExecutionWorks();
 
-		if (true)
-		{
-			pnlControls.Visible = true;
-			// добавление SearchBox в панель
-			var searchBox = new SearchBox<TechnologicalCard>();
-			// добавить в панель pnlControls
-			pnlControls.Controls.Add(searchBox);
-		}
-
+		//_technologicalCards = _context.TechnologicalCards.ToList();
 
 		// Пример: настройка dataGridViewRepeats (элемента внутри этого UserControl)
 		dataGridViewRepeats.AutoGenerateColumns = false;
@@ -56,20 +54,117 @@ public partial class RepeatExecutionControl : UserControl
 		dataGridViewRepeats.CellValueChanged += dataGridViewRepeats_CellValueChanged;
 	}
 
-	// Свойство/метод, чтобы «снаружи» задать, какую ExecutionWork (или список) показываем
-	public void SetParentExecutionWork(ExecutionWork? parentEW)
+	//protected override void OnHandleCreated(EventArgs e)
+	//{
+	//	base.OnHandleCreated(e);
+
+	//	// Ищем главную форму:
+	//	SetSearchBox();
+	//}
+
+	private void SetSearchBox()
 	{
+		searchBox = new SearchBox<TechnologicalCard>();
+
+		searchBox.SelectedItemChanged += async (sender, e) =>
+		{
+			if (_parentExecutionWork == null) return;
+
+			var selectedTc = e.SelectedItem;
+
+			_parentExecutionWork.RepeatsTCId = selectedTc.Id;
+			await LoadExecutionWorksByTcIdAsync(selectedTc.Id);
+		};
+
+		// добавить в панель pnlControls
+		pnlControls.Controls.Add(searchBox);
+	}
+
+	public async Task SetSearchBoxParamsAsync(bool searchVisible = true)
+	{
+		
+
+		if (searchVisible)
+		{
+			pnlControls.Visible = true;
+
+			if (searchBox == null)
+			{
+				SetSearchBox();
+			}
+
+			var data = await _context.TechnologicalCards.ToListAsync();
+
+			// Указываем источник данных
+			// Обратите внимание: тип <string>, а DisplayMemberFunc = x => x, 
+			// поскольку это просто строка.
+			searchBox.DataSource = data;
+			searchBox.DisplayMemberFunc = x => $"{x.Name} {x.Article}";
+
+			searchBox.SearchCriteriaFunc = x => x.ToString();// $"{x.Name} {x.Article}"; // Поиск по Name и Article
+
+			// Устанавливаем выбранную ТК, если есть _parentExecutionWork с RepeatsTCId
+			if (_parentExecutionWork?.RepeatsTCId != null)
+			{
+				var selectedTc = data.FirstOrDefault(tc => tc.Id == _parentExecutionWork.RepeatsTCId);
+				if (selectedTc != null)
+				{
+					searchBox.SetSelectedItem(selectedTc, false);
+				}
+			}
+		}
+		else
+		{
+			pnlControls.Visible = false;
+		}
+	}
+
+	// Свойство/метод, чтобы «снаружи» задать, какую ExecutionWork (или список) показываем
+	public async Task SetParentExecutionWorkAsync(ExecutionWork parentEW)
+	{
+		if (parentEW == null || !parentEW.Repeat) return;
+
 		_parentExecutionWork = parentEW;
+
+		var check = parentEW.RepeatsTCId != null;
+
+		_executionWorks.Clear();
+
+		await SetSearchBoxParamsAsync(parentEW.RepeatsTCId != null);
+
+		if (parentEW.RepeatsTCId == null)
+		{
+			_executionWorks = _tcViewState.GetAllExecutionWorks();
+		}
+		else
+		{
+			if (parentEW.RepeatsTCId != 0) 
+				_executionWorks = await GetAllExecutionWorksByTcIdAsync(parentEW.RepeatsTCId.Value);
+		}
+
 		RefreshData();
 	}
 
 	// Основное обновление данных грида
-	public void RefreshData()
+	private async Task<List<ExecutionWork>> GetAllExecutionWorksByTcIdAsync(long id)
 	{
-		_executionWorks = _tcViewState.GetAllExecutionWorks();
-		UpdatePovtor();
+		return await _context.TechOperationWorks
+			.Where(tow => tow.TechnologicalCardId == id)
+			.SelectMany(x => x.executionWorks)
+				.Include(ew => ew.techTransition)
+				.Include(ew => ew.techOperationWork)
+					.ThenInclude(tow => tow.techOperation)
+			.ToListAsync();
 	}
-	public void UpdatePovtor()
+
+	private async Task LoadExecutionWorksByTcIdAsync(long id)
+	{
+		_executionWorks.Clear();
+		_executionWorks = await GetAllExecutionWorksByTcIdAsync(id);
+		RefreshData();
+	}
+
+	public void RefreshData()
 	{
 		dataGridViewRepeats.Rows.Clear();
 		if (_parentExecutionWork == null) return;
@@ -113,8 +208,6 @@ public partial class RepeatExecutionControl : UserControl
 				dataGridViewRepeats.Rows.Add(listItem.ToArray());
 			}
 		}
-
-		Console.WriteLine();
 	}
 
 	// Стобцы в dataGridViewRepeats:
@@ -140,7 +233,7 @@ public partial class RepeatExecutionControl : UserControl
 			// позиция для executionWorkPovtor в таблице dataGridViewRepeats
 			var powtorIndex = dataGridViewRepeats.Rows.Cast<DataGridViewRow>().ToList().FindIndex(x => x.Cells[0].Value == _parentExecutionWork);
 
-			if (_parentExecutionWork != null && powtorIndex > e.RowIndex)//currentEW.Order < executionWorkPovtor.Order)
+			if (_parentExecutionWork != null && (_parentExecutionWork.RepeatsTCId != null || powtorIndex > e.RowIndex))//currentEW.Order < executionWorkPovtor.Order)
 			{
 				var existingRepeat = _parentExecutionWork.ExecutionWorkRepeats
 					.SingleOrDefault(x => x.ChildExecutionWork == currentEW);
@@ -223,7 +316,8 @@ public partial class RepeatExecutionControl : UserControl
 		var executionWork = (ExecutionWork)dataGridViewRepeats.Rows[e.RowIndex].Cells[0].Value;
 		// позиция для _parentExecutionWork в таблице dataGridViewRepeats
 		var powtorIndex = dataGridViewRepeats.Rows.Cast<DataGridViewRow>().ToList().FindIndex(x => x.Cells[0].Value == _parentExecutionWork);
-		bool isReadOnlyRow = powtorIndex < e.RowIndex;
+
+		bool isReadOnlyRow = _parentExecutionWork.RepeatsTCId != null ? false : powtorIndex < e.RowIndex;
 
 		var columnName = dataGridViewRepeats.Columns[e.ColumnIndex].Name;
 
