@@ -16,16 +16,20 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
 {
     public partial class RoadMapControl : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
+
+        #region Fields
+
+        public ObservableCollection<RoadMapItem> RoadmapItems { get; } = new ObservableCollection<RoadMapItem>();
         private List<TechOperationWork> _techOperationWorks = new List<TechOperationWork>();
         private List<OperationGroup> _operationGroups = new List<OperationGroup>();
         private TcViewState _tcViewState;
         private int _maxColumns;
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-
         public bool IsViewMode => _tcViewState.IsViewMode;
 
-        public ObservableCollection<RoadMapItem> RoadmapItems { get; } = new ObservableCollection<RoadMapItem>();
+        #endregion
+
+        #region Constructors
 
         public RoadMapControl(List<TechOperationWork> techOperationWorks, TcViewState tcViewState)
         {
@@ -52,10 +56,15 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
             DataContext = this;
         }
 
+        #endregion
+
+        #region EventsAndProperties
+
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnViewModeChanged()
         {
             OnPropertyChanged(nameof(IsViewMode));
-            if(!_tcViewState.RoadmapItemList.IsRoadMapUpdate && !_tcViewState.IsViewMode)
+            if (!_tcViewState.RoadmapItemList.IsRoadMapUpdate && !_tcViewState.IsViewMode)
                 _tcViewState.RoadmapItemList = (true, _tcViewState.RoadmapItemList.RoadMapItems);
         }
         protected void OnPropertyChanged(string propertyName)
@@ -63,89 +72,58 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void DetermineColumnsData()
+        #endregion
+
+        #region FormLoad
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            var orderedTOWs = _techOperationWorks.OrderBy(o => o.Order).ToList();
-            OperationGroup currentGroup = null;
+            if (RoadmapItems.Count == 0)
+                WriteRoadMapData();
 
-            foreach (var tow in orderedTOWs)
-            {
-                var parallelIndex = tow.GetParallelIndex();
-                var sequenceGroupIndex = tow.GetSequenceGroupIndex() ?? 0;
+            //AddMergedHeader();
+            AddColumnsToGrid();
+            UpdateHeaderGridWidth();
 
-                if (currentGroup == null ||
-                (currentGroup.IsParallel != (parallelIndex != null)) ||
-                (currentGroup.IsParallel && currentGroup.ParallelIndex != parallelIndex) ||
-                (currentGroup.SequenceGroupIndex != sequenceGroupIndex))
-                    {
-                        currentGroup = new OperationGroup
-                        {
-                            IsParallel = parallelIndex != null,
-                            ParallelIndex = parallelIndex,
-                            SequenceGroupIndex = sequenceGroupIndex
-                        };
-                        _operationGroups.Add(currentGroup);
-                    }
-
-                currentGroup.Items.Add(tow);
-            }
+            GenerateDataStructure();
         }
-        private void CountMaxColumns()
+        private void WriteRoadMapData()
         {
-            if(RoadmapItems.Count != 0)
+            int colIndex = 1;
+            var maxColInd = colIndex;
+            var outlayService = new OutlayService();
+            foreach (var group in _operationGroups)
             {
-                _maxColumns = RoadmapItems.First().SequenceData.Length;
-                return;
-            }
-
-            var groupedData = _operationGroups.GroupBy(g => g.ParallelIndex);
-            foreach (var group in groupedData)
-            {
-                if (group.Key == null)
+                colIndex = maxColInd;
+                foreach (var tow in group.Items)
                 {
-                    _maxColumns += group.Sum(g => g.Items.Count);
-                }
-                else
-                {
-                    if (group.ToList().Count > 1)
+                    var roadmapItem = new RoadMapItem
                     {
-                        var maxGroup = group.Where(s => s.SequenceGroupIndex != 0).Max(s => s.Items.Count);
-                        _maxColumns += maxGroup;
-                    }
-                    else
-                        _maxColumns++;
+                        TowId = tow.Id,
+                        TOName = tow.techOperation.Name,
+                        Staffs = string.Join(",", tow.executionWorks.SelectMany(ew => ew.Staffs).Select(s => s.Symbol).Distinct()),
+                        Note = tow.Note ?? "",
+                        Order = tow.Order,
+                        techOperationWork = tow
+                    };
+
+                    roadmapItem.SequenceCells = new SequenceCell
+                    {
+                        RoadmapItemId = roadmapItem.Id,
+                        Column = !group.IsParallel ? colIndex : CalculateColumn(group, tow, colIndex),
+                        ColumnSpan = !group.IsParallel ? 1 : CalculateColumnSpan(group, tow, colIndex),
+                        Order = tow.Order,
+                        Value = outlayService.GetToOutlay(tow)
+                    };
+                    RoadmapItems.Add(roadmapItem);
+                    colIndex = !group.IsParallel ? colIndex : roadmapItem.SequenceCells.Column;
+                    colIndex++;
+                    maxColInd = roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan >= colIndex
+                        ? roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan > maxColInd ? roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan : maxColInd
+                        : colIndex;
                 }
             }
-
         }
-        private void GenerateDataStructure()
-        {
-            if (RoadmapItems.All(s => s.SequenceData != null))
-                return;
-
-            foreach (var item in RoadmapItems)
-            {
-                item.SequenceData = new double[_maxColumns];
-                int columnIndex = item.SequenceCells.Column - 1;
-                int rowIndex = item.SequenceCells.Order - 1;
-
-                int startCol = columnIndex;
-                int endCol = columnIndex + item.SequenceCells.ColumnSpan - 1;
-
-                for (int col = startCol; col <= endCol; col++)
-                {
-                    if (rowIndex >= 0 && rowIndex <= RoadmapItems.Count &&
-                    col >= 0 && col < _maxColumns)
-                    {
-                        item.SequenceData[col] = col == startCol ? item.SequenceCells.Value : -1d;
-                        System.Diagnostics.Debug.WriteLine($"Set value {item.SequenceCells.Value} at row {rowIndex}, column {col}");
-                    }
-                }
-            }
-
-            _tcViewState.RoadmapItemList = (true, RoadmapItems.ToList());
-        }
-
         private void AddColumnsToGrid()
         {
 
@@ -196,21 +174,8 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                     IsReadOnly = true
                 });
             }
-            
+
         }
-
-        private void TextBox_NoteTextChanged(object sender, TextChangedEventArgs e)
-        {
-            RoadMapItem gridItem = (RoadMapItem)(((System.Windows.Controls.TextBox)sender).DataContext);
-
-            if (gridItem != null)
-            {
-                gridItem.Note = ((System.Windows.Controls.TextBox)sender).Text;
-                gridItem.techOperationWork.Note = gridItem.Note;
-            }
-        }
-
-
         private void UpdateHeaderGridWidth()
         {
             for (int i = 0; i < 3; i++)
@@ -230,65 +195,97 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                 });
             }
         }
-
-    
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        private void GenerateDataStructure()
         {
-            if (RoadmapItems.Count == 0)
-                WriteRoadMapData();
+            if (RoadmapItems.All(s => s.SequenceData != null))
+                return;
 
-            //AddMergedHeader();
-            AddColumnsToGrid();
-            UpdateHeaderGridWidth();
-
-            GenerateDataStructure();
-        }
-
-
-        private void WriteRoadMapData()
-        {
-            int colIndex = 1;
-            var maxColInd = colIndex;
-            var outlayService = new OutlayService();
-            foreach (var group in _operationGroups)
+            foreach (var item in RoadmapItems)
             {
-                colIndex = maxColInd;
-                foreach (var tow in group.Items)
-                {
-                    var roadmapItem = new RoadMapItem
-                    {
-                        TowId = tow.Id,
-                        TOName = tow.techOperation.Name,
-                        Staffs = string.Join(",", tow.executionWorks.SelectMany(ew => ew.Staffs).Select(s => s.Symbol).Distinct()),
-                        Note = tow.Note ?? "",
-                        Order = tow.Order,
-                        techOperationWork = tow
-                    };
+                item.SequenceData = new double[_maxColumns];
+                int columnIndex = item.SequenceCells.Column - 1;
+                int rowIndex = item.SequenceCells.Order - 1;
 
-                    roadmapItem.SequenceCells = new SequenceCell
+                int startCol = columnIndex;
+                int endCol = columnIndex + item.SequenceCells.ColumnSpan - 1;
+
+                for (int col = startCol; col <= endCol; col++)
+                {
+                    if (rowIndex >= 0 && rowIndex <= RoadmapItems.Count &&
+                    col >= 0 && col < _maxColumns)
                     {
-                        RoadmapItemId = roadmapItem.Id,
-                        Column = !group.IsParallel ? colIndex : CalculateColumn(group, tow, colIndex),
-                        ColumnSpan = !group.IsParallel ? 1 : CalculateColumnSpan(group, tow, colIndex),
-                        Order = tow.Order,
-                        Value = outlayService.GetToOutlay(tow)
-                    };
-                    RoadmapItems.Add(roadmapItem);
-                    colIndex = !group.IsParallel ? colIndex : roadmapItem.SequenceCells.Column;
-                    colIndex++;
-                    maxColInd = roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan >= colIndex 
-                        ? roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan > maxColInd ? roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan : maxColInd
-                        : colIndex;
+                        item.SequenceData[col] = col == startCol ? item.SequenceCells.Value : -1d;
+                        System.Diagnostics.Debug.WriteLine($"Set value {item.SequenceCells.Value} at row {rowIndex}, column {col}");
+                    }
                 }
             }
-        }
 
+            _tcViewState.RoadmapItemList = (true, RoadmapItems.ToList());
+        }
+        #endregion
+
+        #region SupportMethods
+        private void DetermineColumnsData()
+        {
+            var orderedTOWs = _techOperationWorks.OrderBy(o => o.Order).ToList();
+            OperationGroup currentGroup = null;
+
+            foreach (var tow in orderedTOWs)
+            {
+                var parallelIndex = tow.GetParallelIndex();
+                var sequenceGroupIndex = tow.GetSequenceGroupIndex() ?? 0;
+
+                if (currentGroup == null ||
+                (currentGroup.IsParallel != (parallelIndex != null)) ||
+                (currentGroup.IsParallel && currentGroup.ParallelIndex != parallelIndex) ||
+                (currentGroup.SequenceGroupIndex != sequenceGroupIndex))
+                {
+                    currentGroup = new OperationGroup
+                    {
+                        IsParallel = parallelIndex != null,
+                        ParallelIndex = parallelIndex,
+                        SequenceGroupIndex = sequenceGroupIndex
+                    };
+                    _operationGroups.Add(currentGroup);
+                }
+
+                currentGroup.Items.Add(tow);
+            }
+        }
+        private void CountMaxColumns()
+        {
+            if (RoadmapItems.Count != 0)
+            {
+                _maxColumns = RoadmapItems.First().SequenceData.Length;
+                return;
+            }
+
+            var groupedData = _operationGroups.GroupBy(g => g.ParallelIndex);
+            foreach (var group in groupedData)
+            {
+                if (group.Key == null)
+                {
+                    _maxColumns += group.Sum(g => g.Items.Count);
+                }
+                else
+                {
+                    if (group.ToList().Count > 1)
+                    {
+                        var maxGroup = group.Where(s => s.SequenceGroupIndex != 0).Max(s => s.Items.Count);
+                        _maxColumns += maxGroup;
+                    }
+                    else
+                        _maxColumns++;
+                }
+            }
+
+        }
         private int CalculateColumnSpan(OperationGroup operationGroup, TechOperationWork currentTow, int colIndex)
         {
             if (operationGroup.ParallelIndex == null || operationGroup.SequenceGroupIndex != 0)
                 return 1;
 
-            if(_operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex).ToList().Count > 1)
+            if (_operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex).ToList().Count > 1)
             {
                 var parallelGroups = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex != 0).Select(o => o.Items).Max(i => i.Count);
                 return parallelGroups;
@@ -297,15 +294,14 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                 return 1;
             //throw new NotImplementedException();
         }
-
         private int CalculateColumn(OperationGroup operationGroup, TechOperationWork currentTow, int colIndex)
         {
-            if(operationGroup.ParallelIndex == null)
+            if (operationGroup.ParallelIndex == null)
                 return colIndex;
 
-            if(operationGroup.SequenceGroupIndex == 0)
+            if (operationGroup.SequenceGroupIndex == 0)
             {
-                var existedColIndex = RoadmapItems.Where(item => operationGroup.Items.Select(t => t.Id).Contains(item.TowId)).Where(s => s.SequenceCells.Column !=0).Select(s => s.SequenceCells.Column).FirstOrDefault();
+                var existedColIndex = RoadmapItems.Where(item => operationGroup.Items.Select(t => t.Id).Contains(item.TowId)).Where(s => s.SequenceCells.Column != 0).Select(s => s.SequenceCells.Column).FirstOrDefault();
                 if (existedColIndex != null && existedColIndex != 0)
                     return existedColIndex;
                 else
@@ -319,8 +315,12 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                     var previousCol = RoadmapItems.Where(item => item.TowId == previousElement.Id).Select(s => s.SequenceCells.Column).FirstOrDefault();
                     return previousCol + 1;
                 }
+                TechOperationWork? previousTow = null;
+                var previousGroup = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex == 0).FirstOrDefault();
 
-                var previousTow = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex == 0).FirstOrDefault().Items.Where(o => o.Order < currentTow.Order).FirstOrDefault();
+                if (previousGroup != null)
+                    previousTow = previousGroup.Items.Where(o => o.Order < currentTow.Order).FirstOrDefault();
+
                 if (previousTow != null)
                 {
                     var previousCol = RoadmapItems.Where(item => item.TowId == previousTow.Id).Select(s => s.SequenceCells.Column).FirstOrDefault();
@@ -330,6 +330,23 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                     return colIndex;
             }
         }
+        #endregion
+
+        #region UIEventHandlers
+
+        private void TextBox_NoteTextChanged(object sender, TextChangedEventArgs e)
+        {
+            RoadMapItem gridItem = (RoadMapItem)(((System.Windows.Controls.TextBox)sender).DataContext);
+
+            if (gridItem != null)
+            {
+                gridItem.Note = ((System.Windows.Controls.TextBox)sender).Text;
+                gridItem.techOperationWork.Note = gridItem.Note;
+            }
+        }
+
+        #endregion
+
     }
 
     public class OperationGroup

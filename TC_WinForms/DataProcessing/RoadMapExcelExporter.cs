@@ -77,7 +77,7 @@ namespace TC_WinForms.DataProcessing
 
             foreach (var item in orderedList)
             {
-                sheet.Cells[row, headersColumns["Номер записи"]].Value = order;
+                sheet.Cells[row, headersColumns["№"]].Value = order;
                 sheet.Cells[row, headersColumns["Технологическая операция"]].Value = item.TOName;
                 sheet.Cells[row, headersColumns["Персонал"]].Value = item.Staffs;
                 sheet.Cells[row, headersColumns["Примечание"]].Value = item.Note;

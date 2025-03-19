@@ -12,8 +12,6 @@ namespace TC_WinForms.DataProcessing
 {
     public class DataExcelExport
     {
-        private DbConnector dbCon = new DbConnector();
-
         public DataExcelExport() 
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
