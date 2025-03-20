@@ -2376,20 +2376,18 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		try
 		{
 
+			rowData.Add(item.WorkItem ?? string.Empty);
 			// Проверяем, есть ли Repeat
 			if (item.WorkItem is ExecutionWork ew && ew.Repeat)
 			{
 				List<int> repeatNumList = new List<int>();
 				// todo: заменить на RowOrder (номер строки) => нужно добавить поле в БД
 				// Формируем строку "Повторить п."
-				repeatNumList = ew.ExecutionWorkRepeats//.Select(r => r.ChildExecutionWork.RowOrder).ToList();
-				.Select(r => TechOperationDataGridItems.SingleOrDefault(s => ew == r.ChildExecutionWork)) //FirstOrDefault
-				.Where(bn => bn != null)
-				.Select(bn => bn.Nomer)
-				.ToList();
-
-				if (ew.RepeatsTCId != null)
-					throw new Exception();
+				repeatNumList = ew.ExecutionWorkRepeats.Select(r => r.ChildExecutionWork.RowOrder).ToList();
+				//.Select(r => TechOperationDataGridItems.SingleOrDefault(s => ew == r.ChildExecutionWork)) //FirstOrDefault
+				//.Where(bn => bn != null)
+				//.Select(bn => bn.Nomer)
+				//.ToList();
 
 				string strP = "";
 				if (repeatNumList.Count != 0)
@@ -2397,7 +2395,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				else
 					strP = "(нет данных)";
 
-				rowData.Add(ew);
 				rowData.Add(item.Nomer.ToString());
 				rowData.Add(item.TechOperation);
 				rowData.Add(item.Staff);
@@ -2410,7 +2407,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			}
 			else
 			{
-				rowData.Add(item.executionWorkItem);
 				rowData.Add(item.Nomer != -1 ? item.Nomer.ToString() : "");
 				rowData.Add(item.TechOperation);
 				rowData.Add(item.Staff);
@@ -2425,7 +2421,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// Добавляем оставшиеся ячейки (СЗ, комментарии, рисунок, замечание, ответ и т.д.)
 			rowData.Add(item.Protections);
 			// Если в techWork есть комментарий, используем его, иначе общий Comments
-			rowData.Add(item.techWork?.Comments ?? item.Comments);
+			rowData.Add(item.Comments);
 			rowData.Add(item.PictureName);
 			rowData.Add(item.Vopros);
 			rowData.Add(item.Otvet);
@@ -2437,10 +2433,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// формируем ячейку с ошибкой
 			var rowDataError = new List<object>()
 			{
-				null,
+				string.Empty,
 				dgvMain.Rows.Count +1,
-				null,
-				null,
+				string.Empty,
+				string.Empty,
 				"Ошибка при формировании строки"
 			};
 			rowData = rowDataError;
