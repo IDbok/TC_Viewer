@@ -40,7 +40,7 @@ namespace TcModels.Models.TcContent
 		[NotMapped] public Guid TempGuid { get; set; }
 
 		public int Order { get; set; } // порядок выполнения в ТО
-        [NotMapped] public int RowOrder { get; set; } // порядковый номер в таблице ХР 
+        public int RowOrder { get; set; } // порядковый номер в таблице ХР 
         // todo: проверить, как можно сделать данное значение для всех ТК автоматически
 		public string Etap { get; set; } = "";
         public string Posled { get; set; } = "";
