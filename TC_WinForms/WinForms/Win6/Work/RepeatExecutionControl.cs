@@ -11,12 +11,21 @@ using TcModels.Models;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Work;
+/// <summary>
+/// 
+/// </summary>
 public partial class RepeatExecutionControl : UserControl
 {
-	// todo: для повтора в соответствии с ТК добавить выбот ТК в отдельной панели, которая будет отображаться только для ТК с повтором другой ТК
-	// todo: реализовать выбор по средствам "поиска" с выпадением списка совпадений по вводимому тексту (+ поиск по id)
+	// todo: визуальное отображение выполнить в соответствии с ТК
 
-	// todo: разместить повтор и повтор в соответствии с ТК в одной вкладке
+	// todo: Как быть с динамическими коэффициентами?
+
+	// todo: добавить номер ТП
+
+	// todo: логика удаления старых ТК при смене ТК перехода
+
+	// todo: визуальные изменения: расширение текстового поля в зависимостиот ширины названия ТК
+	// todo: вставить как элемент в addEdit... чтобы отображался в конструкторе
 
 	// todo: добавить логгирование
 	private ILogger _logger;
@@ -26,7 +35,7 @@ public partial class RepeatExecutionControl : UserControl
 	private readonly TcViewState _tcViewState;
 	private readonly MyDbContext _context;
 	private readonly List<TechnologicalCard> _technologicalCards;
-	// todo: обновляется при изменения выбора в повторе (трижды при снятии, дважды при установки)
+	// todo: Исправить. обновляется при изменения выбора в повторе (трижды при снятии, дважды при установки)
 	public event EventHandler? DataChanged; // Событие, если надо сообщать «внешнему» коду, что данные изменились
 
 	private SearchBox<TechnologicalCard>? searchBox;
@@ -341,7 +350,7 @@ public partial class RepeatExecutionControl : UserControl
 				// Делаем ячейку недоступной
 				dataGridViewRepeats.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
 			}
-			else // todo: снимать повтор, если объект перемещают "ниже" повтора
+			else
 			{
 				var existingRepeat = _parentExecutionWork.ExecutionWorkRepeats
 					.SingleOrDefault(x => x.ChildExecutionWork == executionWork);
@@ -487,7 +496,7 @@ public partial class RepeatExecutionControl : UserControl
 
 		oldCoefficient = editedExecutionWork.Value;
 		if (editedExecutionWork.Repeat)
-			RecalculateExecutionWorkPovtorValue(editedExecutionWork);// todo: проверить, нужно ли это здесь вообще!
+			RecalculateExecutionWorkPovtorValue(editedExecutionWork);
 
 		if (oldCoefficient != editedExecutionWork.Value)
 			UpdateRelatedReplays(editedExecutionWork);

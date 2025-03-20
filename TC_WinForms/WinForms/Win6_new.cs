@@ -20,7 +20,7 @@ using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.WinForms
-{
+{// todo: загрузить данные о переходах из других ТК
 	public partial class Win6_new : Form, IViewModeable, IFormWithObjectId
 	{
 		private readonly ILogger _logger;

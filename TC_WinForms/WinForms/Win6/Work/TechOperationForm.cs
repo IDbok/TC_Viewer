@@ -2209,7 +2209,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void AddRowsToGrid()
     {
-        foreach (var item in TechOperationDataGridItems) //techOperationDataGridItem
+        foreach (var item in TechOperationDataGridItems)
 		{
 			AddRowToDataGrid(item);
 		}
@@ -2234,7 +2234,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		// Определяем, какие цвета будем использовать в зависимости от условий
 		if (item.techWork != null && item.techWork.Repeat)
 		{
-
 			if (!obj.IsReleased)
 			{
 				// Повтор, но ТО не выпущена
@@ -2354,62 +2353,110 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		Color? backColor3 = null,
         int? insertIndex = null)
 	{
-		// Формируем список объектов для добавления в строку
 		var rowData = new List<object>();
+		// структура rowData:
+		// 0 - ExecutionWorkItem
+		// 1 - Order
+		// 2 - TechOperationName
+		// 3 - Staff
+		// 4 - TechTransitionName
+		// 5 - TechTransitionValue
+		// 6 - TimeEtap
+		// 7 - Machine0
+		// ...
+		// 7 + TehCarta.Machine_TCs.Count - 1 - MachineN
+		// 8 + TehCarta.Machine_TCs.Count - Protection
+		// 9 + TehCarta.Machine_TCs.Count + 1 - CommentColumn
+		// 10 + TehCarta.Machine_TCs.Count + 2 - PictureNameColumn
+		// 11 + TehCarta.Machine_TCs.Count + 3 - RemarkColumn
+		// 12 + TehCarta.Machine_TCs.Count + 4 - ResponseColumn
 
-		// Проверяем, есть ли Repeat
-		if (item.techWork != null && item.techWork.Repeat)
+		// todo: добавить обработку ошибок и выводить строку с ошибкой вместо пустой строки
+		// Формируем список объектов для добавления в строку
+		try
 		{
-			// Формируем строку "Повторить п."
-			var repeatNumList = item.techWork.ExecutionWorkRepeats
-				.Select(r => TechOperationDataGridItems.SingleOrDefault(s => s.techWork == r.ChildExecutionWork))
+
+			// Проверяем, есть ли Repeat
+			if (item.WorkItem is ExecutionWork ew && ew.Repeat)
+			{
+				List<int> repeatNumList = new List<int>();
+				// todo: заменить на RowOrder (номер строки) => нужно добавить поле в БД
+				// Формируем строку "Повторить п."
+				repeatNumList = ew.ExecutionWorkRepeats//.Select(r => r.ChildExecutionWork.RowOrder).ToList();
+				.Select(r => TechOperationDataGridItems.SingleOrDefault(s => ew == r.ChildExecutionWork)) //FirstOrDefault
 				.Where(bn => bn != null)
 				.Select(bn => bn.Nomer)
 				.ToList();
 
-			var strP = ConvertListToRangeString(repeatNumList);
+				if (ew.RepeatsTCId != null)
+					throw new Exception();
 
-			rowData.Add(item.executionWorkItem);
-			rowData.Add(item.Nomer.ToString());
-			rowData.Add(item.TechOperation);
-			rowData.Add(item.Staff);
-			rowData.Add("Повторить п." + strP);
-			rowData.Add(item.TechTransitionValue);
-			rowData.Add(item.TimeEtap);
+				string strP = "";
+				if (repeatNumList.Count != 0)
+					strP = ConvertListToRangeString(repeatNumList);
+				else
+					strP = "(нет данных)";
+
+				rowData.Add(ew);
+				rowData.Add(item.Nomer.ToString());
+				rowData.Add(item.TechOperation);
+				rowData.Add(item.Staff);
+				if (ew.RepeatsTCId != null)
+					rowData.Add($"В соответствии с {context.TechnologicalCards.FirstOrDefault(tc => tc.Id == ew.RepeatsTCId)?.Article} п.{strP}");// todo: заменить использование контекста
+				else
+					rowData.Add("Повторить п." + strP);
+				rowData.Add(item.TechTransitionValue);
+				rowData.Add(item.TimeEtap);
+			}
+			else
+			{
+				rowData.Add(item.executionWorkItem);
+				rowData.Add(item.Nomer != -1 ? item.Nomer.ToString() : "");
+				rowData.Add(item.TechOperation);
+				rowData.Add(item.Staff);
+				rowData.Add(item.TechTransition);
+				rowData.Add(item.TechTransitionValue);
+				rowData.Add(item.TimeEtap);
+			}
+
+			// Добавляем столбцы "машины" (через ваш метод AddMachineColumns)
+			AddMachineColumns(item, rowData);
+
+			// Добавляем оставшиеся ячейки (СЗ, комментарии, рисунок, замечание, ответ и т.д.)
+			rowData.Add(item.Protections);
+			// Если в techWork есть комментарий, используем его, иначе общий Comments
+			rowData.Add(item.techWork?.Comments ?? item.Comments);
+			rowData.Add(item.PictureName);
+			rowData.Add(item.Vopros);
+			rowData.Add(item.Otvet);
+
 		}
-		else
+		catch(Exception ex)
 		{
-			rowData.Add(item.executionWorkItem);
-			rowData.Add(item.Nomer != -1 ? item.Nomer.ToString() : "");
-			rowData.Add(item.TechOperation);
-			rowData.Add(item.Staff);
-			rowData.Add(item.TechTransition);
-			rowData.Add(item.TechTransitionValue);
-			rowData.Add(item.TimeEtap);
+			_logger.Error(ex, "Ошибка при формировании строки для DataGridView.");
+			// формируем ячейку с ошибкой
+			var rowDataError = new List<object>()
+			{
+				null,
+				dgvMain.Rows.Count +1,
+				null,
+				null,
+				"Ошибка при формировании строки"
+			};
+			rowData = rowDataError;
+			backColor1 = backColor2 = Color.Red;
 		}
-
-		// Добавляем столбцы "машины" (через ваш метод AddMachineColumns)
-		AddMachineColumns(item, rowData);
-
-		// Добавляем оставшиеся ячейки (СЗ, комментарии, рисунок, замечание, ответ и т.д.)
-		rowData.Add(item.Protections);
-		// Если в techWork есть комментарий, используем его, иначе общий Comments
-		rowData.Add(item.techWork?.Comments ?? item.Comments);
-		rowData.Add(item.PictureName);
-		rowData.Add(item.Vopros);
-		rowData.Add(item.Otvet);
 
 		// Создаём DataGridViewRow и заполняем ячейки готовыми данными.
 		var newRow = new DataGridViewRow();
 		newRow.CreateCells(dgvMain, rowData.ToArray());
 
-		//  Добавляем/вставляем в dgvMain:
-		//    - если insertIndex не задан, добавляем в конец,
-		var actualIndex = insertIndex ?? dgvMain.Rows.Count;
-		dgvMain.Rows.Insert(actualIndex, newRow);
-
 		// Применяем цветовое оформление ячеек (если цвета заданы).
 		ApplyCellColors(newRow, backColor1, backColor2, backColor3);
+
+		//  Добавляем/вставляем в dgvMain:
+		//    - если insertIndex не задан, добавляем в конец,
+		dgvMain.Rows.Insert(insertIndex ?? dgvMain.Rows.Count, newRow);
 	}
 
 	/// <summary>

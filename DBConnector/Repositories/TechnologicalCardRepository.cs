@@ -69,8 +69,8 @@ public class TechnologicalCardRepository
                     .Include(ew => ew.Machines)
                     .Include(ew => ew.Staffs)
                     .Include(ew => ew.ExecutionWorkRepeats)
-
-                    .ToListAsync();
+                        .ThenInclude(ew => ew.ChildExecutionWork)
+					.ToListAsync();
             }
             return tc;
         }

@@ -186,7 +186,6 @@
 			Column8 = new DataGridViewTextBoxColumn();
 			Column9 = new DataGridViewTextBoxColumn();
 			tabPageRepeat = new TabPage();
-			tabPageRepeatsAsInTc = new TabPage();
 			labelComName = new Label();
 			Column23 = new DataGridViewTextBoxColumn();
 			Column25 = new DataGridViewTextBoxColumn();
@@ -533,7 +532,6 @@
 			tabControl1.Controls.Add(tabPageProtection);
 			tabControl1.Controls.Add(tabPageStage);
 			tabControl1.Controls.Add(tabPageRepeat);
-			tabControl1.Controls.Add(tabPageRepeatsAsInTc);
 			tabControl1.Dock = DockStyle.Fill;
 			tabControl1.Location = new Point(0, 46);
 			tabControl1.Margin = new Padding(3, 2, 3, 2);
@@ -1895,16 +1893,6 @@
 			tabPageRepeat.TabIndex = 7;
 			tabPageRepeat.Text = "Повторить";
 			tabPageRepeat.UseVisualStyleBackColor = true;
-			// 
-			// tabPageRepeatsAsInTc
-			// 
-			tabPageRepeatsAsInTc.Location = new Point(4, 29);
-			tabPageRepeatsAsInTc.Name = "tabPageRepeatsAsInTc";
-			tabPageRepeatsAsInTc.Padding = new Padding(3);
-			tabPageRepeatsAsInTc.Size = new Size(1228, 609);
-			tabPageRepeatsAsInTc.TabIndex = 8;
-			tabPageRepeatsAsInTc.Text = "В соответствии с ТК";
-			tabPageRepeatsAsInTc.UseVisualStyleBackColor = true;
 			// 
 			// labelComName
 			// 

@@ -1350,7 +1350,8 @@ namespace TC_WinForms.WinForms.Work
                 return;
             }
 
-            var work = SelectedTO;
+			// todo: ошибка при смене выбора ТО и преходе на вкладку персонал
+			var work = SelectedTO;
             var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
 
             var AllStaff = TechOperationForm.TehCarta.Staff_TCs.OrderBy(x => x.Symbol);
