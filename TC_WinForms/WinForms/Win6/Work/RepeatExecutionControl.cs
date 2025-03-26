@@ -7,6 +7,7 @@ using TC_WinForms.Services;
 using TC_WinForms.WinForms.Controls;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
+using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.TcContent;
 
@@ -34,7 +35,7 @@ public partial class RepeatExecutionControl : UserControl
 	private List<ExecutionWork> _executionWorks;
 	private readonly TcViewState _tcViewState;
 	private readonly MyDbContext _context;
-
+	private readonly TechnologicalCardRepository _tcRepos = new TechnologicalCardRepository();
 	// todo: Исправить. обновляется при изменения выбора в повторе (трижды при снятии, дважды при установки)
 	public event EventHandler? DataChanged; // Событие, если надо сообщать «внешнему» коду, что данные изменились
 
@@ -107,7 +108,7 @@ public partial class RepeatExecutionControl : UserControl
 				SetSearchBox();
 			}
 
-			var data = await _context.TechnologicalCards.ToListAsync();
+			var data = await _tcRepos.GetAllAsync();//await _context.TechnologicalCards.ToListAsync();
 
 			// Указываем источник данных
 			// Обратите внимание: тип <string>, а DisplayMemberFunc = x => x, 

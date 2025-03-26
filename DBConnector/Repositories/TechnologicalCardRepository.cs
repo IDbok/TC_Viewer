@@ -290,7 +290,11 @@ public class TechnologicalCardRepository
     {         
         return _db.TechnologicalCards.ToList();
     }
-    public void UpdateStatus(List<TechnologicalCard> tcs, TechnologicalCard.TechnologicalCardStatus status)
+	public async Task<List<TechnologicalCard>> GetAllAsync()
+	{
+		return await _db.TechnologicalCards.ToListAsync();
+	}
+	public void UpdateStatus(List<TechnologicalCard> tcs, TechnologicalCard.TechnologicalCardStatus status)
     {
         var tcsToUpdate = _db.TechnologicalCards.Where(tc => tcs.Select(tc => tc.Id).Contains(tc.Id)).ToList();
 
@@ -331,6 +335,7 @@ public class TechnologicalCardRepository
 
         _db.SaveChanges();
     }
+
 
     //public async Task<IEnumerable<TechnologicalCard>> GetTechnologicalCardsAsync()
     //{
