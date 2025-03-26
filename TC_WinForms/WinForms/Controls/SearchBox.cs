@@ -19,19 +19,19 @@ public partial class SearchBox<T> : UserControl
 	// todo: избавиться от лишних вызовов SetListBoxInParentForm
 
 
-	private IEnumerable<T> _dataSource;
+	private IEnumerable<T> _dataSource = Enumerable.Empty<T>();
 
 	/// <summary>
 	/// Делегат, который возвращает строковое представление объекта типа T.
 	/// Например, можно передать что-то вроде (x => x.Name) или (x => x.ToString()).
 	/// </summary>
-	public Func<T, string> DisplayMemberFunc { get; set; } = x => x.ToString();
+	public Func<T, string> DisplayMemberFunc { get; set; } = x => x?.ToString() ?? string.Empty;
 
 	/// <summary>
 	/// Делегат, определяющий, как искать в объекте.
 	/// Например: (x => $"{x.Name} {x.Article}") для поиска по Name и Article.
 	/// </summary>
-	public Func<T, string> SearchCriteriaFunc { get; set; } = x => x.ToString();
+	public Func<T, string> SearchCriteriaFunc { get; set; } = x => x?.ToString() ?? string.Empty;
 
 	/// <summary>
 	/// Источник данных, из которого будет производиться поиск.
@@ -47,6 +47,17 @@ public partial class SearchBox<T> : UserControl
 	}
 
 	/// <summary>
+	/// Текст в поле поиска.
+	/// </summary>
+	private string _previousText = string.Empty;
+
+	/// <summary>
+	/// Предыдущий выбранный элемент из списка (если есть).
+	/// </summary>
+	private T? _previousItem;
+
+
+	/// <summary>
 	/// Выбранный элемент из списка (если есть).
 	/// </summary>
 	public T SelectedItem { get; private set; }
@@ -59,7 +70,7 @@ public partial class SearchBox<T> : UserControl
 	// функционал с выпадающем списком поверх других элементов
 
 	//// Внутри UserControl SearchBox<T> добавьте следующее поле:
-	private ListBox _dropDownListBox;
+	private ListBox? _dropDownListBox;
 
 // В конструкторе вашего SearchBox<T>:
 	public SearchBox()
@@ -68,6 +79,7 @@ public partial class SearchBox<T> : UserControl
 		textBoxSearch.TextChanged += TextBoxSearch_TextChanged;
 		textBoxSearch.LostFocus += TextBoxSearch_LostFocus;
 		textBoxSearch.KeyDown += TextBoxSearch_KeyDown;
+		textBoxSearch.Enter += TextBoxSearch_Enter;
 	}
 
 
@@ -81,7 +93,7 @@ public partial class SearchBox<T> : UserControl
 
 	private void SetListBoxInParentForm()
 	{
-		Form parentForm = this.FindForm();
+		Form? parentForm = this.FindForm();
 		if (parentForm != null)
 		{
 			_dropDownListBox = new ListBox
@@ -133,6 +145,8 @@ public partial class SearchBox<T> : UserControl
 	// Вызов при каждом обновлении текста:
 	private void RefreshSuggestions()
 	{
+		if (_dropDownListBox == null) return;
+
 		if (_dataSource == null || !(_dataSource.Any()) || string.IsNullOrWhiteSpace(textBoxSearch.Text))
 		{
 			HideDropDown();
@@ -156,6 +170,8 @@ public partial class SearchBox<T> : UserControl
 	// Обработчик выбора
 	private void DropDownListBoxSelect()
 	{
+		if (_dropDownListBox == null) return;
+
 		if (_dropDownListBox.SelectedIndex >= 0)
 		{
 			if (_dropDownListBox.DataSource is List<T> dataSource)
@@ -177,43 +193,43 @@ public partial class SearchBox<T> : UserControl
 	}
 
 
-	private void DropDownListBox_MouseMove(object sender, MouseEventArgs e)
+	private void DropDownListBox_MouseMove(object? sender, MouseEventArgs e)
 	{
+		if (_dropDownListBox == null) return;
 		int index = _dropDownListBox.IndexFromPoint(e.Location);
 		if (index >= 0 && index < _dropDownListBox.Items.Count)
 			_dropDownListBox.SelectedIndex = index;
 	}
 
-	private void DropDownListBox_Click(object sender, EventArgs e)
+	private void DropDownListBox_Click(object? sender, EventArgs e)
 	{
 		DropDownListBoxSelect();
 	}
 
 	// Скрытие при потере фокуса
-	private void TextBoxSearch_LostFocus(object sender, EventArgs e)
+	private void TextBoxSearch_LostFocus(object? sender, EventArgs e)
 	{
-		if (!_dropDownListBox.Focused)
+		if (_dropDownListBox != null && !_dropDownListBox.Focused)
 			HideDropDown();
 	}
 
-	//private void TextBoxSearch_LostFocus(object sender, EventArgs e)
-	//{
-	//	//if (!_dropDownListBox.Visible)
-	//	//	return;
-
-	//	//// Проверка, на какой контрол перешёл фокус
-	//	//var activeControl = FindForm()?.ActiveControl;
-
-	//	//if (activeControl != _dropDownListBox)
-	//	//{
-	//	//	HideDropDown();
-	//	//}
-	//}
-
 
 	// Навигация по клавиатуре
-	private void TextBoxSearch_KeyDown(object sender, KeyEventArgs e)
+	private void TextBoxSearch_KeyDown(object? sender, KeyEventArgs e)
 	{
+		if (_dropDownListBox == null) return;
+
+		// Закрываем выпадающий список, если виден, при нажатии Esc
+		if (e.KeyCode == Keys.Escape)
+		{
+			// Отменим ввод и вернём старые значения
+			CancelInput();
+
+			// Сбросим фокус, если нужно
+			textBoxSearch.SelectionStart = textBoxSearch.Text.Length;
+			return;
+		}
+
 		if (_dropDownListBox.Visible)
 		{
 			if (e.KeyCode == Keys.Down)
@@ -225,6 +241,13 @@ public partial class SearchBox<T> : UserControl
 		}
 	}
 
+	private void TextBoxSearch_Enter(object? sender, EventArgs e)
+	{
+		// Запомним текущие «старые» данные
+		_previousText = textBoxSearch.Text;
+		_previousItem = SelectedItem;
+	}
+
 	private void TextBoxSearch_TextChanged(object? sender, EventArgs e)
 	{
 		RefreshSuggestions();
@@ -234,6 +257,8 @@ public partial class SearchBox<T> : UserControl
 	public void SetSelectedItem(T item, bool invokeChanges = true)
 	{
 		SetListBoxInParentForm();
+
+		if (item == null) return;
 
 		SelectedItem = item;
 
@@ -257,5 +282,26 @@ public partial class SearchBox<T> : UserControl
 
 	}
 
+	/// <summary>
+	/// Отмена ввода и возврат к предыдущему значению.
+	/// </summary>
+	public void CancelInput()
+	{
+		if (_previousItem == null) return;
+		// 1. Снимем обработчик TextChanged, чтобы не вызывать RefreshSuggestions() и т.п.
+		textBoxSearch.TextChanged -= TextBoxSearch_TextChanged;
+
+		// 2. Вернём старое значение текста
+		textBoxSearch.Text = _previousText;
+
+		// 3. Вернём старый SelectedItem
+		SelectedItem = _previousItem;
+
+		// 4. Подпишемся обратно, чтобы в дальнейшем текст реагировал на ввод
+		textBoxSearch.TextChanged += TextBoxSearch_TextChanged;
+
+		// ВАЖНО: event SelectedItemChanged тут не вызываем!
+		HideDropDown();
+	}
 
 }

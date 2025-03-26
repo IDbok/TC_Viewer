@@ -12,7 +12,7 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20250320101616_RowOrderToEw")]
+    [Migration("20250321055947_RowOrderToEw")]
     partial class RowOrderToEw
     {
         /// <inheritdoc />

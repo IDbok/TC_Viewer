@@ -8,8 +8,8 @@ namespace TcModels.Models.TcContent
     public class ExecutionWork
     {
         public int Id { get; set; }
-        public TechOperationWork techOperationWork { get; set; }
-        public int techOperationWorkId { get; set; }
+        public TechOperationWork techOperationWork { get; set; } = null!;
+		public int techOperationWorkId { get; set; }
 
         public TechTransition? techTransition { get; set; }
         public int? techTransitionId { get; set; }
@@ -40,7 +40,7 @@ namespace TcModels.Models.TcContent
 		[NotMapped] public Guid TempGuid { get; set; }
 
 		public int Order { get; set; } // порядок выполнения в ТО
-        public int RowOrder { get; set; } // порядковый номер в таблице ХР 
+        public int RowOrder { get; set; } = 0; // порядковый номер в таблице ХР 
         // todo: проверить, как можно сделать данное значение для всех ТК автоматически
 		public string Etap { get; set; } = "";
         public string Posled { get; set; } = "";

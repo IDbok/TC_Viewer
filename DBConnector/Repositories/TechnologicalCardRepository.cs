@@ -34,108 +34,113 @@ public class TechnologicalCardRepository
         return tc;
     }
 
-    public async Task<TechnologicalCard?> GetTCDataAsync(int id, MyDbContext dbCon = null)
-    {
-        bool isContextLocal = dbCon == null;
-        MyDbContext context = dbCon ?? new MyDbContext();
+	public async Task<TechnologicalCard?> GetTCDataAsync(int id, MyDbContext dbCon = null)
+	{
+		bool isContextLocal = dbCon == null;
+		MyDbContext context = dbCon ?? new MyDbContext();
 
-        try
-        {
-            TechnologicalCard tc = await context.TechnologicalCards
+		try
+		{
+			TechnologicalCard tc = await context.TechnologicalCards
 
-                .Include(t => t.Machine_TCs).ThenInclude(tc => tc.Child)
-                .Include(t => t.Protection_TCs).ThenInclude(tc => tc.Child)
-                .Include(t => t.Tool_TCs).ThenInclude(tc => tc.Child)
-                .Include(t => t.Component_TCs).ThenInclude(tc => tc.Child)
-                .Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
-                .Include(t => t.Coefficients)
-                .FirstAsync(s => s.Id == id);
+				.Include(t => t.Machine_TCs).ThenInclude(tc => tc.Child)
+				.Include(t => t.Protection_TCs).ThenInclude(tc => tc.Child)
+				.Include(t => t.Tool_TCs).ThenInclude(tc => tc.Child)
+				.Include(t => t.Component_TCs).ThenInclude(tc => tc.Child)
+				.Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
+				.Include(t => t.Coefficients)
+				.FirstAsync(s => s.Id == id);
 
 
-            tc.TechOperationWorks = await context.TechOperationWorks
-                .Where(w => w.TechnologicalCardId == id)
-                    .Include(i => i.techOperation)
-                    .Include(r => r.ToolWorks).ThenInclude(r => r.tool)
-                    .Include(i => i.ComponentWorks).ThenInclude(t => t.component)
-                .ToListAsync();
+			tc.TechOperationWorks = await context.TechOperationWorks
+				.Where(w => w.TechnologicalCardId == id)
+					.Include(i => i.techOperation)
+					.Include(r => r.ToolWorks).ThenInclude(r => r.tool)
+					.Include(i => i.ComponentWorks).ThenInclude(t => t.component)
+				.ToListAsync();
 
-            foreach (var tow in tc.TechOperationWorks)
-            {
-                // Загружаем executionWorks для текущего tow по частям с жадной загрузкой связанных данных
-                tow.executionWorks = await context.ExecutionWorks
-                    .Where(ew => ew.techOperationWorkId == tow.Id)
-                    .Include(ew => ew.techTransition)
-                    .Include(ew => ew.Protections)
-                    .Include(ew => ew.Machines)
-                    .Include(ew => ew.Staffs)
-                    .Include(ew => ew.ExecutionWorkRepeats)
-                        .ThenInclude(ew => ew.ChildExecutionWork)
+			foreach (var tow in tc.TechOperationWorks)
+			{
+				// Загружаем executionWorks для текущего tow по частям с жадной загрузкой связанных данных
+				tow.executionWorks = await context.ExecutionWorks
+					.Where(ew => ew.techOperationWorkId == tow.Id)
+					.Include(ew => ew.techTransition)
+					.Include(ew => ew.Protections)
+					.Include(ew => ew.Machines)
+					.Include(ew => ew.Staffs)
+					.Include(ew => ew.ExecutionWorkRepeats)
+						.ThenInclude(ew => ew.ChildExecutionWork)
 					.ToListAsync();
-            }
-            return tc;
-        }
-        finally
-        {
-            if (isContextLocal)
-            {
-                context.Dispose();
-            }
-        }
-    }
+			}
+			return tc;
+		}
+		catch (Exception)
+		{
+			// todo: добавить логгирование
+			throw;
+		}
+		finally
+		{
+			if (isContextLocal)
+			{
+				context.Dispose();
+			}
+		}
+	}
 
-    public async Task<TechnologicalCard> GetTCDataAsyncCopy(int _tcId)//метод отличается другой структурой запроса, которая используется только для копирования карты
-    {
-        try
-        {
-            using (MyDbContext context = new MyDbContext())
-            {
-            var techCard = await context.TechnologicalCards
-                    .FirstAsync(t => t.Id == _tcId);
+	public async Task<TechnologicalCard> GetTCDataAsyncCopy(int _tcId)//метод отличается другой структурой запроса, которая используется только для копирования карты
+	{
+		try
+		{
+			using (MyDbContext context = new MyDbContext())
+			{
+				var techCard = await context.TechnologicalCards
+					.FirstAsync(t => t.Id == _tcId);
 
 
-            // 2. Загружаем все связанные данные отдельными запросами
+				// 2. Загружаем все связанные данные отдельными запросами
 
-            // Machine_TCs
-            var machineTcs = await context.Machine_TCs
-                    .Where(m => m.ParentId == _tcId)
-                .ToListAsync();
+				// Machine_TCs
+				var machineTcs = await context.Machine_TCs
+					.Where(m => m.ParentId == _tcId)
+					.ToListAsync();
 
-            //// Protection_TCs
-            var protectionTcs = await context.Protection_TCs
-                    .Where(pt => pt.ParentId == _tcId)
-                .ToListAsync();
+				//// Protection_TCs
+				var protectionTcs = await context.Protection_TCs
+					.Where(pt => pt.ParentId == _tcId)
+					.ToListAsync();
 
-            // Tool_TCs
-            var toolTcs = await context.Tool_TCs
-                    .Where(tt => tt.ParentId == _tcId)
-                .ToListAsync();
+				// Tool_TCs
+				var toolTcs = await context.Tool_TCs
+					.Where(tt => tt.ParentId == _tcId)
+					.ToListAsync();
 
-            // Component_TCs
-            var componentTcs = await context.Component_TCs
-                    .Where(ct => ct.ParentId == _tcId)
-                .ToListAsync();
+				// Component_TCs
+				var componentTcs = await context.Component_TCs
+					.Where(ct => ct.ParentId == _tcId)
+					.ToListAsync();
 
-            // Staff_TCs
-            var staffTcs = await context.Staff_TCs
-                    .Where(st => st.ParentId == _tcId)
-                .ToListAsync();
+				// Staff_TCs
+				var staffTcs = await context.Staff_TCs
+					.Where(st => st.ParentId == _tcId)
+					.ToListAsync();
 
-            var coefficients = await context.Coefficients
-                .Where(c => c.TechnologicalCardId == _tcId)
-                .ToListAsync();
+				var coefficients = await context.Coefficients
+					.Where(c => c.TechnologicalCardId == _tcId)
+					.ToListAsync();
 
-            return techCard;
-        }
-        }
-        catch (Exception ex)
-        {
-            throw;
-        }
-        finally
-        {
+				return techCard;
+			}
+		}
+		catch (Exception)
+		{
+			throw;
+		}
+		finally
+		{
 
-        }
-    }
+		}
+	}
 
     public async Task<List<TechOperationWork>> GetTOWDataAsync(int _tcId)
     {

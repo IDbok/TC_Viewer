@@ -918,7 +918,7 @@ namespace TC_WinForms.WinForms.Work
 
                 CoefficientForm? coefficient = null;
 
-                if (techTransition.Id != 133 && techTransition.Id != 134)// techTransition.Name != "Повторить п.")
+                if (!techTransition.IsRepeatTypeTransition())
                 {
                     coefficient = new CoefficientForm(techTransition);
                     if (coefficient.ShowDialog() != DialogResult.OK)
@@ -1029,8 +1029,8 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (TechTransition techTransition in filteredTransitions)// allTP)
             {
-                if (techTransition.Name == "Повторить п.")
-                {
+                if (techTransition.Name == "Повторить п.") // todo: переработать данную проверку на расширение TechTransitionExtension
+				{
                     continue;
                 }
 

@@ -1065,12 +1065,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			rowIndex = towItemIndex;
 		}
 
+		if (copiedEw.techTransition == null) return;
+
 		// Создаём дубликат, если копируем из другой ТК
 		if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid)
 			copiedEw = CloneExecutionWorkForAnotherTC(copiedEw);
-
-		var techTransition = copiedEw.techTransition;
-		if (techTransition == null) return;
 
 		// Вставляем новую строку
 		var newEw = InsertNewExecutionWork(
@@ -1081,7 +1080,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			coefficient: copiedEw.Coefficient,
 			updateDataGrid: updateDataGrid,
 			comment: copiedEw.Comments,
-			pictureName: copiedEw.PictureName
+			pictureName: copiedEw.PictureName,
+			repeatTcId: copiedEw.RepeatsTCId ?? 0
 		);
 
 		newEw.TempGuid = copiedEw.IdGuid;
@@ -1105,6 +1105,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	/// </summary>
 	private ExecutionWork CloneExecutionWorkForAnotherTC(ExecutionWork copiedEw)
 	{
+
 		var newEw = new ExecutionWork
 		{
 			// пока отключаю поля, которые не используются
@@ -1132,13 +1133,30 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
             Comments = copiedEw.Comments,
             PictureName = copiedEw.PictureName,
+
+			RepeatsTCId = copiedEw.RepeatsTCId,
             //Vopros = copiedEw.Vopros,
             //Otvet = copiedEw.Otvet,
         };
 
-        // При необходимости подтянуть нужные объекты из текущего контекста
-        newEw.techTransition = context.TechTransitions
-            .FirstOrDefault(t => t.Id == copiedEw.techTransitionId);
+		var isRepeatAsInTc = copiedEw.techTransition.IsRepeatAsInTcTransition();
+		// проверка на то, чтобы ТП в соотвествии с ТК не ссылался на вставляемую ТК
+		if (isRepeatAsInTc && copiedEw.RepeatsTCId == _tcViewState.TechnologicalCard.Id)
+		{
+			// временно устанавливаю заглужку. Копирование ТП, которые ссылается на текущую ТК, не поддерживается
+			MessageBox.Show("Вставка ТП, которые ссылается на текущую ТК, не поддерживается.");
+			throw new Exception("Ошибка при вставке: ТП ссылается на текущую ТК.");
+			// todo: доработать логику
+
+			// заменяем ТП на повторить
+			// Заменяем все повторяемые ТП на имеющиеся в текущем контексте
+			// проверяем, что все повторяемые ТП есть в текущем контексте
+			// проверяем, что ТП вставляется на позицию ниже всех повторяемых ТП
+		}
+		else
+			// При необходимости подтянуть нужные объекты из текущего контекста
+			newEw.techTransition = context.TechTransitions
+				.FirstOrDefault(t => t.Id == copiedEw.techTransitionId);
 
 		if (copiedEw.Repeat)
 		{
@@ -1148,7 +1166,15 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// заменим скопированные объекты на существующие в данной контексте
 			foreach (var ewRepeat in copiedEw.ExecutionWorkRepeats)
 			{
-				var newEwRepeats = TcCopyData.PastedEw.FirstOrDefault(ew => ew.TempGuid == ewRepeat.ChildExecutionWork.IdGuid);
+				ExecutionWork? newEwRepeats;
+				if (isRepeatAsInTc)
+				{
+					// заменяем на существующий в текущем контексте
+					newEwRepeats = context.ExecutionWorks.FirstOrDefault(ew => ew.Id == ewRepeat.ChildExecutionWork.Id);
+				}
+				else
+					newEwRepeats = TcCopyData.PastedEw.FirstOrDefault(ew => ew.TempGuid == ewRepeat.ChildExecutionWork.IdGuid);
+
 				if (newEwRepeats == null)
 				{
 					MessageBox.Show($"ТП Повторить (строка {copiedEw.RowOrder}) будет вставленны пустым, т.к. не все повторяемые переходы были выделенны при копировании.");
@@ -1511,10 +1537,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	public ExecutionWork InsertNewExecutionWork(TechTransition techTransition,  TechOperationWork techOperationWork,
         int? insertIndex = null, List<ExecutionWorkRepeat>? executionWorksRepeats = null,
         string? coefficient = null, bool updateDataGrid = true,
-        string? comment = null, string? pictureName = null)
+        string? comment = null, string? pictureName = null, long repeatTcId = 0)
 
 	{
-		var newEw = AddNewExecutionWork(techTransition, techOperationWork, insertIndex: insertIndex, coefficientValue: coefficient, comment: comment, pictureName: pictureName);
+		var newEw = AddNewExecutionWork(techTransition, techOperationWork, insertIndex: insertIndex, coefficientValue: coefficient, comment: comment, pictureName: pictureName, repeatTcId: repeatTcId);
 
         if (newEw == null) {
 			_logger.Error("InsertNewExecutionWork: AddNewExecutionWork вернул null! Бросаем исключение.");
@@ -1559,48 +1585,47 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	/// </summary>
 	private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
-        // todo: ненадёжный способ определения столбцов с комментариями
-        if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)//dgvMain.ColumnCount-1)
-        {
-            var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
-            var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+		var ew = dgvMain.Rows[e.RowIndex].Cells[0].Value as ExecutionWork;		
+		var text = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as string;
 
-            if (idd != null)
+		if (ew == null || text == null)
+			return;
+
+		if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
+        {
+
+            if (ew != null)
             {
-                if (gg == null)
+                if (text == null)
                 {
-                    gg = "";
+                    text = "";
                 }
-                idd.Otvet = gg;
+                ew.Otvet = text;
                 HasChanges = true;
             }
 
         }
-        else if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index)// dgvMain.ColumnCount - 2)
+        else if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index)
         {
-            var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
-            var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
 
-            if (idd != null)
+            if (ew != null)
             {
-                if (gg == null)
+                if (text == null)
                 {
-                    gg = "";
+                    text = "";
                 }
-                idd.Vopros = gg;
+                ew.Vopros = text;
                 HasChanges = true;
             }
         }
         else if (e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
         {
-            var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
-            var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
 
-            if (idd != null)
+            if (ew != null)
             {
-                if(gg == idd.PictureName) return;
+                if(text == ew.PictureName) return;
 
-                idd.PictureName = gg;
+                ew.PictureName = text;
                 HasChanges = true;
                 if (_editForm?.IsDisposed == false)
                     _editForm.UpdateLocalTP();
@@ -1608,16 +1633,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
         else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
         {
-            var idd = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
-            var gg = (string)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
             var itsTool = TechOperationDataGridItems[e.RowIndex].ItsTool;
             var ItsComponent = TechOperationDataGridItems[e.RowIndex].ItsComponent;
             
-            if (idd != null)
+            if (ew != null)
             {
-                if (gg == idd.Comments) return;
+                if (text == ew.Comments) return;
 
-                idd.Comments = gg;
+                ew.Comments = text;
                 HasChanges = true;
                 if(_editForm?.IsDisposed == false)
                     _editForm.UpdateLocalTP();
@@ -1630,12 +1653,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 if (itsTool)
                 {
                     var editedTool = techWork.ToolWorks.Where(t => toolComponentName.Contains(t.tool.Name)).FirstOrDefault();
-                    editedTool.Comments = gg;
+                    editedTool.Comments = text;
                 }
                 else
                 {
                     var editedComp = techWork.ComponentWorks.Where(t => toolComponentName.Contains(t.component.Name)).FirstOrDefault();
-                    editedComp.Comments = gg;
+                    editedComp.Comments = text;
                 }
 
                 var isEditFormActive = _editForm?.IsDisposed == false;
@@ -2228,20 +2251,20 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		}
 
 		// Находим TechOperation из контекста, чтобы проверить IsReleased
-		var obj = context.Set<TechOperation>()
+		var itemTo = context.Set<TechOperation>()
 						 .FirstOrDefault(to => to.Id == item.IdTO);
 
+		// todo: проверить наличие itemTo
+
 		// Определяем, какие цвета будем использовать в зависимости от условий
-		if (item.techWork != null && item.techWork.Repeat)
+		if (item.WorkItem is ExecutionWork ew && ew.Repeat)
 		{
-			if (!obj.IsReleased)
-			{
-				// Повтор, но ТО не выпущена
-				AddRowToGrid(item, Color.Yellow, Color.Yellow, Color.Pink, insertIndex: rowIndex);
-			}
-			else
-				// Повтор с выпушенной ТО
-				AddRowToGrid(item, Color.Yellow, Color.Yellow, insertIndex: rowIndex);
+			// Повтор с выпушенной ТО
+			AddRowToGrid(item,
+				ew.RepeatsTCId == null ? Color.Yellow : Color.Khaki,
+				ew.RepeatsTCId == null ? Color.Yellow : Color.Khaki,
+				itemTo.IsReleased ? Color.Empty : Color.Pink, 
+				insertIndex: rowIndex);
 		}
 		else if (item.ItsTool || item.ItsComponent)
 		{
@@ -2250,12 +2273,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 						 item.ItsComponent ? Color.Salmon : Color.Aquamarine,
 						 item.ItsComponent ? Color.Salmon : Color.Aquamarine, insertIndex: rowIndex);
 		}
-		else if (!obj.IsReleased && item.executionWorkItem != null && !item.executionWorkItem.techTransition.IsReleased)
+		else if (!itemTo.IsReleased && item.executionWorkItem != null && !item.executionWorkItem.techTransition.IsReleased)
 		{
 			// Тех.операция не выпущена (но переход выпущен или отсутствует)
 			AddRowToGrid(item, Color.Empty, Color.Pink, Color.Pink, insertIndex: rowIndex);
 		}
-		else if (!obj.IsReleased)
+		else if (!itemTo.IsReleased)
 		{
 			// Тех.операция не выпущена
 			AddRowToGrid(item, Color.Empty, Color.Empty, Color.Pink, insertIndex: rowIndex);
@@ -2375,31 +2398,24 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		// Формируем список объектов для добавления в строку
 		try
 		{
-
+			// 0 - ExecutionWorkItem
 			rowData.Add(item.WorkItem ?? string.Empty);
 			// Проверяем, есть ли Repeat
 			if (item.WorkItem is ExecutionWork ew && ew.Repeat)
 			{
 				List<int> repeatNumList = new List<int>();
-				// todo: заменить на RowOrder (номер строки) => нужно добавить поле в БД
 				// Формируем строку "Повторить п."
 				repeatNumList = ew.ExecutionWorkRepeats.Select(r => r.ChildExecutionWork.RowOrder).ToList();
-				//.Select(r => TechOperationDataGridItems.SingleOrDefault(s => ew == r.ChildExecutionWork)) //FirstOrDefault
-				//.Where(bn => bn != null)
-				//.Select(bn => bn.Nomer)
-				//.ToList();
 
-				string strP = "";
-				if (repeatNumList.Count != 0)
-					strP = ConvertListToRangeString(repeatNumList);
-				else
-					strP = "(нет данных)";
+				string strP = repeatNumList.Count != 0 
+					? ConvertListToRangeString(repeatNumList) 
+					: "(нет данных)";
 
 				rowData.Add(item.Nomer.ToString());
 				rowData.Add(item.TechOperation);
 				rowData.Add(item.Staff);
 				if (ew.RepeatsTCId != null)
-					rowData.Add($"В соответствии с {context.TechnologicalCards.FirstOrDefault(tc => tc.Id == ew.RepeatsTCId)?.Article} п.{strP}");// todo: заменить использование контекста
+					rowData.Add($"В соответствии с {context.TechnologicalCards.Where(tc => tc.Id == ew.RepeatsTCId).Select(tc => tc.Article).FirstOrDefault()} п.{strP}");// todo: заменить использование контекста 
 				else
 					rowData.Add("Повторить п." + strP);
 				rowData.Add(item.TechTransitionValue);
@@ -2468,11 +2484,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		Color? color2,
 		Color? color3)
 	{
-		if (color1.HasValue)
+		if (color1.HasValue) // Staff
 			row.Cells[3].Style.BackColor = color1.Value;
-		if (color2.HasValue)
+		if (color2.HasValue) // ТП
 			row.Cells[4].Style.BackColor = color2.Value;
-		if (color3.HasValue)
+		if (color3.HasValue) // TO
 			row.Cells[2].Style.BackColor = color3.Value;
 	}
 
@@ -2525,9 +2541,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         // проверяем возможность редактирования ячейки.
         if (!_tcViewState.IsViewMode)
         {
-            var executionWork = (ExecutionWork)dgvMain.Rows[e.RowIndex].Cells[0].Value;
-            
-            if (executionWork != null)
+			if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork executionWork)
             {
                 if ((e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
                     || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index) 
@@ -2547,8 +2561,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
-                else if((executionWork.techTransition?.Name.Contains( "Повторить") ?? false)
-                    && (e.ColumnIndex == dgvMain.Columns["Staff"].Index
+                else if(executionWork.techTransition.IsRepeatTypeTransition()//(executionWork.techTransition?.Id == 133 || executionWork.techTransition?.Id == 134) // todo: переделать на id => возможно лучше вынести Id повторов в отдельный класс
+					&& (e.ColumnIndex == dgvMain.Columns["Staff"].Index
                     || e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index))
                 {
                     // пропускаю действие, т.к. отрисовка цвета уже произошла
@@ -2557,8 +2571,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 else if ((!executionWork.techTransition.IsReleased 
                             || !executionWork.techOperationWork.techOperation.IsReleased)
                         && (e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index
-                            || e.ColumnIndex == dgvMain.Columns[2].Index))
-                {
+                            || e.ColumnIndex == dgvMain.Columns[2].Index)) // todo: уйти от номера столбца
+				{
                     // пропускаю действие, т.к. отрисовка цвета уже произошла
                 }
                 else
@@ -2589,9 +2603,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     {
         // Делаем ячейку редактируемой
         cell.ReadOnly = isReadOnly;
-        // Выделить строку цветом
-        cell.Style.BackColor = isReadOnly ? Color.White : Color.LightGray;
-    }
+		// Проверяем, нет ли уже «особого» цвета, который нужно сохранить.
+		// Пусть считаем особым любой цвет, кроме белого и LightGray.
+		var currentColor = cell.Style.BackColor;
+
+		// Если сейчас цвет белый или LightGray, то можно менять;
+		// иначе оставляем «как есть».
+		if (currentColor == Color.White || currentColor == Color.LightGray)
+		{
+			cell.Style.BackColor = isReadOnly ? Color.White : Color.LightGray;
+		}
+	}
 
     private void SetCellBackColor(DataGridViewCell cell, Color color)
     {
@@ -2717,7 +2739,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     }
 
     public ExecutionWork AddNewExecutionWork(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null,
-        int? insertIndex = null, string? coefficientValue = null, string? comment = null, string? pictureName = null)
+        int? insertIndex = null, string? coefficientValue = null, string? comment = null, string? pictureName = null, long repeatTcId = 0)
 	{
 		_logger.Information("Добавление нового ExecutionWork в TO '{TechOpName}' (ID={TechOpId}) на позицию {Index}. " +
 					  "Transition='{TransitionName}' (ID={TransitionId}).",
@@ -2732,12 +2754,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
 
 		var currentEwInTow = TOWork.executionWorks.Where(ew => !ew.Delete);
-		var lastEwInTow = currentEwInTow.LastOrDefault();
-		int lastEwOrder = lastEwInTow?.Order ?? 0;
+		var lastEwInTow = currentEwInTow.OrderBy(e => e.Order).LastOrDefault();		
 		int? newEwOrderInTo = null;
 
-		var prevEW = currentEwInTow.OrderBy(e => e.Order).LastOrDefault();
-		var rowOrder = prevEW?.RowOrder + 1;
+		var rowOrder = lastEwInTow?.RowOrder + 1;
 
 		if (currentEwInTow.Count() == 0 && !TOWork.techOperation.IsTypical) 
 			// для типовых ТО insertIndex будет 0 т.к. вдальнейшем таблица обновляется и RowOrder будет выставлен автоматически
@@ -2790,6 +2810,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			    insertIndex = lastEwInTow?.RowOrder + 1;
 		}
 
+		int lastEwOrder = lastEwInTow?.Order ?? 0;
 		// если индекс null, то вставляем в конец ТО newEwOrder = null
 		if (newEwOrderInTo == null) newEwOrderInTo = lastEwOrder + 1;
 
@@ -2816,14 +2837,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         TOWork.executionWorks.Add(newEw);
         context.ExecutionWorks.Add(newEw);
 
-        if (tech.Id == 133 //"Повторить п." 
-						   //tech.Name == "Повторить" || 
-						   //tech.Name == "Повторить п." 
-			|| tech.Id == 134) // Выполнить в соответствии с ТК
+        if (tech.IsRepeatTypeTransition())
         {
             newEw.Repeat = true;
-			if (tech.Id == 134)
-				newEw.RepeatsTCId = 0;
+			if (tech.IsRepeatAsInTcTransition())
+				newEw.RepeatsTCId = repeatTcId;
         }
 
         if (coefficientValue != null)

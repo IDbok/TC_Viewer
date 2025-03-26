@@ -16,16 +16,16 @@ namespace TC_WinForms.WinForms.Work;
 /// </summary>
 public partial class RepeatExecutionControl : UserControl
 {
-	// todo: визуальное отображение выполнить в соответствии с ТК
-
 	// todo: Как быть с динамическими коэффициентами?
-
-	// todo: добавить номер ТП
 
 	// todo: логика удаления старых ТК при смене ТК перехода
 
 	// todo: визуальные изменения: расширение текстового поля в зависимостиот ширины названия ТК
 	// todo: вставить как элемент в addEdit... чтобы отображался в конструкторе
+
+	// todo: заменя на пустое поле в searchBox при загрузки нового ТП
+
+	// todo: выделение отдельным цветом в соответствии с ТК в ходе работ
 
 	// todo: добавить логгирование
 	private ILogger _logger;
@@ -34,7 +34,7 @@ public partial class RepeatExecutionControl : UserControl
 	private List<ExecutionWork> _executionWorks;
 	private readonly TcViewState _tcViewState;
 	private readonly MyDbContext _context;
-	private readonly List<TechnologicalCard> _technologicalCards;
+
 	// todo: Исправить. обновляется при изменения выбора в повторе (трижды при снятии, дважды при установки)
 	public event EventHandler? DataChanged; // Событие, если надо сообщать «внешнему» коду, что данные изменились
 
@@ -81,6 +81,13 @@ public partial class RepeatExecutionControl : UserControl
 
 			var selectedTc = e.SelectedItem;
 
+			var itemsToRemove = _parentExecutionWork.ExecutionWorkRepeats.ToList();
+			foreach (var ewr in itemsToRemove)
+			{
+				_context.ExecutionWorkRepeats.Remove(ewr);
+			}
+			_parentExecutionWork.ExecutionWorkRepeats.Clear();
+
 			_parentExecutionWork.RepeatsTCId = selectedTc.Id;
 			await LoadExecutionWorksByTcIdAsync(selectedTc.Id);
 		};
@@ -91,8 +98,6 @@ public partial class RepeatExecutionControl : UserControl
 
 	public async Task SetSearchBoxParamsAsync(bool searchVisible = true)
 	{
-		
-
 		if (searchVisible)
 		{
 			pnlControls.Visible = true;
@@ -107,7 +112,10 @@ public partial class RepeatExecutionControl : UserControl
 			// Указываем источник данных
 			// Обратите внимание: тип <string>, а DisplayMemberFunc = x => x, 
 			// поскольку это просто строка.
-			searchBox.DataSource = data;
+			searchBox!.DataSource = data.Where(tc => _parentExecutionWork != null 
+				&& tc.Id != _parentExecutionWork.RepeatsTCId
+				&& tc.Id != _tcViewState.TechnologicalCard.Id 
+				).ToList();
 			searchBox.DisplayMemberFunc = x => $"{x.Name} {x.Article}";
 
 			searchBox.SearchCriteriaFunc = x => x.ToString();// $"{x.Name} {x.Article}"; // Поиск по Name и Article
@@ -119,6 +127,10 @@ public partial class RepeatExecutionControl : UserControl
 				if (selectedTc != null)
 				{
 					searchBox.SetSelectedItem(selectedTc, false);
+				}
+				else
+				{
+					searchBox.SetSelectedItem(null, false);
 				}
 			}
 		}
@@ -311,7 +323,7 @@ public partial class RepeatExecutionControl : UserControl
 				{
 					// отмена изменений
 					cell.Value = null;
-				}
+				} 
 
 				//UpdateLocalTP();
 			}
