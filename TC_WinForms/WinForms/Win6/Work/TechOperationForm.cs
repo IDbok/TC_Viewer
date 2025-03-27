@@ -1066,29 +1066,29 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		}
 
 		if (copiedEw.techTransition == null) return;
-
-		// Создаём дубликат, если копируем из другой ТК
-		if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid)
-			copiedEw = CloneExecutionWorkForAnotherTC(copiedEw);
-
-		// Вставляем новую строку
-		var newEw = InsertNewExecutionWork(
-			copiedEw.techTransition ?? throw new Exception("Ошибка при вставке: нет TechTransition в скопированном объектке."),
-			selectedToTow,
-			rowIndex,
-			copiedEw.Repeat ? copiedEw.ExecutionWorkRepeats : null,
-			coefficient: copiedEw.Coefficient,
-			updateDataGrid: updateDataGrid,
-			comment: copiedEw.Comments,
-			pictureName: copiedEw.PictureName,
-			repeatTcId: copiedEw.RepeatsTCId ?? 0
-		);
-
-		newEw.TempGuid = copiedEw.IdGuid;
-		TcCopyData.PastedEw.Add(newEw);
-
 		try
 		{
+			// Создаём дубликат, если копируем из другой ТК
+			if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid)
+				copiedEw = CloneExecutionWorkForAnotherTC(copiedEw);
+
+			// Вставляем новую строку
+			var newEw = InsertNewExecutionWork(
+				copiedEw.techTransition ?? throw new Exception("Ошибка при вставке: нет TechTransition в скопированном объектке."),
+				selectedToTow,
+				rowIndex,
+				copiedEw.Repeat ? copiedEw.ExecutionWorkRepeats : null,
+				coefficient: copiedEw.Coefficient,
+				updateDataGrid: updateDataGrid,
+				comment: copiedEw.Comments,
+				pictureName: copiedEw.PictureName,
+				repeatTcId: copiedEw.RepeatsTCId ?? 0
+			);
+
+			newEw.TempGuid = copiedEw.IdGuid;
+			TcCopyData.PastedEw.Add(newEw);
+
+		
 			UpdateProtectionsInRow(rowIndex, newEw, copiedEw.Protections, updateDataGrid: updateDataGrid);
 			UpdateStaffInRow(rowIndex, newEw, copiedEw.Staffs, updateDataGrid: updateDataGrid);
 		}
@@ -1144,7 +1144,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (isRepeatAsInTc && copiedEw.RepeatsTCId == _tcViewState.TechnologicalCard.Id)
 		{
 			// временно устанавливаю заглужку. Копирование ТП, которые ссылается на текущую ТК, не поддерживается
-			MessageBox.Show("Вставка ТП, которые ссылается на текущую ТК, не поддерживается.");
 			throw new Exception("Ошибка при вставке: ТП ссылается на текущую ТК.");
 			// todo: доработать логику
 

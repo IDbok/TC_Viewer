@@ -258,6 +258,9 @@ public partial class SearchBox<T> : UserControl
 	{
 		SetListBoxInParentForm();
 
+		// очистить текст поисковой строки
+		ClearTextBox();
+
 		if (item == null) return;
 
 		SelectedItem = item;
@@ -280,6 +283,12 @@ public partial class SearchBox<T> : UserControl
 			SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs<T>(SelectedItem));
 		//HideDropDown();
 
+	}
+
+	private void ClearTextBox() {
+		textBoxSearch.TextChanged -= TextBoxSearch_TextChanged;
+		textBoxSearch.Clear();
+		textBoxSearch.TextChanged += TextBoxSearch_TextChanged;
 	}
 
 	/// <summary>
