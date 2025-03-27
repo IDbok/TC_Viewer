@@ -66,7 +66,7 @@ public partial class Win6_Staff : Form, IViewModeable
 
     private void DgvMain_CellContentClick(object? sender, DataGridViewCellEventArgs e)
     {
-        if (dgvMain.Columns[e.ColumnIndex].Name != "IsInOutlay" || e.RowIndex < 0)
+        if (dgvMain.Columns[e.ColumnIndex].Name != "IsInOutlay" || e.RowIndex < 0 || _tcViewState.IsViewMode)
             return;
         
         var isInOutlay = !(bool)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
