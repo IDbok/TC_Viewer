@@ -12,13 +12,20 @@ namespace TC_WinForms.Converters
     {
         private static readonly BiDirectionalDictionary _classNameMap = new BiDirectionalDictionary
            {
-               { "TechnologicalCard", "Технологическая карта" },
+                {"TechnologicalCard", "Технологическая карта" },
+                {"Component", "Материалы" },
+                {"Protection","Средства защиты" },
+                {"Tool","Инструменты" },
+                {"Machine","Механизмы" }
            };
 
         private static readonly BiDirectionalDictionary _keyMap = new BiDirectionalDictionary
            {
-               { "Type", "Тип" },
-               { "NetworkVoltage", "Напряжение" },  
+                { "Type", "Тип" },
+                { "Categoty", "Категория" },
+                { "NetworkVoltage", "Напряжение" },
+                { "Unit", "Ед. измерения" },
+
            };
 
         private static readonly BiDirectionalDictionary _typeMap = new BiDirectionalDictionary

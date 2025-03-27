@@ -34,6 +34,7 @@
             ClassName = new DataGridViewTextBoxColumn();
             Type = new DataGridViewTextBoxColumn();
             Value = new DataGridViewTextBoxColumn();
+            Key = new DataGridViewTextBoxColumn();
             dgvValue = new DataGridView();
             IdDGVValue = new DataGridViewTextBoxColumn();
             ValueDGVValue = new DataGridViewTextBoxColumn();
@@ -70,7 +71,7 @@
             dgvCategory.AllowUserToAddRows = false;
             dgvCategory.AllowUserToDeleteRows = false;
             dgvCategory.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvCategory.Columns.AddRange(new DataGridViewColumn[] { Id, ClassName, Type, Value });
+            dgvCategory.Columns.AddRange(new DataGridViewColumn[] { Id, ClassName, Key, Type, Value });
             dgvCategory.Dock = DockStyle.Fill;
             dgvCategory.Location = new Point(3, 63);
             dgvCategory.Name = "dgvCategory";
@@ -100,6 +101,13 @@
             Type.HeaderText = "Формат значения";
             Type.Name = "Type";
             Type.ReadOnly = true;
+            // 
+            // Key
+            // 
+            Key.DataPropertyName = "Key";
+            Key.HeaderText = "Тип";
+            Key.Name = "Key";
+            Key.ReadOnly = true;
             // 
             // Value
             // 

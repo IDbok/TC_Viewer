@@ -1,10 +1,13 @@
-﻿using System.ComponentModel;
+﻿using Antlr4.Runtime.Misc;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Services;
+using TcDbConnector;
+using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -213,49 +216,16 @@ namespace TC_WinForms.WinForms
         private void SetCbxUnits()
         {
             List<string> units;
-            if (_editingObj is Machine machine)
+            if (_editingObj is Component component || _editingObj is Tool tool || _editingObj is Protection protection || _editingObj is Machine machine)
             {
-                units = new List<string> //шт.
+                using (MyDbContext context = new MyDbContext())
                 {
-                    "шт.",
-                };
-            }
-            else if (_editingObj is Protection protection)
-            {
-                units = new List<string>
-                {
-                    "шт.",
-                };
-            }
-            else if (_editingObj is Tool tool) //шт.,компл.,м,,50 м,кг
-            {
-                units = new List<string>
-                {
-                    "шт.",
-                    "компл.",
-                    "м",
-                    "50 м",
-                    "кг",
-                };
-            }
-            else if (_editingObj is Component component)
-            {
-                units = new List<string> //шт.,м,компл.,кг,л,уп.,м3,,м?,лист,балл.,рул.,мл,г
-                {
-                    "шт.",
-                    "м",
-                    "компл.",
-                    "кг",
-                    "л",
-                    "уп.",
-                    "м³",
-                    //"м?",
-                    "лист",
-                    "балл.",
-                    "рул.",
-                    "мл",
-                    "г",
-                };
+                    var className = _editingObj.GetType().Name;
+                    units = context.CategoryObjects
+                    .Where(c => c.Key == nameof(IModelStructure.Unit) && c.ClassName == className)
+                    .Select(c => c.Value)
+                    .ToList();
+                }
             }
             else
             {
@@ -268,34 +238,16 @@ namespace TC_WinForms.WinForms
         {
             List<string> categories = new List<string>();
 
-            if (_editingObj is Tool) //шт.,компл.,м,,50 м,кг
+            if (_editingObj is Tool || _editingObj is Component) //шт.,компл.,м,,50 м,кг
             {
-                categories = new List<string> // Tool,Equip,Meas,AuxEquip
+                using (MyDbContext context = new MyDbContext())
                 {
-                    "Tool",
-                    "Equip",
-                    "Meas",
-                    "AuxEquip",
-                };
-            }
-            else if (_editingObj is Component)
-            {
-                categories = new List<string> // StandComp,StandDet,Material,OHLDet,OHLUnit,AuxMat,SubKit,SubMount,OHLProduct,OHLMount,OHLKit,SubUnit,SubDet
-                {
-                    "StandComp",
-                    "StandDet",
-                    "Material",
-                    "OHLDet",
-                    "OHLUnit",
-                    "AuxMat",
-                    "SubKit",
-                    "SubMount",
-                    "OHLProduct",
-                    "OHLMount",
-                    "OHLKit",
-                    "SubUnit",
-                    "SubDet",
-                };
+                    var className = _editingObj.GetType().Name;
+                    categories = context.CategoryObjects
+                    .Where(c => c.Key == nameof(ICategoryable.Categoty) && c.ClassName == className)
+                    .Select(c => c.Value)
+                    .ToList();
+                }
             }
             else
             {

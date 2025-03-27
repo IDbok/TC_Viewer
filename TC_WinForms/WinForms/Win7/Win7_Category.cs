@@ -62,6 +62,9 @@ namespace TC_WinForms.WinForms.Win7
         {
             dgvCategory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvValue.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            dgvCategory.AutoGenerateColumns = false;
+            dgvValue.AutoGenerateColumns = false;
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
