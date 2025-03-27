@@ -414,6 +414,7 @@
             ResumeLayout(false);
         }
 
+
         #endregion
 
         private Panel pnlToolStrinp;
