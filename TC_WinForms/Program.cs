@@ -259,7 +259,7 @@ namespace TC_WinForms
         static void RunDebugMode()
         {
             string login, password;
-            Role userRole = Role.Implementer;
+            Role userRole = Role.Admin;
 
             switch (userRole)
             {

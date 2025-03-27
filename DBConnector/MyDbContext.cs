@@ -49,8 +49,8 @@ public class MyDbContext : DbContext
     public DbSet<ObjectLocker> BlockedConcurrencyObjects { get; set; } = null!;
     public DbSet<Outlay> OutlaysTable { get; set; } = null!;
     public DbSet<Coefficient> Coefficients { get; set; } = null!;
-
-	public MyDbContext()
+    public DbSet<CategoryObject> CategoryObjects { get; set; } = null!;
+    public MyDbContext()
     {
         //Database.EnsureDeleted();
         //Database.EnsureCreated(); // todo - create exception catch if db is unavailable
