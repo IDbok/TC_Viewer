@@ -54,6 +54,8 @@ public partial class Win7_TechOperation_Window : Form
             techOperationBlockService.BlockObject();
         }
 
+        this.Text = $"Редактор ТО {techOperation.Name}";
+
         dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
         dataGridViewTPLocal.CellClick += DataGridViewTPLocal_CellClick;
 

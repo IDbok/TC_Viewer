@@ -67,7 +67,7 @@ namespace TC_WinForms.WinForms
 
         private void DgvMain_CellContentClick(object? sender, DataGridViewCellEventArgs e)//Метод для сохранения изменений checkBox колонки механизма
         {
-            if (dgvMain.Columns[e.ColumnIndex].Name == "IsInOutlay" && e.RowIndex >= 0)
+            if (dgvMain.Columns[e.ColumnIndex].Name == "IsInOutlay" && e.RowIndex >= 0 && !_tcViewState.IsViewMode)
             {
                 dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value =
                !(bool)(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value ?? false); //инвертируем значение ячейки
