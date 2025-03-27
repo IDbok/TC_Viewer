@@ -32,24 +32,23 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
         #region Constructors
 
         public RoadMapControl(List<TechOperationWork> techOperationWorks, TcViewState tcViewState)
+      : this(tcViewState)
         {
-            _tcViewState = tcViewState;
             _techOperationWorks = techOperationWorks;
             DetermineColumnsData();
             CountMaxColumns();
-
-            _tcViewState.ViewModeChanged += OnViewModeChanged;
-
-            InitializeComponent();
-            DataContext = this;
         }
 
         public RoadMapControl(List<RoadMapItem> roadmapItems, TcViewState tcViewState)
+            : this(tcViewState)
         {
-            _tcViewState = tcViewState;
             RoadmapItems = new ObservableCollection<RoadMapItem>(roadmapItems);
             CountMaxColumns();
+        }
 
+        private RoadMapControl(TcViewState tcViewState)
+        {
+            _tcViewState = tcViewState;
             _tcViewState.ViewModeChanged += OnViewModeChanged;
 
             InitializeComponent();
@@ -64,8 +63,8 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
         private void OnViewModeChanged()
         {
             OnPropertyChanged(nameof(IsViewMode));
-            if (!_tcViewState.RoadmapItemList.IsRoadMapUpdate && !_tcViewState.IsViewMode)
-                _tcViewState.RoadmapItemList = (true, _tcViewState.RoadmapItemList.RoadMapItems);
+            if (!_tcViewState.RoadmapInfo.IsRoadMapUpdate && !_tcViewState.IsViewMode)
+                _tcViewState.RoadmapInfo = (true, _tcViewState.RoadmapInfo.RoadMapItems);
         }
         protected void OnPropertyChanged(string propertyName)
         {
@@ -118,8 +117,8 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                     RoadmapItems.Add(roadmapItem);
                     colIndex = !group.IsParallel ? colIndex : roadmapItem.SequenceCells.Column;
                     colIndex++;
-                    maxColInd = roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan >= colIndex
-                        ? roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan > maxColInd ? roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan : maxColInd
+                    maxColInd = roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan >= colIndex //ищем какую максимальную колонку займет эта запись в ДК, проверяем больше ли номер колонки вместе с объединением индекса колонки
+                        ? roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan > maxColInd ? roadmapItem.SequenceCells.Column + roadmapItem.SequenceCells.ColumnSpan : maxColInd //если больше, проверяем больше ли он последней наибольшей колонки записи, если да - перезаписываем
                         : colIndex;
                 }
             }
@@ -178,7 +177,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
         }
         private void UpdateHeaderGridWidth()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < MainDataGrid.Columns.Count - _maxColumns; i++)//Настраиваем первые 3 хэдера столбцов MainDataGrid
             {
                 var mainColumn = MainDataGrid.Columns[i];
                 var headerColumn = HeaderGrid.Columns[i];
@@ -220,7 +219,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                 }
             }
 
-            _tcViewState.RoadmapItemList = (true, RoadmapItems.ToList());
+            _tcViewState.RoadmapInfo = (true, RoadmapItems.ToList());
         }
         #endregion
 
@@ -228,7 +227,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
         private void DetermineColumnsData()
         {
             var orderedTOWs = _techOperationWorks.OrderBy(o => o.Order).ToList();
-            OperationGroup currentGroup = null;
+            OperationGroup? currentGroup = null;
 
             foreach (var tow in orderedTOWs)
             {
@@ -301,9 +300,9 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
 
             if (operationGroup.SequenceGroupIndex == 0)
             {
-                var existedColIndex = RoadmapItems.Where(item => operationGroup.Items.Select(t => t.Id).Contains(item.TowId)).Where(s => s.SequenceCells.Column != 0).Select(s => s.SequenceCells.Column).FirstOrDefault();
+                int? existedColIndex = RoadmapItems.Where(item => operationGroup.Items.Select(t => t.Id).Contains(item.TowId)).Where(s => s.SequenceCells.Column != 0).Select(s => s.SequenceCells.Column).FirstOrDefault();
                 if (existedColIndex != null && existedColIndex != 0)
-                    return existedColIndex;
+                    return (int)existedColIndex;
                 else
                     return colIndex;
             }

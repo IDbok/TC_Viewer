@@ -19,7 +19,7 @@ namespace TC_WinForms.WinForms.Win6.Models
 		public TechnologicalCard TechnologicalCard { get; set; } // todo: make it readonly
 		public List<TechOperationWork> TechOperationWorksList { get; set; }
 		public List<DiagamToWork> DiagramToWorkList { get; set; }
-		public (bool IsRoadMapUpdate, List <RoadMapItem> RoadMapItems) RoadmapItemList { get; set; }
+		public (bool IsRoadMapUpdate, List <RoadMapItem> RoadMapItems) RoadmapInfo { get; set; }//Хранит информацию о том, изменелалась/генерировалась ли дорожная карта и список элементов дорожной карты
         public TcViewState(User.Role userRole, Win6_new parentForm)
 		{
 			UserRole = userRole;

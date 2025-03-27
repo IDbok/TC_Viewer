@@ -102,7 +102,7 @@ namespace TC_WinForms.WinForms
 
 		private void TrySaveRoadMapDataInViewMode()
         {
-            if (_accessLevel == User.Role.Lead && tcViewState.IsViewMode && tcViewState.RoadmapItemList.IsRoadMapUpdate)
+            if (_accessLevel == User.Role.Lead && tcViewState.IsViewMode && tcViewState.RoadmapInfo.IsRoadMapUpdate)
             {
                 SaveRoadMapData();
                 context.SaveChanges();
@@ -623,7 +623,7 @@ namespace TC_WinForms.WinForms
 			return _formsCache.Values.OfType<ISaveEventForm>()
 											  .Any(f => f.HasChanges)
 											  || context.ChangeTracker.HasChanges()
-											  || tcViewState.RoadmapItemList.IsRoadMapUpdate;
+											  || tcViewState.RoadmapInfo.IsRoadMapUpdate;
 		}
 
 		private Form CreateForm(EModelType modelType)
@@ -796,7 +796,7 @@ namespace TC_WinForms.WinForms
 
 		private void SaveRoadMapData()
 		{
-            var roadMapItems = tcViewState.RoadmapItemList.RoadMapItems;
+            var roadMapItems = tcViewState.RoadmapInfo.RoadMapItems;
 
             try
             {
@@ -812,7 +812,8 @@ namespace TC_WinForms.WinForms
             }
             catch (Exception ex)
             {
-
+				_logger.Error($"Ошибка сохранения дорожной карты: {ex.Message}");
+                MessageBox.Show($"Ошибка сохранения дорожной карты: {ex.Message}", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

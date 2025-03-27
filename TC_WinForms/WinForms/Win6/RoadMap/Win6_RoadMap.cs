@@ -21,12 +21,15 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
 {
     public partial class Win6_RoadMap : Form
     {
-        private ElementHost elementHost;
+        private ElementHost elementHost = new();
         private TcViewState _tcviewState;
-        private RoadMapControl _roadMapControl;
+        private RoadMapControl? _roadMapControl;
         private ILogger _logger;
         public Win6_RoadMap(TcViewState tcViewState)
         {
+            _logger = Log.ForContext<Win6_RoadMap>(); // Устанавливаем контекст класса
+            _logger.Information("Инициализация окна Win6_RoadMap");
+
             _tcviewState = tcViewState;
 
             InitializeComponent();
@@ -35,9 +38,6 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
 
         private void Win6_RoadMap_Load(object? sender, EventArgs e)
         {
-            _logger = Log.ForContext<Win6_RoadMap>(); // Устанавливаем контекст класса
-            _logger.Information("Инициализация окна Win6_RoadMap");
-
             if (!_tcviewState.IsViewMode)
             {
                 _logger.Information("Окно открывается в режиме редактирования, инициализируется конструктор с List<TechOperationWorks>");
@@ -66,7 +66,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
 
             _logger.Information("Окно открывается в режиме просмотра, инициализируется конструктор с List<RoadMapItem>");
             _roadMapControl = new RoadMapControl(roadMapItems, _tcviewState);
-            _tcviewState.RoadmapItemList = (false, roadMapItems);
+            _tcviewState.RoadmapInfo = (false, roadMapItems);
             InitializeWpfControl();
         }
 
