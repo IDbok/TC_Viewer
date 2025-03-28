@@ -139,7 +139,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         UpdateGrid();
     }
 
+
 	#region Обработка нажатия клавиш (Ctrl + C / V) + вывод информации о выделении
+
 
 	#region Инициализация контекстного меню и его элементов
 
@@ -164,6 +166,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	private ToolStripMenuItem pasteRowItem;
 	private ToolStripMenuItem pasteTechOperationItem;
 	private ToolStripMenuItem pasteProtectionsItem;
+
+	// Дополнительные пункты
+	//private ToolStripMenuItem openRelatedTc;
 
 
 	/// <summary>
@@ -239,6 +244,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			_logger.LogUserAction("Выбрал пункт меню 'Открыть в редакторе' в контекстном меню.");
 			OpenEditFormBySelectedObject();
 		};
+
+		//openRelatedTc = new ToolStripMenuItem("Открыть связанную тех. карту");
+		//openRelatedTc.Click += (s, e) =>
+		//{
+		//	_logger.LogUserAction("Выбрал пункт меню 'Открыть связанную тех. карту' в контекстном меню.");
+		//	OpenRelatedTc();
+		//};
 
 		// Добавляем все пункты (или группируем в под-меню).
 		contextMenu.Items.Add(copyStaffItem);
@@ -457,6 +469,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	#endregion
 
+
 	#region Обработка клика правой кнопкой (контекстное меню)
 
 	/// <summary>
@@ -505,6 +518,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	}
 
 	#endregion
+
 
 	#region Обработка нажатия клавиш (Ctrl + C/V/Delete)
 
@@ -561,6 +575,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	}
 
 	#endregion
+
 
 	#region Копирование данных
 
@@ -675,6 +690,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	}
 
 	#endregion
+
 
     #region Вставка данных
 
@@ -911,6 +927,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	#endregion
 
+
 	#region Удаление значения ячейки
 
 	/// <summary>
@@ -934,6 +951,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	}
 
 	#endregion
+
 
 	#region Методы-helpers для определения области копирования / вставки
 
@@ -1032,6 +1050,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	}
 
 	#endregion
+
 
 	#region Методы вставки (PasteAsNewRow, UpdateStaff, UpdateProtections, InsertToolAndComponent)
 
@@ -1604,7 +1623,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	#endregion
 
+
 	#endregion
+
 
 	/// <summary>
 	/// Обработчик завершения редактирования ячейки <c>dgvMain</c>. 
@@ -3336,5 +3357,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 			return false;
 		}
+	}
+
+	private void OpenRelatedTc()
+	{
+
 	}
 }

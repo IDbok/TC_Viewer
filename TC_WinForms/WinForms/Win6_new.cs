@@ -407,7 +407,7 @@ namespace TC_WinForms.WinForms
 
 				var timerInterval = 1000 * 60 * 14;//миллисекунды * секунды * минуты
 
-				concurrencyBlockServise = new ConcurrencyBlockService<TechnologicalCard>(_tc, timerInterval);
+				concurrencyBlockServise = new ConcurrencyBlockService<TechnologicalCard>(_tc, timerInterval); // todo: перенести в конструктор?
 				if (!concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
 				{
 					concurrencyBlockServise.BlockObject();
