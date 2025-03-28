@@ -2,7 +2,6 @@
 using Serilog;
 using System.Data;
 using System.Windows.Input;
-using TC_WinForms.DataProcessing;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Controls;
 using TC_WinForms.WinForms.Win6.Models;
@@ -12,21 +11,20 @@ using TcModels.Models;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Work;
+
 /// <summary>
-/// 
+/// Управляет функциональностью повторных переходов (ExecutionWork с признаком Repeat) 
+/// в рамках технологической карты. Предоставляет возможность выбрать, какие шаги (ChildExecutionWork)
+/// "подтягивать" для повтора, а также позволяет при необходимости изменять коэффициент, этап и 
+/// последовательность выполнения.
 /// </summary>
 public partial class RepeatExecutionControl : UserControl
 {
 	// todo: Как быть с динамическими коэффициентами?
-
-	// todo: визуальные изменения: расширение текстового поля в зависимостиот ширины названия ТК
 	// todo: вставить как элемент в addEdit... чтобы отображался в конструкторе
 
-	// todo: заменя на пустое поле в searchBox при загрузки нового ТП
+	#region Поля и константы
 
-	// todo: выделение отдельным цветом в соответствии с ТК в ходе работ
-
-	// todo: добавить логгирование
 	private ILogger _logger;
 
 	private ExecutionWork? _parentExecutionWork;
@@ -34,13 +32,18 @@ public partial class RepeatExecutionControl : UserControl
 	private readonly TcViewState _tcViewState;
 	private readonly MyDbContext _context;
 	private readonly TechnologicalCardRepository _tcRepos = new TechnologicalCardRepository();
-	// todo: Исправить. обновляется при изменения выбора в повторе (трижды при снятии, дважды при установки)
-	public event EventHandler? DataChanged; // Событие, если надо сообщать «внешнему» коду, что данные изменились
 
 	private SearchBox<TechnologicalCard>? searchBox;
 
-	// Конструктор
-	public RepeatExecutionControl(MyDbContext myDbContext, TcViewState tcViewState)// List<ExecutionWork> executionWorks)
+	#endregion
+
+
+	/// <summary>
+	/// Создаёт новый экземпляр <see cref="RepeatExecutionControl"/>.
+	/// </summary>
+	/// <param name="myDbContext">Экземпляр <see cref="MyDbContext"/> для доступа к БД.</param>
+	/// <param name="tcViewState">Объект, хранящий текущее состояние ТК и другие настройки.</param>
+	public RepeatExecutionControl(MyDbContext myDbContext, TcViewState tcViewState)
 	{
 		InitializeComponent();
 		_logger = Log.Logger.ForContext<RepeatExecutionControl>();
@@ -48,9 +51,6 @@ public partial class RepeatExecutionControl : UserControl
 		_tcViewState = tcViewState;
 		_executionWorks = _tcViewState.GetAllExecutionWorks();
 
-		//_technologicalCards = _context.TechnologicalCards.ToList();
-
-		// Пример: настройка dataGridViewRepeats (элемента внутри этого UserControl)
 		dataGridViewRepeats.AutoGenerateColumns = false;
 		dataGridViewRepeats.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
@@ -60,15 +60,24 @@ public partial class RepeatExecutionControl : UserControl
 		dataGridViewRepeats.CellFormatting += dataGridViewRepeats_CellFormatting;
 		dataGridViewRepeats.CellValidating += dataGridView_CellValidating;
 		dataGridViewRepeats.CellValueChanged += dataGridViewRepeats_CellValueChanged;
+
+		_logger.Information("RepeatExecutionControl создан");
 	}
 
-	//protected override void OnHandleCreated(EventArgs e)
-	//{
-	//	base.OnHandleCreated(e);
 
-	//	// Ищем главную форму:
-	//	SetSearchBox();
-	//}
+	#region Свойства и события
+
+	// todo: Исправить. обновляется при изменения выбора в повторе (трижды при снятии, дважды при установки)
+	/// <summary>
+	/// Событие, вызываемое при любом изменении данных в контроле, 
+	/// например при выборе или снятии выбора повторяемого шага.
+	/// </summary>
+	public event EventHandler? DataChanged;
+
+	#endregion
+
+
+	#region Инициализация и настройка
 
 	private void SetSearchBox()
 	{
@@ -76,9 +85,14 @@ public partial class RepeatExecutionControl : UserControl
 
 		searchBox.SelectedItemChanged += async (sender, e) =>
 		{
+
 			if (_parentExecutionWork == null) return;
 
 			var selectedTc = e.SelectedItem;
+
+			if (selectedTc == null) return;
+
+			_logger.Information("Выбран элемент SearchBox с ID {SelectedItemId}", selectedTc.Id);
 
 			var itemsToRemove = _parentExecutionWork.ExecutionWorkRepeats.ToList();
 			foreach (var ewr in itemsToRemove)
@@ -95,6 +109,12 @@ public partial class RepeatExecutionControl : UserControl
 		pnlControls.Controls.Add(searchBox);
 	}
 
+	/// <summary>
+	/// Инициирует логику для отображения поля поиска (SearchBox) при необходимости. 
+	/// Если у <see cref="_parentExecutionWork"/> есть <c>RepeatsTCId</c>, 
+	/// то управление даёт пользователю выбрать нужную технологическую карту.
+	/// </summary>
+	/// <param name="searchVisible">Отвечает за видимость панели с поиском ТК (по умолчанию true).</param>
 	public async Task SetSearchBoxParamsAsync(bool searchVisible = true)
 	{
 		if (searchVisible)
@@ -117,7 +137,7 @@ public partial class RepeatExecutionControl : UserControl
 				).ToList();
 			searchBox.DisplayMemberFunc = x => $"{x.Name} {x.Article}";
 
-			searchBox.SearchCriteriaFunc = x => x.ToString();// $"{x.Name} {x.Article}"; // Поиск по Name и Article
+			searchBox.SearchCriteriaFunc = x => x.ToString();
 
 			// Устанавливаем выбранную ТК, если есть _parentExecutionWork с RepeatsTCId
 			if (_parentExecutionWork?.RepeatsTCId != null)
@@ -139,9 +159,16 @@ public partial class RepeatExecutionControl : UserControl
 		}
 	}
 
-	// Свойство/метод, чтобы «снаружи» задать, какую ExecutionWork (или список) показываем
+	/// <summary>
+	/// Устанавливает для данного контрола родительский переход 
+	/// (тот, у которого <c>Repeat = true</c>), чтобы впоследствии 
+	/// пользователь мог выбрать, какие ChildExecutionWork добавлять/убирать из повторения.
+	/// </summary>
+	/// <param name="parentEW">Повторяющий переход (ExecutionWork.Repeat = true).</param>
 	public async Task SetParentExecutionWorkAsync(ExecutionWork parentEW)
 	{
+		_logger.Information("Установка родительского ТП {ParentEWId}", parentEW?.Id);
+
 		if (parentEW == null || !parentEW.Repeat)
 		{
 			_parentExecutionWork = null;
@@ -172,25 +199,10 @@ public partial class RepeatExecutionControl : UserControl
 		RefreshData();
 	}
 
-	// Основное обновление данных грида
-	private async Task<List<ExecutionWork>> GetAllExecutionWorksByTcIdAsync(long id)
-	{
-		return await _context.TechOperationWorks
-			.Where(tow => tow.TechnologicalCardId == id)
-			.SelectMany(x => x.executionWorks)
-				.Include(ew => ew.techTransition)
-				.Include(ew => ew.techOperationWork)
-					.ThenInclude(tow => tow.techOperation)
-			.ToListAsync();
-	}
-
-	private async Task LoadExecutionWorksByTcIdAsync(long id)
-	{
-		_executionWorks.Clear();
-		_executionWorks = await GetAllExecutionWorksByTcIdAsync(id);
-		RefreshData();
-	}
-
+	/// <summary>
+	/// Выполняет повторное считывание данных из текущего <see cref="_parentExecutionWork"/> 
+	/// и перезаполняет <c>dataGridViewRepeats</c> записями для возможных повторяемых шагов.
+	/// </summary>
 	public void RefreshData()
 	{
 		dataGridViewRepeats.Rows.Clear();
@@ -236,6 +248,38 @@ public partial class RepeatExecutionControl : UserControl
 			}
 		}
 	}
+
+	#endregion
+
+
+	#region Вспомогательные методы (приватные)
+
+	/// <summary>
+	/// Асинхронно загружает все переходы (ExecutionWork) по переданному <paramref name="id"/> технологической карты.
+	/// </summary>
+	/// <param name="id">Идентификатор ТК.</param>
+	private async Task<List<ExecutionWork>> GetAllExecutionWorksByTcIdAsync(long id)
+	{
+		return await _context.TechOperationWorks
+			.Where(tow => tow.TechnologicalCardId == id)
+			.SelectMany(x => x.executionWorks)
+				.Include(ew => ew.techTransition)
+				.Include(ew => ew.techOperationWork)
+					.ThenInclude(tow => tow.techOperation)
+			.ToListAsync();
+	}
+
+	private async Task LoadExecutionWorksByTcIdAsync(long id)
+	{
+		_executionWorks.Clear();
+		_executionWorks = await GetAllExecutionWorksByTcIdAsync(id);
+		RefreshData();
+	}
+
+	#endregion
+
+
+	#region Обработчики событий DataGridView
 
 	// Стобцы в dataGridViewRepeats:
 	// 0 dgvRepeatsEwObject
@@ -329,9 +373,7 @@ public partial class RepeatExecutionControl : UserControl
 				{
 					// отмена изменений
 					cell.Value = null;
-				} 
-
-				//UpdateLocalTP();
+				}
 			}
 		}
 	}
@@ -455,7 +497,17 @@ public partial class RepeatExecutionControl : UserControl
 			}
 		}
 	}
-	
+
+	#endregion
+
+
+	#region Методы пересчёта «Повторов»
+
+	/// <summary>
+	/// Пересчёт суммарного времени в родительском переходе. 
+	/// Берёт все выбранные ChildExecutionWork и суммирует их время, учитывая <see cref="ExecutionWorkRepeat.NewCoefficient"/>.
+	/// </summary>
+	/// <param name="executionWorkRepeats">Родительский переход (ExecutionWork), для которого идёт пересчёт.</param>
 	private void RecalculateExecutionWorkPovtorValue(ExecutionWork executionWorkRepeats)
 	{
 		if (!executionWorkRepeats.Repeat) return;
@@ -477,7 +529,7 @@ public partial class RepeatExecutionControl : UserControl
 		}
 		catch (Exception ex)
 		{
-			Log.Error(ex, "Ошибка при пересчете значения повтора");
+			_logger.Error(ex, "Ошибка при пересчете значения повтора");
 			string errorMessage = ex.InnerException?.Message ?? ex.Message;
 
 			MessageBox.Show($"Ошибка при пересчете значения повтора:\n\n{errorMessage}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -501,6 +553,15 @@ public partial class RepeatExecutionControl : UserControl
 		}
 	}
 
+	/// <summary>
+	/// Обновляет <paramref name="editedExecutionWork"/> и связанные повторы, 
+	/// если исходное время или коэффициент изменились.
+	/// </summary>
+	/// <param name="editedExecutionWork">Редактируемый переход (ExecutionWork).</param>
+	/// <param name="oldCoefficient">
+	/// Предыдущее значение времени или коэффициента (для отслеживания изменений). 
+	/// Если оно <c>null</c> — пересчёт выполняется всегда.
+	/// </param>
 	private void UpdateCoefficient(ExecutionWork editedExecutionWork, double? oldCoefficient = null)
 	{
 		if (editedExecutionWork == null)
@@ -520,4 +581,6 @@ public partial class RepeatExecutionControl : UserControl
 			UpdateRelatedReplays(editedExecutionWork);
 
 	}
+
+	#endregion
 }
