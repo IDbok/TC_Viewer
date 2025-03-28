@@ -1,4 +1,5 @@
 ﻿using Serilog;
+using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Extensions;
@@ -140,8 +141,21 @@ namespace TC_WinForms.WinForms
 
         private void ConfigureComboBox() // todo: обновить список в соответствии с разрешенными значениями (нужно их ещё ввести)
         {
-            cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка трансформации", "Подстанции", "Нет данных" });
-            cbxNetworkVoltage.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f });
+            var typeItems = context.InnerDirectory
+                .Where(c => c.Key == nameof(TechnologicalCard.Type) && c.ClassName == nameof(TechnologicalCard))
+                .Select(c => c.Value)
+                .ToList();
+
+            var voltageItems = context.InnerDirectory
+                .Where(c => c.Key == nameof(TechnologicalCard.NetworkVoltage) && c.ClassName == nameof(TechnologicalCard))
+                .Select(c => c.Value)
+                .ToList();
+
+            cbxType.Items.AddRange(typeItems.ToArray());
+            cbxNetworkVoltage.Items.AddRange(voltageItems.ToArray());
+
+            //cbxType.Items.AddRange(new object[] { "Ремонтная", "Монтажная", "Точка трансформации", "Подстанции", "Нет данных" });
+            //cbxNetworkVoltage.Items.AddRange(new object[] { 35f, 10f, 6f, 0.4f });
         }
         private void ConfigureStatusComboBox()
         {
