@@ -252,7 +252,7 @@ namespace TC_WinForms.WinForms
                     return new Win7_Process(_accessLevel);
                 case WinNumber.SummaryOutlay:
                     return new Win7_SummaryOutlay(_accessLevel);
-                case WinNumber.Category:
+                case WinNumber.InnerDirectory:
                     return new Win7_Category();
                 default:
                     return null;
@@ -546,7 +546,7 @@ namespace TC_WinForms.WinForms
 
         private async void btnCategory_Click(object sender, EventArgs e)
         {
-            await LoadFormInPanel(WinNumber.Category).ConfigureAwait(false);
+            await LoadFormInPanel(WinNumber.InnerDirectory).ConfigureAwait(false);
         }
 
         enum WinNumber
@@ -562,7 +562,7 @@ namespace TC_WinForms.WinForms
             TechOperation = 8,
             TechTransition = 9,
             SummaryOutlay = 10,
-            Category = 11,
+            InnerDirectory = 11,
 
             //Process = 10
         }

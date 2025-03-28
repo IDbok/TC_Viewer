@@ -17,12 +17,12 @@ namespace TC_WinForms.WinForms.Win7
 {
     public partial class Win7_CategoryEditor : Form
     {
-        private CategoryObject OriginCategory = null!;
-        private CategoryObject LocalCategory = new();
+        private InnerDirectory? OriginCategory = null!;
+        private InnerDirectory LocalCategory = new();
         public MyDbContext context;
         private DbConnector dbCon = new DbConnector();
-        public delegate Task PostSaveAction<TModel>(TModel modelObject) where TModel : CategoryObject;
-        public PostSaveAction<CategoryObject>? AfterSave { get; set; }
+        public delegate Task PostSaveAction<TModel>(TModel modelObject) where TModel : InnerDirectory;
+        public PostSaveAction<InnerDirectory>? AfterSave { get; set; }
 
         private bool isEditor = false;
 
@@ -30,15 +30,7 @@ namespace TC_WinForms.WinForms.Win7
         {
             InitializeComponent();
             this.isEditor = isEditor;
-            try
-            {
-                context = new MyDbContext();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
+            context = new MyDbContext();
 
             SubscribeToChanges();
 
@@ -46,8 +38,8 @@ namespace TC_WinForms.WinForms.Win7
             {
                 try
                 {
-                    OriginCategory = context.CategoryObjects.Where(s => s.Id == categoryId)
-                        .Select(c => new CategoryObject
+                    OriginCategory = context.InnerDirectory.Where(s => s.Id == categoryId)
+                        .Select(c => new InnerDirectory
                         {
                             Id = c.Id,
                             ClassName = DisplayNameConverter.ConvertToDisplay(c.ClassName, ConversionType.ClassName),
@@ -64,7 +56,7 @@ namespace TC_WinForms.WinForms.Win7
                     }
                     else
                     {
-                        MessageBox.Show("Технологическая карта не найдена");
+                        MessageBox.Show("Значение не найдено");
                         this.Close();
                     }
                 }
@@ -75,10 +67,10 @@ namespace TC_WinForms.WinForms.Win7
             }
             else
             {
-                OriginCategory = new CategoryObject();
+                OriginCategory = new InnerDirectory();
 
                 btnAddEdit.Text = "Добавить";
-                this.Text = "Создание новой технологической карты";
+                this.Text = "Создание нового значения";
             }
 
             ConfigureComboBoxes();
@@ -91,7 +83,7 @@ namespace TC_WinForms.WinForms.Win7
             }
         }
 
-        private void FillContainersWithValues(CategoryObject category)
+        private void FillContainersWithValues(InnerDirectory category)
         {
             cbxClass.SelectedItem = category.ClassName != null ? category.ClassName.ToString() : cbxClass.Items[0];
             cbxKey.SelectedItem = category.Key != null ? category.Key.ToString() : cbxKey.Items[0];
@@ -100,8 +92,8 @@ namespace TC_WinForms.WinForms.Win7
 
         private void ConfigureComboBoxes()
         {
-            cbxClass.Items.AddRange(context.CategoryObjects.Select(s => DisplayNameConverter.ConvertToDisplay(s.ClassName, ConversionType.ClassName)).Distinct().ToArray());
-            cbxKey.Items.AddRange(context.CategoryObjects.Where(s => s.ClassName == DisplayNameConverter.ConvertToInternal(LocalCategory.ClassName ?? "Технологическая карта", ConversionType.ClassName))
+            cbxClass.Items.AddRange(context.InnerDirectory.Select(s => DisplayNameConverter.ConvertToDisplay(s.ClassName, ConversionType.ClassName)).Distinct().ToArray());
+            cbxKey.Items.AddRange(context.InnerDirectory.Where(s => s.ClassName == DisplayNameConverter.ConvertToInternal(LocalCategory.ClassName ?? "Технологическая карта", ConversionType.ClassName))
                 .Select(s => DisplayNameConverter.ConvertToDisplay(s.Key, ConversionType.Key)).Distinct().ToArray());
         }
 
@@ -112,7 +104,7 @@ namespace TC_WinForms.WinForms.Win7
                 LocalCategory.ClassName = cbxClass.SelectedItem.ToString();
                 cbxKey.Items.Clear();
                 cbxKey.Text = "";
-                cbxKey.Items.AddRange(context.CategoryObjects.Where(s => s.ClassName == DisplayNameConverter.ConvertToInternal(LocalCategory.ClassName, ConversionType.ClassName))
+                cbxKey.Items.AddRange(context.InnerDirectory.Where(s => s.ClassName == DisplayNameConverter.ConvertToInternal(LocalCategory.ClassName, ConversionType.ClassName))
                     .Select(s => DisplayNameConverter.ConvertToDisplay(s.Key, ConversionType.Key)).Distinct().ToArray());
             };
             cbxKey.SelectedIndexChanged += (s, e) =>
@@ -141,7 +133,7 @@ namespace TC_WinForms.WinForms.Win7
             LocalCategory.Key = DisplayNameConverter.ConvertToInternal(cbxKey.SelectedItem.ToString(), ConversionType.Key);
 
             if (!isEditor)
-                LocalCategory.Type = context.CategoryObjects.Where(s => s.ClassName == LocalCategory.ClassName && s.Key == LocalCategory.Key).Select(s => s.Type).First();
+                LocalCategory.Type = context.InnerDirectory.Where(s => s.ClassName == LocalCategory.ClassName && s.Key == LocalCategory.Key).Select(s => s.Type).First();
             else
                 LocalCategory.Type = DisplayNameConverter.ConvertToInternal(LocalCategory.Type, ConversionType.Type);
             

@@ -8,7 +8,7 @@ using TcModels.Models.TcContent.Work;
 
 namespace TcModels.Models
 {
-    public class CategoryObject : IUpdatableEntity
+    public class InnerDirectory : IUpdatableEntity
     {
         public int Id { get; set; }
         public string ClassName { get; set; } //Наименование класса к которому относится категория
@@ -18,36 +18,12 @@ namespace TcModels.Models
 
         public void ApplyUpdates(IUpdatableEntity source)
         {
-            if (source is CategoryObject category)
+            if (source is InnerDirectory category)
             {
                 ClassName = category.ClassName;
                 Key = category.Key;
                 Type = category.Type;
                 Value = category.Value;
-            }
-        }
-
-        public string ClassNameConvert()
-        {    
-            switch (ClassName)
-            {
-                case "TechnologicalCard":
-                    return "Технологическая карта";
-                default:
-                    return ClassName;
-            }
-        }
-
-        public string KeyConert()
-        {
-            switch (Key)
-            {
-                case "Type":
-                    return "Тип";
-                case "NetworkVoltage":
-                    return "Напряжение";
-                default:
-                    return Key;
             }
         }
     }

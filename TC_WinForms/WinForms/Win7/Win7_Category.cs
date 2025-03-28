@@ -19,10 +19,9 @@ namespace TC_WinForms.WinForms.Win7
 {
     public partial class Win7_Category : Form
     {
-        private BindingList<CategoryObject> _uniqueCategories = new BindingList<CategoryObject>();
-        private BindingList<CategoryObject> _categoryValues = new BindingList<CategoryObject>();
-        private CategoryObject _selectedCategory = new CategoryObject();
-        private List<CategoryObject> _allCategories = new List<CategoryObject>();
+        private BindingList<InnerDirectory> _categoryValues = new BindingList<InnerDirectory>();
+        private InnerDirectory _selectedCategory = new InnerDirectory();
+        private List<InnerDirectory> _allCategories = new List<InnerDirectory>();
         public Win7_Category()
         {
             InitializeComponent();
@@ -32,10 +31,10 @@ namespace TC_WinForms.WinForms.Win7
         private void Win7_Category_Load(object? sender, EventArgs e)
         {
             SetDGVColumnsSettings();
-
+            List<InnerDirectory> uniqueCategories = new List<InnerDirectory>();
             using (MyDbContext context = new MyDbContext())
             {
-                _allCategories = context.CategoryObjects.Select(c => new CategoryObject
+                _allCategories = context.InnerDirectory.Select(c => new InnerDirectory
                 {
                     Id = c.Id,
                     ClassName = DisplayNameConverter.ConvertToDisplay(c.ClassName, ConversionType.ClassName),
@@ -44,15 +43,14 @@ namespace TC_WinForms.WinForms.Win7
                     Value = c.Value,
                 }).ToList();
 
-                var uniqueCategories = _allCategories
+                uniqueCategories = _allCategories
                                             .AsEnumerable() // Переносим данные в память для клиентской группировки
                                             .GroupBy(c => new { c.ClassName, c.Key, c.Type }) // Группируем по трём полям
                                             .Select(g => g.First()) // Берём первый объект из группы
                                             .ToList();
-                _uniqueCategories = new BindingList<CategoryObject>(uniqueCategories);
             }
 
-            dgvCategory.DataSource = _uniqueCategories;
+            dgvCategory.DataSource = new BindingList<InnerDirectory>(uniqueCategories);
 
             dgvCategory.ClearSelection();
             dgvCategory.SelectionChanged += dgvCategory_SelectionChanged;
@@ -74,7 +72,7 @@ namespace TC_WinForms.WinForms.Win7
             objEditor.Show();
         }
 
-        private void UpdateOrAddObjectInGrid(CategoryObject newCard)
+        private void UpdateOrAddObjectInGrid(InnerDirectory newCard)
         {
             newCard.ClassName = DisplayNameConverter.ConvertToDisplay(newCard.ClassName, ConversionType.ClassName);
             newCard.Type = DisplayNameConverter.ConvertToDisplay(newCard.Type, ConversionType.Type);
@@ -124,7 +122,7 @@ namespace TC_WinForms.WinForms.Win7
             var selectedRow = dgvCategory.SelectedRows.Cast<DataGridViewRow>().FirstOrDefault();
             _selectedCategory = _allCategories.Where(c => c.Id == Convert.ToInt32(selectedRow.Cells["Id"].Value)).FirstOrDefault();
 
-            _categoryValues = new BindingList<CategoryObject>(_allCategories.Where(c => c.ClassName == _selectedCategory.ClassName &&
+            _categoryValues = new BindingList<InnerDirectory>(_allCategories.Where(c => c.ClassName == _selectedCategory.ClassName &&
                                                        c.Key == _selectedCategory.Key &&
                                                        c.Type == _selectedCategory.Type)
                                             .ToList());
@@ -143,8 +141,8 @@ namespace TC_WinForms.WinForms.Win7
                     var selectedId = Convert.ToInt32(row.Cells["IdDGVValue"].Value);
                     using (MyDbContext context = new MyDbContext())
                     {
-                        var deletedCategory= context.CategoryObjects.Where(c => c.Id == selectedId).FirstOrDefault();
-                        context.CategoryObjects.Remove(deletedCategory);
+                        var deletedCategory= context.InnerDirectory.Where(c => c.Id == selectedId).FirstOrDefault();
+                        context.InnerDirectory.Remove(deletedCategory);
                         context.SaveChanges();
                     }
                     var objToDelete = _allCategories.Where(c => c.Id == selectedId).FirstOrDefault();

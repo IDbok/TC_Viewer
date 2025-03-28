@@ -12,7 +12,7 @@ namespace TcDbConnector.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "CategoryObjects",
+                name: "InnerDirectory",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -28,7 +28,7 @@ namespace TcDbConnector.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CategoryObjects", x => x.Id);
+                    table.PrimaryKey("PK_InnerDirectory", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
         }
@@ -37,7 +37,7 @@ namespace TcDbConnector.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CategoryObjects");
+                name: "InnerDirectory");
         }
     }
 }

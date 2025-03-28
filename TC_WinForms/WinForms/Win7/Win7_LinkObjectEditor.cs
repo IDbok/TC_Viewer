@@ -221,7 +221,7 @@ namespace TC_WinForms.WinForms
                 using (MyDbContext context = new MyDbContext())
                 {
                     var className = _editingObj.GetType().Name;
-                    units = context.CategoryObjects
+                    units = context.InnerDirectory
                     .Where(c => c.Key == nameof(IModelStructure.Unit) && c.ClassName == className)
                     .Select(c => c.Value)
                     .ToList();
@@ -243,7 +243,7 @@ namespace TC_WinForms.WinForms
                 using (MyDbContext context = new MyDbContext())
                 {
                     var className = _editingObj.GetType().Name;
-                    categories = context.CategoryObjects
+                    categories = context.InnerDirectory
                     .Where(c => c.Key == nameof(ICategoryable.Categoty) && c.ClassName == className)
                     .Select(c => c.Value)
                     .ToList();

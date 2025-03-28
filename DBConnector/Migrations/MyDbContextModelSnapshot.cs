@@ -131,7 +131,7 @@ namespace TcDbConnector.Migrations
                     b.ToTable("Authors");
                 });
 
-            modelBuilder.Entity("TcModels.Models.CategoryObject", b =>
+            modelBuilder.Entity("TcModels.Models.InnerDirectory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -157,7 +157,7 @@ namespace TcDbConnector.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CategoryObjects");
+                    b.ToTable("InnerDirectory");
                 });
 
             modelBuilder.Entity("TcModels.Models.ImageStorage", b =>

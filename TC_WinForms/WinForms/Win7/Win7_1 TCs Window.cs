@@ -141,12 +141,12 @@ namespace TC_WinForms.WinForms
 
         private void ConfigureComboBox() // todo: обновить список в соответствии с разрешенными значениями (нужно их ещё ввести)
         {
-            var typeItems = context.CategoryObjects
+            var typeItems = context.InnerDirectory
                 .Where(c => c.Key == nameof(TechnologicalCard.Type) && c.ClassName == nameof(TechnologicalCard))
                 .Select(c => c.Value)
                 .ToList();
 
-            var voltageItems = context.CategoryObjects
+            var voltageItems = context.InnerDirectory
                 .Where(c => c.Key == nameof(TechnologicalCard.NetworkVoltage) && c.ClassName == nameof(TechnologicalCard))
                 .Select(c => c.Value)
                 .ToList();
