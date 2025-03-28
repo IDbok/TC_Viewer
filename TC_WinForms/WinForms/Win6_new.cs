@@ -20,7 +20,7 @@ using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.WinForms
-{
+{// todo: загрузить данные о переходах из других ТК
 	public partial class Win6_new : Form, IViewModeable, IFormWithObjectId
 	{
 		private readonly ILogger _logger;
@@ -407,7 +407,7 @@ namespace TC_WinForms.WinForms
 
 				var timerInterval = 1000 * 60 * 14;//миллисекунды * секунды * минуты
 
-				concurrencyBlockServise = new ConcurrencyBlockService<TechnologicalCard>(_tc, timerInterval);
+				concurrencyBlockServise = new ConcurrencyBlockService<TechnologicalCard>(_tc, timerInterval); // todo: перенести в конструктор?
 				if (!concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
 				{
 					concurrencyBlockServise.BlockObject();
