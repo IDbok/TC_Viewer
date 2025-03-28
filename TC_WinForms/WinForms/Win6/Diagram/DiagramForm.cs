@@ -3,6 +3,7 @@ using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.Interfaces;
+using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram
 {
@@ -34,7 +35,9 @@ namespace TC_WinForms.WinForms.Diagram
 
 			AddElementToElementHost(new WpfMainControl(tcId, this, _tcViewState, context));
 
-			this.FormClosed += (sender, elementHost) => this.Dispose();
+            this.Text = $"Блок схема {_tcViewState.TechnologicalCard.Name}({_tcViewState.TechnologicalCard.Article})";
+
+            this.FormClosed += (sender, elementHost) => this.Dispose();
 
 		}
 

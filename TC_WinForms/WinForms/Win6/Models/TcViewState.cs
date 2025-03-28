@@ -71,10 +71,14 @@ namespace TC_WinForms.WinForms.Win6.Models
         public List<ExecutionWork> GetAllExecutionWorks()
         {
             List<ExecutionWork> allExecutionWorks = new List<ExecutionWork>();
-            foreach (var techOperationWork in TechOperationWorksList)
+            foreach (var techOperationWork in TechOperationWorksList.OrderBy(o => o.Order))
             {
-                foreach(var ew in techOperationWork.executionWorks)
+				if (techOperationWork.Delete) continue;
+
+				foreach (var ew in techOperationWork.executionWorks.OrderBy(o => o.Order))
 				{
+					if (ew.Delete) continue;
+
 					allExecutionWorks.Add(ew);
                 }
             }
