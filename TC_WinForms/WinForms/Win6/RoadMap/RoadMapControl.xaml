@@ -1,0 +1,110 @@
+﻿<UserControl x:Class="TC_WinForms.WinForms.Win6.RoadMap.RoadMapControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:roadmap="clr-namespace:TC_WinForms.WinForms.Win6.RoadMap" 
+             xmlns:local="clr-namespace:TC_WinForms.WinForms.Win6.RoadMap"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             Loaded="UserControl_Loaded">
+
+    <Grid Background="LightGray" x:Name="GridContent" Margin="0,0,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DataGrid Grid.Row="0" x:Name="HeaderGrid" HeadersVisibility="Column" AutoGenerateColumns="False" Background="LightGray" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Технологические операции" MinWidth="200">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment"
+                                Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Персонал" MinWidth="50" MaxWidth="75">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment"
+                                Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Примечание" MinWidth="200" MaxWidth="250">
+                        <DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment"
+                                Value="Center" />
+                            </Style>
+                        </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Последовательность действий" Width="*">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment"
+                            Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+
+            
+        </DataGrid>
+
+        <DataGrid Grid.Row="1" x:Name="MainDataGrid"  AutoGenerateColumns="False" HeadersVisibility="None"
+            ItemsSource="{Binding RoadmapItems}" FrozenColumnCount="3" CanUserReorderColumns="False" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="MaxHeight" Value="100"/>
+                    <!-- Максимальная высота 60px -->
+                    <Setter Property="VerticalContentAlignment" Value="Top"/>
+                    <!-- Выравнивание контента -->
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Технологические операции" Binding="{Binding TOName}" MinWidth="200" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Рабочий персонал" Binding="{Binding Staffs}" MinWidth="50" MaxWidth="75" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTemplateColumn Header="Примечание" MinWidth="200" MaxWidth="250">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Note}" TextChanged="TextBox_NoteTextChanged" 
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                    VerticalScrollBarVisibility="Auto" 
+                                     IsReadOnly="{Binding IsViewMode, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Background" Value="LightGray"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsViewMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                                            <Setter Property="Background" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

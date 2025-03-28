@@ -1,5 +1,6 @@
 ﻿using TcModels.Models;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.RoadMap;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 
 namespace TC_WinForms.WinForms.Win6.Models
@@ -18,7 +19,8 @@ namespace TC_WinForms.WinForms.Win6.Models
 		public TechnologicalCard TechnologicalCard { get; set; } // todo: make it readonly
 		public List<TechOperationWork> TechOperationWorksList { get; set; }
 		public List<DiagamToWork> DiagramToWorkList { get; set; }
-		public TcViewState(User.Role userRole, Win6_new parentForm)
+		public (bool IsRoadMapUpdate, List <RoadMapItem> RoadMapItems) RoadmapInfo { get; set; }//Хранит информацию о том, изменелалась/генерировалась ли дорожная карта и список элементов дорожной карты
+        public TcViewState(User.Role userRole, Win6_new parentForm)
 		{
 			UserRole = userRole;
 			_parentForm = parentForm;

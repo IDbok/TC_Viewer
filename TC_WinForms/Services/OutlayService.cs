@@ -71,6 +71,12 @@ namespace TC_WinForms.Services
 
         }
 
+        public double GetToOutlay(TechOperationWork techOperationWork)
+        {
+            var executionWorks = techOperationWork.executionWorks.Where(e => !e.Delete).ToList();
+            return CalculateEtapTimes(executionWorks);
+        }
+
         /// <summary>
         ///  Если актуальные данные и данные из БД отличаются - обновляет данные о затратах в БД
         /// </summary>
