@@ -833,8 +833,8 @@ namespace TC_WinForms.WinForms.Work
                 var nameIndex = dataGridViewTPLocal.Columns["dataGridViewTextBoxColumn8"]?.Index ?? 0;
                 string rowName = dataGridViewTPLocal.Rows[e.RowIndex].Cells[nameIndex].Value.ToString() ?? "";
 
-                if (rowName == "Повторить")
-                {
+				if (rowName == "Повторить" || rowName == "Выполнить в соответствии с ТК")
+				{
                     TechOperationForm.CellChangeReadOnly(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
                 }
                 else
@@ -974,7 +974,7 @@ namespace TC_WinForms.WinForms.Work
                 && ((comboBoxTPCategoriya.SelectedIndex == 0 || string.IsNullOrEmpty((string)comboBoxTPCategoriya.SelectedItem))
                     ||
                     to.Category == (string)comboBoxTPCategoriya.SelectedItem)
-                && (to.Name != "Повторить")//заглушка для копий Повторить в технологических переходах
+                && (!to.IsRepeatTransition())//.Name != "Повторить")//заглушка для копий Повторить в технологических переходах
                 /*&& (to.IsReleased == true || to.CreatedTCId == TechOperationForm.tcId || to.IsReleased == false )*/  //закомментирована фильтрация тп, выводятся все ТП
                 )
             ;
@@ -1009,7 +1009,7 @@ namespace TC_WinForms.WinForms.Work
             var filteredTransitions = FilterTechTransitions(textBoxPoiskTP.Text);
 
             // находим ТП "Повторить п." и добавляем его первым в список
-            var repeatTechTransition = allTP.SingleOrDefault(tp => tp.Name == "Повторить п.");
+            var repeatTechTransition = allTP.SingleOrDefault(tp => tp.IsRepeatTransition());//.Name == "Повторить п.");
             if (repeatTechTransition != null)
             {
                 List<object> listItem = new()
@@ -1029,7 +1029,7 @@ namespace TC_WinForms.WinForms.Work
 
             foreach (TechTransition techTransition in filteredTransitions)// allTP)
             {
-                if (techTransition.Name == "Повторить п.") // todo: переработать данную проверку на расширение TechTransitionExtension
+                if (techTransition.IsRepeatTransition()) //.Name == "Повторить п.") // todo: переработать данную проверку на расширение TechTransitionExtension
 				{
                     continue;
                 }
@@ -1096,8 +1096,8 @@ namespace TC_WinForms.WinForms.Work
 
                 if (executionWork.Repeat)
                 {
-                    listItem.Add(executionWork.RepeatsTCId == null ? "Повторить" : "В соответствии с ТК");
-                    listItem.Add(executionWork.Order);
+                    listItem.Add(executionWork.techTransition.IsRepeatAsInTcTransition() ? "Выполнить в соответствии с ТК" : "Повторить"); // todko: добавить сюда пункиты и артикул ТК
+					listItem.Add(executionWork.Order);
                     listItem.Add("");
 
                     listItem.Add("");
@@ -2382,7 +2382,7 @@ namespace TC_WinForms.WinForms.Work
                     listItem.Add($"№{techOperationWork.Order} {techOperationWork.techOperation.Name}");
                     if (Wor.Repeat)
                     {
-                        listItem.Add("Повторить");
+                        listItem.Add(Wor.techTransition.IsRepeatAsInTcTransition() ? "Выполнить в соответствии с ТК" : "Повторить");
                     }
                     else
                     {

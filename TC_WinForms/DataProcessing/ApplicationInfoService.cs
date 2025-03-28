@@ -85,8 +85,8 @@ public static class ApplicationInfoService
     static void ExtractServerAndDatabase(string connectionString, 
         out string server, out string database)
     {
-        server = null;
-        database = null;
+        server = string.Empty;
+        database = string.Empty;
 
         string[] parameters = connectionString.Split(';');
 
@@ -95,11 +95,11 @@ public static class ApplicationInfoService
             string[] keyValue = param.Split('=');
             if (keyValue.Length == 2)
             {
-                if (keyValue[0].Trim().ToLower() == "server")
+                if (keyValue[0].Trim().Equals("server", StringComparison.CurrentCultureIgnoreCase))
                 {
                     server = keyValue[1].Trim();
                 }
-                else if (keyValue[0].Trim().ToLower() == "database")
+                else if (keyValue[0].Trim().Equals("database", StringComparison.CurrentCultureIgnoreCase))
                 {
                     database = keyValue[1].Trim();
                 }

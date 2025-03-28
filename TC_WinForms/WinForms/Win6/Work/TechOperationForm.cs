@@ -1539,7 +1539,35 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         string? comment = null, string? pictureName = null, long repeatTcId = 0)
 
 	{
-		var newEw = AddNewExecutionWork(techTransition, techOperationWork, insertIndex: insertIndex, coefficientValue: coefficient, comment: comment, pictureName: pictureName, repeatTcId: repeatTcId);
+		if (techTransition == null) throw new ArgumentNullException(nameof(techTransition));
+		// проверка на то, чтобы ссылочное ТП не было вставлено раньше ТП на которое оно ссылается
+		if (executionWorksRepeats != null && executionWorksRepeats.Count > 0 
+			&& techTransition.IsRepeatTypeTransition() 
+			&& insertIndex != null)
+		{
+			if(techTransition.IsRepeatTransition())
+			{
+				// проверка, что все ТП повтора имеют номомер строки меньше вставляемого ТП
+				var isAllRepeatBefore = executionWorksRepeats.All(ew => ew.ChildExecutionWork.RowOrder < insertIndex + 1);
+
+				if (!isAllRepeatBefore)
+				{
+					throw new Exception("Ошибка при вставке: повторы должны быть вставлены после основного перехода.");
+				}
+
+			}
+			else if (techTransition.IsRepeatAsInTcTransition() && repeatTcId == _tcViewState.TechnologicalCard.Id)
+			{
+				throw new Exception("Ошибка при вставке: ТП \"Выполнить в соотвествии с ТК\" ссылается на текущую ТК.");
+			}
+		}
+
+		var newEw = AddNewExecutionWork(techTransition, techOperationWork, 
+			insertIndex: insertIndex,
+			coefficientValue: coefficient, 
+			comment: comment, 
+			pictureName: pictureName, 
+			repeatTcId: repeatTcId);
 
         if (newEw == null) {
 			_logger.Error("InsertNewExecutionWork: AddNewExecutionWork вернул null! Бросаем исключение.");
@@ -2414,7 +2442,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				rowData.Add(item.TechOperation);
 				rowData.Add(item.Staff);
 				if (ew.RepeatsTCId != null)
-					rowData.Add($"В соответствии с {context.TechnologicalCards.Where(tc => tc.Id == ew.RepeatsTCId).Select(tc => tc.Article).FirstOrDefault()} п.{strP}");// todo: заменить использование контекста 
+					rowData.Add($"Выполнить в соответствии с {context.TechnologicalCards.Where(tc => tc.Id == ew.RepeatsTCId).Select(tc => tc.Article).FirstOrDefault()} п.{strP}");// todo: заменить использование контекста 
 				else
 					rowData.Add("Повторить п." + strP);
 				rowData.Add(item.TechTransitionValue);
@@ -2753,7 +2781,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		TechOperationWork TOWork = TechOperationWorksList.Single(s => s == techOperationWork);
 
 		var currentEwInTow = TOWork.executionWorks.Where(ew => !ew.Delete);
-		var lastEwInTow = currentEwInTow.OrderBy(e => e.Order).LastOrDefault();		
+		var lastEwInTow = currentEwInTow.OrderBy(e => e.Order).LastOrDefault();
 		int? newEwOrderInTo = null;
 
 		var rowOrder = lastEwInTow?.RowOrder + 1;

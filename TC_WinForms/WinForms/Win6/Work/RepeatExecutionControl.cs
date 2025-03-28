@@ -144,7 +144,14 @@ public partial class RepeatExecutionControl : UserControl
 	// Свойство/метод, чтобы «снаружи» задать, какую ExecutionWork (или список) показываем
 	public async Task SetParentExecutionWorkAsync(ExecutionWork parentEW)
 	{
-		if (parentEW == null || !parentEW.Repeat) return;
+		if (parentEW == null || !parentEW.Repeat)
+		{
+			_parentExecutionWork = null;
+			_executionWorks = new List<ExecutionWork>();
+			await SetSearchBoxParamsAsync(searchVisible: false);
+			RefreshData();
+			return;
+		}
 
 		_parentExecutionWork = parentEW;
 
