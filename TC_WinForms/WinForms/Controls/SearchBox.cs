@@ -34,6 +34,22 @@ public partial class SearchBox<T> : UserControl
 	public Func<T, string> SearchCriteriaFunc { get; set; } = x => x?.ToString() ?? string.Empty;
 
 	/// <summary>
+	/// Минимальная ширина контрола.
+	/// </summary>
+	public int MinControlWidth { get; set; } = 350;
+
+	/// <summary>
+	/// Максимальная ширина контрола.
+	/// </summary>
+	public int MaxControlWidth { get; set; } = 500;
+
+	/// <summary>
+	/// Высота выпадающего списка.
+	/// </summary>
+	public int DropDownHeight { get; set; } = 250;
+
+
+	/// <summary>
 	/// Источник данных, из которого будет производиться поиск.
 	/// </summary>
 	public IEnumerable<T> DataSource
@@ -91,6 +107,51 @@ public partial class SearchBox<T> : UserControl
 		SetListBoxInParentForm();
 	}
 
+	protected override void OnLoad(EventArgs e)
+	{
+		base.OnLoad(e);
+
+		// Подпишемся на изменение текста
+		textBoxSearch.TextChanged += (s, ev) => AdjustControlWidthToText();
+
+		// Вызовем один раз, если хотим, чтобы ширина учла текст по умолчанию
+		AdjustControlWidthToText();
+	}
+
+	/// <summary>
+	/// Перерасчитывает ширину контрола по размеру введённого текста и вписывает в заданные границы.
+	/// </summary>
+	private void AdjustControlWidthToText()
+	{
+		// Если TextBox пуст, можно задать базовую ширину, либо оставить минимальную
+		string text = textBoxSearch.Text;
+		if (string.IsNullOrEmpty(text))
+		{
+			this.Width = MinControlWidth;
+			return;
+		}
+
+		using (Graphics g = textBoxSearch.CreateGraphics())
+		{
+			// Вычисляем, насколько «длинный» текст
+			SizeF textSize = g.MeasureString(text, textBoxSearch.Font);
+
+			// Добавляем небольшой запас (рамки TextBox, отступы и т.п.)
+			int desiredWidth = (int)textSize.Width + 20;
+
+			// Фиксируем в пределах [MinControlWidth..MaxControlWidth]
+			if (desiredWidth < MinControlWidth)
+				desiredWidth = MinControlWidth;
+			if (desiredWidth > MaxControlWidth)
+				desiredWidth = MaxControlWidth;
+
+			// Выставляем ширину всего UserControl. 
+			// Так как textBoxSearch.Dock = DockStyle.Top, он растянется по ширине контрола.
+			this.Width = desiredWidth;
+		}
+	}
+
+
 	private void SetListBoxInParentForm()
 	{
 		Form? parentForm = this.FindForm();
@@ -106,6 +167,11 @@ public partial class SearchBox<T> : UserControl
 			_dropDownListBox.Click += DropDownListBox_Click; //ListBoxSuggestions_Click;//
 			_dropDownListBox.MouseMove += DropDownListBox_MouseMove;
 
+			_dropDownListBox.DrawMode = DrawMode.OwnerDrawVariable;
+			_dropDownListBox.MeasureItem += DropDownListBox_MeasureItem;
+			_dropDownListBox.DrawItem += DropDownListBox_DrawItem;
+
+
 			parentForm.Controls.Add(_dropDownListBox);
 			_dropDownListBox.BringToFront();
 		}
@@ -114,6 +180,7 @@ public partial class SearchBox<T> : UserControl
 	// Методы отображения и скрытия ListBox
 	private void ShowDropDown()
 	{
+		if (_dropDownListBox == null) return;
 		// Проверка должна быть на DataSource, а не на Items
 		if (_dropDownListBox.DataSource is not IList list || list.Count == 0)
 		{
@@ -122,12 +189,16 @@ public partial class SearchBox<T> : UserControl
 		}
 
 		//Point textBoxPos = this.textBoxSearch.PointToScreen(Point.Empty);
-		Point locationOnForm = this.FindForm().PointToClient(textBoxSearch.PointToScreen(new Point(0, textBoxSearch.Height)));
+
+		var form = this.FindForm();
+		if (form == null) return;
+
+		Point locationOnForm = form.PointToClient(textBoxSearch.PointToScreen(new Point(0, textBoxSearch.Height)));
 
 		_dropDownListBox.Location = locationOnForm;//location;
 		_dropDownListBox.Width = textBoxSearch.Width;
 		//_dropDownListBox.Height = Math.Min(150, _dropDownListBox.PreferredHeight); // высота по содержимому, но не больше 150px
-		_dropDownListBox.Height = 150; // для теста фиксированная высота
+		_dropDownListBox.Height = DropDownHeight; // для теста фиксированная высота
 
 		_dropDownListBox.Visible = true;
 		_dropDownListBox.BringToFront();
@@ -253,6 +324,67 @@ public partial class SearchBox<T> : UserControl
 		RefreshSuggestions();
 		//ShowDropDown();
 	}
+
+	private void DropDownListBox_MeasureItem(object? sender, MeasureItemEventArgs e)
+	{
+		// Индекс может быть -1, если ListBox пустой или рисует «мимо»:
+		if (e.Index < 0) return;
+
+		if (_dropDownListBox == null) return;
+
+		// Достаем элемент (строку), которую надо измерить
+		string? itemText = _dropDownListBox.Items[e.Index].ToString();
+		if (string.IsNullOrEmpty(itemText))
+		{
+			e.ItemHeight = (int)e.Graphics.MeasureString(" ", _dropDownListBox.Font).Height;
+			return;
+		}
+
+		// Ограничение ширины — можно взять ширину самого ListBox (или чуть меньше, чтобы было красивее)
+		int maxWidth = _dropDownListBox.Width;
+		// меряем строку с учётом переноса
+		SizeF size = e.Graphics.MeasureString(
+			itemText,
+			_dropDownListBox.Font,
+			maxWidth);
+
+		// Выставляем высоту строки
+		e.ItemHeight = (int)Math.Ceiling(size.Height);
+	}
+
+	private void DropDownListBox_DrawItem(object? sender, DrawItemEventArgs e)
+	{
+		// Если индекс «мимо» — выходим
+		if (e.Index < 0) return;
+
+		if (_dropDownListBox == null) return;
+
+		// Получаем текст
+		string? itemText = _dropDownListBox.Items[e.Index].ToString() ?? "";
+
+		// Сначала заливаем фон (чтобы выделение/фокус работали штатно)
+		e.DrawBackground();
+
+		// Рисуем сам текст. Можно управлять переносом через StringFormat
+		using (var brush = new SolidBrush(e.ForeColor))
+		{
+			var format = new StringFormat
+			{
+				FormatFlags = 0,
+				Trimming = StringTrimming.Word,
+				Alignment = StringAlignment.Near,
+				LineAlignment = StringAlignment.Near
+			};
+
+			// Рисуем строку внутри прямоугольника e.Bounds
+			if(e.Font != null)
+				e.Graphics.DrawString(itemText, e.Font, brush, e.Bounds, format);
+		}
+
+		// Рисуем пунктирную рамку вокруг выделенного элемента (если нужно)
+		e.DrawFocusRectangle();
+	}
+
 
 	public void SetSelectedItem(T item, bool invokeChanges = true)
 	{
