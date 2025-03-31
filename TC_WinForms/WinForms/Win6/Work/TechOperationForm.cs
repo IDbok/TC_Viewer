@@ -2657,7 +2657,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		// Если сейчас цвет белый или LightGray, то можно менять;
 		// иначе оставляем «как есть».
-		if (currentColor == Color.White || currentColor == Color.LightGray)
+		if (currentColor == Color.White || currentColor == Color.LightGray || currentColor.IsEmpty)
 		{
 			cell.Style.BackColor = isReadOnly ? Color.White : Color.LightGray;
 		}
