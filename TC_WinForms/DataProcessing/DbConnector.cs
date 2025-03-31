@@ -44,6 +44,73 @@ namespace TC_WinForms.DataProcessing
                     break;
             }
         }
+
+        public List<(string, string)> CanTCDraftStatusChange(int _tcId)
+        // todo: произвести рефакторинг. много повторяющегося кода. Добавить описание. Дать отражающее суть название метода
+        {
+            List<(string, string)> nameOfUmpablishedElements = new List<(string, string)>();
+
+            var unpublishedStaff = GetUnpublishedObjectList<Staff_TC, Staff>(_tcId).ToList();
+            if (unpublishedStaff.Count > 0)
+                foreach (var staff in unpublishedStaff)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(staff.GetType().Name), staff.Name));
+
+            var unpublishedComponent = GetUnpublishedObjectList<Component_TC, Component>(_tcId).ToList();
+            if (unpublishedComponent.Count > 0)
+                foreach (var component in unpublishedComponent)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(component.GetType().Name), component.Name));
+
+            var unpublichedTool = GetUnpublishedObjectList<Tool_TC, Tool>(_tcId).ToList();
+            if (unpublichedTool.Count > 0)
+                foreach (var tool in unpublichedTool)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(tool.GetType().Name), tool.Name));
+
+            var unpublichedProtection = GetUnpublishedObjectList<Protection_TC, Protection>(_tcId).ToList();
+            if (unpublichedProtection.Count > 0)
+                foreach (var protection in unpublichedProtection)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(protection.GetType().Name), protection.Name));
+
+            var unpublichedMachine = GetUnpublishedObjectList<Machine_TC, Machine>(_tcId).ToList();
+            if (unpublichedMachine.Count > 0)
+                foreach (var machine in unpublichedMachine)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(machine.GetType().Name), machine.Name));
+
+            var unpublichedTo = GetUnpublishedToOrTt<TechOperation>(_tcId).ToList();
+            if (unpublichedTo.Count > 0)
+                foreach (var techOperation in unpublichedTo)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(techOperation.GetType().Name), techOperation.Name));
+
+            var unpublichedTP = GetUnpublishedToOrTt<TechTransition>(_tcId).ToList();
+            if (unpublichedTP.Count > 0)
+                foreach (var techTransition in unpublichedTP)
+                    nameOfUmpablishedElements.Add((GetUnpublishedElementList(techTransition.GetType().Name), techTransition.Name));
+
+            return nameOfUmpablishedElements;
+
+            string GetUnpublishedElementList(string typeName)
+            {
+                switch (typeName)
+                {
+                    case "Staff":
+                        return "Персонал";
+                    case "Tool":
+                        return "Инструменты";
+                    case "Component":
+                        return "Материал/Комплектующее";
+                    case "Protection":
+                        return "Средства защиты";
+                    case "Machine":
+                        return "Механизмы";
+                    case "TechOperation":
+                        return "Технологическая операция";
+                    case "TechTransition":
+                        return "Технологический переход";
+                    default:
+                        return "Неопознанный тип";
+                }
+            }
+        }
+
         public async Task AddTcAsync(TechnologicalCard tc)
         {
             await AddTcAsync(new List<TechnologicalCard> { tc });
