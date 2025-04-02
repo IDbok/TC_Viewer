@@ -1,4 +1,5 @@
-﻿namespace TC_WinForms.WinForms
+﻿
+namespace TC_WinForms.WinForms
 {
     partial class Win6_new
     {
@@ -50,6 +51,7 @@
             btnShowMachines = new Button();
             btnShowProtections = new Button();
             btnShowTools = new Button();
+            btnRoadMap = new Button();
             btnShowWorkSteps = new Button();
             pnlControls = new Panel();
             btnShowCoefficients = new Button();
@@ -276,6 +278,7 @@
             // 
             pnlControls.Controls.Add(btnShowCoefficients);
             pnlControls.Controls.Add(buttonDiagram);
+            pnlControls.Controls.Add(btnRoadMap);
             pnlControls.Controls.Add(btnOutlay);
             pnlControls.Controls.Add(btnShowWorkSteps);
             pnlControls.Controls.Add(btnShowTools);
@@ -293,7 +296,7 @@
             // btnShowCoefficients
             // 
             btnShowCoefficients.Font = new Font("Segoe UI", 9F);
-			btnShowCoefficients.Location = new Point(6, 609);
+			btnShowCoefficients.Location = new Point(6, 684);
 			btnShowCoefficients.Margin = new Padding(4, 3, 4, 3);
             btnShowCoefficients.Name = "btnShowCoefficients";
 			btnShowCoefficients.Size = new Size(280, 70);
@@ -315,6 +318,18 @@
             buttonDiagram.UseVisualStyleBackColor = true;
             buttonDiagram.Click += buttonDiagram_Click;
             // 
+            // btnRoadMap
+            // 
+            btnRoadMap.Font = new Font("Segoe UI", 9F);
+            btnRoadMap.Location = new Point(6, 609);
+            btnRoadMap.Margin = new Padding(4, 3, 4, 3);
+            btnRoadMap.Name = "btnRoadMap";
+            btnRoadMap.Size = new Size(280, 70);
+            btnRoadMap.TabIndex = 36;
+            btnRoadMap.Text = "Дорожная карта";
+            btnRoadMap.UseVisualStyleBackColor = true;
+            btnRoadMap.Click += btnRoadMap_Click;
+            // 
             // pnlDataViewer
             // 
             pnlDataViewer.Dock = DockStyle.Fill;
@@ -328,7 +343,7 @@
             // 
 			AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(1704, 776);
+			ClientSize = new Size(1704, 800);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
             Controls.Add(toolStrip1);
@@ -346,6 +361,7 @@
             ResumeLayout(false);
             PerformLayout();
         }
+        
 
         #endregion
         private ToolStrip toolStrip1;
@@ -354,6 +370,7 @@
         private Button btnShowMachines;
         private Button btnShowProtections;
         private Button btnShowTools;
+        private Button btnRoadMap;
         private Button btnShowWorkSteps;
         private Panel pnlControls;
         private Panel pnlDataViewer;

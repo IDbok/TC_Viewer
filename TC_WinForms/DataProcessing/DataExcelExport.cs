@@ -12,8 +12,6 @@ namespace TC_WinForms.DataProcessing
 {
     public class DataExcelExport
     {
-        private DbConnector dbCon = new DbConnector();
-
         public DataExcelExport() 
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -28,6 +26,8 @@ namespace TC_WinForms.DataProcessing
                 var tc = await tcRepository.GetTCDataAsync(tcId);
                 var outlayList = await tcRepository.GetOutlayDataAsync(tcId);
                 var dtwList = await tcRepository.GetDTWDataAsync(tcId);
+                var roadMapItems = await tcRepository.GetRoadMapItemsDataAsync(tc.TechOperationWorks.Select(s => s.Id).ToList());
+                roadMapItems.OrderBy(r => r.Order);
                 string imageBase64 = "";
                 if(tc.ExecutionSchemeImageId != null)
                     imageBase64 = await tcRepository.GetImageBase64Async((long)tc.ExecutionSchemeImageId);
@@ -50,6 +50,9 @@ namespace TC_WinForms.DataProcessing
 
                 var diagramExport = new DiagramExcelExporter();
                 diagramExport.ExportDiadramToExel(excelPackage, tc, dtwList);
+
+                var roadMapExport = new RoadMapExcelExporter();
+                roadMapExport.ExportRoadMaptoFile(excelPackage, roadMapItems);
 
                 excelPackage.File = new FileInfo(filePath);//после того, как создание/обновление всех листов происходит(в случае ошибок создания листов мы не дойдем до этого места) мы присваиваем адрес excelPackage, это обеспечивает перезаписывание файла без его удаления
                 excelPackage.Save();

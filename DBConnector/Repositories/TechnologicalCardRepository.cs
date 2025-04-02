@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TcModels.Models;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.RoadMap;
 
 namespace TcDbConnector.Repositories;
 
@@ -20,6 +21,13 @@ public class TechnologicalCardRepository
         //_logger = logger;
     }
 
+    public async Task<List<RoadMapItem>> GetRoadMapItemsDataAsync(List<int> towIds)
+    {
+        using (MyDbContext context = new MyDbContext())
+        {
+            return await context.Set<RoadMapItem>().Where(r => towIds.Contains(r.TowId)).ToListAsync();
+        }
+    }
     public async Task<TechnologicalCard> GetTechnologicalCardAsync(int id)
     {
         var tc = await GetTCDataAsyncCopy(id);

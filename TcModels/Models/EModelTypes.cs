@@ -12,6 +12,7 @@
         ExecutionScheme,
 		Coefficient,
         Outlay,
+        RoadMap
         // TechnologicalCard
     }
 }
