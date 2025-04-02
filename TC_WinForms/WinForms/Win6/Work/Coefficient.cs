@@ -20,27 +20,23 @@ namespace TC_WinForms.WinForms.Work
 
             label9.Text = idd.CommentTimeExecution ?? "";
 
-            textBox1_TextChanged(null, null);
+            tbxCoefficient_TextChanged(null, null);
         }
 
-        public TechTransition Idd { get; }
+        private TechTransition Idd { get; }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnAddCommand_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
             Close();
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void tbxCoefficient_TextChanged(object? sender, EventArgs? e)
         {
-            //Expression ee = new Expression(Idd.TimeExecution.ToString().Replace(',','.')+ " " + textBox1.Text.Replace(',', '.'));
-
-            //WorkParser.EvaluateExpression(Idd.TimeExecution.ToString().Replace(',', '.') + " " + textBox1.Text.Replace(',', '.'));
-
             try
             {
                 var time = Idd.TimeExecution.ToString().Replace(',', '.');
-                var coef = textBox1.Text.Replace(',', '.');
+                var coef = tbxCoefficient.Text.Replace(',', '.');
                 var expression = "1";
 
                 // проверить нет ли в знака первым символом
@@ -58,19 +54,19 @@ namespace TC_WinForms.WinForms.Work
 
                 //var bn = WorkParser.EvaluateExpression(Idd.TimeExecution.ToString().Replace(',', '.') + " " + textBox1.Text.Replace(',', '.')); // ee.Evaluate();
                 label4.Text = bn.ToString();
-                button1.Enabled = true;
+                btnAddCommand.Enabled = true;
             }
             catch (Exception)
             {
                 label4.Text = "Ошибка";
-                button1.Enabled = false;
+                btnAddCommand.Enabled = false;
             }
 
         }
 
         public string GetCoefficient
         {
-            get { return textBox1.Text; }
+            get { return tbxCoefficient.Text; }
         }
 
 

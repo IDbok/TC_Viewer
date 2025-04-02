@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
+using TcModels.Models.TcContent.RoadMap;
 using TcModels.Models.TcContent.Work;
 
 namespace TcDbConnector;
@@ -49,7 +50,11 @@ public class MyDbContext : DbContext
     public DbSet<ObjectLocker> BlockedConcurrencyObjects { get; set; } = null!;
     public DbSet<Outlay> OutlaysTable { get; set; } = null!;
     public DbSet<Coefficient> Coefficients { get; set; } = null!;
+
     public DbSet<InnerDirectory> InnerDirectory { get; set; } = null!;
+
+    public DbSet<RoadMapItem> RoadMapItems { get; set; } = null!;
+
     public MyDbContext()
     {
         //Database.EnsureDeleted();

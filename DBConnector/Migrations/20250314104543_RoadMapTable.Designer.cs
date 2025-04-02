@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TcDbConnector;
 
@@ -11,9 +12,11 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250314104543_RoadMapTable")]
+    partial class RoadMapTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,35 +132,6 @@ namespace TcDbConnector.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Authors");
-                });
-
-            modelBuilder.Entity("TcModels.Models.InnerDirectory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClassName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InnerDirectory");
                 });
 
             modelBuilder.Entity("TcModels.Models.ImageStorage", b =>
@@ -774,12 +748,6 @@ namespace TcDbConnector.Migrations
                     b.Property<bool>("Repeat")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<long?>("RepeatsTCId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("RowOrder")
-                        .HasColumnType("int");
-
                     b.Property<double>("Value")
                         .HasColumnType("double");
 
@@ -980,14 +948,11 @@ namespace TcDbConnector.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("TOName")
+                    b.Property<string>("TcName")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("TowId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Order")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1090,10 +1055,6 @@ namespace TcDbConnector.Migrations
 
                     b.Property<int?>("Component_TCParentId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<int>("Order")
                         .HasColumnType("int");

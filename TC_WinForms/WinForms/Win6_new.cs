@@ -9,6 +9,7 @@ using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
 using TC_WinForms.WinForms.Win6;
 using TC_WinForms.WinForms.Win6.Models;
+using TC_WinForms.WinForms.Win6.RoadMap;
 using TC_WinForms.WinForms.Work;
 using TcDbConnector;
 using TcDbConnector.Repositories;
@@ -20,7 +21,7 @@ using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.WinForms
-{
+{// todo: загрузить данные о переходах из других ТК
 	public partial class Win6_new : Form, IViewModeable, IFormWithObjectId
 	{
 		private readonly ILogger _logger;
@@ -99,11 +100,23 @@ namespace TC_WinForms.WinForms
 			UpdateIsDynamicButtonText();
 		}
 
+		private void TrySaveRoadMapDataInViewMode()
+        {
+            if (_accessLevel == User.Role.Lead && tcViewState.IsViewMode && tcViewState.RoadmapInfo.IsRoadMapUpdate)
+            {
+                SaveRoadMapData();
+                context.SaveChanges();
+
+				MessageBox.Show("Данные дорожной карты сохранены");
+            }
+        }
+
 		private void ThisFormClosed()
 		{
 			_logger.Information("Закрытие формы. Очистка временных файлов для TcId={TcId}", _tc.Id);
 
-			TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
+			TrySaveRoadMapDataInViewMode();
+            TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
 			concurrencyBlockServise.CleanBlockData();
 			Dispose();
 		}
@@ -407,7 +420,7 @@ namespace TC_WinForms.WinForms
 
 				var timerInterval = 1000 * 60 * 14;//миллисекунды * секунды * минуты
 
-				concurrencyBlockServise = new ConcurrencyBlockService<TechnologicalCard>(_tc, timerInterval);
+				concurrencyBlockServise = new ConcurrencyBlockService<TechnologicalCard>(_tc, timerInterval); // todo: перенести в конструктор?
 				if (!concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
 				{
 					concurrencyBlockServise.BlockObject();
@@ -609,7 +622,8 @@ namespace TC_WinForms.WinForms
 			// проверка на наличие изменений
 			return _formsCache.Values.OfType<ISaveEventForm>()
 											  .Any(f => f.HasChanges)
-											  || context.ChangeTracker.HasChanges();
+											  || context.ChangeTracker.HasChanges()
+											  || tcViewState.RoadmapInfo.IsRoadMapUpdate;
 		}
 
 		private Form CreateForm(EModelType modelType)
@@ -638,6 +652,8 @@ namespace TC_WinForms.WinForms
 					return new CoefficientEditorForm(_tcId, tcViewState, context);
                 case EModelType.Outlay:
                     return new Win6_OutlayTable(tcViewState, calculateOutlayService);// _isViewMode);
+                case EModelType.RoadMap:
+                    return new Win6_RoadMap(tcViewState);// _isViewMode);
                 default:
 					throw new ArgumentOutOfRangeException(nameof(modelType), "Неизвестный тип модели");
 			}
@@ -745,6 +761,7 @@ namespace TC_WinForms.WinForms
 			try
 			{
 				SaveTehCartaChanges();
+				SaveRoadMapData();
                 calculateOutlayService.UpdateOutlay(tcViewState);
 
                 foreach (var form in _formsCache.Values)
@@ -776,6 +793,29 @@ namespace TC_WinForms.WinForms
 				SaveAllChanges();
 			}
 		}
+
+		private void SaveRoadMapData()
+		{
+            var roadMapItems = tcViewState.RoadmapInfo.RoadMapItems;
+
+            try
+            {
+                var existedRoadMapItems = context.RoadMapItems.Where(r => roadMapItems.Select(s => s.TowId).Any(s => s == r.TowId)).ToList();
+                foreach (var item in roadMapItems)
+                {
+                    var existedRoadMap = existedRoadMapItems.Where(r => r.TowId == item.TowId).FirstOrDefault();
+                    if (existedRoadMap != null)
+                        existedRoadMap.ApplyUpdates(item);
+                    else
+                        context.RoadMapItems.Add(item);
+                }
+            }
+            catch (Exception ex)
+            {
+				_logger.Error($"Ошибка сохранения дорожной карты: {ex.Message}");
+                MessageBox.Show($"Ошибка сохранения дорожной карты: {ex.Message}", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
 		private void SaveTehCartaChanges()
 		{
@@ -1322,6 +1362,12 @@ namespace TC_WinForms.WinForms
         {
             LogUserAction("Отображение таблицы затрат");
             await ShowForm(EModelType.Outlay);
+        }
+
+        private async void btnRoadMap_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Отображение дорожной карты");
+            await ShowForm(EModelType.RoadMap);
         }
     }
 

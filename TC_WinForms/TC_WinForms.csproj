@@ -103,4 +103,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="WinForms\Models\" />
+  </ItemGroup>
+
 </Project>

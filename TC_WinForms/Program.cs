@@ -46,8 +46,8 @@ namespace TC_WinForms
             {
                 Log.Fatal(ex, "Application crashed");
 
-				MessageBox.Show("Произошла ошибка при запуске приложения:" +"\n" + ex,
-					"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show("ГЏГ°Г®ГЁГ§Г®ГёГ«Г  Г®ГёГЁГЎГЄГ  ГЇГ°ГЁ Г§Г ГЇГіГ±ГЄГҐ ГЇГ°ГЁГ«Г®Г¦ГҐГ­ГЁГї:" +"\n" + ex,
+					"ГЋГёГЁГЎГЄГ ", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
             finally
             {
@@ -61,11 +61,11 @@ namespace TC_WinForms
         {
 			var environment = Environment.GetEnvironmentVariable("MYAPP_ENVIRONMENT") ?? "Production";
 
-			// Проверяем наличие файла appsettings.json и создаем его с настройками по умолчанию, если он отсутствует
+			// ГЏГ°Г®ГўГҐГ°ГїГҐГ¬ Г­Г Г«ГЁГ·ГЁГҐ ГґГ Г©Г«Г  appsettings.json ГЁ Г±Г®Г§Г¤Г ГҐГ¬ ГҐГЈГ® Г± Г­Г Г±ГІГ°Г®Г©ГЄГ Г¬ГЁ ГЇГ® ГіГ¬Г®Г«Г·Г Г­ГЁГѕ, ГҐГ±Г«ГЁ Г®Г­ Г®ГІГ±ГіГІГ±ГІГўГіГҐГІ
 			EnsureAppSettingsExists();
 
 			IConfiguration config = new ConfigurationBuilder()
-				.SetBasePath(AppContext.BaseDirectory) // Папка, где лежит exe
+				.SetBasePath(AppContext.BaseDirectory) // ГЏГ ГЇГЄГ , ГЈГ¤ГҐ Г«ГҐГ¦ГЁГІ exe
 				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
 				.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
 				.Build();
@@ -78,7 +78,7 @@ namespace TC_WinForms
             if (logPath == null)
                 logPath = "C:/tempLogs";
 
-			// Читаем настройки пути временной папки и модифицируем путь для логов
+			// Г—ГЁГІГ ГҐГ¬ Г­Г Г±ГІГ°Г®Г©ГЄГЁ ГЇГіГІГЁ ГўГ°ГҐГ¬ГҐГ­Г­Г®Г© ГЇГ ГЇГЄГЁ ГЁ Г¬Г®Г¤ГЁГґГЁГ¶ГЁГ°ГіГҐГ¬ ГЇГіГІГј Г¤Г«Гї Г«Г®ГЈГ®Гў
 			var tempLogPath = Path.Combine(logPath, "TC_Viewer", Environment.UserName, "logs", "log-.json");//Path.GetTempPath(), "TC_Viewer", "logs", "log-.json");
 			config.GetSection("Serilog:WriteTo:0:Args")["path"] = tempLogPath;
 
@@ -89,7 +89,7 @@ namespace TC_WinForms
 
             Log.Information("Application started");
 
-            Log.Information($"Окружение: {environment}\n" +
+            Log.Information($"ГЋГЄГ°ГіГ¦ГҐГ­ГЁГҐ: {environment}\n" +
                                $"ConnectionString: {config["Config:ConnectionString"]}\n" +
                                $"IsFirstRun: {config["IsFirstRun"]}\n" +
                                $"LogsFolder: {config["LogsFolder"]}\n");
@@ -98,7 +98,7 @@ namespace TC_WinForms
 
             
 
-            // Устанавливаем строку подключения к БД
+            // Г“Г±ГІГ Г­Г ГўГ«ГЁГўГ ГҐГ¬ Г±ГІГ°Г®ГЄГі ГЇГ®Г¤ГЄГ«ГѕГ·ГҐГ­ГЁГї ГЄ ГЃГ„
             //var connectionString = configuration.GetValue<string>("Config:ConnectionString");
             if (connectionString != null)
             {
@@ -106,28 +106,28 @@ namespace TC_WinForms
             }
             else
             {
-                throw new Exception("Строка подключения к БД не найдена в файле конфигурации.");
+                throw new Exception("Г‘ГІГ°Г®ГЄГ  ГЇГ®Г¤ГЄГ«ГѕГ·ГҐГ­ГЁГї ГЄ ГЃГ„ Г­ГҐ Г­Г Г©Г¤ГҐГ­Г  Гў ГґГ Г©Г«ГҐ ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГЁ.");
             }
 
             if (isFirstRun)
             {
                 ApplyMigrationsIfNecessary();
 
-                // Обновляем флаг в файле конфигурации
+                // ГЋГЎГ­Г®ГўГ«ГїГҐГ¬ ГґГ«Г ГЈ Гў ГґГ Г©Г«ГҐ ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГЁ
                 try
                 {
                     UpdateFirstRunFlag();
                 }
                 catch (Exception ex)
                 {
-					Log.Error(ex, "Ошибка обновления флага первого запуска.");
+					Log.Error(ex, "ГЋГёГЁГЎГЄГ  Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГї ГґГ«Г ГЈГ  ГЇГҐГ°ГўГ®ГЈГ® Г§Г ГЇГіГ±ГЄГ .");
 
-					MessageBox.Show("Ошибка обновления флага первого запуска: " + ex.Message,
-						"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show("ГЋГёГЁГЎГЄГ  Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГї ГґГ«Г ГЈГ  ГЇГҐГ°ГўГ®ГЈГ® Г§Г ГЇГіГ±ГЄГ : " + ex.Message,
+						"ГЋГёГЁГЎГЄГ ", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
 #if DEBUG
-			// Очистить таблицу блокировок в БД перед запуском в режиме debug
+			// ГЋГ·ГЁГ±ГІГЁГІГј ГІГ ГЎГ«ГЁГ¶Гі ГЎГ«Г®ГЄГЁГ°Г®ГўГ®ГЄ Гў ГЃГ„ ГЇГҐГ°ГҐГ¤ Г§Г ГЇГіГ±ГЄГ®Г¬ Гў Г°ГҐГ¦ГЁГ¬ГҐ debug
 			using (var context = new MyDbContext())
 			{
 				var blockedConcurrencyObjects = context.BlockedConcurrencyObjects.ToList();
@@ -155,38 +155,38 @@ namespace TC_WinForms
                     try
                     {
                         context.Database.Migrate();
-                        Log.Information("Миграции успешно применены.");
+                        Log.Information("ГЊГЁГЈГ°Г Г¶ГЁГЁ ГіГ±ГЇГҐГёГ­Г® ГЇГ°ГЁГ¬ГҐГ­ГҐГ­Г».");
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex, "Ошибка применения миграций.");
+                        Log.Error(ex, "ГЋГёГЁГЎГЄГ  ГЇГ°ГЁГ¬ГҐГ­ГҐГ­ГЁГї Г¬ГЁГЈГ°Г Г¶ГЁГ©.");
                         throw;
                     }
                 }
                 else
                 {
-                    Log.Information("Все миграции уже были применены.");
+                    Log.Information("Г‚Г±ГҐ Г¬ГЁГЈГ°Г Г¶ГЁГЁ ГіГ¦ГҐ ГЎГ»Г«ГЁ ГЇГ°ГЁГ¬ГҐГ­ГҐГ­Г».");
                 }
             }
         }
 
 		static void EnsureAppSettingsExists()
 		{
-			// Определяем окружение (по умолчанию - Production)
+			// ГЋГЇГ°ГҐГ¤ГҐГ«ГїГҐГ¬ Г®ГЄГ°ГіГ¦ГҐГ­ГЁГҐ (ГЇГ® ГіГ¬Г®Г«Г·Г Г­ГЁГѕ - Production)
 			var environment = Environment.GetEnvironmentVariable("MYAPP_ENVIRONMENT") ?? "Production";
 			var configFileName = $"appsettings.{environment}.json";
 
-			// Проверяем наличие основного файла конфигурации
+			// ГЏГ°Г®ГўГҐГ°ГїГҐГ¬ Г­Г Г«ГЁГ·ГЁГҐ Г®Г±Г­Г®ГўГ­Г®ГЈГ® ГґГ Г©Г«Г  ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГЁ
 			if (!File.Exists("appsettings.json"))
 			{
-				Log.Information("Основной appsettings.json отсутствует. Создаём файл с настройками по умолчанию...");
+				Log.Information("ГЋГ±Г­Г®ГўГ­Г®Г© appsettings.json Г®ГІГ±ГіГІГ±ГІГўГіГҐГІ. Г‘Г®Г§Г¤Г ВёГ¬ ГґГ Г©Г« Г± Г­Г Г±ГІГ°Г®Г©ГЄГ Г¬ГЁ ГЇГ® ГіГ¬Г®Г«Г·Г Г­ГЁГѕ...");
 				CreateDefaultAppSettings("appsettings.json");
 			}
 
-			// Проверяем наличие окружного файла (appsettings.Development.json или appsettings.Production.json)
+			// ГЏГ°Г®ГўГҐГ°ГїГҐГ¬ Г­Г Г«ГЁГ·ГЁГҐ Г®ГЄГ°ГіГ¦Г­Г®ГЈГ® ГґГ Г©Г«Г  (appsettings.Development.json ГЁГ«ГЁ appsettings.Production.json)
 			if (!File.Exists(configFileName))
 			{
-				Log.Information($"Файл {configFileName} отсутствует. Создаём файл с настройками по умолчанию...");
+				Log.Information($"Г”Г Г©Г« {configFileName} Г®ГІГ±ГіГІГ±ГІГўГіГҐГІ. Г‘Г®Г§Г¤Г ВёГ¬ ГґГ Г©Г« Г± Г­Г Г±ГІГ°Г®Г©ГЄГ Г¬ГЁ ГЇГ® ГіГ¬Г®Г«Г·Г Г­ГЁГѕ...");
 				CreateDefaultAppSettings(configFileName);
 			}
 		}
@@ -231,13 +231,13 @@ namespace TC_WinForms
 				}
 			};
 
-			// Сериализация в JSON с красивым форматированием
+			// Г‘ГҐГ°ГЁГ Г«ГЁГ§Г Г¶ГЁГї Гў JSON Г± ГЄГ°Г Г±ГЁГўГ»Г¬ ГґГ®Г°Г¬Г ГІГЁГ°Г®ГўГ Г­ГЁГҐГ¬
 			var options = new JsonSerializerOptions { WriteIndented = true };
 			var json = JsonSerializer.Serialize(defaultConfig, options);
 
-			// Запись в файл
+			// Г‡Г ГЇГЁГ±Гј Гў ГґГ Г©Г«
 			File.WriteAllText(fileName, json);
-			Log.Information($"Файл {fileName} создан.");
+			Log.Information($"Г”Г Г©Г« {fileName} Г±Г®Г§Г¤Г Г­.");
 		}
 
 		static void UpdateFirstRunFlag()
@@ -248,7 +248,7 @@ namespace TC_WinForms
 			var jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
 			if (jsonObj == null)
 			{
-				throw new Exception("Ошибка чтения файла конфигурации.");
+				throw new Exception("ГЋГёГЁГЎГЄГ  Г·ГІГҐГ­ГЁГї ГґГ Г©Г«Г  ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГЁ.");
 			}
 			jsonObj["IsFirstRun"] = false;
 			string output = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented);
@@ -259,7 +259,10 @@ namespace TC_WinForms
         static void RunDebugMode()
         {
             string login, password;
+
             Role userRole = Role.Admin;
+
+
 
             switch (userRole)
             {
@@ -286,7 +289,7 @@ namespace TC_WinForms
             }
             else
             {
-                throw new Exception("Пользователь не найден!");
+                throw new Exception("ГЏГ®Г«ГјГ§Г®ГўГ ГІГҐГ«Гј Г­ГҐ Г­Г Г©Г¤ГҐГ­!");
             }
         }
 
@@ -301,8 +304,8 @@ namespace TC_WinForms
 
                 case 1:
                     {
-                        LoadTechnologicalCardEditor(451); // ТКПС_1.1.5 (495)
-                        //PrintTechnologicalCard(494); // ТКПС_1.1.3 (494)
+                        LoadTechnologicalCardEditor(451); // Г’ГЉГЏГ‘_1.1.5 (495)
+                        //PrintTechnologicalCard(494); // Г’ГЉГЏГ‘_1.1.3 (494)
                     }
                     break;
 
