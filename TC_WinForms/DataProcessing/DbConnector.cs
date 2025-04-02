@@ -48,6 +48,27 @@ namespace TC_WinForms.DataProcessing
         {
             await AddTcAsync(new List<TechnologicalCard> { tc });
         }
+
+        public async Task AddOrUpdateCategoryAsync(InnerDirectory tc)
+        {
+            using (var db = new MyDbContext())
+            {
+
+                var existingTc = await db.Set<InnerDirectory>()
+                        .FirstOrDefaultAsync(t => t.Id == tc.Id);
+
+                if (existingTc != null)
+                    existingTc.ApplyUpdates(tc);
+                else
+                    await db.InnerDirectory.AddAsync(tc);
+
+                if (db.ChangeTracker.HasChanges())
+                {
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
+
         public async Task AddOrUpdateTCAsync(TechnologicalCard tc)
         {
             using (var db = new MyDbContext())
