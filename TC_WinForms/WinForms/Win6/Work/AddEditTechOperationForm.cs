@@ -2439,17 +2439,20 @@ namespace TC_WinForms.WinForms.Work
                 ExecutionWork vb = (ExecutionWork)dataGridViewEtap.Rows[e.RowIndex].Cells[0].Value;
                 string strEtap = (string)dataGridViewEtap.Rows[e.RowIndex].Cells[3].Value;
 
-                vb.Etap = strEtap;
+                vb.Etap = string.IsNullOrEmpty(strEtap) ? "0" : strEtap;
+                dataGridViewEtap.Rows[e.RowIndex].Cells[3].Value = vb.Etap;
+
                 TechOperationForm.UpdateGrid();
             }
-
 
             if (e.ColumnIndex == 4)
             {
                 ExecutionWork vb = (ExecutionWork)dataGridViewEtap.Rows[e.RowIndex].Cells[0].Value;
                 string strEtap = (string)dataGridViewEtap.Rows[e.RowIndex].Cells[4].Value;
 
-                vb.Posled = strEtap;
+                vb.Posled = string.IsNullOrEmpty(strEtap) ? "0" : strEtap;
+                dataGridViewEtap.Rows[e.RowIndex].Cells[4].Value = vb.Posled;
+
                 TechOperationForm.UpdateGrid();
             }
 
