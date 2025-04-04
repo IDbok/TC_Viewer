@@ -2345,21 +2345,40 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		}
 	}
 
-	/// <summary>
-	/// Добавляет данные о машинах в строки DataGridView на основе TechOperationDataGridItem.
-	/// </summary>
-	/// <param name="techOperationDataGridItem">Объект TechOperationDataGridItem, содержащий данные о текущей технологической операции.</param>
-	/// <param name="str">Список объектов, представляющий строку данных для добавления в DataGridView.</param>
-	private void AddMachineColumns(TechOperationDataGridItem techOperationDataGridItem, List<object> str)
+    /// <summary>
+    /// Добавляет данные о машинах в строки DataGridView на основе TechOperationDataGridItem.
+    /// </summary>
+    /// <param name="techOperationDataGridItem">Объект TechOperationDataGridItem, содержащий данные о текущей технологической операции.</param>
+    /// <param name="str">Список объектов, представляющий строку данных для добавления в DataGridView.</param>
+    private void AddMachineColumns(TechOperationDataGridItem techOperationDataGridItem, List<object> str)
     {
-        techOperationDataGridItem.listMachStr = new List<string>();
+        techOperationDataGridItem.listMachStr = new List<string>();///////////////////////
 
         for (var index = 0; index < TehCarta.Machine_TCs.Count; index++)
         {
             if (techOperationDataGridItem.listMachStr.Count == 0 && techOperationDataGridItem.listMach.Count > 0)
             {
                 bool b = techOperationDataGridItem.listMach[index];
-                str.Add(b ? techOperationDataGridItem.TimeEtap : techOperationDataGridItem.TimeEtap == "-1" ? "-1" : "");
+				string value;
+				if (b && techOperationDataGridItem.TimeEtap == "-1" && techOperationDataGridItem.TechOperationWork.GetParallelIndex() != null)
+				{
+					var result = TechOperationDataGridItems
+							   .Where(item => item.TechOperationWork.GetParallelIndex() == techOperationDataGridItem.TechOperationWork.GetParallelIndex())
+							   .OrderBy(item => item.Nomer)
+							   .FirstOrDefault();
+
+					dgvMain.Rows[result.Nomer - 1].Cells[str.Count].Value = result.TimeEtap;
+
+                    value = techOperationDataGridItem.TimeEtap == "-1" ? "-1" : "";
+                }
+				else if(b)
+				{
+                    value = techOperationDataGridItem.TimeEtap;
+				}
+				else
+					value = techOperationDataGridItem.TimeEtap == "-1" ? "-1" : "";
+
+                str.Add(value);
             }
             else
             {
