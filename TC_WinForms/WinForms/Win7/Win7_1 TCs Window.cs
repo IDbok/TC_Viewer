@@ -228,6 +228,25 @@ namespace TC_WinForms.WinForms
                 if (enumValuesStatus != null)
                 {
                     var selectedEnumValue = enumValuesStatus.FirstOrDefault(e => e.GetDescription() == selectedDescription);
+
+                    if((TechnologicalCardStatus)selectedEnumValue == TechnologicalCardStatus.Approved)
+                    {
+                        DbConnector db = new DbConnector();
+                        List<(string Type, string Name)> unpublishedElements = db.CanTCDraftStatusChange(LocalCard.Id);
+
+                        if (unpublishedElements.Count > 0)
+                        {
+                            string elements = "";
+                            foreach (var element in unpublishedElements)
+                            {
+                                elements += "Тип: " + element.Type + ". Название: " + element.Name + ".\n";
+                            }
+
+                            MessageBox.Show("Карта не может быть опубликована, если используются неопубликолванные элементы. \n" + elements, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return false;
+                        }
+                    }
+
                     LocalCard.Status = (TechnologicalCardStatus)selectedEnumValue;
                 }
 
