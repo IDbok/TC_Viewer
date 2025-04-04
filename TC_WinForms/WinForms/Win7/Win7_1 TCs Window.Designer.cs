@@ -60,6 +60,8 @@ namespace TC_WinForms.WinForms
 			lblStatus = new Label();
 			btnClone = new Button();
 			panel1 = new Panel();
+            lblClassifier = new Label();
+            txtClassifier = new TextBox();
 			panel1.SuspendLayout();
 			SuspendLayout();
 			// 
@@ -263,7 +265,7 @@ namespace TC_WinForms.WinForms
 			// 
 			// btnSaveAndOpen
 			// 
-			btnSaveAndOpen.Location = new Point(26, 645);
+			btnSaveAndOpen.Location = new Point(26, 745);
 			btnSaveAndOpen.Name = "btnSaveAndOpen";
 			btnSaveAndOpen.Size = new Size(191, 72);
 			btnSaveAndOpen.TabIndex = 0;
@@ -273,7 +275,7 @@ namespace TC_WinForms.WinForms
 			// 
 			// btnSave
 			// 
-			btnSave.Location = new Point(225, 645);
+			btnSave.Location = new Point(225, 745);
 			btnSave.Name = "btnSave";
 			btnSave.Size = new Size(191, 72);
 			btnSave.TabIndex = 13;
@@ -283,7 +285,7 @@ namespace TC_WinForms.WinForms
 			// 
 			// btnExportExcel
 			// 
-			btnExportExcel.Location = new Point(664, 645);
+			btnExportExcel.Location = new Point(664, 745);
 			btnExportExcel.Name = "btnExportExcel";
 			btnExportExcel.Size = new Size(142, 72);
 			btnExportExcel.TabIndex = 15;
@@ -330,7 +332,7 @@ namespace TC_WinForms.WinForms
 			// 
 			// btnClone
 			// 
-			btnClone.Location = new Point(461, 645);
+			btnClone.Location = new Point(461, 745);
 			btnClone.Name = "btnClone";
 			btnClone.Size = new Size(191, 72);
 			btnClone.TabIndex = 14;
@@ -341,6 +343,8 @@ namespace TC_WinForms.WinForms
 			// 
 			// panel1
 			// 
+            panel1.Controls.Add(txtClassifier);
+            panel1.Controls.Add(lblClassifier);
 			panel1.Controls.Add(lblName);
 			panel1.Controls.Add(cbxStatus);
 			panel1.Controls.Add(label1);
@@ -371,17 +375,34 @@ namespace TC_WinForms.WinForms
 			panel1.Controls.Add(label8);
             panel1.Controls.Add(labelUnit);
 			panel1.Controls.Add(txtApplicability);
-			panel1.Dock = DockStyle.Fill;
+            panel1.Dock = DockStyle.Fill;
 			panel1.Location = new Point(0, 0);
+            panel1.Margin = new Padding(2, 2, 2, 2);
 			panel1.Name = "panel1";
 			panel1.Size = new Size(857, 727);
 			panel1.TabIndex = 28;
 			// 
+            // lblClassifier
+            // 
+            lblClassifier.AutoSize = true;
+            lblClassifier.Location = new Point(26, 635);
+            lblClassifier.Name = "lblClassifier";
+            lblClassifier.Size = new Size(77, 15);
+            lblClassifier.TabIndex = 28;
+            lblClassifier.Text = "Код Classifier";
+            // 
+            // txtClassifier
+            // 
+            txtClassifier.Location = new Point(241, 632);
+            txtClassifier.Name = "txtClassifier";
+            txtClassifier.Size = new Size(440, 23);
+            txtClassifier.TabIndex = 29;
+            // 
 			// Win7_1_TCs_Window
 			// 
 			AutoScaleDimensions = new SizeF(9F, 23F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(857, 727);
+			ClientSize = new Size(857, 857);
 			Controls.Add(panel1);
 			FormBorderStyle = FormBorderStyle.FixedDialog;
 			MinimumSize = new Size(875, 588);
@@ -427,5 +448,7 @@ namespace TC_WinForms.WinForms
         private Label lblStatus;
         private Button btnClone;
         private Panel panel1;
+        private TextBox txtClassifier;
+        private Label lblClassifier;
     }
 }

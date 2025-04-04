@@ -63,7 +63,9 @@ namespace TcModels.Models
                 { nameof(FinalProduct), "Конечный продукт" },
                 { nameof(Applicability), "Применимость техкарты" },
                 { nameof(Note), "Примечания" },
-                { nameof(IsCompleted), "Наличие" }
+                { nameof(IsCompleted), "Наличие" },
+                { nameof(ClassifierCode), "Код Classifier" }
+
             };
         }
         public static Dictionary<string, int> GetPropertiesOrder()
@@ -85,6 +87,7 @@ namespace TcModels.Models
                 { nameof(Note), 8 },
                 { nameof(IsCompleted), 9 },
                 { nameof(Version), 10 },
+                { nameof(ClassifierCode), 11 },
 
                 { nameof(TechnologicalProcessNumber), -1 },
                 { nameof(Description), -1 },
@@ -118,7 +121,7 @@ namespace TcModels.Models
         [NotMapped]
         [Obsolete]
 		public string? ExecutionSchemeBase64 { get; set; }
-
+        public string? ClassifierCode { get; set; } // Код в классификаторе
         public long? ExecutionSchemeImageId { get; set; }
         public ImageStorage? ExecutionSchemeImage { get; set; }
 
@@ -228,6 +231,7 @@ namespace TcModels.Models
                 Status = sourceCard.Status;
                 OutlayUnit = sourceCard.OutlayUnit;
                 ExecutionSchemeImageId = sourceCard.ExecutionSchemeImageId;
+                ClassifierCode = sourceCard.ClassifierCode;
             }
         }
         public override string ToString()
