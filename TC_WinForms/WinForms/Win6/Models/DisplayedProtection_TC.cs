@@ -16,8 +16,8 @@ public class DisplayedProtection_TC : BaseDisplayedEntity
 
 		Name = obj.Child.Name;
 		Type = obj.Child.Type;
-
-		Unit = obj.Child.Unit;
+		Note = obj.Note;
+        Unit = obj.Child.Unit;
 		Quantity = obj.Quantity;
 		Price = obj.Child.Price;
 		Description = obj.Child.Description;
