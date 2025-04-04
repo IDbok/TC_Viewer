@@ -1636,7 +1636,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		var ew = dgvMain.Rows[e.RowIndex].Cells[0].Value as ExecutionWork;		
 		var text = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as string;
 
-		if (ew == null || text == null)
+		text = string.IsNullOrEmpty(text) ? "" : text;
+
+		if (ew == null)
 			return;
 
 		if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
