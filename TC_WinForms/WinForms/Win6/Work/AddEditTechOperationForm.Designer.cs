@@ -347,7 +347,7 @@
 			// 
 			dataGridViewAllTO.AllowUserToAddRows = false;
 			dataGridViewAllTO.AllowUserToDeleteRows = false;
-			dataGridViewAllTO.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridViewAllTO.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			dataGridViewAllTO.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridViewAllTO.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			dataGridViewAllTO.Columns.AddRange(new DataGridViewColumn[] { Id, Add, NameTO, Column21 });
@@ -407,7 +407,7 @@
 			dataGridViewTO.MultiSelect = false;
 			dataGridViewTO.Name = "dataGridViewTO";
 			dataGridViewTO.RowHeadersWidth = 51;
-			dataGridViewTO.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+			dataGridViewTO.SelectionMode = DataGridViewSelectionMode.CellSelect;
 			dataGridViewTO.Size = new Size(1218, 293);
 			dataGridViewTO.TabIndex = 1;
 			// 
@@ -595,7 +595,7 @@
 			dataGridViewInstrumentLocal.Margin = new Padding(3, 2, 3, 2);
 			dataGridViewInstrumentLocal.Name = "dataGridViewInstrumentLocal";
 			dataGridViewInstrumentLocal.RowHeadersWidth = 51;
-			dataGridViewInstrumentLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+			dataGridViewInstrumentLocal.SelectionMode = DataGridViewSelectionMode.CellSelect;
 			dataGridViewInstrumentLocal.Size = new Size(1222, 295);
 			dataGridViewInstrumentLocal.TabIndex = 1;
 			// 
@@ -878,7 +878,7 @@
 			dataGridViewComponentLocal.Margin = new Padding(2);
 			dataGridViewComponentLocal.Name = "dataGridViewComponentLocal";
 			dataGridViewComponentLocal.RowHeadersWidth = 51;
-			dataGridViewComponentLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+			dataGridViewComponentLocal.SelectionMode = DataGridViewSelectionMode.CellSelect;
 			dataGridViewComponentLocal.Size = new Size(1218, 293);
 			dataGridViewComponentLocal.TabIndex = 1;
 			// 
@@ -1043,7 +1043,7 @@
 			dataGridViewTPLocal.Margin = new Padding(2);
 			dataGridViewTPLocal.Name = "dataGridViewTPLocal";
 			dataGridViewTPLocal.RowHeadersWidth = 51;
-			dataGridViewTPLocal.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+			dataGridViewTPLocal.SelectionMode = DataGridViewSelectionMode.CellSelect;
 			dataGridViewTPLocal.Size = new Size(1218, 293);
 			dataGridViewTPLocal.TabIndex = 1;
 			// 
@@ -1443,7 +1443,8 @@
 			// 
 			dataGridViewStaff.AllowUserToAddRows = false;
 			dataGridViewStaff.AllowUserToDeleteRows = false;
-			dataGridViewStaff.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewStaff.SelectionMode = DataGridViewSelectionMode.CellSelect;
+            dataGridViewStaff.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			dataGridViewStaff.Columns.AddRange(new DataGridViewColumn[] { StaffIdGrid, Column12, StaffGridChechBox, StaffSimvolGrid, StaffNAmeGrid, Column13, Column14, Column15, Column16, Column17 });
 			dataGridViewStaff.Dock = DockStyle.Fill;
 			dataGridViewStaff.Location = new Point(3, 2);
@@ -1661,7 +1662,7 @@
 			dataGridViewLocalSZ.Margin = new Padding(5, 6, 5, 6);
 			dataGridViewLocalSZ.Name = "dataGridViewLocalSZ";
 			dataGridViewLocalSZ.RowHeadersWidth = 51;
-			dataGridViewLocalSZ.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+			dataGridViewLocalSZ.SelectionMode = DataGridViewSelectionMode.CellSelect;
 			dataGridViewLocalSZ.Size = new Size(1212, 285);
 			dataGridViewLocalSZ.TabIndex = 1;
 			// 
@@ -1832,7 +1833,7 @@
 			dataGridViewEtap.Margin = new Padding(3, 2, 3, 2);
 			dataGridViewEtap.Name = "dataGridViewEtap";
 			dataGridViewEtap.RowHeadersWidth = 51;
-			dataGridViewEtap.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+			dataGridViewEtap.SelectionMode = DataGridViewSelectionMode.CellSelect;
 			dataGridViewEtap.Size = new Size(1222, 294);
 			dataGridViewEtap.TabIndex = 2;
 			// 
