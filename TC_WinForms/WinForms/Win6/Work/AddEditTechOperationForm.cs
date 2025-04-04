@@ -749,9 +749,16 @@ namespace TC_WinForms.WinForms.Work
                 if (wor != null && wor.Order != newOrder)
                 {
                     // todo: если ТП Повторить, то порядок не может быть ниже чем последний из повторяемых ТП
-
-                    newOrder = newOrder <= 0 ? 1 : newOrder;
-                    newOrder = newOrder > dataGridViewTPLocal.RowCount ? dataGridViewTPLocal.RowCount : newOrder;
+                    if (wor.Repeat)
+                    {
+                        var lastRepeatOrder = wor.ExecutionWorkRepeats.Max(w => w.ChildExecutionWork.Order);
+                        newOrder = newOrder <= lastRepeatOrder ? lastRepeatOrder + 1 : newOrder;
+                    }
+                    else
+                    {
+                        newOrder = newOrder <= 0 ? 1 : newOrder;
+                        newOrder = newOrder > dataGridViewTPLocal.RowCount ? dataGridViewTPLocal.RowCount : newOrder;
+                    }
 
                     this.BeginInvoke(new MethodInvoker(() =>//используется для обхода рекурсивного вызова перемещения строк
                     {
