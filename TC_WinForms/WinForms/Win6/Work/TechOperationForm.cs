@@ -1091,8 +1091,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid)
 				copiedEw = CloneExecutionWorkForAnotherTC(copiedEw);
 
-			// Вставляем новую строку
-			var newEw = InsertNewExecutionWork(
+            // Вставляем новую строку
+            var newEw = InsertNewExecutionWork(
 				copiedEw.techTransition ?? throw new Exception("Ошибка при вставке: нет TechTransition в скопированном объектке."),
 				selectedToTow,
 				rowIndex,
@@ -1104,7 +1104,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				repeatTcId: copiedEw.RepeatsTCId ?? 0
 			);
 
-			newEw.TempGuid = copiedEw.IdGuid;
+            newEw.TempGuid = copiedEw.IdGuid;
 			TcCopyData.PastedEw.Add(newEw);
 
 		
@@ -1586,7 +1586,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			coefficientValue: coefficient, 
 			comment: comment, 
 			pictureName: pictureName, 
-			repeatTcId: repeatTcId);
+			repeatTcId: repeatTcId,
+			executionWorkRepeats: executionWorksRepeats != null ? executionWorksRepeats : null);
 
         if (newEw == null) {
 			_logger.Error("InsertNewExecutionWork: AddNewExecutionWork вернул null! Бросаем исключение.");
@@ -2808,7 +2809,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     }
 
     public ExecutionWork AddNewExecutionWork(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null,
-        int? insertIndex = null, string? coefficientValue = null, string? comment = null, string? pictureName = null, long repeatTcId = 0)
+        int? insertIndex = null, string? coefficientValue = null, string? comment = null, string? pictureName = null, long repeatTcId = 0, List<ExecutionWorkRepeat> executionWorkRepeats = null)
 	{
 		_logger.Information("Добавление нового ExecutionWork в TO '{TechOpName}' (ID={TechOpId}) на позицию {Index}. " +
 					  "Transition='{TransitionName}' (ID={TransitionId}).",
@@ -2924,7 +2925,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			newEw.Value = tech.TimeExecution;
 		}
 
-		if (techTransitionTypical != null)
+        if (executionWorkRepeats != null)
+        {
+			newEw.Value = CalculateExecutionWorksPovtor(executionWorkRepeats);
+        }
+
+        if (techTransitionTypical != null)
         {
             newEw.Etap = techTransitionTypical.Etap;
             newEw.Posled = techTransitionTypical.Posled;
@@ -3380,6 +3386,34 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		}
 	}
 
+	private double CalculateExecutionWorksPovtor(List<ExecutionWorkRepeat> executionWorkRepeats)
+	{
+        double totalValue = 0;
+        try
+        {
+            var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+
+            foreach (var repeat in executionWorkRepeats)
+            {
+                if (repeat.ChildExecutionWork.Delete)
+                    continue;
+
+                var value = repeat.ChildExecutionWork.Value;
+                totalValue += MathScript.EvaluateCoefficientExpression(repeat.NewCoefficient, coefDict, value.ToString());
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Ошибка при пересчете значения повтора");
+            string errorMessage = ex.InnerException?.Message ?? ex.Message;
+
+            MessageBox.Show($"Ошибка при пересчете значения повтора:\n\n{errorMessage}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            totalValue = -1;
+        }
+
+        return totalValue;
+    }
 	private void OpenRelatedTc()
 	{
 
