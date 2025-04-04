@@ -796,6 +796,9 @@ namespace TC_WinForms.WinForms
 
 		private void SaveRoadMapData()
 		{
+            if (tcViewState.RoadmapInfo.RoadMapItems == null)
+                return;
+
             var roadMapItems = tcViewState.RoadmapInfo.RoadMapItems;
 
             try
