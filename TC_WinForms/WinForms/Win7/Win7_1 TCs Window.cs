@@ -134,6 +134,7 @@ namespace TC_WinForms.WinForms
             txtFinalProduct.Text = LocalCard.FinalProduct;
             txtApplicability.Text = LocalCard.Applicability;
             txtNote.Text = LocalCard.Note;
+            txtClassifier.Text = LocalCard.ClassifierCode;
             chbxIsCompleted.Checked = LocalCard.IsCompleted;
 
             cbxStatus.SelectedItem = LocalCard.Status.GetDescription();
@@ -217,6 +218,7 @@ namespace TC_WinForms.WinForms
             LocalCard.Applicability = txtApplicability.Text;
             LocalCard.Note = txtNote.Text;
             LocalCard.IsCompleted = chbxIsCompleted.Checked;
+            LocalCard.ClassifierCode = txtClassifier.Text;
 
             if (_accessLevel == User.Role.Lead)
             {

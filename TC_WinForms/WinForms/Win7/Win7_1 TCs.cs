@@ -545,6 +545,7 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 		target.IsCompleted = source.IsCompleted;
 		target.Status = source.Status;
 		target.Description = source.Description;
+		target.ClassifierCode = source.ClassifierCode;
 	}
 
 	#endregion
@@ -653,6 +654,7 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 		private string? _repairType;
 		private bool _isCompleted;
 		private bool _isDynamic;
+		private string _classifierCode;
 		private TechnologicalCardStatus _status;
 
 		public DisplayedTechnologicalCard() { }
@@ -678,7 +680,8 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 			IsCompleted = tc.IsCompleted;
 			IsDynamic = tc.IsDynamic;
 			Status = tc.Status;
-		}
+            ClassifierCode = tc.ClassifierCode;
+        }
 
 		public int Id
 		{
@@ -927,6 +930,20 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 			}
 		}
 
+		public string ClassifierCode
+		{
+			get => _classifierCode;
+            set
+            {
+                if (_classifierCode != value)
+                {
+                    _classifierCode = value;
+                    OnPropertyChanged(nameof(Status));
+                }
+            }
+        }
+
+
 		public event PropertyChangedEventHandler PropertyChanged;
 		protected virtual void OnPropertyChanged(string propertyName)
 		{
@@ -949,9 +966,9 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 			{ nameof(Note), "Примечания" },
 			{ nameof(IsCompleted), "Наличие" },
 			{ nameof(Status), "Ст." },
-			{ nameof(IsDynamic), "ДК" }
-
-		};
+			{ nameof(IsDynamic), "ДК" },
+            { nameof(ClassifierCode), "Код Classifier" }
+        };
 		
 		public List<string> GetPropertiesOrder() => new List<string>
 		{
@@ -964,7 +981,8 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 				nameof(FinalProduct),
 				nameof(Applicability),
 				nameof(Note),
-				nameof(IsDynamic),
+                nameof(ClassifierCode),
+                nameof(IsDynamic),
 
                     //nameof(Status)
                     // nameof(IsCompleted),
