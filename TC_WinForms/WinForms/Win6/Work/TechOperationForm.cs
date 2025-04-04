@@ -3215,7 +3215,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			{
 				dgvMain.ClearSelection();
 				dgvMain.Rows[index].Selected = true;
-			}
+				dgvMain.FirstDisplayedScrollingRowIndex = index;
+            }
         }
     }
 
