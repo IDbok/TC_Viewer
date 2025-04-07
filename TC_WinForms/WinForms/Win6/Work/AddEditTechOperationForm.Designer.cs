@@ -587,7 +587,8 @@
 			// 
 			dataGridViewInstrumentLocal.AllowUserToAddRows = false;
 			dataGridViewInstrumentLocal.AllowUserToDeleteRows = false;
-			dataGridViewInstrumentLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewInstrumentLocal.MultiSelect = false;
+            dataGridViewInstrumentLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridViewInstrumentLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			dataGridViewInstrumentLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn20, dataGridViewButtonColumn4, dataGridViewTextBoxColumn21, dataGridViewTextBoxColumn22, dataGridViewTextBoxColumn23, dataGridViewTextBoxColumn24, Column20 });
 			dataGridViewInstrumentLocal.Dock = DockStyle.Fill;
@@ -870,7 +871,8 @@
 			// 
 			dataGridViewComponentLocal.AllowUserToAddRows = false;
 			dataGridViewComponentLocal.AllowUserToDeleteRows = false;
-			dataGridViewComponentLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewComponentLocal.MultiSelect = false;
+            dataGridViewComponentLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridViewComponentLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			dataGridViewComponentLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn12, dataGridViewButtonColumn2, dataGridViewTextBoxColumn13, dataGridViewTextBoxColumn14, Column4, Column5, Column26 });
 			dataGridViewComponentLocal.Dock = DockStyle.Fill;
@@ -1043,7 +1045,8 @@
 			dataGridViewTPLocal.Margin = new Padding(2);
 			dataGridViewTPLocal.Name = "dataGridViewTPLocal";
 			dataGridViewTPLocal.RowHeadersWidth = 51;
-			dataGridViewTPLocal.SelectionMode = DataGridViewSelectionMode.CellSelect;
+            dataGridViewTPLocal.MultiSelect = false;
+            dataGridViewTPLocal.SelectionMode = DataGridViewSelectionMode.CellSelect;
 			dataGridViewTPLocal.Size = new Size(1218, 293);
 			dataGridViewTPLocal.TabIndex = 1;
 			// 
@@ -1662,7 +1665,8 @@
 			dataGridViewLocalSZ.Margin = new Padding(5, 6, 5, 6);
 			dataGridViewLocalSZ.Name = "dataGridViewLocalSZ";
 			dataGridViewLocalSZ.RowHeadersWidth = 51;
-			dataGridViewLocalSZ.SelectionMode = DataGridViewSelectionMode.CellSelect;
+            dataGridViewLocalSZ.MultiSelect = false;
+            dataGridViewLocalSZ.SelectionMode = DataGridViewSelectionMode.CellSelect;
 			dataGridViewLocalSZ.Size = new Size(1212, 285);
 			dataGridViewLocalSZ.TabIndex = 1;
 			// 
@@ -1833,7 +1837,8 @@
 			dataGridViewEtap.Margin = new Padding(3, 2, 3, 2);
 			dataGridViewEtap.Name = "dataGridViewEtap";
 			dataGridViewEtap.RowHeadersWidth = 51;
-			dataGridViewEtap.SelectionMode = DataGridViewSelectionMode.CellSelect;
+            dataGridViewEtap.MultiSelect = false;
+            dataGridViewEtap.SelectionMode = DataGridViewSelectionMode.CellSelect;
 			dataGridViewEtap.Size = new Size(1222, 294);
 			dataGridViewEtap.TabIndex = 2;
 			// 
