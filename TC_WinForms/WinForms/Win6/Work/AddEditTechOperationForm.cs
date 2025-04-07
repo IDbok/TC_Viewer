@@ -857,10 +857,11 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTPLocal_SelectionChanged(object? sender, EventArgs e)
         {
-            if (dataGridViewTPLocal.SelectedRows.Count > 0)
+            if (dataGridViewTPLocal.SelectedCells.Count == 1)
             {
+                var rowIndex = dataGridViewTPLocal.SelectedCells[0].RowIndex;
                 // Get the ExecutionWork object corresponding to the selected row
-                var selectedRow = dataGridViewTPLocal.SelectedRows[0];
+                var selectedRow = dataGridViewTPLocal.Rows[rowIndex];
                 var id = (Guid)selectedRow.Cells[0].Value;
                 var executionWork = FindExecutionWorkById(id);
 
@@ -871,10 +872,11 @@ namespace TC_WinForms.WinForms.Work
 
         private void DataGridViewTO_SelectionChanged(object? sender, EventArgs e)
         {
-            if (dataGridViewTO.SelectedRows.Count > 0)
+            if (dataGridViewTO.SelectedCells.Count == 1)
             {
+                var rowIndex = dataGridViewTO.SelectedCells[0].RowIndex;
                 // Get the ExecutionWork object corresponding to the selected row
-                var selectedRow = dataGridViewTO.SelectedRows[0];
+                var selectedRow = dataGridViewTO.Rows[rowIndex];
                 var selectedObject = (TechOperationWork)selectedRow.Cells[0].Value;
 
                 if (selectedObject != null && selectedObject == SelectedTO)
