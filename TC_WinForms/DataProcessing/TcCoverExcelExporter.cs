@@ -119,6 +119,12 @@ namespace TC_WinForms.DataProcessing
             AddStyleAlignment(currentRow, columnNums, sheet);
             currentRow++;
 
+            sheet.Cells[currentRow, columnNums[0]].Value = "Код Classifier:";
+            sheet.Cells[currentRow, columnNums[1]].Value = tc.ClassifierCode;
+
+            AddStyleAlignment(currentRow, columnNums, sheet);
+            currentRow++;
+
             int[] rowsNums = { currentRow, currentRow + 1 };
             sheet.Cells[rowsNums[0], columnNums[0]].Value = "Тех.процесс/Параметр:";
 
