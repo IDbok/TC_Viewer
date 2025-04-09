@@ -61,11 +61,26 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         dgvMain.CellEndEdit += DgvMain_CellEndEdit;
         dgvMain.CellMouseEnter += DgvMain_CellMouseEnter;
 		dgvMain.MouseDown += DataGridView_MouseDown;
-		_tcViewState.ViewModeChanged += OnViewModeChanged;
+        dgvMain.CellContentDoubleClick += DgvMain_CellContentDoubleClick;
+
+        _tcViewState.ViewModeChanged += OnViewModeChanged;
 		this.KeyPreview = true;
 		this.KeyDown += new KeyEventHandler(Form_KeyDown);
 
 		SetContextMenuSetings();
+    }
+
+    private void DgvMain_CellContentDoubleClick(object? sender, DataGridViewCellEventArgs e)
+    {
+		if(dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && dgvMain.Rows[e.RowIndex].Cells[4].Value.ToString().Contains("Выполнить в соответствии с"))
+		{
+			var result = MessageBox.Show("Открыть связанную ТК?", "Открытие ТК", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+			if(result == DialogResult.Yes)
+			{
+				var relatedTc = new Win6_new((int)ew.RepeatsTCId,_tcViewState.UserRole, _tcViewState.IsViewMode);
+				relatedTc.Show();
+            }
+		}
     }
 
     private void TechOperationForm_Load(object sender, EventArgs e)
@@ -149,7 +164,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 	// Пункты для копирования
 	private ToolStripMenuItem copyTextItem;
-	private ToolStripMenuItem copyStaffItem;
+    private ToolStripMenuItem copyStaffItem;
 	private ToolStripMenuItem copyTechOperationItem;
 	private ToolStripMenuItem copyProtectionsItem;
 	private ToolStripMenuItem copyRowItem;
@@ -182,7 +197,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		copyTextItem = new ToolStripMenuItem("Копировать текст");
 		copyStaffItem = new ToolStripMenuItem("Копировать персонал");
 		copyRowItem = new ToolStripMenuItem("Копировать строку");
-		copyTechOperationItem = new ToolStripMenuItem("Копировать техоперацию");
+        copyTechOperationItem = new ToolStripMenuItem("Копировать техоперацию");
 		copyProtectionsItem = new ToolStripMenuItem("Копировать СИЗ");
 
 		copyTextItem.Click += (s, e) => {
@@ -271,16 +286,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		contextMenu.Items.Add(pasteTechOperationItem);
 		contextMenu.Items.Add(pasteProtectionsItem);
 		contextMenu.Items.Add(pasteTextItem);
-	}
+    }
 
-	/// <summary>
-	/// Настраивает видимость и доступность пунктов контекстного меню 
-	/// (копировать/вставить) в зависимости от выбранной области копирования.
-	/// </summary>
-	/// <param name="selectedScope">
-	/// Если null — пункты меню скрываются по умолчанию.
-	/// </param>
-	private void UpdateContextMenuItems(CopyScopeEnum? selectedScope) // ?? добавить параметр поле readonly ??
+    /// <summary>
+    /// Настраивает видимость и доступность пунктов контекстного меню 
+    /// (копировать/вставить) в зависимости от выбранной области копирования.
+    /// </summary>
+    /// <param name="selectedScope">
+    /// Если null — пункты меню скрываются по умолчанию.
+    /// </param>
+    private void UpdateContextMenuItems(CopyScopeEnum? selectedScope) // ?? добавить параметр поле readonly ??
 	{
 		// Скрываем или делаем Disabled все пункты
 		copyTextItem.Visible = false;
@@ -308,8 +323,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		copyRowItem.Text = "Копировать строку";
 		pasteRowItem.Text = "Вставить строку";
 
-		// Если кликнули "мимо" (scope == null), контекстное меню может быть пустым
-		if (selectedScope == null)
+        // Если кликнули "мимо" (scope == null), контекстное меню может быть пустым
+        if (selectedScope == null)
 			return;
 
 		var isVisibleOrViewMode = _tcViewState.IsViewMode ? false : true;
@@ -346,7 +361,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				break;
 			case CopyScopeEnum.Row:
 				copyRowItem.Visible = true;
-				break;
+                break;
 			case CopyScopeEnum.RowRange:
 				copyRowItem.Visible = true;
 				copyRowItem.Text = "Копировать строки";
