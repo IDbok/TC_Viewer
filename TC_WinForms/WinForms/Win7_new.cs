@@ -74,13 +74,13 @@ namespace TC_WinForms.WinForms
                 {
                     _currentWinNumber = WinNumber.Project;
 
-                    HideAllButtonsExcept(new List<Button> { btnProject, btnTechCard });
+                    HideAllButtonsExcept(new List<Button> { btnProject, btnTechCard, btnSummaryOutlay });
                 },
 
                 [User.Role.User] = () =>
                 {
                     _currentWinNumber = WinNumber.TC;
-                    HideAllButtonsExcept(new List<Button> { btnTechCard });
+                    HideAllButtonsExcept(new List<Button> { btnTechCard, btnSummaryOutlay });
                 }
             };
 

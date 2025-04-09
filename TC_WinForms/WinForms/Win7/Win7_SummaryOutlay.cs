@@ -27,7 +27,7 @@ namespace TC_WinForms.WinForms
 
         private bool isMachineViewMode = true;
         private readonly ILogger _logger;
-
+        private User.Role _accessLevel;
         private List<Outlay> _allOutlays = new();
         private readonly int _linesPerPage = 50;
         private List<SummaryOutlayDataGridItem> _allOutlaysList = new List<SummaryOutlayDataGridItem>();
@@ -58,7 +58,7 @@ namespace TC_WinForms.WinForms
             _logger = Log.Logger.ForContext<Win7_SummaryOutlay>();
             _logger.Information("Инициализация окна Win7_1_TCs для роли {AccessLevel}", accessLevel);
 
-            //_accessLevel = accessLevel;
+            _accessLevel = accessLevel;
 
             InitializeComponent();
 
@@ -123,7 +123,24 @@ namespace TC_WinForms.WinForms
             try
             {
                 _logger.Information($"Начинается загрузка данных затрат из БД");
-                _allOutlays = dbCon.GetObjectList<Outlay>();
+
+                if (_accessLevel == User.Role.User || _accessLevel == User.Role.ProjectManager)
+                {
+                    using (MyDbContext context = new MyDbContext())
+                    {
+                        var a = context.OutlaysTable.Select(s => s.TcId).Distinct().ToList();
+                        var aprovedTc = context.TechnologicalCards
+                            .Where(t => a.Contains(t.Id) && t.Status == TcModels.Models.TechnologicalCard.TechnologicalCardStatus.Approved)
+                            .Select(s => s.Id).ToList();
+                        _allOutlays = context.OutlaysTable.Where(o => aprovedTc.Contains(o.TcId)).ToList();
+                    }
+                }
+                else
+                {
+                    _allOutlays = dbCon.GetObjectList<Outlay>();
+                }
+
+                _logger.Information($"Загружены данные из БД для пользователя {_accessLevel}");
                 WriteSummaryOutlayData();
                 paginationService = new PaginationControlService<SummaryOutlayDataGridItem>(_linesPerPage, _allOutlaysList);
                 UpdateDisplayedData();
@@ -527,11 +544,11 @@ namespace TC_WinForms.WinForms
             dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.TechProcess), "Тех. процесс");
             dgvMain.Columns.Add(nameof(SummaryOutlayDataGridItem.Parameter), "Параметр");
 
-            foreach (var staff in _allOutlays.Where(s => s.Type == OutlayType.Staff).Select(x => x.Name).Distinct())
+            foreach (var staff in _allOutlays.Where(s => s.Type == OutlayType.Staff).Select(x => x.Name).Distinct().OrderBy(s => s))
             {
                 var staffSymbol = staff.Split(" ")[0];
 
-                if (dgvMain.Columns.Contains($"Staff {staffSymbol}"))
+                if (dgvMain.Columns.Contains($"Staff{staffSymbol}"))
                     continue;
 
                 dgvMain.Columns.Add($"Staff{staffSymbol}", $"{staffSymbol}, ч.");
