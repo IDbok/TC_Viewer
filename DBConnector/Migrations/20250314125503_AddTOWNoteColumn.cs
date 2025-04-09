@@ -14,7 +14,7 @@ namespace TcDbConnector.Migrations
                 name: "Note",
                 table: "TechOperationWorks",
                 type: "longtext",
-                nullable: false)
+                nullable: true)
                 .Annotation("MySql:CharSet", "utf8mb4");
         }
 

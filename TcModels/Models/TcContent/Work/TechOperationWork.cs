@@ -29,7 +29,7 @@ namespace TcModels.Models.TcContent
         [NotMapped] public bool Delete { get; set; } = false;
         [NotMapped] public bool NewItem { get; set; } = false;
 
-        public string Note { get; set; } = "";
+        public string? Note { get; set; } = "";
 
        public int Order { get; set; }
 
