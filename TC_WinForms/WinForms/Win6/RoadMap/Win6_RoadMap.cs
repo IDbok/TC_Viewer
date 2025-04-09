@@ -74,7 +74,13 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
         {
             string message = "В ходе запроса данных возникла ошибка:\nЗаписи дорожной карты, связанные с ТК либо не существуют, либо не актуальны.";
 
-            if (_tcviewState.UserRole == User.Role.Lead)
+            if(_tcviewState.RoadmapInfo.RoadMapItems != null && _tcviewState.RoadmapInfo.RoadMapItems.Count > 0)
+            {
+                _logger.Information("Данные дорожной карты были изменены, но не сохранены в базе данных.\n");
+                _roadMapControl = new RoadMapControl(_tcviewState.RoadmapInfo.RoadMapItems, _tcviewState);
+                InitializeWpfControl();
+            }
+            else if (_tcviewState.UserRole == User.Role.Lead)
             {
                 var result = MessageBox.Show( $"{message}\nОбновить записи и перезаписать в базе?", "Внимание", MessageBoxButtons.YesNo,MessageBoxIcon.Warning);
 

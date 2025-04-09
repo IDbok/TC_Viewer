@@ -315,7 +315,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                     return previousCol + 1;
                 }
                 TechOperationWork? previousTow = null;
-                var previousGroup = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex == 0).FirstOrDefault();
+                var previousGroup = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex < operationGroup.SequenceGroupIndex).FirstOrDefault();
 
                 if (previousGroup != null)
                     previousTow = previousGroup.Items.Where(o => o.Order < currentTow.Order).FirstOrDefault();
