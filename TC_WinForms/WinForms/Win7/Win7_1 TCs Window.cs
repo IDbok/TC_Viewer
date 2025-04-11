@@ -5,6 +5,7 @@ using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
+using TC_WinForms.WinForms.PrinterSettings;
 using TcDbConnector;
 using TcDbConnector.Repositories;
 using TcModels.Models;
@@ -344,32 +345,8 @@ namespace TC_WinForms.WinForms
 
         private async void btnExportExcel_Click(object sender, EventArgs e)
         {
-            try
-            {
-                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-                {
-                    // Настройка диалога сохранения файла
-                    saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
-                    saveFileDialog.FilterIndex = 1;
-                    saveFileDialog.RestoreDirectory = true;
-
-                    saveFileDialog.FileName = OriginCard.Article;
-
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        var tcExporter = new DataExcelExport();
-                        await tcExporter.SaveTCtoExcelFile(saveFileDialog.FileName, OriginCard.Id);
-                    }
-                }
-
-                _logger.Information("Печать успешно завершена для TcId={TcId}", OriginCard.Id);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Ошибка при печати для TcId={TcId}", OriginCard.Id);
-                MessageBox.Show(ex.Message);
-            }
-
+            var printForm = new TcPrintForm(OriginCard.Id);
+            printForm.Show();
         }
 
         //private bool FieldsIsNotEmpty()

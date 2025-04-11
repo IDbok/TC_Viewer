@@ -68,7 +68,7 @@ namespace TC_WinForms.DataProcessing
             _technologicalCard = new TechnologicalCard();
         }
 
-        public void ExportDiadramToExel(ExcelPackage excelPackage, TechnologicalCard technologicalCard, List<DiagamToWork> diagamToWorks)
+        public void ExportDiadramToExel(ExcelPackage excelPackage, TechnologicalCard technologicalCard, List<DiagamToWork> diagamToWorks, string article)
         {
             _diagramToWorks = diagamToWorks;
             _technologicalCard = technologicalCard;
@@ -80,7 +80,7 @@ namespace TC_WinForms.DataProcessing
 
             // Группируем по Order
             dTOWGroups = dTOWGroups.OrderBy(o => o.FirstOrDefault()!.Order).ToList();
-            var sheetName = " Блок-схема";
+            var sheetName = $"Блок-схема {article}";
 
             //Создаем лист в Excel и настраиваем область печати
             var sheet = excelPackage.Workbook.Worksheets[sheetName] ?? excelPackage.Workbook.Worksheets.Add(sheetName);
