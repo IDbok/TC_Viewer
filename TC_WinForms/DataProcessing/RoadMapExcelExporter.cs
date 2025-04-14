@@ -34,11 +34,12 @@ namespace TC_WinForms.DataProcessing
             _exporter = new ExcelExporter();
         }
 
-        public void ExportRoadMaptoFile(ExcelPackage excelPackage, List<RoadMapItem> roadMapItems, string article)
+        public void ExportRoadMaptoFile(ExcelPackage excelPackage, List<RoadMapItem> roadMapItems, string article, Color tabColor)
         {
             string sheetName = $"Дорожная карта {article}";
             // todo: add header of the table
             var sheet = excelPackage.Workbook.Worksheets[sheetName] ?? excelPackage.Workbook.Worksheets.Add(sheetName);
+            sheet.TabColor = tabColor;
 
             CompliteColumnsWidth(roadMapItems.Select(s => s.SequenceData.Length).FirstOrDefault());
             SetColumnWigth(sheet);

@@ -29,32 +29,43 @@
         private void InitializeComponent()
         {
             pnlMain = new Panel();
+            lbxTc = new ListBox();
             btnPrint = new Button();
             ckbxRoadMap = new CheckBox();
             ckbxOutlay = new CheckBox();
             ckbxDiagram = new CheckBox();
             ckbxWorkStep = new CheckBox();
-            cmbxTechCard = new ComboBox();
             pnlMain.SuspendLayout();
             SuspendLayout();
             // 
             // pnlMain
             // 
+            pnlMain.Controls.Add(lbxTc);
             pnlMain.Controls.Add(btnPrint);
             pnlMain.Controls.Add(ckbxRoadMap);
             pnlMain.Controls.Add(ckbxOutlay);
             pnlMain.Controls.Add(ckbxDiagram);
             pnlMain.Controls.Add(ckbxWorkStep);
-            pnlMain.Controls.Add(cmbxTechCard);
             pnlMain.Dock = DockStyle.Fill;
             pnlMain.Location = new Point(0, 0);
             pnlMain.Name = "pnlMain";
-            pnlMain.Size = new Size(261, 271);
+            pnlMain.Size = new Size(258, 297);
             pnlMain.TabIndex = 0;
+            // 
+            // lbxTc
+            // 
+            lbxTc.Dock = DockStyle.Top;
+            lbxTc.FormattingEnabled = true;
+            lbxTc.ItemHeight = 15;
+            lbxTc.Location = new Point(0, 0);
+            lbxTc.Name = "lbxTc";
+            lbxTc.Size = new Size(258, 64);
+            lbxTc.TabIndex = 10;
+            lbxTc.SelectedIndexChanged += lbxTc_SelectedIndexChanged;
             // 
             // btnPrint
             // 
-            btnPrint.Location = new Point(71, 210);
+            btnPrint.Location = new Point(71, 238);
             btnPrint.Name = "btnPrint";
             btnPrint.Size = new Size(114, 41);
             btnPrint.TabIndex = 9;
@@ -65,7 +76,7 @@
             // ckbxRoadMap
             // 
             ckbxRoadMap.AutoSize = true;
-            ckbxRoadMap.Location = new Point(12, 159);
+            ckbxRoadMap.Location = new Point(12, 189);
             ckbxRoadMap.Name = "ckbxRoadMap";
             ckbxRoadMap.Size = new Size(173, 19);
             ckbxRoadMap.TabIndex = 8;
@@ -76,7 +87,7 @@
             // ckbxOutlay
             // 
             ckbxOutlay.AutoSize = true;
-            ckbxOutlay.Location = new Point(12, 125);
+            ckbxOutlay.Location = new Point(12, 155);
             ckbxOutlay.Name = "ckbxOutlay";
             ckbxOutlay.Size = new Size(124, 19);
             ckbxOutlay.TabIndex = 7;
@@ -87,7 +98,7 @@
             // ckbxDiagram
             // 
             ckbxDiagram.AutoSize = true;
-            ckbxDiagram.Location = new Point(12, 88);
+            ckbxDiagram.Location = new Point(12, 118);
             ckbxDiagram.Name = "ckbxDiagram";
             ckbxDiagram.Size = new Size(144, 19);
             ckbxDiagram.TabIndex = 6;
@@ -98,7 +109,7 @@
             // ckbxWorkStep
             // 
             ckbxWorkStep.AutoSize = true;
-            ckbxWorkStep.Location = new Point(12, 53);
+            ckbxWorkStep.Location = new Point(12, 83);
             ckbxWorkStep.Name = "ckbxWorkStep";
             ckbxWorkStep.Size = new Size(134, 19);
             ckbxWorkStep.TabIndex = 5;
@@ -106,22 +117,13 @@
             ckbxWorkStep.UseVisualStyleBackColor = true;
             ckbxWorkStep.CheckedChanged += ckbxWorkStep_CheckedChanged;
             // 
-            // cmbxTechCard
-            // 
-            cmbxTechCard.FormattingEnabled = true;
-            cmbxTechCard.Location = new Point(12, 12);
-            cmbxTechCard.Name = "cmbxTechCard";
-            cmbxTechCard.Size = new Size(237, 23);
-            cmbxTechCard.TabIndex = 0;
-            cmbxTechCard.SelectedIndexChanged += cmbxTechCard_SelectedIndexChanged;
-            // 
-            // PrinterSettingsForm
+            // TcPrintForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(261, 271);
+            ClientSize = new Size(258, 297);
             Controls.Add(pnlMain);
-            Name = "PrinterSettingsForm";
+            Name = "TcPrintForm";
             Text = "PrinterSettings";
             pnlMain.ResumeLayout(false);
             pnlMain.PerformLayout();
@@ -137,5 +139,6 @@
         private CheckBox ckbxOutlay;
         private CheckBox ckbxDiagram;
         private CheckBox ckbxWorkStep;
+        private ListBox lbxTc;
     }
 }

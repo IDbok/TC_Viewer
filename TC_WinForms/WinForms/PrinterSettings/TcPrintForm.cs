@@ -38,8 +38,9 @@ namespace TC_WinForms.WinForms.PrinterSettings
         private async void PrinterSettings_Load(object? sender, EventArgs e)
         {
             await LoadData();
-            SetCmbxTc();
+            setListBox();
             _isFormLoaded = true;
+            lbxTc_SelectedIndexChanged(null, null);
         }
 
         private async Task LoadData()
@@ -70,9 +71,9 @@ namespace TC_WinForms.WinForms.PrinterSettings
                             {
                                 var tcArticle = context.TechnologicalCards
                                     .Where(x => x.Id == id)
-                                    .Select(x => x.Article)
+                                    .Select(x => $"{x.Article} {x.TechnologicalProcessName} {x.Parameter}")
                                     .FirstOrDefault();
-                                _allTc.Add(id, tcArticle);
+                                _allTc.Add(id, $"{tcArticle}()");
                                 _printerSettings.Add(new TcPrinterSettings { TcId = id });
                             }
                         );
@@ -82,50 +83,36 @@ namespace TC_WinForms.WinForms.PrinterSettings
         }
 
 
-        private void SetCmbxTc()
+        private void setListBox()
         {
-            cmbxTechCard.DataSource = _allTc.ToList();
-            cmbxTechCard.DisplayMember = "Value";
-            cmbxTechCard.ValueMember = "Key";
+            lbxTc.DataSource = _allTc.ToList();
+            lbxTc.DisplayMember = "Value";
+            lbxTc.ValueMember = "Key";
+            lbxTc.ScrollAlwaysVisible = true;
         }
 
         private void ckbxWorkStep_CheckedChanged(object sender, EventArgs e)
         {
-            var tcSettings = _printerSettings.Where(s => s.TcId == (long?)cmbxTechCard.SelectedValue).FirstOrDefault();
+            var tcSettings = _printerSettings.Where(s => s.TcId == (long?)lbxTc.SelectedValue).FirstOrDefault();
             tcSettings.PrintWorkSteps = ckbxWorkStep.Checked;
         }
 
         private void ckbxDiagram_CheckedChanged(object sender, EventArgs e)
         {
-            var tcSettings = _printerSettings.Where(s => s.TcId == (long?)cmbxTechCard.SelectedValue).FirstOrDefault();
+            var tcSettings = _printerSettings.Where(s => s.TcId == (long?)lbxTc.SelectedValue).FirstOrDefault();
             tcSettings.PrintDiagram = ckbxDiagram.Checked;
         }
 
         private void ckbxOutlay_CheckedChanged(object sender, EventArgs e)
         {
-            var tcSettings = _printerSettings.Where(s => s.TcId == (long?)cmbxTechCard.SelectedValue).FirstOrDefault();
+            var tcSettings = _printerSettings.Where(s => s.TcId == (long?)lbxTc.SelectedValue).FirstOrDefault();
             tcSettings.PrintOutlay = ckbxOutlay.Checked;
         }
 
         private void ckbxRoadMap_CheckedChanged(object sender, EventArgs e)
         {
-            var tcSettings = _printerSettings.Where(s => s.TcId == (long?)cmbxTechCard.SelectedValue).FirstOrDefault();
+            var tcSettings = _printerSettings.Where(s => s.TcId == (long?)lbxTc.SelectedValue).FirstOrDefault();
             tcSettings.PrintRoadMap = ckbxRoadMap.Checked;
-        }
-
-        private void cmbxTechCard_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (!_isFormLoaded)
-                return;
-
-            var tcSettings = _printerSettings.Where(s => s.TcId == (long?)cmbxTechCard.SelectedValue).FirstOrDefault();
-            if (tcSettings != null)
-            {
-                ckbxWorkStep.Checked = tcSettings.PrintWorkSteps;
-                ckbxDiagram.Checked = tcSettings.PrintDiagram;
-                ckbxOutlay.Checked = tcSettings.PrintOutlay;
-                ckbxRoadMap.Checked = tcSettings.PrintRoadMap;
-            }
         }
 
         private async void btnPrint_Click(object sender, EventArgs e)
@@ -154,6 +141,21 @@ namespace TC_WinForms.WinForms.PrinterSettings
             {
                 _logger.Error(ex, "Ошибка при печати для TcId={TcId}", _mainTcId);
                 MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void lbxTc_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (!_isFormLoaded)
+                return;
+
+            var tcSettings = _printerSettings.Where(s => s.TcId == (long?)lbxTc.SelectedValue).FirstOrDefault();
+            if (tcSettings != null)
+            {
+                ckbxWorkStep.Checked = tcSettings.PrintWorkSteps;
+                ckbxDiagram.Checked = tcSettings.PrintDiagram;
+                ckbxOutlay.Checked = tcSettings.PrintOutlay;
+                ckbxRoadMap.Checked = tcSettings.PrintRoadMap;
             }
         }
     }

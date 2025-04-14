@@ -68,7 +68,7 @@ namespace TC_WinForms.DataProcessing
             _technologicalCard = new TechnologicalCard();
         }
 
-        public void ExportDiadramToExel(ExcelPackage excelPackage, TechnologicalCard technologicalCard, List<DiagamToWork> diagamToWorks, string article)
+        public void ExportDiadramToExel(ExcelPackage excelPackage, TechnologicalCard technologicalCard, List<DiagamToWork> diagamToWorks, string article, Color tabColor)
         {
             _diagramToWorks = diagamToWorks;
             _technologicalCard = technologicalCard;
@@ -84,6 +84,7 @@ namespace TC_WinForms.DataProcessing
 
             //Создаем лист в Excel и настраиваем область печати
             var sheet = excelPackage.Workbook.Worksheets[sheetName] ?? excelPackage.Workbook.Worksheets.Add(sheetName);
+            sheet.TabColor = tabColor;
             sheet.PrinterSettings.Scale = 80;
             sheet.PrinterSettings.Orientation = eOrientation.Landscape;
             sheet.PrinterSettings.RightMargin = 0.3M / 2.54M; //выделение места для объявления столбца с номером листа печати

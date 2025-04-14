@@ -40,11 +40,12 @@ namespace TC_WinForms.DataProcessing
             _exporter = new ExcelExporter();
         }
 
-        public void ExportOutlatytoFile(ExcelPackage excelPackage, List<Outlay> outlays, string article)
+        public void ExportOutlatytoFile(ExcelPackage excelPackage, List<Outlay> outlays, string article, Color tabColor)
         {
             string sheetName = $"Таблица затрат {article}";
             // todo: add header of the table
             var sheet = excelPackage.Workbook.Worksheets[sheetName] ?? excelPackage.Workbook.Worksheets.Add(sheetName);
+            sheet.TabColor = tabColor;
 
             AddOutlayDataToExel(sheet, outlays);
 

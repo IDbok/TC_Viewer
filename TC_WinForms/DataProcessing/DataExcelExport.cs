@@ -10,6 +10,7 @@ using TcDbConnector.Repositories;
 using TcModels.Models.Helpers;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.RoadMap;
+using static Antlr4.Runtime.Atn.SemanticContext;
 
 namespace TC_WinForms.DataProcessing
 {
@@ -38,6 +39,9 @@ namespace TC_WinForms.DataProcessing
                     if(!settings.PrintWorkSteps && !settings.PrintDiagram && !settings.PrintOutlay && !settings.PrintRoadMap)
                         continue;
 
+                    Random rnd = new Random();
+                    Color randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+
                     var tc = await tcRepository.GetTCDataAsync((int)settings.TcId);
                     string imageBase64 = "";
 
@@ -45,26 +49,26 @@ namespace TC_WinForms.DataProcessing
                         imageBase64 = await tcRepository.GetImageBase64Async((long)tc.ExecutionSchemeImageId);
 
                     var coverExport = new TcCoverExcelExporter();
-                    coverExport.ExportCoverToExcel(excelPackage, tc, imageBase64);
+                    coverExport.ExportCoverToExcel(excelPackage, tc, imageBase64, randomColor);
 
                     if (settings.PrintWorkSteps)
                     {
                         var tcExport = new TCExcelExporter();
-                        tcExport.ExportTCtoFile(excelPackage, tc);
+                        tcExport.ExportTCtoFile(excelPackage, tc, randomColor);
                     }
 
                     if (settings.PrintOutlay)
                     {
                         var outlayList = await tcRepository.GetOutlayDataAsync((int)settings.TcId);
                         var outlayExport = new OutlayExcelExporter();
-                        outlayExport.ExportOutlatytoFile(excelPackage, outlayList, tc.Article);
+                        outlayExport.ExportOutlatytoFile(excelPackage, outlayList, tc.Article, randomColor);
                     }
 
                     if (settings.PrintDiagram)
                     {
                         var dtwList = await tcRepository.GetDTWDataAsync((int)settings.TcId);
                         var diagramExport = new DiagramExcelExporter();
-                        diagramExport.ExportDiadramToExel(excelPackage, tc, dtwList, tc.Article);
+                        diagramExport.ExportDiadramToExel(excelPackage, tc, dtwList, tc.Article, randomColor);
                     }
 
                     if (settings.PrintRoadMap)
@@ -72,7 +76,7 @@ namespace TC_WinForms.DataProcessing
                         var roadMapItems = await tcRepository.GetRoadMapItemsDataAsync(tc.TechOperationWorks.Select(s => s.Id).ToList());
                         roadMapItems.OrderBy(r => r.Order);
                         var roadMapExport = new RoadMapExcelExporter();
-                        roadMapExport.ExportRoadMaptoFile(excelPackage, roadMapItems, tc.Article);
+                        roadMapExport.ExportRoadMaptoFile(excelPackage, roadMapItems, tc.Article, randomColor);
                     }
                 }
                 excelPackage.File = new FileInfo(filePath);//после того, как создание/обновление всех листов происходит(в случае ошибок создания листов мы не дойдем до этого места) мы присваиваем адрес excelPackage, это обеспечивает перезаписывание файла без его удаления

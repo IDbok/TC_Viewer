@@ -9,9 +9,9 @@ namespace TcModels.Models.Helpers
     public class TcPrinterSettings
     {
         public long? TcId { get; set; }
-        public bool PrintWorkSteps { get; set; }
-        public bool PrintDiagram { get; set; }
-        public bool PrintOutlay { get; set; }
-        public bool PrintRoadMap { get; set; }
+        public bool PrintWorkSteps { get; set; } = true;
+        public bool PrintDiagram { get; set; } = true;
+        public bool PrintOutlay { get; set; } = true;
+        public bool PrintRoadMap { get; set; } = true;
     }
 }
