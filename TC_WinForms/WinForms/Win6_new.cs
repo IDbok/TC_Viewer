@@ -7,6 +7,7 @@ using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
+using TC_WinForms.WinForms.PrinterSettings;
 using TC_WinForms.WinForms.Win6;
 using TC_WinForms.WinForms.Win6.Models;
 using TC_WinForms.WinForms.Win6.RoadMap;
@@ -923,32 +924,9 @@ namespace TC_WinForms.WinForms
 		private async void printToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			LogUserAction("Печать технологической карты");
-			try
-			{
-				using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-				{
-                    // Настройка диалога сохранения файла
-                    saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
-                    saveFileDialog.FilterIndex = 1;
-                    saveFileDialog.RestoreDirectory = true;
-
-                    saveFileDialog.FileName = _tc.Article;
-
-					if (saveFileDialog.ShowDialog() == DialogResult.OK)
-					{
-                        var tcExporter = new DataExcelExport();
-                        await tcExporter.SaveTCtoExcelFile(saveFileDialog.FileName, _tcId);
-                    }
-                }
-
-				_logger.Information("Печать успешно завершена для TcId={TcId}", _tcId);
-			}
-			catch (Exception ex)
-			{
-				_logger.Error(ex, "Ошибка при печати для TcId={TcId}", _tcId);
-				MessageBox.Show(ex.Message);
-			}
-		}
+			var printForm = new TcPrintForm(_tcId);
+			printForm.Show();
+        }
 
 		private async void printDiagramToolStripMenuItem_Click(object sender, EventArgs e)
 		{
