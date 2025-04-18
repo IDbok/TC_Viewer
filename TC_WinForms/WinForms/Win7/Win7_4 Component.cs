@@ -137,8 +137,8 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
     }
     public async Task LoadDataAsync()
     {
-        _displayedObjects = await Task.Run(() => DataService.GetComponents() //dbCon.GetObjectList<Component>(includeLinks: true)
-            .Select(obj => new DisplayedComponent(obj)).OrderBy(c => c.Name).ToList());
+        _displayedObjects = await Task.Run(() => dbCon.GetObjectList<Component>(includeLinks: true)  //DataService.GetComponents() 
+           .Select(obj => new DisplayedComponent(obj)).OrderBy(c => c.Name).ToList());
 
         if(!_isAddingForm) 
             paginationService = new PaginationControlService<DisplayedComponent>(30, _displayedObjects);
