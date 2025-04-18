@@ -1654,9 +1654,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		text = string.IsNullOrEmpty(text) ? "" : text;
 
-		if (ew == null)
-			return;
-
 		if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
         {
 
