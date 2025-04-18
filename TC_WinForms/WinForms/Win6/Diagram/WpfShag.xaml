@@ -47,12 +47,14 @@
                 <TextBox x:Name="txtLeadComment" 
                             Grid.Column="0" Grid.Row="1"
                             MinHeight="150"
+                            TextChanged="TextLeadComment_TextChanged"
                             TextWrapping="Wrap" TextAlignment="Center" 
                             AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="False" xml:lang="ru"/>
 
                 <TextBox x:Name="txtImplementerComment" 
                             Grid.Column="1" Grid.Row="1"
                             MinHeight="150"
+                            TextChanged="TextImplementerComment_TextChanged"
                             TextWrapping="Wrap" TextAlignment="Center" 
                             AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="True" xml:lang="ru"/>
             </Grid>

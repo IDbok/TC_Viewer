@@ -464,6 +464,30 @@ namespace TC_WinForms.WinForms.Diagram
             }
         }
 
+        private void TextLeadComment_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (diagramShag != null)
+            {
+                diagramShag.LeadComment = txtLeadComment.Text;
+                if (wpfPosledovatelnost != null)
+                {
+                    _diagramState.HasChanges();
+                }
+            }
+        }
+
+        private void TextImplementerComment_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (diagramShag != null)
+            {
+                diagramShag.ImplementerComment = txtImplementerComment.Text;
+                if (wpfPosledovatelnost != null)
+                {
+                    _diagramState.HasChanges();
+                }
+            }
+        }
+
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (diagramShag != null)
