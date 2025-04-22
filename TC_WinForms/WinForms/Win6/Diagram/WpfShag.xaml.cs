@@ -4,12 +4,15 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TC_WinForms.WinForms.Win6.Models;
 using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using TextBox = System.Windows.Controls.TextBox;
 
 namespace TC_WinForms.WinForms.Diagram
 {
@@ -607,5 +610,75 @@ namespace TC_WinForms.WinForms.Diagram
                 _diagramState.WpfControlTO?.AddNewShag(++shagConteinerIndex);
             }
 		}
-	}
+
+        private void DataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                e.Handled = true; // Предотвращаем стандартное поведение Enter
+
+                var dataGrid = sender as DataGrid;
+                if (dataGrid == null) return;
+
+                var currentCell = dataGrid.CurrentCell;
+                var currentRowIndex = dataGrid.Items.IndexOf(currentCell.Item);
+                var currentColumn = currentCell.Column;
+
+                // Проверяем, есть ли следующая строка
+                if (currentRowIndex + 1 < dataGrid.Items.Count)
+                {
+                    // Завершаем редактирование текущей ячейки и строки
+                    dataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
+
+                    int nextRowIndex = currentRowIndex + 1;
+                    var nextItem = dataGrid.Items[nextRowIndex];
+
+                    dataGrid.CurrentCell = new DataGridCellInfo(nextItem, currentColumn);
+                    dataGrid.SelectedItem = nextItem;
+
+                    // Запускаем редактирование новой ячейки
+                    dataGrid.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        // Получаем ячейку
+                        DataGridCell cell = GetCell(dataGrid, nextRowIndex, currentColumn.DisplayIndex);
+                        if (cell != null)
+                        {
+                            //пытаемся найти TextBox внутри ячейки
+                            var textBox = FindVisualChild<TextBox>(cell);
+                            if (textBox != null)
+                            {
+                                textBox.Focus();
+                                textBox.SelectAll();
+                            }
+                        }
+                    }), System.Windows.Threading.DispatcherPriority.Render);
+                }
+            }
+        }
+
+        private DataGridCell GetCell(DataGrid dataGrid, int rowIndex, int columnIndex)
+        {
+            var rowContainer = dataGrid.ItemContainerGenerator.ContainerFromIndex(rowIndex) as DataGridRow;
+            if (rowContainer == null) return null;
+
+            var presenter = FindVisualChild<DataGridCellsPresenter>(rowContainer);
+            if (presenter == null) return null;
+
+            return presenter.ItemContainerGenerator.ContainerFromIndex(columnIndex) as DataGridCell;
+        }
+
+        private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T result)
+                    return result;
+                var descendant = FindVisualChild<T>(child);
+                if (descendant != null)
+                    return descendant;
+            }
+            return null;
+        }
+    }
 }

@@ -44,7 +44,7 @@ namespace TC_WinForms.WinForms
 			InitializeComponent();
 
             InitializeDataGridViewEvents();
-
+            dgvMain.CellEndEdit += DgvMain_CellEndEdit;
             dgvMain.CellContentClick += DgvMain_CellContentClick;
 
             this.FormClosed += (sender, e) => {
@@ -52,7 +52,24 @@ namespace TC_WinForms.WinForms
 				this.Dispose();
 			};
 		}
-		protected override void LoadObjects()
+
+        private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+        {
+            base.dgvMain_CellEndEdit(sender, e);
+
+            int currentRow = dgvMain.CurrentCell.RowIndex;
+            int currentCol = dgvMain.CurrentCell.ColumnIndex;
+
+            int nextRow = currentRow + 1;
+
+            if (nextRow < dgvMain.Rows.Count)
+            {
+                dgvMain.EndEdit();
+                dgvMain.CurrentCell = dgvMain.Rows[nextRow].Cells[currentCol];
+                dgvMain.BeginEdit(true);
+            }
+        }
+        protected override void LoadObjects()
 		{
 			var tcList = TargetTable
 				.OrderBy(o => o.Order)
