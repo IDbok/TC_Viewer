@@ -100,7 +100,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                     {
                         TowId = tow.Id,
                         TOName = tow.techOperation.Name,
-                        Staffs = string.Join(",", tow.executionWorks.SelectMany(ew => ew.Staffs).Select(s => s.Symbol).Distinct()),
+                        Staffs = string.Join(", ", tow.executionWorks.SelectMany(ew => ew.Staffs).Select(s => s.Symbol).Distinct()),
                         Note = tow.Note ?? "",
                         Order = tow.Order,
                         techOperationWork = tow
@@ -315,7 +315,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                     return previousCol + 1;
                 }
                 TechOperationWork? previousTow = null;
-                var previousGroup = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex < operationGroup.SequenceGroupIndex).FirstOrDefault();
+                var previousGroup = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && _operationGroups.IndexOf(o) < _operationGroups.IndexOf(operationGroup)).FirstOrDefault();
 
                 if (previousGroup != null)
                     previousTow = previousGroup.Items.Where(o => o.Order < currentTow.Order).FirstOrDefault();

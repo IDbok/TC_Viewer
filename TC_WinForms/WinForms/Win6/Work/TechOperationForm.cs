@@ -72,7 +72,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     private void DgvMain_CellContentDoubleClick(object? sender, DataGridViewCellEventArgs e)
     {
-		if(dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && dgvMain.Rows[e.RowIndex].Cells[4].Value.ToString().Contains("Выполнить в соответствии с"))
+		if(dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew.techTransition.IsRepeatTypeTransition())
 		{
 			var result = MessageBox.Show("Открыть связанную ТК?", "Открытие ТК", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 			if(result == DialogResult.Yes)
