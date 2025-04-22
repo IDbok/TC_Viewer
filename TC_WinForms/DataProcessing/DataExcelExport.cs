@@ -31,18 +31,18 @@ namespace TC_WinForms.DataProcessing
                 TechnologicalCardRepository tcRepository = new TechnologicalCardRepository();
                 var excelPackage = new ExcelPackage();
 
-                foreach (var settings in printSettings)
+                foreach (var printSetting in printSettings)
                 {
-                    if (settings.TcId == null)
+                    if (printSetting.TcId == null)
                         throw new Exception("Карты не существует, ошибка печати");
 
-                    if(!settings.PrintWorkSteps && !settings.PrintDiagram && !settings.PrintOutlay && !settings.PrintRoadMap)
+                    if(!printSetting.PrintWorkSteps && !printSetting.PrintDiagram && !printSetting.PrintOutlay && !printSetting.PrintRoadMap)
                         continue;
 
                     Random rnd = new Random();
                     Color randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 
-                    var tc = await tcRepository.GetTCDataAsync((int)settings.TcId);
+                    var tc = await tcRepository.GetTCDataAsync((int)printSetting.TcId);
                     string imageBase64 = "";
 
                     if (tc.ExecutionSchemeImageId != null)
@@ -51,27 +51,27 @@ namespace TC_WinForms.DataProcessing
                     var coverExport = new TcCoverExcelExporter();
                     coverExport.ExportCoverToExcel(excelPackage, tc, imageBase64, randomColor);
 
-                    if (settings.PrintWorkSteps)
+                    if (printSetting.PrintWorkSteps)
                     {
                         var tcExport = new TCExcelExporter();
                         tcExport.ExportTCtoFile(excelPackage, tc, randomColor);
                     }
 
-                    if (settings.PrintOutlay)
+                    if (printSetting.PrintOutlay)
                     {
-                        var outlayList = await tcRepository.GetOutlayDataAsync((int)settings.TcId);
+                        var outlayList = await tcRepository.GetOutlayDataAsync((int)printSetting.TcId);
                         var outlayExport = new OutlayExcelExporter();
                         outlayExport.ExportOutlatytoFile(excelPackage, outlayList, tc.Article, randomColor);
                     }
 
-                    if (settings.PrintDiagram)
+                    if (printSetting.PrintDiagram)
                     {
-                        var dtwList = await tcRepository.GetDTWDataAsync((int)settings.TcId);
+                        var dtwList = await tcRepository.GetDTWDataAsync((int)printSetting.TcId);
                         var diagramExport = new DiagramExcelExporter();
                         diagramExport.ExportDiadramToExel(excelPackage, tc, dtwList, tc.Article, randomColor);
                     }
 
-                    if (settings.PrintRoadMap)
+                    if (printSetting.PrintRoadMap)
                     {
                         var roadMapItems = await tcRepository.GetRoadMapItemsDataAsync(tc.TechOperationWorks.Select(s => s.Id).ToList());
                         roadMapItems.OrderBy(r => r.Order);

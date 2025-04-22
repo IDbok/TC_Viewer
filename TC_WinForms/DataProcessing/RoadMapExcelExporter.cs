@@ -36,6 +36,9 @@ namespace TC_WinForms.DataProcessing
 
         public void ExportRoadMaptoFile(ExcelPackage excelPackage, List<RoadMapItem> roadMapItems, string article, Color tabColor)
         {
+            if (roadMapItems == null || roadMapItems.Count == 0)
+                return;
+
             string sheetName = $"Дорожная карта {article}";
             // todo: add header of the table
             var sheet = excelPackage.Workbook.Worksheets[sheetName] ?? excelPackage.Workbook.Worksheets.Add(sheetName);

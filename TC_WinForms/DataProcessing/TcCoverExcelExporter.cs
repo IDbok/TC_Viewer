@@ -40,7 +40,7 @@ namespace TC_WinForms.DataProcessing
 
         public async void ExportCoverToExcel(ExcelPackage _excelPackage, TechnologicalCard technologicalCard, string base64Image, Color tabColor)
         {
-            string sheetName = $"Обложка ТК {technologicalCard.Article}";
+            string sheetName = $"Обложка {technologicalCard.Article}";
             var sheet = _excelPackage.Workbook.Worksheets[sheetName] ?? _excelPackage.Workbook.Worksheets.Add(sheetName);
             sheet.TabColor = tabColor;
 

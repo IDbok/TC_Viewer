@@ -22,7 +22,7 @@ namespace TC_WinForms.WinForms.PrinterSettings
         private int _mainTcId;
         private string _mainTcArticle;
         private List<TcPrinterSettings> _printerSettings = new List<TcPrinterSettings>();
-        private Dictionary<long?, string> _allTc = new Dictionary<long?, string>();
+        private Dictionary<long?, string> _allPrintedTcDict = new Dictionary<long?, string>();
         private bool _isFormLoaded = false;
         private readonly ILogger _logger;
 
@@ -45,39 +45,47 @@ namespace TC_WinForms.WinForms.PrinterSettings
 
         private async Task LoadData()
         {
-            using (MyDbContext context = new MyDbContext())
+            try
             {
-                var mainTc = await context.TechnologicalCards
-                    .Where(x => x.Id == _mainTcId)
-                    .Include(e => e.TechOperationWorks)
-                    .ThenInclude(e => e.executionWorks)
-                    .FirstOrDefaultAsync();
-
-                _mainTcArticle = mainTc.Article;
-                _allTc.Add(_mainTcId, _mainTcArticle);
-                _printerSettings.Add(new TcPrinterSettings { TcId = _mainTcId });
-
-                if (mainTc != null)
+                using (MyDbContext context = new MyDbContext())
                 {
-                    var relatedTcList = mainTc.TechOperationWorks
-                        .SelectMany(e => e.executionWorks)
-                        .Where(e => e.RepeatsTCId != null)
-                        .Select(e => e.RepeatsTCId)
-                        .Distinct()
-                        .ToList();
+                    var mainTc = await context.TechnologicalCards
+                        .Where(x => x.Id == _mainTcId)
+                        .Include(e => e.TechOperationWorks)
+                        .ThenInclude(e => e.executionWorks)
+                        .FirstOrDefaultAsync();
 
-                    relatedTcList.ForEach
-                        (id =>
+                    _mainTcArticle = mainTc.Article;
+                    _allPrintedTcDict.Add(_mainTcId, _mainTcArticle);
+                    _printerSettings.Add(new TcPrinterSettings { TcId = _mainTcId });
+
+                    if (mainTc != null)
+                    {
+                        var relatedTcList = mainTc.TechOperationWorks
+                            .SelectMany(e => e.executionWorks)
+                            .Where(e => e.RepeatsTCId != null)
+                            .Select(e => e.RepeatsTCId)
+                            .Distinct()
+                            .ToList();
+
+                        relatedTcList.ForEach
+                            (id =>
                             {
                                 var tcArticle = context.TechnologicalCards
-                                    .Where(x => x.Id == id)
-                                    .Select(x => $"{x.Article} {x.TechnologicalProcessName} {x.Parameter}")
-                                    .FirstOrDefault();
-                                _allTc.Add(id, $"{tcArticle}()");
+                                .Where(x => x.Id == id)
+                                .Select(x => $"{x.Article} {x.TechnologicalProcessName} {x.Parameter}")
+                                .FirstOrDefault();
+                                _allPrintedTcDict.Add(id, $"{tcArticle}()");
                                 _printerSettings.Add(new TcPrinterSettings { TcId = id });
                             }
-                        );
+                            );
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Ошибка при загрузке данных для TcId={TcId}", _mainTcId);
+                MessageBox.Show(ex.Message);
             }
 
         }
@@ -85,7 +93,7 @@ namespace TC_WinForms.WinForms.PrinterSettings
 
         private void setListBox()
         {
-            lbxTc.DataSource = _allTc.ToList();
+            lbxTc.DataSource = _allPrintedTcDict.ToList();
             lbxTc.DisplayMember = "Value";
             lbxTc.ValueMember = "Key";
             lbxTc.ScrollAlwaysVisible = true;
