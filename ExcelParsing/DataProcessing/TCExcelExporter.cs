@@ -1,4 +1,4 @@
-﻿using OfficeOpenXml;
+using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.ComponentModel;
 using System.Drawing;
@@ -96,7 +96,8 @@ namespace ExcelParsing.DataProcessing
 
             // todo: add header of the table
             var sheet = _excelPackage.Workbook.Worksheets[sheetName] ?? _excelPackage.Workbook.Worksheets.Add(sheetName);
-
+            sheet.HeaderFooter.OddHeader.CenteredText = tc.Article;
+            sheet.HeaderFooter.OddFooter.CenteredText = "Лист &P";
             SetColumnWigth(sheet);
 
             var lastRow = AddStaffDataToExcel(tc.Staff_TCs.OrderBy(x => x.Order).ToList(), sheet, 3);
@@ -1066,6 +1067,9 @@ namespace ExcelParsing.DataProcessing
             printerSettings.BottomMargin = 1.0m / 2.54m;
             printerSettings.LeftMargin = 1.0m / 2.54m;
             printerSettings.RightMargin = 1.0m / 2.54m;
+            printerSettings.HeaderMargin = 0.3m / 2.54m;
+            printerSettings.FooterMargin = 0.3m / 2.54m;
+
 
             // Повторение строк заголовков на каждой странице печати
             printerSettings.RepeatRows = sheet.Cells["1:1"];

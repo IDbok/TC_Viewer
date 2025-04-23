@@ -1,4 +1,4 @@
-﻿using ExcelParsing.DataProcessing;
+using ExcelParsing.DataProcessing;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -672,6 +672,7 @@ namespace TC_WinForms.DataProcessing
 
             sheet.Cells[rowsNums[0], columnNumsNumb[0]].Value = "Рисунок " + shag.Nomer;
 
+
             rowsNums[rowsNums.Length - 1] = GetRowsCountByData(shag.NameImage, sheet, columnNumsName) == 1 
                 ? headRow
                 : GetRowsCountByData(shag.NameImage, sheet, columnNumsName) + headRow;
@@ -794,11 +795,22 @@ namespace TC_WinForms.DataProcessing
 
             if (sheet.Cells[pageRow, pageCollumn].Value == null)
             {
-                sheet.Cells[pageRow, pageCollumn].Value = "Лист №" + _pageCount;
-                sheet.Cells[pageRow, pageCollumn, pageRow + _currentPrintHeigth - 1, pageCollumn].Merge = true;
-                sheet.Cells[pageRow, pageCollumn, pageRow + _currentPrintHeigth - 1, pageCollumn].Style.TextRotation = 90;
-                sheet.Cells[pageRow, pageCollumn, pageRow + _currentPrintHeigth - 1, pageCollumn].Style.Font.Size = 24;
+                string pageText = "Лист №" + _pageCount;
+                string articleText = _technologicalCard.Article;
 
+                // Устанавливаем значение ячейки
+                var cell = sheet.Cells[pageRow, pageCollumn, pageRow + _currentPrintHeigth - 1, pageCollumn];
+                cell.Merge = true;
+                cell.Style.TextRotation = 90;
+                cell.Style.Font.Size = 24;
+
+                var richText = cell.RichText;
+                var pageTextPart = richText.Add(pageText);
+                // Добавляем второй кусок текста с размером шрифта 12
+                var articleTextPart = richText.Add(" " + articleText);
+                articleTextPart.Size = 12;
+
+                // Увеличиваем счетчик страниц
                 _pageCount++;
             }
         }
