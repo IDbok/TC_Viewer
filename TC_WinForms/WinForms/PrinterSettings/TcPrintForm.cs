@@ -37,13 +37,13 @@ namespace TC_WinForms.WinForms.PrinterSettings
 
         private async void PrinterSettings_Load(object? sender, EventArgs e)
         {
-            await LoadData();
+            await LoadDataAsync();
             setListBox();
             _isFormLoaded = true;
             lbxTc_SelectedIndexChanged(null, null);
         }
 
-        private async Task LoadData()
+        private async Task LoadDataAsync()
         {
             try
             {
@@ -85,7 +85,8 @@ namespace TC_WinForms.WinForms.PrinterSettings
             catch (Exception ex)
             {
                 _logger.Error(ex, "Ошибка при загрузке данных для TcId={TcId}", _mainTcId);
-                MessageBox.Show(ex.Message);
+                MessageBox.Show("Возникла ошибка при попытке загрузки данных: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
             }
 
         }
