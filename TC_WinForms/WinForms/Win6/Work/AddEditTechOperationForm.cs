@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Data;
 using System.Windows.Input;
@@ -783,6 +783,7 @@ namespace TC_WinForms.WinForms.Work
                 }
 
             }
+            dataGridViewTPLocal.AutoResizeRows();
 
         }
 
@@ -1165,6 +1166,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
             RestoreScrollPosition(dataGridViewTPLocal, offScroll);
+            dataGridViewTPLocal.AutoResizeRows();
 
             // Выделить строку соотвествующую активному ТП из комбобокс
             if (selectedTP != null)
@@ -1635,6 +1637,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
             RestoreScrollPosition(dataGridViewLocalSZ, offScroll);
+            dataGridViewLocalSZ.AutoResizeRows();
         }
 
         private void DataGridViewAllSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -1893,6 +1896,8 @@ namespace TC_WinForms.WinForms.Work
             }
 
             RestoreScrollPosition(dataGridViewComponentLocal, offScroll);
+            dataGridViewComponentLocal.AutoResizeRows();
+
         }
 
         private void DataGridViewComponentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -2004,7 +2009,7 @@ namespace TC_WinForms.WinForms.Work
                 Idd.Comments = value ?? "";
                 TechOperationForm.UpdateGrid();
             }
-
+            dataGridViewComponentLocal.AutoResizeRows();
         }
 
         #endregion
@@ -2040,6 +2045,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
             RestoreScrollPosition(dataGridViewInstrumentLocal, offScroll);
+            dataGridViewInstrumentLocal.AutoResizeRows();
         }
 
 
@@ -2287,6 +2293,7 @@ namespace TC_WinForms.WinForms.Work
                 Idd.Comments = value;
                 TechOperationForm.UpdateGrid();
             }
+            dataGridViewInstrumentLocal.AutoResizeRows();
         }
 
 
@@ -2434,6 +2441,8 @@ namespace TC_WinForms.WinForms.Work
             }
 
             RestoreScrollPosition(dataGridViewEtap, offScroll);
+            dataGridViewEtap.AutoResizeRows();
+
         }
 
         private void DataGridViewEtap_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -2465,6 +2474,7 @@ namespace TC_WinForms.WinForms.Work
                 TechOperationForm.UpdateGrid();
             }
 
+            dataGridViewEtap.AutoResizeRows();
         }
 
         private void DataGridViewEtap_CellContentClick(object? sender, DataGridViewCellEventArgs e)
