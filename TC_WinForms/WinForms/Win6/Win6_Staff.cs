@@ -3,6 +3,7 @@ using Serilog;
 using System.ComponentModel;
 using System.Data;
 using System.DirectoryServices.ActiveDirectory;
+using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Utilities;
 using TC_WinForms.Extensions;
@@ -56,13 +57,28 @@ public partial class Win6_Staff : Form, IViewModeable
 		//dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
         dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
         dgvMain.CellContentClick += DgvMain_CellContentClick;
-
+        dgvMain.CellEndEdit += DgvMain_CellEndEdit;
         this.FormClosed += (sender, e) =>
 		{
 			_logger.Information("Форма Win6_Staff закрыта.");
 			this.Dispose();
 		};
 	}
+
+    private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+    {
+        int currentRow = dgvMain.CurrentCell.RowIndex;
+        int currentCol = dgvMain.CurrentCell.ColumnIndex;
+
+        int nextRow = currentRow + 1;
+
+        if (nextRow < dgvMain.Rows.Count)
+        {
+            dgvMain.EndEdit();
+            dgvMain.CurrentCell = dgvMain.Rows[nextRow].Cells[currentCol];
+            dgvMain.BeginEdit(true);
+        }
+    }
 
     private void DgvMain_CellContentClick(object? sender, DataGridViewCellEventArgs e)
     {
