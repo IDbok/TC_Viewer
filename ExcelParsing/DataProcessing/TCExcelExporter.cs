@@ -87,15 +87,16 @@ namespace ExcelParsing.DataProcessing
             }
         }
 
-        public void ExportTCtoFile(ExcelPackage _excelPackage, TechnologicalCard tc)
+        public void ExportTCtoFile(ExcelPackage _excelPackage, TechnologicalCard tc, Color tabColor)
         {
-            string sheetName = "Требования и Ход работ";
+            string sheetName = $"Ход работ {tc.Article}";
             var machine_TCs = tc.Machine_TCs.OrderBy(x => x.Order).ToList();
 
             CompliteColumnsWidthWithMachines(machine_TCs.Count());
 
             // todo: add header of the table
             var sheet = _excelPackage.Workbook.Worksheets[sheetName] ?? _excelPackage.Workbook.Worksheets.Add(sheetName);
+            sheet.TabColor = tabColor;
 
             SetColumnWigth(sheet);
 
