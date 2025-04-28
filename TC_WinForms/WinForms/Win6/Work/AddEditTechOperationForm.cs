@@ -13,6 +13,7 @@ using static Antlr4.Runtime.Atn.SemanticContext;
 using Component = TcModels.Models.TcContent.Component;
 using Machine = TcModels.Models.TcContent.Machine;
 using TC_WinForms.Extensions;
+using OfficeOpenXml;
 
 namespace TC_WinForms.WinForms.Work
 {
@@ -776,9 +777,15 @@ namespace TC_WinForms.WinForms.Work
                 {
                     newOrder = newOrder <= 0 ? 1 : newOrder;
                     newOrder = newOrder > dataGridViewTPLocal.RowCount ? dataGridViewTPLocal.RowCount : newOrder;
-                    var lastRepeatOrder = wor.ExecutionWorkRepeats.Max(w => w.ChildExecutionWork.Order);
+                    int lastRepeatOrder = 0;
 
-                    if (wor.Repeat && wor.RepeatsTCId == null && newOrder > lastRepeatOrder)
+                    if (wor.ExecutionWorkRepeats.Count != 0)
+                    {
+                        var repeatedEwList = wor.ExecutionWorkRepeats.Where(r => r.ChildExecutionWork.techOperationWorkId == wor.techOperationWorkId).ToList();
+                        lastRepeatOrder = repeatedEwList.Count == 0 ? 0 : repeatedEwList.Max(r => r.ChildExecutionWork.Order);
+                    }
+
+                    if (wor.Repeat && wor.RepeatsTCId == null && newOrder <= lastRepeatOrder && wor.ExecutionWorkRepeats.Count != 0)
                     {
                         var result = MessageBox.Show("Вы пыатетесь переместить технологический переход \"Повтор\" выше последнего входящего в него элемента. Переместить?", "Внимание!", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         switch(result)
