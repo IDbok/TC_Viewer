@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing.Imaging;
 using System.IO;
@@ -8,7 +8,9 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win6.Models;
+using TcModels.Models;
 using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
@@ -357,13 +359,13 @@ namespace TC_WinForms.WinForms.Diagram
             bool isImageFile;
             try
             {
+                ImageStorage newImage = ImageService.CreateNewImageFromBase64(filename);
+                ImageOwner imageOwner = ImageService.CreateNewImageOwner(newImage, techOperationWork?.technologicalCard, ImageType.Image, (int)diagramShag.ImageList.Max(i => i.Number) + 1);
+                diagramShag.ImageList.Add(imageOwner);
+                imageOwner.DiagramShags.Add(diagramShag);
                 imag = System.Drawing.Image.FromFile(filename);
-                isImageFile = true;
-
-                byte[] bytes = File.ReadAllBytes(filename);
-                string base64 = Convert.ToBase64String(bytes);
-                diagramShag.ImageBase64 = base64;
-
+                //_diagramState.WpfMainControl._diagramForm.wpfDiagram._dbContext.ImageOwners.Add(imageOwner);
+                //_diagramState.WpfMainControl._diagramForm.wpfDiagram._dbContext.ImageStorage.Add(newImage);
                 _diagramState.HasChanges();
             }
             catch (OutOfMemoryException)

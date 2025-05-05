@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TcDbConnector;
 
@@ -11,9 +12,11 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250429100904_TowNoteNullable")]
+    partial class TowNoteNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,36 +53,6 @@ namespace TcDbConnector.Migrations
                     b.HasIndex("TechnologicalProcessesId");
 
                     b.ToTable("AuthorTechnologicalProcess");
-                });
-
-            modelBuilder.Entity("DiagramShagImageOwner", b =>
-                {
-                    b.Property<int>("DiagramShagsId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("ImageListId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("DiagramShagsId", "ImageListId");
-
-                    b.HasIndex("ImageListId");
-
-                    b.ToTable("DiagramShagImageOwner");
-                });
-
-            modelBuilder.Entity("ExecutionWorkImageOwner", b =>
-                {
-                    b.Property<int>("ExecutionWorksId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("ImagesId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("ExecutionWorksId", "ImagesId");
-
-                    b.HasIndex("ImagesId");
-
-                    b.ToTable("ExecutionWorkImageOwner");
                 });
 
             modelBuilder.Entity("ExecutionWorkMachine_TC", b =>
@@ -161,38 +134,6 @@ namespace TcDbConnector.Migrations
                     b.ToTable("Authors");
                 });
 
-            modelBuilder.Entity("TcModels.Models.ImageOwner", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("ImageRoleType")
-                        .HasColumnType("int");
-
-                    b.Property<long>("ImageStorageId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("Number")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TechnologicalCardId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ImageStorageId");
-
-                    b.HasIndex("TechnologicalCardId");
-
-                    b.ToTable("ImageOwners");
-                });
-
             modelBuilder.Entity("TcModels.Models.ImageStorage", b =>
                 {
                     b.Property<long>("Id")
@@ -208,9 +149,6 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("ImageBase64")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ImageType")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Name")
@@ -1499,36 +1437,6 @@ namespace TcDbConnector.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiagramShagImageOwner", b =>
-                {
-                    b.HasOne("TcModels.Models.TcContent.DiagramShag", null)
-                        .WithMany()
-                        .HasForeignKey("DiagramShagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TcModels.Models.ImageOwner", null)
-                        .WithMany()
-                        .HasForeignKey("ImageListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ExecutionWorkImageOwner", b =>
-                {
-                    b.HasOne("TcModels.Models.TcContent.ExecutionWork", null)
-                        .WithMany()
-                        .HasForeignKey("ExecutionWorksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TcModels.Models.ImageOwner", null)
-                        .WithMany()
-                        .HasForeignKey("ImagesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("ExecutionWorkMachine_TC", b =>
                 {
                     b.HasOne("TcModels.Models.TcContent.ExecutionWork", null)
@@ -1572,25 +1480,6 @@ namespace TcDbConnector.Migrations
                         .HasForeignKey("StaffsIdAuto")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("TcModels.Models.ImageOwner", b =>
-                {
-                    b.HasOne("TcModels.Models.ImageStorage", "ImageStorage")
-                        .WithMany()
-                        .HasForeignKey("ImageStorageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TcModels.Models.TechnologicalCard", "TechnologicalCard")
-                        .WithMany("ImageOwner")
-                        .HasForeignKey("TechnologicalCardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ImageStorage");
-
-                    b.Navigation("TechnologicalCard");
                 });
 
             modelBuilder.Entity("TcModels.Models.IntermediateTables.Component_TC", b =>
@@ -2088,8 +1977,6 @@ namespace TcDbConnector.Migrations
                     b.Navigation("Component_TCs");
 
                     b.Navigation("DiagamToWork");
-
-                    b.Navigation("ImageOwner");
 
                     b.Navigation("Machine_TCs");
 

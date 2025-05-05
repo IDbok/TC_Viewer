@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using TcModels.Models.Helpers;
@@ -145,6 +145,7 @@ namespace TcModels.Models
         public List<Tool> Tools { get; set; } = new();
         public List<Tool_TC> Tool_TCs { get; set; } = new();
 
+        public List<ImageOwner> ImageOwner { get; set; } = new();
         public List<TechOperationWork> TechOperationWorks { get; set; } = new();
 
         public List<DiagamToWork> DiagamToWork { get; set; } = new();

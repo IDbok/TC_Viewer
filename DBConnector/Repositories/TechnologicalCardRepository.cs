@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TcModels.Models;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.RoadMap;
@@ -59,8 +59,13 @@ public class TechnologicalCardRepository
 				.Include(t => t.Coefficients)
 				.FirstAsync(s => s.Id == id);
 
+            await context.Entry(tc)
+                        .Collection(t => t.ImageOwner)
+                        .Query()
+                        .Include(io => io.ImageStorage)
+                        .LoadAsync();
 
-			tc.TechOperationWorks = await context.TechOperationWorks
+            tc.TechOperationWorks = await context.TechOperationWorks
 				.Where(w => w.TechnologicalCardId == id)
 					.Include(i => i.techOperation)
 					.Include(r => r.ToolWorks).ThenInclude(r => r.tool)
@@ -78,7 +83,8 @@ public class TechnologicalCardRepository
 					.Include(ew => ew.Staffs)
 					.Include(ew => ew.ExecutionWorkRepeats)
 						.ThenInclude(ew => ew.ChildExecutionWork)
-					.ToListAsync();
+                    .Include(ew => ew.ImageList)
+                    .ToListAsync();
 			}
 			return tc;
 		}
@@ -205,6 +211,8 @@ public class TechnologicalCardRepository
                     .ThenInclude(e => e.toolWork)
                  .Include(q => q.ListDiagramShagToolsComponent)
                     .ThenInclude(e => e.componentWork)
+                .Include(s => s.ImageList)
+                    .ThenInclude(i => i.ImageStorage)
                 .ToListAsync();
 
             return diagramToWorkList;
@@ -333,7 +341,7 @@ public class TechnologicalCardRepository
         var image = new ImageStorage
         {
             ImageBase64 = Convert.ToBase64String(executionScheme),
-            Category = ImageCategory.ExecutionScheme
+            Category = "ExecutionScheme"
         };
 
         _db.ImageStorage.Add(image);

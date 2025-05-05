@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -1462,7 +1462,7 @@ namespace TC_WinForms.DataProcessing
                             var img = new ImageStorage()
                             {
                                 ImageBase64 = newES,
-                                Category = ImageCategory.ExecutionScheme
+                                Category = "ExecutionScheme"
                             };
                             db.ImageStorage.Add(img); 
                             await db.SaveChangesAsync();

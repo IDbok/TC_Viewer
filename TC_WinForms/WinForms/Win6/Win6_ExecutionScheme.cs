@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System.IO;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
@@ -333,8 +333,8 @@ namespace TC_WinForms.WinForms
 			var newImage = new ImageStorage
 			{
 				ImageBase64 = base64Image,
-				Category = ImageCategory.ExecutionScheme
-			};
+				Category = "ExecutionScheme"
+            };
 
 			// Если уже есть Id, назначаем его вновь создаваемому ImageStorage
 			if (_tc.ExecutionSchemeImageId != null)

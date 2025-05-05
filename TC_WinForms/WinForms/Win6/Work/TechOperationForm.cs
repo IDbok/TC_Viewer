@@ -1,6 +1,9 @@
-﻿using Serilog;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Text;
 using System.Windows.Controls;
@@ -10,6 +13,7 @@ using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
+using TC_WinForms.WinForms.Win6.ImageEditor;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models;
@@ -62,12 +66,46 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         dgvMain.CellMouseEnter += DgvMain_CellMouseEnter;
 		dgvMain.MouseDown += DataGridView_MouseDown;
         dgvMain.CellContentDoubleClick += DgvMain_CellContentDoubleClick;
-
+        dgvMain.CellContentClick += DgvMain_CellContentClick;
         _tcViewState.ViewModeChanged += OnViewModeChanged;
 		this.KeyPreview = true;
 		this.KeyDown += new KeyEventHandler(Form_KeyDown);
 
 		SetContextMenuSetings();
+    }
+
+    private void DgvMain_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+    {
+        if (e.RowIndex < 0 || e.ColumnIndex < 0 || _tcViewState.IsViewMode)
+            return;
+
+        // Проверяем, что клик был по колонке с кнопкой
+        if (dgvMain.Columns[e.ColumnIndex].Name == "PictureNameColumn" && dgvMain[e.ColumnIndex, e.RowIndex] is DataGridViewButtonCell buttonCell &&
+                buttonCell.Value?.ToString() == "Добавить рисунок")
+        {
+            var cell = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew)
+            {
+                var editor = new Win6_ImageEditor(ew, TehCarta, context);
+                editor.AfterSave = async (savedObj) =>
+                {
+                    RefreshPictureNameColumn();
+                };
+
+                editor.Show();
+            }
+        }
+    }
+
+    private void RefreshPictureNameColumn()
+    {
+        for (int rowIndex = 0; rowIndex < dgvMain.Rows.Count; rowIndex++)
+        {
+            if (dgvMain.Rows[rowIndex].Cells[0].Value is ExecutionWork ew)
+            {
+                UpdatePictureCell(rowIndex, ew);
+            }
+        }
     }
 
     private void DgvMain_CellContentDoubleClick(object? sender, DataGridViewCellEventArgs e)
@@ -168,8 +206,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	private ToolStripMenuItem copyTechOperationItem;
 	private ToolStripMenuItem copyProtectionsItem;
 	private ToolStripMenuItem copyRowItem;
+	private ToolStripMenuItem copyImageItem;
 
-	private ToolStripSeparator separatorItem1;
+    private ToolStripSeparator separatorItem1;
 
 	private ToolStripMenuItem openEditFormItem;
 
@@ -181,10 +220,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	private ToolStripMenuItem pasteRowItem;
 	private ToolStripMenuItem pasteTechOperationItem;
 	private ToolStripMenuItem pasteProtectionsItem;
+    private ToolStripMenuItem pasteImageItem;
 
-	// Дополнительные пункты
-	//private ToolStripMenuItem openRelatedTc;
-
+    // Дополнительные пункты
+    //private ToolStripMenuItem openRelatedTc;
+    private ToolStripMenuItem openImageEditor;
 
 	/// <summary>
 	/// Настраивает контекстное меню для DataGridView (копировать/вставить).
@@ -199,6 +239,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		copyRowItem = new ToolStripMenuItem("Копировать строку");
         copyTechOperationItem = new ToolStripMenuItem("Копировать техоперацию");
 		copyProtectionsItem = new ToolStripMenuItem("Копировать СИЗ");
+        copyImageItem = new ToolStripMenuItem("Копировать изображения");
 
 		copyTextItem.Click += (s, e) => {
 			_logger.LogUserAction("Выбрал пункт меню 'Копировать текст' в контекстном меню.");
@@ -221,14 +262,21 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			CopyData();
 		};
 
+        copyImageItem.Click += (s, e) =>
+        {
+            _logger.LogUserAction("Выбрал пункт меню 'Копировать изображения' в контекстном меню.");
+            CopyData();
+        };
+
 		// 2) Пункты "Вставить"
 		pasteTextItem = new ToolStripMenuItem("Вставить текст");
 		pasteStaffItem = new ToolStripMenuItem("Вставить персонал");
 		pasteRowItem = new ToolStripMenuItem("Вставить строку");
 		pasteTechOperationItem = new ToolStripMenuItem("Вставить техоперацию");
 		pasteProtectionsItem = new ToolStripMenuItem("Вставить СИЗ");
+        pasteImageItem = new ToolStripMenuItem("Вставить изображения");
 
-		pasteTextItem.Click += (s, e) => {
+        pasteTextItem.Click += (s, e) => {
 			_logger.LogUserAction("Выбрал пункт меню 'Вставить текст' в контекстном меню.");
 			PasteClipboardValue();
 		};
@@ -249,8 +297,22 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			PasteCopiedData();
 		};
 
-		// 3) Разделитель
-		separatorItem1 = new ToolStripSeparator();
+        pasteImageItem.Click += (s, e) => {
+            _logger.LogUserAction("Выбрал пункт меню 'Вставить изображения' в контекстном меню.");
+            PasteCopiedData();
+        };
+
+        // 3) Дополнительные пункты
+        openImageEditor = new ToolStripMenuItem("Редактировать изображения");
+
+        openImageEditor.Click += (s, e) =>
+        {
+            _logger.LogUserAction("Выбрал пункт меню 'Редактировать изображения' в контекстном меню.");
+            EditImageData();
+        };
+
+        // 3) Разделитель
+        separatorItem1 = new ToolStripSeparator();
 		separatorItem2 = new ToolStripSeparator();
 
 
@@ -273,12 +335,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		contextMenu.Items.Add(copyProtectionsItem);
 		contextMenu.Items.Add(copyRowItem);
 		contextMenu.Items.Add(copyTextItem);
+		contextMenu.Items.Add(copyImageItem);
 
-		contextMenu.Items.Add(separatorItem1);
+        contextMenu.Items.Add(separatorItem1);
 
 		contextMenu.Items.Add(openEditFormItem);
+        contextMenu.Items.Add(openImageEditor);
 
-		contextMenu.Items.Add(separatorItem2);
+        contextMenu.Items.Add(separatorItem2);
 
 		contextMenu.Items.Add(pasteStaffItem);
 
@@ -286,6 +350,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		contextMenu.Items.Add(pasteTechOperationItem);
 		contextMenu.Items.Add(pasteProtectionsItem);
 		contextMenu.Items.Add(pasteTextItem);
+		contextMenu.Items.Add(pasteImageItem);
     }
 
     /// <summary>
@@ -303,18 +368,23 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		copyRowItem.Visible = false;
 		copyTechOperationItem.Visible = false;
 		copyProtectionsItem.Visible = false;
+        copyImageItem.Visible = false;
+
+        openImageEditor.Visible = false;
 
 		separatorItem1.Visible = false;
 		openEditFormItem.Visible = false;
 		separatorItem2.Visible = true;
 
+        pasteImageItem.Visible = false;
 		pasteTextItem.Visible = false;
 		pasteStaffItem.Visible = false;
 		pasteRowItem.Visible = false;
 		pasteTechOperationItem.Visible = false;
 		pasteProtectionsItem.Visible = false;
 
-		pasteTextItem.Enabled = false;
+        pasteImageItem.Enabled = false;
+        pasteTextItem.Enabled = false;
 		pasteStaffItem.Enabled = false;
 		pasteRowItem.Enabled = false;
 		pasteTechOperationItem.Enabled = false;
@@ -379,16 +449,29 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				copyTextItem.Visible = true;
 				//copyRowItem.Visible = true;
 				break;
-		}
+            case CopyScopeEnum.ImageData:
+                // Клик по ячейке "Рис."
+                copyImageItem.Visible = true;
+                ShowImageEditButton();
+                break;
 
-		// --- Проверяем, что лежит в буфере TcCopyData, 
-		//     и какие пункты "ВСТАВИТЬ" имеет смысл включить ---
-		var copiedScope = TcCopyData.CopyScope;
+        }
+
+        // --- Проверяем, что лежит в буфере TcCopyData, 
+        //     и какие пункты "ВСТАВИТЬ" имеет смысл включить ---
+        var copiedScope = TcCopyData.CopyScope;
 
 		if (selectedScope != CopyScopeEnum.RowRange)
 			switch (copiedScope)
 			{
-				case CopyScopeEnum.Staff:
+                case CopyScopeEnum.ImageData:
+                    if (selectedScope == CopyScopeEnum.ImageData)
+                    {
+                        pasteImageItem.Visible = true;
+                        pasteImageItem.Enabled = true;
+                    }
+                    break;
+                case CopyScopeEnum.Staff:
 					// В буфере лежит персонал
 					// Если текущая ячейка позволяет вставлять персонал (например, scope == Staff),
 					// то делаем видимым пункт "Вставить персонал"
@@ -444,7 +527,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 						pasteProtectionsItem.Enabled = true;
 					}
 					break;
-
+                
 				case CopyScopeEnum.Text:
 					if (selectedScope == CopyScopeEnum.Row)
 					{
@@ -471,9 +554,27 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// Если режим только для просмотра, то пункты "Вставить" отключаем
 			pasteStaffItem.Visible = false;
 			pasteRowItem.Visible = false;
+            openImageEditor.Visible = false;
 			pasteTechOperationItem.Visible = false;
 			pasteProtectionsItem.Visible = false;
 		}
+
+        void ShowImageEditButton()
+        {
+            var cell = dgvMain.CurrentCell;
+            if (cell is DataGridViewButtonCell buttonCell && buttonCell.Value?.ToString() == "Добавить рисунок")
+            {
+                // Есть кнопка "Добавить рисунок" — не показываем пункт редактирования
+                openImageEditor.Visible = false;
+            }
+            else
+            {
+                // Кнопки нет — можно редактировать
+                openImageEditor.Visible = true;
+                openImageEditor.Text = "Редактировать изображения";
+                separatorItem1.Visible = isVisibleOrViewMode;
+            }
+        }
 
 		void ShowOpenEditFormItem()
 		{
@@ -638,7 +739,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				case CopyScopeEnum.ToolOrComponents:
 				case CopyScopeEnum.Staff:
 				case CopyScopeEnum.Protections:
-				case CopyScopeEnum.Text:
+				case CopyScopeEnum.ImageData:
+                case CopyScopeEnum.Text:
 					TcCopyData.SetCopyDate(
 						selectedRowIndices
 							.Select(i => TechOperationDataGridItems[i])
@@ -744,7 +846,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				case CopyScopeEnum.Protections:
 					PasteProtectionsScope(selectedRowIndices);
 					break;
-				case CopyScopeEnum.ToolOrComponents:
+                case CopyScopeEnum.ImageData:
+                    PasteImageDataScope(selectedRowIndices);
+                    break;
+                case CopyScopeEnum.ToolOrComponents:
 				case CopyScopeEnum.TechTransition:
 				case CopyScopeEnum.Row:
 				case CopyScopeEnum.RowRange:
@@ -827,6 +932,29 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		);
 	}
 
+    private void PasteImageDataScope(List <int> selectedRowIndexes)
+    {
+        if (TcCopyData.CopyScope != CopyScopeEnum.ImageData) return;
+        if(selectedRowIndexes.Count != 1)
+            throw new Exception("Ошибка: для вставки изображений выделите ровно одну строку.");
+
+        if (TechOperationDataGridItems[selectedRowIndexes[0]].WorkItem is not ExecutionWork ew)
+        {
+            MessageBox.Show("В данной строке невозможно вставить связь с изображения");
+            return;
+        }
+        if (TcCopyData.FullItems[0].WorkItem is not ExecutionWork copiedEw)
+        {
+            MessageBox.Show("Ошибка при вставке данных. Некоректный скопированный объект");
+            return;
+        }
+        UpdateImagesInRow(
+            selectedRowIndexes[0],
+            ew,
+            copiedEw.ImageList
+        );
+        UpdatePictureCell(selectedRowIndexes[0], ew);
+    }
 	/// <summary>
 	/// Вставляет инструменты/компоненты либо новые строки (ExecutionWork).
 	/// </summary>
@@ -1030,20 +1158,25 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		var item = TechOperationDataGridItems[rowIndex];
 
 		var isToolOrComponent = item.ItsTool || item.ItsComponent;
-		// Если это инструмент / компонент:
-		//if (item.ItsTool || item.ItsComponent)
-		//	return CopyScopeEnum.ToolOrComponents;
 
-		// Иначе смотрим по названию столбца
-		return columnName switch
+        //if (cell is DataGridViewButtonCell || (columnName == "Рис." && isToolOrComponent))
+        //    return null;
+
+        // Если это инструмент / компонент:
+        //if (item.ItsTool || item.ItsComponent)
+        //	return CopyScopeEnum.ToolOrComponents;
+
+        // Иначе смотрим по названию столбца
+        return columnName switch
 		{
 			"Исполнитель" => isToolOrComponent ? CopyScopeEnum.ToolOrComponents : CopyScopeEnum.Staff,
 			"№ СЗ" => isToolOrComponent ? CopyScopeEnum.ToolOrComponents : CopyScopeEnum.Protections,
 			"Технологические операции" => CopyScopeEnum.TechOperation,
 			"Технологические переходы" => isToolOrComponent ? CopyScopeEnum.ToolOrComponents : CopyScopeEnum.TechTransition,
-			"Примечание" or "Рис."
-			  or "Замечание" or "Ответ" or "№"
+			"Примечание" or "Замечание"
+                         or "Ответ" or "№"
 											=> CopyScopeEnum.Text,
+            "Рис." => CopyScopeEnum.ImageData,
 			_ => null
 		};
 	}
@@ -1059,8 +1192,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			CopyScopeEnum.Protections => dgvMain.Columns["Protection"].Index,
 			CopyScopeEnum.Text => dgvMain.Columns["Text"].Index,           // TODO: проверить, есть ли реально "Text" в колонках
 			CopyScopeEnum.Machines => dgvMain.Columns["Machine"].Index,
-			CopyScopeEnum.TechOperation => dgvMain.Columns["TechOperation"].Index, 
-			_ => null
+			CopyScopeEnum.TechOperation => dgvMain.Columns["TechOperation"].Index,
+            CopyScopeEnum.ImageData => dgvMain.Columns["PictureNameColumn"].Index,
+            _ => null
 		};
 	}
 
@@ -1125,7 +1259,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		
 			UpdateProtectionsInRow(rowIndex, newEw, copiedEw.Protections, updateDataGrid: updateDataGrid);
 			UpdateStaffInRow(rowIndex, newEw, copiedEw.Staffs, updateDataGrid: updateDataGrid);
-		}
+            UpdateImagesInRow(rowIndex, newEw, copiedEw.ImageList, updateDataGrid: updateDataGrid);
+        }
 		catch (Exception ex)
 		{
 			MessageBox.Show($"Ошибка при вставке: {ex.Message}");
@@ -1344,6 +1479,89 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			}
 		}
 	}
+
+    public void UpdateImagesInRow(int rowIndex, ExecutionWork selectedEw, List<ImageOwner> copiedImages, bool updateDataGrid = true)
+    {
+        if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
+        if (copiedImages == null) throw new ArgumentNullException(nameof(copiedImages));
+
+        var columnIndex = GetColumnIndex(CopyScopeEnum.ImageData)
+            ?? throw new Exception("Не найден столбец для изображений.");
+
+        if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid)
+            copiedImages = MergeImagesFromAnotherTc(copiedImages);
+
+        var imgSet = new HashSet<ImageOwner>(copiedImages);
+        selectedEw.ImageList.RemoveAll(obj => !imgSet.Contains(obj));
+        foreach (var image in copiedImages)
+        {
+            if (!selectedEw.ImageList.Contains(image))
+            {
+                selectedEw.ImageList.Add(image);
+            }
+        }
+
+        if (updateDataGrid)
+        {
+            // Формируем строку с номерами СЗ
+            var nums = selectedEw.ImageList
+                    .Select(img => img.Number)
+                    .Where(n => n > 0)
+                    .Distinct()
+                    .OrderBy(n => n)
+                    .ToList();
+            var newCellValue = FormatRanges(nums);
+            UpdateCellValue(rowIndex, (int)columnIndex, newCellValue);
+        }
+
+        List <ImageOwner> MergeImagesFromAnotherTc(List<ImageOwner> copiedImages)
+        {
+            copiedImages = copiedImages.ToList();
+            //Получаем уникальные мзображения
+            var existingObjects_tcs = TehCarta.ImageOwner.ToList();
+            var newCopiedImages = new List<ImageOwner>();
+            foreach(var copiedObj in copiedImages)
+            {
+                var existingObject_tc = existingObjects_tcs
+                    .FirstOrDefault(st => st.ImageStorageId == copiedObj.ImageStorageId);
+
+                if (existingObject_tc == null)
+                {
+                    var addingObject = context.ImageStorage.FirstOrDefault(s => s.Id == copiedObj.ImageStorageId);
+                    if (addingObject == null)
+                    { throw new Exception("Ошибка при копировании изображений. Ошибка 1246"); }
+
+                    context.Entry(addingObject).State = EntityState.Unchanged;
+
+                    // если изображения нет в ТК, то добавляем его с новым номером
+                    var newObject_tc = new ImageOwner
+                    {
+                        ImageStorageId = copiedObj.ImageStorageId,
+                        ImageStorage = copiedObj.ImageStorage,
+                        TechnologicalCardId = TehCarta.Id,
+                        TechnologicalCard = TehCarta,
+                        Name = copiedObj.Name,
+                        ImageRoleType = copiedObj.ImageRoleType,
+                        Number = TehCarta.ImageOwner.Count + 1,
+                    };
+
+                    newCopiedImages.Add(newObject_tc);
+
+                    // добавить персонал в ТК
+                    TehCarta.ImageOwner.Add(newObject_tc);
+                    context.Entry(newObject_tc).State = EntityState.Added;
+                }
+                else
+                {
+                    // если персонал уже есть в ТК, то заменяем на него объект в списке скопированного персонала
+                    newCopiedImages.Add(existingObject_tc);
+                }
+            }
+
+            copiedImages = newCopiedImages;
+            return copiedImages;
+        }
+    }
 
 	/// <summary>
 	/// Обновляет (вставляет) СИЗ (Protections) в указанный ExecutionWork
@@ -1637,17 +1855,18 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         return newEw;
 	}
 
-	#endregion
+    #endregion
 
 
-	#endregion
+
+    #endregion
 
 
-	/// <summary>
-	/// Обработчик завершения редактирования ячейки <c>dgvMain</c>. 
-	/// Присваивает соответствующим свойствам ExecutionWork (или Tool/Component) новое значение.
-	/// </summary>
-	private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+    /// <summary>
+    /// Обработчик завершения редактирования ячейки <c>dgvMain</c>. 
+    /// Присваивает соответствующим свойствам ExecutionWork (или Tool/Component) новое значение.
+    /// </summary>
+    private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
 		var ew = dgvMain.Rows[e.RowIndex].Cells[0].Value as ExecutionWork;		
 		var text = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as string;
@@ -2288,7 +2507,75 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     #endregion
 
+    /// <summary>
+    /// Перерисовывает ячейку PictureNameColumn в указанной строке.
+    /// Если ImageList пуст — ставит кнопку, иначе текст с диапазоном рисунков.
+    /// </summary>
+    private void UpdatePictureCell(int rowIndex, ExecutionWork ew)
+    {
+        int pictureColumn = dgvMain.Columns["PictureNameColumn"].Index;
+        DataGridViewCell newCell;
 
+        if (ew.ImageList == null || !ew.ImageList.Any())
+        {
+            newCell = new DataGridViewButtonCell
+            {
+                Value = "Добавить рисунок",
+                Style = { Padding = new Padding(2) }
+            };
+        }
+        else
+        {
+            var nums = ew.ImageList
+                    .Select(img => img.Number)
+                    .Where(n => n > 0)
+                    .Distinct()
+                    .OrderBy(n => n)
+                    .ToList();
+            newCell = new DataGridViewTextBoxCell
+            {
+                Value = FormatRanges(nums)
+            };
+        }
+
+        dgvMain.Rows[rowIndex].Cells[pictureColumn] = newCell;
+        dgvMain.InvalidateCell(pictureColumn, rowIndex);
+    }
+    /// <summary>
+    /// Преобразует список чисел в компактный текст, например [1,4,5,6,8] ⇒ "Рис. 1, Рис. 4–6, Рис. 8"
+    /// </summary>
+    private string FormatRanges(List<int?> numbers)
+    {
+        var parts = new List<string>();
+        int? start = null, end = null;
+
+        foreach (var n in numbers)
+        {
+            if (start == null)
+            {
+                start = end = n;
+            }
+            else if (n == end + 1)
+            {
+                end = n;
+            }
+            else
+            {
+                parts.Add(RangeToString(start.Value, end.Value));
+                start = end = n;
+            }
+        }
+
+        if (start != null)
+            parts.Add(RangeToString(start.Value, end.Value));
+
+        return string.Join(", ", parts);
+    }
+
+    private string RangeToString(int s, int e)
+    {
+        return s == e ? $"Рис. {s}" : $"Рис. {s}–{e}";
+    }
 
     /// <summary>
     /// Добавляет строки в DataGridView на основе подготовленного списка TechOperationDataGridItem.
@@ -2520,8 +2807,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			rowData.Add(item.Protections);
 			// Если в techWork есть комментарий, используем его, иначе общий Comments
 			rowData.Add(item.Comments);
-			rowData.Add(item.PictureName);
-			rowData.Add(item.Vopros);
+            rowData.Add(string.Empty);
+            rowData.Add(item.Vopros);
 			rowData.Add(item.Otvet);
 
 		}
@@ -2545,8 +2832,58 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		var newRow = new DataGridViewRow();
 		newRow.CreateCells(dgvMain, rowData.ToArray());
 
-		// Применяем цветовое оформление ячеек (если цвета заданы).
-		ApplyCellColors(newRow, backColor1, backColor2, backColor3);
+        // индекс колонки PictureNameColumn
+        int picCol = dgvMain.Columns["PictureNameColumn"].Index;
+
+        // попытаемся достать ExecutionWork из первой ячейки
+        if (newRow.Cells[0].Value is ExecutionWork exWor)
+        {
+            if (_tcViewState.IsViewMode)
+            {
+                // В режиме просмотра не показываем кнопку
+                var nums = exWor.ImageList?
+                    .Select(img => img.Number)
+                    .Where(n => n > 0)
+                    .Distinct()
+                    .OrderBy(n => n)
+                    .ToList();
+
+                newRow.Cells[picCol].Value = (nums != null && nums.Count > 0)
+                    ? FormatRanges(nums)
+                    : string.Empty;
+            }
+            else
+            {
+                if (exWor.ImageList == null || exWor.ImageList.Count == 0)
+                {
+                    var btn = new DataGridViewButtonCell
+                    {
+                        Value = "Добавить рисунок",
+                        Style = { Padding = new Padding(2) }
+                    };
+                    newRow.Cells[picCol] = btn;
+                }
+                else
+                {
+                    var nums = exWor.ImageList
+                                .Select(img => img.Number)
+                                .Where(n => n > 0)
+                                .Distinct()
+                                .OrderBy(n => n)
+                                .ToList();
+                    newRow.Cells[picCol].Value = FormatRanges(nums);
+                }
+            }
+        }
+        else
+        {
+            // если это не ExecutionWork — оставляем пусто
+            newRow.Cells[picCol].Value = string.Empty;
+        }
+
+
+        // Применяем цветовое оформление ячеек (если цвета заданы).
+        ApplyCellColors(newRow, backColor1, backColor2, backColor3);
 
 		//  Добавляем/вставляем в dgvMain:
 		//    - если insertIndex не задан, добавляем в конец,
@@ -2638,10 +2975,19 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
-                else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index
-                    || e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
+                else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
                 {
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                }
+                else if (e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
+                {
+                    var cell = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                    cell.ReadOnly = true;
+                    var currentColor = cell.Style.BackColor;
+                    if (currentColor == Color.White || currentColor == Color.LightGray || currentColor.IsEmpty)
+                    {
+                        cell.Style.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+                    }
                 }
                 else if(executionWork.techTransition.IsRepeatTypeTransition()//(executionWork.techTransition?.Id == 133 || executionWork.techTransition?.Id == 134) // todo: переделать на id => возможно лучше вынести Id повторов в отдельный класс
 					&& (e.ColumnIndex == dgvMain.Columns["Staff"].Index
@@ -3306,12 +3652,44 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				"Индекс столбца вне допустимого диапазона.");
 
 		dgvMain.Rows[rowIndex].Cells[columnIndex].Value = newValue;
-
 		// Если нужно сразу же отобразить изменения в интерфейсе,
 		// можно принудительно вызвать перерисовку:
 		// dgvMain.Invalidate();
 	}
-	private void OpenEditFormBySelectedObject()
+
+    private void EditImageData()
+    {
+        if (_tcViewState.IsViewMode) return;
+
+        GetSelectedDataInfo(out List<int> selectedRowIndices, out CopyScopeEnum? selectedScope);
+
+        if (selectedScope == null) return;
+
+        var selectedItems = selectedRowIndices.Select(i => TechOperationDataGridItems[i]).ToList();
+        var selectedItem = selectedItems[0];
+
+        if (selectedItem == null) return;
+
+        switch (selectedScope)
+        {
+            case CopyScopeEnum.ImageData:
+                if(selectedItem.WorkItem is ExecutionWork ew)
+                {
+                    var editor = new Win6_ImageEditor(ew, TehCarta, context);
+                    editor.AfterSave = async (savedObj) =>
+                    {
+                        RefreshPictureNameColumn();
+                    };
+
+                    editor.Show();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void OpenEditFormBySelectedObject()
 	{
 		if (_tcViewState.IsViewMode) return;
 
