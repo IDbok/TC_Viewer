@@ -3206,8 +3206,14 @@ namespace TC_WinForms.WinForms.Work
 
 			// 1. Открытие формы по добавлению нового ТП с передачей номера ТК
 			var AddingForm = new Win7_TechTransitionEditor(new TechTransition() { CreatedTCId = TechOperationForm._tcId }, isNewObject: true);
-			AddingForm.AfterSave = async (createdObj) =>  AddNewTP(createdObj, SelectedTO);//AddNewObjectInDataGridView(createdObj);
-			AddingForm.ShowDialog();
+            AddingForm.AfterSave = async (createdObj) => //todo: Проверить, есть ли более надежный способ
+            {
+                AddNewTP(createdObj, SelectedTO);
+                TechOperationForm.context.TechTransitions.Add(createdObj);
+                TechOperationForm.context.Attach(createdObj);
+            };//AddNewObjectInDataGridView(createdObj);
+            
+            AddingForm.ShowDialog();
 		}
 
         private void btnAddNewTO_Click(object sender, EventArgs e)
