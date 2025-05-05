@@ -1,4 +1,4 @@
-﻿using ExcelParsing.DataProcessing;
+using ExcelParsing.DataProcessing;
 using NCalc;
 using System.Data;
 using System.Text.RegularExpressions;
@@ -81,15 +81,18 @@ public static class MathScript
 			// разделить выражение на части по разделителю "*" удаляя пустые значения
 			var parts = expression.Split(new[] { '*' }, StringSplitOptions.RemoveEmptyEntries);
 
-			// собираем выражение заново
-			expression = string.Join("*", parts);
+            // собираем выражение заново
+            expression = string.Join("*", parts);
 
-			var table = new DataTable();
+            if(Char.IsNumber(expression.Last()))
+                expression += ".0";
+
+            var table = new DataTable();
 
 			var value = table.Compute(expression, string.Empty);
 			return Math.Round(Convert.ToDouble(value), 2);
 		}
-		catch
+        catch
 		{
 			throw new Exception($"Произошла ошибка при расчёте выражения {expression}");
 

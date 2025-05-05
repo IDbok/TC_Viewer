@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
@@ -47,6 +47,7 @@ public class MyDbContext : DbContext
     public DbSet<DiagramShagToolsComponent> DiagramShagToolsComponent { get; set; } = null!;
 
     public DbSet<ImageStorage> ImageStorage { get; set; }
+    public DbSet<ImageOwner> ImageOwners { get; set; } = null!;
     public DbSet<ObjectLocker> BlockedConcurrencyObjects { get; set; } = null!;
     public DbSet<Outlay> OutlaysTable { get; set; } = null!;
     public DbSet<Coefficient> Coefficients { get; set; } = null!;
@@ -85,7 +86,7 @@ public class MyDbContext : DbContext
 			.UseMySql(connectString,
 			new MySqlServerVersion(new Version(5, 7, 24)));
 
-	}
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -266,10 +267,6 @@ public class MyDbContext : DbContext
         modelBuilder.Entity<ImageStorage>()
         .Property(e => e.StorageType)
         .HasConversion<int>();
-
-        modelBuilder.Entity<ImageStorage>()
-            .Property(e => e.Category)
-            .HasConversion<int>();
         
         modelBuilder.Entity<TechOperationWork>()
             .Property<string>("ParallelIndex")

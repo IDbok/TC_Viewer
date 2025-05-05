@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TC_WinForms.DataProcessing.AuthorizationService.User;
 
@@ -49,7 +49,7 @@ public static class ApplicationInfoService
     }
     public static string GetApplicationVersion()
     {
-        return "1.11.1"; 
+        return "1.11.3"; 
     }
 
     public static string GetApplicationName()

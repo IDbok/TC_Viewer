@@ -1,4 +1,4 @@
-﻿
+
 namespace TC_WinForms.WinForms
 {
     partial class Win6_new
@@ -58,6 +58,7 @@ namespace TC_WinForms.WinForms
             buttonDiagram = new Button();
             btnOutlay = new Button();
             pnlDataViewer = new Panel();
+            toolStripButton1 = new ToolStripButton();
             toolStrip1.SuspendLayout();
             pnlControls.SuspendLayout();
             SuspendLayout();
@@ -65,7 +66,7 @@ namespace TC_WinForms.WinForms
             // toolStrip1
             // 
             toolStrip1.ImageScalingSize = new Size(20, 20);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients, toolStripButton1 });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
 			toolStrip1.Padding = new Padding(0, 0, 3, 0);
@@ -339,9 +340,19 @@ namespace TC_WinForms.WinForms
 			pnlDataViewer.Size = new Size(1410, 642);
             pnlDataViewer.TabIndex = 35;
             // 
+            // toolStripButton1
+            // 
+            toolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            toolStripButton1.Image = (Image)resources.GetObject("toolStripButton1.Image");
+            toolStripButton1.ImageTransparentColor = Color.Magenta;
+            toolStripButton1.Name = "toolStripButton1";
+            toolStripButton1.Size = new Size(97, 29);
+            toolStripButton1.Text = "Изображения";
+            toolStripButton1.Click += toolStripButton1_Click;
+            // 
             // Win6_new
             // 
-			AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(1704, 800);
             Controls.Add(pnlDataViewer);
@@ -393,5 +404,6 @@ namespace TC_WinForms.WinForms
         private ToolStripButton toolStripShowCoefficients;
 		private ToolStripMenuItem ChangeIsDynamicToolStripMenuItem;
 		private ToolStripMenuItem действияToolStripMenuItem;
+        private ToolStripButton toolStripButton1;
 	}
 }

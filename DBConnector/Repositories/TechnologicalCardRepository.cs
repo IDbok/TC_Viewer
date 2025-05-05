@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TcModels.Models;
+using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.RoadMap;
 
@@ -42,61 +43,141 @@ public class TechnologicalCardRepository
         return tc;
     }
 
-	public async Task<TechnologicalCard?> GetTCDataAsync(int id, MyDbContext dbCon = null)
-	{
-		bool isContextLocal = dbCon == null;
-		MyDbContext context = dbCon ?? new MyDbContext();
+    public async Task<TechnologicalCard?> GetTCDataAsync(int id, MyDbContext dbCon = null)
+    {
+        bool isContextLocal = dbCon == null;
+        MyDbContext context = dbCon ?? new MyDbContext();
 
-		try
-		{
-			TechnologicalCard tc = await context.TechnologicalCards
+        try
+        {
+            // Загрузка TC и его простых коллекций без Include
+            var tc = await context.TechnologicalCards.FirstOrDefaultAsync(t => t.Id == id);
+            if (tc == null)
+                return null;
 
-				.Include(t => t.Machine_TCs).ThenInclude(tc => tc.Child)
-				.Include(t => t.Protection_TCs).ThenInclude(tc => tc.Child)
-				.Include(t => t.Tool_TCs).ThenInclude(tc => tc.Child)
-				.Include(t => t.Component_TCs).ThenInclude(tc => tc.Child)
-				.Include(t => t.Staff_TCs).ThenInclude(t => t.Child)
-				.Include(t => t.Coefficients)
-				.FirstAsync(s => s.Id == id);
+            // Ручная загрузка связанных сущностей пачкой
+            var tcIds = new[] { id };
 
+            var machineTCs = await context.Machine_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
+            var protectionTCs = await context.Protection_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
 
-			tc.TechOperationWorks = await context.TechOperationWorks
-				.Where(w => w.TechnologicalCardId == id)
-					.Include(i => i.techOperation)
-					.Include(r => r.ToolWorks).ThenInclude(r => r.tool)
-					.Include(i => i.ComponentWorks).ThenInclude(t => t.component)
-				.ToListAsync();
+            var toolTCs = await context.Tool_TCs.Where(x => x.ParentId == id).Include(t => t.Child).ToListAsync();
 
-			foreach (var tow in tc.TechOperationWorks)
-			{
-				// Загружаем executionWorks для текущего tow по частям с жадной загрузкой связанных данных
-				tow.executionWorks = await context.ExecutionWorks
-					.Where(ew => ew.techOperationWorkId == tow.Id)
-					.Include(ew => ew.techTransition)
-					.Include(ew => ew.Protections)
-					.Include(ew => ew.Machines)
-					.Include(ew => ew.Staffs)
-					.Include(ew => ew.ExecutionWorkRepeats)
-						.ThenInclude(ew => ew.ChildExecutionWork)
-					.ToListAsync();
-			}
-			return tc;
-		}
-		catch (Exception)
-		{
-			// todo: добавить логгирование
-			throw;
-		}
-		finally
-		{
-			if (isContextLocal)
-			{
-				context.Dispose();
-			}
-		}
-	}
+            var componentTCs = await context.Component_TCs.Where(x => x.ParentId == id).Include(t => t.Child).ToListAsync();
 
-	public async Task<TechnologicalCard> GetTCDataAsyncCopy(int _tcId)//метод отличается другой структурой запроса, которая используется только для копирования карты
+            var staffTCs = await context.Staff_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
+            var coefficients = await context.Coefficients.Where(x => x.TechnologicalCardId == id).ToListAsync();
+
+            await context.Entry(tc)
+                        .Collection(t => t.ImageList)
+                        .Query()
+                        .Include(io => io.ImageStorage)
+                        .LoadAsync();
+  
+            // Подвязка вручную
+            tc.Machine_TCs = machineTCs;
+            tc.Protection_TCs = protectionTCs;
+            tc.Tool_TCs = toolTCs;
+            tc.Component_TCs = componentTCs;
+            tc.Staff_TCs = staffTCs;
+            tc.Coefficients = coefficients;
+
+            // Загрузка TOW без include
+            var towList = await context.TechOperationWorks
+                .Where(w => w.TechnologicalCardId == id)
+                .ToListAsync();
+
+            var towIds = towList.Select(t => t.Id).ToList();
+
+            var techOperations = await context.TechOperations
+                                        .Where(op => towList.Select(t => t.techOperationId).Contains(op.Id))
+                                        .ToListAsync();
+            var techOps = await context.TechOperationWorks.Where(op => towIds.Contains(op.Id)).ToListAsync(); // если связь по Id, иначе поправим
+            var toolWorks = await context.ToolWorks.Where(t => towIds.Contains(t.techOperationWorkId)).ToListAsync();
+            var tools = await context.Tools.Where(t => toolWorks.Select(w => w.toolId).Contains(t.Id)).ToListAsync();
+
+            var componentWorks = await context.ComponentWorks.Where(c => towIds.Contains(c.techOperationWorkId)).ToListAsync();
+            var components = await context.Components.Where(c => componentWorks.Select(w => w.componentId).Contains(c.Id)).ToListAsync();
+
+            var executionWorks = await context.ExecutionWorks
+                                        .Where(e => towIds.Contains(e.techOperationWorkId))
+                                        .Include(e => e.ImageList)
+                                        .ToListAsync();
+
+            var execWorkIds = executionWorks.Select(e => e.Id).ToList();
+            var transitionIds = executionWorks.Where(e => e.techTransitionId != null).Select(e => e.techTransitionId!.Value).ToHashSet();
+
+            // Загружаем нужные сущности одним проходом
+            var transitions = await context.TechTransitions
+                .Where(t => transitionIds.Contains(t.Id))
+                .ToListAsync();
+
+            var staffs = await context.Staff_TCs
+                .Where(s => s.ParentId == id)
+                .Include(s => s.ExecutionWorks)
+                .Include(s => s.Child)
+                .ToListAsync();
+
+            var machines = await context.Machine_TCs
+                .Where(m => m.ParentId == id)
+                .Include(s => s.Child)
+                .Include(m => m.ExecutionWorks)
+                .ToListAsync();
+
+            var protections = await context.Protection_TCs
+                .Where(p => p.ParentId == id)
+                .Include(s => s.Child)
+                .Include(p => p.ExecutionWorks)
+                .ToListAsync();
+
+            var repeats = await context.ExecutionWorkRepeats
+                .Where(r => execWorkIds.Contains(r.ParentExecutionWorkId))
+                .Include( r => r.ChildExecutionWork)
+                .ToListAsync();
+
+            foreach (var tow in towList)
+            {
+                tow.techOperation = techOperations.FirstOrDefault(op => op.Id == tow.techOperationId);
+
+                tow.ToolWorks = toolWorks.Where(tw => tw.techOperationWorkId == tow.Id).ToList();
+                foreach (var tw in tow.ToolWorks)
+                    tw.tool = tools.FirstOrDefault(t => t.Id == tw.toolId);
+
+                tow.ComponentWorks = componentWorks.Where(cw => cw.techOperationWorkId == tow.Id).ToList();
+                foreach (var cw in tow.ComponentWorks)
+                    cw.component = components.FirstOrDefault(c => c.Id == cw.componentId);
+
+                tow.executionWorks = executionWorks
+                    .Where(e => e.techOperationWorkId == tow.Id)
+                    .Select(e =>
+                    {
+                        // Привязываем TechTransition по Id
+                        e.techTransition = e.techTransitionId != null
+                            ? transitions.FirstOrDefault(t => t.Id == e.techTransitionId.Value)
+                            : null;
+
+                        // Остальные списки — через связывающие таблицы
+                        e.Protections = protections.Where(p => p.ExecutionWorks.Any(w => w.Id == e.Id)).ToList();
+                        e.Machines = machines.Where(m => m.ExecutionWorks.Any(w => w.Id == e.Id)).ToList();
+                        e.Staffs = staffs.Where(s => s.ExecutionWorks.Any(w => w.Id == e.Id)).ToList();
+                        e.ExecutionWorkRepeats = repeats.Where(r => r.ParentExecutionWorkId == e.Id).ToList();
+
+                        return e;
+                    }).ToList();
+            }
+
+            tc.TechOperationWorks = towList;
+
+            return tc;
+        }
+        finally
+        {
+            if (isContextLocal)
+                context.Dispose();
+        }
+    }
+
+    public async Task<TechnologicalCard> GetTCDataAsyncCopy(int _tcId)//метод отличается другой структурой запроса, которая используется только для копирования карты
 	{
 		try
 		{
@@ -137,6 +218,11 @@ public class TechnologicalCardRepository
 					.Where(c => c.TechnologicalCardId == _tcId)
 					.ToListAsync();
 
+                var images = await context.ImageOwners
+                    .Where(i => i.TechnologicalCardId == _tcId)
+                    .Include(i => i.ImageStorage).
+                    ToListAsync();
+
 				return techCard;
 			}
 		}
@@ -174,6 +260,7 @@ public class TechnologicalCardRepository
                                         .Include(e => e.Machines)
                                         .Include(e => e.Staffs)
                                         .Include(e => e.ExecutionWorkRepeats).ThenInclude(e => e.ChildExecutionWork)
+                                        .Include(e => e.ImageList).ThenInclude(e => e.ImageStorage)
                                         .ToListAsync();
 
 
@@ -188,24 +275,36 @@ public class TechnologicalCardRepository
 
         try
         {
-
-            var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == _tcId)
-                                                                        .Include(ie => ie.techOperationWork)
-                                                                        .ToListAsync();
-
-
-            var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
-                                                                        .ToListAsync();
-
-            var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
+            var diagramToWorkList = await context.DiagamToWork
+                .Where(w => w.technologicalCardId == _tcId)
+                .Include(ie => ie.techOperationWork)
                 .ToListAsync();
 
-            var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
+            var dtwIds = diagramToWorkList.Select(i => i.Id).ToList();
+
+            var listDiagramParalelno = await context.DiagramParalelno
+                .Where(p => dtwIds.Contains(p.DiagamToWorkId))
+                .ToListAsync();
+
+            var dpIds = listDiagramParalelno.Select(p => p.Id).ToList();
+
+            var listDiagramPosledov = await context.DiagramPosledov
+                .Where(p => dpIds.Contains(p.DiagramParalelnoId))
+                .ToListAsync();
+
+            var dposIds = listDiagramPosledov.Select(p => p.Id).ToList();
+
+            var listDiagramShag = await context.DiagramShag
+                .Where(d => dposIds.Contains(d.DiagramPosledovId))
                 .Include(q => q.ListDiagramShagToolsComponent)
                     .ThenInclude(e => e.toolWork)
-                 .Include(q => q.ListDiagramShagToolsComponent)
+                .Include(q => q.ListDiagramShagToolsComponent)
                     .ThenInclude(e => e.componentWork)
+                .Include(s => s.ImageList)
+                    .ThenInclude(i => i.ImageStorage)
                 .ToListAsync();
+
+            // Привязку к diagramToWork можно сделать тут при необходимости
 
             return diagramToWorkList;
         }
@@ -333,7 +432,7 @@ public class TechnologicalCardRepository
         var image = new ImageStorage
         {
             ImageBase64 = Convert.ToBase64String(executionScheme),
-            Category = ImageCategory.ExecutionScheme
+            Category = "ExecutionScheme"
         };
 
         _db.ImageStorage.Add(image);

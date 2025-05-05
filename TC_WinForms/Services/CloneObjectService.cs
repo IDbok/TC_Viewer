@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.TcContent;
@@ -7,6 +7,8 @@ namespace TC_WinForms.Services
 {
     public static class CloneObjectService
     {
+        private static Dictionary<long, ImageOwner> imageOwnerMap = new Dictionary<long, ImageOwner>();
+
         private static Dictionary<Type,CloneObjectType> keyValuePairs = new Dictionary<Type, CloneObjectType>
         {
             {typeof(TechnologicalCard),CloneObjectType.TechnologicalCard},
@@ -17,11 +19,24 @@ namespace TC_WinForms.Services
         {
             var newCard = card.DeepCopyObject();
 
-            foreach (var sourceTOW in card.TechOperationWorks)
+            // Словарь для сопоставления старых и новых ImageOwner
+
+            // Копируем изображения и заполняем словарь сопоставления
+            foreach (var imageOwner in card.ImageList)
             {
-                sourceTOW.CloneObject(newCard);
+                var newImageOwner = imageOwner.DeepCopyObject(newCard);
+                newCard.ImageList.Add(newImageOwner);
+                imageOwnerMap.Add(imageOwner.Id, newImageOwner);
             }
 
+            // Копируем TechOperationWorks
+            foreach (var sourceTOW in card.TechOperationWorks)
+            {
+                var newTOW = sourceTOW.CloneObject(newCard);
+                newCard.TechOperationWorks.Add(newTOW);
+            }
+
+            // Копируем DiagramToWork
             foreach (var sourceDTW in card.DiagamToWork)
             {
                 var newDTW = sourceDTW.CloneObject(newCard);
@@ -36,7 +51,7 @@ namespace TC_WinForms.Services
             var newTOW = sourceTOW.DeepCopyObject();
             parentCard.TechOperationWorks.Add(newTOW);
 
-            foreach (var exItem in sourceTOW.executionWorks)
+            foreach (var exItem in sourceTOW.executionWorks.OrderBy(o => o.RowOrder).ToList())
             {
                 var newEx = exItem.DeepCopyObject(parentCard);
                 newTOW.executionWorks.Add(newEx);
@@ -73,6 +88,31 @@ namespace TC_WinForms.Services
                 return null;
         }
 
+        /// <summary>
+        /// Метод для клонирования изображений ТК
+        /// </summary>
+        /// <param name="sourceImageOwner"></param>
+        /// <param name="newTechnologicalCard"></param>
+        /// <returns></returns>
+        private static ImageOwner DeepCopyObject(this ImageOwner sourceImageOwner, TechnologicalCard newTechnologicalCard)
+        {
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new OpenProfile(CloneObjectType.TechnologicalCard));
+            });
+
+            var mapper = config.CreateMapper();
+
+            // Копируем ImageOwner (включая новый ImageStorage)
+            var newImageOwner = mapper.Map<ImageOwner>(sourceImageOwner);
+
+            // Привязываем к новой TechnologicalCard
+            newImageOwner.TechnologicalCardId = newTechnologicalCard.Id;
+            newImageOwner.TechnologicalCard = newTechnologicalCard;
+
+            return newImageOwner;
+        }
+
         private static ExecutionWork DeepCopyObject(this ExecutionWork sourceExecutionWork, TechnologicalCard newtechnologicalCard)
         {
             var config = new MapperConfiguration(cfg =>
@@ -81,9 +121,10 @@ namespace TC_WinForms.Services
             });
             var newExecutionWork = new ExecutionWork();
 
-            var mapper = config.CreateMapper();
-
+            var mapper = config.CreateMapper(); 
             newExecutionWork = mapper.Map<ExecutionWork>(sourceExecutionWork);
+
+            newExecutionWork.ImageList = new List<ImageOwner>();
 
             newExecutionWork.Staffs.AddRange
                 (newtechnologicalCard.Staff_TCs.Where(s => sourceExecutionWork.Staffs.Exists(staffs => staffs.ChildId == s.ChildId && staffs.Order == s.Order && staffs.Symbol == s.Symbol))
@@ -96,8 +137,16 @@ namespace TC_WinForms.Services
             newExecutionWork.Machines.AddRange
                 (newtechnologicalCard.Machine_TCs.Where(s => sourceExecutionWork.Machines.Exists(staffs => staffs.ChildId == s.ChildId && staffs.Order == s.Order))
                                                  .ToList());
+            if(sourceExecutionWork.ImageList.Count > 0)
+            {
+                newExecutionWork.ImageList = sourceExecutionWork.ImageList
+                        .Select(io => imageOwnerMap.TryGetValue(io.Id, out var newImageOwner) ? newImageOwner : null)
+                        .Where(io => io != null)
+                        .ToList();
+            }
 
-            if (sourceExecutionWork.Repeat)
+            if (sourceExecutionWork.Repeat &&
+                (sourceExecutionWork.RepeatsTCId == 0 || sourceExecutionWork.RepeatsTCId == null))
             {
                 var repeats = sourceExecutionWork.ExecutionWorkRepeats.Select(e => e.ChildExecutionWork).ToList();
                 var repeatsTOWs = repeats.Select(e => e.techOperationWork).Distinct().ToList();
@@ -121,8 +170,24 @@ namespace TC_WinForms.Services
                     }
                 }
             }
+            else if (sourceExecutionWork.Repeat && sourceExecutionWork.RepeatsTCId != 0)
+            {
+                var repeats = sourceExecutionWork.ExecutionWorkRepeats.Select(e => e.ChildExecutionWork).ToList();
+                newExecutionWork.RepeatsTCId = sourceExecutionWork.RepeatsTCId;
+                foreach (var repeat in repeats)
+                {
+                    newExecutionWork.ExecutionWorkRepeats.Add(
+                           new ExecutionWorkRepeat
+                           {
+                               ChildExecutionWorkId = repeat.Id,
+                               ParentExecutionWork = newExecutionWork,
+                               ParentExecutionWorkId = newExecutionWork.Id,
+                           });
+                }
+            }
 
-            return newExecutionWork;
+
+                return newExecutionWork;
         }
 
         private static DiagamToWork DeepCopyObject(this DiagamToWork sourceDTW, TechnologicalCard newtechnologicalCard)
@@ -136,6 +201,28 @@ namespace TC_WinForms.Services
 
             var mapper = config.CreateMapper();
 
+            var allShags = newDTW.ListDiagramParalelno
+                            .SelectMany(p => p.ListDiagramPosledov)
+                            .SelectMany(ps => ps.ListDiagramShag);
+
+            foreach (var shag in allShags)
+            {
+                shag.ImageList.Clear(); // или = new List();
+            }
+
+
+            //// Очищаем ImageOwners в DiagramShag (они будут заполнены позже)
+            //foreach (var paral in newDTW.ListDiagramParalelno)
+            //{
+            //    foreach (var posled in paral.ListDiagramPosledov)
+            //    {
+            //        foreach (var shag in posled.ListDiagramShag)
+            //        {
+            //            shag.ImageList.Clear();
+            //        }
+            //    }
+            //}
+
             var currentTOW = newtechnologicalCard.TechOperationWorks.Where(e => e.techOperationId == sourceDTW.techOperationWork.techOperationId && e.Order == sourceDTW.techOperationWork.Order).FirstOrDefault();
 
             foreach (var paral in sourceDTW.ListDiagramParalelno)
@@ -144,6 +231,14 @@ namespace TC_WinForms.Services
                 {
                     foreach (var shag in posled.ListDiagramShag)
                     {
+                        if (shag.ImageList.Count > 0)
+                        {
+                            shag.ImageList = shag.ImageList
+                                    .Select(io => imageOwnerMap.TryGetValue(io.Id, out var newImageOwner) ? newImageOwner : null)
+                                    .Where(io => io != null)
+                                    .ToList();
+                        }
+
                         foreach (var ShagToolsComponent in shag.ListDiagramShagToolsComponent)
                         {
                             if (ShagToolsComponent.toolWorkId == null)
