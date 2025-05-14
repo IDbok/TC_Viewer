@@ -72,12 +72,12 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("ExecutionWorksId")
                         .HasColumnType("int");
 
-                    b.Property<long>("ImagesId")
+                    b.Property<long>("ImageListId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("ExecutionWorksId", "ImagesId");
+                    b.HasKey("ExecutionWorksId", "ImageListId");
 
-                    b.HasIndex("ImagesId");
+                    b.HasIndex("ImageListId");
 
                     b.ToTable("ExecutionWorkImageOwner");
                 });
@@ -201,8 +201,9 @@ namespace TcDbConnector.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("FilePath")
                         .HasColumnType("longtext");
@@ -1524,7 +1525,7 @@ namespace TcDbConnector.Migrations
 
                     b.HasOne("TcModels.Models.ImageOwner", null)
                         .WithMany()
-                        .HasForeignKey("ImagesId")
+                        .HasForeignKey("ImageListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -16,6 +16,15 @@ namespace TcDbConnector.Migrations
                 nullable: true)
                 .Annotation("MySql:CharSet", "utf8mb4");
 
+            migrationBuilder.AlterColumn<string>(
+                name: "Category",
+                table: "ImageStorage",
+                type: "longtext",
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: "int")
+                .Annotation("MySql:CharSet", "utf8mb4");
+
             migrationBuilder.AlterColumn<int>(
                 name: "Category",
                 table: "ImageStorage",
@@ -86,11 +95,11 @@ namespace TcDbConnector.Migrations
                 columns: table => new
                 {
                     ExecutionWorksId = table.Column<int>(type: "int", nullable: false),
-                    ImagesId = table.Column<long>(type: "bigint", nullable: false)
+                    ImageListId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ExecutionWorkImageOwner", x => new { x.ExecutionWorksId, x.ImagesId });
+                    table.PrimaryKey("PK_ExecutionWorkImageOwner", x => new { x.ExecutionWorksId, x.ImageListId });
                     table.ForeignKey(
                         name: "FK_ExecutionWorkImageOwner_ExecutionWorks_ExecutionWorksId",
                         column: x => x.ExecutionWorksId,
@@ -98,8 +107,8 @@ namespace TcDbConnector.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ExecutionWorkImageOwner_ImageOwners_ImagesId",
-                        column: x => x.ImagesId,
+                        name: "FK_ExecutionWorkImageOwner_ImageOwners_ImageListId",
+                        column: x => x.ImageListId,
                         principalTable: "ImageOwners",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -112,9 +121,9 @@ namespace TcDbConnector.Migrations
                 column: "ImageListId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExecutionWorkImageOwner_ImagesId",
+                name: "IX_ExecutionWorkImageOwner_ImageListId",
                 table: "ExecutionWorkImageOwner",
-                column: "ImagesId");
+                column: "ImageListId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ImageOwners_ImageStorageId",
@@ -137,6 +146,15 @@ namespace TcDbConnector.Migrations
 
             migrationBuilder.DropTable(
                 name: "ImageOwners");
+
+            migrationBuilder.AlterColumn<int>(
+               name: "Category",
+               table: "ImageStorage",
+               type: "int",
+               nullable: false,
+               oldClrType: typeof(string),
+               oldType: "longtext")
+               .OldAnnotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Category",
