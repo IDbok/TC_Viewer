@@ -3282,10 +3282,11 @@ namespace TC_WinForms.WinForms.Work
         {
 			_logger.LogUserAction("Замена ТО");
 
-			if (dataGridViewTO.SelectedRows.Count == 1 && dataGridViewAllTO.SelectedRows.Count == 1)
+            if (dataGridViewTO.SelectedCells.Count == 1 && dataGridViewAllTO.SelectedRows.Count == 1)
             {
+                var rowIndex = dataGridViewTO.SelectedCells[0].RowIndex;
                 // Получаем выделенную строку из dataGridViewTO
-                var selectedRowTO = dataGridViewTO.SelectedRows[0];
+                var selectedRowTO = dataGridViewTO.Rows[rowIndex];
                 var techOperationWork = (TechOperationWork)selectedRowTO.Cells[0].Value;
 
                 // Получаем выделенную строку из dataGridViewAllTO
