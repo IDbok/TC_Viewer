@@ -55,9 +55,9 @@ namespace ExcelParsing.DataProcessing
                 { "конец", 8 }
             };
 
-        private Dictionary<Machine_TC,int> machineColumnNumber = new Dictionary<Machine_TC, int>();
+        private Dictionary<Machine_TC, int> machineColumnNumber = new Dictionary<Machine_TC, int>();
 
-        private readonly  double _defaultRowHeight = 14.5;
+        private readonly double _defaultRowHeight = 14.5;
         private readonly double _defaultColumnWidth = 6.82;
 
         public TCExcelExporter()
@@ -73,10 +73,10 @@ namespace ExcelParsing.DataProcessing
             _excelPackage = excelPackage;
             _exporter = new ExcelExporter();
         }
-        public void CompliteColumnsWidthWithMachines( int newColumnNum)
+        public void CompliteColumnsWidthWithMachines(int newColumnNum)
         {
             var lastColumn = _columnWidths.Keys.Max();
-            for(int i = 1; i<= newColumnNum; i++)
+            for (int i = 1; i <= newColumnNum; i++)
             {
                 _columnWidths.Add(++lastColumn, _defaultColumnWidth);
             }
@@ -119,7 +119,7 @@ namespace ExcelParsing.DataProcessing
             HideMachineColumns(sheet);
 
             // Добавление схемы исполнения на уровне с таблицей механизмы
-            AddExecutionSchemeToExcel(sheet, tc.ExecutionSchemeImageId, headerMachineRow , structHeadersColumns.Values.Max(), headerWorkStepsRow - 1);
+            AddExecutionSchemeToExcel(sheet, tc.ExecutionSchemeImageId, headerMachineRow, structHeadersColumns.Values.Max(), headerWorkStepsRow - 1);
 
             // Установка заголовка (шапки) ТК
             SetTCName(sheet, tc);
@@ -160,12 +160,12 @@ namespace ExcelParsing.DataProcessing
                 {"конец", _columnWidths.Keys.Max()+1 }
             };
             // Добавление заголовков
-            string[] headers = headersColumns.Keys.Where(x=> !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
+            string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
             int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
 
             // Добавляем заголовок всей таблицы
             _exporter.AddTableHeader(sheet, "1. Требования к составу бригады и квалификации", headRow - 1, columnNums);
-            
+
             _exporter.AddTableHeaders(sheet, headers, headRow, columnNums);
 
             // Добавление данных
@@ -215,7 +215,7 @@ namespace ExcelParsing.DataProcessing
             row.Height = 40;
 
             // Применяем стили для всех ячеек
-            _exporter.ApplyCellFormatting(sheet.Cells[headRow-1, columnNums[0], currentRow-1, columnNums[columnNums.Length - 1] - 1]);
+            _exporter.ApplyCellFormatting(sheet.Cells[headRow - 1, columnNums[0], currentRow - 1, columnNums[columnNums.Length - 1] - 1]);
 
             // Подсветка столбца с обозначением в ТК
             _exporter.ColorizeEditableColumn(sheet, columnNums[5], headRow + 1, currentRow - 1);
@@ -532,7 +532,7 @@ namespace ExcelParsing.DataProcessing
                 { "Время этапа, мин.", 8 },//5
             };
 
-            Dictionary<string, int> additinghHadersColumns = new Dictionary<string, int> 
+            Dictionary<string, int> additinghHadersColumns = new Dictionary<string, int>
             { {"№ СЗ" ,1}, { "Примечание", 2 }, { "Рисунок", 5 }, { "конец", 6 } };
 
             int lastColumn = headersColumns["Время этапа, мин."];
@@ -540,7 +540,7 @@ namespace ExcelParsing.DataProcessing
             foreach (var machine_tc in machine_TCs)
             {
                 var machineColumnNum = ++lastColumn;
-                headersColumns.Add($"Время {machine_tc.Child.Name.ToLower()}, мин." , machineColumnNum); // todo: форматировать название механизма в соответствии с его склонением
+                headersColumns.Add($"Время {machine_tc.Child.Name.ToLower()}, мин.", machineColumnNum); // todo: форматировать название механизма в соответствии с его склонением
                 machineColumnNumber.Add(machine_tc, machineColumnNum);
 
             }
@@ -551,7 +551,7 @@ namespace ExcelParsing.DataProcessing
             }
 
             // Добавление заголовков
-            string[] headers = headersColumns.Keys.Where(x=> !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
+            string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
             int[] columnNums = headersColumns.Values.ToArray(); // начала для всех столбцов, для последнего столбца указана позиция начала и конца после последней ячейки
 
             // Добавляем заголовок всей таблицы
@@ -570,14 +570,14 @@ namespace ExcelParsing.DataProcessing
             ExecutionWork startStageEW = new ExecutionWork();
             List<ExecutionWork> currentStageEWList = new List<ExecutionWork>();
 
-            var startItemRow =0;
+            var startItemRow = 0;
             int itemCount = 0;
 
             int startTechOperationRow = 0;
             foreach (var obj_tc in object_tcList)
             {
                 startTechOperationRow = currentRow;
-
+                obj_tc.executionWorks = obj_tc.executionWorks.OrderBy(o => o.RowOrder).ToList();
                 foreach (var executionWork in obj_tc.executionWorks)
                 {
                     SetExecutionWorkData(executionWork, obj_tc, currentRow, columnNums,
@@ -626,7 +626,7 @@ namespace ExcelParsing.DataProcessing
                     NextRow();
                 }
 
-                
+
 
                 // Объединение ячеек между строками в столбце "Технологические операции"
                 sheet.Cells[startTechOperationRow, columnNums[1], currentRow - 1, columnNums[1]].Merge = true;
@@ -634,11 +634,11 @@ namespace ExcelParsing.DataProcessing
                 // Объединение ячеек между строками в столбце "Исполнитель" для компонентов и инструментов
                 if (startItemRow <= currentRow - 1)
                 {
-                    if(startItemRow != currentRow - 1)// если в строке больше чем один элемент
+                    if (startItemRow != currentRow - 1)// если в строке больше чем один элемент
                     {
                         SetBordersForRange(range: sheet.Cells[startItemRow, headersColumns["Исполнитель"], currentRow - 1, headersColumns["Исполнитель"]]);
 
-                        SetBordersForRange(range: sheet.Cells[startItemRow, headersColumns["Время этапа, мин."], currentRow - 1, headersColumns["№ СЗ"]-1]);
+                        SetBordersForRange(range: sheet.Cells[startItemRow, headersColumns["Время этапа, мин."], currentRow - 1, headersColumns["№ СЗ"] - 1]);
                         //sheet.Cells[startItemRow, columnNums[2], currentRow - 1, columnNums[2]].Merge = true;Исполнитель
                     }
                 }
@@ -667,7 +667,7 @@ namespace ExcelParsing.DataProcessing
                 rowOrder++;
             }
 
-            void SetExecutionWorkData(ExecutionWork executionWork, TechOperationWork obj_tc, int currentRow, int[] columnNums, 
+            void SetExecutionWorkData(ExecutionWork executionWork, TechOperationWork obj_tc, int currentRow, int[] columnNums,
                 ref int startStageRow, ref string currentStage, List<ExecutionWork> currentStageEWList)
             {
                 if (executionWork.Repeat)
@@ -679,7 +679,7 @@ namespace ExcelParsing.DataProcessing
 
                     //var listRepeatedOtemOrders = executionWork.ListexecutionWorkRepeat2.Select(x => x.Order).ToList();
                     var listRepeatedOtemOrders = executionWork.ExecutionWorkRepeats
-                        .Select(x => x.ChildExecutionWork.Order).ToList();
+                        .Select(x => x.ChildExecutionWork.RowOrder).ToList();
                     sheet.Cells[currentRow, headersColumns["Технологические переходы"]].Value = "Повторить п. "
                         + ConvertListToRangeString(listRepeatedOtemOrders);
 
@@ -814,7 +814,7 @@ namespace ExcelParsing.DataProcessing
             {
                 if (startStageRow != 0)
                 {
-                    if(startItemRow + itemCount == currentRow)
+                    if (startItemRow + itemCount == currentRow)
                     {
                         sheet.Cells[startStageRow, headersColumns["Время этапа, мин."], currentRow - 1 - itemCount, headersColumns["Время этапа, мин."]].Merge = true;
                     } // если этап закончился до добавления компонентов и инструментов
@@ -843,7 +843,7 @@ namespace ExcelParsing.DataProcessing
                             sheet.Cells[startStageRow, column, currentRow - 1, column].Merge = true;
                             _exporter.ApplyCellFormatting(sheet.Cells[startStageRow, column, currentRow - 1, column]);
                         }
-                        
+
                         // устанавливаем время этапа для механизмов, которые учавствуют в этапе
                         if (startStageEW.Machines.Select(x => x.ChildId).ToList().Contains(machine_tc.ChildId))
                         {
@@ -858,7 +858,7 @@ namespace ExcelParsing.DataProcessing
                 // Применяем стили для всех ячеек
                 _exporter.ApplyCellFormatting(sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1]);
 
-                FormatCells(sheet.Cells[currentRow , columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1]);
+                FormatCells(sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1]);
                 sheet.Cells[currentRow, columnNums[1], currentRow, columnNums[4] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             }
             double GetTimeExecution(List<ExecutionWork> executionWorks)
@@ -906,7 +906,7 @@ namespace ExcelParsing.DataProcessing
                 range.Style.Fill.BackgroundColor.SetColor(color);
 
             }
-           
+
             string ConvertListToRangeString(List<int> numbers)
             {
                 if (numbers == null || !numbers.Any())
@@ -972,7 +972,7 @@ namespace ExcelParsing.DataProcessing
                 // Получение адресов начальной и конечной ячеек диапазона
                 var start = range.Start;
                 var end = range.End;
-                
+
                 if (start == end)
                 {
                     _exporter.ApplyCellFormatting(range.Worksheet.Cells[start.Row, start.Column]);
@@ -1005,7 +1005,7 @@ namespace ExcelParsing.DataProcessing
                 }
             }
         }
-        
+
         public void AddExecutionSchemeToExcel(ExcelWorksheet sheet, long? executionSchemeImageId, int row, int column, int endRow)
         {
             if (executionSchemeImageId != null)
@@ -1020,7 +1020,7 @@ namespace ExcelParsing.DataProcessing
                 // Сохранить изображение в Excel по указанным координатам
                 if (image != null)
                 {
-                    _exporter.AddImageToExcel(image, sheet, row +1, column, endRow, _columnWidths.Keys.Max());
+                    _exporter.AddImageToExcel(image, sheet, row + 1, column, endRow, _columnWidths.Keys.Max());
                 }
 
                 // добавить подпись в начало изображения
@@ -1080,7 +1080,7 @@ namespace ExcelParsing.DataProcessing
 
         private void SetTCName(ExcelWorksheet sheet, TechnologicalCard tc)
         {
-            int[] columns = new int[] { 1, _columnWidths.Keys.Max()};
+            int[] columns = new int[] { 1, _columnWidths.Keys.Max() };
             // Объединить первую строку листа
             // Объединяем ячейки для текущего диапазона
             var cells = sheet.Cells[1, columns.First(), 1, columns.Last()];
@@ -1171,6 +1171,5 @@ namespace ExcelParsing.DataProcessing
         //    // Закрывает пакет и освобождает все связанные ресурсы
         //    _excelPackage.Dispose();
         //}
-
     }
 }
