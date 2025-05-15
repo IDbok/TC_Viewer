@@ -953,7 +953,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             ew,
             copiedEw.ImageList
         );
-        UpdatePictureCell(selectedRowIndexes[0], ew);
     }
 	/// <summary>
 	/// Вставляет инструменты/компоненты либо новые строки (ExecutionWork).
@@ -1303,6 +1302,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             Comments = copiedEw.Comments,
             PictureName = copiedEw.PictureName,
 
+            ImageList = copiedEw.ImageList,
+
 			RepeatsTCId = copiedEw.RepeatsTCId,
             //Vopros = copiedEw.Vopros,
             //Otvet = copiedEw.Otvet,
@@ -1503,15 +1504,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         if (updateDataGrid)
         {
-            // Формируем строку с номерами СЗ
-            var nums = selectedEw.ImageList
-                    .Select(img => img.Number)
-                    .Where(n => n > 0)
-                    .Distinct()
-                    .OrderBy(n => n)
-                    .ToList();
-            var newCellValue = FormatRanges(nums);
-            UpdateCellValue(rowIndex, (int)columnIndex, newCellValue);
+            UpdatePictureCell(rowIndex, selectedEw);
         }
 
         List <ImageOwner> MergeImagesFromAnotherTc(List<ImageOwner> copiedImages)
