@@ -2650,7 +2650,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     // пропускаю действие, т.к. отрисовка цвета уже произошла
                     //SetCellBackColor(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], Color.Yellow);
                 }
-                else if ((!executionWork.techTransition.IsReleased 
+                else if (!executionWork.techTransition.IsRepeatAsInTcTransition() &&(!executionWork.techTransition.IsReleased 
                             || !executionWork.techOperationWork.techOperation.IsReleased)
                         && (e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index
                             || e.ColumnIndex == dgvMain.Columns[2].Index)) // todo: уйти от номера столбца

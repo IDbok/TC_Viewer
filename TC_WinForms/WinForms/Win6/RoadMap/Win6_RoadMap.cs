@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -65,7 +65,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
             }
 
             _logger.Information("Окно открывается в режиме просмотра, инициализируется конструктор с List<RoadMapItem>");
-            _roadMapControl = new RoadMapControl(roadMapItems, _tcviewState);
+            _roadMapControl = new RoadMapControl(roadMapItems.OrderBy(o => o.Order).ToList(), _tcviewState);
             _tcviewState.RoadmapInfo = (false, roadMapItems);
             InitializeWpfControl();
         }
