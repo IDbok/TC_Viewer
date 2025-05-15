@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System;
 using System.Data;
 using System.Linq;
@@ -3374,10 +3374,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			if (selectedItem.WorkItemType == WorkItemType.ExecutionWork
 								&& selectedItem.WorkItem is ExecutionWork selectedTPRow)
 			{
-				_editForm.SelectTP(selectedTPRow);
 				_editForm.SelectPageTab(pageName);
+                _editForm.SelectTP(selectedTPRow);
 
-				return true;
+                return true;
 			}
 
 			return false;
