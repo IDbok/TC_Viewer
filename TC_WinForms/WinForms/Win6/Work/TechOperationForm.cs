@@ -1625,9 +1625,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     NewEtap = ewRepeat.NewEtap,
                     NewPosled = ewRepeat.NewPosled
                 };
-				newEw.ExecutionWorkRepeats.Add(ewRepeat);
-			}
-		}
+				newEw.ExecutionWorkRepeats.Add(newEwRepeat);
+                context.Entry(newEwRepeat).State = Microsoft.EntityFrameworkCore.EntityState.Added;//дополнительное подкрепление статуса нового объекта, для корректного сохранения
+                                                                                                   //todo:возможно, это лишнее, проверить и удалить
+            }
+        }
 
         if (updateDataGrid)
 		    UpdateGrid(); // todo: заменить на вставку по индексу и пересчёт номеров строк. Сложность с повторами
