@@ -1274,7 +1274,7 @@ namespace TC_WinForms.WinForms.Work
             if (updateTO)
             {
                 //TechOperationForm.UpdateGrid();// todo: заменить на обновление ячейки
-                TechOperationForm.UpdateStaffInRow(LocalEw.RowOrder - 1, LocalEw, LocalEw.Staffs);
+                TechOperationForm.UpdateStaffInRow(LocalEw.RowOrder, LocalEw, LocalEw.Staffs);
             }
 
         }
@@ -1549,7 +1549,7 @@ namespace TC_WinForms.WinForms.Work
             if (updateTO)
             {
                 //TechOperationForm.UpdateGrid();
-                TechOperationForm.UpdateProtectionsInRow(localEw.RowOrder - 1, localEw, localEw.Protections);
+                TechOperationForm.UpdateProtectionsInRow(localEw.RowOrder, localEw, localEw.Protections);
             }
         }
         private void TextBoxPoiskSZ_TextChanged(object? sender, EventArgs e)
