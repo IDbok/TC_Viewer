@@ -18,7 +18,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <DataGrid Grid.Row="0" x:Name="HeaderGrid" HeadersVisibility="Column" AutoGenerateColumns="False" Background="LightGray" IsReadOnly="True">
+        <DataGrid Grid.Row="0" x:Name="HeaderGrid" HeadersVisibility="Column" AutoGenerateColumns="False" Background="LightGray" IsReadOnly="True" CanUserResizeColumns="False" 
+                  CanUserReorderColumns="False" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Технологические операции" MinWidth="200">
                     <DataGridTextColumn.HeaderStyle>
@@ -61,10 +62,7 @@
             ItemsSource="{Binding RoadmapItems}" FrozenColumnCount="3" CanUserReorderColumns="False" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserAddRows="False">
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
-                    <Setter Property="MaxHeight" Value="100"/>
-                    <!-- Максимальная высота 60px -->
                     <Setter Property="VerticalContentAlignment" Value="Top"/>
-                    <!-- Выравнивание контента -->
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
@@ -72,6 +70,8 @@
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="Height" Value="Auto"/>
+                            <Setter Property="TextWrapping" Value="Wrap"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
@@ -79,6 +79,8 @@
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="Height" Value="Auto"/>
+                            <Setter Property="TextWrapping" Value="Wrap"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
@@ -86,19 +88,19 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBox Text="{Binding Note}" TextChanged="TextBox_NoteTextChanged" 
-                                     TextWrapping="Wrap"
-                                     AcceptsReturn="True"
+                                    TextWrapping="Wrap" 
+                                    AcceptsReturn="True"
                                     VerticalScrollBarVisibility="Auto" 
                                      IsReadOnly="{Binding IsViewMode, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
                                         <Setter Property="Background" Value="LightGray"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsViewMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
-                                            <Setter Property="Background" Value="White"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsViewMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                                                <Setter Property="Background" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
                                 </TextBox.Style>
                             </TextBox>
                         </DataTemplate>

@@ -1,4 +1,4 @@
-﻿namespace TC_WinForms.WinForms.Work
+namespace TC_WinForms.WinForms.Work
 {
     partial class AddEditTechOperationForm
     {
@@ -587,6 +587,8 @@
 			// 
 			dataGridViewInstrumentLocal.AllowUserToAddRows = false;
 			dataGridViewInstrumentLocal.AllowUserToDeleteRows = false;
+            dataGridViewInstrumentLocal.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dataGridViewInstrumentLocal.RowTemplate.Height = -1;
             dataGridViewInstrumentLocal.MultiSelect = false;
             dataGridViewInstrumentLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridViewInstrumentLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -871,6 +873,8 @@
 			// 
 			dataGridViewComponentLocal.AllowUserToAddRows = false;
 			dataGridViewComponentLocal.AllowUserToDeleteRows = false;
+            dataGridViewComponentLocal.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dataGridViewComponentLocal.RowTemplate.Height = -1;
             dataGridViewComponentLocal.MultiSelect = false;
             dataGridViewComponentLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridViewComponentLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -1039,7 +1043,9 @@
 			dataGridViewTPLocal.AllowUserToDeleteRows = false;
 			dataGridViewTPLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridViewTPLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Order1, Time, Coefficient, Column28, Comment, PictureName });
+            dataGridViewTPLocal.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dataGridViewTPLocal.RowTemplate.Height = -1;
+            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Order1, Time, Coefficient, Column28, Comment, PictureName });
 			dataGridViewTPLocal.Dock = DockStyle.Fill;
 			dataGridViewTPLocal.Location = new Point(2, 2);
 			dataGridViewTPLocal.Margin = new Padding(2);
@@ -1657,7 +1663,9 @@
 			// 
 			dataGridViewLocalSZ.AllowUserToAddRows = false;
 			dataGridViewLocalSZ.AllowUserToDeleteRows = false;
-			dataGridViewLocalSZ.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridViewLocalSZ.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dataGridViewLocalSZ.RowTemplate.Height = -1;
+            dataGridViewLocalSZ.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			dataGridViewLocalSZ.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridViewLocalSZ.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			dataGridViewLocalSZ.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn34, dataGridViewButtonColumn8, Column19, dataGridViewTextBoxColumn35, dataGridViewTextBoxColumn36 });
@@ -1829,7 +1837,9 @@
 			// 
 			dataGridViewEtap.AllowUserToAddRows = false;
 			dataGridViewEtap.AllowUserToDeleteRows = false;
-			dataGridViewEtap.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridViewEtap.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dataGridViewEtap.RowTemplate.Height = -1;
+            dataGridViewEtap.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			dataGridViewEtap.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridViewEtap.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			dataGridViewEtap.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn37, dataGridViewTextBoxColumn38, dataGridViewTextBoxColumn39, Column8, Column9 });

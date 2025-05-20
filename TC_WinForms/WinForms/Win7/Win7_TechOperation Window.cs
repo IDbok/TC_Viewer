@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using TcDbConnector;
 using TcModels.Models.TcContent;
@@ -54,7 +54,9 @@ public partial class Win7_TechOperation_Window : Form
             techOperationBlockService.BlockObject();
         }
 
-        this.Text = $"Редактор ТО {techOperation.Name}";
+        var formName = techOperation == null ? "Создание ТО" : $"Редактор ТО {techOperation.Name}";
+
+        this.Text = formName;
 
         dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
         dataGridViewTPLocal.CellClick += DataGridViewTPLocal_CellClick;

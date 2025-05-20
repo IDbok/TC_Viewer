@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Data;
 using System.Windows.Input;
@@ -12,6 +12,8 @@ using TcModels.Models.TcContent;
 using static Antlr4.Runtime.Atn.SemanticContext;
 using Component = TcModels.Models.TcContent.Component;
 using Machine = TcModels.Models.TcContent.Machine;
+using TC_WinForms.Extensions;
+using OfficeOpenXml;
 
 namespace TC_WinForms.WinForms.Work
 {
@@ -613,6 +615,31 @@ namespace TC_WinForms.WinForms.Work
                     newOrder = newOrder <= 0 ? 1 : newOrder;
                     newOrder = newOrder > dataGridViewTO.RowCount ? dataGridViewTO.RowCount : newOrder;
 
+                    if(newOrder < techOperationWork.Order)
+                    {
+                        var povtorOrder = techOperationWork.executionWorks
+                        .Where(rep => rep.techTransition.IsRepeatTransition()
+                        && !rep.techTransition.IsRepeatAsInTcTransition()
+                        && rep.ExecutionWorkRepeats.Any(pov => pov.ChildExecutionWork.techOperationWork.Order >= newOrder && pov.ChildExecutionWork.techOperationWorkId != techOperationWork.Id)).ToList();
+
+                        if(povtorOrder.Count > 0)
+                        {
+                            var result = MessageBox.Show("Вы пыатетесь переместить ТО с технологическим переходом \"Повтор\" выше последнего входящего в него элемента. Переместить?", "Внимание!", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            switch (result)
+                            {
+                                case DialogResult.Yes:
+                                    foreach (var pov in povtorOrder)
+                                    {
+                                        RemoveRepeatsWithBiggerOrder(pov, newOrder);
+                                    }
+                                    break;
+                                case DialogResult.No:
+                                    dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = techOperationWork.Order;
+                                    return;
+                            }
+                        }
+                    }
+
                     this.BeginInvoke(new MethodInvoker(() =>//используется для обхода рекурсивного вызова перемещения строк
                     {
                         var currentOrder = techOperationWork.Order;
@@ -653,7 +680,7 @@ namespace TC_WinForms.WinForms.Work
 
         #region TP
 
-
+       
         private void DataGridViewTPLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
             var work = SelectedTO;
@@ -748,16 +775,28 @@ namespace TC_WinForms.WinForms.Work
 
                 if (wor != null && wor.Order != newOrder)
                 {
-                    // todo: если ТП Повторить, то порядок не может быть ниже чем последний из повторяемых ТП
-                    if (wor.Repeat)
+                    newOrder = newOrder <= 0 ? 1 : newOrder;
+                    newOrder = newOrder > dataGridViewTPLocal.RowCount ? dataGridViewTPLocal.RowCount : newOrder;
+                    int lastRepeatOrder = 0;
+
+                    if (wor.ExecutionWorkRepeats.Count != 0)
                     {
-                        var lastRepeatOrder = wor.ExecutionWorkRepeats.Max(w => w.ChildExecutionWork.Order);
-                        newOrder = newOrder <= lastRepeatOrder ? lastRepeatOrder + 1 : newOrder;
+                        var repeatedEwList = wor.ExecutionWorkRepeats.Where(r => r.ChildExecutionWork.techOperationWorkId == wor.techOperationWorkId).ToList();
+                        lastRepeatOrder = repeatedEwList.Count == 0 ? 0 : repeatedEwList.Max(r => r.ChildExecutionWork.Order);
                     }
-                    else
+
+                    if (wor.Repeat && wor.RepeatsTCId == null && newOrder <= lastRepeatOrder && wor.ExecutionWorkRepeats.Count != 0)
                     {
-                        newOrder = newOrder <= 0 ? 1 : newOrder;
-                        newOrder = newOrder > dataGridViewTPLocal.RowCount ? dataGridViewTPLocal.RowCount : newOrder;
+                        var result = MessageBox.Show("Вы пыатетесь переместить технологический переход \"Повтор\" выше последнего входящего в него элемента. Переместить?", "Внимание!", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        switch(result)
+                        {
+                            case DialogResult.Yes:
+                                RemoveRepeatsWithBiggerOrder(wor, newOrder);
+                                break;
+                            case DialogResult.No:
+                                dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = wor.Order;
+                                return;
+                        }
                     }
 
                     this.BeginInvoke(new MethodInvoker(() =>//используется для обхода рекурсивного вызова перемещения строк
@@ -783,6 +822,7 @@ namespace TC_WinForms.WinForms.Work
                 }
 
             }
+            dataGridViewTPLocal.AutoResizeRows();
 
         }
 
@@ -1165,6 +1205,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
             RestoreScrollPosition(dataGridViewTPLocal, offScroll);
+            dataGridViewTPLocal.AutoResizeRows();
 
             // Выделить строку соотвествующую активному ТП из комбобокс
             if (selectedTP != null)
@@ -1233,7 +1274,7 @@ namespace TC_WinForms.WinForms.Work
             if (updateTO)
             {
                 //TechOperationForm.UpdateGrid();// todo: заменить на обновление ячейки
-                TechOperationForm.UpdateStaffInRow(LocalEw.RowOrder - 1, LocalEw, LocalEw.Staffs);
+                TechOperationForm.UpdateStaffInRow(LocalEw.RowOrder, LocalEw, LocalEw.Staffs);
             }
 
         }
@@ -1508,7 +1549,7 @@ namespace TC_WinForms.WinForms.Work
             if (updateTO)
             {
                 //TechOperationForm.UpdateGrid();
-                TechOperationForm.UpdateProtectionsInRow(localEw.RowOrder - 1, localEw, localEw.Protections);
+                TechOperationForm.UpdateProtectionsInRow(localEw.RowOrder, localEw, localEw.Protections);
             }
         }
         private void TextBoxPoiskSZ_TextChanged(object? sender, EventArgs e)
@@ -1635,6 +1676,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
             RestoreScrollPosition(dataGridViewLocalSZ, offScroll);
+            dataGridViewLocalSZ.AutoResizeRows();
         }
 
         private void DataGridViewAllSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -1893,6 +1935,8 @@ namespace TC_WinForms.WinForms.Work
             }
 
             RestoreScrollPosition(dataGridViewComponentLocal, offScroll);
+            dataGridViewComponentLocal.AutoResizeRows();
+
         }
 
         private void DataGridViewComponentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -2004,7 +2048,7 @@ namespace TC_WinForms.WinForms.Work
                 Idd.Comments = value ?? "";
                 TechOperationForm.UpdateGrid();
             }
-
+            dataGridViewComponentLocal.AutoResizeRows();
         }
 
         #endregion
@@ -2040,6 +2084,7 @@ namespace TC_WinForms.WinForms.Work
             }
 
             RestoreScrollPosition(dataGridViewInstrumentLocal, offScroll);
+            dataGridViewInstrumentLocal.AutoResizeRows();
         }
 
 
@@ -2287,6 +2332,7 @@ namespace TC_WinForms.WinForms.Work
                 Idd.Comments = value;
                 TechOperationForm.UpdateGrid();
             }
+            dataGridViewInstrumentLocal.AutoResizeRows();
         }
 
 
@@ -2434,6 +2480,8 @@ namespace TC_WinForms.WinForms.Work
             }
 
             RestoreScrollPosition(dataGridViewEtap, offScroll);
+            dataGridViewEtap.AutoResizeRows();
+
         }
 
         private void DataGridViewEtap_CellClick(object? sender, DataGridViewCellEventArgs e)
@@ -2465,6 +2513,7 @@ namespace TC_WinForms.WinForms.Work
                 TechOperationForm.UpdateGrid();
             }
 
+            dataGridViewEtap.AutoResizeRows();
         }
 
         private void DataGridViewEtap_CellContentClick(object? sender, DataGridViewCellEventArgs e)
@@ -2924,6 +2973,19 @@ namespace TC_WinForms.WinForms.Work
         }
         #endregion
 
+        private void RemoveRepeatsWithBiggerOrder(ExecutionWork repeat, int newOrder)
+        {
+            for (int i = 0; i < repeat.ExecutionWorkRepeats.Count; i++)
+            {
+                var rep = repeat.ExecutionWorkRepeats[i];
+                if (rep.ChildExecutionWork.Order >= newOrder)
+                {
+                    repeat.ExecutionWorkRepeats.Remove(rep);
+                    i--;
+                }
+            }
+        }
+
         private void HighlightTOTTRow(bool HighlightTT = false, ExecutionWork? exWork = null)
         {
             // todo: слишком часто вызывается местод (при переключениии минимум 2 раза)
@@ -3196,8 +3258,14 @@ namespace TC_WinForms.WinForms.Work
 
 			// 1. Открытие формы по добавлению нового ТП с передачей номера ТК
 			var AddingForm = new Win7_TechTransitionEditor(new TechTransition() { CreatedTCId = TechOperationForm._tcId }, isNewObject: true);
-			AddingForm.AfterSave = async (createdObj) =>  AddNewTP(createdObj, SelectedTO);//AddNewObjectInDataGridView(createdObj);
-			AddingForm.ShowDialog();
+            AddingForm.AfterSave = async (createdObj) => //todo: Проверить, есть ли более надежный способ
+            {
+                AddNewTP(createdObj, SelectedTO);
+                TechOperationForm.context.TechTransitions.Add(createdObj);
+                TechOperationForm.context.Attach(createdObj);
+            };//AddNewObjectInDataGridView(createdObj);
+            
+            AddingForm.ShowDialog();
 		}
 
         private void btnAddNewTO_Click(object sender, EventArgs e)
@@ -3214,10 +3282,11 @@ namespace TC_WinForms.WinForms.Work
         {
 			_logger.LogUserAction("Замена ТО");
 
-			if (dataGridViewTO.SelectedRows.Count == 1 && dataGridViewAllTO.SelectedRows.Count == 1)
+            if (dataGridViewTO.SelectedCells.Count == 1 && dataGridViewAllTO.SelectedRows.Count == 1)
             {
+                var rowIndex = dataGridViewTO.SelectedCells[0].RowIndex;
                 // Получаем выделенную строку из dataGridViewTO
-                var selectedRowTO = dataGridViewTO.SelectedRows[0];
+                var selectedRowTO = dataGridViewTO.Rows[rowIndex];
                 var techOperationWork = (TechOperationWork)selectedRowTO.Cells[0].Value;
 
                 // Получаем выделенную строку из dataGridViewAllTO

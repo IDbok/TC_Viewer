@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Data;
 using System.Windows.Input;
@@ -216,6 +216,11 @@ public partial class RepeatExecutionControl : UserControl
 		var selectedEW = repeats.Select(ewr => ewr.ChildExecutionWork).ToList();
 		var selectedEWR = repeats.ToList();
 
+        if(!_executionWorks.All(e => e.RowOrder == 0))
+        {
+            _executionWorks = _executionWorks.OrderBy(o => o.RowOrder).ToList();
+        }
+
 		if (exeWork != null && exeWork.Repeat)
 		{
 			foreach (ExecutionWork executionWork in _executionWorks)
@@ -228,7 +233,7 @@ public partial class RepeatExecutionControl : UserControl
 								executionWork,
 								isSelected ? true : false,
 								$"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-								executionWork.techTransition?.Name ?? "",
+                                $"№{executionWork.RowOrder} {executionWork.techTransition?.Name}" ?? "",
 								executionWork.Coefficient ?? "",
 							];
 
@@ -260,13 +265,18 @@ public partial class RepeatExecutionControl : UserControl
 	/// <param name="id">Идентификатор ТК.</param>
 	private async Task<List<ExecutionWork>> GetAllExecutionWorksByTcIdAsync(long id)
 	{
-		return await _context.TechOperationWorks
+		var executionWorkList = await _context.TechOperationWorks
 			.Where(tow => tow.TechnologicalCardId == id)
 			.SelectMany(x => x.executionWorks)
 				.Include(ew => ew.techTransition)
 				.Include(ew => ew.techOperationWork)
 					.ThenInclude(tow => tow.techOperation)
 			.ToListAsync();
+		if(!executionWorkList.All(e => e.RowOrder == 0))
+        {
+			executionWorkList.OrderBy(e => e.RowOrder);
+        }
+		return executionWorkList;
 	}
 
 	private async Task LoadExecutionWorksByTcIdAsync(long id)

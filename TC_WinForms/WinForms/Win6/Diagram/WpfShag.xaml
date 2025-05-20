@@ -47,12 +47,14 @@
                 <TextBox x:Name="txtLeadComment" 
                             Grid.Column="0" Grid.Row="1"
                             MinHeight="150"
+                            TextChanged="TextLeadComment_TextChanged"
                             TextWrapping="Wrap" TextAlignment="Center" 
                             AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="False" xml:lang="ru"/>
 
                 <TextBox x:Name="txtImplementerComment" 
                             Grid.Column="1" Grid.Row="1"
                             MinHeight="150"
+                            TextChanged="TextImplementerComment_TextChanged"
                             TextWrapping="Wrap" TextAlignment="Center" 
                             AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="True" xml:lang="ru"/>
             </Grid>
@@ -78,8 +80,8 @@
                                               Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
                                               />
 
-                                <DataGrid x:Name="DataGridToolAndComponentsAdd" Visibility="Collapsed" CanUserAddRows="False" CanUserDeleteRows="False"
-                                          AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False">
+                                <DataGrid x:Name="DataGridToolAndComponentsAdd" Visibility="Collapsed" CanUserAddRows="False" CanUserDeleteRows="False"  
+                                          PreviewKeyDown="DataGrid_PreviewKeyDown" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False">
                                     <DataGrid.CellStyle>
                                         <Style TargetType="{x:Type DataGridCell}">
                                         <Setter Property="Foreground" Value="Black" />
@@ -128,7 +130,7 @@
                                         <DataGridTemplateColumn Header="Кол-во" Width="50">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }"  Background="LightGray"/>
+                                                    <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }" Background="LightGray"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
