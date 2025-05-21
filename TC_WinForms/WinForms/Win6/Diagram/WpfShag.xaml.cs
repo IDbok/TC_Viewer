@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TC_WinForms.Services;
+using TC_WinForms.WinForms.Win6.ImageEditor;
 using TC_WinForms.WinForms.Win6.Models;
 using TcModels.Models;
 using TcModels.Models.TcContent;
@@ -132,7 +133,7 @@ namespace TC_WinForms.WinForms.Diagram
 
             TextShag.Text = $"Шаг {nomer}";
             TextTable.Text = $"Таблица {nomer}";
-            TextImage.Text = $"Рисунок {nomer}";
+            //TextImage.Text = $"Рисунок {nomer}";
         }
 
         public WpfShag(TechOperationWork selectedItem,
@@ -194,7 +195,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 try
                 {
-                    TBNameImage.Text = diagramShag.NameImage.ToString();
+                    //TBNameImage.Text = diagramShag.NameImage.ToString();
                 }
                 catch (Exception)
                 {
@@ -208,7 +209,7 @@ namespace TC_WinForms.WinForms.Diagram
                     {
                         var byt = Convert.FromBase64String(diagramShag.ImageBase64);
                         var bn = LoadImage(byt);
-                        imageDiagram.Source = bn;
+                        //imageDiagram.Source = bn;
 
                         ChangeImageVisibility();//true);
                     }
@@ -311,6 +312,9 @@ namespace TC_WinForms.WinForms.Diagram
             // Устанавливаем источники данных для DataGrid
             DataGridToolAndComponentsAdd.ItemsSource = AllItemGrid;
             DataGridToolAndComponentsShow.ItemsSource = AllItemGrid.Where(i => i.Add).ToList();
+
+            if(diagramShag.ImageList.Count !=0)
+                RefreshImagePanel();
         }
 
         private BitmapImage LoadImage(byte[] imageData)
@@ -377,7 +381,7 @@ namespace TC_WinForms.WinForms.Diagram
                 return;
             }
 
-            imageDiagram.Source = ToImageSource(imag);
+            //imageDiagram.Source = ToImageSource(imag);
         }
 
         public ImageSource ToImageSource(System.Drawing.Image image)
@@ -497,7 +501,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             if (diagramShag != null)
             {
-                diagramShag.NameImage = TBNameImage.Text;
+                //diagramShag.NameImage = TBNameImage.Text;
                 if (wpfPosledovatelnost != null)
                 {
                     _diagramState.HasChanges(); //wpfPosledovatelnost.wpfParalelno.wpfControlTO._wpfMainControl.diagramForm.HasChanges = true;
@@ -529,20 +533,18 @@ namespace TC_WinForms.WinForms.Diagram
         }
         private void ChangeImageVisibility()
         {
-            var isImage = imageDiagram.Source != null;
+            var isImage = diagramShag.ImageList.Count > 0;
 
-            imageDiagram.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
-            gridImageName.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
+            //imageDiagram.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
+            //gridImageName.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
 
             if (IsViewMode)
             {
-                btnLoadImage.Visibility = Visibility.Collapsed;
-                btnDeleteImage.Visibility = Visibility.Collapsed;
+                btnEditImage.Visibility = Visibility.Collapsed;
             }
             else
             {
-                btnLoadImage.Visibility = isImage ? Visibility.Collapsed : Visibility.Visible;
-                btnDeleteImage.Visibility = isImage ? Visibility.Visible : Visibility.Collapsed;
+                btnEditImage.Visibility = Visibility.Visible;
             }
         }
         private void CommentAccess()
@@ -568,7 +570,7 @@ namespace TC_WinForms.WinForms.Diagram
         private void btnDeleteImage_Click(object sender, RoutedEventArgs e)
         {
             diagramShag.ImageBase64 = "";
-            imageDiagram.Source = null;
+            //imageDiagram.Source = null;
             ChangeImageVisibility();// false);
 
             _diagramState.HasChanges();
@@ -705,6 +707,104 @@ namespace TC_WinForms.WinForms.Diagram
                     return descendant;
             }
             return null;
+        }
+
+        private void btnEditImage_Click(object sender, RoutedEventArgs e)
+        {
+            var editor = new Win6_ImageEditor(diagramShag, _tcViewState.TechnologicalCard,
+                            _diagramState.WpfMainControl._diagramForm.wpfDiagram._dbContext);
+            // Подписываемся на событие закрытия окна
+            editor.Closed += (s, args) =>
+            {
+                // Обновляем панель с изображениями после закрытия редактора
+                RefreshImagePanel();
+
+                // Помечаем изменения в состоянии
+                _diagramState.HasChanges();
+            };
+
+            editor.ShowDialog();
+        }
+
+        private void RefreshImagePanel()
+        {
+            ImagePanel.Children.Clear();
+            ImagePanel.Children.Add(btnEditImage);
+
+            if (diagramShag?.ImageList == null || !diagramShag.ImageList.Any())
+            {
+                // Если изображений нет, можно добавить placeholder или просто выйти
+                return;
+            }
+            // Предполагаем, что у вас есть текущее состояние шага с коллекцией ImageList
+            // Например: this.CurrentShag.ImageList
+            var orderedImages = diagramShag.ImageList
+                .OrderBy(img => img.Number)
+                .ToList();
+
+            foreach (var owner in orderedImages)
+            {
+                try
+                {
+                    // контейнер с рамкой
+                    var border = new Border
+                    {
+                        BorderThickness = new Thickness(1),
+                        BorderBrush = System.Windows.Media.Brushes.Gray,
+                        Margin = new Thickness(5),
+                        Padding = new Thickness(5),
+                        CornerRadius = new CornerRadius(4),
+                        Background = System.Windows.Media.Brushes.White
+                    };
+
+                    // внутренняя панель
+                    var stack = new StackPanel { Orientation = System.Windows.Controls.Orientation.Vertical };
+
+                    // 1) Номер + имя
+                    var header = new TextBlock
+                    {
+                        Text = $"Рисунок {owner.Number}: {owner.Name ?? "Без названия"}",
+                        FontWeight = FontWeights.Bold,
+                        Margin = new Thickness(0, 0, 0, 5),
+                        TextAlignment = TextAlignment.Center
+                    };
+                    stack.Children.Add(header);
+
+                    // Загрузка и отображение изображения
+                    byte[] imageBytes = Convert.FromBase64String(owner.ImageStorage.ImageBase64);
+                    using (var ms = new MemoryStream(imageBytes))
+                    {
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.StreamSource = ms;
+                        bitmap.EndInit();
+
+                        var imageControl = new System.Windows.Controls.Image
+                        {
+                            Source = bitmap,
+                            MaxHeight = 350,
+                            MaxWidth = 350,
+                            Stretch = Stretch.Uniform,
+                            Margin = new Thickness(0, 5, 0, 0)
+                        };
+                        stack.Children.Add(imageControl);
+                    }
+
+                    border.Child = stack;
+                    ImagePanel.Children.Add(border);
+                }
+                catch (Exception ex)
+                {
+                    // В случае ошибки добавляем сообщение об ошибке
+                    ImagePanel.Children.Add(new TextBlock
+                    {
+                        Text = $"Ошибка загрузки изображения {owner.Number}: {ex.Message}",
+                        Foreground = System.Windows.Media.Brushes.Red
+                    });
+                }
+
+            }
         }
     }
 }

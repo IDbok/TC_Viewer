@@ -19,18 +19,20 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
     public partial class Win6_ImageEditor : Form
     {
         private ElementHost elementHost = new();
+        bool isWindowEditor = true;
         private ImageOptionsControl? _imageControl;
-        private IImageHoldable imageHolder;
+        private IImageHoldable? imageHolder;
         private TechnologicalCard tc;
         private MyDbContext context;
         public delegate Task PostSaveAction<IModel>(IModel modelObject) where IModel : IImageHoldable;
-        public PostSaveAction<IImageHoldable>? AfterSave { get; set; }
-        public Win6_ImageEditor(IImageHoldable imageHolder, TechnologicalCard tc, MyDbContext context)
+        public PostSaveAction<IImageHoldable?>? AfterSave { get; set; }
+        public Win6_ImageEditor(IImageHoldable? imageHolder, TechnologicalCard tc, MyDbContext context, bool isWindowEditor = true)
         {
             InitializeComponent();
             this.imageHolder = imageHolder;
             this.tc = tc;
             this.context = context;
+            this.isWindowEditor = isWindowEditor;
             Load += Win6_ImageEditor_Load;
             FormClosing += Win6_ImageEditor_FormClosing;
         }
@@ -45,7 +47,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
         private void Win6_ImageEditor_Load(object? sender, EventArgs e)
         {
-            _imageControl = new ImageOptionsControl(imageHolder, tc, context);
+            _imageControl = new ImageOptionsControl(tc, context, imageHolder, isWindowEditor);
             InitializeWpfControl();
         }
 

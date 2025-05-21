@@ -95,7 +95,17 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             _imageOwner.Name = NameTextBox.Text;
-            _imageOwner.Number = int.TryParse(NumberTextBox.Text, out var number) ? number : 1;
+
+            if (int.TryParse(NumberTextBox.Text, out var number))
+            {
+                _imageOwner.Number = number;
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Введите корректный номер изображения");
+                return;
+            }
+
 
             if (AfterSave != null)
             {

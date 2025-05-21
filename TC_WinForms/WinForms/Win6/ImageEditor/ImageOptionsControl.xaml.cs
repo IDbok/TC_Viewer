@@ -2,13 +2,16 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
+using static TC_WinForms.WinForms.Win6.ImageEditor.ImageOptionsControl;
 using MessageBox = System.Windows.MessageBox;
 using UserControl = System.Windows.Controls.UserControl;
 
@@ -87,8 +90,8 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public ImageOptionsControl(IImageHoldable imageHolder, TechnologicalCard technologicalCard, MyDbContext context)
+        public event Action<ImageOwner>? AfterSave;
+        public ImageOptionsControl(TechnologicalCard technologicalCard, MyDbContext context, IImageHoldable? imageHolder = null, bool IsWindowEditor = true)
         {
             InitializeComponent();
             DataContext = this;
@@ -98,21 +101,41 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             tc = technologicalCard;
             LoadData(technologicalCard.ImageOwner);
             lblTcName.Text = techCardName;
+
+            if (!IsWindowEditor && ImageDataGrid.Columns.Count > 0)
+            {
+                ImageDataGrid.Columns.RemoveAt(0); // Удаляем первый столбец
+            }
         }
 
-        private void LoadData(List <ImageOwner> items)
+        private void LoadData(List<ImageOwner> items)
         {
             try
             {
-                var holderIds = _imageHolder?.ImageList?.ToHashSet() ?? new HashSet<ImageOwner>();
+                if (_imageHolder != null)
+                {
+                    var holderIds = _imageHolder?.ImageList?.ToHashSet() ?? new HashSet<ImageOwner>();
 
-                ImageItems = new ObservableCollection<ImageItem>(
-                    items.Select(i => new ImageItem
-                    {
-                        Owner = i,
-                        IsSelected = holderIds.Contains(i),
-                        _parentControl = this
-                    }));
+                    ImageItems = new ObservableCollection<ImageItem>(
+                        items.OrderBy(i => i.Number)
+                             .Select(i => new ImageItem
+                             {
+                                 Owner = i,
+                                 IsSelected = holderIds.Contains(i),
+                                 _parentControl = this
+                             }));
+                }
+                else
+                {
+                    ImageItems = new ObservableCollection<ImageItem>(
+                        items.OrderBy(i => i.Number)
+                             .Select(i => new ImageItem
+                             {
+                                 Owner = i,
+                                 IsSelected = false,
+                                 _parentControl = this
+                             }));
+                }
             }
             catch (Exception ex)
             {
@@ -160,13 +183,10 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             objEditor.AfterSave = async (editedObj) =>
             {
                 AddObjectInDataGridView(editedObj);
-
                 await Task.CompletedTask;
-                
             };
             objEditor.ShowDialog();
         }
-
         private void BtnEditImage_Click(object sender, RoutedEventArgs e)
         {
             if (SelectedItem == null)
@@ -174,11 +194,11 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 MessageBox.Show("Выберите изображение для редактирования");
                 return;
             }
-
+            var oldNum = SelectedItem.Owner.Number;
             var objEditor = new ImageEditorWindow(SelectedItem.Owner);
             objEditor.AfterSave = async (editedObj) =>
             {
-                UpdateObjectInDataGridView(editedObj);
+                UpdateObjectInDataGridView(editedObj, oldNum.Value);
 
                 // Вручную принудить обновление SelectedItem (триггерит UpdateImageDisplay)
                 var current = SelectedItem;
@@ -192,14 +212,22 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
         private void AddObjectInDataGridView(ImageOwner addedObj)
         {
-            if(addedObj != null)
-    {
+            if (addedObj != null)
+            {
+                // Проверяем, что номер не выходит за допустимые границы
+                if (addedObj.Number <= 0 || addedObj.Number > ImageItems.Count + 1)
+                {
+                    // Если номер некорректен, ставим его в конец
+                    addedObj.Number = ImageItems.Count + 1;
+                }
+
                 var newItem = new ImageItem
                 {
-                    Owner = addedObj
+                    Owner = addedObj,
+                    _parentControl = this
                 };
 
-                // Привязка ImageStorage, если он есть
+                // Привязка ImageStorage
                 if (addedObj.ImageStorage != null)
                 {
                     context.Entry(addedObj.ImageStorage).State = EntityState.Added;
@@ -207,13 +235,29 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
                 context.Entry(addedObj).State = EntityState.Added;
 
-                ImageItems.Add(newItem);
-                tc.ImageOwner.Add(addedObj); // возможно лишнее, если контексту уже известен объект
+                // Вставляем на указанную позицию (с поправкой на индексацию с 0)
+                int insertIndex = Math.Min(addedObj.Number.Value - 1, ImageItems.Count);
+                ImageItems.Insert(insertIndex, newItem);
+                tc.ImageOwner.Add(addedObj);
+
+                // Корректируем номера остальных элементов
+                for (int i = 0; i < ImageItems.Count; i++)
+                {
+                    if (i != insertIndex && ImageItems[i].Owner.Number != i + 1)
+                    {
+                        ImageItems[i].Owner.Number = i + 1;
+                        if (context.Entry(ImageItems[i].Owner).State != EntityState.Added)
+                            context.Entry(ImageItems[i].Owner).State = EntityState.Modified;
+                    }
+                }
+
                 SelectedItem = newItem;
-                OnPropertyChanged(nameof(ImageItems));
+                ICollectionView view = CollectionViewSource.GetDefaultView(ImageItems);
+                view.Refresh();
             }
         }
-        private void UpdateObjectInDataGridView(ImageOwner editedObj)
+
+        private void UpdateObjectInDataGridView(ImageOwner editedObj, int oldNum)
         {
             var item = SelectedItem;
             if (item != null)
@@ -234,12 +278,20 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                     }
                 }
 
-                if(context.Entry(item.Owner).State != EntityState.Added)
+                if (context.Entry(item.Owner).State != EntityState.Added)
                     context.Entry(item.Owner).State = EntityState.Modified;
+
+                // Если номер изменился, перемещаем строку
+                if (oldNum != editedObj.Number)
+                {
+                    MoveRowAndUpdateOrder(ImageItems, oldNum - 1, editedObj.Number.Value - 1);
+                }
 
                 // Уведомления
                 item.OnPropertyChanged(nameof(item.Owner));
                 OnPropertyChanged(nameof(ImageItems));
+                ICollectionView view = CollectionViewSource.GetDefaultView(ImageItems);
+                view.Refresh();
             }
         }
 
@@ -247,8 +299,39 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        private void MoveRowAndUpdateOrder(ObservableCollection<ImageItem> items, int oldIndex, int newIndex)
+        {
+            if (oldIndex == newIndex || oldIndex < 0 || oldIndex >= items.Count)
+                return;
 
-        private void btnDeleteImage_Click(object sender, RoutedEventArgs e)
+            // Корректируем newIndex если он за пределами
+            newIndex = Math.Max(0, Math.Min(newIndex, items.Count - 1));
+
+            var itemToMove = items[oldIndex];
+            items.RemoveAt(oldIndex);
+            items.Insert(newIndex, itemToMove);
+
+            // Обновляем номера всех элементов
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].Owner.Number != i + 1)
+                {
+                    items[i].Owner.Number = i + 1;
+                    if (context.Entry(items[i].Owner).State != EntityState.Added)
+                        context.Entry(items[i].Owner).State = EntityState.Modified;
+                }
+            }
+
+            // Обновляем привязки
+            OnPropertyChanged(nameof(ImageItems));
+            var view = CollectionViewSource.GetDefaultView(ImageItems);
+            view.Refresh();
+        }
+
+       
+
+
+        private void BtnDeleteImage_Click(object sender, RoutedEventArgs e)
         {
             if (SelectedItem == null)
             {
@@ -269,29 +352,54 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
             try
             {
+                // Удаляем связи
                 imageOwner.ExecutionWorks.Clear();
                 imageOwner.DiagramShags.Clear();
 
-                // Проверяем, используется ли этот ImageStorage другими ImageOwner-ами
-                bool isStorageShared = context.Set<ImageOwner>()
-                    .Count(io => io.ImageStorageId == imageStorage.Id) > 1;
+                // Обработка состояния Added
+                if (context.Entry(imageOwner).State == EntityState.Added)
+                {
+                    // Для объектов в состоянии Added просто отсоединяем их
+                    context.Entry(imageOwner).State = EntityState.Detached;
 
-                // Удаляем ImageOwner из контекста и списка
-                context.Entry(imageOwner).State = EntityState.Deleted;
+                    // Удаляем ImageStorage, если он тоже в состоянии Added
+                    if (imageStorage != null && context.Entry(imageStorage).State == EntityState.Added)
+                    {
+                        context.Entry(imageStorage).State = EntityState.Detached;
+                    }
+                    else if(imageStorage != null && context.Entry(imageStorage).State == EntityState.Unchanged)
+                    {
+                        context.Entry(imageStorage).State = EntityState.Deleted;
+                    }
+                }
+                else
+                {
+                    // Для существующих объектов помечаем на удаление
+                    context.Entry(imageOwner).State = EntityState.Deleted;
+                    context.Entry(imageStorage).State = EntityState.Deleted;
+                    
+                }
+
+                // Удаляем из коллекций
                 tc.ImageOwner.Remove(imageOwner);
                 ImageItems.Remove(SelectedItem);
 
-                // Если ImageStorage больше нигде не используется — удаляем и его
-                if (!isStorageShared && imageStorage != null)
+                // Обновляем нумерацию оставшихся элементов
+                foreach (var item in ImageItems.Where(i => i.Owner.Number > imageOwner.Number))
                 {
-                    context.Entry(imageStorage).State = EntityState.Deleted;
+                    item.Owner.Number--;
+                    if (context.Entry(item.Owner).State != EntityState.Added)
+                        context.Entry(item.Owner).State = EntityState.Modified;
                 }
 
-                // Удаляем из _imageHolder.ImageList, если он там есть
-                _imageHolder.ImageList.RemoveAll(i => i == imageOwner);
+                // Удаляем из _imageHolder.ImageList
+                if (_imageHolder != null)
+                    _imageHolder.ImageList.RemoveAll(i => i == imageOwner);
 
                 SelectedItem = null;
-                OnPropertyChanged(nameof(ImageItems));
+
+                ICollectionView view = CollectionViewSource.GetDefaultView(ImageItems);
+                view.Refresh();
             }
             catch (Exception ex)
             {

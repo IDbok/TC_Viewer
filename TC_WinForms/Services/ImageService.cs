@@ -13,6 +13,17 @@ namespace TC_WinForms.Services
 {
     public static class ImageService
     {
+        public static ImageStorage CreateNewImage(ImageStorage imageStorage)
+        {
+            return new ImageStorage
+            {
+                Name = imageStorage.Name,
+                Category = imageStorage.Category,
+                ImageBase64 = imageStorage.ImageBase64,
+                ImageType = imageStorage.ImageType,
+                StorageType = imageStorage.StorageType
+            };
+        }
         public static ImageStorage UpdateImageFromBase64(ImageStorage image, string filename)
         {
             System.Drawing.Image imag;

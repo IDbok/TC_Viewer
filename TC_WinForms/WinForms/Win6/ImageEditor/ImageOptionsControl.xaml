@@ -41,6 +41,7 @@
 
                 <DataGridTextColumn Header="Изображение"
                                     Binding="{Binding Owner}"
+                                    CanUserSort="False"
                                     Width="*"
                                     IsReadOnly="True"/>
             </DataGrid.Columns>
@@ -58,7 +59,7 @@
         <TextBlock x:Name ="lblTcName" HorizontalAlignment="Left" Margin="10,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
         <Button x:Name ="btnAddImage" Click="BtnAddImage_Click"  Content="Добавить изображение" HorizontalAlignment="Left" Margin="150,0,0,0" VerticalAlignment="Center" Width="140" Height="28"/>
         <Button x:Name ="btnEditImage" Click="BtnEditImage_Click" Content="Редактировать изображение" HorizontalAlignment="Left" Margin="317,0,0,0" VerticalAlignment="Center" Width="173" Height="28" Grid.Column="1"/>
-        <Button x:Name ="btnDeleteImage" Content="Удалить изображение" HorizontalAlignment="Left" VerticalAlignment="Center" Width="140" Height="28" Grid.Column="1" Margin="166,0,0,0" Click="btnDeleteImage_Click"/>
+        <Button x:Name ="btnDeleteImage" Content="Удалить изображение" HorizontalAlignment="Left" VerticalAlignment="Center" Width="140" Height="28" Grid.Column="1" Margin="166,0,0,0" Click="BtnDeleteImage_Click"/>
 
     </Grid>
 </UserControl>

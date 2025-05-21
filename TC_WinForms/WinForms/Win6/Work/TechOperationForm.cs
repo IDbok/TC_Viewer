@@ -554,6 +554,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// Если режим только для просмотра, то пункты "Вставить" отключаем
 			pasteStaffItem.Visible = false;
 			pasteRowItem.Visible = false;
+            pasteImageItem.Visible = false; 
             openImageEditor.Visible = false;
 			pasteTechOperationItem.Visible = false;
 			pasteProtectionsItem.Visible = false;
@@ -1520,17 +1521,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
                 if (existingObject_tc == null)
                 {
-                    var addingObject = context.ImageStorage.FirstOrDefault(s => s.Id == copiedObj.ImageStorageId);
-                    if (addingObject == null)
+                    if (copiedObj.ImageStorage == null)
                     { throw new Exception("Ошибка при копировании изображений. Ошибка 1246"); }
 
-                    context.Entry(addingObject).State = EntityState.Unchanged;
+                    var newImage = ImageService.CreateNewImage(copiedObj.ImageStorage);
 
                     // если изображения нет в ТК, то добавляем его с новым номером
                     var newObject_tc = new ImageOwner
                     {
-                        ImageStorageId = copiedObj.ImageStorageId,
-                        ImageStorage = copiedObj.ImageStorage,
+                        ImageStorageId = newImage.Id,
+                        ImageStorage = newImage,
                         TechnologicalCardId = TehCarta.Id,
                         TechnologicalCard = TehCarta,
                         Name = copiedObj.Name,
@@ -1543,6 +1543,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     // добавить персонал в ТК
                     TehCarta.ImageOwner.Add(newObject_tc);
                     context.Entry(newObject_tc).State = EntityState.Added;
+                    context.Entry(newImage).State = EntityState.Added;
                 }
                 else
                 {

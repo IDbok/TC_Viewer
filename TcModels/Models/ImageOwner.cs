@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TcModels.Models.TcContent;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TcModels.Models
 {
@@ -22,7 +23,7 @@ namespace TcModels.Models
 
         public override string ToString()
         {
-            return $"Рисунок {Number}";
+            return ImageRoleType == ImageType.Image ? $"Рисунок {Number}" : $"Схема исполнения {Number}";
         }
     }
     public enum ImageType
