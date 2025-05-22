@@ -143,6 +143,11 @@ public class TechnologicalCardRepository
 					.Where(c => c.TechnologicalCardId == _tcId)
 					.ToListAsync();
 
+                var images = await context.ImageOwners
+                    .Where(i => i.TechnologicalCardId == _tcId)
+                    .Include(i => i.ImageStorage).
+                    ToListAsync();
+
 				return techCard;
 			}
 		}
@@ -180,6 +185,7 @@ public class TechnologicalCardRepository
                                         .Include(e => e.Machines)
                                         .Include(e => e.Staffs)
                                         .Include(e => e.ExecutionWorkRepeats).ThenInclude(e => e.ChildExecutionWork)
+                                        .Include(e => e.ImageList).ThenInclude(e => e.ImageStorage)
                                         .ToListAsync();
 
 

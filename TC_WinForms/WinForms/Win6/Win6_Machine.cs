@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System.ComponentModel;
 using System.Data;
 using TC_WinForms.DataProcessing;
@@ -65,7 +65,7 @@ namespace TC_WinForms.WinForms
             if (nextRow < dgvMain.Rows.Count)
             {
                 dgvMain.EndEdit();
-                dgvMain.CurrentCell = dgvMain.Rows[nextRow].Cells[currentCol];
+                //dgvMain.CurrentCell = dgvMain.Rows[nextRow].Cells[currentCol];
                 dgvMain.BeginEdit(true);
             }
         }
