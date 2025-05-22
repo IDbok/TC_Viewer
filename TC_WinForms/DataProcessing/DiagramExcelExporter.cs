@@ -339,7 +339,7 @@ namespace TC_WinForms.DataProcessing
                 currentRow = AddToolDataToExcel(shag, sheet, currentRow, currentColumn);
                 AddPageCount(currentRow, currentColumn, sheet);//проверка выполняется из-за возможного специфического отображения таблиц, так как они могут быть очень крупными и можно пропустить таблицу
 
-                currentRow = AddPictureToExcel(shag, sheet, currentRow, currentColumn, TOName);
+                currentRow = AddPicturesToExcel(shag, sheet, currentRow, currentColumn, TOName);
 
                 AddPageCount(currentRow, currentColumn, sheet);
             }
@@ -498,70 +498,76 @@ namespace TC_WinForms.DataProcessing
 
             return currentRow + 1;
         }
-        private int AddPictureToExcel(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn, string diagramTo_name)
+        private int AddPicturesToExcel(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn, string diagramTo_name)
         {
-            if(shag.ImageBase64 == "")
+            if (shag.ImageList == null || shag.ImageList.Count == 0)
             {
                 return headRow;
             }
 
+            var currentRow = headRow;
+            var startRow = headRow;
             int[] columnNums = { currentColumn, currentColumn + 8 };
-            var rowHeightPixels = sheet.Row(headRow).Height / 72 * 96d;
 
-            var bytepath = Convert.FromBase64String(shag.ImageBase64);
-            Image bitmapImage = LoadImage(bytepath);
-
-            using(MemoryStream ms = new MemoryStream())
+            foreach (var image in shag.ImageList)
             {
-                try
-                {
-                    bitmapImage.Save(ms, ImageFormat.Png); 
-                }
-                catch //Обход ошибки сохранения. Она связана с размером изображения и одновременным открытием изображения GDI+. Изображение будет с нуля отрисовано в копии и все сторонние процессы будут закрыты.
-                {
-                    Bitmap bitmap = new Bitmap(bitmapImage, bitmapImage.Width, bitmapImage.Height); //Создаем копию текущего изображения
-                    Graphics g = Graphics.FromImage(bitmap);
-                    g.DrawImage(bitmapImage, 0f, 0f, (float)bitmapImage.Width, (float)bitmapImage.Height); 
-                    g.Dispose(); 
-                    bitmapImage.Dispose(); // завершаем процесс оригинального объекта, чтобы не было ошибки, связанной с уже изначально открытым процессом в GDI+
-                    bitmap.Save(ms, ImageFormat.Png);
-                }
+                var rowHeightPixels = sheet.Row(startRow).Height / 72 * 96d;
 
-                ExcelPicture excelImage = null;
-                excelImage = sheet.Drawings.AddPicture(shag.NameImage + headRow, ms);
-                if((excelImage.Size.Width / 9525)  > _currentRixelWidgthShag) //Сравниваем, войдет ли по ширине пикселей текущий масштаб изображения в заданную ширину шага. Ширину изображения делим на указанное в формуле число соотношения к пикселям
+                var bytepath = Convert.FromBase64String(image.ImageStorage.ImageBase64);
+                Image bitmapImage = LoadImage(bytepath);
+
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    int i = 100;//Число для задания масштаба, по умолчанию 100
-                    while((excelImage.Size.Width / 9525) > _currentRixelWidgthShag) //Уменьшаем масштаб, пока изображения не поместится
+                    try
                     {
-                        excelImage.SetSize(i);
-                        i -= 5;
+                        bitmapImage.Save(ms, ImageFormat.Png);
                     }
+                    catch //Обход ошибки сохранения. Она связана с размером изображения и одновременным открытием изображения GDI+. Изображение будет с нуля отрисовано в копии и все сторонние процессы будут закрыты.
+                    {
+                        Bitmap bitmap = new Bitmap(bitmapImage, bitmapImage.Width, bitmapImage.Height); //Создаем копию текущего изображения
+                        Graphics g = Graphics.FromImage(bitmap);
+                        g.DrawImage(bitmapImage, 0f, 0f, (float)bitmapImage.Width, (float)bitmapImage.Height);
+                        g.Dispose();
+                        bitmapImage.Dispose(); // завершаем процесс оригинального объекта, чтобы не было ошибки, связанной с уже изначально открытым процессом в GDI+
+                        bitmap.Save(ms, ImageFormat.Png);
+                    }
+
+                    ExcelPicture excelImage = null;
+                    excelImage = sheet.Drawings.AddPicture(shag.NameImage + startRow, ms);
+                    if ((excelImage.Size.Width / 9525) > _currentRixelWidgthShag) //Сравниваем, войдет ли по ширине пикселей текущий масштаб изображения в заданную ширину шага. Ширину изображения делим на указанное в формуле число соотношения к пикселям
+                    {
+                        int i = 100;//Число для задания масштаба, по умолчанию 100
+                        while ((excelImage.Size.Width / 9525) > _currentRixelWidgthShag) //Уменьшаем масштаб, пока изображения не поместится
+                        {
+                            excelImage.SetSize(i);
+                            i -= 5;
+                        }
+                    }
+                    else
+                        excelImage.SetSize(100); //задаем масштаб изображения по умолчанию
+
+                    int printScaleDifference = Modulo(-startRow, _currentPrintHeigth);
+                    currentRow = (int)Math.Ceiling((excelImage.Size.Height / 9525) / rowHeightPixels) + 2;//Высота изображения с учетом вставки наименований в строках
+
+                    if (printScaleDifference < currentRow)
+                    {
+                        startRow += printScaleDifference;
+                        startRow = AddTONameToExcel(diagramTo_name, sheet, startRow, currentColumn);
+                        startRow = AddShagName(shag, sheet, startRow, currentColumn) - 1;
+                    }
+
+                    currentRow = (int)Math.Ceiling((excelImage.Size.Height / 9525) / rowHeightPixels) + startRow + 2;//Текущая строка с учетом высоты изображения
+
+                    excelImage.From.Column = columnNums[0] - 1;
+                    excelImage.From.Row = startRow;
+                    excelImage.From.ColumnOff = columnNums[1];
+
+                    currentRow = AddImageNameNum(image, sheet, currentRow, currentColumn);
+                    startRow = currentRow;
                 }
-                else
-                    excelImage.SetSize(100); //задаем масштаб изображения по умолчанию
-
-                int printScaleDifference = Modulo(-headRow, _currentPrintHeigth);
-                var currentRow = (int)Math.Ceiling((excelImage.Size.Height / 9525) / rowHeightPixels) + 2;//Высота изображения с учетом вставки наименований в строках
-
-                if (printScaleDifference < currentRow)
-                {
-                    headRow += printScaleDifference;
-                    headRow = AddTONameToExcel(diagramTo_name, sheet, headRow, currentColumn);
-                    headRow = AddShagName(shag, sheet, headRow, currentColumn) - 1;
-                }
-
-                currentRow = (int)Math.Ceiling((excelImage.Size.Height / 9525) / rowHeightPixels) + headRow + 2;//Текущая строка с учетом высоты изображения
-
-                excelImage.From.Column = columnNums[0] - 1;
-                excelImage.From.Row = headRow;
-                excelImage.From.ColumnOff = columnNums[1];
-
-                currentRow = AddImageNameNum(shag, sheet, currentRow, currentColumn);
-
-                return currentRow;
-
             }
+
+            return currentRow;
         }
 
         #endregion
@@ -664,22 +670,22 @@ namespace TC_WinForms.DataProcessing
             }
             return (null, 0, "");
         }
-        private int AddImageNameNum(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn)
+        private int AddImageNameNum(ImageOwner image, ExcelWorksheet sheet, int headRow, int currentColumn)
         {
             int[] columnNumsNumb = { currentColumn, currentColumn + 3 };
             int[] columnNumsName = { currentColumn + 3, currentColumn + 7 };
             int[] rowsNums = { headRow, headRow + 1 };
 
-            sheet.Cells[rowsNums[0], columnNumsNumb[0]].Value = "Рисунок " + shag.Nomer;
+            sheet.Cells[rowsNums[0], columnNumsNumb[0]].Value = "Рисунок " + image.Number;
 
 
-            rowsNums[rowsNums.Length - 1] = GetRowsCountByData(shag.NameImage, sheet, columnNumsName) == 1 
+            rowsNums[rowsNums.Length - 1] = GetRowsCountByData(image.Name, sheet, columnNumsName) == 1 
                 ? headRow
-                : GetRowsCountByData(shag.NameImage, sheet, columnNumsName) + headRow;
+                : GetRowsCountByData(image.Name, sheet, columnNumsName) + headRow;
 
             sheet.Cells[rowsNums[0], columnNumsName[0], rowsNums[rowsNums.Length - 1], columnNumsName[1]].Merge = true;
             sheet.Cells[rowsNums[0], columnNumsName[0], rowsNums[rowsNums.Length - 1], columnNumsName[1]].Style.WrapText = true;
-            sheet.Cells[rowsNums[0], columnNumsName[0]].Value = shag.NameImage;
+            sheet.Cells[rowsNums[0], columnNumsName[0]].Value = image.Name;
 
             AddStyleAlignment(headRow, columnNumsNumb, sheet);
             _exporter.ApplyCellFormatting(sheet.Cells[rowsNums[0], columnNumsName[0], rowsNums[rowsNums.Length - 1], columnNumsName[1]]);
