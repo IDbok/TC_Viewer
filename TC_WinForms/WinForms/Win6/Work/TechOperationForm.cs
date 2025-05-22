@@ -2521,6 +2521,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         else
         {
             var nums = ew.ImageList
+                    .Where(i => context.Entry(i).State != EntityState.Deleted && context.Entry(i).State != EntityState.Detached)
                     .Select(img => img.Number)
                     .Where(n => n > 0)
                     .Distinct()

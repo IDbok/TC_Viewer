@@ -24,6 +24,18 @@ namespace TC_WinForms.Services
                 StorageType = imageStorage.StorageType
             };
         }
+        public static ImageStorage ApplyStorageChanges(ImageStorage sourse, ImageStorage newImage)
+        {
+            return new ImageStorage
+            {
+                Id = sourse.Id,
+                Name = newImage.Name,
+                Category = newImage.Category,
+                ImageBase64 = newImage.ImageBase64,
+                ImageType = newImage.ImageType,
+                StorageType = newImage.StorageType
+            };
+        }
         public static ImageStorage UpdateImageFromBase64(ImageStorage image, string filename)
         {
             System.Drawing.Image imag;

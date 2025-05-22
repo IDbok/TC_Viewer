@@ -646,7 +646,7 @@ namespace TC_WinForms.WinForms
                 case EModelType.Diagram:
                     return new DiagramForm(_tcId, tcViewState, context);// _isViewMode);
                 case EModelType.ExecutionScheme:
-                    return new Win6_ExecutionScheme(/*_tc,*/ tcViewState);// _isViewMode);
+                    return new Win6_ExecutionScheme(/*_tc,*/ tcViewState, context);// _isViewMode);
                                                                           //case EModelType.TechnologicalCard:
                                                                           //    return new Win7_1_TCs_Window(_tcId, win6Format: true);
                 case EModelType.Coefficient:
