@@ -110,7 +110,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     private void DgvMain_CellContentDoubleClick(object? sender, DataGridViewCellEventArgs e)
     {
-		if(dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew.techTransition.IsRepeatTypeTransition())
+        if (dgvMain.Columns["TechTransitionName"].Index == e.ColumnIndex && dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew.techTransition.IsRepeatAsInTcTransition())
 		{
 			var result = MessageBox.Show("Открыть связанную ТК?", "Открытие ТК", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 			if(result == DialogResult.Yes)
@@ -1837,9 +1837,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     NewEtap = ewRepeat.NewEtap,
                     NewPosled = ewRepeat.NewPosled
                 };
-				newEw.ExecutionWorkRepeats.Add(ewRepeat);
-			}
-		}
+				newEw.ExecutionWorkRepeats.Add(newEwRepeat);
+                context.Entry(newEwRepeat).State = Microsoft.EntityFrameworkCore.EntityState.Added;//дополнительное подкрепление статуса нового объекта, для корректного сохранения
+                                                                                                   //todo:возможно, это лишнее, проверить и удалить
+            }
+        }
 
         if (updateDataGrid)
 		    UpdateGrid(); // todo: заменить на вставку по индексу и пересчёт номеров строк. Сложность с повторами
@@ -2991,7 +2993,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     // пропускаю действие, т.к. отрисовка цвета уже произошла
                     //SetCellBackColor(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], Color.Yellow);
                 }
-                else if ((!executionWork.techTransition.IsReleased 
+                else if (!executionWork.techTransition.IsRepeatAsInTcTransition() &&(!executionWork.techTransition.IsReleased 
                             || !executionWork.techOperationWork.techOperation.IsReleased)
                         && (e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index
                             || e.ColumnIndex == dgvMain.Columns[2].Index)) // todo: уйти от номера столбца
@@ -3747,10 +3749,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			if (selectedItem.WorkItemType == WorkItemType.ExecutionWork
 								&& selectedItem.WorkItem is ExecutionWork selectedTPRow)
 			{
-				_editForm.SelectTP(selectedTPRow);
 				_editForm.SelectPageTab(pageName);
+                _editForm.SelectTP(selectedTPRow);
 
-				return true;
+                return true;
 			}
 
 			return false;

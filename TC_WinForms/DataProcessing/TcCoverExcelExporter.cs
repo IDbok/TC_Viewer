@@ -38,10 +38,12 @@ namespace TC_WinForms.DataProcessing
             _exporter = new ExcelExporter();
         }
 
-        public async void ExportCoverToExcel(ExcelPackage _excelPackage, TechnologicalCard technologicalCard, string base64Image)
+        public async void ExportCoverToExcel(ExcelPackage _excelPackage, TechnologicalCard technologicalCard, string base64Image, Color tabColor)
         {
-            string sheetName = "Обложка технологической карты";
+            string sheetName = $"Обложка {technologicalCard.Article}";
             var sheet = _excelPackage.Workbook.Worksheets[sheetName] ?? _excelPackage.Workbook.Worksheets.Add(sheetName);
+            sheet.TabColor = tabColor;
+
             int headRow = 7;
 
             sheet.PrinterSettings.Scale = 80;
