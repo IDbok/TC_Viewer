@@ -372,38 +372,61 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             var itemToMove = items[oldIndex];
             bool isScheme = itemToMove.Owner.ImageRoleType == ImageType.ExecutionScheme;
 
-            // Ограничиваем newIndex в пределах соответствующей группы
+            // 1. Определяем границы групп
+            int regularImagesCount = items.Count(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme);
+            int schemeImagesCount = items.Count - regularImagesCount;
+
+            // 2. Корректируем newIndex в пределах соответствующей группы
             if (isScheme)
             {
-                int schemeStartIndex = items.Count(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme);
-                newIndex = Math.Max(schemeStartIndex, Math.Min(newIndex, items.Count - 1));
+                // Для схем выполнения - только в пределах своей группы
+                newIndex = Math.Max(regularImagesCount, Math.Min(newIndex, items.Count - 1));
             }
             else
             {
-                int regularEndIndex = items.Count(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme) - 1;
-                newIndex = Math.Max(0, Math.Min(newIndex, regularEndIndex));
+                // Для обычных изображений - только в своей группе
+                newIndex = Math.Max(0, Math.Min(newIndex, regularImagesCount - 1));
             }
 
+            // 3. Перемещаем элемент
             items.RemoveAt(oldIndex);
             items.Insert(newIndex, itemToMove);
 
-            // Обновляем номера в соответствующей группе
-            int groupStart = isScheme ? items.Count(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme) : 0;
-            int groupCount = isScheme ? items.Count - groupStart : groupStart;
-
-            for (int i = groupStart; i < groupStart + groupCount; i++)
-            {
-                if (items[i].Owner.Number != i - groupStart + 1)
-                {
-                    items[i].Owner.Number = i - groupStart + 1;
-                    if (context.Entry(items[i].Owner).State != EntityState.Added)
-                        context.Entry(items[i].Owner).State = EntityState.Modified;
-                }
-            }
+            // 4. Обновляем номера для ВСЕХ изображений (и обычных, и схем)
+            UpdateAllImageNumbers(items);
 
             OnPropertyChanged(nameof(ImageItems));
             var view = CollectionViewSource.GetDefaultView(ImageItems);
             view.Refresh();
+        }
+
+        private void UpdateAllImageNumbers(ObservableCollection<ImageItem> items)
+        {
+            // Обновляем номера для обычных изображений (ImageType.Image)
+            int regularNumber = 1;
+            foreach (var item in items.Where(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme))
+            {
+                if (item.Owner.Number != regularNumber)
+                {
+                    item.Owner.Number = regularNumber;
+                    if (context.Entry(item.Owner).State != EntityState.Added)
+                        context.Entry(item.Owner).State = EntityState.Modified;
+                }
+                regularNumber++;
+            }
+
+            // Обновляем номера для схем выполнения (ImageType.ExecutionScheme)
+            int schemeNumber = 1;
+            foreach (var item in items.Where(i => i.Owner.ImageRoleType == ImageType.ExecutionScheme))
+            {
+                if (item.Owner.Number != schemeNumber)
+                {
+                    item.Owner.Number = schemeNumber;
+                    if (context.Entry(item.Owner).State != EntityState.Added)
+                        context.Entry(item.Owner).State = EntityState.Modified;
+                }
+                schemeNumber++;
+            }
         }
 
 
