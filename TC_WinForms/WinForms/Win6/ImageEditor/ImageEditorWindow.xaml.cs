@@ -1,17 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using System.Windows.Forms;
 using TC_WinForms.Services;
 using TcModels.Models;
 
@@ -19,9 +9,18 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 {
     public partial class ImageEditorWindow : Window, INotifyPropertyChanged
     {
-        private ImageOwner? _imageOwner;
+        #region Поля
 
+        private ImageOwner? _imageOwner;
         private string _imageName;
+        private string _newImageName;
+        private string _newImageNum;
+        private bool IsNewImage { get; set; } = false;
+
+        #endregion
+
+        #region Свойства
+
         public string ImageStatus
         {
             get => _imageName != null ? $"Изображение {_imageName} загружено" : "Изображение не загружено";
@@ -31,6 +30,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 OnPropertyChanged(nameof(ImageStatus));
             }
         }
+
         public string NewImageName
         {
             get => _newImageName;
@@ -40,7 +40,6 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 OnPropertyChanged(nameof(NewImageName));
             }
         }
-        private string _newImageName;
 
         public string NewImageNum
         {
@@ -51,17 +50,25 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 OnPropertyChanged(nameof(NewImageNum));
             }
         }
-        private string _newImageNum;
 
-        private bool IsNewImage { get; set; } = false;
         public delegate Task PostSaveAction<IModel>(IModel modelObject) where IModel : ImageOwner;
         public PostSaveAction<ImageOwner>? AfterSave { get; set; }
 
+        #endregion
+
+        #region События
+
         public event PropertyChangedEventHandler? PropertyChanged;
+
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        #endregion
+
+        #region Конструктор
+
         public ImageEditorWindow(ImageOwner? image = null)
         {
             IsNewImage = image == null;
@@ -77,15 +84,9 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             SetFieldsData();
         }
 
-        private void NameTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("NameTextBox получил фокус");
-        }
+        #endregion
 
-        private void NameTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("NameTextBox потерял фокус");
-        }
+        #region Методы
 
         private void SetFieldsData()
         {
@@ -106,7 +107,6 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 return;
             }
 
-
             if (AfterSave != null)
             {
                 await AfterSave(_imageOwner);
@@ -119,9 +119,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         {
             var openFileDialog1 = new OpenFileDialog();
             if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
-            {
                 return;
-            }
 
             string filename = openFileDialog1.FileName;
 
@@ -132,15 +130,21 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                     var newImage = ImageService.CreateNewImageFromBase64(filename);
                     var number = int.TryParse(NumberTextBox.Text, out var parsedNumber) ? parsedNumber : 1;
 
-                    // Здесь создаём и сохраняем новый ImageOwner
-                    _imageOwner = ImageService.CreateNewImageOwner(newImage, new TechnologicalCard(), ImageType.Image, number);
+                    _imageOwner = ImageService.CreateNewImageOwner(
+                        newImage,
+                        new TechnologicalCard(),
+                        ImageType.Image,
+                        number
+                    );
                 }
                 else
                 {
-                    _imageOwner.ImageStorage = ImageService.UpdateImageFromBase64(_imageOwner.ImageStorage, filename);
+                    _imageOwner.ImageStorage = ImageService.UpdateImageFromBase64(
+                        _imageOwner.ImageStorage,
+                        filename
+                    );
                 }
 
-                // Обновляем отображаемое имя файла
                 ImageStatus = System.IO.Path.GetFileName(filename);
             }
             catch (OutOfMemoryException)
@@ -149,5 +153,8 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 return;
             }
         }
+
+
+        #endregion
     }
 }

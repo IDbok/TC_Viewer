@@ -88,6 +88,12 @@ namespace TC_WinForms.Services
                 return null;
         }
 
+        /// <summary>
+        /// Метод для клонирования изображений ТК
+        /// </summary>
+        /// <param name="sourceImageOwner"></param>
+        /// <param name="newTechnologicalCard"></param>
+        /// <returns></returns>
         private static ImageOwner DeepCopyObject(this ImageOwner sourceImageOwner, TechnologicalCard newTechnologicalCard)
         {
             var config = new MapperConfiguration(cfg =>
