@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.TcContent;
@@ -97,7 +97,7 @@ namespace TC_WinForms.Services
                 (newtechnologicalCard.Machine_TCs.Where(s => sourceExecutionWork.Machines.Exists(staffs => staffs.ChildId == s.ChildId && staffs.Order == s.Order))
                                                  .ToList());
 
-            if (sourceExecutionWork.Repeat)
+            if (sourceExecutionWork.Repeat && sourceExecutionWork.RepeatsTCId == 0)
             {
                 var repeats = sourceExecutionWork.ExecutionWorkRepeats.Select(e => e.ChildExecutionWork).ToList();
                 var repeatsTOWs = repeats.Select(e => e.techOperationWork).Distinct().ToList();
@@ -119,6 +119,21 @@ namespace TC_WinForms.Services
                                 ParentExecutionWorkId = newExecutionWork.Id,
                             });
                     }
+                }
+            }
+            else if (sourceExecutionWork.Repeat && sourceExecutionWork.RepeatsTCId != 0)
+            {
+                var repeats = sourceExecutionWork.ExecutionWorkRepeats.Select(e => e.ChildExecutionWork).ToList();
+                newExecutionWork.RepeatsTCId = sourceExecutionWork.RepeatsTCId;
+                foreach (var repeat in repeats)
+                {
+                    newExecutionWork.ExecutionWorkRepeats.Add(
+                           new ExecutionWorkRepeat
+                           {
+                               ChildExecutionWorkId = repeat.Id,
+                               ParentExecutionWork = newExecutionWork,
+                               ParentExecutionWorkId = newExecutionWork.Id,
+                           });
                 }
             }
 
