@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
+using TcModels.Models.Interfaces;
 
 namespace TcModels.Models.TcContent
 {
-	public class DiagramShag
+	public class DiagramShag: IImageHoldable
     {
         public int Id { get; set; }
 
@@ -24,6 +25,8 @@ namespace TcModels.Models.TcContent
 		//[NotMapped] public string? SequenceIndex { get; set; }
 
 		public int Order { get; set; }
+
+        public List<ImageOwner> ImageList { get; set; } = new List<ImageOwner>();
 
         public string? LeadComment { get; set; } // todo: добавить в БД
         public string? ImplementerComment { get; set; } // todo: добавить в БД
