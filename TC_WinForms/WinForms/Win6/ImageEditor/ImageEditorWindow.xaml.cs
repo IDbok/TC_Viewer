@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Forms;
 using TC_WinForms.Services;
 using TcModels.Models;
+using MessageBox = System.Windows.MessageBox;
 
 namespace TC_WinForms.WinForms.Win6.ImageEditor
 {
@@ -80,6 +81,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             DataContext = this;
 
             this.Title = IsNewImage ? "Добавить изображение" : "Редактировать изображение";
+            Closing += ImageEditorWindow_Closing;
 
             SetFieldsData();
         }
@@ -117,6 +119,13 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
         private void AddImageButton_Click(object sender, RoutedEventArgs e)
         {
+            if (_imageOwner.ImageStorage != null)
+            {
+                var result = MessageBox.Show("Вы уверены, что хотите обновить изображение? Это удалит прошлое изображение и заменит на новое.", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.No)
+                    return;
+            }
+
             var openFileDialog1 = new OpenFileDialog();
             if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
                 return;
@@ -154,6 +163,31 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             }
         }
 
+        private void ImageEditorWindow_Closing(object? sender, CancelEventArgs e)
+        {
+            if (Content is ImageOptionsControl control && control.HasUnsavedChanges)
+            {
+                var result = MessageBox.Show(
+                    "Вы хотите сохранить изменения перед выходом?",
+                    "Сохранение",
+                    MessageBoxButton.YesNoCancel,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Cancel)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+                else if (result == MessageBoxResult.Yes)
+                {
+                    control.CommitChanges(); // Метод сохранения
+                }
+                else if (result == MessageBoxResult.No)
+                {
+                    control.DiscardChanges(); // Метод отката (если нужен)
+                }
+            }
+        }
 
         #endregion
     }

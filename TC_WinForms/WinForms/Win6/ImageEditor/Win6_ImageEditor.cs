@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms.Integration;
@@ -11,13 +12,21 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
     {
         #region Поля
 
+        private List<ImageOwner> _originalImageList = new List<ImageOwner>();
         private ElementHost elementHost = new();
         private ImageOptionsControl? _imageControl;
         private IImageHoldable? imageHolder;
         private TechnologicalCard tc;
         private MyDbContext context;
         private bool isWindowEditor = true;
+        public enum SaveResult
+        {
+            Save,
+            DontSave,
+            Cancel
+        }
 
+        public SaveResult UserChoice { get; private set; } = SaveResult.Save;
         #endregion
 
         #region Делегаты
@@ -38,6 +47,8 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             this.context = context;
             this.isWindowEditor = isWindowEditor;
 
+            _originalImageList = imageHolder.ImageList.ToList();
+
             Load += Win6_ImageEditor_Load;
             FormClosing += Win6_ImageEditor_FormClosing;
         }
@@ -54,9 +65,32 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
         private void Win6_ImageEditor_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            if (AfterSave != null)
+            if (DialogResult == DialogResult.OK)
             {
-                AfterSave(imageHolder);
+                UserChoice = SaveResult.Save;
+                AfterSave?.Invoke(imageHolder);
+                return;
+            }
+
+            // Показываем диалог: сохранить или нет
+            var result = MessageBox.Show("Сохранить изменения?", "Подтверждение", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+            switch (result)
+            {
+                case DialogResult.Yes:
+                    UserChoice = SaveResult.Save;
+                    AfterSave?.Invoke(imageHolder);
+                    break;
+
+                case DialogResult.No:
+                    UserChoice = SaveResult.DontSave;
+                    imageHolder.ImageList = _originalImageList;
+                    break;
+
+                case DialogResult.Cancel:
+                    UserChoice = SaveResult.Cancel;
+                    e.Cancel = true; // отменить закрытие окна
+                    break;
             }
         }
 

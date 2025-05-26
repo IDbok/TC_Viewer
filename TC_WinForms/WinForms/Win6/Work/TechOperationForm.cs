@@ -43,7 +43,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     public List<TechOperationWork> TechOperationWorksList = null!;
     public TechnologicalCard TehCarta = null!;
-
+    private Dictionary<long, ImageOwner> copiedImageData = new Dictionary<long, ImageOwner>();
     public bool CloseFormsNoSave { get; set; } = false;
 
     public TechOperationForm(int tcId, TcViewState tcViewState, MyDbContext context)//,  bool viewerMode = false)
@@ -936,6 +936,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     private void PasteImageDataScope(List <int> selectedRowIndexes)
     {
         if (TcCopyData.CopyScope != CopyScopeEnum.ImageData) return;
+
         if(selectedRowIndexes.Count != 1)
             throw new Exception("Ошибка: для вставки изображений выделите ровно одну строку.");
 
@@ -1516,17 +1517,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             var newCopiedImages = new List<ImageOwner>();
             foreach(var copiedObj in copiedImages)
             {
-                var existingObject_tc = existingObjects_tcs
-                    .FirstOrDefault(st => st.ImageStorageId == copiedObj.ImageStorageId);
-
-                if (existingObject_tc == null)
+                if(copiedImageData.TryGetValue(copiedObj.ImageStorageId, out ImageOwner existingObject_tc))
+                {
+                    // если персонал уже есть в ТК, то заменяем на него объект в списке скопированного персонала
+                    newCopiedImages.Add(existingObject_tc);
+                }
+                else
                 {
                     if (copiedObj.ImageStorage == null)
                     { throw new Exception("Ошибка при копировании изображений. Ошибка 1246"); }
 
                     var newImage = ImageService.CreateNewImage(copiedObj.ImageStorage);
-
-                    // если изображения нет в ТК, то добавляем его с новым номером
                     var newObject_tc = new ImageOwner
                     {
                         ImageStorageId = newImage.Id,
@@ -1542,14 +1543,43 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
                     // добавить персонал в ТК
                     TehCarta.ImageOwner.Add(newObject_tc);
+                    copiedImageData.Add(copiedObj.ImageStorageId, newObject_tc);
                     context.Entry(newObject_tc).State = EntityState.Added;
                     context.Entry(newImage).State = EntityState.Added;
                 }
-                else
-                {
-                    // если персонал уже есть в ТК, то заменяем на него объект в списке скопированного персонала
-                    newCopiedImages.Add(existingObject_tc);
-                }
+
+
+                //if (existingObject_tc == null)
+                //{
+                //    if (copiedObj.ImageStorage == null)
+                //    { throw new Exception("Ошибка при копировании изображений. Ошибка 1246"); }
+
+                //    var newImage = ImageService.CreateNewImage(copiedObj.ImageStorage);
+
+                //    // если изображения нет в ТК, то добавляем его с новым номером
+                //    var newObject_tc = new ImageOwner
+                //    {
+                //        ImageStorageId = newImage.Id,
+                //        ImageStorage = newImage,
+                //        TechnologicalCardId = TehCarta.Id,
+                //        TechnologicalCard = TehCarta,
+                //        Name = copiedObj.Name,
+                //        ImageRoleType = copiedObj.ImageRoleType,
+                //        Number = TehCarta.ImageOwner.Count + 1,
+                //    };
+
+                //    newCopiedImages.Add(newObject_tc);
+
+                //    // добавить персонал в ТК
+                //    TehCarta.ImageOwner.Add(newObject_tc);
+                //    context.Entry(newObject_tc).State = EntityState.Added;
+                //    context.Entry(newImage).State = EntityState.Added;
+                //}
+                //else
+                //{
+                //    // если персонал уже есть в ТК, то заменяем на него объект в списке скопированного персонала
+                //    newCopiedImages.Add(existingObject_tc);
+                //}
             }
 
             copiedImages = newCopiedImages;

@@ -32,6 +32,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         private TechnologicalCard tc;
         private ObservableCollection<ImageItem> _imageItems;
         private ImageItem _selectedItem;
+        private bool _hasUnsavedChanges = false;
 
         #endregion
 
@@ -86,7 +87,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         #endregion
 
         #region Properties
-
+        public bool HasUnsavedChanges => _hasUnsavedChanges;
         public ObservableCollection<ImageItem> ImageItems
         {
             get => _imageItems;
@@ -234,6 +235,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 if (_imageHolder != null)
                     _imageHolder.ImageList.RemoveAll(i => i == imageOwner);
 
+                _hasUnsavedChanges = true;
                 SelectedItem = null;
 
                 ICollectionView view = CollectionViewSource.GetDefaultView(ImageItems);
@@ -344,6 +346,8 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
             UpdateAllImageNumbers(ImageItems);
             SelectedItem = newItem;
+
+            _hasUnsavedChanges = true;
             CollectionViewSource.GetDefaultView(ImageItems).Refresh();
         }
 
@@ -381,6 +385,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             if (isNowScheme)
                 ImageHelper.SaveImageToTempFile(editedObj.ImageStorage.ImageBase64, tc.Id);
 
+            _hasUnsavedChanges = true;
             CollectionViewSource.GetDefaultView(ImageItems).Refresh();
         }
 
@@ -437,6 +442,36 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             }
         }
 
+        public void CommitChanges()
+        {
+            // Здесь можно вызвать SaveChanges
+            context.SaveChanges();
+            _hasUnsavedChanges = false;
+        }
+
+        public void DiscardChanges()
+        {
+            // Если нужно откатить изменения вручную
+            foreach (var entry in context.ChangeTracker.Entries().Where(e => e.State != EntityState.Unchanged))
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Modified:
+                        entry.CurrentValues.SetValues(entry.OriginalValues);
+                        entry.State = EntityState.Unchanged;
+                        break;
+                    case EntityState.Added:
+                        entry.State = EntityState.Detached;
+                        break;
+                    case EntityState.Deleted:
+                        entry.State = EntityState.Unchanged;
+                        break;
+                }
+            }
+
+            LoadData(tc.ImageOwner); // Перезагрузить UI
+            _hasUnsavedChanges = false;
+        }
         #endregion
     }
 }
