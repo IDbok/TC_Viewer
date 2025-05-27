@@ -80,8 +80,8 @@ public class TechnologicalCardRepository
             var towIds = towList.Select(t => t.Id).ToList();
 
             var techOperations = await context.TechOperations
-    .Where(op => towList.Select(t => t.techOperationId).Contains(op.Id))
-    .ToListAsync();
+                                        .Where(op => towList.Select(t => t.techOperationId).Contains(op.Id))
+                                        .ToListAsync();
             var techOps = await context.TechOperationWorks.Where(op => towIds.Contains(op.Id)).ToListAsync(); // если связь по Id, иначе поправим
             var toolWorks = await context.ToolWorks.Where(t => towIds.Contains(t.techOperationWorkId)).ToListAsync();
             var tools = await context.Tools.Where(t => toolWorks.Select(w => w.toolId).Contains(t.Id)).ToListAsync();
@@ -102,25 +102,26 @@ public class TechnologicalCardRepository
                 .ToListAsync();
 
             var staffs = await context.Staff_TCs
-                .Where(s => s.ExecutionWorks.Any(e => execWorkIds.Contains(e.Id)))
+                .Where(s => s.ParentId == id)
                 .Include(s => s.ExecutionWorks)
                 .Include(s => s.Child)
                 .ToListAsync();
 
             var machines = await context.Machine_TCs
-                .Where(m => m.ExecutionWorks.Any(e => execWorkIds.Contains(e.Id)))
-                .Include(m => m.ExecutionWorks)
+                .Where(m => m.ParentId == id)
                 .Include(s => s.Child)
+                .Include(m => m.ExecutionWorks)
                 .ToListAsync();
 
             var protections = await context.Protection_TCs
-                .Where(p => p.ExecutionWorks.Any(e => execWorkIds.Contains(e.Id)))
-                .Include(p => p.ExecutionWorks)
+                .Where(p => p.ParentId == id)
                 .Include(s => s.Child)
+                .Include(p => p.ExecutionWorks)
                 .ToListAsync();
 
             var repeats = await context.ExecutionWorkRepeats
                 .Where(r => execWorkIds.Contains(r.ParentExecutionWorkId))
+                .Include( r => r.ChildExecutionWork)
                 .ToListAsync();
 
             foreach (var tow in towList)

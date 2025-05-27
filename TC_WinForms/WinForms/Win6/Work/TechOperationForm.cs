@@ -795,7 +795,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		}
 
 		UpdateStaffInRow(
-			selectedRowIndices[0],
 			ew!,
 			copiedEw.Staffs
 		);
@@ -821,7 +820,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			return;
 		}
 		UpdateProtectionsInRow(
-			selectedRowIndices[0],
 			ew,
 			copiedEw.Protections
 		);
@@ -1123,8 +1121,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			TcCopyData.PastedEw.Add(newEw);
 
 		
-			UpdateProtectionsInRow(rowIndex, newEw, copiedEw.Protections, updateDataGrid: updateDataGrid);
-			UpdateStaffInRow(rowIndex, newEw, copiedEw.Staffs, updateDataGrid: updateDataGrid);
+			UpdateProtectionsInRow( newEw, copiedEw.Protections, updateDataGrid: updateDataGrid);
+			UpdateStaffInRow( newEw, copiedEw.Staffs, updateDataGrid: updateDataGrid);
 		}
 		catch (Exception ex)
 		{
@@ -1238,7 +1236,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	/// <summary>
 	/// Обновляет (вставляет) персонал в указанный ExecutionWork.
 	/// </summary>
-	public void UpdateStaffInRow(int rowIndex, ExecutionWork selectedEw, List<Staff_TC> copiedStaff, bool updateDataGrid = true)
+	public void UpdateStaffInRow(ExecutionWork selectedEw, List<Staff_TC> copiedStaff, bool updateDataGrid = true)
 	{
 		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
 		if (copiedStaff == null) throw new ArgumentNullException(nameof(copiedStaff));
@@ -1267,7 +1265,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// Формируем строку с символами
 			var newStaffSymbols = string.Join(",", selectedEw.Staffs.OrderBy(s => s.Symbol).Select(s => s.Symbol));
 			// Обновляем ячейку в таблице
-			UpdateCellValue(rowIndex, (int)columnIndex, newStaffSymbols);
+			UpdateCellValue(selectedEw.RowOrder - 1, (int)columnIndex, newStaffSymbols);
 		}
 
 		List<Staff_TC> MergeStaffFromAnotherTc(List<Staff_TC> copiedStaff)
@@ -1348,7 +1346,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	/// <summary>
 	/// Обновляет (вставляет) СИЗ (Protections) в указанный ExecutionWork
 	/// </summary>
-	public void UpdateProtectionsInRow(int rowIndices, ExecutionWork selectedEw, List<Protection_TC> copiedProtections, bool updateDataGrid = true)
+	public void UpdateProtectionsInRow(ExecutionWork selectedEw, List<Protection_TC> copiedProtections, bool updateDataGrid = true)
 	{
 		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
 		if (copiedProtections == null) throw new ArgumentNullException(nameof(copiedProtections));
@@ -1373,7 +1371,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// Формируем строку с номерами СЗ
 			var objectOrderList = selectedEw.Protections.Select(s => s.Order).ToList();
 			var newCellValue = string.Join(",", ConvertListToRangeString(objectOrderList));
-			UpdateCellValue(rowIndices, (int)columnIndex, newCellValue);
+			UpdateCellValue(selectedEw.RowOrder - 1, (int)columnIndex, newCellValue);
 		}
 
 		List<Protection_TC> MergeProtectionsFromAnotherTc(List<Protection_TC> copiedProtections)
