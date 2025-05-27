@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.ComponentModel;
 using System.Data;
@@ -65,19 +65,28 @@ public partial class Win6_Staff : Form, IViewModeable
 		};
 	}
 
+    private bool autoAdvance = false;
+
     private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
+        if (!autoAdvance) return;
+
         int currentRow = dgvMain.CurrentCell.RowIndex;
         int currentCol = dgvMain.CurrentCell.ColumnIndex;
-
         int nextRow = currentRow + 1;
 
         if (nextRow < dgvMain.Rows.Count)
         {
-            dgvMain.EndEdit();
-            dgvMain.CurrentCell = dgvMain.Rows[nextRow].Cells[currentCol];
-            dgvMain.BeginEdit(true);
+            this.BeginInvoke(new Action(() =>
+            {
+                dgvMain.EndEdit();
+                autoAdvance = true;
+                dgvMain.CurrentCell = dgvMain.Rows[nextRow].Cells[currentCol];
+                dgvMain.BeginEdit(true);
+            }));
         }
+
+        autoAdvance = false;
     }
 
     private void DgvMain_CellContentClick(object? sender, DataGridViewCellEventArgs e)
