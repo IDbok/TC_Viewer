@@ -47,7 +47,8 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             this.context = context;
             this.isWindowEditor = isWindowEditor;
 
-            _originalImageList = imageHolder.ImageList.ToList();
+            if(imageHolder != null)
+                _originalImageList = imageHolder.ImageList.ToList();//
 
             Load += Win6_ImageEditor_Load;
             FormClosing += Win6_ImageEditor_FormClosing;
@@ -84,6 +85,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
                 case DialogResult.No:
                     UserChoice = SaveResult.DontSave;
+                    if(imageHolder != null)
                     imageHolder.ImageList = _originalImageList;
                     break;
 
