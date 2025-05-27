@@ -543,7 +543,7 @@ namespace ExcelParsing.DataProcessing
             foreach (var machine_tc in machine_TCs)
             {
                 var machineColumnNum = ++lastColumn;
-                headersColumns.Add($"Время {machine_tc.Child.Name.ToLower()}, мин.", machineColumnNum); // todo: форматировать название механизма в соответствии с его склонением
+                headersColumns.Add($"Время {machine_tc.Child.Name.ToLower()}({machine_tc.Child.Type}), мин.", machineColumnNum); // todo: форматировать название механизма в соответствии с его склонением
                 machineColumnNumber.Add(machine_tc, machineColumnNum);
 
             }
