@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TcModels.Models;
+using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.RoadMap;
 
@@ -57,11 +58,14 @@ public class TechnologicalCardRepository
             // Ручная загрузка связанных сущностей пачкой
             var tcIds = new[] { id };
 
-            var machineTCs = await context.Machine_TCs.Where(x => tcIds.Contains(x.ParentId)).ToListAsync();
-            var protectionTCs = await context.Protection_TCs.Where(x => tcIds.Contains(x.ParentId)).ToListAsync();
-            var toolTCs = await context.Tool_TCs.Where(x => tcIds.Contains(x.ParentId)).ToListAsync();
-            var componentTCs = await context.Component_TCs.Where(x => tcIds.Contains(x.ParentId)).ToListAsync();
-            var staffTCs = await context.Staff_TCs.Where(x => tcIds.Contains(x.ParentId)).ToListAsync();
+            var machineTCs = await context.Machine_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
+            var protectionTCs = await context.Protection_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
+
+            var toolTCs = await context.Tool_TCs.Where(x => x.ParentId == id).Include(t => t.Child).ToListAsync();
+
+            var componentTCs = await context.Component_TCs.Where(x => x.ParentId == id).Include(t => t.Child).ToListAsync();
+
+            var staffTCs = await context.Staff_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
             var coefficients = await context.Coefficients.Where(x => x.TechnologicalCardId == id).ToListAsync();
 
             // Подвязка вручную
