@@ -3444,7 +3444,7 @@ namespace TC_WinForms.WinForms.Work
 				return;
 
 			dataGridViewTPLocal.ClearSelection();
-			dataGridViewTPLocal.Rows[index].Selected = true;
+			dataGridViewTPLocal.Rows[index].Cells[2].Selected = true;
 			dataGridViewTPLocal.FirstDisplayedScrollingRowIndex = index;
 		}
 
