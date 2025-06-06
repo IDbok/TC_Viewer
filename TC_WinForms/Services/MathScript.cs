@@ -84,7 +84,8 @@ public static class MathScript
             // собираем выражение заново
             expression = string.Join("*", parts);
 
-            expression += ".0";
+            if(Char.IsNumber(expression.Last()))
+                expression += ".0";
 
             var table = new DataTable();
 
