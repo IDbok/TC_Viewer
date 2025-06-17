@@ -51,7 +51,7 @@ namespace TC_WinForms.Services
             var newTOW = sourceTOW.DeepCopyObject();
             parentCard.TechOperationWorks.Add(newTOW);
 
-            foreach (var exItem in sourceTOW.executionWorks)
+            foreach (var exItem in sourceTOW.executionWorks.OrderBy(o => o.RowOrder).ToList())
             {
                 var newEx = exItem.DeepCopyObject(parentCard);
                 newTOW.executionWorks.Add(newEx);
@@ -145,7 +145,8 @@ namespace TC_WinForms.Services
                         .ToList();
             }
 
-            if (sourceExecutionWork.Repeat && sourceExecutionWork.RepeatsTCId == 0)
+            if (sourceExecutionWork.Repeat &&
+                (sourceExecutionWork.RepeatsTCId == 0 || sourceExecutionWork.RepeatsTCId == null))
             {
                 var repeats = sourceExecutionWork.ExecutionWorkRepeats.Select(e => e.ChildExecutionWork).ToList();
                 var repeatsTOWs = repeats.Select(e => e.techOperationWork).Distinct().ToList();
