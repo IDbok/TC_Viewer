@@ -57,7 +57,6 @@ public partial class Win6_Staff : Form, IViewModeable
 		//dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
         dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
         dgvMain.CellContentClick += DgvMain_CellContentClick;
-        //dgvMain.CurrentCellDirtyStateChanged += dgvMain_CurrentCellDirtyStateChanged;
         dgvMain.CellEndEdit += DgvMain_CellEndEdit;
         this.FormClosed += (sender, e) =>
 		{
@@ -67,15 +66,6 @@ public partial class Win6_Staff : Form, IViewModeable
 	}
 
     private bool autoAdvance = false;
-
-    //private void dgvMain_CurrentCellDirtyStateChanged(object? sender, EventArgs e)
-    //{
-    //    if (dgvMain.CurrentCell is DataGridViewCheckBoxCell &&
-    //    dgvMain.CurrentCell.OwningColumn.Name == "IsInOutlay" && dgvMain.IsCurrentCellDirty)
-    //    {
-    //        dgvMain.CommitEdit(DataGridViewDataErrorContexts.Commit);
-    //    }
-    //}
     private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
         if (!autoAdvance) return;
