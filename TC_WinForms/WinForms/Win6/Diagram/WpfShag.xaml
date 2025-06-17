@@ -126,15 +126,19 @@
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
-                                        
+
                                         <DataGridTemplateColumn Header="Кол-во" Width="50">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBox Text="{Binding AddText,UpdateSourceTrigger=PropertyChanged }" Background="LightGray"/>
+                                                    <TextBox Text="{Binding AddText, UpdateSourceTrigger=PropertyChanged}" 
+                                                             Background="LightGray"
+                                                             PreviewTextInput="TextBox_PreviewTextInput"
+                                                             PreviewKeyDown="TextBox_PreviewKeyDown"
+                                                             DataObject.Pasting="TextBox_Pasting"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
-                                        
+
                                         <DataGridTemplateColumn Header="Всего" IsReadOnly="True"
                                                                 Width="50">
                                             <DataGridTemplateColumn.CellTemplate>
