@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using TcModels.Models.TcContent.RoadMap;
@@ -99,7 +99,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                     var roadmapItem = new RoadMapItem
                     {
                         TowId = tow.Id,
-                        TOName = tow.techOperation.Name,
+                        TOName = tow.techOperation.Name + "№" + tow.Order,
                         Staffs = string.Join(", ", tow.executionWorks.SelectMany(ew => ew.Staffs).Select(s => s.Symbol).Distinct()),
                         Note = tow.Note ?? "",
                         Order = tow.Order,
