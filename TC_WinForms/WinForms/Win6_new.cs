@@ -1291,7 +1291,7 @@ namespace TC_WinForms.WinForms
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            var editor = new Win6_ImageEditor(null, _tc, context, false);
+            var editor = new Win6_ImageEditor(null, tcViewState, context, false);
             editor.Show();
         }
     }

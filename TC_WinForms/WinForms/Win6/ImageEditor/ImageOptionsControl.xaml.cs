@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -30,9 +31,11 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         private readonly IImageHoldable _imageHolder;
         private MyDbContext context;
         private TechnologicalCard tc;
+        private TcViewState _tcViewState;
         private ObservableCollection<ImageItem> _imageItems;
         private ImageItem _selectedItem;
         private bool _hasUnsavedChanges = false;
+        public bool IsViewMode => _tcViewState.IsViewMode;
 
         #endregion
 
@@ -115,7 +118,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
         #region Constructor
 
-        public ImageOptionsControl(TechnologicalCard technologicalCard, MyDbContext context, IImageHoldable? imageHolder = null, bool IsWindowEditor = true)
+        public ImageOptionsControl(TechnologicalCard technologicalCard, MyDbContext context, TcViewState tcViewState, IImageHoldable? imageHolder = null, bool IsWindowEditor = true)
         {
             InitializeComponent();
             DataContext = this;
@@ -123,6 +126,9 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             this.techCardName = technologicalCard.Article;
             this.context = context;
             this.tc = technologicalCard;
+            this._tcViewState = tcViewState;
+            _tcViewState.ViewModeChanged += OnViewModeChanged;
+
             LoadData(technologicalCard.ImageOwner);
             lblTcName.Text = techCardName;
 
@@ -136,6 +142,10 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
         #region UI Events
 
+        private void OnViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsViewMode));
+        }
         private void BtnAddImage_Click(object sender, RoutedEventArgs e)
         {
             var objEditor = new ImageEditorWindow();

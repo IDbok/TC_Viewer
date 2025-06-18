@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms.Integration;
+using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -19,6 +20,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         private TechnologicalCard tc;
         private MyDbContext context;
         private bool isWindowEditor = true;
+        private TcViewState tcViewState;
         public enum SaveResult
         {
             Save,
@@ -38,12 +40,12 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
         #region Конструктор
 
-        public Win6_ImageEditor(IImageHoldable? imageHolder, TechnologicalCard tc, MyDbContext context, bool isWindowEditor = true)
+        public Win6_ImageEditor(IImageHoldable? imageHolder, TcViewState tcViewState, MyDbContext context, bool isWindowEditor = true)
         {
             InitializeComponent();
-
+            this.tcViewState = tcViewState;
             this.imageHolder = imageHolder;
-            this.tc = tc;
+            this.tc = tcViewState.TechnologicalCard;
             this.context = context;
             this.isWindowEditor = isWindowEditor;
 
@@ -60,7 +62,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
         private void Win6_ImageEditor_Load(object? sender, EventArgs e)
         {
-            _imageControl = new ImageOptionsControl(tc, context, imageHolder, isWindowEditor);
+            _imageControl = new ImageOptionsControl(tc, context, tcViewState, imageHolder, isWindowEditor);
             InitializeWpfControl();
         }
 

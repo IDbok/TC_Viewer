@@ -711,7 +711,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void btnEditImage_Click(object sender, RoutedEventArgs e)
         {
-            var editor = new Win6_ImageEditor(diagramShag, _tcViewState.TechnologicalCard,
+            var editor = new Win6_ImageEditor(diagramShag, _tcViewState,
                             _diagramState.WpfMainControl._diagramForm.wpfDiagram._dbContext);
             // Подписываемся на событие закрытия окна
             editor.Closed += (s, args) =>

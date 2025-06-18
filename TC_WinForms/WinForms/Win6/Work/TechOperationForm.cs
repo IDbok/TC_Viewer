@@ -86,7 +86,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             var cell = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex];
             if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew)
             {
-                var editor = new Win6_ImageEditor(ew, TehCarta, context);
+                var editor = new Win6_ImageEditor(ew, _tcViewState, context);
                 editor.AfterSave = async (savedObj) =>
                 {
                     RefreshPictureNameColumn();
@@ -3702,7 +3702,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             case CopyScopeEnum.ImageData:
                 if(selectedItem.WorkItem is ExecutionWork ew)
                 {
-                    var editor = new Win6_ImageEditor(ew, TehCarta, context);
+                    var editor = new Win6_ImageEditor(ew, _tcViewState, context);
                     editor.AfterSave = async (savedObj) =>
                     {
                         RefreshPictureNameColumn();
