@@ -21,6 +21,7 @@ using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.Work;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TC_WinForms.WinForms.Work;
 
@@ -2550,16 +2551,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
         else
         {
-            var nums = ew.ImageList
-                    .Where(i => context.Entry(i).State != EntityState.Deleted && context.Entry(i).State != EntityState.Detached)
-                    .Select(img => img.Number)
-                    .Where(n => n > 0)
-                    .Distinct()
-                    .OrderBy(n => n)
-                    .ToList();
+            var images = ew.ImageList ?? new List<ImageOwner>();
+
             newCell = new DataGridViewTextBoxCell
             {
-                Value = FormatRanges(nums)
+                Value = FormatImageReferences(images)
             };
         }
 
@@ -2569,37 +2565,64 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// <summary>
     /// Преобразует список чисел в компактный текст, например [1,4,5,6,8] ⇒ "Рис. 1, Рис. 4–6, Рис. 8"
     /// </summary>
-    private string FormatRanges(List<int?> numbers)
+    private string FormatImageReferences(List<ImageOwner> images)
     {
-        var parts = new List<string>();
-        int? start = null, end = null;
+        // Группируем изображения по типу
+        var groups = images
+            .Where(img => img.Number.HasValue && img.Number > 0)
+            .GroupBy(img => img.ImageRoleType)
+            .OrderBy(g => g.Key); // Сортируем по типу для консистентности
 
-        foreach (var n in numbers)
+        var resultParts = new List<string>();
+
+        foreach (var group in groups)
         {
-            if (start == null)
+            // Для каждой группы получаем отсортированные номера
+            var numbers = group.Select(img => img.Number.Value)
+                              .Distinct()
+                              .OrderBy(n => n)
+                              .ToList();
+
+            // Формируем диапазоны для группы
+            var ranges = new List<string>();
+            int? start = null, end = null;
+
+            foreach (var n in numbers)
             {
-                start = end = n;
+                if (start == null)
+                {
+                    start = end = n;
+                }
+                else if (n == end + 1)
+                {
+                    end = n;
+                }
+                else
+                {
+                    ranges.Add(RangeToString(group.Key, start.Value, end.Value));
+                    start = end = n;
+                }
             }
-            else if (n == end + 1)
+
+            if (start != null)
             {
-                end = n;
+                ranges.Add(RangeToString(group.Key, start.Value, end.Value));
             }
-            else
+
+            // Добавляем сформированные диапазоны для типа
+            if (ranges.Any())
             {
-                parts.Add(RangeToString(start.Value, end.Value));
-                start = end = n;
+                resultParts.Add(string.Join(", ", ranges));
             }
         }
 
-        if (start != null)
-            parts.Add(RangeToString(start.Value, end.Value));
-
-        return string.Join(", ", parts);
+        return string.Join("; ", resultParts);
     }
 
-    private string RangeToString(int s, int e)
+    private string RangeToString(ImageType imageType, int s, int e)
     {
-        return s == e ? $"Рис. {s}" : $"Рис. {s}–{e}";
+        string prefix = imageType == ImageType.ExecutionScheme ? "СИ" : "Рис";
+        return s == e ? $"{prefix} {s}" : $"{prefix} {s}–{e}";
     }
 
     /// <summary>
@@ -2868,15 +2891,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             if (_tcViewState.IsViewMode)
             {
                 // В режиме просмотра не показываем кнопку
-                var nums = exWor.ImageList?
-                    .Select(img => img.Number)
-                    .Where(n => n > 0)
-                    .Distinct()
-                    .OrderBy(n => n)
-                    .ToList();
+                var images = exWor.ImageList ?? new List<ImageOwner>();
 
-                newRow.Cells[picCol].Value = (nums != null && nums.Count > 0)
-                    ? FormatRanges(nums)
+                newRow.Cells[picCol].Value = images.Any()
+                    ? FormatImageReferences(images)
                     : string.Empty;
             }
             else
@@ -2892,13 +2910,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 }
                 else
                 {
-                    var nums = exWor.ImageList
-                                .Select(img => img.Number)
-                                .Where(n => n > 0)
-                                .Distinct()
-                                .OrderBy(n => n)
-                                .ToList();
-                    newRow.Cells[picCol].Value = FormatRanges(nums);
+                    var images = exWor.ImageList ?? new List<ImageOwner>();
+
+                    newRow.Cells[picCol].Value = FormatImageReferences(images);
                 }
             }
         }

@@ -102,6 +102,7 @@ public class TechnologicalCardRepository
 
             var executionWorks = await context.ExecutionWorks
                                         .Where(e => towIds.Contains(e.techOperationWorkId))
+                                        .Include(e => e.ImageList)
                                         .ToListAsync();
 
             var execWorkIds = executionWorks.Select(e => e.Id).ToList();

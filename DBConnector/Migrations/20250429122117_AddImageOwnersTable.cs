@@ -25,15 +25,6 @@ namespace TcDbConnector.Migrations
                 oldType: "int")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.AlterColumn<int>(
-                name: "Category",
-                table: "ImageStorage",
-                type: "int",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "varchar(50)")
-                .OldAnnotation("MySql:CharSet", "utf8mb4");
-
             migrationBuilder.CreateTable(
                 name: "ImageOwners",
                 columns: table => new
@@ -155,15 +146,6 @@ namespace TcDbConnector.Migrations
                oldClrType: typeof(string),
                oldType: "longtext")
                .OldAnnotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Category",
-                table: "ImageStorage",
-                type: "varchar(50)",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "int")
-                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.DropColumn(
                 name: "ImageType",
