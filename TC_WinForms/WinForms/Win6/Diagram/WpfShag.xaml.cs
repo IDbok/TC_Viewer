@@ -736,11 +736,21 @@ namespace TC_WinForms.WinForms.Diagram
                 // Если изображений нет, можно добавить placeholder или просто выйти
                 return;
             }
+
             // Предполагаем, что у вас есть текущее состояние шага с коллекцией ImageList
-            // Например: this.CurrentShag.ImageList
-            var orderedImages = diagramShag.ImageList
+            // Разделяем изображения на две группы и сортируем
+            var regularImages = diagramShag.ImageList
+                .Where(img => img.ImageRoleType == ImageType.Image)
                 .OrderBy(img => img.Number)
                 .ToList();
+
+            var schemeImages = diagramShag.ImageList
+                .Where(img => img.ImageRoleType == ImageType.ExecutionScheme)
+                .OrderBy(img => img.Number)
+                .ToList();
+
+            // Объединяем группы: сначала обычные изображения, потом схемы исполнения
+            var orderedImages = regularImages.Concat(schemeImages).ToList();
 
             foreach (var owner in orderedImages)
             {
@@ -760,12 +770,16 @@ namespace TC_WinForms.WinForms.Diagram
                     // внутренняя панель
                     var stack = new StackPanel { Orientation = System.Windows.Controls.Orientation.Vertical };
 
+                    // Определяем префикс в зависимости от типа изображения
+                    string prefix = owner.ImageRoleType == ImageType.ExecutionScheme ? "Схема исполнения" : "Рисунок";
+
                     // 1) Номер + имя
                     var header = new TextBlock
                     {
-                        Text = $"Рисунок {owner.Number}: {owner.Name ?? "Без названия"}",
+                        Text = $"{prefix} {owner.Number}: {owner.Name ?? "Без названия"}",
                         FontWeight = FontWeights.Bold,
                         Margin = new Thickness(0, 0, 0, 5),
+                        TextWrapping = TextWrapping.Wrap,
                         TextAlignment = TextAlignment.Center
                     };
                     stack.Children.Add(header);

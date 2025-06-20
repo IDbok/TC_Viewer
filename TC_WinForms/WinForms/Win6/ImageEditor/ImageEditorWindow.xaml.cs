@@ -70,12 +70,14 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
         #region Конструктор
 
-        public ImageEditorWindow(ImageOwner? image = null)
+        public ImageEditorWindow(ImageOwner? image = null, int? maxNum = null)
         {
             IsNewImage = image == null;
             _imageOwner = IsNewImage ? new ImageOwner() : image;
             NewImageName = _imageOwner?.Name;
-            NewImageNum = _imageOwner?.Number.ToString();
+            NewImageNum = IsNewImage
+                ? maxNum.Value.ToString()
+                : _imageOwner?.Number.ToString();
 
             InitializeComponent();
             DataContext = this;
