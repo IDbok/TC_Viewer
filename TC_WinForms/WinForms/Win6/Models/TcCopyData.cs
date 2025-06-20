@@ -1,4 +1,4 @@
-﻿using TC_WinForms.WinForms.Work;
+using TC_WinForms.WinForms.Work;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Win6.Models;
@@ -189,4 +189,9 @@ public enum CopyScopeEnum
 	/// Копирование ячейки с ТО.
 	/// </summary>
 	TechTransition,
+
+    /// <summary>
+	/// Копирование ячейки с изображениями.
+	/// </summary>
+	ImageData,
 }

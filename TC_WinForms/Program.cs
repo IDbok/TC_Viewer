@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.IO;
@@ -9,6 +9,7 @@ using TcModels.Models;
 using static TC_WinForms.DataProcessing.AuthorizationService.User;
 using System.Text.Json;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using TC_WinForms.WinForms.Win6.ImageEditor;
 
 namespace TC_WinForms
 {
@@ -287,6 +288,7 @@ namespace TC_WinForms
             if (AuthorizationService.CurrentUser != null)
             {
                 Program.MainForm = new Win7_new(AuthorizationService.CurrentUser.UserRole());
+                //Program.MainForm = new Win6_ImageEditor();
                 Application.Run(MainForm);
             }
             else
