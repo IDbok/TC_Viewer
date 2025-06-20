@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="TC_WinForms.WinForms.Diagram.WpfShag"
+<UserControl x:Class="TC_WinForms.WinForms.Diagram.WpfShag"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -62,7 +62,8 @@
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Добавить тех. переход" Margin="0,0,30,0"></TextBlock>
                 <ComboBox Name="ComboBoxTeh" Width="200" 
-                    SelectionChanged="ComboBoxTeh_SelectionChanged" 
+                    SelectionChanged="ComboBoxTeh_SelectionChanged"
+                    PreviewMouseWheel="ComboBoxTeh_PreviewMouseWheel"
                     Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
                     />  
             </StackPanel>
