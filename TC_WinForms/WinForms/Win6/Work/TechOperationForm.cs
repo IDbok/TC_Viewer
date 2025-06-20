@@ -74,6 +74,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     {
         if (dgvMain.Columns["TechTransitionName"].Index == e.ColumnIndex && dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew.techTransition.IsRepeatAsInTcTransition())
 		{
+            if(ew.RepeatsTCId == null)
+            {
+                MessageBox.Show("Возможно, это старый вариант технологического перехода, который не работал как ссылка на ТП других ТК. Для того, чтобы перейти на связаную ТК, нужно пересоздать этот ТП, выбрать нужную ТК и отметить пункты на которые хотите сослаться.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 			var result = MessageBox.Show("Открыть связанную ТК?", "Открытие ТК", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 			if(result == DialogResult.Yes)
 			{
@@ -1935,6 +1940,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (executionWorks.Count == 0)
 		{
             TechOperationDataGridItems.Add(new TechOperationDataGridItem(techOperationWork));
+            nomer++;
 		}
 
 		foreach (var executionWork in executionWorks)

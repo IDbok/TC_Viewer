@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using TcModels.Models.TcContent.RoadMap;
@@ -268,7 +268,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                 }
                 else
                 {
-                    if (group.ToList().Count > 1)
+                    if (group.ToList().Count > 1 && group.Where(s => s.SequenceGroupIndex != 0).Count() != 0)
                     {
                         var maxGroup = group.Where(s => s.SequenceGroupIndex != 0).Max(s => s.Items.Count);
                         _maxColumns += maxGroup;
@@ -284,7 +284,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
             if (operationGroup.ParallelIndex == null || operationGroup.SequenceGroupIndex != 0)
                 return 1;
 
-            if (_operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex).ToList().Count > 1)
+            if (_operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex).ToList().Count > 1 && _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex != 0).Count() != 0)
             {
                 var parallelGroups = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex != 0).Select(o => o.Items).Max(i => i.Count);
                 return parallelGroups;
