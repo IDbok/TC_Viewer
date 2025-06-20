@@ -66,7 +66,6 @@ public partial class Win6_Staff : Form, IViewModeable
 	}
 
     private bool autoAdvance = false;
-
     private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
         if (!autoAdvance) return;
@@ -96,14 +95,17 @@ public partial class Win6_Staff : Form, IViewModeable
         
         var isInOutlay = !(bool)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
         var staffSymbol = dgvMain.Rows[e.RowIndex].Cells[nameof(DisplayedStaff_TC.Symbol)].Value as string;
-        if (staffSymbol == null)
+        if (staffSymbol == null || staffSymbol == "-")
         {
             MessageBox.Show("Чтобы персонал участвовал в подстече затрат у него должно быть обозначение.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            dgvMain.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = false;
+            dgvMain.EndEdit();
             return;
         }
 
         var relatedRows = dgvMain.Rows
-            .Cast<DataGridViewRow>().Where(row => !row.IsNewRow && (row.Cells[nameof(DisplayedStaff_TC.Symbol)].Value as string) == staffSymbol);
+            .Cast<DataGridViewRow>().Where(row => (row.Cells[nameof(DisplayedStaff_TC.Symbol)].Value as string) == staffSymbol);
         var idsToUpdate = new List<int>();
 
         foreach (var row in relatedRows)

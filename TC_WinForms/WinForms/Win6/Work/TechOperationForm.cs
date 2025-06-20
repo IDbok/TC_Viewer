@@ -2377,27 +2377,29 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         {
             if (techOperationDataGridItem.listMachStr.Count == 0 && techOperationDataGridItem.listMach.Count > 0)
             {
-                bool b = techOperationDataGridItem.listMach[index];
+                bool isMachineChecked = techOperationDataGridItem.listMach[index];
 				string value;
-				if (b && techOperationDataGridItem.TimeEtap == "-1" && techOperationDataGridItem.TechOperationWork.GetParallelIndex() != null)
-				{
-					var result = TechOperationDataGridItems
-							   .Where(item => item.TechOperationWork.GetParallelIndex() == techOperationDataGridItem.TechOperationWork.GetParallelIndex())
-							   .OrderBy(item => item.Nomer)
-							   .FirstOrDefault();
-
-					dgvMain.Rows[result.Nomer - 1].Cells[str.Count].Value = result.TimeEtap;
-
-                    value = techOperationDataGridItem.TimeEtap == "-1" ? "-1" : "";
-                }
-				else if(b)
-				{
-                    value = techOperationDataGridItem.TimeEtap;
-				}
-				else
-					value = techOperationDataGridItem.TimeEtap == "-1" ? "-1" : "";
-
+                value = isMachineChecked ? techOperationDataGridItem.TechTransitionValue : "";
                 str.Add(value);
+                //if (b && techOperationDataGridItem.TimeEtap == "-1" && techOperationDataGridItem.TechOperationWork.GetParallelIndex() != null)
+                //{
+                //	var result = TechOperationDataGridItems
+                //			   .Where(item => item.TechOperationWork.GetParallelIndex() == techOperationDataGridItem.TechOperationWork.GetParallelIndex())
+                //			   .OrderBy(item => item.Nomer)
+                //			   .FirstOrDefault();
+
+                //	dgvMain.Rows[result.Nomer - 1].Cells[str.Count].Value = result.TimeEtap;
+
+                //                value = techOperationDataGridItem.TimeEtap == "-1" ? "-1" : "";
+                //            }
+                //else if(b)
+                //{
+                //                value = techOperationDataGridItem.TimeEtap;
+                //}
+                //else
+                //	value = techOperationDataGridItem.TimeEtap == "-1" ? "-1" : "";
+
+                //            str.Add(value);
             }
             else
             {

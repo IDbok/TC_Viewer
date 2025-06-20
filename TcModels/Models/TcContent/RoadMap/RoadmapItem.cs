@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -30,6 +30,7 @@ namespace TcModels.Models.TcContent.RoadMap
                 TOName = sourceCard.TOName;
                 Staffs = sourceCard.Staffs;
                 Note = sourceCard.Note;
+                Order = sourceCard.Order;
                 SequenceData = sourceCard.SequenceData;
             }
         }
