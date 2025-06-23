@@ -25,7 +25,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TC_WinForms.WinForms.Work;
 
-public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IOnActivationForm
+public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IOnActivationForm, IFormWithObjectId
 {
 	private ILogger _logger;
 
@@ -98,7 +98,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
     }
 
-    private void RefreshPictureNameColumn()
+    public void RefreshPictureNameColumn()
     {
         for (int rowIndex = 0; rowIndex < dgvMain.Rows.Count; rowIndex++)
         {
@@ -2577,13 +2577,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         foreach (var group in groups)
         {
-            // Для каждой группы получаем отсортированные номера
+            // Получаем префикс для типа группы
+            string prefix = group.Key == ImageType.ExecutionScheme ? "СИ" : "Рис";
+
+            // Для группы получаем отсортированные номера
             var numbers = group.Select(img => img.Number.Value)
                               .Distinct()
                               .OrderBy(n => n)
                               .ToList();
 
-            // Формируем диапазоны для группы
+            // Формируем диапазоны без префикса
             var ranges = new List<string>();
             int? start = null, end = null;
 
@@ -2599,30 +2602,29 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 }
                 else
                 {
-                    ranges.Add(RangeToString(group.Key, start.Value, end.Value));
+                    ranges.Add(RangeToString(start.Value, end.Value));
                     start = end = n;
                 }
             }
 
             if (start != null)
             {
-                ranges.Add(RangeToString(group.Key, start.Value, end.Value));
+                ranges.Add(RangeToString(start.Value, end.Value));
             }
 
-            // Добавляем сформированные диапазоны для типа
+            // Объединяем диапазоны и добавляем префикс только один раз
             if (ranges.Any())
             {
-                resultParts.Add(string.Join(", ", ranges));
+                resultParts.Add($"{prefix} {string.Join(", ", ranges)}");
             }
         }
 
         return string.Join("; ", resultParts);
     }
 
-    private string RangeToString(ImageType imageType, int s, int e)
+    private string RangeToString(int s, int e)
     {
-        string prefix = imageType == ImageType.ExecutionScheme ? "СИ" : "Рис";
-        return s == e ? $"{prefix} {s}" : $"{prefix} {s}–{e}";
+        return s == e ? $"{s}" : $"{s}–{e}";
     }
 
     /// <summary>
@@ -3850,4 +3852,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	{
 
 	}
+
+    public int GetObjectId()
+    {
+        return _tcId;
+    }
 }

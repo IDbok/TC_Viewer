@@ -201,6 +201,26 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
             try
             {
+                foreach (var work in imageOwner.ExecutionWorks.ToList())
+                {
+                    // Удаляем текущий imageOwner из коллекции work
+                    work.ImageList.Remove(imageOwner);
+
+                    // Помечаем объект как измененный
+                    if (context.Entry(work).State != EntityState.Added)
+                        context.Entry(work).State = EntityState.Modified;
+                }
+
+                // 2. Удаление из связанных объектов DiagramShag
+                foreach (var shag in imageOwner.DiagramShags.ToList())
+                {
+                    // Удаляем текущий imageOwner из коллекции shag
+                    shag.ImageList.Remove(imageOwner);
+
+                    if (context.Entry(shag).State != EntityState.Added)
+                        context.Entry(shag).State = EntityState.Modified;
+                }
+
                 // Удаляем связи
                 imageOwner.ExecutionWorks.Clear();
                 imageOwner.DiagramShags.Clear();

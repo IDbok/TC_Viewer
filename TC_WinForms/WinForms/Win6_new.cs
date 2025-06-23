@@ -1293,6 +1293,13 @@ namespace TC_WinForms.WinForms
         {
             var editor = new Win6_ImageEditor(null, tcViewState, context, false);
             editor.Show();
+            editor.AfterSave = async (savedObj) =>
+            {
+                var techOperationForm = CheckOpenFormService.FindOpenedForm<TechOperationForm>(_tcId);
+                if(techOperationForm != null)
+                    techOperationForm.RefreshPictureNameColumn();
+            };
+           
         }
     }
 
