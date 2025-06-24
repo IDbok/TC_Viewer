@@ -364,7 +364,7 @@ namespace TC_WinForms.WinForms.Diagram
             try
             {
                 ImageStorage newImage = ImageService.CreateNewImageFromBase64(filename);
-                ImageOwner imageOwner = ImageService.CreateNewImageOwner(newImage, techOperationWork?.technologicalCard, ImageType.Image, (int)diagramShag.ImageList.Max(i => i.Number) + 1);
+                ImageOwner imageOwner = ImageService.CreateNewImageOwner(newImage, techOperationWork?.technologicalCard, ImageRole.Image, (int)diagramShag.ImageList.Max(i => i.Number) + 1);
                 diagramShag.ImageList.Add(imageOwner);
                 imageOwner.DiagramShags.Add(diagramShag);
                 imag = System.Drawing.Image.FromFile(filename);
@@ -740,12 +740,12 @@ namespace TC_WinForms.WinForms.Diagram
             // Предполагаем, что у вас есть текущее состояние шага с коллекцией ImageList
             // Разделяем изображения на две группы и сортируем
             var regularImages = diagramShag.ImageList
-                .Where(img => img.ImageRoleType == ImageType.Image)
+                .Where(img => img.Role == ImageRole.Image)
                 .OrderBy(img => img.Number)
                 .ToList();
 
             var schemeImages = diagramShag.ImageList
-                .Where(img => img.ImageRoleType == ImageType.ExecutionScheme)
+                .Where(img => img.Role == ImageRole.ExecutionScheme)
                 .OrderBy(img => img.Number)
                 .ToList();
 
@@ -771,7 +771,7 @@ namespace TC_WinForms.WinForms.Diagram
                     var stack = new StackPanel { Orientation = System.Windows.Controls.Orientation.Vertical };
 
                     // Определяем префикс в зависимости от типа изображения
-                    string prefix = owner.ImageRoleType == ImageType.ExecutionScheme ? "Схема исполнения" : "Рисунок";
+                    string prefix = owner.Role == ImageRole.ExecutionScheme ? "Схема исполнения" : "Рисунок";
 
                     // 1) Номер + имя
                     var header = new TextBlock

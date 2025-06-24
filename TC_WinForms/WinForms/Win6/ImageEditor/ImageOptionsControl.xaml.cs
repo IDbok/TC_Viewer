@@ -112,8 +112,6 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             }
         }
 
-        public event Action<ImageOwner>? AfterSave;
-
         #endregion
 
         #region Constructor
@@ -129,7 +127,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             this._tcViewState = tcViewState;
             _tcViewState.ViewModeChanged += OnViewModeChanged;
 
-            LoadData(technologicalCard.ImageOwner);
+            LoadData(technologicalCard.ImageList);
             lblTcName.Text = techCardName;
 
             if (!IsWindowEditor && ImageDataGrid.Columns.Count > 0)
@@ -250,7 +248,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 }
 
                 // Удаляем из коллекций
-                tc.ImageOwner.Remove(imageOwner);
+                tc.ImageList.Remove(imageOwner);
                 ImageItems.Remove(SelectedItem);
 
                 // Обновляем нумерацию оставшихся элементов
@@ -285,8 +283,8 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         {
             try
             {
-                var regularImages = items.Where(i => i.ImageRoleType != ImageType.ExecutionScheme).OrderBy(i => i.Number).ToList();
-                var schemeImages = items.Where(i => i.ImageRoleType == ImageType.ExecutionScheme).OrderBy(i => i.Number).ToList();
+                var regularImages = items.Where(i => i.Role != ImageRole.ExecutionScheme).OrderBy(i => i.Number).ToList();
+                var schemeImages = items.Where(i => i.Role == ImageRole.ExecutionScheme).OrderBy(i => i.Number).ToList();
 
                 var combinedList = new List<ImageItem>();
 
@@ -351,10 +349,10 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         {
             if (addedObj == null) return;
 
-            bool isScheme = addedObj.ImageRoleType == ImageType.ExecutionScheme;
+            bool isScheme = addedObj.Role == ImageRole.ExecutionScheme;
             int baseIndex = isScheme
-                ? ImageItems.Count(i => i.Owner.ImageRoleType == ImageType.ExecutionScheme)
-                : ImageItems.Count(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme);
+                ? ImageItems.Count(i => i.Owner.Role == ImageRole.ExecutionScheme)
+                : ImageItems.Count(i => i.Owner.Role != ImageRole.ExecutionScheme);
 
             if (addedObj.Number <= 0 || addedObj.Number > baseIndex + 1)
                 addedObj.Number = baseIndex + 1;
@@ -367,12 +365,12 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             context.Entry(addedObj).State = EntityState.Added;
 
             int insertIndex = isScheme
-                ? ImageItems.Count(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme) + addedObj.Number.Value - 1
+                ? ImageItems.Count(i => i.Owner.Role != ImageRole.ExecutionScheme) + addedObj.Number.Value - 1
                 : addedObj.Number.Value - 1;
 
             insertIndex = Math.Min(insertIndex, ImageItems.Count);
             ImageItems.Insert(insertIndex, newItem);
-            tc.ImageOwner.Add(addedObj);
+            tc.ImageList.Add(addedObj);
 
             UpdateAllImageNumbers(ImageItems);
             SelectedItem = newItem;
@@ -386,12 +384,12 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             var item = SelectedItem;
             if (item == null) return;
 
-            bool wasScheme = item.Owner.ImageRoleType == ImageType.ExecutionScheme;
-            bool isNowScheme = editedObj.ImageRoleType == ImageType.ExecutionScheme;
+            bool wasScheme = item.Owner.Role == ImageRole.ExecutionScheme;
+            bool isNowScheme = editedObj.Role == ImageRole.ExecutionScheme;
 
             item.Owner.Name = editedObj.Name;
             item.Owner.Number = editedObj.Number;
-            item.Owner.ImageRoleType = editedObj.ImageRoleType;
+            item.Owner.Role = editedObj.Role;
 
             if (item.Owner.ImageStorage.IsChanged)
             {
@@ -406,8 +404,8 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             if (wasScheme != isNowScheme || oldNum != editedObj.Number)
             {
                 int newPosition = isNowScheme
-                    ? ImageItems.Count - ImageItems.Count(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme) + Math.Min(editedObj.Number.Value - 1, ImageItems.Count(i => i.Owner.ImageRoleType == ImageType.ExecutionScheme))
-                    : Math.Min(editedObj.Number.Value - 1, ImageItems.Count(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme));
+                    ? ImageItems.Count - ImageItems.Count(i => i.Owner.Role != ImageRole.ExecutionScheme) + Math.Min(editedObj.Number.Value - 1, ImageItems.Count(i => i.Owner.Role == ImageRole.ExecutionScheme))
+                    : Math.Min(editedObj.Number.Value - 1, ImageItems.Count(i => i.Owner.Role != ImageRole.ExecutionScheme));
 
                 MoveRowAndUpdateOrder(ImageItems, ImageItems.IndexOf(item), newPosition);
             }
@@ -429,9 +427,9 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 return;
 
             var itemToMove = items[oldIndex];
-            bool isScheme = itemToMove.Owner.ImageRoleType == ImageType.ExecutionScheme;
+            bool isScheme = itemToMove.Owner.Role == ImageRole.ExecutionScheme;
 
-            int regularImagesCount = items.Count(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme);
+            int regularImagesCount = items.Count(i => i.Owner.Role != ImageRole.ExecutionScheme);
 
             newIndex = isScheme
                 ? Math.Max(regularImagesCount, Math.Min(newIndex, items.Count - 1))
@@ -448,7 +446,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         private void UpdateAllImageNumbers(ObservableCollection<ImageItem> items)
         {
             int regularNumber = 1;
-            foreach (var item in items.Where(i => i.Owner.ImageRoleType != ImageType.ExecutionScheme))
+            foreach (var item in items.Where(i => i.Owner.Role != ImageRole.ExecutionScheme))
             {
                 if (item.Owner.Number != regularNumber)
                 {
@@ -460,7 +458,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             }
 
             int schemeNumber = 1;
-            foreach (var item in items.Where(i => i.Owner.ImageRoleType == ImageType.ExecutionScheme))
+            foreach (var item in items.Where(i => i.Owner.Role == ImageRole.ExecutionScheme))
             {
                 if (item.Owner.Number != schemeNumber)
                 {
@@ -499,7 +497,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 }
             }
 
-            LoadData(tc.ImageOwner); // Перезагрузить UI
+            LoadData(tc.ImageList); // Перезагрузить UI
             _hasUnsavedChanges = false;
         }
         #endregion

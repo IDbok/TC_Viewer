@@ -17,16 +17,16 @@ namespace TcModels.Models
         public TechnologicalCard TechnologicalCard { get; set; }
         public string? Name { get; set; } = "Без имени";
         public int? Number { get; set; } = 1;
-        public ImageType ImageRoleType { get; set; }
+        public ImageRole Role { get; set; }
         public List<ExecutionWork> ExecutionWorks { get; set; } = new List<ExecutionWork>();
         public List<DiagramShag> DiagramShags { get; set; } = new List<DiagramShag>();
 
         public override string ToString()
         {
-            return ImageRoleType == ImageType.Image ? $"Рисунок {Number}" : $"Схема исполнения {Number}";
+            return Role == ImageRole.Image ? $"Рисунок {Number}" : $"Схема исполнения {Number}";
         }
     }
-    public enum ImageType
+    public enum ImageRole
     {
         ExecutionScheme,
         Image

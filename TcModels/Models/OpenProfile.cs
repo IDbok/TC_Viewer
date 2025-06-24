@@ -74,7 +74,7 @@ public class OpenProfile : Profile
                     ImageBase64 = src.ImageStorage.ImageBase64,
                     Name = src.ImageStorage.Name,
                     Category = src.ImageStorage.Category,
-                    ImageType = src.ImageStorage.ImageType,
+                    MimeType = src.ImageStorage.MimeType,
                     StorageType = src.ImageStorage.StorageType,
                     FilePath = src.ImageStorage.FilePath
                 }))
@@ -108,7 +108,7 @@ public class OpenProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.TechOperationWorks, opt => opt.Ignore())
             .ForMember(dest => dest.DiagamToWork, opt => opt.Ignore())
-            .ForMember(dest => dest.ImageOwner, opt => opt.Ignore());
+            .ForMember(dest => dest.ImageList, opt => opt.Ignore());
     }
 
     public void DTWProfile()

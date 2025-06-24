@@ -10,7 +10,7 @@ namespace TcDbConnector.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "ImageType",
+                name: "MimeType",
                 table: "ImageStorage",
                 type: "longtext",
                 nullable: true)

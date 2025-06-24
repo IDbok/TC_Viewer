@@ -70,7 +70,7 @@ public class TechnologicalCardRepository
             var coefficients = await context.Coefficients.Where(x => x.TechnologicalCardId == id).ToListAsync();
 
             await context.Entry(tc)
-                        .Collection(t => t.ImageOwner)
+                        .Collection(t => t.ImageList)
                         .Query()
                         .Include(io => io.ImageStorage)
                         .LoadAsync();

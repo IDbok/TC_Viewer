@@ -145,7 +145,7 @@ namespace TcModels.Models
         public List<Tool> Tools { get; set; } = new();
         public List<Tool_TC> Tool_TCs { get; set; } = new();
 
-        public List<ImageOwner> ImageOwner { get; set; } = new();
+        public List<ImageOwner> ImageList { get; set; } = new();
         public List<TechOperationWork> TechOperationWorks { get; set; } = new();
 
         public List<DiagamToWork> DiagamToWork { get; set; } = new();

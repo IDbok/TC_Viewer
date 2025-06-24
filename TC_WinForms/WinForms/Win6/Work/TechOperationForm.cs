@@ -93,7 +93,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     RefreshPictureNameColumn();
                 };
 
-                editor.Show();
+                editor.ShowDialog();
             }
         }
     }
@@ -1512,7 +1512,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         {
             copiedImages = copiedImages.ToList();
             //Получаем уникальные мзображения
-            var existingObjects_tcs = TehCarta.ImageOwner.ToList();
+            var existingObjects_tcs = TehCarta.ImageList.ToList();
             var newCopiedImages = new List<ImageOwner>();
             foreach(var copiedObj in copiedImages)
             {
@@ -1534,14 +1534,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                         TechnologicalCardId = TehCarta.Id,
                         TechnologicalCard = TehCarta,
                         Name = copiedObj.Name,
-                        ImageRoleType = copiedObj.ImageRoleType,
-                        Number = TehCarta.ImageOwner.Count + 1,
+                        Role = copiedObj.Role,
+                        Number = TehCarta.ImageList.Count + 1,
                     };
 
                     newCopiedImages.Add(newObject_tc);
 
                     // добавить персонал в ТК
-                    TehCarta.ImageOwner.Add(newObject_tc);
+                    TehCarta.ImageList.Add(newObject_tc);
                     copiedImageData.Add(copiedObj.ImageStorageId, newObject_tc);
                     context.Entry(newObject_tc).State = EntityState.Added;
                     context.Entry(newImage).State = EntityState.Added;
@@ -2543,11 +2543,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         if (ew.ImageList == null || !ew.ImageList.Any())
         {
-            newCell = new DataGridViewButtonCell
-            {
-                Value = "Добавить рисунок",
-                Style = { Padding = new Padding(2) }
-            };
+            newCell = CreateAddImageButtonCell();
         }
         else
         {
@@ -2570,7 +2566,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         // Группируем изображения по типу
         var groups = images
             .Where(img => img.Number.HasValue && img.Number > 0)
-            .GroupBy(img => img.ImageRoleType)
+            .GroupBy(img => img.Role)
             .OrderBy(g => g.Key); // Сортируем по типу для консистентности
 
         var resultParts = new List<string>();
@@ -2578,7 +2574,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         foreach (var group in groups)
         {
             // Получаем префикс для типа группы
-            string prefix = group.Key == ImageType.ExecutionScheme ? "СИ" : "Рис";
+            string prefix = group.Key == ImageRole.ExecutionScheme ? "СИ" : "Рис";
 
             // Для группы получаем отсортированные номера
             var numbers = group.Select(img => img.Number.Value)
@@ -2588,11 +2584,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
             // Формируем диапазоны без префикса
             var ranges = new List<string>();
-            int? start = null, end = null;
+            int? start = 0, end = 0;
 
             foreach (var n in numbers)
             {
-                if (start == null)
+                if (start == 0)
                 {
                     start = end = n;
                 }
@@ -2607,7 +2603,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 }
             }
 
-            if (start != null)
+            if (start != 0)
             {
                 ranges.Add(RangeToString(start.Value, end.Value));
             }
@@ -2622,9 +2618,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         return string.Join("; ", resultParts);
     }
 
-    private string RangeToString(int s, int e)
+    private string RangeToString(int startValue, int endValue)
     {
-        return s == e ? $"{s}" : $"{s}–{e}";
+        return startValue == endValue ? $"{startValue}" : $"{startValue}–{endValue}";
     }
 
     /// <summary>
@@ -2903,12 +2899,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             {
                 if (exWor.ImageList == null || exWor.ImageList.Count == 0)
                 {
-                    var btn = new DataGridViewButtonCell
-                    {
-                        Value = "Добавить рисунок",
-                        Style = { Padding = new Padding(2) }
-                    };
-                    newRow.Cells[picCol] = btn;
+                    newRow.Cells[picCol] = CreateAddImageButtonCell();
                 }
                 else
                 {
@@ -3852,6 +3843,18 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	{
 
 	}
+
+    private DataGridViewButtonCell CreateAddImageButtonCell()
+    {
+        return new DataGridViewButtonCell
+        {
+            Value = "Добавить рисунок",
+            Style =
+            {
+                Alignment = DataGridViewContentAlignment.MiddleCenter, //выставляет текст кнопки по центру
+            }
+        };
+    }
 
     public int GetObjectId()
     {

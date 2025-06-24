@@ -12,7 +12,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
     {
         #region Поля
 
-        private ImageOwner? _imageOwner;
+        private ImageOwner _imageOwner;
         private string _imageName;
         private string _newImageName;
         private string _newImageNum;
@@ -113,7 +113,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
             if (AfterSave != null)
             {
-                await AfterSave(_imageOwner);
+                await (AfterSave?.Invoke(_imageOwner) ?? Task.CompletedTask);
             }
 
             Close();
@@ -143,14 +143,14 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
                     _imageOwner = ImageService.CreateNewImageOwner(
                         newImage,
-                        new TechnologicalCard(),
-                        ImageType.Image,
+                        null,
+                        ImageRole.Image,
                         number
                     );
                 }
                 else
                 {
-                    _imageOwner.ImageStorage = ImageService.UpdateImageFromBase64(
+                    _imageOwner.ImageStorage = ImageService.OverwriteImageFromBase64(
                         _imageOwner.ImageStorage,
                         filename
                     );

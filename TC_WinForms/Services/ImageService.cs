@@ -25,7 +25,7 @@ namespace TC_WinForms.Services
                 Name = imageStorage.Name,
                 Category = imageStorage.Category,
                 ImageBase64 = imageStorage.ImageBase64,
-                ImageType = imageStorage.ImageType,
+                MimeType = imageStorage.MimeType,
                 StorageType = imageStorage.StorageType
             };
         }
@@ -48,7 +48,7 @@ namespace TC_WinForms.Services
                     Name = filename,
                     Category = "TechnologicalCard",
                     ImageBase64 = base64,
-                    ImageType = "image/png",
+                    MimeType = "image/png",
                     StorageType = ImageStorageType.Base64
                 };
             }
@@ -68,7 +68,7 @@ namespace TC_WinForms.Services
         /// <param name="image">Существующий объект <see cref="ImageStorage"/>.</param>
         /// <param name="filename">Путь к новому файлу изображения.</param>
         /// <returns>Обновлённый объект <see cref="ImageStorage"/>.</returns>
-        public static ImageStorage UpdateImageFromBase64(ImageStorage image, string filename)
+        public static ImageStorage OverwriteImageFromBase64(ImageStorage image, string filename)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace TC_WinForms.Services
         /// <param name="sourse">Оригинальный объект с ID.</param>
         /// <param name="newImage">Новый объект с актуальными данными.</param>
         /// <returns>Объединённый объект <see cref="ImageStorage"/>.</returns>
-        public static ImageStorage ApplyStorageChanges(ImageStorage sourse, ImageStorage newImage)
+        public static ImageStorage CloneImageWithNewData(ImageStorage sourse, ImageStorage newImage)
         {
             return new ImageStorage
             {
@@ -102,7 +102,7 @@ namespace TC_WinForms.Services
                 Name = newImage.Name,
                 Category = newImage.Category,
                 ImageBase64 = newImage.ImageBase64,
-                ImageType = newImage.ImageType,
+                MimeType = newImage.MimeType,
                 StorageType = newImage.StorageType
             };
         }
@@ -119,18 +119,28 @@ namespace TC_WinForms.Services
         /// <param name="imageType">Тип изображения.</param>
         /// <param name="number">Порядковый номер изображения.</param>
         /// <returns>Новый объект <see cref="ImageOwner"/>.</returns>
-        public static ImageOwner CreateNewImageOwner(ImageStorage image, TechnologicalCard tc, ImageType imageType, int number)
+        public static ImageOwner CreateNewImageOwner(ImageStorage image, TechnologicalCard? tc, ImageRole imageType, int number)
         {
-            return new ImageOwner
-            {
-                ImageStorage = image,
-                ImageStorageId = image.Id,
-                TechnologicalCard = tc,
-                TechnologicalCardId = tc.Id,
-                Name = image.Name,
-                Number = number,
-                ImageRoleType = imageType
-            };
+            if(tc == null)
+                return new ImageOwner
+                {
+                    ImageStorage = image,
+                    ImageStorageId = image.Id,
+                    Name = image.Name,
+                    Number = number,
+                    Role = imageType
+                };
+            else
+                return new ImageOwner
+                {
+                    ImageStorage = image,
+                    ImageStorageId = image.Id,
+                    TechnologicalCard = tc,
+                    TechnologicalCardId = tc.Id,
+                    Name = image.Name,
+                    Number = number,
+                    Role = imageType
+                };
         }
 
         #endregion

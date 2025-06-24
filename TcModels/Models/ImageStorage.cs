@@ -2,6 +2,7 @@ namespace TcModels.Models;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
+using TcModels.Models.TcContent;
 
 public class ImageStorage
 {
@@ -14,7 +15,7 @@ public class ImageStorage
     public string? ImageBase64 { get; set; }
 
     // Свойство для хранения пути к файлу изображения
-    public string? ImageType { get; set; } = ""; // MIME тип изображения "image/png"
+    public string? MimeType { get; set; } = ""; // MIME тип изображения "image/png"
     public string? FilePath { get; set; }
 
     // Метод для сохранения изображения в файл
@@ -70,7 +71,8 @@ public enum ImageStorageType
     FilePath
 }
 
-public enum @string
+[Obsolete($"Enum усторел")]
+public enum ImageCategory
 {
     ExecutionScheme,
     Shag,

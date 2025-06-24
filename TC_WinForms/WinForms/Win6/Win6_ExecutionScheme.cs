@@ -155,7 +155,7 @@ namespace TC_WinForms.WinForms
 		private async Task LoadFromObjectOrDbAsync(System.Diagnostics.Stopwatch stopwatch)
 		{
 			// Если у ТК есть ExecutionSchemeImageId или есть сохраненный Base64 (при нулевом ID)
-            var executionScheme = _tc.ImageOwner.Where(i => i.ImageRoleType == ImageType.ExecutionScheme).FirstOrDefault();
+            var executionScheme = _tc.ImageList.Where(i => i.Role == ImageRole.ExecutionScheme).FirstOrDefault();
 			if (executionScheme != null)
 			{
                 string base64Image = executionScheme.ImageStorage.ImageBase64;
@@ -277,30 +277,14 @@ namespace TC_WinForms.WinForms
 				{
 					try
 					{
-                        var executionScheme = _tc.ImageOwner.Where(i => i.ImageRoleType == ImageType.ExecutionScheme).FirstOrDefault();
-                        if (executionScheme != null)
-                        {
-                            string filePath = openFileDialog.FileName;
-                            var newImage = ImageService.CreateNewImageFromBase64(filePath);
-                            executionScheme.ImageStorage = ImageService.ApplyStorageChanges(executionScheme.ImageStorage, newImage);
-                            context.Entry(executionScheme.ImageStorage).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-
-                            ImageHelper.SaveImageToTempFile(executionScheme.ImageStorage.ImageBase64, _tc.Id);
-                            _logger.Information("Новое изображение загружено пользователем и сохранено во временный файл.");
-
-                            // 6) Отображаем в pictureBox
-                            DisplayImage(executionScheme.ImageStorage.ImageBase64, pictureBoxExecutionScheme);
-
-                            // Ставим флаг, что есть несохранённые изменения
-                            HasChanges = true;
-                        }
-                        else
+                        var executionScheme = _tc.ImageList.Where(i => i.Role == ImageRole.ExecutionScheme).FirstOrDefault();
+                        if (executionScheme == null)
                         {
                             string filePath = openFileDialog.FileName;
                             var image = ImageService.CreateNewImageFromBase64(filePath);
-                            var u = ImageService.CreateNewImageOwner(image, _tc, ImageType.ExecutionScheme, 1);
+                            var u = ImageService.CreateNewImageOwner(image, _tc, ImageRole.ExecutionScheme, 1);
 
-                            _tc.ImageOwner.Add(u);
+                            _tc.ImageList.Add(u);
                             context.Entry(u).State = Microsoft.EntityFrameworkCore.EntityState.Added;
                             context.Entry(image).State = Microsoft.EntityFrameworkCore.EntityState.Added;
 
@@ -309,6 +293,22 @@ namespace TC_WinForms.WinForms
 
                             // 6) Отображаем в pictureBox
                             DisplayImage(image.ImageBase64, pictureBoxExecutionScheme);
+
+                            // Ставим флаг, что есть несохранённые изменения
+                            HasChanges = true;
+                        }
+                        else
+                        {
+                            string filePath = openFileDialog.FileName;
+                            var newImage = ImageService.CreateNewImageFromBase64(filePath);
+                            executionScheme.ImageStorage = ImageService.CloneImageWithNewData(executionScheme.ImageStorage, newImage);
+                            context.Entry(executionScheme.ImageStorage).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+
+                            ImageHelper.SaveImageToTempFile(executionScheme.ImageStorage.ImageBase64, _tc.Id);
+                            _logger.Information("Новое изображение загружено пользователем и сохранено во временный файл.");
+
+                            // 6) Отображаем в pictureBox
+                            DisplayImage(executionScheme.ImageStorage.ImageBase64, pictureBoxExecutionScheme);
 
                             // Ставим флаг, что есть несохранённые изменения
                             HasChanges = true;

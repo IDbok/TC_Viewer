@@ -22,10 +22,10 @@ namespace TC_WinForms.Services
             // Словарь для сопоставления старых и новых ImageOwner
 
             // Копируем изображения и заполняем словарь сопоставления
-            foreach (var imageOwner in card.ImageOwner)
+            foreach (var imageOwner in card.ImageList)
             {
                 var newImageOwner = imageOwner.DeepCopyObject(newCard);
-                newCard.ImageOwner.Add(newImageOwner);
+                newCard.ImageList.Add(newImageOwner);
                 imageOwnerMap.Add(imageOwner.Id, newImageOwner);
             }
 
@@ -201,17 +201,27 @@ namespace TC_WinForms.Services
 
             var mapper = config.CreateMapper();
 
-            // Очищаем ImageOwners в DiagramShag (они будут заполнены позже)
-            foreach (var paral in newDTW.ListDiagramParalelno)
+            var allShags = newDTW.ListDiagramParalelno
+                            .SelectMany(p => p.ListDiagramPosledov)
+                            .SelectMany(ps => ps.ListDiagramShag);
+
+            foreach (var shag in allShags)
             {
-                foreach (var posled in paral.ListDiagramPosledov)
-                {
-                    foreach (var shag in posled.ListDiagramShag)
-                    {
-                        shag.ImageList = new List<ImageOwner>();
-                    }
-                }
+                shag.ImageList.Clear(); // или = new List();
             }
+
+
+            //// Очищаем ImageOwners в DiagramShag (они будут заполнены позже)
+            //foreach (var paral in newDTW.ListDiagramParalelno)
+            //{
+            //    foreach (var posled in paral.ListDiagramPosledov)
+            //    {
+            //        foreach (var shag in posled.ListDiagramShag)
+            //        {
+            //            shag.ImageList.Clear();
+            //        }
+            //    }
+            //}
 
             var currentTOW = newtechnologicalCard.TechOperationWorks.Where(e => e.techOperationId == sourceDTW.techOperationWork.techOperationId && e.Order == sourceDTW.techOperationWork.Order).FirstOrDefault();
 
