@@ -1,11 +1,12 @@
-﻿using AutoMapper;
+using AutoMapper;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent
 {
-    public class ExecutionWork
+    public class ExecutionWork: IImageHoldable
     {
         public int Id { get; set; }
         public TechOperationWork techOperationWork { get; set; } = null!;
@@ -51,6 +52,7 @@ namespace TcModels.Models.TcContent
 
         public string? PictureName { get; set; } = "";
 
+        public List<ImageOwner> ImageList { get; set; } = new List<ImageOwner>();
         public override string ToString()
         {
            if (techTransition != null)
