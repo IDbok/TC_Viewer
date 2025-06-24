@@ -371,7 +371,7 @@ namespace TC_WinForms.WinForms
                 var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
                     .Include(q => q.ListDiagramShagToolsComponent)
                     .ToListAsync();
-
+                    
                 _logger.Information("Загружены данные диаграмм для TcId={TcId}", _tcId);
                 return diagramToWorkList;
             }
@@ -387,9 +387,15 @@ namespace TC_WinForms.WinForms
             }
         }
 
+    private async void printToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+          LogUserAction("Печать технологической карты");
+          var printForm = new TcPrintForm(_tcId);
+          printForm.Show();
+        }
+        
         private async Task SetTcViewStateData()
         {
-
             try
             {
                 var rep = new TechnologicalCardRepository();

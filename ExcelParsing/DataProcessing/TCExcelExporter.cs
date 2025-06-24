@@ -99,8 +99,11 @@ namespace ExcelParsing.DataProcessing
 
             // todo: add header of the table
             var sheet = _excelPackage.Workbook.Worksheets[sheetName] ?? _excelPackage.Workbook.Worksheets.Add(sheetName);
+
+            sheet.TabColor = tabColor;
             sheet.HeaderFooter.OddHeader.CenteredText = tc.Article;
             sheet.HeaderFooter.OddFooter.CenteredText = "Лист &P";
+
             SetColumnWigth(sheet);
 
             var lastRow = AddStaffDataToExcel(tc.Staff_TCs.OrderBy(x => x.Order).ToList(), sheet, 3);

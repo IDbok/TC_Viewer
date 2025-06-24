@@ -55,6 +55,7 @@ public class TechnologicalCardRepository
             if (tc == null)
                 return null;
 
+
             // Ручная загрузка связанных сущностей пачкой
             var tcIds = new[] { id };
 
@@ -129,6 +130,7 @@ public class TechnologicalCardRepository
                 .Include(s => s.Child)
                 .Include(p => p.ExecutionWorks)
                 .ToListAsync();
+
 
             var repeats = await context.ExecutionWorkRepeats
                 .Where(r => execWorkIds.Contains(r.ParentExecutionWorkId))
