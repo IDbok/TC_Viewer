@@ -16,6 +16,8 @@ namespace TcDbConnector.Migrations
 
                 // Создание процедуры
                 migrationBuilder.Sql(@"
+DELIMITER $$
+
 CREATE PROCEDURE Link_ExecutionWork_To_ImageOwner()
 BEGIN
     DECLARE done INT DEFAULT FALSE;
@@ -79,7 +81,9 @@ BEGIN
 
     CLOSE cur;
     DROP TEMPORARY TABLE IF EXISTS temp_numbers;
-END;
+END$$
+
+DELIMITER ;
 ");
 
                 // Вызов процедуры

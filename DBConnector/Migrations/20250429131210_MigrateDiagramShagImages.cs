@@ -39,7 +39,7 @@ namespace TcDbConnector.Migrations
 
             // 2. Вставка записей в ImageOwners
             migrationBuilder.Sql(@"
-                INSERT INTO ImageOwners (TechnologicalCardId, ImageStorageId, Name, Number, ImageRoleType)
+                INSERT INTO ImageOwners (TechnologicalCardId, ImageStorageId, Name, Number, Role)
                 SELECT 
                     dtw.TechnologicalCardId,
                     img.Id,
@@ -87,7 +87,7 @@ namespace TcDbConnector.Migrations
             migrationBuilder.Sql(@"
                 UPDATE DiagramShag ds
                 JOIN DiagramShagImageOwner dsio ON ds.Id = dsio.DiagramShagsId
-                JOIN ImageOwners io ON io.Id = dsio.ImageListId AND io.ImageRoleType = 1
+                JOIN ImageOwners io ON io.Id = dsio.ImageListId AND io.Role = 1
                 JOIN ImageStorage img ON img.Id = io.ImageStorageId
                 SET ds.ImageBase64 = img.ImageBase64,
                     ds.NameImage = img.Name;
@@ -98,13 +98,13 @@ namespace TcDbConnector.Migrations
                 DELETE dsio
                 FROM DiagramShagImageOwner dsio
                 JOIN ImageOwners io ON dsio.ImageListId = io.Id
-                WHERE io.ImageRoleType = 1;
+                WHERE io.Role = 1;
             ");
 
             // 3. Удаление записей из ImageOwners
             migrationBuilder.Sql(@"
                 DELETE FROM ImageOwners
-                WHERE ImageRoleType = 1;
+                WHERE Role = 1;
             ");
 
             // 4. Удаление изображений из ImageStorage без связей

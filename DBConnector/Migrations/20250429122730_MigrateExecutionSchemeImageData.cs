@@ -12,7 +12,7 @@ namespace TcDbConnector.Migrations
         {
             // Вставка записей в ImageOwner
             migrationBuilder.Sql(@"
-            INSERT INTO ImageOwners (TechnologicalCardId, ImageStorageId, ImageRoleType)
+            INSERT INTO ImageOwners (TechnologicalCardId, ImageStorageId, Role)
             SELECT tc.Id, tc.ExecutionSchemeImageId, 0 -- 0 = ExecutionScheme
             FROM TechnologicalCards tc
             JOIN ImageStorage img ON tc.ExecutionSchemeImageId = img.Id
@@ -42,13 +42,13 @@ namespace TcDbConnector.Migrations
             SET ExecutionSchemeImageId = io.ImageStorageId
             FROM TechnologicalCards tc
             JOIN ImageOwners io ON tc.Id = io.TechnologicalCardId
-            WHERE io.ImageRoleType = 0 -- ExecutionScheme
+            WHERE io.Role = 0 -- ExecutionScheme
         ");
 
             // Удаление этих ImageOwner
             migrationBuilder.Sql(@"
             DELETE FROM ImageOwners
-            WHERE ImageRoleType = 0
+            WHERE Role = 0
         ");
 
             // Восстановление старых значений Category
