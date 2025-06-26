@@ -769,7 +769,9 @@ namespace TC_WinForms.WinForms.Diagram
             }
             else
             {
-                e.CancelCommand(); // Отменяем вставку, если это не текст
+                e.CancelCommand();
+            }
+        }// Отменяем вставку, если это не текст
 
         private void btnEditImage_Click(object sender, RoutedEventArgs e)
         {
