@@ -268,7 +268,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                 }
                 else
                 {
-                    if (group.ToList().Count > 1)
+                    if (group.ToList().Count > 1 && group.Where(s => s.SequenceGroupIndex != 0).Count() != 0)
                     {
                         var maxGroup = group.Where(s => s.SequenceGroupIndex != 0).Max(s => s.Items.Count);
                         _maxColumns += maxGroup;
@@ -284,17 +284,13 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
             if (operationGroup.ParallelIndex == null || operationGroup.SequenceGroupIndex != 0)
                 return 1;
 
-            var groupedRoadMap = _operationGroups.Where(s => s.ParallelIndex == operationGroup.ParallelIndex).GroupBy(d => d.SequenceGroupIndex);
-            var columnSpam = 1;
-
-            foreach (var roadMapGroup in groupedRoadMap)
+            if (_operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex).ToList().Count > 1 && _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex != 0).Count() != 0)
             {
-                var listData = roadMapGroup.ToList();
-                var columnCount = listData.SelectMany(g => g.Items).Count();
-                columnSpam = columnCount > columnSpam ? columnCount : columnSpam;
+                var parallelGroups = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex != 0).Select(o => o.Items).Max(i => i.Count);
+                return parallelGroups;
             }
-
-            return columnSpam;
+            else
+                return 1;
         }
         private int CalculateColumn(OperationGroup operationGroup, TechOperationWork currentTow, int colIndex)
         {

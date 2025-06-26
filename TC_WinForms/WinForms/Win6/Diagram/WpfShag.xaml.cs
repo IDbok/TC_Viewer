@@ -600,6 +600,21 @@ namespace TC_WinForms.WinForms.Diagram
             }
         }
 
+
+        private void ComboBoxTeh_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (!ComboBoxTeh.IsDropDownOpen)
+            {
+                e.Handled = true;
+                var parent = ((System.Windows.Controls.ComboBox)sender).Parent as UIElement;
+                parent?.RaiseEvent(new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+                {
+                    RoutedEvent = UIElement.MouseWheelEvent
+                });
+            }
+        }
+
+
         public void btnAddNewShag_Click(object sender, RoutedEventArgs e)
 		{
 			// проверить налиние более одного шага в последовательности

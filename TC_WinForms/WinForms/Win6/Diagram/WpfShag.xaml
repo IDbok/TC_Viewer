@@ -62,7 +62,8 @@
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Добавить тех. переход" Margin="0,0,30,0"></TextBlock>
                 <ComboBox Name="ComboBoxTeh" Width="200" 
-                    SelectionChanged="ComboBoxTeh_SelectionChanged" 
+                    SelectionChanged="ComboBoxTeh_SelectionChanged"
+                    PreviewMouseWheel="ComboBoxTeh_PreviewMouseWheel"
                     Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
                     />  
             </StackPanel>
