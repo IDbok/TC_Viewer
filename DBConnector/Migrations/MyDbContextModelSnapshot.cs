@@ -176,10 +176,12 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                        .HasColumnType("longtext")
+                        .HasDefaultValue("Без имени");
 
                     b.Property<int?>("Number")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("TechnologicalCardId")
                         .HasColumnType("int");

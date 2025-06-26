@@ -167,7 +167,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             var objEditor = new ImageEditorWindow(SelectedItem.Owner);
             objEditor.AfterSave = async (editedObj) =>
             {
-                UpdateObjectInDataGridView(editedObj, oldNum.Value);
+                UpdateObjectInDataGridView(editedObj, oldNum);
 
                 var current = SelectedItem;
                 SelectedItem = null;
@@ -365,8 +365,8 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             context.Entry(addedObj).State = EntityState.Added;
 
             int insertIndex = isScheme
-                ? ImageItems.Count(i => i.Owner.Role != ImageRole.ExecutionScheme) + addedObj.Number.Value - 1
-                : addedObj.Number.Value - 1;
+                ? ImageItems.Count(i => i.Owner.Role != ImageRole.ExecutionScheme) + addedObj.Number - 1
+                : addedObj.Number - 1;
 
             insertIndex = Math.Min(insertIndex, ImageItems.Count);
             ImageItems.Insert(insertIndex, newItem);
@@ -404,8 +404,8 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             if (wasScheme != isNowScheme || oldNum != editedObj.Number)
             {
                 int newPosition = isNowScheme
-                    ? ImageItems.Count - ImageItems.Count(i => i.Owner.Role != ImageRole.ExecutionScheme) + Math.Min(editedObj.Number.Value - 1, ImageItems.Count(i => i.Owner.Role == ImageRole.ExecutionScheme))
-                    : Math.Min(editedObj.Number.Value - 1, ImageItems.Count(i => i.Owner.Role != ImageRole.ExecutionScheme));
+                    ? ImageItems.Count - ImageItems.Count(i => i.Owner.Role != ImageRole.ExecutionScheme) + Math.Min(editedObj.Number - 1, ImageItems.Count(i => i.Owner.Role == ImageRole.ExecutionScheme))
+                    : Math.Min(editedObj.Number - 1, ImageItems.Count(i => i.Owner.Role != ImageRole.ExecutionScheme));
 
                 MoveRowAndUpdateOrder(ImageItems, ImageItems.IndexOf(item), newPosition);
             }

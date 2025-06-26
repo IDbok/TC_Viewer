@@ -33,9 +33,10 @@ namespace TcDbConnector.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     ImageStorageId = table.Column<long>(type: "bigint", nullable: false),
                     TechnologicalCardId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Number = table.Column<int>(type: "int", nullable: true),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: false, defaultValue: "Без имени")
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:DefaultValue", "Без имени"),
+                    Number = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
                     Role = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -55,6 +56,8 @@ namespace TcDbConnector.Migrations
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.Sql("ALTER TABLE ImageOwners ALTER COLUMN Name SET DEFAULT 'Без имени';");
 
             migrationBuilder.CreateTable(
                 name: "DiagramShagImageOwner",

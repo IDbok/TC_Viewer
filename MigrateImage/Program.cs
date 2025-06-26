@@ -32,8 +32,8 @@ namespace MigrateImageData
 
         static void MigrateImageData()
         {
-            var connectionString = "server=10.1.100.142;database=tcvdb_debugtest;user=tavrida;password=tavrida$555";
-            //var connectionString = "server=localhost; database = tavrida_db_main; user = root; password = root";
+            //var connectionString = "server=10.1.100.142;database=tcvdb_debugtest;user=tavrida;password=tavrida$555";
+            var connectionString = "server=localhost; database = tavrida_db_main; user = root; password = root";
             TcDbConnector.StaticClass.ConnectString = connectionString;
 
             using (var context = new MyDbContext())

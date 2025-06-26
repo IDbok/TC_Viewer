@@ -1524,7 +1524,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 else
                 {
                     if (copiedObj.ImageStorage == null)
-                    { throw new Exception("Ошибка при копировании изображений. Ошибка 1246"); }
+                    { throw new Exception("Ошибка при копировании изображений. Изображение не обнаружено"); }
 
                     var newImage = ImageService.CreateNewImage(copiedObj.ImageStorage);
                     var newObject_tc = new ImageOwner
@@ -2565,7 +2565,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     {
         // Группируем изображения по типу
         var groups = images
-            .Where(img => img.Number.HasValue && img.Number > 0)
+            .Where(img => img.Number > 0)
             .GroupBy(img => img.Role)
             .OrderBy(g => g.Key); // Сортируем по типу для консистентности
 
@@ -2577,7 +2577,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             string prefix = group.Key == ImageRole.ExecutionScheme ? "СИ" : "Рис";
 
             // Для группы получаем отсортированные номера
-            var numbers = group.Select(img => img.Number.Value)
+            var numbers = group.Select(img => img.Number)
                               .Distinct()
                               .OrderBy(n => n)
                               .ToList();
@@ -2618,6 +2618,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         return string.Join("; ", resultParts);
     }
 
+    /// <summary>
+    ///  На основе начального и конечного значения возвращает либо строку в ввиде диапазона начало-конец, либо одиночное значение начала, если оба числа совпадают
+    /// </summary>
+    /// <param name="startValue">Начальное значение диапазона</param>
+    /// <param name="endValue">Конечное значение диапазона</param>
+    /// <returns></returns>
     private string RangeToString(int startValue, int endValue)
     {
         return startValue == endValue ? $"{startValue}" : $"{startValue}–{endValue}";

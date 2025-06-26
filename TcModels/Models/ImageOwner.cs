@@ -15,8 +15,8 @@ namespace TcModels.Models
         public ImageStorage ImageStorage { get; set; }
         public int TechnologicalCardId { get; set; }
         public TechnologicalCard TechnologicalCard { get; set; }
-        public string? Name { get; set; } = "Без имени";
-        public int? Number { get; set; } = 1;
+        public string Name { get; set; } = "Без имени";
+        public int Number { get; set; } = 1;
         public ImageRole Role { get; set; }
         public List<ExecutionWork> ExecutionWorks { get; set; } = new List<ExecutionWork>();
         public List<DiagramShag> DiagramShags { get; set; } = new List<DiagramShag>();

@@ -172,17 +172,20 @@ namespace TcDbConnector.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<int>("ImageRoleType")
+                    b.Property<int>("Role")
                         .HasColumnType("int");
 
                     b.Property<long>("ImageStorageId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                        .HasColumnType("longtext")
+                        .HasDefaultValue("Без имени");
 
                     b.Property<int>("Number")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
 
                     b.Property<int>("TechnologicalCardId")
                         .HasColumnType("int");

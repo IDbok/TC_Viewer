@@ -745,7 +745,7 @@ namespace ExcelParsing.DataProcessing
                 if(executionWork.ImageList != null && executionWork.ImageList.Count >0)
                 {
                     var pictureNums = executionWork.ImageList
-                    .Select(img => img.Number.Value)
+                    .Select(img => img.Number)
                     .Where(n => n > 0)
                     .Distinct()
                     .OrderBy(n => n)
