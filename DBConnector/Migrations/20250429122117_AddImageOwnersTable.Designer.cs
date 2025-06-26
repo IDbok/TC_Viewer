@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TcDbConnector;
 
@@ -11,9 +12,11 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250429122117_AddImageOwnersTable")]
+    partial class AddImageOwnersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,7 +76,7 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("int");
 
                     b.Property<long>("ImageListId")
-                        .HasColumnType("bigint");
+                      .HasColumnType("bigint");
 
                     b.HasKey("ExecutionWorksId", "ImageListId");
 
@@ -179,9 +182,9 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("longtext")
                         .HasDefaultValue("Без имени");
 
-                    b.Property<int?>("Number")
+                    b.Property<int>("Number")
                         .HasColumnType("int")
-                        .HasDefaultValue(0);
+                        .HasDefaultValue(1);
 
                     b.Property<int>("TechnologicalCardId")
                         .HasColumnType("int");

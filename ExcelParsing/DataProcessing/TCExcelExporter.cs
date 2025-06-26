@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.ComponentModel;
@@ -16,6 +17,8 @@ namespace ExcelParsing.DataProcessing
     {
         private ExcelPackage _excelPackage;
         private ExcelExporter _exporter;
+
+        private Dictionary<int, string> _relatedTcNames;
 
         private readonly Color _lightGreen = Color.FromArgb(197, 224, 180);
         private readonly Color _lightYellow = Color.FromArgb(237, 125, 49);
@@ -683,6 +686,11 @@ namespace ExcelParsing.DataProcessing
                     //var listRepeatedOtemOrders = executionWork.ListexecutionWorkRepeat2.Select(x => x.Order).ToList();
                     var listRepeatedOtemOrders = executionWork.ExecutionWorkRepeats
                         .Select(x => x.ChildExecutionWork.RowOrder).ToList();
+
+                    // Заготовка для новой печати для исправления наименования ТП
+                    //var povtorName = executionWork.RepeatsTCId != null ? "Выполнить в соответствии с ТК" + executionWork.ExecutionWorkRepeats[0].ChildExecutionWork.techOperationWork.technologicalCard.Article : "Повторить п. "; 
+
+
                     sheet.Cells[currentRow, headersColumns["Технологические переходы"]].Value = "Повторить п. "
                         + ConvertListToRangeString(listRepeatedOtemOrders);
 
@@ -734,8 +742,17 @@ namespace ExcelParsing.DataProcessing
                 // Примечание
                 sheet.Cells[currentRow, headersColumns["Примечание"]].Value = executionWork.Comments;
 
-                // Рисунок
-                sheet.Cells[currentRow, headersColumns["Рисунок"]].Value = executionWork.PictureName;
+                if(executionWork.ImageList != null && executionWork.ImageList.Count >0)
+                {
+                    var pictureNums = executionWork.ImageList
+                    .Select(img => img.Number)
+                    .Where(n => n > 0)
+                    .Distinct()
+                    .OrderBy(n => n)
+                    .ToList();
+                    // Рисунок
+                    sheet.Cells[currentRow, headersColumns["Рисунок"]].Value = "Рис." + ConvertListToRangeString(pictureNums);
+                }
 
                 // Объединение ячеек между столбцами
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);

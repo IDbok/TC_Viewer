@@ -58,6 +58,7 @@ public class TechnologicalCardRepository
             // Ручная загрузка связанных сущностей пачкой
             var tcIds = new[] { id };
 
+
             var machineTCs = await context.Machine_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
             var protectionTCs = await context.Protection_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
 
@@ -68,6 +69,12 @@ public class TechnologicalCardRepository
             var staffTCs = await context.Staff_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
             var coefficients = await context.Coefficients.Where(x => x.TechnologicalCardId == id).ToListAsync();
 
+            await context.Entry(tc)
+                        .Collection(t => t.ImageList)
+                        .Query()
+                        .Include(io => io.ImageStorage)
+                        .LoadAsync();
+  
             // Подвязка вручную
             tc.Machine_TCs = machineTCs;
             tc.Protection_TCs = protectionTCs;
@@ -95,6 +102,7 @@ public class TechnologicalCardRepository
 
             var executionWorks = await context.ExecutionWorks
                                         .Where(e => towIds.Contains(e.techOperationWorkId))
+                                        .Include(e => e.ImageList)
                                         .ToListAsync();
 
             var execWorkIds = executionWorks.Select(e => e.Id).ToList();
@@ -211,6 +219,11 @@ public class TechnologicalCardRepository
 					.Where(c => c.TechnologicalCardId == _tcId)
 					.ToListAsync();
 
+                var images = await context.ImageOwners
+                    .Where(i => i.TechnologicalCardId == _tcId)
+                    .Include(i => i.ImageStorage).
+                    ToListAsync();
+
 				return techCard;
 			}
 		}
@@ -248,6 +261,7 @@ public class TechnologicalCardRepository
                                         .Include(e => e.Machines)
                                         .Include(e => e.Staffs)
                                         .Include(e => e.ExecutionWorkRepeats).ThenInclude(e => e.ChildExecutionWork)
+                                        .Include(e => e.ImageList).ThenInclude(e => e.ImageStorage)
                                         .ToListAsync();
 
 
@@ -287,6 +301,8 @@ public class TechnologicalCardRepository
                     .ThenInclude(e => e.toolWork)
                 .Include(q => q.ListDiagramShagToolsComponent)
                     .ThenInclude(e => e.componentWork)
+                .Include(s => s.ImageList)
+                    .ThenInclude(i => i.ImageStorage)
                 .ToListAsync();
 
             // Привязку к diagramToWork можно сделать тут при необходимости
@@ -417,7 +433,7 @@ public class TechnologicalCardRepository
         var image = new ImageStorage
         {
             ImageBase64 = Convert.ToBase64String(executionScheme),
-            Category = ImageCategory.ExecutionScheme
+            Category = "ExecutionScheme"
         };
 
         _db.ImageStorage.Add(image);

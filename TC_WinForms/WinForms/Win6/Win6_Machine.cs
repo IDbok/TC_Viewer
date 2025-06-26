@@ -74,6 +74,7 @@ namespace TC_WinForms.WinForms
                     dgvMain.CurrentCell = dgvMain.Rows[nextRow].Cells[currentCol];
                     dgvMain.BeginEdit(true);
                 }));
+
             }
 
             autoAdvance = false;
