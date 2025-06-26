@@ -1,10 +1,12 @@
-﻿using Serilog;
+using Serilog;
 using System.IO;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win6.Models;
+using TcDbConnector;
 using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -15,6 +17,7 @@ namespace TC_WinForms.WinForms
 	{
 		private readonly ILogger _logger;
 		private readonly TcViewState _tcViewState;
+        private MyDbContext context;
 
 		private TechnologicalCardRepository _tcRepository = new TechnologicalCardRepository();
 		private readonly TechnologicalCard _tc;
@@ -25,10 +28,10 @@ namespace TC_WinForms.WinForms
 
 		public bool CloseFormsNoSave { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-		public Win6_ExecutionScheme(TcViewState tcViewState, bool viewerMode = false)
+		public Win6_ExecutionScheme(TcViewState tcViewState, MyDbContext context, bool viewerMode = false)
 		{
-
 			_tcViewState = tcViewState;
+            this.context = context;
 			_tc = tcViewState.TechnologicalCard
 				  ?? throw new ArgumentNullException(nameof(tcViewState.TechnologicalCard));
 
@@ -151,12 +154,11 @@ namespace TC_WinForms.WinForms
 		/// </summary>
 		private async Task LoadFromObjectOrDbAsync(System.Diagnostics.Stopwatch stopwatch)
 		{
-			// Если у ТК есть ExecutionSchemeImageId или есть сохраненный Base64 (при нулевом ID) 
-			if (_tc.ExecutionSchemeImageId != null
-				|| (_tc.ExecutionSchemeImageId == null && !string.IsNullOrEmpty(_tc.ExecutionSchemeBase64))
-				|| (_tc.ExecutionSchemeImage != null && !string.IsNullOrEmpty(_tc.ExecutionSchemeImage.ImageBase64)))
+			// Если у ТК есть ExecutionSchemeImageId или есть сохраненный Base64 (при нулевом ID)
+            var executionScheme = _tc.ImageList.Where(i => i.Role == ImageRole.ExecutionScheme).FirstOrDefault();
+			if (executionScheme != null)
 			{
-				string base64Image = await GetBase64ImageFromTcOrDbAsync(stopwatch);
+                string base64Image = executionScheme.ImageStorage.ImageBase64;
 				if (!string.IsNullOrEmpty(base64Image))
 				{
 					// Сохраняем изображение во временный файл
@@ -275,40 +277,35 @@ namespace TC_WinForms.WinForms
 				{
 					try
 					{
-						string filePath = openFileDialog.FileName;
+                        var executionScheme = _tc.ImageList.Where(i => i.Role == ImageRole.ExecutionScheme).FirstOrDefault();
 
-						// 1) Считываем все байты
-						byte[] bytesImage = File.ReadAllBytes(filePath);
+                        string filePath = openFileDialog.FileName;
+                        var image = ImageService.CreateNewImageFromBase64(filePath);
 
-						// 2) Проверяем, что файл не превышает условный лимит
-						if (bytesImage.Length > MAX_IMAGE_SIZE_BYTES)
-						{
-							MessageBox.Show(
-								$"Файл превышает максимально допустимый размер {MAX_IMAGE_SIZE_BYTES / (1024 * 1024)} МБ.\n" +
-								"Не рекомендуется хранить такое изображение в БД.",
-								"Размер файла слишком большой",
-								MessageBoxButtons.OK,
-								MessageBoxIcon.Warning
-							);
-							return;
-						}
+                        if (executionScheme == null)
+                        {
+                            var u = ImageService.CreateNewImageOwner(image, _tc, ImageRole.ExecutionScheme, 1);
+                            _tc.ImageList.Add(u);
+                            context.Entry(u).State = Microsoft.EntityFrameworkCore.EntityState.Added;
+                            context.Entry(image).State = Microsoft.EntityFrameworkCore.EntityState.Added;
+                        }
+                        else
+                        {
+                            executionScheme.ImageStorage = ImageService.CloneImageWithNewData(executionScheme.ImageStorage, image);
+                            context.Entry(executionScheme.ImageStorage).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                        }
 
-						// 3) Генерируем Base64
-						string base64Image = Convert.ToBase64String(bytesImage);
+                        ImageHelper.SaveImageToTempFile(executionScheme == null ? image.ImageBase64 : executionScheme.ImageStorage.ImageBase64, _tc.Id);
+                        _logger.Information("Новое изображение загружено пользователем и сохранено во временный файл.");
 
-						// 4) Устанавливаем новое изображение в ТК
-						//SetNewImageData(base64Image); // todo: Проверить логику работы с изображением чисто через временные файлы
+                        // 6) Отображаем в pictureBox
+                        DisplayImage(image.ImageBase64, pictureBoxExecutionScheme);
 
-						// 5) Сохраняем во временный файл
-						ImageHelper.SaveImageToTempFile(base64Image, _tc.Id);
-						_logger.Information("Новое изображение загружено пользователем и сохранено во временный файл.");
+                        // Ставим флаг, что есть несохранённые изменения
+                        HasChanges = true;
+                        
 
-						// 6) Отображаем в pictureBox
-						DisplayImage(base64Image, pictureBoxExecutionScheme);
-
-						// Ставим флаг, что есть несохранённые изменения
-						HasChanges = true;
-					}
+                    }
 					catch (Exception ex)
 					{
 						_logger.Error(ex, "Ошибка при загрузке нового изображения");
@@ -333,8 +330,8 @@ namespace TC_WinForms.WinForms
 			var newImage = new ImageStorage
 			{
 				ImageBase64 = base64Image,
-				Category = ImageCategory.ExecutionScheme
-			};
+				Category = "ExecutionScheme"
+            };
 
 			// Если уже есть Id, назначаем его вновь создаваемому ImageStorage
 			if (_tc.ExecutionSchemeImageId != null)

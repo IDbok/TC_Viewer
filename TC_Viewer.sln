@@ -34,6 +34,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решен
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrateImage", "MigrateImage\MigrateImage.csproj", "{707955F3-3CCF-47F5-8D64-D7E42407C674}"
+	ProjectSection(ProjectDependencies) = postProject
+		{41A26DBB-CD95-46D8-9B57-FA95A35819C5} = {41A26DBB-CD95-46D8-9B57-FA95A35819C5}
+		{4A7ED5FC-C623-4018-862A-5BA233C952F5} = {4A7ED5FC-C623-4018-862A-5BA233C952F5}
+		{DB5031DA-7A0C-4B72-992E-C11162F15A69} = {DB5031DA-7A0C-4B72-992E-C11162F15A69}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +67,10 @@ Global
 		{0B4CFE3E-C1CB-44F7-875B-EB4940838265}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B4CFE3E-C1CB-44F7-875B-EB4940838265}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B4CFE3E-C1CB-44F7-875B-EB4940838265}.Release|Any CPU.Build.0 = Release|Any CPU
+		{707955F3-3CCF-47F5-8D64-D7E42407C674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{707955F3-3CCF-47F5-8D64-D7E42407C674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{707955F3-3CCF-47F5-8D64-D7E42407C674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{707955F3-3CCF-47F5-8D64-D7E42407C674}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

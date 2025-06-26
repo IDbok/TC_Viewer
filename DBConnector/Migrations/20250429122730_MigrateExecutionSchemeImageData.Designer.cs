@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TcDbConnector;
 
@@ -11,9 +12,11 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250429122730_MigrateExecutionSchemeImageData")]
+    partial class MigrateExecutionSchemeImageData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,12 +75,12 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("ExecutionWorksId")
                         .HasColumnType("int");
 
-                    b.Property<long>("ImageListId")
+                    b.Property<long>("ImagesId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("ExecutionWorksId", "ImageListId");
+                    b.HasKey("ExecutionWorksId", "ImagesId");
 
-                    b.HasIndex("ImageListId");
+                    b.HasIndex("ImagesId");
 
                     b.ToTable("ExecutionWorkImageOwner");
                 });
@@ -179,9 +182,10 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("longtext")
                         .HasDefaultValue("Без имени");
 
-                    b.Property<int?>("Number")
+                    b.Property<int>("Number")
                         .HasColumnType("int")
-                        .HasDefaultValue(0);
+                        .HasDefaultValue(1);
+
 
                     b.Property<int>("TechnologicalCardId")
                         .HasColumnType("int");
@@ -203,7 +207,7 @@ namespace TcDbConnector.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Category")
+                    b.Property<int>("Category")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -1527,7 +1531,7 @@ namespace TcDbConnector.Migrations
 
                     b.HasOne("TcModels.Models.ImageOwner", null)
                         .WithMany()
-                        .HasForeignKey("ImageListId")
+                        .HasForeignKey("ImagesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

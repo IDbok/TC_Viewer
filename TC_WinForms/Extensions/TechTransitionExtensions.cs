@@ -1,4 +1,4 @@
-﻿using TC_WinForms.Enums;
+using TC_WinForms.Enums;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.Extensions;

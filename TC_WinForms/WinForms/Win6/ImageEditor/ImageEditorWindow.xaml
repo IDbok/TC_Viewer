@@ -1,0 +1,35 @@
+<Window x:Class="TC_WinForms.WinForms.Win6.ImageEditor.ImageEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TC_WinForms.WinForms.Win6.ImageEditor"
+        mc:Ignorable="d"
+        Title="ImageEditorWindow" Height="250" Width="600">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Наименование" FontSize="12" HorizontalAlignment="Left" Margin="10,5,0,5"/>
+
+        <TextBox Grid.Row="1" x:Name="NameTextBox" FontSize="12" HorizontalAlignment="Left" Margin="10,5,0,5" Width="550" TextWrapping="Wrap" Height="Auto" Text= "{Binding NewImageName}"/>
+
+        <TextBlock Grid.Row="2" Text="Номер" FontSize="12" HorizontalAlignment="Left" Margin="10,5,0,5"/>
+
+        <TextBox Grid.Row="3" x:Name="NumberTextBox" FontSize="12" HorizontalAlignment="Left" Margin="10,5,0,5" Width="550"  Text= "{Binding NewImageNum}"/>
+
+        <StackPanel Orientation="Horizontal"  Grid.Row="4">
+            <Button x:Name="AddImageButton" Content="Загрузить изображение" FontSize="12" HorizontalAlignment="Left" Margin="10,5,0,5" Width="150" Click="AddImageButton_Click" />
+            <TextBlock x:Name="ImagePathTextBlock" FontSize="12" HorizontalAlignment="Left" Margin="10,5,0,5" Width="400" Text="{Binding ImageStatus}"/>
+        </StackPanel>
+
+        <Button x:Name="SaveButton" Content="Сохранить" FontSize="12" HorizontalAlignment="Right" Margin="10,5,0,5" Width="150" Grid.Row="5" Click="SaveButton_Click"/>
+
+    </Grid>
+</Window>
