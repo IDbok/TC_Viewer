@@ -724,6 +724,53 @@ namespace TC_WinForms.WinForms.Diagram
             return null;
         }
 
+
+        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Проверяем, что вводится только цифра или точка (для дробных чисел)
+            if (!char.IsDigit(e.Text, e.Text.Length - 1) && e.Text != ".")
+            {
+                e.Handled = true; // Блокируем ввод
+                return;
+            }
+
+            // Если вводится точка, проверяем, что её ещё нет в тексте
+            var textBox = (TextBox)sender;
+            if (e.Text == "." && textBox.Text.Contains("."))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // Разрешаем Backspace, Delete, стрелки и т.д.
+            if (e.Key == Key.Back || e.Key == Key.Delete || e.Key == Key.Left || e.Key == Key.Right)
+            {
+                return;
+            }
+
+            // Запрещаем пробел
+            if (e.Key == Key.Space)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void TextBox_Pasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(string)))
+            {
+                string text = (string)e.DataObject.GetData(typeof(string));
+                if (!text.All(c => char.IsDigit(c) || c == '.'))
+                {
+                    e.CancelCommand(); // Отменяем вставку
+                }
+            }
+            else
+            {
+                e.CancelCommand(); // Отменяем вставку, если это не текст
+
         private void btnEditImage_Click(object sender, RoutedEventArgs e)
         {
             var editor = new Win6_ImageEditor(diagramShag, _tcViewState,
@@ -832,6 +879,7 @@ namespace TC_WinForms.WinForms.Diagram
                         Foreground = System.Windows.Media.Brushes.Red
                     });
                 }
+
 
             }
         }
