@@ -861,8 +861,8 @@ namespace TC_WinForms.WinForms.Diagram
                         var imageControl = new System.Windows.Controls.Image
                         {
                             Source = bitmap,
-                            MaxHeight = 350,
-                            MaxWidth = 350,
+                            MaxHeight = 450,
+                            MaxWidth = 600,
                             Stretch = Stretch.Uniform,
                             Margin = new Thickness(0, 5, 0, 0)
                         };

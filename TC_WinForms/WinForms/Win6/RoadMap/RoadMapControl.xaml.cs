@@ -76,10 +76,15 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (RoadmapItems.Count == 0)
+            {
                 WriteRoadMapData();
-
-            var lastItem = RoadmapItems.Last();
-            _maxColumns = lastItem.SequenceCells.Column + lastItem.SequenceCells.ColumnSpan - 1;
+                var lastItem = RoadmapItems.Last();
+                _maxColumns = lastItem.SequenceCells.Column + lastItem.SequenceCells.ColumnSpan - 1;
+            }
+            else
+            {
+                _maxColumns = RoadmapItems.Last().SequenceData.Length;
+            }
 
             AddColumnsToGrid();
             UpdateHeaderGridWidth();
@@ -99,7 +104,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                     var roadmapItem = new RoadMapItem
                     {
                         TowId = tow.Id,
-                        TOName = tow.techOperation.Name + "№" + tow.Order,
+                        TOName = $"№{tow.Order} {tow.techOperation.Name}",
                         Staffs = string.Join(", ", tow.executionWorks.SelectMany(ew => ew.Staffs).Select(s => s.Symbol).Distinct()),
                         Note = tow.Note ?? "",
                         Order = tow.Order,
