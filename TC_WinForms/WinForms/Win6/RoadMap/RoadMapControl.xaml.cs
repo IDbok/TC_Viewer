@@ -291,8 +291,19 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
 
             if (_operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex).ToList().Count > 1 && _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex != 0).Count() != 0)
             {
-                var parallelGroups = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex != 0).Select(o => o.Items).Max(i => i.Count);
-                return parallelGroups;
+                var parallelGroups = _operationGroups.Where(o => o.ParallelIndex == operationGroup.ParallelIndex && o.SequenceGroupIndex != 0).ToList();
+
+                var itemsCountByParallelIndex = parallelGroups.GroupBy(group => group.SequenceGroupIndex)
+                    .Select(group => new
+                    {
+                        SequenceGroupIndex = group.Key,
+                        TotalItems = group.Sum(g => g.Items.Count)
+                    })
+                    .ToList();
+
+                int maxItemsInSingleParallelIndex = itemsCountByParallelIndex.Max(x => x.TotalItems);
+
+                return maxItemsInSingleParallelIndex;
             }
             else
                 return 1;
@@ -308,7 +319,9 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
             {
                 int currentGroupIndex = _operationGroups.IndexOf(operationGroup);
                 var previousGroups = _operationGroups.Take(currentGroupIndex);
+
                 var earliestTow = previousGroups
+                                   .Where(g => g.ParallelIndex == operationGroup.ParallelIndex)
                                    .SelectMany(g => g.Items)
                                    .OrderBy(t => t.Order)
                                    .FirstOrDefault();
@@ -320,6 +333,12 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
 
                     if (col != 0)
                         return col;
+                }
+                else if(operationGroup.Items.Count > 1 && operationGroup.Items.IndexOf(currentTow) != 0)
+                {
+                    var preciousColumn = RoadmapItems
+                   .FirstOrDefault(item => item.TowId == operationGroup.Items[0].Id)?.SequenceCells.Column ?? 0;
+                    return preciousColumn;
                 }
 
                 return colIndex;
