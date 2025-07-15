@@ -1,6 +1,7 @@
 using ExcelParsing.DataProcessing;
 using NCalc;
 using System.Data;
+using System.Numerics;
 using System.Text.RegularExpressions;
 
 namespace TC_WinForms.Services;
@@ -81,11 +82,20 @@ public static class MathScript
 			// разделить выражение на части по разделителю "*" удаляя пустые значения
 			var parts = expression.Split(new[] { '*' }, StringSplitOptions.RemoveEmptyEntries);
 
+            // Проверяем, есть ли в выражении 10-значное целое число
+            if (parts.Length == 2 &&
+                parts.All(p => p.Trim().All(char.IsDigit)) &&
+                parts.Any(p => p.Trim().Length == 10))
+            {
+                // Специальная обработка для 10-значных чисел
+                BigInteger num1 = BigInteger.Parse(parts[0].Trim());
+                BigInteger num2 = BigInteger.Parse(parts[1].Trim());
+                return (double)(num1 * num2);
+            }
+
+
             // собираем выражение заново
             expression = string.Join("*", parts);
-
-            if(Char.IsNumber(expression.Last()))
-                expression += ".0";
 
             var table = new DataTable();
 
