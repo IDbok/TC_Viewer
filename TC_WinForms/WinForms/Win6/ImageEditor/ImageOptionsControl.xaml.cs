@@ -146,7 +146,7 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         }
         private void BtnAddImage_Click(object sender, RoutedEventArgs e)
         {
-            var objEditor = new ImageEditorWindow(null, _imageItems.Select(i => i.Owner.Number).Max() + 1);
+            var objEditor = new ImageEditorWindow(null, _imageItems.Select(i => i.Owner.Number).Count() == 0 ? 1 : _imageItems.Select(i => i.Owner.Number).Max() + 1);
             objEditor.AfterSave = async (editedObj) =>
             {
                 AddObjectInDataGridView(editedObj);
