@@ -31,6 +31,9 @@ namespace TC_WinForms.WinForms.Diagram
         private TechOperationWork? techOperationWork => _diagramState.DiagramToWork?.techOperationWork;
         WpfPosledovatelnost wpfPosledovatelnost;
 
+        //Ивент для обновления изображений во всех шагах
+        public static event EventHandler ImageUpdated;
+
         public event PropertyChangedEventHandler? PropertyChanged;
         public bool IsCommentViewMode => _tcViewState.IsCommentViewMode;
         public bool IsViewMode => _tcViewState.IsViewMode;
@@ -144,6 +147,9 @@ namespace TC_WinForms.WinForms.Diagram
                 diagramState.TcViewState, _diagramShag)
         {
             _diagramState = new DiagramState(diagramState);
+
+            ImageUpdated += OnGlobalImageUpdated;
+
             if (diagramState.DiagramToWork?.techOperationWork != null)
             {
                 //techOperationWork = diagramState.DiagramToWork.techOperationWork;
@@ -236,17 +242,32 @@ namespace TC_WinForms.WinForms.Diagram
 
 		}
 
-		//     private void SetIndxesToDiagramShag()
-		//     {
-		//         if (_diagramState != null)
-		//         {
-		//             diagramShag.ParallelIndex = _diagramState?.WpfPosledovatelnost?.diagramPosledov.DiagramParalelnoId.ToString();
-		//             diagramShag.SequenceIndex = _diagramState?.WpfParalelno?.diagramParalelno.Id.ToString();
-		//}
-		//     }
+        //     private void SetIndxesToDiagramShag()
+        //     {
+        //         if (_diagramState != null)
+        //         {
+        //             diagramShag.ParallelIndex = _diagramState?.WpfPosledovatelnost?.diagramPosledov.DiagramParalelnoId.ToString();
+        //             diagramShag.SequenceIndex = _diagramState?.WpfParalelno?.diagramParalelno.Id.ToString();
+        //}
+        //     }
 
+        private void OnGlobalImageUpdated(object sender, EventArgs e)
+        {
+            // Проверяем, что это событие не вызвано текущим шагом
+            if (sender != this)
+            {
+                // Обновляем изображения в текущем шаге
+                RefreshImagePanel();
+            }
+        }
 
-		public void UpdateDataGrids()
+        //Отписываемся от события при удалении шага
+        ~WpfShag()
+        {
+            ImageUpdated -= OnGlobalImageUpdated;
+        }
+
+        public void UpdateDataGrids()
         {
             //var techOperationWork = this.techOperationWork;
 
@@ -782,7 +803,7 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 // Обновляем панель с изображениями после закрытия редактора
                 RefreshImagePanel();
-
+                ImageUpdated?.Invoke(this, EventArgs.Empty);
                 // Помечаем изменения в состоянии
                 _diagramState.HasChanges();
             };
