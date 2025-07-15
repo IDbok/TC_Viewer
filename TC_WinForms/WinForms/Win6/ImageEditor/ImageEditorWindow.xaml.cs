@@ -111,6 +111,12 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 return;
             }
 
+            if(_imageOwner.ImageStorage == null)
+            {
+                MessageBox.Show("Чтобы сохранить изображение вы обязаны его загрузить!", "Не загружено изображение", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             if (AfterSave != null)
             {
                 await (AfterSave?.Invoke(_imageOwner) ?? Task.CompletedTask);
