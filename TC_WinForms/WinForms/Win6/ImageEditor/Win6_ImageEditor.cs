@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms.Integration;
+using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models;
@@ -9,7 +10,7 @@ using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.WinForms.Win6.ImageEditor
 {
-    public partial class Win6_ImageEditor : Form
+    public partial class Win6_ImageEditor : Form, IFormWithObjectId
     {
         #region Поля
 
@@ -116,6 +117,11 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             };
 
             this.Controls.Add(elementHost);
+        }
+
+        public int GetObjectId()
+        {
+           return tc.Id;
         }
 
         #endregion

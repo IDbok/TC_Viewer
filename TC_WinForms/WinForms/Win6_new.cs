@@ -120,7 +120,15 @@ namespace TC_WinForms.WinForms
             TrySaveRoadMapDataInViewMode();
             TempFileCleaner.CleanUpTempFiles(TempFileCleaner.GetTempFilePath(_tc.Id));
             concurrencyBlockServise.CleanBlockData();
+
+            var a = CheckOpenFormService.FindOpenedForms<Win6_new>(_tc.Id);
+            foreach (var f in a)
+                f.Close();
+
+
             Dispose();
+
+
         }
         private void AccessInitialization()
         {
