@@ -269,7 +269,36 @@ namespace TC_WinForms.WinForms
 				_logger.Information("Удалено объектов: {Count}", _deletedObjects.Count);
 				_deletedObjects.Clear();
             }
+
+            ReorderRows();
+
         }
+
+        private void ReorderRows()
+        {
+            // Если у вас есть поле с порядком (например, Order или Sequence)
+            int order = 1;
+            foreach (var item in _bindingList)
+            {
+                // Предполагая, что у вашего объекта есть свойство Order
+                // Если свойство называется иначе, измените соответственно
+                item.Order = order++;
+
+                // Если нужно обновить порядок и в TargetTable
+                var targetItem = TargetTable.FirstOrDefault(t => t.ChildId == item.ChildId);
+                if (targetItem != null)
+                {
+                    targetItem.Order = item.Order;
+                }
+            }
+
+            // Обновляем отображение DataGridView
+            _bindingList.ResetBindings();
+
+            // Или можно использовать:
+            // dgvMain.Refresh();
+        }
+
         private void btnReplace_Click(object sender, EventArgs e) // add to UpdateMode
         {
             LogUserAction("Замена выбранных объектов");
