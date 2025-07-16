@@ -1,4 +1,6 @@
-﻿using TC_WinForms.Interfaces;
+using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
+using TC_WinForms.Interfaces;
 
 namespace TC_WinForms.Services
 {
@@ -40,17 +42,32 @@ namespace TC_WinForms.Services
             }
             return null;
         }
-		/// <summary>
-		/// Ищет открытую форму типа <typeparamref name="T"/>.
-		/// </summary>
-		/// <typeparam name="T">
-		/// Тип формы, которую нужно найти. Должен наследовать <see cref="Form"/> 
-		/// и !!! НЕ !!! реализовывать <see cref="IFormWithObjectId"/>.
-		/// </typeparam>
-		/// <returns>
-		/// Найденная форма типа <typeparamref name="T"/> или <c>null</c>, если форма не найдена.
-		/// </returns>
-		public static T? FindOpenedForm<T>() where T : Form 
+
+        public static List<Form> FindOpenedForms<T>(int objectId) where T : Form, IFormWithObjectId
+        {
+            FormCollection fc = Application.OpenForms;
+            List<Form> result = new List<Form>();
+
+            foreach (Form frm in fc)
+            {
+                // Проверяем, что форма имеет нужный тип и реализует интерфейс IOpenFormCheck
+                if (frm is IFormWithObjectId matchingForm  && matchingForm is not T && matchingForm.GetObjectId() == objectId)
+                    result.Add(frm);
+            }
+
+            return result;
+        }
+        /// <summary>
+        /// Ищет открытую форму типа <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">
+        /// Тип формы, которую нужно найти. Должен наследовать <see cref="Form"/> 
+        /// и !!! НЕ !!! реализовывать <see cref="IFormWithObjectId"/>.
+        /// </typeparam>
+        /// <returns>
+        /// Найденная форма типа <typeparamref name="T"/> или <c>null</c>, если форма не найдена.
+        /// </returns>
+        public static T? FindOpenedForm<T>() where T : Form 
             // todo: вынести в отдельный метод для открытия фом с id 
 		{
 			if (typeof(IFormWithObjectId).IsAssignableFrom(typeof(T)))

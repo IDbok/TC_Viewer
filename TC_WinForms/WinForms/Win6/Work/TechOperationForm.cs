@@ -1540,8 +1540,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                         TechnologicalCard = TehCarta,
                         Name = copiedObj.Name,
                         Role = copiedObj.Role,
-                        Number = TehCarta.ImageList.Count + 1,
+                        Number = copiedObj.Role == ImageRole.Image
+                        ? (TehCarta.ImageList.Where(i => i.Role == ImageRole.Image).Count() == 0 ? 1 : TehCarta.ImageList.Where(i => i.Role == ImageRole.Image).Select(i => i.Number).Max() + 1)
+                        : TehCarta.ImageList.Where(i => i.Role == ImageRole.ExecutionScheme).Count() + 1
                     };
+
+                    
 
                     newCopiedImages.Add(newObject_tc);
 

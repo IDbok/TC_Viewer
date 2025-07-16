@@ -291,8 +291,7 @@ namespace TC_WinForms.WinForms
                         }
                         else
                         {
-                            executionScheme.ImageStorage = ImageService.CloneImageWithNewData(executionScheme.ImageStorage, image);
-                            context.Entry(executionScheme.ImageStorage).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                            executionScheme.ImageStorage = ImageService.UpdateImageWithNewSourse(executionScheme.ImageStorage, image);
                         }
 
                         ImageHelper.SaveImageToTempFile(executionScheme == null ? image.ImageBase64 : executionScheme.ImageStorage.ImageBase64, _tc.Id);

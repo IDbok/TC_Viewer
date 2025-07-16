@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms.Integration;
+using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models;
@@ -9,7 +10,7 @@ using TcModels.Models.Interfaces;
 
 namespace TC_WinForms.WinForms.Win6.ImageEditor
 {
-    public partial class Win6_ImageEditor : Form
+    public partial class Win6_ImageEditor : Form, IFormWithObjectId
     {
         #region Поля
 
@@ -75,27 +76,55 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                 return;
             }
 
-            // Показываем диалог: сохранить или нет
-            var result = MessageBox.Show("Сохранить изменения?", "Подтверждение", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
-            switch (result)
+            if(HasListChanged())
             {
-                case DialogResult.Yes:
-                    UserChoice = SaveResult.Save;
-                    AfterSave?.Invoke(imageHolder);
-                    break;
+                // Показываем диалог: сохранить или нет
+                var result = MessageBox.Show("Сохранить изменения?", "Подтверждение", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
-                case DialogResult.No:
-                    UserChoice = SaveResult.DontSave;
-                    if(imageHolder != null)
-                    imageHolder.ImageList = _originalImageList;
-                    break;
+                switch (result)
+                {
+                    case DialogResult.Yes:
+                        UserChoice = SaveResult.Save;
+                        AfterSave?.Invoke(imageHolder);
+                        break;
 
-                case DialogResult.Cancel:
-                    UserChoice = SaveResult.Cancel;
-                    e.Cancel = true; // отменить закрытие окна
-                    break;
+                    case DialogResult.No:
+                        UserChoice = SaveResult.DontSave;
+                        if (imageHolder != null)
+                            imageHolder.ImageList = _originalImageList;
+                        break;
+
+                    case DialogResult.Cancel:
+                        UserChoice = SaveResult.Cancel;
+                        e.Cancel = true; // отменить закрытие окна
+                        break;
+                }
             }
+            else
+            {
+                // Если изменений не было, просто закрываем без вопросов
+                UserChoice = SaveResult.DontSave;
+            }
+        }
+
+        private bool HasListChanged()
+        {
+            if (imageHolder == null)
+                return false;
+
+            // Сравниваем текущий список с оригинальным
+            if (imageHolder.ImageList.Count != _originalImageList.Count)
+                return true;
+
+            // Подробное сравнение элементов списка
+            for (int i = 0; i < imageHolder.ImageList.Count; i++)
+            {
+                if (!imageHolder.ImageList[i].Equals(_originalImageList[i]))
+                    return true;
+            }
+
+            return false;
         }
 
         #endregion
@@ -116,6 +145,11 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             };
 
             this.Controls.Add(elementHost);
+        }
+
+        public int GetObjectId()
+        {
+           return tc.Id;
         }
 
         #endregion

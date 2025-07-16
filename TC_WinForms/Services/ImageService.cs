@@ -94,17 +94,15 @@ namespace TC_WinForms.Services
         /// <param name="sourse">Оригинальный объект с ID.</param>
         /// <param name="newImage">Новый объект с актуальными данными.</param>
         /// <returns>Объединённый объект <see cref="ImageStorage"/>.</returns>
-        public static ImageStorage CloneImageWithNewData(ImageStorage sourse, ImageStorage newImage)
+        public static ImageStorage UpdateImageWithNewSourse(ImageStorage sourse, ImageStorage newImage)
         {
-            return new ImageStorage
-            {
-                Id = sourse.Id,
-                Name = newImage.Name,
-                Category = newImage.Category,
-                ImageBase64 = newImage.ImageBase64,
-                MimeType = newImage.MimeType,
-                StorageType = newImage.StorageType
-            };
+            sourse.Name = newImage.Name;
+            sourse.Category = newImage.Category;
+            sourse.ImageBase64 = newImage.ImageBase64;
+            sourse.MimeType = newImage.MimeType;
+            sourse.StorageType = newImage.StorageType;
+
+            return sourse;
         }
 
         #endregion
