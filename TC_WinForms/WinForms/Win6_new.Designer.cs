@@ -361,17 +361,7 @@ namespace TC_WinForms.WinForms
             pnlDataViewer.Name = "pnlDataViewer";
 			pnlDataViewer.Size = new Size(1410, 642);
             pnlDataViewer.TabIndex = 35;
-            // 
-            // toolStripButton1
-            // 
-            toolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            toolStripButton1.Image = (Image)resources.GetObject("toolStripButton1.Image");
-            toolStripButton1.ImageTransparentColor = Color.Magenta;
-            toolStripButton1.Name = "toolStripButton1";
-            toolStripButton1.Size = new Size(97, 29);
-            toolStripButton1.Text = "Изображения";
-            toolStripButton1.Click += toolStripButton1_Click;
-            // 
+            //
             // Win6_new
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
