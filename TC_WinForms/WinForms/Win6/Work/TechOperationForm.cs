@@ -93,7 +93,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     RefreshPictureNameColumn();
                 };
 
-                editor.ShowDialog();
+                editor.Show();
             }
         }
     }

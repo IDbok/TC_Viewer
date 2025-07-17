@@ -808,7 +808,7 @@ namespace TC_WinForms.WinForms.Diagram
                 _diagramState.HasChanges();
             };
 
-            editor.ShowDialog();
+            editor.Show();
         }
 
         private void RefreshImagePanel()
