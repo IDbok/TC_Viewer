@@ -424,7 +424,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			Column18.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 			Column18.HeaderText = "";
-			Column18.MinimumWidth = 6;
+			Column18.MinimumWidth = 20;
 			Column18.Name = "Column18";
 			Column18.Resizable = DataGridViewTriState.True;
 			Column18.Width = 125;
@@ -433,7 +433,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			dgvColTOName.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 			dgvColTOName.HeaderText = "Технологические операции";
-			dgvColTOName.MinimumWidth = 6;
+			dgvColTOName.MinimumWidth = 100;
 			dgvColTOName.Name = "dgvColTOName";
 			dgvColTOName.SortMode = DataGridViewColumnSortMode.NotSortable;
 			// 
@@ -443,7 +443,7 @@ namespace TC_WinForms.WinForms.Work
 			dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleCenter;
 			Order.DefaultCellStyle = dataGridViewCellStyle1;
 			Order.HeaderText = "Порядок";
-			Order.MinimumWidth = 6;
+			Order.MinimumWidth = 20;
 			Order.Name = "Order";
 			Order.SortMode = DataGridViewColumnSortMode.NotSortable;
 			Order.Width = 65;
@@ -452,21 +452,21 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			Column22.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 			Column22.HeaderText = "Типовая ТО";
-			Column22.MinimumWidth = 6;
+			Column22.MinimumWidth = 20;
 			Column22.Name = "Column22";
 			Column22.Width = 150;
 			// 
 			// ParallelIndex
 			// 
 			ParallelIndex.HeaderText = "Параллельность";
-			ParallelIndex.MinimumWidth = 8;
+			ParallelIndex.MinimumWidth = 15;
 			ParallelIndex.Name = "ParallelIndex";
 			ParallelIndex.Width = 150;
 			// 
 			// SequenceGroupIndex
 			// 
 			SequenceGroupIndex.HeaderText = "Последовательная группа";
-			SequenceGroupIndex.MinimumWidth = 8;
+			SequenceGroupIndex.MinimumWidth = 15;
 			SequenceGroupIndex.Name = "SequenceGroupIndex";
 			SequenceGroupIndex.Width = 150;
 			// 
@@ -613,7 +613,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			dataGridViewButtonColumn4.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 			dataGridViewButtonColumn4.HeaderText = "";
-			dataGridViewButtonColumn4.MinimumWidth = 6;
+			dataGridViewButtonColumn4.MinimumWidth = 30;
 			dataGridViewButtonColumn4.Name = "dataGridViewButtonColumn4";
 			dataGridViewButtonColumn4.Resizable = DataGridViewTriState.True;
 			dataGridViewButtonColumn4.SortMode = DataGridViewColumnSortMode.Automatic;
@@ -624,7 +624,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			dataGridViewTextBoxColumn21.FillWeight = 69.7860947F;
 			dataGridViewTextBoxColumn21.HeaderText = "Наименование";
-			dataGridViewTextBoxColumn21.MinimumWidth = 6;
+			dataGridViewTextBoxColumn21.MinimumWidth = 150;
 			dataGridViewTextBoxColumn21.Name = "dataGridViewTextBoxColumn21";
 			dataGridViewTextBoxColumn21.ReadOnly = true;
 			// 
@@ -632,7 +632,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			dataGridViewTextBoxColumn22.FillWeight = 69.7860947F;
 			dataGridViewTextBoxColumn22.HeaderText = "Тип (исполнение)";
-			dataGridViewTextBoxColumn22.MinimumWidth = 6;
+			dataGridViewTextBoxColumn22.MinimumWidth = 100;
 			dataGridViewTextBoxColumn22.Name = "dataGridViewTextBoxColumn22";
 			dataGridViewTextBoxColumn22.ReadOnly = true;
 			// 
@@ -640,7 +640,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			dataGridViewTextBoxColumn23.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 			dataGridViewTextBoxColumn23.HeaderText = "Ед. Изм.";
-			dataGridViewTextBoxColumn23.MinimumWidth = 6;
+			dataGridViewTextBoxColumn23.MinimumWidth = 50;
 			dataGridViewTextBoxColumn23.Name = "dataGridViewTextBoxColumn23";
 			dataGridViewTextBoxColumn23.ReadOnly = true;
 			dataGridViewTextBoxColumn23.Width = 125;
@@ -649,7 +649,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			dataGridViewTextBoxColumn24.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 			dataGridViewTextBoxColumn24.HeaderText = "Кол-во";
-			dataGridViewTextBoxColumn24.MinimumWidth = 6;
+			dataGridViewTextBoxColumn24.MinimumWidth = 50;
 			dataGridViewTextBoxColumn24.Name = "dataGridViewTextBoxColumn24";
 			dataGridViewTextBoxColumn24.Width = 125;
 			// 
@@ -657,7 +657,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			Column20.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 			Column20.HeaderText = "Комментарии";
-			Column20.MinimumWidth = 6;
+			Column20.MinimumWidth = 150;
 			Column20.Name = "Column20";
 			// 
 			// dataGridViewInstumentAll
@@ -1067,7 +1067,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			DateGridLocalTPDetete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 			DateGridLocalTPDetete.HeaderText = "";
-			DateGridLocalTPDetete.MinimumWidth = 6;
+			DateGridLocalTPDetete.MinimumWidth = 15;
 			DateGridLocalTPDetete.Name = "DateGridLocalTPDetete";
 			DateGridLocalTPDetete.Resizable = DataGridViewTriState.True;
 			DateGridLocalTPDetete.SortMode = DataGridViewColumnSortMode.Automatic;
@@ -1079,7 +1079,7 @@ namespace TC_WinForms.WinForms.Work
 			dataGridViewTextBoxColumn8.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 			dataGridViewTextBoxColumn8.FillWeight = 69.7860947F;
 			dataGridViewTextBoxColumn8.HeaderText = "Технологические переходы";
-			dataGridViewTextBoxColumn8.MinimumWidth = 6;
+			dataGridViewTextBoxColumn8.MinimumWidth = 150;
 			dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
 			dataGridViewTextBoxColumn8.ReadOnly = true;
 			// 
@@ -1089,7 +1089,7 @@ namespace TC_WinForms.WinForms.Work
 			dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
 			Order1.DefaultCellStyle = dataGridViewCellStyle2;
 			Order1.HeaderText = "Порядок";
-			Order1.MinimumWidth = 6;
+			Order1.MinimumWidth = 15;
 			Order1.Name = "Order1";
 			Order1.SortMode = DataGridViewColumnSortMode.NotSortable;
 			Order1.Width = 65;
@@ -1098,33 +1098,33 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			Time.FillWeight = 69.7860947F;
 			Time.HeaderText = "Базовое время действ., мин.";
-			Time.MinimumWidth = 6;
+			Time.MinimumWidth = 70;
 			Time.Name = "Time";
 			Time.ReadOnly = true;
 			// 
 			// Coefficient
 			// 
 			Coefficient.HeaderText = "Коэффициент";
-			Coefficient.MinimumWidth = 6;
+			Coefficient.MinimumWidth = 100;
 			Coefficient.Name = "Coefficient";
 			// 
 			// Column28
 			// 
 			Column28.HeaderText = "Время действ., мин.";
-			Column28.MinimumWidth = 6;
+			Column28.MinimumWidth = 50;
 			Column28.Name = "Column28";
 			Column28.ReadOnly = true;
 			// 
 			// Comment
 			// 
 			Comment.HeaderText = "Примечание";
-			Comment.MinimumWidth = 6;
+			Comment.MinimumWidth = 100;
 			Comment.Name = "Comment";
 			// 
 			// PictureName
 			// 
 			PictureName.HeaderText = "Рисунок";
-			PictureName.MinimumWidth = 8;
+			PictureName.MinimumWidth = 70;
 			PictureName.Name = "PictureName";
 			// 
 			// pnlTPAdditional
@@ -1476,7 +1476,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			Column12.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 			Column12.HeaderText = "";
-			Column12.MinimumWidth = 6;
+			Column12.MinimumWidth = 15;
 			Column12.Name = "Column12";
 			Column12.Resizable = DataGridViewTriState.True;
 			Column12.SortMode = DataGridViewColumnSortMode.Automatic;
@@ -1492,7 +1492,7 @@ namespace TC_WinForms.WinForms.Work
 			// StaffSimvolGrid
 			// 
 			StaffSimvolGrid.HeaderText = "Обозначение";
-			StaffSimvolGrid.MinimumWidth = 6;
+			StaffSimvolGrid.MinimumWidth = 50;
 			StaffSimvolGrid.Name = "StaffSimvolGrid";
 			StaffSimvolGrid.Width = 125;
 			// 
@@ -1500,14 +1500,14 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			StaffNAmeGrid.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 			StaffNAmeGrid.HeaderText = "Наименование";
-			StaffNAmeGrid.MinimumWidth = 6;
+			StaffNAmeGrid.MinimumWidth = 100;
 			StaffNAmeGrid.Name = "StaffNAmeGrid";
 			StaffNAmeGrid.ReadOnly = true;
 			// 
 			// Column13
 			// 
 			Column13.HeaderText = "Тип";
-			Column13.MinimumWidth = 6;
+			Column13.MinimumWidth = 50;
 			Column13.Name = "Column13";
 			Column13.ReadOnly = true;
 			Column13.Width = 125;
@@ -1515,7 +1515,7 @@ namespace TC_WinForms.WinForms.Work
 			// Column14
 			// 
 			Column14.HeaderText = "Функции";
-			Column14.MinimumWidth = 6;
+			Column14.MinimumWidth = 100;
 			Column14.Name = "Column14";
 			Column14.ReadOnly = true;
 			Column14.Width = 125;
@@ -1523,7 +1523,7 @@ namespace TC_WinForms.WinForms.Work
 			// Column15
 			// 
 			Column15.HeaderText = "Возможность совмещения обязанностей";
-			Column15.MinimumWidth = 6;
+			Column15.MinimumWidth = 100;
 			Column15.Name = "Column15";
 			Column15.ReadOnly = true;
 			Column15.Width = 125;
@@ -1531,7 +1531,7 @@ namespace TC_WinForms.WinForms.Work
 			// Column16
 			// 
 			Column16.HeaderText = "Квалификация";
-			Column16.MinimumWidth = 6;
+			Column16.MinimumWidth = 50;
 			Column16.Name = "Column16";
 			Column16.ReadOnly = true;
 			Column16.Width = 125;
@@ -1539,7 +1539,7 @@ namespace TC_WinForms.WinForms.Work
 			// Column17
 			// 
 			Column17.HeaderText = "Комментарии";
-			Column17.MinimumWidth = 6;
+			Column17.MinimumWidth = 100;
 			Column17.Name = "Column17";
 			Column17.ReadOnly = true;
 			Column17.Width = 125;
@@ -1689,17 +1689,17 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			dataGridViewButtonColumn8.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 			dataGridViewButtonColumn8.HeaderText = "";
-			dataGridViewButtonColumn8.MinimumWidth = 6;
+			dataGridViewButtonColumn8.MinimumWidth = 50;
 			dataGridViewButtonColumn8.Name = "dataGridViewButtonColumn8";
 			dataGridViewButtonColumn8.Resizable = DataGridViewTriState.True;
 			dataGridViewButtonColumn8.SortMode = DataGridViewColumnSortMode.Automatic;
 			dataGridViewButtonColumn8.Text = "Удалить";
-			dataGridViewButtonColumn8.Width = 125;
+			dataGridViewButtonColumn8.Width = 50;
 			// 
 			// Column19
 			// 
 			Column19.HeaderText = "";
-			Column19.MinimumWidth = 40;
+			Column19.MinimumWidth = 20;
 			Column19.Name = "Column19";
 			// 
 			// dataGridViewTextBoxColumn35
@@ -1707,7 +1707,7 @@ namespace TC_WinForms.WinForms.Work
 			dataGridViewTextBoxColumn35.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 			dataGridViewTextBoxColumn35.FillWeight = 69.7860947F;
 			dataGridViewTextBoxColumn35.HeaderText = "Наименование";
-			dataGridViewTextBoxColumn35.MinimumWidth = 6;
+			dataGridViewTextBoxColumn35.MinimumWidth = 200;
 			dataGridViewTextBoxColumn35.Name = "dataGridViewTextBoxColumn35";
 			dataGridViewTextBoxColumn35.ReadOnly = true;
 			// 
@@ -1715,7 +1715,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			dataGridViewTextBoxColumn36.FillWeight = 69.7860947F;
 			dataGridViewTextBoxColumn36.HeaderText = "Тип (Исполнение)";
-			dataGridViewTextBoxColumn36.MinimumWidth = 6;
+			dataGridViewTextBoxColumn36.MinimumWidth = 150;
 			dataGridViewTextBoxColumn36.Name = "dataGridViewTextBoxColumn36";
 			// 
 			// tabPageStage

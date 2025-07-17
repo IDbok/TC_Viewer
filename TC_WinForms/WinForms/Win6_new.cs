@@ -656,8 +656,8 @@ namespace TC_WinForms.WinForms
                     return new DiagramForm(_tcId, tcViewState, context);// _isViewMode);
                 case EModelType.ExecutionScheme:
                     return new Win6_ExecutionScheme(/*_tc,*/ tcViewState, context);// _isViewMode);
-                                                                          //case EModelType.TechnologicalCard:
-                                                                          //    return new Win7_1_TCs_Window(_tcId, win6Format: true);
+                                                                                   //case EModelType.TechnologicalCard:
+                                                                                   //    return new Win7_1_TCs_Window(_tcId, win6Format: true);
                 case EModelType.Coefficient:
                     return new CoefficientEditorForm(_tcId, tcViewState, context);
                 case EModelType.Outlay:
@@ -830,459 +830,459 @@ namespace TC_WinForms.WinForms
             }
         }
 
-		private void SaveTehCartaChanges()
-		{
-			DbConnector dbCon = new DbConnector();
+        private void SaveTehCartaChanges()
+        {
+            DbConnector dbCon = new DbConnector();
 
-			List<TechOperationWork> AllDele = tcViewState.TechOperationWorksList.Where(w => w.Delete == true).ToList();
-			foreach (TechOperationWork techOperationWork in AllDele)
-			{
-				tcViewState.TechOperationWorksList.Remove(techOperationWork);
-				if (techOperationWork.NewItem == false)
-				{
-					context.TechOperationWorks.Remove(techOperationWork);
-				}
-			}
+            List<TechOperationWork> AllDele = tcViewState.TechOperationWorksList.Where(w => w.Delete == true).ToList();
+            foreach (TechOperationWork techOperationWork in AllDele)
+            {
+                tcViewState.TechOperationWorksList.Remove(techOperationWork);
+                if (techOperationWork.NewItem == false)
+                {
+                    context.TechOperationWorks.Remove(techOperationWork);
+                }
+            }
 
-			foreach (TechOperationWork techOperationWork in tcViewState.TechOperationWorksList)
-			{
-				var allDel = techOperationWork.executionWorks.Where(w => w.Delete == true).ToList();
-				foreach (ExecutionWork executionWork in allDel)
-				{
-					techOperationWork.executionWorks.Remove(executionWork);
-				}
+            foreach (TechOperationWork techOperationWork in tcViewState.TechOperationWorksList)
+            {
+                var allDel = techOperationWork.executionWorks.Where(w => w.Delete == true).ToList();
+                foreach (ExecutionWork executionWork in allDel)
+                {
+                    techOperationWork.executionWorks.Remove(executionWork);
+                }
 
-				var to = context.TechOperationWorks.SingleOrDefault(s => techOperationWork.Id != 0 && s.Id == techOperationWork.Id);
-				if (to == null)
-				{
-					context.TechOperationWorks.Add(techOperationWork);
-				}
-				else
-				{
-					to = techOperationWork;
-				}
+                var to = context.TechOperationWorks.SingleOrDefault(s => techOperationWork.Id != 0 && s.Id == techOperationWork.Id);
+                if (to == null)
+                {
+                    context.TechOperationWorks.Add(techOperationWork);
+                }
+                else
+                {
+                    to = techOperationWork;
+                }
 
-				var delTools = techOperationWork.ToolWorks.Where(w => w.IsDeleted == true).ToList();
+                var delTools = techOperationWork.ToolWorks.Where(w => w.IsDeleted == true).ToList();
 
-				foreach (ToolWork delTool in delTools)
-				{
-					dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
-					techOperationWork.ToolWorks.Remove(delTool);
-				}
+                foreach (ToolWork delTool in delTools)
+                {
+                    dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
+                    techOperationWork.ToolWorks.Remove(delTool);
+                }
 
 
 
-				foreach (ToolWork toolWork in techOperationWork.ToolWorks)
-				{
-					if (tcViewState.TechnologicalCard.Tool_TCs.SingleOrDefault(s => s.Child == toolWork.tool) == null)
-					{
-						Tool_TC tool = new Tool_TC();
-						tool.Child = toolWork.tool;
-						tool.Order = tcViewState.TechnologicalCard.Tool_TCs.Count + 1;
-						tool.Quantity = toolWork.Quantity;
-						tcViewState.TechnologicalCard.Tool_TCs.Add(tool);
-					}
-				}
+                foreach (ToolWork toolWork in techOperationWork.ToolWorks)
+                {
+                    if (tcViewState.TechnologicalCard.Tool_TCs.SingleOrDefault(s => s.Child == toolWork.tool) == null)
+                    {
+                        Tool_TC tool = new Tool_TC();
+                        tool.Child = toolWork.tool;
+                        tool.Order = tcViewState.TechnologicalCard.Tool_TCs.Count + 1;
+                        tool.Quantity = toolWork.Quantity;
+                        tcViewState.TechnologicalCard.Tool_TCs.Add(tool);
+                    }
+                }
 
-				var delComponents = techOperationWork.ComponentWorks.Where(w => w.IsDeleted == true).ToList();
+                var delComponents = techOperationWork.ComponentWorks.Where(w => w.IsDeleted == true).ToList();
 
-				foreach (var delComp in delComponents)
-				{
-					dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
-					techOperationWork.ComponentWorks.Remove(delComp);
-				}
+                foreach (var delComp in delComponents)
+                {
+                    dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
+                    techOperationWork.ComponentWorks.Remove(delComp);
+                }
 
-				foreach (ComponentWork componentWork in techOperationWork.ComponentWorks)
-				{
-					if (tcViewState.TechnologicalCard.Component_TCs.SingleOrDefault(s => s.Child == componentWork.component) == null)
-					{
-						Component_TC Comp = new Component_TC();
-						Comp.Child = componentWork.component;
-						Comp.Order = tcViewState.TechnologicalCard.Component_TCs.Count + 1;
-						Comp.Quantity = componentWork.Quantity;
-						tcViewState.TechnologicalCard.Component_TCs.Add(Comp);
-					}
-				}
-			}
-		}
-
-		private void updateToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Изменение режима редактирования");
-
-			if (concurrencyBlockServise.GetObjectUsedStatus())
-			{
-				_logger.Information("Карта уже редактируется другим пользователем. Отмена переключения режима для TcId={TcId}", _tcId);
-				MessageBox.Show("Сейчас карта используется другим пользователем. Она доступна только для просмотра.");
-				return;
-			}
-
-			if (tcViewState.IsViewMode == false)
-			{
-				if (!CheckForChanges())
-					return;
-			}
-
-			if (!tcViewState.IsViewMode && !concurrencyBlockServise.GetObjectUsedStatus())
-				concurrencyBlockServise.BlockObject();
-
-			SetViewMode(!tcViewState.IsViewMode);
-
-		}
-
-		private async void printToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Печать технологической карты");
-			var printForm = new TcPrintForm(_tcId);
-			printForm.Show();
+                foreach (ComponentWork componentWork in techOperationWork.ComponentWorks)
+                {
+                    if (tcViewState.TechnologicalCard.Component_TCs.SingleOrDefault(s => s.Child == componentWork.component) == null)
+                    {
+                        Component_TC Comp = new Component_TC();
+                        Comp.Child = componentWork.component;
+                        Comp.Order = tcViewState.TechnologicalCard.Component_TCs.Count + 1;
+                        Comp.Quantity = componentWork.Quantity;
+                        tcViewState.TechnologicalCard.Component_TCs.Add(Comp);
+                    }
+                }
+            }
         }
 
-		private async void printDiagramToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Печать диаграммы");
+        private void updateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Изменение режима редактирования");
 
-			try
-			{
-				var diagramExporter = new DiadramExcelExport();
-				await diagramExporter.SaveDiagramToExelFile(_tc.Article, _tc.Id);
+            if (concurrencyBlockServise.GetObjectUsedStatus())
+            {
+                _logger.Information("Карта уже редактируется другим пользователем. Отмена переключения режима для TcId={TcId}", _tcId);
+                MessageBox.Show("Сейчас карта используется другим пользователем. Она доступна только для просмотра.");
+                return;
+            }
 
-				_logger.Information("Печать диаграммы успешно завершена для TcId={TcId}", _tcId);
-			}
-			catch (Exception ex)
-			{
-				_logger.Error(ex, "Ошибка при печати диаграммы для TcId={TcId}", _tcId);
-				MessageBox.Show(ex.Message);
-			}
-		}
+            if (tcViewState.IsViewMode == false)
+            {
+                if (!CheckForChanges())
+                    return;
+            }
 
-		private void SaveChangesToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Сохранение изменений");
+            if (!tcViewState.IsViewMode && !concurrencyBlockServise.GetObjectUsedStatus())
+                concurrencyBlockServise.BlockObject();
 
-			SaveAllChanges();
-		}
-		private bool CheckChangesForTcDraftStatusChanging()
-		{
-			bool hasUnsavedChanges = false;
-			foreach (var fm in _formsCache.Values)
-			{
-				if (fm is ISaveEventForm saveForm && saveForm.HasChanges)
-				{
-					hasUnsavedChanges = true;
-					break;
-				}
-			}
-			if (hasUnsavedChanges)
-			{
-				var result = MessageBox.Show("Перед выпуском карты необходимо сохранить изменения.", "Сохранение изменений",
-											 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            SetViewMode(!tcViewState.IsViewMode);
 
-				if (result == DialogResult.Yes)
-				{
-					SaveAllChanges();
-					return true;
-				}
-				else
-					return false;
-			}
-			return true;
-		}
-		private async void setDraftStatusToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Выпуск технической карты");
+        }
 
-			await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Draft);
-			setDraftStatusToolStripMenuItem.Enabled = false;
-			MessageBox.Show("Статус успешно обновлён.");
-		}
+        private async void printToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Печать технологической карты");
+            var printForm = new TcPrintForm(_tcId);
+            printForm.Show();
+        }
 
-		
+        private async void printDiagramToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Печать диаграммы");
 
-		private async void SetApprovedStatusToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Опубликование технической карты");
+            try
+            {
+                var diagramExporter = new DiadramExcelExport();
+                await diagramExporter.SaveDiagramToExelFile(_tc.Article, _tc.Id);
 
-			// если есть несохраненые изменённыя, необходимо их сохранить, либо отменить
-			if (!CheckForChanges())
-			{
-				MessageBox.Show("Перед опубликованием карты необходимо сохранить изменения.");
-				return;
-			}
+                _logger.Information("Печать диаграммы успешно завершена для TcId={TcId}", _tcId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Ошибка при печати диаграммы для TcId={TcId}", _tcId);
+                MessageBox.Show(ex.Message);
+            }
+        }
 
+        private void SaveChangesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Сохранение изменений");
 
-			if (!CheckChangesForTcDraftStatusChanging()) { return; }
+            SaveAllChanges();
+        }
+        private bool CheckChangesForTcDraftStatusChanging()
+        {
+            bool hasUnsavedChanges = false;
+            foreach (var fm in _formsCache.Values)
+            {
+                if (fm is ISaveEventForm saveForm && saveForm.HasChanges)
+                {
+                    hasUnsavedChanges = true;
+                    break;
+                }
+            }
+            if (hasUnsavedChanges)
+            {
+                var result = MessageBox.Show("Перед выпуском карты необходимо сохранить изменения.", "Сохранение изменений",
+                                             MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-			try
-			{
-				List<(string Type, string Name)> unpublishedElements = db.CanTCDraftStatusChange(_tcId);
+                if (result == DialogResult.Yes)
+                {
+                    SaveAllChanges();
+                    return true;
+                }
+                else
+                    return false;
+            }
+            return true;
+        }
+        private async void setDraftStatusToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Выпуск технической карты");
 
-				if (unpublishedElements.Count > 0)
-				{
-					string elements = "";
-					foreach (var element in unpublishedElements)
-					{
-						elements += "Тип: " + element.Type + ". Название: " + element.Name + ".\n";
-					}
-
-					MessageBox.Show("Карта не может быть опубликована, если используются неопубликолванные элементы. \n" + elements, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					return;
-				}
-				await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Approved);
-				setApprovedStatusToolStripMenuItem.Enabled = false;
-
-				// становить viewmode
-				SetTCStatusAccess();
-				SetViewMode(true);
-				SetCommentViewMode(false);
-
-				_logger.Information("Техническая карта успешно опубликована для TcId={TcId}", _tcId);
-
-				var editorForm = new Win6_new(_tcId, role: _accessLevel);
-				this.Close();
-				editorForm.Show();
-
-				MessageBox.Show("Техническая карта опубликована.");
-			}
-			catch (Exception ex)
-			{
-				_logger.Error(ex, "Ошибка при опубликовании технической карты TcId={TcId}", _tcId);
-				MessageBox.Show(ex.Message);
-			}
-		}
-
-		private async void setRemarksModeToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Открытие этапа замечаний");
-
-			if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
-			{
-				await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
-			}
-			else if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel != User.Role.Lead)
-			{
-				MessageBox.Show("Открыть этап замечаний может только Технолог-руководитель.");
-				return;
-			}
-
-			setRemarksModeToolStripMenuItem.Text = tcViewState.IsCommentViewMode ?
-					"Показать комментарии" : "Скрыть комментарии";
-
-			SetCommentViewMode();
-		}
-
-		private async void SetMachineCollumnModeToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Изменение режима отображения столбцов механизмов");
-
-			if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
-			{
-				await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
-			}
-
-			isMachineViewMode = !isMachineViewMode;
-
-			SetMachineCollumnModeToolStripMenuItem.Text = isMachineViewMode ?
-				 "Скрыть столбцы механизмов" : "Показать стобцы механизмов";
-
-			SetMachineViewMode();
-		}
-
-		private void SetMachineViewMode()
-		{
-			if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm)
-				&& cachedForm is TechOperationForm techOperationForm)
-			{
-				techOperationForm.SetMachineViewMode(isMachineViewMode);
-			}
-		}
+            await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Draft);
+            setDraftStatusToolStripMenuItem.Enabled = false;
+            MessageBox.Show("Статус успешно обновлён.");
+        }
 
 
-		private void SetCommentViewMode(bool? isComViewMode = null)
-		{
-			if (isComViewMode != null)
-			{
-				tcViewState.IsCommentViewMode = (bool)isComViewMode;
-			}
-			else
-				tcViewState.IsCommentViewMode = !tcViewState.IsCommentViewMode;
 
-			if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm)
-				&& cachedForm is TechOperationForm techOperationForm)
-			{
-				techOperationForm.SetCommentViewMode();
-			}
-		}
+        private async void SetApprovedStatusToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Опубликование технической карты");
 
-		private void toolStripExecutionScheme_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Отображение схемы выполнения");
-
-			if (!_formsCache.TryGetValue(EModelType.ExecutionScheme, out var win6_ExecutionScheme)
-				|| win6_ExecutionScheme.IsDisposed)
-			{
-				win6_ExecutionScheme = CreateForm(EModelType.ExecutionScheme);
-				_formsCache[EModelType.ExecutionScheme] = win6_ExecutionScheme;
-			}
-			win6_ExecutionScheme.Show();
-
-			// вывести на передний план
-			win6_ExecutionScheme.BringToFront();
-		}
-
-		private void toolStripDiagrams_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Отображение диаграммы в отдельном окне");
-
-			if (!_formsCache.TryGetValue(EModelType.Diagram, out var diagramForm)
-				|| diagramForm.IsDisposed)
-			{
-				diagramForm = CreateForm(EModelType.Diagram);
-				_formsCache[EModelType.Diagram] = diagramForm;
-			}
-			diagramForm.Show();
-			diagramForm.BringToFront();
-		}
-
-		private void LogUserAction(string actionDescription)
-		{
-			_logger.LogUserAction(actionDescription, _tcId);
-			//Information("Действие пользователя: {Action}, TcId={TcId}", 
-			//actionDescription, _tcId);
-		}
-
-		private async void btnShowCoefficients_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Отображение коэффициентов");
-			await ShowForm(EModelType.Coefficient);
-		}
-
-		private void toolStripShowCoefficients_Click(object sender, EventArgs e)
-		{
-			LogUserAction("Отображение коэффициентов в отдельном окне");
-
-			if (!_formsCache.TryGetValue(EModelType.Coefficient, out var diagramForm)
-				|| diagramForm.IsDisposed)
-			{
-				diagramForm = CreateForm(EModelType.Coefficient);
-				_formsCache[EModelType.Coefficient] = diagramForm;
-			}
-			diagramForm.Show();
-			diagramForm.BringToFront();
-		}
-
-		public void RecalculateValuesWithCoefficientsInOpenForms()
-		{
-			foreach (var form in _formsCache.Values)
-			{
-				if (form is IOnActivationForm baseForm)
-				{
-					baseForm.OnActivate();
-				}
-			}
-		}
-
-		private void ChangeIsDynamicToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			// Проверка существующего статуса
-			if (_tc.IsDynamic)
-			{
-				// Если карта динамическая, то
-				// 1. проверяем наличие коэфиициентов в карте
-				var coefficients = _tc.Coefficients;
-				// 1.1. если коэффициенты присутствуют, то
-				if (coefficients != null && coefficients.Count > 0)
-				{
-					var coefDict = coefficients.ToDictionary(c => c.Code, c => c.Value);
-
-					// 1.1.1 во всех сущностях, где они используются, заменяем на их значения
-					// Выделить в отдельный список все сущности, где используются коэффициенты
-					List<IDynamicValue> dynamicValues = new List<IDynamicValue>();
-					foreach (var obj in _tc.Component_TCs)//.Where(c => c.ParentId == _tc.Id))
-					{
-						if (obj != null && obj is IDynamicValue)
-							AddToDynamicList(dynamicValues, obj);
-					}
-					foreach (var obj in _tc.Tool_TCs)//.Where(c => c.ParentId == _tc.Id))
-					{
-						if (obj != null && obj is IDynamicValue)
-							AddToDynamicList(dynamicValues, obj);
-					}
-					foreach (var obj in _tc.Protection_TCs)//.Where(c => c.ParentId == _tc.Id))
-					{
-						if (obj != null && obj is IDynamicValue)
-							AddToDynamicList(dynamicValues, obj);
-					}
-					foreach (var obj in _tc.Machine_TCs)//.Where(c => c.ParentId == _tc.Id))
-					{
-						if (obj != null && obj is IDynamicValue)
-							AddToDynamicList(dynamicValues, obj);
-					}
-
-					var executionWorks = _tc.TechOperationWorks.SelectMany(tow => tow.executionWorks).ToList();
-					var executionWorksWithCoefficients = executionWorks.Where(ew => !string.IsNullOrEmpty(ew.Coefficient) && ew.Coefficient.Contains(Coefficient.FirstLetter)).ToList();
-
-					var executionWorksRepeats = executionWorks.SelectMany(ew => ew.ExecutionWorkRepeats).ToList();//context.ExecutionWorkRepeats.Where(ewr => ewr.ParentExecutionWork.techOperationWork.TechnologicalCardId == _tc.Id).ToList();
-					var executionWorkRepeatsWithCoefficients = executionWorksRepeats
-						.Where(ewr => !string.IsNullOrEmpty(ewr.NewCoefficient) && ewr.NewCoefficient.Contains(Coefficient.FirstLetter)).ToList();
-
-					// в объектах IDynamicValue удалить значение формулы
-					foreach (var obj in dynamicValues)
-					{
-						obj.Formula = null;
-					}
-
-					// в объектах ExecutionWork и ExecutionWorksRepeat заменить коэффициенты на их значения
-					foreach (var ew in executionWorksWithCoefficients)
-					{
-						ew.Coefficient = MathScript.ReplaceCoefficientsInFormula(ew.Coefficient!, coefDict);
-					}
-
-					foreach (var ewr in executionWorkRepeatsWithCoefficients)
-					{
-						ewr.NewCoefficient = MathScript.ReplaceCoefficientsInFormula(ewr.NewCoefficient!, coefDict);
-					}
-				}
-				// 1.2. если коэффициенты отсутствуют, то дополнительно ничего делать не надо
-
-				// Удаляем все коэффициенты
-				_tc.Coefficients.Clear();
-				// 2. изменяем статус на не динамический
-				_tc.IsDynamic = false;
-				// 3. закрываем доступ к коэффициентам
-			}
-			else
-			{
-				// Если карта не динамическая, то изменяем данный статус на динамический
-				_tc.IsDynamic = true;
-				// и открываем доступ к коэффициентам
-
-			}
-
-			UpdateDynamicCardParametrs();
-
-			foreach (var form in _formsCache.Values)
-			{
-				if (form is IDynamicForm dynamicForm)
-				{
-					dynamicForm.UpdateDynamicCardParametrs();
-				}
-			}
+            // если есть несохраненые изменённыя, необходимо их сохранить, либо отменить
+            if (!CheckForChanges())
+            {
+                MessageBox.Show("Перед опубликованием карты необходимо сохранить изменения.");
+                return;
+            }
 
 
-			void AddToDynamicList(List<IDynamicValue> dynamicValues, IDynamicValue obj)
-			{
-				var formula = obj.Formula;
-				if (!string.IsNullOrEmpty(formula) && formula.Contains(Coefficient.FirstLetter))
-				{
-					dynamicValues.Add(obj);
-				}
-			}
-		}
+            if (!CheckChangesForTcDraftStatusChanging()) { return; }
 
-		private void UpdateIsDynamicButtonText()
-		{
-			ChangeIsDynamicToolStripMenuItem.Text = _tc.IsDynamic ? "Сделать не динамической" : "Сделать динамической";
-		}
+            try
+            {
+                List<(string Type, string Name)> unpublishedElements = db.CanTCDraftStatusChange(_tcId);
+
+                if (unpublishedElements.Count > 0)
+                {
+                    string elements = "";
+                    foreach (var element in unpublishedElements)
+                    {
+                        elements += "Тип: " + element.Type + ". Название: " + element.Name + ".\n";
+                    }
+
+                    MessageBox.Show("Карта не может быть опубликована, если используются неопубликолванные элементы. \n" + elements, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Approved);
+                setApprovedStatusToolStripMenuItem.Enabled = false;
+
+                // становить viewmode
+                SetTCStatusAccess();
+                SetViewMode(true);
+                SetCommentViewMode(false);
+
+                _logger.Information("Техническая карта успешно опубликована для TcId={TcId}", _tcId);
+
+                var editorForm = new Win6_new(_tcId, role: _accessLevel);
+                this.Close();
+                editorForm.Show();
+
+                MessageBox.Show("Техническая карта опубликована.");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Ошибка при опубликовании технической карты TcId={TcId}", _tcId);
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async void setRemarksModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Открытие этапа замечаний");
+
+            if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
+            {
+                await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
+            }
+            else if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel != User.Role.Lead)
+            {
+                MessageBox.Show("Открыть этап замечаний может только Технолог-руководитель.");
+                return;
+            }
+
+            setRemarksModeToolStripMenuItem.Text = tcViewState.IsCommentViewMode ?
+                    "Показать комментарии" : "Скрыть комментарии";
+
+            SetCommentViewMode();
+        }
+
+        private async void SetMachineCollumnModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Изменение режима отображения столбцов механизмов");
+
+            if (_tc.Status == TechnologicalCardStatus.Draft && _accessLevel == User.Role.Lead)
+            {
+                await db.UpdateStatusTc(_tc, TechnologicalCardStatus.Remarked);
+            }
+
+            isMachineViewMode = !isMachineViewMode;
+
+            SetMachineCollumnModeToolStripMenuItem.Text = isMachineViewMode ?
+                 "Скрыть столбцы механизмов" : "Показать стобцы механизмов";
+
+            SetMachineViewMode();
+        }
+
+        private void SetMachineViewMode()
+        {
+            if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm)
+                && cachedForm is TechOperationForm techOperationForm)
+            {
+                techOperationForm.SetMachineViewMode(isMachineViewMode);
+            }
+        }
+
+
+        private void SetCommentViewMode(bool? isComViewMode = null)
+        {
+            if (isComViewMode != null)
+            {
+                tcViewState.IsCommentViewMode = (bool)isComViewMode;
+            }
+            else
+                tcViewState.IsCommentViewMode = !tcViewState.IsCommentViewMode;
+
+            if (_formsCache.TryGetValue(EModelType.WorkStep, out var cachedForm)
+                && cachedForm is TechOperationForm techOperationForm)
+            {
+                techOperationForm.SetCommentViewMode();
+            }
+        }
+
+        private void toolStripExecutionScheme_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Отображение схемы выполнения");
+
+            if (!_formsCache.TryGetValue(EModelType.ExecutionScheme, out var win6_ExecutionScheme)
+                || win6_ExecutionScheme.IsDisposed)
+            {
+                win6_ExecutionScheme = CreateForm(EModelType.ExecutionScheme);
+                _formsCache[EModelType.ExecutionScheme] = win6_ExecutionScheme;
+            }
+            win6_ExecutionScheme.Show();
+
+            // вывести на передний план
+            win6_ExecutionScheme.BringToFront();
+        }
+
+        private void toolStripDiagrams_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Отображение диаграммы в отдельном окне");
+
+            if (!_formsCache.TryGetValue(EModelType.Diagram, out var diagramForm)
+                || diagramForm.IsDisposed)
+            {
+                diagramForm = CreateForm(EModelType.Diagram);
+                _formsCache[EModelType.Diagram] = diagramForm;
+            }
+            diagramForm.Show();
+            diagramForm.BringToFront();
+        }
+
+        private void LogUserAction(string actionDescription)
+        {
+            _logger.LogUserAction(actionDescription, _tcId);
+            //Information("Действие пользователя: {Action}, TcId={TcId}", 
+            //actionDescription, _tcId);
+        }
+
+        private async void btnShowCoefficients_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Отображение коэффициентов");
+            await ShowForm(EModelType.Coefficient);
+        }
+
+        private void toolStripShowCoefficients_Click(object sender, EventArgs e)
+        {
+            LogUserAction("Отображение коэффициентов в отдельном окне");
+
+            if (!_formsCache.TryGetValue(EModelType.Coefficient, out var diagramForm)
+                || diagramForm.IsDisposed)
+            {
+                diagramForm = CreateForm(EModelType.Coefficient);
+                _formsCache[EModelType.Coefficient] = diagramForm;
+            }
+            diagramForm.Show();
+            diagramForm.BringToFront();
+        }
+
+        public void RecalculateValuesWithCoefficientsInOpenForms()
+        {
+            foreach (var form in _formsCache.Values)
+            {
+                if (form is IOnActivationForm baseForm)
+                {
+                    baseForm.OnActivate();
+                }
+            }
+        }
+
+        private void ChangeIsDynamicToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Проверка существующего статуса
+            if (_tc.IsDynamic)
+            {
+                // Если карта динамическая, то
+                // 1. проверяем наличие коэфиициентов в карте
+                var coefficients = _tc.Coefficients;
+                // 1.1. если коэффициенты присутствуют, то
+                if (coefficients != null && coefficients.Count > 0)
+                {
+                    var coefDict = coefficients.ToDictionary(c => c.Code, c => c.Value);
+
+                    // 1.1.1 во всех сущностях, где они используются, заменяем на их значения
+                    // Выделить в отдельный список все сущности, где используются коэффициенты
+                    List<IDynamicValue> dynamicValues = new List<IDynamicValue>();
+                    foreach (var obj in _tc.Component_TCs)//.Where(c => c.ParentId == _tc.Id))
+                    {
+                        if (obj != null && obj is IDynamicValue)
+                            AddToDynamicList(dynamicValues, obj);
+                    }
+                    foreach (var obj in _tc.Tool_TCs)//.Where(c => c.ParentId == _tc.Id))
+                    {
+                        if (obj != null && obj is IDynamicValue)
+                            AddToDynamicList(dynamicValues, obj);
+                    }
+                    foreach (var obj in _tc.Protection_TCs)//.Where(c => c.ParentId == _tc.Id))
+                    {
+                        if (obj != null && obj is IDynamicValue)
+                            AddToDynamicList(dynamicValues, obj);
+                    }
+                    foreach (var obj in _tc.Machine_TCs)//.Where(c => c.ParentId == _tc.Id))
+                    {
+                        if (obj != null && obj is IDynamicValue)
+                            AddToDynamicList(dynamicValues, obj);
+                    }
+
+                    var executionWorks = _tc.TechOperationWorks.SelectMany(tow => tow.executionWorks).ToList();
+                    var executionWorksWithCoefficients = executionWorks.Where(ew => !string.IsNullOrEmpty(ew.Coefficient) && ew.Coefficient.Contains(Coefficient.FirstLetter)).ToList();
+
+                    var executionWorksRepeats = executionWorks.SelectMany(ew => ew.ExecutionWorkRepeats).ToList();//context.ExecutionWorkRepeats.Where(ewr => ewr.ParentExecutionWork.techOperationWork.TechnologicalCardId == _tc.Id).ToList();
+                    var executionWorkRepeatsWithCoefficients = executionWorksRepeats
+                        .Where(ewr => !string.IsNullOrEmpty(ewr.NewCoefficient) && ewr.NewCoefficient.Contains(Coefficient.FirstLetter)).ToList();
+
+                    // в объектах IDynamicValue удалить значение формулы
+                    foreach (var obj in dynamicValues)
+                    {
+                        obj.Formula = null;
+                    }
+
+                    // в объектах ExecutionWork и ExecutionWorksRepeat заменить коэффициенты на их значения
+                    foreach (var ew in executionWorksWithCoefficients)
+                    {
+                        ew.Coefficient = MathScript.ReplaceCoefficientsInFormula(ew.Coefficient!, coefDict);
+                    }
+
+                    foreach (var ewr in executionWorkRepeatsWithCoefficients)
+                    {
+                        ewr.NewCoefficient = MathScript.ReplaceCoefficientsInFormula(ewr.NewCoefficient!, coefDict);
+                    }
+                }
+                // 1.2. если коэффициенты отсутствуют, то дополнительно ничего делать не надо
+
+                // Удаляем все коэффициенты
+                _tc.Coefficients.Clear();
+                // 2. изменяем статус на не динамический
+                _tc.IsDynamic = false;
+                // 3. закрываем доступ к коэффициентам
+            }
+            else
+            {
+                // Если карта не динамическая, то изменяем данный статус на динамический
+                _tc.IsDynamic = true;
+                // и открываем доступ к коэффициентам
+
+            }
+
+            UpdateDynamicCardParametrs();
+
+            foreach (var form in _formsCache.Values)
+            {
+                if (form is IDynamicForm dynamicForm)
+                {
+                    dynamicForm.UpdateDynamicCardParametrs();
+                }
+            }
+
+
+            void AddToDynamicList(List<IDynamicValue> dynamicValues, IDynamicValue obj)
+            {
+                var formula = obj.Formula;
+                if (!string.IsNullOrEmpty(formula) && formula.Contains(Coefficient.FirstLetter))
+                {
+                    dynamicValues.Add(obj);
+                }
+            }
+        }
+
+        private void UpdateIsDynamicButtonText()
+        {
+            ChangeIsDynamicToolStripMenuItem.Text = _tc.IsDynamic ? "Сделать не динамической" : "Сделать динамической";
+        }
 
 
         private async void button1_Click(object sender, EventArgs e)
@@ -1304,10 +1304,20 @@ namespace TC_WinForms.WinForms
             editor.AfterSave = async (savedObj) =>
             {
                 var techOperationForm = CheckOpenFormService.FindOpenedForm<TechOperationForm>(_tcId);
-                if(techOperationForm != null)
+                if (techOperationForm != null)
                     techOperationForm.RefreshPictureNameColumn();
             };
-           
+
+        }
+
+        private void btnHideControlBtns_Click(object sender, EventArgs e)
+        {
+            pnlControls.Visible = !pnlControls.Visible;
+
+            if (pnlControls.Visible)
+                btnHideControlBtns.Text = "Скрыть кнопки";
+            else
+                btnHideControlBtns.Text = "Показать кнопки";
         }
     }
 

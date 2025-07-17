@@ -46,6 +46,8 @@ namespace TC_WinForms.WinForms
             toolStripExecutionScheme = new ToolStripButton();
             toolStripDiagrams = new ToolStripButton();
             toolStripShowCoefficients = new ToolStripButton();
+            toolStripButton1 = new ToolStripButton();
+            btnHideControlBtns = new ToolStripButton();
             btnShowStaffs = new Button();
             btnShowComponents = new Button();
             btnShowMachines = new Button();
@@ -66,7 +68,7 @@ namespace TC_WinForms.WinForms
             // toolStrip1
             // 
             toolStrip1.ImageScalingSize = new Size(20, 20);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients, toolStripButton1 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients, toolStripButton1, btnHideControlBtns });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
 			toolStrip1.Padding = new Padding(0, 0, 3, 0);
@@ -191,6 +193,26 @@ namespace TC_WinForms.WinForms
             toolStripShowCoefficients.Text = "Коэффициенты";
             toolStripShowCoefficients.Visible = false;
             toolStripShowCoefficients.Click += toolStripShowCoefficients_Click;
+            // 
+            // toolStripButton1
+            // 
+            toolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            toolStripButton1.Image = (Image)resources.GetObject("toolStripButton1.Image");
+            toolStripButton1.ImageTransparentColor = Color.Magenta;
+            toolStripButton1.Name = "toolStripButton1";
+            toolStripButton1.Size = new Size(87, 22);
+            toolStripButton1.Text = "Изображения";
+            toolStripButton1.Click += toolStripButton1_Click;
+            // 
+            // btnHideControlBtns
+            // 
+            btnHideControlBtns.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            btnHideControlBtns.Image = (Image)resources.GetObject("btnHideControlBtns.Image");
+            btnHideControlBtns.ImageTransparentColor = Color.Magenta;
+            btnHideControlBtns.Name = "btnHideControlBtns";
+            btnHideControlBtns.Size = new Size(95, 22);
+            btnHideControlBtns.Text = "Скрыть кнопки";
+            btnHideControlBtns.Click += btnHideControlBtns_Click;
             // 
             // btnShowStaffs
             // 
@@ -339,17 +361,7 @@ namespace TC_WinForms.WinForms
             pnlDataViewer.Name = "pnlDataViewer";
 			pnlDataViewer.Size = new Size(1410, 642);
             pnlDataViewer.TabIndex = 35;
-            // 
-            // toolStripButton1
-            // 
-            toolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            toolStripButton1.Image = (Image)resources.GetObject("toolStripButton1.Image");
-            toolStripButton1.ImageTransparentColor = Color.Magenta;
-            toolStripButton1.Name = "toolStripButton1";
-            toolStripButton1.Size = new Size(97, 29);
-            toolStripButton1.Text = "Изображения";
-            toolStripButton1.Click += toolStripButton1_Click;
-            // 
+            //
             // Win6_new
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -359,7 +371,7 @@ namespace TC_WinForms.WinForms
             Controls.Add(pnlControls);
             Controls.Add(toolStrip1);
 			Margin = new Padding(4, 3, 4, 3);
-			MinimumSize = new Size(1718, 584);
+			//MinimumSize = new Size(1718, 584);
             Name = "Win6_new";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Win6_new";
@@ -405,5 +417,6 @@ namespace TC_WinForms.WinForms
 		private ToolStripMenuItem ChangeIsDynamicToolStripMenuItem;
 		private ToolStripMenuItem действияToolStripMenuItem;
         private ToolStripButton toolStripButton1;
+        private ToolStripButton btnHideControlBtns;
 	}
 }
