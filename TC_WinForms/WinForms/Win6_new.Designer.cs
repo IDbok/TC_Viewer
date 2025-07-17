@@ -46,6 +46,8 @@ namespace TC_WinForms.WinForms
             toolStripExecutionScheme = new ToolStripButton();
             toolStripDiagrams = new ToolStripButton();
             toolStripShowCoefficients = new ToolStripButton();
+            toolStripButton1 = new ToolStripButton();
+            btnHideControlBtns = new ToolStripButton();
             btnShowStaffs = new Button();
             btnShowComponents = new Button();
             btnShowMachines = new Button();
@@ -191,6 +193,26 @@ namespace TC_WinForms.WinForms
             toolStripShowCoefficients.Text = "Коэффициенты";
             toolStripShowCoefficients.Visible = false;
             toolStripShowCoefficients.Click += toolStripShowCoefficients_Click;
+            // 
+            // toolStripButton1
+            // 
+            toolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            toolStripButton1.Image = (Image)resources.GetObject("toolStripButton1.Image");
+            toolStripButton1.ImageTransparentColor = Color.Magenta;
+            toolStripButton1.Name = "toolStripButton1";
+            toolStripButton1.Size = new Size(87, 22);
+            toolStripButton1.Text = "Изображения";
+            toolStripButton1.Click += toolStripButton1_Click;
+            // 
+            // btnHideControlBtns
+            // 
+            btnHideControlBtns.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            btnHideControlBtns.Image = (Image)resources.GetObject("btnHideControlBtns.Image");
+            btnHideControlBtns.ImageTransparentColor = Color.Magenta;
+            btnHideControlBtns.Name = "btnHideControlBtns";
+            btnHideControlBtns.Size = new Size(95, 22);
+            btnHideControlBtns.Text = "Скрыть кнопки";
+            btnHideControlBtns.Click += btnHideControlBtns_Click;
             // 
             // btnShowStaffs
             // 
@@ -405,5 +427,6 @@ namespace TC_WinForms.WinForms
 		private ToolStripMenuItem ChangeIsDynamicToolStripMenuItem;
 		private ToolStripMenuItem действияToolStripMenuItem;
         private ToolStripButton toolStripButton1;
+        private ToolStripButton btnHideControlBtns;
 	}
 }
