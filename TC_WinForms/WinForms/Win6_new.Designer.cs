@@ -68,7 +68,7 @@ namespace TC_WinForms.WinForms
             // toolStrip1
             // 
             toolStrip1.ImageScalingSize = new Size(20, 20);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients, toolStripButton1 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients, toolStripButton1, btnHideControlBtns });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
 			toolStrip1.Padding = new Padding(0, 0, 3, 0);
@@ -381,7 +381,7 @@ namespace TC_WinForms.WinForms
             Controls.Add(pnlControls);
             Controls.Add(toolStrip1);
 			Margin = new Padding(4, 3, 4, 3);
-			MinimumSize = new Size(1718, 584);
+			//MinimumSize = new Size(1718, 584);
             Name = "Win6_new";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Win6_new";
