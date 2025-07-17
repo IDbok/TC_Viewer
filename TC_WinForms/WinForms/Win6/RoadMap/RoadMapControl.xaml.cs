@@ -75,7 +75,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if (_techOperationWorks.Count == 0)
+            if (_techOperationWorks.Count == 0 && RoadmapItems.Count == 0)
             {
                 System.Windows.MessageBox.Show("В технологической карте пока не содержится ни одной ТО.", "Нет элементов", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
