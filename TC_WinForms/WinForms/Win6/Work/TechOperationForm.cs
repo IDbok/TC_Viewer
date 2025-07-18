@@ -1902,15 +1902,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
-		var ew = dgvMain.Rows[e.RowIndex].Cells[0].Value as ExecutionWork;		
-		var text = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as string;
+		//var ew = dgvMain.Rows[e.RowIndex].Cells[0].Value as ExecutionWork;
+        var text = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as string;
 
 		text = string.IsNullOrEmpty(text) ? "" : text;
 
 		if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
         {
-
-            if (ew != null)
+            if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew != null)
             {
                 if (text == null)
                 {
@@ -1919,12 +1918,29 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 ew.Otvet = text;
                 HasChanges = true;
             }
+            else if(dgvMain.Rows[e.RowIndex].Cells[0].Value is ToolWork tool && tool != null)
+            {
+                if (text == null)
+                {
+                    text = "";
+                }
+                tool.Reply = text;
+                HasChanges = true;
+            }
+            else if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ComponentWork comp && comp != null)
+            {
+                if (text == null)
+                {
+                    text = "";
+                }
+                comp.Reply = text;
+                HasChanges = true;
+            }
 
         }
         else if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index)
         {
-
-            if (ew != null)
+            if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew != null)
             {
                 if (text == null)
                 {
@@ -1933,11 +1949,29 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 ew.Vopros = text;
                 HasChanges = true;
             }
+            else if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ToolWork tool && tool != null)
+            {
+                if (text == null)
+                {
+                    text = "";
+                }
+                tool.Remark = text;
+                HasChanges = true;
+            }
+            else if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ComponentWork comp && comp != null)
+            {
+                if (text == null)
+                {
+                    text = "";
+                }
+                comp.Remark = text;
+                HasChanges = true;
+            }
         }
         else if (e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
         {
 
-            if (ew != null)
+            if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew != null)
             {
                 if(text == ew.PictureName) return;
 
@@ -1952,7 +1986,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             var itsTool = TechOperationDataGridItems[e.RowIndex].ItsTool;
             var ItsComponent = TechOperationDataGridItems[e.RowIndex].ItsComponent;
             
-            if (ew != null)
+            if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew != null)
             {
                 if (text == ew.Comments) return;
 
@@ -3072,7 +3106,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 else if ((e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index
                     || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index))
                 {
-                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
             }
         }

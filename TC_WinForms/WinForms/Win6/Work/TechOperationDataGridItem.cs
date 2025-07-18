@@ -1,4 +1,4 @@
-﻿using TcModels.Models.TcContent;
+using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Work;
 
@@ -96,7 +96,9 @@ public class TechOperationDataGridItem
 		TechTransition = $"{toolWork.tool.Name}   {toolWork.tool.Type}    {toolWork.tool.Unit}";
 		TechTransitionValue = toolWork.Quantity.ToString();
 		Comments = toolWork.Comments ?? "";
-	}
+        Vopros = toolWork.Remark;
+        Otvet = toolWork.Reply;
+    }
 
 	public TechOperationDataGridItem(TechOperationWork techOperationWork, ComponentWork componentWork, int order) 
 		: this(techOperationWork, order)
@@ -109,7 +111,9 @@ public class TechOperationDataGridItem
 		TechTransition = $"{componentWork.component.Name}   {componentWork.component.Type}    {componentWork.component.Unit}";
 		TechTransitionValue = componentWork.Quantity.ToString();
 		Comments = componentWork.Comments ?? "";
-	}
+        Vopros = componentWork.Remark;
+        Otvet = componentWork.Reply;
+    }
 }
 
 public enum WorkItemType
