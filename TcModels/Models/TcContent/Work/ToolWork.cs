@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TcModels.Models.TcContent
 {
@@ -13,6 +13,9 @@ namespace TcModels.Models.TcContent
         public double Quantity { get; set; }
 
         public string? Comments { get; set; } = "";
+
+        public string? Remark { get; set; } = "";
+        public string? Reply { get; set; } = "";
 
         [NotMapped] public bool IsDeleted { get; set; } = false;
 
