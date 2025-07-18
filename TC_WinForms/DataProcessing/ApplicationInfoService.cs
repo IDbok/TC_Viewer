@@ -49,7 +49,7 @@ public static class ApplicationInfoService
     }
     public static string GetApplicationVersion()
     {
-        return "1.12.3"; 
+        return "1.13"; 
     }
 
     public static string GetApplicationName()
