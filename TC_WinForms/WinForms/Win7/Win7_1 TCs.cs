@@ -1,7 +1,8 @@
-﻿using Serilog;
+using Serilog;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
+using TC_WinForms.Converters;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.DataProcessing.Utilities;
@@ -153,8 +154,8 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 			{
 				_displayedTechnologicalCards = allCards
 					.Where(tc => tc.Status == TechnologicalCardStatus.Approved)
-					.OrderBy(tc => tc.Article)
-					.Select(tc => new DisplayedTechnologicalCard(tc))
+                    .OrderBy(x => x, new TechCodeComparer())
+                    .Select(tc => new DisplayedTechnologicalCard(tc))
 					.ToList();
 					//await Task.Run(() => allCards
 					//.Where(tc => tc.Status == TechnologicalCardStatus.Approved)
@@ -166,8 +167,8 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 			else
 			{
 				_displayedTechnologicalCards = allCards
-					.OrderBy(tc => tc.Article)
-					.Select(tc => new DisplayedTechnologicalCard(tc))
+                    .OrderBy(x => x, new TechCodeComparer())
+                    .Select(tc => new DisplayedTechnologicalCard(tc))
 					.ToList();
 				//await Task.Run(() => _dbCon.GetObjectList<TechnologicalCard>()
 				//	.Select(tc => new DisplayedTechnologicalCard(tc)).OrderBy(tc => tc.Article).ToList());

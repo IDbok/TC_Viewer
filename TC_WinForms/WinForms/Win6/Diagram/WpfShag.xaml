@@ -108,7 +108,7 @@
                                         <DataGridTemplateColumn Header="" Width="40">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding Add,UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+                                                    <CheckBox IsChecked="{Binding Add,UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" HorizontalAlignment="Center" Checked="CheckBox_Checked"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
