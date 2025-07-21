@@ -10,70 +10,79 @@
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
-    <Grid>       
+    <Grid>
         <Border BorderThickness="2" BorderBrush="Black" Margin="10" CornerRadius="5" >
-        <StackPanel Width="650">
-            <TextBlock x:Name="TextShag" Text="№ шага" HorizontalAlignment="Center" FontSize="18"   />
+            <StackPanel Width="650">
+                <TextBlock x:Name="TextShag" Text="№ шага" HorizontalAlignment="Center" FontSize="18"   />
 
-            <!--<TextBlock x:Name="TextDeystShag"
+                <!--<TextBlock x:Name="TextDeystShag"
                 MinHeight="150"
                 TextWrapping="Wrap" TextAlignment="Center"
                 xml:lang="ru">
                 <Run Text="Действия шага:" />
             </TextBlock>-->
 
-            <TextBox x:Name="TextDeystShag" 
+                <TextBox x:Name="TextDeystShag" 
                     MinHeight="150"
                     TextWrapping="Wrap" TextAlignment="Left" 
                     AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" 
                     TextChanged="TextDeystShag_TextChanged"
                     IsReadOnly="{Binding IsViewMode}"/> <!--Text="Действия шага:"-->
-            <Grid x:Name="gridComments" 
+                <Grid x:Name="gridComments" 
                     Visibility="{Binding IsCommentViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="20"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                    
-                <TextBlock Grid.Column="0" Grid.Row="0"
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Grid.Row="0"
                     Text="Замечание" HorizontalAlignment="Center" FontSize="14"   />
-                <TextBlock Grid.Column="1" Grid.Row="0"
+                    <TextBlock Grid.Column="1" Grid.Row="0"
                     Text="Ответ на замечание" HorizontalAlignment="Center" FontSize="14"   />
-                    
-                <TextBox x:Name="txtLeadComment" 
+
+                    <TextBox x:Name="txtLeadComment" 
                             Grid.Column="0" Grid.Row="1"
                             MinHeight="150"
                             TextChanged="TextLeadComment_TextChanged"
                             TextWrapping="Wrap" TextAlignment="Center" 
                             AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="False" xml:lang="ru"/>
 
-                <TextBox x:Name="txtImplementerComment" 
+                    <TextBox x:Name="txtImplementerComment" 
                             Grid.Column="1" Grid.Row="1"
                             MinHeight="150"
                             TextChanged="TextImplementerComment_TextChanged"
                             TextWrapping="Wrap" TextAlignment="Center" 
                             AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="True" xml:lang="ru"/>
-            </Grid>
+                </Grid>
 
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Добавить тех. переход" Margin="0,0,30,0"></TextBlock>
-                <ComboBox Name="ComboBoxTeh" Width="200" 
-                    SelectionChanged="ComboBoxTeh_SelectionChanged"
-                    PreviewMouseWheel="ComboBoxTeh_PreviewMouseWheel"
-                    Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
-                    />  
-            </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Добавить тех. переход" Margin="0,0,30,0"
+                               Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    </TextBlock>
+                    <ComboBox Name="ComboBoxTeh" Width="200" 
+                        SelectionChanged="ComboBoxTeh_SelectionChanged"
+                        PreviewMouseWheel="ComboBoxTeh_PreviewMouseWheel"
+                        Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-            <Border BorderThickness="2" BorderBrush="Black" Margin="10" CornerRadius="5" MinHeight="100">
-                <StackPanel>
-                    <TextBlock x:Name="TextTable" Text="№ таблицы" HorizontalAlignment="Right" Margin="0,0,30,0" FontSize="14"  />
+                    <ComboBox x:Name ="ComboBoxRelatedTc" Width="120"
+                            Margin="50,5,0,0"
+                            DisplayMemberPath="Value" SelectedValuePath="Key">
+                    </ComboBox>
+                    <Button x:Name="BtnOpenRelatedTC" Width="100" Margin="20,5,0,0" Content="Перейти к ТК" Click="BtnOpenRelatedTC_Click">
 
-                    <GroupBox Header="Материалы и инструменты" BorderBrush="Black">
-                        <StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <Border BorderThickness="2" BorderBrush="Black" Margin="10" CornerRadius="5" MinHeight="100">
+                    <StackPanel>
+                        <TextBlock x:Name="TextTable" Text="№ таблицы" HorizontalAlignment="Right" Margin="0,0,30,0" FontSize="14"  />
+
+                        <GroupBox Header="Материалы и инструменты" BorderBrush="Black">
+                            <StackPanel>
 
                                 <ToggleButton x:Name="TG" Content="Редактирование"
                                               HorizontalAlignment="Center" Width="150" Margin="10" 
@@ -85,14 +94,14 @@
                                           PreviewKeyDown="DataGrid_PreviewKeyDown" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False">
                                     <DataGrid.CellStyle>
                                         <Style TargetType="{x:Type DataGridCell}">
-                                        <Setter Property="Foreground" Value="Black" />
-                                        <Style.Triggers>
-                                            <Trigger Property="IsSelected" Value="True">
-                                                <Setter Property="Background" Value="{x:Null}" />
-                                                <Setter Property="BorderBrush" Value="{x:Null}" />
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
+                                            <Setter Property="Foreground" Value="Black" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="{x:Null}" />
+                                                    <Setter Property="BorderBrush" Value="{x:Null}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
                                     </DataGrid.CellStyle>
 
                                     <DataGrid.Columns>
@@ -158,7 +167,7 @@
                                         </DataGridTemplateColumn>
 
 
-                                        
+
 
                                     </DataGrid.Columns>
                                 </DataGrid>
@@ -226,25 +235,25 @@
 
 
                             </StackPanel>
-                    </GroupBox>
+                        </GroupBox>
 
                         <StackPanel x:Name="ImagePanel" Orientation="Vertical">
                             <Button x:Name="btnEditImage" Content="Редактировать изображение" 
                                     HorizontalAlignment="Center" Margin="0,5,0,0"
                                             Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}" Click="btnEditImage_Click"/>
                         </StackPanel>
-                        
+
 
 
                     </StackPanel>
-            </Border>
+                </Border>
                 <Button x:Name="btnAddNewShag" Content="Добавить ШАГ" HorizontalAlignment="Center"
                          VerticalAlignment="Bottom" Margin="0,5,0,0" 
                          Click="btnAddNewShag_Click"
                          Visibility="{Binding IsHiddenInViewMode,
                              Converter={StaticResource BoolToVisibilityConverter}}"/>
             </StackPanel>
-    </Border>
+        </Border>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="14" 
                     Visibility="{Binding IsHiddenInViewMode, Converter={StaticResource BoolToVisibilityConverter}}"
                     >
@@ -253,6 +262,6 @@
             <Button Width="80" Content="Удалить Шаг" HorizontalAlignment="Right"  Click="ButtonDelete_Click" VerticalAlignment="Top" 
                     Background="IndianRed"/>
         </StackPanel>
-        
+
     </Grid>
 </UserControl>

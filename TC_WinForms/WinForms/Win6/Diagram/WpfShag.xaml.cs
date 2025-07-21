@@ -11,6 +11,7 @@ using System.Windows.Media.Imaging;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win6.ImageEditor;
 using TC_WinForms.WinForms.Win6.Models;
+using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
@@ -26,6 +27,7 @@ namespace TC_WinForms.WinForms.Diagram
     {
         private readonly DiagramState _diagramState;
         private readonly TcViewState _tcViewState;
+        public Dictionary<long?, string> _allPrintedTcDict = new Dictionary<long?, string>();
 
 
         private TechOperationWork? techOperationWork => _diagramState.DiagramToWork?.techOperationWork;
@@ -327,6 +329,8 @@ namespace TC_WinForms.WinForms.Diagram
                 }
             }
 
+            SetRelatedListBox();
+
             // Добавление шагов в ComboBox
             ComboBoxTeh.ItemsSource = techOperationWork.executionWorks;
 
@@ -336,6 +340,38 @@ namespace TC_WinForms.WinForms.Diagram
 
             if(diagramShag.ImageList.Count !=0)
                 RefreshImagePanel();
+        }
+
+        private void SetRelatedListBox()
+        {
+            var relatedTCs = _tcViewState.TechOperationWorksList
+                .SelectMany(t => t.executionWorks)
+                .Where(e => e.RepeatsTCId != null)
+                .Select(e => e.RepeatsTCId)
+                .Distinct()
+                .ToList();
+
+            using (MyDbContext context = new MyDbContext())
+            {
+                relatedTCs.ForEach
+                           (id =>
+                           {
+                               var tcArticle = context.TechnologicalCards
+                               .Where(x => x.Id == id)
+                               .Select(x => $"{x.Article}")
+                               .FirstOrDefault();
+                               _allPrintedTcDict.Add(id, $"{tcArticle}");
+                           }
+                           );
+            }
+
+            if(_allPrintedTcDict.Count == 0)
+            {
+                ComboBoxRelatedTc.IsEnabled = false;
+                BtnOpenRelatedTC.IsEnabled = false;
+            }
+            else
+                ComboBoxRelatedTc.ItemsSource = _allPrintedTcDict;
         }
 
         private BitmapImage LoadImage(byte[] imageData)
@@ -904,6 +940,24 @@ namespace TC_WinForms.WinForms.Diagram
                 }
 
 
+            }
+        }
+
+        private void BtnOpenRelatedTC_Click(object sender, RoutedEventArgs e)
+        {
+            long? selectedKey = ComboBoxRelatedTc.SelectedValue as long?;
+            if (selectedKey != null)
+            {
+                var openedForm = CheckOpenFormService.FindOpenedForm<Win6_new>((int)selectedKey.Value);
+                if (openedForm != null)
+                {
+                    openedForm.BringToFront();
+                }
+                else
+                {
+                    var a = new Win6_new((int)selectedKey, _tcViewState.UserRole, viewMode: true, startForm: EModelType.Diagram);
+                    a.Show();
+                }
             }
         }
     }
