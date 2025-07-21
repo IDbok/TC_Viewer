@@ -1969,7 +1969,7 @@ namespace TC_WinForms.WinForms.Work
                     ComponentWork componentWork = new ComponentWork();
                     componentWork.component = Idd;
                     componentWork.componentId = Idd.Id;
-                    componentWork.Quantity = 1;
+                    componentWork.Quantity = exustInComponent != null ? exustInComponent.Quantity: 1;
                     work.ComponentWorks.Add(componentWork);
                 }
 
@@ -2252,7 +2252,7 @@ namespace TC_WinForms.WinForms.Work
                     ToolWork toolWork = new ToolWork();
                     toolWork.tool = Idd;
                     toolWork.toolId = Idd.Id;
-                    toolWork.Quantity = 1;
+                    toolWork.Quantity = exustInInstrument != null ? exustInInstrument.Quantity : 1;
                     work.ToolWorks.Add(toolWork);
                 }
 
