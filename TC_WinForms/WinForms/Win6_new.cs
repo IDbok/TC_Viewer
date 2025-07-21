@@ -30,6 +30,7 @@ namespace TC_WinForms.WinForms
         private TcViewState tcViewState;
         public readonly Guid FormGuid; // создан для проверки работы с одинаковым контекстом
         private ConcurrencyBlockService<TechnologicalCard> concurrencyBlockServise;
+        private EModelType startOpenForm = EModelType.WorkStep;
         //private static bool _isViewMode = true;
         //private static bool _isCommentViewMode = false;
         private static bool _isMachineCollumnViewMode = true;
@@ -74,12 +75,13 @@ namespace TC_WinForms.WinForms
         private MyDbContext context = new MyDbContext();
         private OutlayService calculateOutlayService = new OutlayService();
 
-        public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false)
+        public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false, EModelType startForm = EModelType.WorkStep)
         {
             FormGuid = Guid.NewGuid();
 
             _tcId = tcId;
             _accessLevel = role;
+            startOpenForm = startForm;
 
             _logger = Log.Logger.ForContext<Win6_new>();
             _logger.Information("Инициализация Win6_new: TcId={TcId}, Role={Role}, ViewMode={ViewMode}", tcId, role, viewMode);
@@ -447,7 +449,7 @@ namespace TC_WinForms.WinForms
                 SetViewMode();
                 UpdateDynamicCardParametrs();
 
-                await ShowForm(EModelType.WorkStep);
+                await ShowForm(startOpenForm);
 
                 _logger.Information("Форма загружена успешно для TcId={TcId}", _tcId);
             }

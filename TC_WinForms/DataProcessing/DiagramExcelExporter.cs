@@ -534,7 +534,7 @@ namespace TC_WinForms.DataProcessing
                     }
 
                     ExcelPicture excelImage = null;
-                    excelImage = sheet.Drawings.AddPicture(shag.NameImage + startRow, ms);
+                    excelImage = sheet.Drawings.AddPicture(shag.NameImage + startRow + shag.Nomer, ms);
                     if ((excelImage.Size.Width / 9525) > _currentRixelWidgthShag) //Сравниваем, войдет ли по ширине пикселей текущий масштаб изображения в заданную ширину шага. Ширину изображения делим на указанное в формуле число соотношения к пикселям
                     {
                         int i = 100;//Число для задания масштаба, по умолчанию 100
