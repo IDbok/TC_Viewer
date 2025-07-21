@@ -960,5 +960,14 @@ namespace TC_WinForms.WinForms.Diagram
                 }
             }
         }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            var dataItem = (ItemDataGridShagAdd)((System.Windows.Controls.CheckBox)sender).DataContext;
+            if(string.IsNullOrEmpty(dataItem.AddText))
+            {
+                dataItem.AddText = dataItem.componentWork == null ? dataItem.toolWork.Quantity.ToString() : dataItem.componentWork.Quantity.ToString();
+            }
+        }
     }
 }
