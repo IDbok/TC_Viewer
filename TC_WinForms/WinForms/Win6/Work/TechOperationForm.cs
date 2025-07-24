@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Bson;
 using Serilog;
 using System;
 using System.Data;
@@ -231,11 +232,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     // Дополнительные пункты
     //private ToolStripMenuItem openRelatedTc;
     private ToolStripMenuItem openImageEditor;
+    private ToolStripMenuItem changeRemarkStatusItem;
+    private ToolStripMenuItem goToNextRemarkItem;
 
-	/// <summary>
-	/// Настраивает контекстное меню для DataGridView (копировать/вставить).
-	/// </summary>
-	private void SetContextMenuSetings()
+    /// <summary>
+    /// Настраивает контекстное меню для DataGridView (копировать/вставить).
+    /// </summary>
+    private void SetContextMenuSetings()
 	{
 		contextMenu = new ContextMenuStrip();
 
@@ -323,20 +326,33 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 
 		openEditFormItem = new ToolStripMenuItem("Открыть в редакторе");
-		openEditFormItem.Click += (s, e) => {
-			_logger.LogUserAction("Выбрал пункт меню 'Открыть в редакторе' в контекстном меню.");
-			OpenEditFormBySelectedObject();
-		};
+        changeRemarkStatusItem = new ToolStripMenuItem("Открыть замечание");
+        goToNextRemarkItem = new ToolStripMenuItem("Следующее замечание");
 
-		//openRelatedTc = new ToolStripMenuItem("Открыть связанную тех. карту");
-		//openRelatedTc.Click += (s, e) =>
-		//{
-		//	_logger.LogUserAction("Выбрал пункт меню 'Открыть связанную тех. карту' в контекстном меню.");
-		//	OpenRelatedTc();
-		//};
+        openEditFormItem.Click += (s, e) => {
+            _logger.LogUserAction("Выбрал пункт меню 'Открыть в редакторе' в контекстном меню.");
+            OpenEditFormBySelectedObject();
+        };
 
-		// Добавляем все пункты (или группируем в под-меню).
-		contextMenu.Items.Add(copyStaffItem);
+        changeRemarkStatusItem.Click += (s, e) => {
+            _logger.LogUserAction("Выбрал пункт меню 'Изменить статус замечания' в контекстном меню.");
+            ChangeRamrkStatus();
+        };
+
+        goToNextRemarkItem.Click += (s, e) => {
+            _logger.LogUserAction("Выбрал пункт меню 'Следующее замечание' в контекстном меню.");
+            GoToNextRemark();
+        };
+
+        //openRelatedTc = new ToolStripMenuItem("Открыть связанную тех. карту");
+        //openRelatedTc.Click += (s, e) =>
+        //{
+        //	_logger.LogUserAction("Выбрал пункт меню 'Открыть связанную тех. карту' в контекстном меню.");
+        //	OpenRelatedTc();
+        //};
+
+        // Добавляем все пункты (или группируем в под-меню).
+        contextMenu.Items.Add(copyStaffItem);
 		contextMenu.Items.Add(copyTechOperationItem);
 		contextMenu.Items.Add(copyProtectionsItem);
 		contextMenu.Items.Add(copyRowItem);
@@ -347,6 +363,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
 		contextMenu.Items.Add(openEditFormItem);
         contextMenu.Items.Add(openImageEditor);
+        contextMenu.Items.Add(changeRemarkStatusItem);
+        contextMenu.Items.Add(goToNextRemarkItem);
 
         contextMenu.Items.Add(separatorItem2);
 
@@ -377,8 +395,10 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         copyImageItem.Visible = false;
 
         openImageEditor.Visible = false;
+        changeRemarkStatusItem.Visible = false;
+        goToNextRemarkItem.Visible = false;
 
-		separatorItem1.Visible = false;
+        separatorItem1.Visible = false;
 		openEditFormItem.Visible = false;
 		separatorItem2.Visible = true;
 
@@ -460,6 +480,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 copyImageItem.Visible = true;
                 ShowImageEditButton();
                 break;
+            case CopyScopeEnum.Remark:
+                //changeRemarkStatusItem.Visible = true;
+                ShowRemarktatusButton();
+                goToNextRemarkItem.Visible = true;
+                copyTextItem.Visible = true;
+                break;
 
         }
 
@@ -533,14 +559,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 						pasteProtectionsItem.Enabled = true;
 					}
 					break;
-                
+
+                case CopyScopeEnum.Remark:
 				case CopyScopeEnum.Text:
 					if (selectedScope == CopyScopeEnum.Row)
 					{
 						separatorItem2.Visible = false;
 						break;
 					}
-
 					pasteTextItem.Visible = true;
 					if(selectedScope == CopyScopeEnum.Text)
 						pasteTextItem.Enabled = true;
@@ -580,6 +606,25 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 openImageEditor.Visible = true;
                 openImageEditor.Text = "Редактировать изображения";
                 separatorItem1.Visible = isVisibleOrViewMode;
+            }
+        }
+
+        void ShowRemarktatusButton()
+        {
+            var selectedCells = dgvMain.SelectedCells
+            .Cast<DataGridViewCell>()
+            .Distinct()
+            .Select(c => c.RowIndex)
+            .OrderBy(idx => idx)
+            .ToList();
+
+            var selectedItem = selectedCells.Select(i => TechOperationDataGridItems[i]).FirstOrDefault();
+
+            if (selectedItem != null && selectedItem.WorkItem is IRamarkable remarkItem && !string.IsNullOrEmpty(remarkItem.Remark))
+            {
+                separatorItem1.Visible = isVisibleOrViewMode;
+                changeRemarkStatusItem.Visible = true;
+                changeRemarkStatusItem.Text = selectedItem.IsRemarkClosed ? "Открыть замечание" : "Закрыть замечание";
             }
         }
 
@@ -1178,11 +1223,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			"№ СЗ" => isToolOrComponent ? CopyScopeEnum.ToolOrComponents : CopyScopeEnum.Protections,
 			"Технологические операции" => CopyScopeEnum.TechOperation,
 			"Технологические переходы" => isToolOrComponent ? CopyScopeEnum.ToolOrComponents : CopyScopeEnum.TechTransition,
-			"Примечание" or "Замечание"
+			"Примечание" 
                          or "Ответ" or "№"
 											=> CopyScopeEnum.Text,
             "Рис." => CopyScopeEnum.ImageData,
-			_ => null
+            "Замечание" => CopyScopeEnum.Remark,
+            _ => null
 		};
 	}
 
@@ -1915,7 +1961,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 {
                     text = "";
                 }
-                ew.Otvet = text;
+                ew.Reply = text;
                 HasChanges = true;
             }
             else if(dgvMain.Rows[e.RowIndex].Cells[0].Value is ToolWork tool && tool != null)
@@ -1946,7 +1992,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 {
                     text = "";
                 }
-                ew.Vopros = text;
+                ew.Remark = text;
                 HasChanges = true;
             }
             else if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ToolWork tool && tool != null)
@@ -3109,6 +3155,22 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
             }
+
+            if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index && e.RowIndex >= 0)
+            {
+                if (dgvMain.Rows[e.RowIndex].Cells[0].Value is IRamarkable remarkItem)
+                {
+                    if (remarkItem.IsRemarkClosed)
+                    {
+                        e.Value = "Замечание закрыто"; // Текст, который увидит пользователь
+                        e.CellStyle.ForeColor = Color.Gray; // Серый цвет текста
+                    }
+                    else
+                    {
+                        e.CellStyle.ForeColor = dgvMain.DefaultCellStyle.ForeColor; // Возвращаем стандартный цвет
+                    }
+                }
+            }
         }
     }
 
@@ -3862,7 +3924,72 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		}
 	}
 
-	private double CalculateExecutionWorksPovtor(List<ExecutionWorkRepeat> executionWorkRepeats)
+    private void ChangeRamrkStatus()
+    {
+        var selectedCells = dgvMain.SelectedCells
+            .Cast<DataGridViewCell>()
+            .Distinct()
+            .Select(c => c.RowIndex)
+            .OrderBy(idx => idx)
+            .ToList();
+
+        var selectedItem = selectedCells.Select(i => TechOperationDataGridItems[i]).FirstOrDefault();
+
+        if (selectedItem.WorkItem is IRamarkable remarkItem)
+        {
+            remarkItem.IsRemarkClosed = !remarkItem.IsRemarkClosed;
+            selectedItem.IsRemarkClosed = !selectedItem.IsRemarkClosed;
+        }
+
+        dgvMain.InvalidateCell(dgvMain.Columns["RemarkColumn"].Index, TechOperationDataGridItems.IndexOf(selectedItem));
+
+        //if(selectedItem.IsRemarkClosed)
+        //{
+        //    int minIndex = TechOperationDataGridItems.Where(t => !string.IsNullOrEmpty(t.Vopros) && !t.IsRemarkClosed)
+        //                                                .OrderBy(t => TechOperationDataGridItems.IndexOf(t))
+        //                                                .Select(t => TechOperationDataGridItems.IndexOf(t))
+        //                                                .FirstOrDefault();
+
+        //    dgvMain.ClearSelection();
+        //    dgvMain.Rows[minIndex].Cells[dgvMain.Columns["RemarkColumn"].Index].Selected = true;
+        //        dgvMain.FirstDisplayedScrollingRowIndex = minIndex;
+        //}
+    }
+
+    private void GoToNextRemark()
+    {
+        var currentIndex = dgvMain.SelectedCells
+            .Cast<DataGridViewCell>()
+            .Distinct()
+            .Select(c => c.RowIndex)
+            .OrderBy(idx => idx)
+            .FirstOrDefault();
+
+        dgvMain.ClearSelection();
+
+        int minIndex = TechOperationDataGridItems.Where(t => !string.IsNullOrEmpty(t.Vopros) && !t.IsRemarkClosed && TechOperationDataGridItems.IndexOf(t) > currentIndex)
+                                                        .OrderBy(t => TechOperationDataGridItems.IndexOf(t))
+                                                        .Select(t => TechOperationDataGridItems.IndexOf(t))
+                                                        .FirstOrDefault();
+
+        if (minIndex != null && minIndex != 0)
+        {
+            dgvMain.Rows[minIndex].Cells[dgvMain.Columns["RemarkColumn"].Index].Selected = true;
+            dgvMain.FirstDisplayedScrollingRowIndex = minIndex;
+        }
+        else
+        {
+            var firstRemarkIndex = TechOperationDataGridItems.Where(t => !string.IsNullOrEmpty(t.Vopros) && !t.IsRemarkClosed)
+                                                        .OrderBy(t => TechOperationDataGridItems.IndexOf(t))
+                                                        .Select(t => TechOperationDataGridItems.IndexOf(t))
+                                                        .FirstOrDefault();
+
+            dgvMain.Rows[firstRemarkIndex].Cells[dgvMain.Columns["RemarkColumn"].Index].Selected = true;
+            dgvMain.FirstDisplayedScrollingRowIndex = firstRemarkIndex;
+        }
+    }
+
+    private double CalculateExecutionWorksPovtor(List<ExecutionWorkRepeat> executionWorkRepeats)
 	{
         double totalValue = 0;
         try

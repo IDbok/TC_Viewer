@@ -334,8 +334,8 @@ namespace TcModels.Models
                         Etap = ew.Etap,
                         Posled = ew.Posled,
 
-                        Vopros = ew.Vopros,
-                        Otvet = ew.Otvet,
+                        Remark = ew.Remark,
+                        Reply = ew.Reply,
 
                         PictureName = ew.PictureName
 
