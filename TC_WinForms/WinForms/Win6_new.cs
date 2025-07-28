@@ -21,6 +21,7 @@ using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TechnologicalCard;
+using Timer = System.Timers.Timer;
 
 namespace TC_WinForms.WinForms
 {// todo: загрузить данные о переходах из других ТК
@@ -28,6 +29,9 @@ namespace TC_WinForms.WinForms
     {
         private readonly ILogger _logger;
         private TcViewState tcViewState;
+        private Timer? AutosaveTimer;
+        private bool isFormAutosave = false;
+        private int TimerInterval = 1000 * 60 * 25;//интервал работы таймера в милисекундах(25 минут)
         public readonly Guid FormGuid; // создан для проверки работы с одинаковым контекстом
         private ConcurrencyBlockService<TechnologicalCard> concurrencyBlockServise;
         private EModelType startOpenForm = EModelType.WorkStep;
@@ -236,6 +240,15 @@ namespace TC_WinForms.WinForms
 
             updateToolStripMenuItem.Text = tcViewState.IsViewMode ? "Редактировать" : "Просмотр";
             actionToolStripMenuItem.Visible = !tcViewState.IsViewMode;
+
+            setAutoSaveSettings.Visible = !tcViewState.IsViewMode;
+            if(tcViewState.IsViewMode && isFormAutosave)
+            {
+                isFormAutosave = false;
+                AutosaveTimer?.Dispose();
+                setAutoSaveSettings.Text = "Включить автосохранение";
+                MessageBox.Show("Вы перешли в режим просмотра, автосохранение выключено.", "Автосохранение",MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
 
             foreach (var form in _formsCache.Values)
             {
@@ -1320,6 +1333,36 @@ namespace TC_WinForms.WinForms
                 btnHideControlBtns.Text = "Скрыть кнопки";
             else
                 btnHideControlBtns.Text = "Показать кнопки";
+        }
+
+        private void setAutoSaveSettings_Click(object sender, EventArgs e)
+        {
+            isFormAutosave = !isFormAutosave;
+            setAutoSaveSettings.Text = isFormAutosave ? "Выключить автосохранение" : "Включить автосохранение";
+            SetAutosaveTimerWork();
+        }
+
+        private void SetAutosaveTimerWork()
+        {
+            if(isFormAutosave)
+            {
+                // Создание таймера с отсчетом
+                AutosaveTimer = new Timer();
+                AutosaveTimer.Interval = TimerInterval;
+                // Hook up the Elapsed event for the timer.
+                AutosaveTimer.Elapsed += AutosaveTimer_Elapsed;
+                AutosaveTimer.AutoReset = true;
+                AutosaveTimer.Enabled = true;
+            }
+            else
+            {
+                AutosaveTimer?.Dispose();
+            }
+        }
+
+        private void AutosaveTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            SaveAllChanges();
         }
     }
 

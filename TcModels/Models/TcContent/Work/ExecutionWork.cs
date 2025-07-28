@@ -6,7 +6,7 @@ using TcModels.Models.IntermediateTables;
 
 namespace TcModels.Models.TcContent
 {
-    public class ExecutionWork: IImageHoldable
+    public class ExecutionWork: IImageHoldable,IRamarkable
     {
         public int Id { get; set; }
         public TechOperationWork techOperationWork { get; set; } = null!;
@@ -46,9 +46,10 @@ namespace TcModels.Models.TcContent
 		public string Etap { get; set; } = "";
         public string Posled { get; set; } = "";
         [NotMapped] public double TempTimeExecution { get; set; }
+        public bool IsRemarkClosed { get; set; } = false;
 
-        public string Vopros { get; set; } = "";
-        public string Otvet { get; set; } = "";
+        public string Remark { get; set; } = "";
+        public string Reply { get; set; } = "";
 
         public string? PictureName { get; set; } = "";
 

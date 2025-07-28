@@ -1,4 +1,4 @@
-﻿using ExcelParsing.DataProcessing;
+using ExcelParsing.DataProcessing;
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Style;
@@ -42,16 +42,17 @@ namespace TC_WinForms.DataProcessing
         {
             string sheetName = $"Обложка {technologicalCard.Article}";
             var sheet = _excelPackage.Workbook.Worksheets[sheetName] ?? _excelPackage.Workbook.Worksheets.Add(sheetName);
+
             sheet.TabColor = tabColor;
+            sheet.HeaderFooter.OddHeader.CenteredText = technologicalCard.Article;
+            sheet.HeaderFooter.OddFooter.CenteredText = "Лист &P";
 
             int headRow = 7;
-
-            sheet.PrinterSettings.Scale = 80;
-            sheet.PrinterSettings.Orientation = eOrientation.Landscape;
 
             InsertImageIntoSheet(sheet, base64Image, headRow);
             headRow = InsertTCInfoIntoSheet(sheet, technologicalCard, headRow + 1);
             InsertCoefficientTableIntoSHeet(sheet, technologicalCard, headRow + 3);
+            SetPrinterSettings(sheet);
         }
 
         private void InsertImageIntoSheet(ExcelWorksheet sheet, string base64Image, int headRow)
@@ -203,6 +204,31 @@ namespace TC_WinForms.DataProcessing
             var rowCount = data.Length / collumnsWidth;
             rowCount = rowCount <= 0.85 ? Math.Floor(rowCount) : Math.Ceiling(rowCount);
             return (int)rowCount;
+        }
+
+        private void SetPrinterSettings(ExcelWorksheet sheet)
+        {
+            // Настройка параметров печати
+            var printerSettings = sheet.PrinterSettings;
+
+            // Установка ориентации страницы: Ландшафтная
+            printerSettings.Orientation = eOrientation.Landscape;
+
+            // Установка размера бумаги: A4
+            printerSettings.PaperSize = ePaperSize.A4;
+            printerSettings.Scale = 85;
+
+            // Установка полей страницы (в сантиметрах, если в дюймах - нужно умножить на 2.54)
+            printerSettings.TopMargin = 1.0m / 2.54m;
+            printerSettings.BottomMargin = 1.0m / 2.54m;
+            printerSettings.LeftMargin = 1.0m / 2.54m;
+            printerSettings.RightMargin = 1.0m / 2.54m;
+            printerSettings.HeaderMargin = 0.3m / 2.54m;
+            printerSettings.FooterMargin = 0.3m / 2.54m;
+
+
+            //// Повторение столбцов на каждой странице печати
+            //printerSettings.RepeatColumns = sheet.Cells["A:A"];
         }
     }
 }

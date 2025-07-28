@@ -112,7 +112,8 @@ namespace TC_WinForms.WinForms.Work
 			PictureName = new DataGridViewTextBoxColumn();
 			pnlTPAdditional = new Panel();
 			btnCreateNewTP = new Button();
-			groupBox10 = new GroupBox();
+            btnReplaceTP = new Button();
+            groupBox10 = new GroupBox();
 			comboBoxTPCategoriya = new ComboBox();
 			groupBox5 = new GroupBox();
 			textBoxPoiskTP = new TextBox();
@@ -1131,7 +1132,8 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			pnlTPAdditional.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			pnlTPAdditional.Controls.Add(btnCreateNewTP);
-			pnlTPAdditional.Controls.Add(groupBox10);
+			pnlTPAdditional.Controls.Add(btnReplaceTP);
+            pnlTPAdditional.Controls.Add(groupBox10);
 			pnlTPAdditional.Controls.Add(groupBox5);
 			pnlTPAdditional.Location = new Point(3, 299);
 			pnlTPAdditional.Margin = new Padding(3, 2, 3, 2);
@@ -1149,10 +1151,21 @@ namespace TC_WinForms.WinForms.Work
 			btnCreateNewTP.Text = "Добавить новый переход";
 			btnCreateNewTP.UseVisualStyleBackColor = true;
 			btnCreateNewTP.Click += btnCreateNewTP_Click;
-			// 
-			// groupBox10
-			// 
-			groupBox10.Controls.Add(comboBoxTPCategoriya);
+            // 
+            // btnReplaceTP
+            // 
+            btnReplaceTP.Location = new Point(880, 22);
+            btnReplaceTP.Margin = new Padding(2);
+            btnReplaceTP.Name = "btnReplaceTP";
+            btnReplaceTP.Size = new Size(224, 28);
+            btnReplaceTP.TabIndex = 9;
+            btnReplaceTP.Text = "Заменить тех. переход";
+            btnReplaceTP.UseVisualStyleBackColor = true;
+            btnReplaceTP.Click += BtnReplaceTP_Click;
+            // 
+            // groupBox10
+            // 
+            groupBox10.Controls.Add(comboBoxTPCategoriya);
 			groupBox10.Location = new Point(318, 0);
 			groupBox10.Margin = new Padding(3, 2, 3, 2);
 			groupBox10.Name = "groupBox10";
@@ -2421,8 +2434,8 @@ namespace TC_WinForms.WinForms.Work
 			ResumeLayout(false);
 		}
 
-		#endregion
-		private Panel pnlSelectionTOandTP;
+        #endregion
+        private Panel pnlSelectionTOandTP;
         private ComboBox comboBoxTO;
         private ComboBox comboBoxTT;
         private TableLayoutPanel tlpnlTO;
@@ -2595,6 +2608,7 @@ namespace TC_WinForms.WinForms.Work
         private DataGridViewTextBoxColumn Column24;
         private Panel pnlTOAdditional;
         private Button btnCreateNewTP;
+        private Button btnReplaceTP;
         private Button btnAddNewTO;
         private DataGridViewTextBoxColumn Id;
         private DataGridViewButtonColumn Add;

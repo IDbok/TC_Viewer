@@ -1,8 +1,9 @@
-﻿using ExcelParsing.DataProcessing;
+using ExcelParsing.DataProcessing;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ namespace TC_WinForms.DataProcessing
                 { 2, 30 },      //Технологическая операция
                 { 3, 11 },   //Персонал
                 { 4, 35 },    //Примечание
+                { 5, 5 },    //Примечание
             };
 
         public RoadMapExcelExporter()
@@ -43,14 +45,15 @@ namespace TC_WinForms.DataProcessing
             // todo: add header of the table
             var sheet = excelPackage.Workbook.Worksheets[sheetName] ?? excelPackage.Workbook.Worksheets.Add(sheetName);
             sheet.TabColor = tabColor;
+            sheet.HeaderFooter.OddHeader.CenteredText = article;
+            sheet.HeaderFooter.OddFooter.CenteredText = "Лист &P";
+            SetPrinterSettings(sheet);
 
-            CompliteColumnsWidth(roadMapItems.Select(s => s.SequenceData.Length).FirstOrDefault());
+            CompliteColumnsWidth(roadMapItems.Select(s => s.SequenceData.Length).FirstOrDefault(), sheet);
+            AddRoadMapDataToExel(sheet, roadMapItems);
             SetColumnWigth(sheet);
 
-            AddRoadMapDataToExel(sheet, roadMapItems);
-
             // Установка параметров для вывода на печать
-            SetPrinterSettings(sheet);
         }
 
         private void AddRoadMapDataToExel(ExcelWorksheet sheet, List<RoadMapItem> roadMapItems)
@@ -123,15 +126,43 @@ namespace TC_WinForms.DataProcessing
 
         #region SetSheetSettings
 
-        private void CompliteColumnsWidth(int newColumnNum)
+        private void CompliteColumnsWidth(int newColumnNum, ExcelWorksheet sheet)
         {
-            var lastColumn = _columnWidths.Keys.Max();
-            for (int i = 1; i <= newColumnNum; i++)
+            const double pageWidthInches = 143; // A4 ширина в ландшафтной ориентации
+
+            double availablePageWidth = (pageWidthInches);
+            double fixedColumnsWidth = _columnWidths.Values.Sum() * 1.15;
+            var _minDynamicColumnWidth = 5;
+            int dynamicColumnsCount = newColumnNum;
+            double dynamicColumnWidth = _minDynamicColumnWidth;
+
+            if (dynamicColumnsCount > 0)
             {
-                _columnWidths.Add(lastColumn + 1, _defaultColumnWidth);
-                lastColumn++;
+                double remainingWidth = availablePageWidth - fixedColumnsWidth;
+                if (dynamicColumnsCount * _minDynamicColumnWidth <= remainingWidth)
+                {
+                     dynamicColumnWidth = remainingWidth / dynamicColumnsCount;
+                    if (dynamicColumnWidth < _minDynamicColumnWidth)
+                        dynamicColumnWidth = _minDynamicColumnWidth;
+                }
+                else
+                {
+                    double twoPageWidth = (pageWidthInches * 2);
+                    remainingWidth = twoPageWidth - fixedColumnsWidth;
+                    dynamicColumnWidth = remainingWidth / dynamicColumnsCount;
+                    if (dynamicColumnWidth < _minDynamicColumnWidth)
+                        dynamicColumnWidth = _minDynamicColumnWidth;
+                }
+
+
+                int lastColumn = _columnWidths.Keys.Max();
+                for (int i = 1; i <= dynamicColumnsCount; i++)
+                {
+                    _columnWidths.Add(lastColumn + i, dynamicColumnWidth);
+                }
             }
         }
+
         private void SetColumnWigth(ExcelWorksheet sheet)
         {
             foreach (var columnWidth in _columnWidths)
@@ -139,6 +170,7 @@ namespace TC_WinForms.DataProcessing
                 sheet.Column(columnWidth.Key).Width = columnWidth.Value * 1.15;
             }
         }
+
         private void SetPrinterSettings(ExcelWorksheet sheet)
         {
             // Настройка параметров печати
@@ -156,6 +188,8 @@ namespace TC_WinForms.DataProcessing
             printerSettings.BottomMargin = 1.0m / 2.54m;
             printerSettings.LeftMargin = 1.0m / 2.54m;
             printerSettings.RightMargin = 1.0m / 2.54m;
+            printerSettings.HeaderMargin = 0.3m / 2.54m;
+            printerSettings.FooterMargin = 0.3m / 2.54m;
         }
 
         #endregion

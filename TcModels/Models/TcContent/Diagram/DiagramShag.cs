@@ -28,8 +28,9 @@ namespace TcModels.Models.TcContent
 
         public List<ImageOwner> ImageList { get; set; } = new List<ImageOwner>();
 
-        public string? LeadComment { get; set; } // todo: добавить в БД
-        public string? ImplementerComment { get; set; } // todo: добавить в БД
+        public string? Remark { get; set; } // todo: добавить в БД
+        public string? Reply { get; set; } // todo: добавить в БД
+        public bool IsRemarkClosed { get; set; } = false;
 
     }
 }

@@ -77,8 +77,11 @@ namespace TC_WinForms.WinForms.Diagram
 
             diagramShag.Deystavie = TextDeystShag.Text;
 
-            diagramShag.ImplementerComment = txtImplementerComment.Text;
-            diagramShag.LeadComment = txtLeadComment.Text;
+            if(!diagramShag.IsRemarkClosed)
+            {
+                diagramShag.Reply = txtImplementerComment.Text;
+                diagramShag.Remark = txtLeadComment.Text;
+            }
 
             UpdateToolsComponentsList();
         }
@@ -159,6 +162,11 @@ namespace TC_WinForms.WinForms.Diagram
                 UpdateDataGrids();
             }
 
+            if (diagramShag != null)
+            {
+                UpdateRemarkDisplay();
+                btnToggleRemark.Content = diagramShag.IsRemarkClosed ? "Открыть замечание" : "Закрыть замечание";
+            }
         }
         [Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
         public WpfShag(TechOperationWork selectedItem,
@@ -193,8 +201,8 @@ namespace TC_WinForms.WinForms.Diagram
                 try
                 {
                     TextDeystShag.Text = diagramShag.Deystavie.ToString();
-                    txtLeadComment.Text = diagramShag.LeadComment ?? "";
-                    txtImplementerComment.Text = diagramShag.ImplementerComment ?? "";
+                    txtLeadComment.Text = diagramShag.Remark ?? "";
+                    txtImplementerComment.Text = diagramShag.Reply ?? "";
                 }
                 catch (Exception)
                 {
@@ -532,9 +540,9 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void TextLeadComment_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (diagramShag != null)
+            if (diagramShag != null && !diagramShag.IsRemarkClosed)
             {
-                diagramShag.LeadComment = txtLeadComment.Text;
+                diagramShag.Remark = txtLeadComment.Text;
                 if (wpfPosledovatelnost != null)
                 {
                     _diagramState.HasChanges();
@@ -544,9 +552,9 @@ namespace TC_WinForms.WinForms.Diagram
 
         private void TextImplementerComment_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (diagramShag != null)
+            if (diagramShag != null && !diagramShag.IsRemarkClosed)
             {
-                diagramShag.ImplementerComment = txtImplementerComment.Text;
+                diagramShag.Reply = txtImplementerComment.Text;
                 if (wpfPosledovatelnost != null)
                 {
                     _diagramState.HasChanges();
@@ -606,6 +614,13 @@ namespace TC_WinForms.WinForms.Diagram
         }
         private void CommentAccess()
         {
+            if (diagramShag.IsRemarkClosed)
+            {
+                txtLeadComment.IsEnabled = false;
+                txtImplementerComment.IsEnabled = false;
+                return;
+            }
+
             if (_tcViewState.UserRole == User.Role.Lead)
             {
                 txtLeadComment.IsReadOnly = false;
@@ -958,6 +973,61 @@ namespace TC_WinForms.WinForms.Diagram
                     var a = new Win6_new((int)selectedKey, _tcViewState.UserRole, viewMode: true, startForm: EModelType.Diagram);
                     a.Show();
                 }
+            }
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            var dataItem = (ItemDataGridShagAdd)((System.Windows.Controls.CheckBox)sender).DataContext;
+            if(string.IsNullOrEmpty(dataItem.AddText))
+            {
+                dataItem.AddText = dataItem.componentWork == null ? dataItem.toolWork.Quantity.ToString() : dataItem.componentWork.Quantity.ToString();
+            }
+        }
+
+        private void BtnToggleRemark_Click(object sender, RoutedEventArgs e)
+        {
+            // Переключаем состояние замечания
+            diagramShag.IsRemarkClosed = !diagramShag.IsRemarkClosed;
+
+            // Обновляем отображение
+            UpdateRemarkDisplay();
+
+            // Сохраняем изменения
+            _diagramState.HasChanges();
+
+            // Обновляем текст кнопки
+            btnToggleRemark.Content = diagramShag.IsRemarkClosed ? "Открыть замечание" : "Закрыть замечание";
+        }
+
+        private void UpdateRemarkDisplay()
+        {
+            if (diagramShag.IsRemarkClosed)
+            {
+                // Показываем "Замечание закрыто" без изменения оригинальных данных
+                txtLeadComment.Text = "Замечание закрыто";
+                txtImplementerComment.Text = "Замечание закрыто";
+
+                // Делаем текст серым
+                txtLeadComment.Foreground = System.Windows.Media.Brushes.Gray;
+                txtImplementerComment.Foreground = System.Windows.Media.Brushes.Gray;
+
+                // Блокируем редактирование
+                txtLeadComment.IsEnabled = false;
+                txtImplementerComment.IsEnabled = false;
+            }
+            else
+            {
+                // Восстанавливаем оригинальные значения
+                txtLeadComment.Text = diagramShag.Remark ?? "";
+                txtImplementerComment.Text = diagramShag.Reply ?? "";
+
+                // Восстанавливаем цвет
+                txtLeadComment.Foreground = System.Windows.SystemColors.ControlTextBrush;
+                txtImplementerComment.Foreground = System.Windows.SystemColors.ControlTextBrush;
+
+                // Восстанавливаем доступность в зависимости от роли
+                CommentAccess();
             }
         }
     }

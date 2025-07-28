@@ -31,6 +31,7 @@
                 <Grid x:Name="gridComments" 
                     Visibility="{Binding IsCommentViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
                         <RowDefinition Height="20"/>
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
@@ -39,24 +40,35 @@
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Grid.Row="0"
+                    <TextBlock Grid.Column="0" Grid.Row="1"
                     Text="Замечание" HorizontalAlignment="Center" FontSize="14"   />
-                    <TextBlock Grid.Column="1" Grid.Row="0"
+                    <TextBlock Grid.Column="1" Grid.Row="1"
                     Text="Ответ на замечание" HorizontalAlignment="Center" FontSize="14"   />
 
                     <TextBox x:Name="txtLeadComment" 
-                            Grid.Column="0" Grid.Row="1"
-                            MinHeight="150"
+                            Grid.Column="0" Grid.Row="2"
+                            MinHeight="100"
                             TextChanged="TextLeadComment_TextChanged"
                             TextWrapping="Wrap" TextAlignment="Center" 
                             AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="False" xml:lang="ru"/>
 
                     <TextBox x:Name="txtImplementerComment" 
-                            Grid.Column="1" Grid.Row="1"
-                            MinHeight="150"
+                            Grid.Column="1" Grid.Row="2"
+                            MinHeight="100"
                             TextChanged="TextImplementerComment_TextChanged"
                             TextWrapping="Wrap" TextAlignment="Center" 
                             AcceptsReturn="True" SpellCheck.IsEnabled="True" IsEnabled="True" xml:lang="ru"/>
+
+                    <!-- Добавляем кнопку закрытия замечания -->
+                    <Button x:Name="btnToggleRemark"
+                            Grid.Column="0" Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Content="Закрыть замечание"
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Top"
+                            Margin="0,0,0,0"
+                            Width="120"
+                            Click="BtnToggleRemark_Click"/>
                 </Grid>
 
                 <StackPanel Orientation="Horizontal">
@@ -108,7 +120,7 @@
                                         <DataGridTemplateColumn Header="" Width="40">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding Add,UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+                                                    <CheckBox IsChecked="{Binding Add,UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" HorizontalAlignment="Center" Checked="CheckBox_Checked"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>

@@ -194,4 +194,9 @@ public enum CopyScopeEnum
 	/// Копирование ячейки с изображениями.
 	/// </summary>
 	ImageData,
+
+    /// <summary>
+	/// Копирование ячейки с изображениями.
+	/// </summary>
+    Remark
 }

@@ -384,8 +384,28 @@ public partial class Win6_Staff : Form, IViewModeable
 		{
 			_logger.Warning("Удаление не выполнено. Список удаляемых объектов пуст.");
 		}
-	}
 
+        ReorderRows();
+
+    }
+
+    private void ReorderRows()
+    {
+        // Если у вас есть поле с порядком (например, Order или Sequence)
+        int order = 1;
+        foreach (var item in _bindingList)
+        {
+            // Предполагая, что у вашего объекта есть свойство Order
+            // Если свойство называется иначе, измените соответственно
+            item.Order = order++;
+        }
+
+        // Обновляем отображение DataGridView
+        _bindingList.ResetBindings();
+
+        // Или можно использовать:
+        // dgvMain.Refresh();
+    }
 
     private bool CheckIfIsNewItems(DataGridViewRow row)
     {

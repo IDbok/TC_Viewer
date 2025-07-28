@@ -1969,7 +1969,7 @@ namespace TC_WinForms.WinForms.Work
                     ComponentWork componentWork = new ComponentWork();
                     componentWork.component = Idd;
                     componentWork.componentId = Idd.Id;
-                    componentWork.Quantity = 1;
+                    componentWork.Quantity = exustInComponent != null ? exustInComponent.Quantity: 1;
                     work.ComponentWorks.Add(componentWork);
                 }
 
@@ -2252,7 +2252,7 @@ namespace TC_WinForms.WinForms.Work
                     ToolWork toolWork = new ToolWork();
                     toolWork.tool = Idd;
                     toolWork.toolId = Idd.Id;
-                    toolWork.Quantity = 1;
+                    toolWork.Quantity = exustInInstrument != null ? exustInInstrument.Quantity : 1;
                     work.ToolWorks.Add(toolWork);
                 }
 
@@ -3325,6 +3325,55 @@ namespace TC_WinForms.WinForms.Work
             }
         }
 
+        private void BtnReplaceTP_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Замена ТП");
+
+            var work = SelectedTO;
+
+            if (work == null)
+                return;
+
+            if (dataGridViewTPLocal.SelectedCells.Count == 1 && dataGridViewTPAll.SelectedRows.Count == 1)
+            {
+                var rowIndex = dataGridViewTPLocal.SelectedCells[0].RowIndex;
+                //get selected row
+                var selectedRowTP = dataGridViewTPLocal.Rows[rowIndex];
+                var idd = (Guid)selectedRowTP.Cells[0].Value;
+                var executionWork = work.executionWorks.Where(e => e.IdGuid == idd).FirstOrDefault();
+
+                //get replacement tp row
+                var selectedRowTpAll = dataGridViewTPAll.SelectedRows[0];
+                var newTechTranition = (TechTransition)selectedRowTpAll.Cells[0].Value;
+
+                if (executionWork.techTransitionId == newTechTranition.Id)
+                {
+                    MessageBox.Show("Вы выбрали одинаковые операции.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                else if(work.techOperation.Category == "Типовая ТО")
+                {
+                    MessageBox.Show("Вы не можете заменять ТП в типовых Тех. операциях", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }    
+
+                var result = MessageBox.Show($"Вы уверены, что хотите заменить {executionWork.techTransition.Name} на {newTechTranition.Name}?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.No)
+                {
+                    return;
+                }
+
+                executionWork.techTransition = newTechTranition;
+                executionWork.techTransitionId = newTechTranition.Id;
+
+                UpdateLocalTP();
+                TechOperationForm.UpdateGrid();
+            }
+            else
+            {
+                MessageBox.Show("Выберите по одной строке в обеих таблицах для замены.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
 
         private void AddEditTechOperationForm_FormClosed(object sender, FormClosedEventArgs e)
         {

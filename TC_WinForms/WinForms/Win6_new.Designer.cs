@@ -48,6 +48,7 @@ namespace TC_WinForms.WinForms
             toolStripShowCoefficients = new ToolStripButton();
             toolStripButton1 = new ToolStripButton();
             btnHideControlBtns = new ToolStripButton();
+            setAutoSaveSettings = new ToolStripMenuItem();
             btnShowStaffs = new Button();
             btnShowComponents = new Button();
             btnShowMachines = new Button();
@@ -68,7 +69,7 @@ namespace TC_WinForms.WinForms
             // toolStrip1
             // 
             toolStrip1.ImageScalingSize = new Size(20, 20);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients, toolStripButton1, btnHideControlBtns });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripExecutionScheme, toolStripDiagrams, toolStripShowCoefficients, toolStripButton1, btnHideControlBtns, setAutoSaveSettings });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
 			toolStrip1.Padding = new Padding(0, 0, 3, 0);
@@ -213,6 +214,16 @@ namespace TC_WinForms.WinForms
             btnHideControlBtns.Size = new Size(95, 22);
             btnHideControlBtns.Text = "Скрыть кнопки";
             btnHideControlBtns.Click += btnHideControlBtns_Click;
+            // 
+            // setAutoSaveSettings
+            // 
+            setAutoSaveSettings.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            setAutoSaveSettings.Image = (Image)resources.GetObject("setAutoSaveSettings.Image");
+            setAutoSaveSettings.ImageTransparentColor = Color.Magenta;
+            setAutoSaveSettings.Name = "setAutoSaveSettings";
+            setAutoSaveSettings.Size = new Size(171, 25);
+            setAutoSaveSettings.Text = "Включить автосохранение";
+            setAutoSaveSettings.Click += setAutoSaveSettings_Click;
             // 
             // btnShowStaffs
             // 
@@ -399,6 +410,7 @@ namespace TC_WinForms.WinForms
         private Panel pnlDataViewer;
         private ToolStripSplitButton toolStripFile;
         private ToolStripMenuItem printToolStripMenuItem;
+        private ToolStripMenuItem setAutoSaveSettings;
         private ToolStripMenuItem updateToolStripMenuItem;
         private ToolStripMenuItem SaveChangesToolStripMenuItem;
         private ToolStripMenuItem actionToolStripMenuItem;

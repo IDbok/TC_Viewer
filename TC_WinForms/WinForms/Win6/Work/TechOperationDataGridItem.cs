@@ -23,6 +23,7 @@ public class TechOperationDataGridItem
 
 	public bool ItsComponent = false;
 
+    public bool IsRemarkClosed = false;
 
 	public string Etap = "";
 	public string Posled = "";
@@ -80,10 +81,12 @@ public class TechOperationDataGridItem
 		Etap = executionWork.Etap;
 		Posled = executionWork.Posled;
 		Comments = executionWork.Comments ?? "";
-		Vopros = executionWork.Vopros;
-		Otvet = executionWork.Otvet;
+		Vopros = executionWork.Remark;
+		Otvet = executionWork.Reply;
 		PictureName = executionWork.PictureName ?? "";
-	}
+        IsRemarkClosed = executionWork.IsRemarkClosed;
+
+    }
 
 	public TechOperationDataGridItem(TechOperationWork techOperationWork, ToolWork toolWork, int order) 
 		: this(techOperationWork, order)
@@ -98,6 +101,7 @@ public class TechOperationDataGridItem
 		Comments = toolWork.Comments ?? "";
         Vopros = toolWork.Remark;
         Otvet = toolWork.Reply;
+        IsRemarkClosed = toolWork.IsRemarkClosed;
     }
 
 	public TechOperationDataGridItem(TechOperationWork techOperationWork, ComponentWork componentWork, int order) 
@@ -113,6 +117,7 @@ public class TechOperationDataGridItem
 		Comments = componentWork.Comments ?? "";
         Vopros = componentWork.Remark;
         Otvet = componentWork.Reply;
+        IsRemarkClosed = componentWork.IsRemarkClosed;
     }
 }
 

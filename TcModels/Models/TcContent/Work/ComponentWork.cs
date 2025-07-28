@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using TcModels.Models.Interfaces;
 
 namespace TcModels.Models.TcContent
 {
-	public class ComponentWork
+	public class ComponentWork: IRamarkable
     {
         public int Id { get; set; }
         public int techOperationWorkId { get; set; }
@@ -13,6 +14,8 @@ namespace TcModels.Models.TcContent
         public string? Comments { get; set; } = "";
         public string? Remark { get; set; } = "";
         public string? Reply { get; set; } = "";
+
+        public bool IsRemarkClosed { get; set; } = false;
 
         [NotMapped]
         public bool IsDeleted { get; set; } = false;
