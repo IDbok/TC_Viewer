@@ -1,4 +1,4 @@
-﻿using OfficeOpenXml.Style;
+using OfficeOpenXml.Style;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -46,6 +46,8 @@ namespace TC_WinForms.DataProcessing
             // todo: add header of the table
             var sheet = excelPackage.Workbook.Worksheets[sheetName] ?? excelPackage.Workbook.Worksheets.Add(sheetName);
             sheet.TabColor = tabColor;
+            sheet.HeaderFooter.OddHeader.CenteredText = article;
+            sheet.HeaderFooter.OddFooter.CenteredText = "Лист &P";
 
             AddOutlayDataToExel(sheet, outlays);
 
@@ -118,6 +120,8 @@ namespace TC_WinForms.DataProcessing
             printerSettings.BottomMargin = 1.0m / 2.54m;
             printerSettings.LeftMargin = 1.0m / 2.54m;
             printerSettings.RightMargin = 1.0m / 2.54m;
+            printerSettings.HeaderMargin = 0.3m / 2.54m;
+            printerSettings.FooterMargin = 0.3m / 2.54m;
 
             // Повторение строк заголовков на каждой странице печати
             printerSettings.RepeatRows = sheet.Cells["1:1"];
