@@ -16,6 +16,7 @@ using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
+using TcModels.Models.TcContent;
 using static TC_WinForms.WinForms.Win6.ImageEditor.ImageOptionsControl;
 using MessageBox = System.Windows.MessageBox;
 using UserControl = System.Windows.Controls.UserControl;
@@ -69,11 +70,21 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                             if (value)
                             {
                                 if (!_parentControl._imageHolder.ImageList.Any(o => o == Owner))
+                                {
                                     _parentControl._imageHolder.ImageList.Add(Owner);
+                                    if(_parentControl._imageHolder is DiagramShag shag)
+                                        Owner.DiagramShags.Add(shag);
+                                    else
+                                        Owner.ExecutionWorks.Add(_parentControl._imageHolder as ExecutionWork);
+                                }
                             }
                             else
                             {
                                 _parentControl._imageHolder.ImageList.RemoveAll(o => o == Owner);
+                                if (_parentControl._imageHolder is DiagramShag shag)
+                                    Owner.DiagramShags.RemoveAll( s => s == shag );
+                                else if(_parentControl._imageHolder is ExecutionWork ew)
+                                    Owner.ExecutionWorks.RemoveAll(e => e == ew);
                             }
                         }
                     }

@@ -261,14 +261,16 @@ namespace TC_WinForms.WinForms.Diagram
         //}
         //     }
 
+        public static void RaiseImageUpdated(object sender)
+        {
+            ImageUpdated?.Invoke(sender, EventArgs.Empty);
+        }
+
         private void OnGlobalImageUpdated(object sender, EventArgs e)
         {
-            // Проверяем, что это событие не вызвано текущим шагом
-            if (sender != this)
-            {
                 // Обновляем изображения в текущем шаге
                 RefreshImagePanel();
-            }
+            
         }
 
         //Отписываемся от события при удалении шага
@@ -853,7 +855,7 @@ namespace TC_WinForms.WinForms.Diagram
             editor.Closed += (s, args) =>
             {
                 // Обновляем панель с изображениями после закрытия редактора
-                RefreshImagePanel();
+                //RefreshImagePanel();
                 ImageUpdated?.Invoke(this, EventArgs.Empty);
                 // Помечаем изменения в состоянии
                 _diagramState.HasChanges();
