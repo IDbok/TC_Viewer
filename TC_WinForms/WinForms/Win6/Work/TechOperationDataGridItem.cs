@@ -83,7 +83,6 @@ public class TechOperationDataGridItem
 		Comments = executionWork.Comments ?? "";
 		Vopros = executionWork.Remark;
 		Otvet = executionWork.Reply;
-		PictureName = executionWork.PictureName ?? "";
         IsRemarkClosed = executionWork.IsRemarkClosed;
 
     }

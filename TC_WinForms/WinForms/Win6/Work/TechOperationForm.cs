@@ -1300,7 +1300,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				coefficient: copiedEw.Coefficient,
 				updateDataGrid: updateDataGrid,
 				comment: copiedEw.Comments,
-				pictureName: copiedEw.PictureName,
 				repeatTcId: copiedEw.RepeatsTCId ?? 0
 			);
 
@@ -1352,7 +1351,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			Staffs = copiedEw.Staffs,
 
             Comments = copiedEw.Comments,
-            PictureName = copiedEw.PictureName,
 
             ImageList = copiedEw.ImageList,
 
@@ -2019,9 +2017,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
             if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew != null)
             {
-                if(text == ew.PictureName) return;
 
-                ew.PictureName = text;
                 HasChanges = true;
                 if (_editForm?.IsDisposed == false)
                     _editForm.UpdateLocalTP();
@@ -3405,7 +3401,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             Order = newEwOrderInTo.Value, // номер в ТО
 			RowOrder = insertIndex!.Value, // по сути nomer (порядоковый номер в таблице ХР)
 			Comments = comment ?? "",
-			PictureName = pictureName ?? "",
 			Repeat = false
 		};
 

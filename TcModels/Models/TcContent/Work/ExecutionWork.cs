@@ -51,7 +51,7 @@ namespace TcModels.Models.TcContent
         public string Remark { get; set; } = "";
         public string Reply { get; set; } = "";
 
-        public string? PictureName { get; set; } = "";
+        public string? PictureName { get; set; } = ""; //todo: удалить столбец
 
         public List<ImageOwner> ImageList { get; set; } = new List<ImageOwner>();
         public override string ToString()

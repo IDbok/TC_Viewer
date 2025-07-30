@@ -745,17 +745,6 @@ namespace TC_WinForms.WinForms.Work
                     }
                 }
             }
-            else if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index)
-            {
-                var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-                var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
-                var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
-                if (wor != null)
-                {
-                    wor.PictureName = gg;
-                    TechOperationForm.UpdateGrid(); // todo: заменить на обновление ячейки
-                }
-            }
             else if (e.ColumnIndex == dataGridViewTPLocal.Columns["Order1"].Index)
             {
                 var idd = (Guid)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -868,8 +857,7 @@ namespace TC_WinForms.WinForms.Work
         {
             // todo: прерделать на метод по отрисовке строк, а не ячеек
 
-            if (e.ColumnIndex == dataGridViewTPLocal.Columns["PictureName"].Index
-                || e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index
+            if (e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index
                 || e.ColumnIndex == dataGridViewTPLocal.Columns["Order1"].Index)// Индекс столбца с checkBox
             {
                 TechOperationForm.CellChangeReadOnly(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
@@ -1188,7 +1176,6 @@ namespace TC_WinForms.WinForms.Work
 
                 listItem.Add(executionWork.Comments);
 
-                listItem.Add(executionWork.PictureName);
 
                 dataGridViewTPLocal.Rows.Add(listItem.ToArray());
             }

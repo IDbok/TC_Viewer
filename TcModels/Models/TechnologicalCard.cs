@@ -336,9 +336,6 @@ namespace TcModels.Models
 
                         Remark = ew.Remark,
                         Reply = ew.Reply,
-
-                        PictureName = ew.PictureName
-
                     }).ToList();
             }
 
