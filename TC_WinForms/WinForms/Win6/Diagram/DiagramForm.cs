@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms.Integration;
+using System.Windows.Controls;
+using System.Windows.Forms.Integration;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
@@ -17,8 +18,10 @@ namespace TC_WinForms.WinForms.Diagram
         public WpfMainControl wpfDiagram;
         private ElementHost elementHost;
 
+        private double verticalScrollPosition;
+        private double horizontalScrollPosition;
 
-		public DiagramForm()
+        public DiagramForm()
         {
             InitializeComponent();
         }
@@ -68,7 +71,11 @@ namespace TC_WinForms.WinForms.Diagram
 
 		public void UpdateVisualData() 
         {
+            SaveScrollPosition(wpfDiagram.ZoomableScrollViewer);
+
             wpfDiagram.ReinitializeForm();
+
+            RestoreScrollPosition(wpfDiagram.ZoomableScrollViewer);
         }
 
         public bool HasChanges { get; set; }
@@ -98,6 +105,24 @@ namespace TC_WinForms.WinForms.Diagram
         public int GetObjectId()
         {
             return tcId;
+        }
+
+        private void SaveScrollPosition(ScrollViewer scrollViewer)
+        {
+            if (scrollViewer != null)
+            {
+                verticalScrollPosition = scrollViewer.VerticalOffset;
+                horizontalScrollPosition = scrollViewer.HorizontalOffset;
+            }
+        }
+
+        private void RestoreScrollPosition(ScrollViewer scrollViewer)
+        {
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(verticalScrollPosition);
+                scrollViewer.ScrollToHorizontalOffset(horizontalScrollPosition);
+            }
         }
     }
 }
