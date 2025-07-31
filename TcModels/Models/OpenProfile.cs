@@ -38,7 +38,20 @@ public class OpenProfile : Profile
         CreateMap<TechOperationWork, TechOperationWork>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.TechnologicalCardId, opt => opt.Ignore())
-            .ForMember(dest => dest.executionWorks, opt => opt.Ignore());
+            .ForMember(dest => dest.executionWorks, opt => opt.Ignore())
+            .AfterMap((src, dest) =>
+            {
+                var parallelIndex = src.GetParallelIndex();
+                var sequenceGroupIndex = src.GetSequenceGroupIndex();
+
+                if (parallelIndex.HasValue)
+                {
+                    if (sequenceGroupIndex.HasValue)
+                        dest.SetSequenceGroupIndex(sequenceGroupIndex.Value);
+
+                    dest.SetParallelIndex(parallelIndex.Value);
+                }
+            });
 
         CreateMap<ToolWork, ToolWork>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
