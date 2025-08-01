@@ -1,11 +1,14 @@
-﻿using ExcelParsing.DataProcessing;
+using ExcelParsing.DataProcessing;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TC_WinForms.Services;
+using TcDbConnector;
 using TcDbConnector.Repositories;
 using TcModels.Models.Helpers;
 using TcModels.Models.TcContent;
@@ -16,6 +19,8 @@ namespace TC_WinForms.DataProcessing
 {
     public class DataExcelExport
     {
+        private Dictionary<long, string> _printSettingsNames = new Dictionary<long, string>();
+
         public DataExcelExport() 
         {
             ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -31,6 +36,8 @@ namespace TC_WinForms.DataProcessing
                 TechnologicalCardRepository tcRepository = new TechnologicalCardRepository();
                 var excelPackage = new ExcelPackage();
 
+                await WriteNames(printSettings.Select(t => t.TcId.Value).ToList());
+
                 foreach (var printSetting in printSettings)
                 {
                     if (printSetting.TcId == null)
@@ -43,6 +50,7 @@ namespace TC_WinForms.DataProcessing
                     Color randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 
                     var tc = await tcRepository.GetTCDataAsync((int)printSetting.TcId);
+                    var tcRowItem = CreateToGridItemService.PopulateTechOperationDataGridItems(tc.TechOperationWorks.OrderBy(o => o.Order).ToList(), tc.Machine_TCs);
                     string imageBase64 = "";
 
                     if (tc.ExecutionSchemeImageId != null)
@@ -53,8 +61,8 @@ namespace TC_WinForms.DataProcessing
 
                     if (printSetting.PrintWorkSteps)
                     {
-                        var tcExport = new TCExcelExporter();
-                        tcExport.ExportTCtoFile(excelPackage, tc, randomColor);
+                        var tcExport = new TechCartExcelExporter();
+                        tcExport.ExportTCtoFile(excelPackage, tc, tcRowItem, randomColor, _printSettingsNames);
                     }
 
                     if (printSetting.PrintOutlay)
@@ -89,6 +97,24 @@ namespace TC_WinForms.DataProcessing
             catch (UnauthorizedAccessException)
             {
                 MessageBox.Show("Нет доступа к директории.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Произошла ошибка при сохранении файла: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task WriteNames(List<long> tcsId)
+        {
+            try
+            {
+                using(MyDbContext context = new MyDbContext())
+                {
+                    foreach(var tcId in tcsId)
+                    {
+                        _printSettingsNames.Add(tcId, context.TechnologicalCards.Where(t => t.Id == tcId).Select(t => t.Article).First());
+                    }    
+                }    
             }
             catch (Exception ex)
             {
