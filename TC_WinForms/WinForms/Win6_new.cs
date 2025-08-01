@@ -537,6 +537,9 @@ namespace TC_WinForms.WinForms
                                                 || _activeModelType == EModelType.Diagram || modelType == EModelType.Diagram
                                                 || _activeModelType == EModelType.Outlay || modelType == EModelType.Outlay;
 
+                var diagramForm = CheckOpenFormService.FindOpenedForm<DiagramForm>(_tcId);
+                var areDiagramInWindow = _activeModelType != EModelType.Diagram && modelType != EModelType.Diagram && isSwitchingFromOrToWorkStep && diagramForm != null;
+
                 if (isSwitchingFromOrToWorkStep)
                 {
                     // Удаляем формы из кеша для их обновления при следующем доступе
@@ -544,11 +547,16 @@ namespace TC_WinForms.WinForms
                     {
                         if (_formsCache[formKey] != null)
                         {
+                            if (areDiagramInWindow && formKey == EModelType.Diagram)
+                                continue;
+
                             _formsCache[formKey].Close();
+                            _formsCache.Remove(formKey);
                             //_formsCache[formKey].Dispose();
                         }
                     }
-                    _formsCache.Clear(); // Очищаем кеш
+
+                    //_formsCache.Clear(); // Очищаем кеш
                 }
 
                 if (!_formsCache.TryGetValue(modelType, out var form))
