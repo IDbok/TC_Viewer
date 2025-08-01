@@ -3,10 +3,13 @@ using System;
 using System.Threading.Tasks;
 using System.Windows.Forms.Integration;
 using TC_WinForms.Interfaces;
+using TC_WinForms.Services;
+using TC_WinForms.WinForms.Diagram;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
+using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Win6.ImageEditor
 {
@@ -50,8 +53,10 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
             this.context = context;
             this.isWindowEditor = isWindowEditor;
 
-            if(imageHolder != null)
-                _originalImageList = imageHolder.ImageList.ToList();//
+            if (imageHolder != null)
+                _originalImageList = imageHolder.ImageList.ToList();
+            else
+                _originalImageList = tc.ImageList.ToList();
 
             Load += Win6_ImageEditor_Load;
             FormClosing += Win6_ImageEditor_FormClosing;
@@ -87,12 +92,17 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
                     case DialogResult.Yes:
                         UserChoice = SaveResult.Save;
                         AfterSave?.Invoke(imageHolder);
+                        if (!isWindowEditor && imageHolder == null)
+                            TryUpdateDiagramImages();
                         break;
 
                     case DialogResult.No:
                         UserChoice = SaveResult.DontSave;
                         if (imageHolder != null)
                             imageHolder.ImageList = _originalImageList;
+                        else if (!isWindowEditor)
+                            tc.ImageList = _originalImageList;
+
                         break;
 
                     case DialogResult.Cancel:
@@ -110,8 +120,17 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
 
         private bool HasListChanged()
         {
-            if (imageHolder == null)
+            if (imageHolder == null && _originalImageList.Count != tc.ImageList.Count)
+                return true;
+            else if (imageHolder == null && _originalImageList.Count == tc.ImageList.Count)
+            {
+                for (int i = 0; i < tc.ImageList.Count; i++)
+                {
+                    if (!_originalImageList[i].Equals(tc.ImageList[i]))
+                        return true;
+                }
                 return false;
+            }
 
             // Сравниваем текущий список с оригинальным
             if (imageHolder.ImageList.Count != _originalImageList.Count)
@@ -153,5 +172,15 @@ namespace TC_WinForms.WinForms.Win6.ImageEditor
         }
 
         #endregion
+
+        private void TryUpdateDiagramImages()
+        {
+            // Находим открытую форму DiagramForm
+            var diagramForm = CheckOpenFormService.FindOpenedForm<DiagramForm>(tc.Id);
+            if (diagramForm != null)
+            {
+                WpfShag.RaiseImageUpdated(this);
+            }
+        }
     }
 }
