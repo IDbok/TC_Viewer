@@ -28,8 +28,9 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 	private readonly int _minComboboxWidth = 160;
 
 	private readonly int _linesPerPage = 50;
+    private bool _isFiltering = false;
 
-	private DbConnector _dbCon = new DbConnector();
+    private DbConnector _dbCon = new DbConnector();
 
 	private List<DisplayedTechnologicalCard> _displayedTechnologicalCards;
 	private BindingList<DisplayedTechnologicalCard> _bindingList;
@@ -149,8 +150,8 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 		{
 			var allCards = await Task.Run(() => _dbCon.GetObjectList<TechnologicalCard>());
 
-			// Для ролей ProjectManager и User — отображаем только Approved
-			if (_accessLevel == User.Role.ProjectManager || _accessLevel == User.Role.User)
+            // Для ролей ProjectManager и User — отображаем только Approved
+            if (_accessLevel == User.Role.ProjectManager || _accessLevel == User.Role.User)
 			{
 				_displayedTechnologicalCards = allCards
 					.Where(tc => tc.Status == TechnologicalCardStatus.Approved)
@@ -176,7 +177,7 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 
 			paginationService = new PaginationControlService<DisplayedTechnologicalCard>(_linesPerPage, _displayedTechnologicalCards);
 			UpdateDisplayedData();
-		}
+        }
 		catch (Exception e)
 		{
 			_logger.Error("Ошибка при загрузке данных: {ExceptionMessage}", e.Message);
@@ -254,7 +255,8 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 
 	private void ComboBoxFilter_Changed(object sender, EventArgs e)
 	{
-		FilterTechnologicalCards();
+        if ((sender as ComboBox)?.SelectedIndex == -1) return;
+        FilterTechnologicalCards();
 
 		if (sender is ComboBox comboBox)
 		{
@@ -421,9 +423,9 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 
 	private void FilterTechnologicalCards()
 	{
-		if (!_isDataLoaded) return;
-
-		try
+		if (!_isDataLoaded || _isFiltering) return;
+        _isFiltering = true;
+        try
 		{
 			var filteredList = ApplyFilters();
 			paginationService.SetAllObjectList(filteredList);
@@ -433,7 +435,11 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 		{
 			_logger.Error("Ошибка фильтрации: {ExceptionMessage}", e.Message);
 		}
-	}
+        finally
+        {
+            _isFiltering = false;
+        }
+    }
 
 	private List<DisplayedTechnologicalCard> ApplyFilters()
 	{
