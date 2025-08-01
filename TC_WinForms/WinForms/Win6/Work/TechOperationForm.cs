@@ -36,6 +36,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     //private bool _isCommentViewMode;
     private bool _isMachineViewMode;
 
+    // Словарь для хранения ширины столбцов
+    private Dictionary<string, int> _columnWidths = new Dictionary<string, int>();
+
     public MyDbContext context { get; private set; }
 
     public readonly int _tcId;
@@ -2084,10 +2087,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         {
             var offScroll = dgvMain.FirstDisplayedScrollingRowIndex;
 
+            HandleColumnWidths();
+
             ClearAndInitializeGrid();
             PopulateDataGrid();
             SetCommentViewMode();
             SetMachineViewMode();
+
+            HandleColumnWidths(isSaveMode: false);
 
             if (offScroll < dgvMain.Rows.Count && offScroll > 0)
                 dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
@@ -2106,6 +2113,32 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		{
 			_logger.Error(ex, "Ошибка при обновлении грида (UpdateGrid).");
 		}
+    }
+
+    // Универсальный метод для сохранения/восстановления ширины столбцов
+    // actionType: "save" - сохранить, "restore" - восстановить
+    private void HandleColumnWidths(bool isSaveMode = true)
+    {
+        if (isSaveMode)
+        {
+            _columnWidths.Clear();
+            foreach (DataGridViewColumn column in dgvMain.Columns)
+            {
+                _columnWidths[column.Name] = column.Width;
+            }
+            _logger.Debug("Ширины столбцов сохранены.");
+        }
+        else if (!isSaveMode &&_columnWidths.Count > 0)
+        {
+            foreach (DataGridViewColumn column in dgvMain.Columns)
+            {
+                if (_columnWidths.TryGetValue(column.Name, out int width))
+                {
+                    column.Width = width;
+                }
+            }
+            _logger.Debug("Ширины столбцов восстановлены.");
+        }
     }
 
     /// <summary>
