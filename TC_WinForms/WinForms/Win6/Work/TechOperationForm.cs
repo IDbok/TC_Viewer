@@ -1309,6 +1309,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		
 			UpdateProtectionsInRow( newEw, copiedEw.Protections, updateDataGrid: updateDataGrid);
 			UpdateStaffInRow( newEw, copiedEw.Staffs, updateDataGrid: updateDataGrid);
+            UpdateImagesInRow(rowIndex, newEw, copiedEw.ImageList, updateDataGrid: updateDataGrid);
 		}
 
 		catch (Exception ex)
