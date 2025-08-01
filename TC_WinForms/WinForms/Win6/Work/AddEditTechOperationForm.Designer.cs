@@ -1046,7 +1046,7 @@ namespace TC_WinForms.WinForms.Work
 			dataGridViewTPLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewTPLocal.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             dataGridViewTPLocal.RowTemplate.Height = -1;
-            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Order1, Time, Coefficient, Column28, Comment, PictureName });
+            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Order1, Time, Coefficient, Column28, Comment});
 			dataGridViewTPLocal.Dock = DockStyle.Fill;
 			dataGridViewTPLocal.Location = new Point(2, 2);
 			dataGridViewTPLocal.Margin = new Padding(2);
