@@ -3155,6 +3155,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
                 }
             }
+            else if(!TechOperationDataGridItems[e.RowIndex].ItsTool && !TechOperationDataGridItems[e.RowIndex].ItsComponent && TechOperationDataGridItems[e.RowIndex].WorkItem == null)
+            {
+                if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
+                {
+                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                }
+            }
 
             if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index && e.RowIndex >= 0)
             {
