@@ -3157,11 +3157,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     // пропускаю действие, т.к. отрисовка цвета уже произошла
                     //SetCellBackColor(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], Color.Yellow);
                 }
-                else if (!executionWork.techTransition.IsRepeatAsInTcTransition() &&(!executionWork.techTransition.IsReleased 
-                            || !executionWork.techOperationWork.techOperation.IsReleased)
-                        && (e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index
-                            || e.ColumnIndex == dgvMain.Columns[2].Index)) // todo: уйти от номера столбца
-				{
+                else if (executionWork?.techTransition != null && executionWork.techOperationWork != null && executionWork.techOperationWork?.techOperation != null
+                        && !executionWork.techTransition.IsRepeatAsInTcTransition()
+                        && (!executionWork.techTransition.IsReleased || !executionWork.techOperationWork.techOperation.IsReleased)
+                        && (e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index || e.ColumnIndex == dgvMain.Columns[2].Index)) // Проверка, что есть хотя бы 3 столбца
+                {
                     // пропускаю действие, т.к. отрисовка цвета уже произошла
                 }
                 else
