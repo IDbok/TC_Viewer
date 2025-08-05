@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Nancy.Validation.Rules;
 using Serilog;
 using System.Windows.Forms.Integration;
 using TC_WinForms.DataProcessing;
@@ -54,7 +55,7 @@ namespace TC_WinForms.WinForms
         public static event Action? CommentViewModeChanged;
         public static event Action? ViewModeChanged;
         public static event Action? TCStatusModedChanged;
-
+       
         private static void OnCommentViewModeChanged()
         {
             CommentViewModeChanged?.Invoke();
@@ -78,6 +79,8 @@ namespace TC_WinForms.WinForms
         private DbConnector db = new DbConnector();
         private MyDbContext context = new MyDbContext();
         private OutlayService calculateOutlayService = new OutlayService();
+        private bool TcWasBlocked = false;
+
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false, EModelType startForm = EModelType.WorkStep)
         {
@@ -227,13 +230,24 @@ namespace TC_WinForms.WinForms
             if (concurrencyBlockServise.GetObjectUsedStatus())
             {
                 tcViewState.IsViewMode = true;
+                TcWasBlocked = true;
             }
             else if (isViewMode != null && tcViewState.IsViewMode != isViewMode)
             {
                 tcViewState.IsViewMode = (bool)isViewMode;
                 _logger.Information("Изменен режим просмотра: TcId={TcId}, IsViewMode={IsViewMode}", _tc.Id, isViewMode);
                 if (!tcViewState.IsViewMode)
-                    concurrencyBlockServise.BlockObject();
+                {
+                    if(TcWasBlocked)
+                    {
+                        var newForm = new Win6_new(_tcId, _accessLevel, tcViewState.IsViewMode, startOpenForm);
+                        newForm.Show();
+                        MessageBox.Show("Карта была  перезагружена, так как была обнаружена блокировка данных другим пользователем. Карта обновлена до последней версии.", "Данные обновлены", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        this.Close();
+                    }
+                    else
+                        concurrencyBlockServise.BlockObject();
+                }
             }
 
             SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
@@ -495,7 +509,10 @@ namespace TC_WinForms.WinForms
 
         private async void Win6_new_FormClosing(object sender, FormClosingEventArgs e)
         {
-
+            if (concurrencyBlockServise.GetObjectUsedStatus())
+            {
+                concurrencyBlockServise.CleanBlockData(); // Снимаем блокировку
+            }
             // проверка на наличие изменений во всех формах
             if (!CheckForChanges()) // если false, то отменяем переключение
             {
@@ -937,6 +954,7 @@ namespace TC_WinForms.WinForms
             {
                 _logger.Information("Карта уже редактируется другим пользователем. Отмена переключения режима для TcId={TcId}", _tcId);
                 MessageBox.Show("Сейчас карта используется другим пользователем. Она доступна только для просмотра.");
+                TcWasBlocked = true;
                 return;
             }
 
@@ -948,7 +966,7 @@ namespace TC_WinForms.WinForms
 
             if (!tcViewState.IsViewMode && !concurrencyBlockServise.GetObjectUsedStatus())
                 concurrencyBlockServise.BlockObject();
-
+            
             SetViewMode(!tcViewState.IsViewMode);
 
         }
