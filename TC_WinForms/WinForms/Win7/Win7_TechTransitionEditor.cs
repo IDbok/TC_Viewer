@@ -1,4 +1,4 @@
-﻿
+
 using System.Reflection;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
@@ -88,7 +88,7 @@ public partial class Win7_TechTransitionEditor : Form
     }
     private async void btnSave_Click(object sender, EventArgs e)
     {
-        var timeCheck = float.TryParse(txtTime.Text, out float time);
+        var timeCheck = double.TryParse(txtTime.Text, out double time);
 
         if (txtTime.Text != "" && !timeCheck)
         {

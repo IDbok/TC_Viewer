@@ -1,4 +1,4 @@
-﻿namespace TC_WinForms.WinForms
+namespace TC_WinForms.WinForms
 {
     partial class Win7_TechOperation_Window
     {
@@ -51,6 +51,7 @@
             DateGridLocalTPDetete = new DataGridViewButtonColumn();
             dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
             Time = new DataGridViewTextBoxColumn();
+            OrderColumn = new DataGridViewTextBoxColumn();
             Coefficient = new DataGridViewTextBoxColumn();
             Column1 = new DataGridViewTextBoxColumn();
             Column2 = new DataGridViewTextBoxColumn();
@@ -144,7 +145,7 @@
             dataGridViewTPLocal.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewTPLocal.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewTPLocal.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Time, Coefficient, Column1, Column2, Comment, Order1 });
+            dataGridViewTPLocal.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn7, DateGridLocalTPDetete, dataGridViewTextBoxColumn8, Time, OrderColumn, Coefficient, Column1, Column2, Comment, Order1 });
             dataGridViewTPLocal.Location = new Point(4, 154);
             dataGridViewTPLocal.Margin = new Padding(4, 4, 4, 4);
             dataGridViewTPLocal.Name = "dataGridViewTPLocal";
@@ -316,6 +317,13 @@
             Time.MinimumWidth = 6;
             Time.Name = "Time";
             // 
+            // OrderColumn
+            // 
+            OrderColumn.HeaderText = "Порядок";
+            OrderColumn.Name = "OrderColumn";
+            OrderColumn.Width = 70;
+            OrderColumn.MinimumWidth = 60;
+            // 
             // Coefficient
             // 
             Coefficient.HeaderText = "Коэффициент";
@@ -327,7 +335,7 @@
             Column1.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             Column1.HeaderText = "Этап";
             Column1.MinimumWidth = 6;
-            Column1.Name = "Column1";
+            Column1.Name = "EtapColumn";
             Column1.Width = 130;
             // 
             // Column2
@@ -335,7 +343,7 @@
             Column2.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             Column2.HeaderText = "Последовательно";
             Column2.MinimumWidth = 6;
-            Column2.Name = "Column2";
+            Column2.Name = "PosledColumn";
             Column2.Width = 130;
             // 
             // Comment
@@ -398,6 +406,7 @@
         private DataGridViewButtonColumn DateGridLocalTPDetete;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
         private DataGridViewTextBoxColumn Time;
+        private DataGridViewTextBoxColumn OrderColumn;
         private DataGridViewTextBoxColumn Coefficient;
         private DataGridViewTextBoxColumn Column1;
         private DataGridViewTextBoxColumn Column2;

@@ -1,12 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data;
+using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.Services;
+using TC_WinForms.WinForms.Work;
 using TcDbConnector;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.Work;
-using TC_WinForms.DataProcessing;
-using Microsoft.EntityFrameworkCore;
-using TC_WinForms.DataProcessing.Helpers;
-using TC_WinForms.Services;
 
 namespace TC_WinForms.WinForms;
 
@@ -63,6 +64,12 @@ public partial class Win7_TechOperation_Window : Form
 
         dataGridViewTPLocal.CellEndEdit += DataGridViewTPLocal_CellEndEdit;
 
+        dataGridViewTPLocal.Columns["OrderColumn"].DefaultCellStyle.BackColor = Color.LightGray;
+        dataGridViewTPLocal.Columns["Comment"].DefaultCellStyle.BackColor = Color.LightGray;
+        dataGridViewTPLocal.Columns["EtapColumn"].DefaultCellStyle.BackColor = Color.LightGray;
+        dataGridViewTPLocal.Columns["PosledColumn"].DefaultCellStyle.BackColor = Color.LightGray;
+        dataGridViewTPLocal.Columns["Coefficient"].DefaultCellStyle.BackColor = Color.LightGray;
+
         comboBoxTPCategoriya.SelectedIndexChanged += ComboBoxTPCategoriya_SelectedIndexChanged;
         textBoxPoiskTP.TextChanged += TextBoxPoiskTP_TextChanged;
 
@@ -100,14 +107,15 @@ public partial class Win7_TechOperation_Window : Form
     {
         if (e.RowIndex < 0) return;
 
-        if (e.ColumnIndex == 5)
+        if (e.ColumnIndex == dataGridViewTPLocal.Columns["EtapColumn"].Index)
         {
             var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
             var idd = (TechTransitionTypical)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
 
             idd.Etap = gg;
 
-        }else if (e.ColumnIndex == 6)
+        }
+        else if (e.ColumnIndex == dataGridViewTPLocal.Columns["PosledColumn"].Index)
         {
             var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
             var idd = (TechTransitionTypical)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -115,7 +123,7 @@ public partial class Win7_TechOperation_Window : Form
             idd.Posled = gg;
 
         }
-        else if (e.ColumnIndex == 7)
+        else if (e.ColumnIndex == dataGridViewTPLocal.Columns["Comment"].Index)
         {
             var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
             var idd = (TechTransitionTypical)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
@@ -123,13 +131,51 @@ public partial class Win7_TechOperation_Window : Form
             idd.Comments = gg;
 
         }
-        else if (e.ColumnIndex == 4)
+        else if (e.ColumnIndex == dataGridViewTPLocal.Columns["Coefficient"].Index)
         {
             var gg = (string)dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
             var idd = (TechTransitionTypical)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
 
             idd.Coefficient = gg;
 
+        }
+        else if (e.ColumnIndex == dataGridViewTPLocal.Columns["OrderColumn"].Index)
+        {
+            var techTransition = (TechTransitionTypical)dataGridViewTPLocal.Rows[e.RowIndex].Cells[0].Value;
+            int newOrder = 1;
+            try
+            {
+                newOrder = Convert.ToInt32(dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value);
+            }
+            catch (FormatException ex)
+            {
+                MessageBox.Show("Введите числовое значение!", "Ошибка формата!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                dataGridViewTPLocal.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = techTransition.Order;
+                return;
+            }
+
+            if(techTransition != null)
+            {
+                newOrder = newOrder <= 0 ? 1 : newOrder;
+                newOrder = newOrder > dataGridViewTPLocal.RowCount ? dataGridViewTPLocal.RowCount : newOrder;
+
+                this.BeginInvoke(new MethodInvoker(() =>//используется для обхода рекурсивного вызова перемещения строк
+                {
+                    var currentOrder = techTransition.Order;
+                    if (currentOrder == newOrder)
+                        return;
+
+                    DGVProcessing.ReorderRows(dataGridViewTPLocal.Rows[e.RowIndex], newOrder, dataGridViewTPLocal);
+
+                    foreach (DataGridViewRow dataGridViewRow in dataGridViewTPLocal.Rows)
+                    {
+                        // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
+                        var techOperationWorkRow = (TechTransitionTypical)dataGridViewRow.Cells[0].Value;
+                        techOperationWorkRow.Order = dataGridViewRow.Index + 1; // Обновляем свойство Order
+                    }
+                    UpdateGridLocalTP();
+                }));
+            }
         }
 
     }
@@ -139,7 +185,7 @@ public partial class Win7_TechOperation_Window : Form
         if (e.ColumnIndex == 1 && e.RowIndex >= 0)
         {
             var Idd = (TechTransition)dataGridViewTPAll.Rows[e.RowIndex].Cells[0].Value;
-            techOperation.techTransitionTypicals.Add(new TechTransitionTypical { TechTransition = Idd });
+            techOperation.techTransitionTypicals.Add(new TechTransitionTypical { TechTransition = Idd, Order = techOperation.techTransitionTypicals.Count + 1});
             UpdateGridLocalTP();
         }
     }
@@ -162,7 +208,7 @@ public partial class Win7_TechOperation_Window : Form
 
         var LocalTP = techOperation.techTransitionTypicals.ToList();
 
-        foreach (TechTransitionTypical techTransitionTypical in LocalTP)
+        foreach (TechTransitionTypical techTransitionTypical in LocalTP.OrderBy(o => o.Order))
         {
             List<object> listItem = new List<object>
             {
@@ -170,6 +216,7 @@ public partial class Win7_TechOperation_Window : Form
                 "Удалить",
                 techTransitionTypical.TechTransition?.Name!,
                 techTransitionTypical.TechTransition?.TimeExecution!,
+                techTransitionTypical.Order,
                 techTransitionTypical.Coefficient ?? "",
                 techTransitionTypical.Etap,
                 techTransitionTypical.Posled,
