@@ -240,16 +240,10 @@ namespace TC_WinForms.WinForms
                 {
                     if(TcWasBlocked)
                     {
-                        var result = MessageBox.Show("Карта была открыта когда другой пользователь редактировал её. Рекомендуется закрыть окно и заново открыть карту, чтобы обновить данные, так как они могли быть изменены. В ином случае это может привести к ошибкам и потери данных. Перезагрузить окно?", "Внимание!", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                        if(result == DialogResult.Yes)
-                        {
-                            var newForm = new Win6_new(_tcId, _accessLevel, tcViewState.IsViewMode, startOpenForm);
-                            newForm.Show();
-                            this.Close();
-
-                        }
-                        else
-                            concurrencyBlockServise.BlockObject();
+                        var newForm = new Win6_new(_tcId, _accessLevel, tcViewState.IsViewMode, startOpenForm);
+                        newForm.Show();
+                        MessageBox.Show("Карта была  перезагружена, так как была обнаружена блокировка данных другим пользователем. Карта обновлена до последней версии.", "Данные обновлены", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        this.Close();
                     }
                     else
                         concurrencyBlockServise.BlockObject();
