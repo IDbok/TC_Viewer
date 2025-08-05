@@ -3338,7 +3338,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				TechOperat.techTransitionTypicals = context.TechTransitionTypicals.Where(s => s.TechOperationId == TechOperat.Id).ToList();
 			}
 
-			foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals)
+            foreach (TechTransitionTypical item in TechOperat.techTransitionTypicals.OrderBy(o => o.Order))
             {
                 var temp = item.TechTransition;
                 if (temp == null)
@@ -3477,6 +3477,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             newEw.Posled = techTransitionTypical.Posled;
             newEw.Coefficient = techTransitionTypical.Coefficient;
             newEw.Comments = techTransitionTypical.Comments ?? "";
+            newEw.Order = techTransitionTypical.Order;
 
             newEw.Value = string.IsNullOrEmpty(techTransitionTypical.Coefficient) 
                 ? tech.TimeExecution 

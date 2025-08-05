@@ -420,7 +420,7 @@ namespace TC_WinForms.WinForms.Work
                 var context = TechOperationForm.context;
                 allTO = context
                     .TechOperations
-                    .Include(t => t.techTransitionTypicals)
+                    .Include(t => t.techTransitionTypicals.OrderBy(o => o.Order))
                     .ToList();
 
                 _logger.Information("Фильтрация ТО по строке поиска: {SearchText}", textBoxPoiskTo.Text);

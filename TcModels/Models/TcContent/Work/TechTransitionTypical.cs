@@ -1,4 +1,4 @@
-﻿namespace TcModels.Models.TcContent.Work
+namespace TcModels.Models.TcContent.Work
 {
 	public class TechTransitionTypical
     {
@@ -8,6 +8,8 @@
         public TechOperation TechOperation { get; set; } = null!;
         public int TechTransitionId { get; set; }
         public TechTransition TechTransition { get; set; } = null!;
+
+        public int Order { get; set; } = 0;
 
         public string Etap { get; set; } = "";
         public string Posled { get; set; } = "";
