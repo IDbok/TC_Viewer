@@ -94,17 +94,17 @@ namespace TC_WinForms.DataProcessing
 
             currentRow = AddTCName(sheet, currentRow, 6);
 
-            foreach (var dTOWGroup in dTOWGroups)
-            {
-                bool isNull = dTOWGroup.Key == null;
+                foreach (var dTOWGroup in dTOWGroups)
+                {
+                    bool isNull = dTOWGroup.Key == null;
 
-                if (!isNull)
-                    currentRow = AddTODiadramsToExcel(dTOWGroup.OrderBy(x => x.Order).ToList(), currentRow, sheet);
-                else
-                    currentRow = AddTODiadramsToExcel(dTOWGroup.ToList(), currentRow, sheet);
-                    
+                    if (!isNull)
+                        currentRow = AddTODiadramsToExcel(dTOWGroup.OrderBy(x => x.Order).ToList(), currentRow, sheet);
+                    else
+                        currentRow = AddTODiadramsToExcel(dTOWGroup.ToList(), currentRow, sheet);
+
+                }
             }
-        }
         public async Task LoadDataAsync(int tcId)
         {
             using (MyDbContext dbContext = new MyDbContext())
@@ -245,7 +245,7 @@ namespace TC_WinForms.DataProcessing
                 isNextShagIsParallel = parallel.ListDiagramPosledov.Count > 1 ? true : false;
 
                 if(currentStatus != isNextShagIsParallel && !isNextShagIsParallel)
-                    currentRow = AddParallelStatus(sheet, currentRow, centerCollumn);
+                    currentRow = AddParallelStatus(sheet, currentRow, isNextTOParallel ? currentCollumn : centerCollumn);
 
                 resultRow = AddPosledovTOToExel(parallel, currentCollumn, currentRow, TOName, sheet);
 
@@ -319,7 +319,7 @@ namespace TC_WinForms.DataProcessing
             foreach (DiagramShag shag in shagList)
             {
                 AddPageCount(currentRow, currentColumn, sheet);//проверка выполняется трижды
-                
+
                 currentRow = AddTONameToExcel(TOName, sheet, currentRow, currentColumn);
                 if(!isShagStatusPrinted && isNextShagIsParallel)
                 {
