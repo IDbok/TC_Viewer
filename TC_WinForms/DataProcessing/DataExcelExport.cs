@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TC_WinForms.Services;
 using TcDbConnector;
 using TcDbConnector.Repositories;
+using TcModels.Models;
 using TcModels.Models.Helpers;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.RoadMap;
@@ -53,8 +54,8 @@ namespace TC_WinForms.DataProcessing
                     var tcRowItem = CreateToGridItemService.PopulateTechOperationDataGridItems(tc.TechOperationWorks.OrderBy(o => o.Order).ToList(), tc.Machine_TCs);
                     string imageBase64 = "";
 
-                    if (tc.ExecutionSchemeImageId != null)
-                        imageBase64 = await tcRepository.GetImageBase64Async((long)tc.ExecutionSchemeImageId);
+                    if (tc.ImageList.Where(i => i.Role == ImageRole.ExecutionScheme).Count() > 0)
+                        imageBase64 = tc.ImageList.Where(i => i.Role == ImageRole.ExecutionScheme).Select(i => i.ImageStorage.ImageBase64).First();
 
                     var coverExport = new TcCoverExcelExporter();
                     coverExport.ExportCoverToExcel(excelPackage, tc, imageBase64, randomColor);
