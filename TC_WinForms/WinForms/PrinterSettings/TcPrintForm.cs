@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -57,7 +57,7 @@ namespace TC_WinForms.WinForms.PrinterSettings
 
                     _mainTcArticle = mainTc.Article;
                     _allPrintedTcDict.Add(_mainTcId, _mainTcArticle);
-                    _printerSettings.Add(new TcPrinterSettings { TcId = _mainTcId });
+                    _printerSettings.Add(new TcPrinterSettings { TcId = _mainTcId, TcName = mainTc.Article });
 
                     if (mainTc != null)
                     {
@@ -76,7 +76,7 @@ namespace TC_WinForms.WinForms.PrinterSettings
                                 .Select(x => $"{x.Article} {x.TechnologicalProcessName} {x.Parameter}")
                                 .FirstOrDefault();
                                 _allPrintedTcDict.Add(id, $"{tcArticle}()");
-                                _printerSettings.Add(new TcPrinterSettings { TcId = id });
+                                _printerSettings.Add(new TcPrinterSettings { TcId = id, TcName = tcArticle });
                             }
                             );
                     }

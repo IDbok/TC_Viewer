@@ -37,7 +37,10 @@ namespace TC_WinForms.DataProcessing
                 TechnologicalCardRepository tcRepository = new TechnologicalCardRepository();
                 var excelPackage = new ExcelPackage();
 
-                await WriteNames(printSettings.Select(t => t.TcId.Value).ToList());
+                _printSettingsNames =  printSettings.Where(s => s.TcId.HasValue && !string.IsNullOrEmpty(s.TcName))
+                .ToDictionary(s => s.TcId.Value, s => s.TcName!);
+
+                Random rnd = new Random();
 
                 foreach (var printSetting in printSettings)
                 {
@@ -47,7 +50,6 @@ namespace TC_WinForms.DataProcessing
                     if(!printSetting.PrintWorkSteps && !printSetting.PrintDiagram && !printSetting.PrintOutlay && !printSetting.PrintRoadMap)
                         continue;
 
-                    Random rnd = new Random();
                     Color randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 
                     var tc = await tcRepository.GetTCDataAsync((int)printSetting.TcId);
@@ -98,24 +100,6 @@ namespace TC_WinForms.DataProcessing
             catch (UnauthorizedAccessException)
             {
                 MessageBox.Show("Нет доступа к директории.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Произошла ошибка при сохранении файла: \n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private async Task WriteNames(List<long> tcsId)
-        {
-            try
-            {
-                using(MyDbContext context = new MyDbContext())
-                {
-                    foreach(var tcId in tcsId)
-                    {
-                        _printSettingsNames.Add(tcId, context.TechnologicalCards.Where(t => t.Id == tcId).Select(t => t.Article).First());
-                    }    
-                }    
             }
             catch (Exception ex)
             {
