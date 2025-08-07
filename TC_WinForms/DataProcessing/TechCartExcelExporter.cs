@@ -20,8 +20,6 @@ namespace TC_WinForms.DataProcessing
         private ExcelExporter _exporter;
         private Dictionary<long, string> _relatedTcNames;
 
-        private readonly Color _lightGreen = Color.FromArgb(197, 224, 180);
-        private readonly Color _lightYellow = Color.FromArgb(237, 125, 49);
         private readonly Color _lightGey = Color.FromArgb(242, 242, 242);
 
         private readonly Color _toolColor = Color.FromArgb(221, 235, 247);
@@ -62,6 +60,7 @@ namespace TC_WinForms.DataProcessing
 
         private readonly double _defaultRowHeight = 14.5;
         private readonly double _defaultColumnWidth = 6.82;
+        private readonly double _defaulHeaderHeight = 40;
         #endregion
 
         #region Contructor
@@ -138,30 +137,30 @@ namespace TC_WinForms.DataProcessing
             {
                 var staff = staff_tc.Child;
                 // Номер и наименование
-                sheet.Cells[currentRow, columnNums[0]].Value = staff_tc.Order;
-                sheet.Cells[currentRow, columnNums[1]].Value = staff?.Name;
-                sheet.Cells[currentRow, columnNums[2]].Value = staff?.Type;
+                sheet.Cells[currentRow, headersColumns["№"]].Value = staff_tc.Order;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Value = staff?.Name;
+                sheet.Cells[currentRow, headersColumns["Тип (исполнение)"]].Value = staff?.Type;
 
                 // Возможность совмещения обязанностей и квалификация
-                sheet.Cells[currentRow, columnNums[3]].Value = staff?.CombineResponsibility;
-                sheet.Cells[currentRow, columnNums[4]].Value = staff?.Qualification;
+                sheet.Cells[currentRow, headersColumns["Возможность совмещения обязанностей"]].Value = staff?.CombineResponsibility;
+                sheet.Cells[currentRow, headersColumns["Квалификация"]].Value = staff?.Qualification;
 
                 // Обозначение в ТК
-                sheet.Cells[currentRow, columnNums[5]].Value = staff_tc.Symbol;
+                sheet.Cells[currentRow, headersColumns["Обозначение в ТК"]].Value = staff_tc.Symbol;
 
                 // Форматирование ячеек
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
                 // Включаем перенос слов в ячейке
-                sheet.Cells[currentRow, columnNums[1]].Style.WrapText = true;
-                sheet.Cells[currentRow, columnNums[2]].Style.WrapText = true;
-                sheet.Cells[currentRow, columnNums[3]].Style.WrapText = true;
-                sheet.Cells[currentRow, columnNums[4]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Тип (исполнение)"]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Возможность совмещения обязанностей"]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Квалификация"]].Style.WrapText = true;
 
-                sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
-                sheet.Cells[currentRow, columnNums[4]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
-                sheet.Cells[currentRow, columnNums[5]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                sheet.Cells[currentRow, headersColumns["Квалификация"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                sheet.Cells[currentRow, headersColumns["Обозначение в ТК"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                 // Объединение ячеек между столбцами
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
@@ -176,7 +175,7 @@ namespace TC_WinForms.DataProcessing
             // Высота строки заголовка
             var row = sheet.Row(headRow);
             row.CustomHeight = true;
-            row.Height = 40;
+            row.Height = _defaulHeaderHeight;
 
             // Применяем стили для всех ячеек
             _exporter.ApplyCellFormatting(sheet.Cells[headRow - 1, columnNums[0], currentRow - 1, columnNums[columnNums.Length - 1] - 1]);
@@ -219,27 +218,27 @@ namespace TC_WinForms.DataProcessing
             {
                 var child = obj_tc.Child;
 
-                sheet.Cells[currentRow, columnNums[0]].Value = obj_tc.Order;
+                sheet.Cells[currentRow, headersColumns["№"]].Value = obj_tc.Order;
 
-                sheet.Cells[currentRow, columnNums[1]].Value = child?.Name;
-                sheet.Cells[currentRow, columnNums[2]].Value = child?.Type;
-                sheet.Cells[currentRow, columnNums[3]].Value = child?.Unit;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Value = child?.Name;
+                sheet.Cells[currentRow, headersColumns["Тип (исполнение)"]].Value = child?.Type;
+                sheet.Cells[currentRow, headersColumns["Ед. Изм."]].Value = child?.Unit;
 
-                sheet.Cells[currentRow, columnNums[4]].Value = obj_tc.Quantity;
+                sheet.Cells[currentRow, headersColumns ["Кол-во"]].Value = obj_tc.Quantity;
 
-                sheet.Cells[currentRow, columnNums[5]].Value = obj_tc.Child?.Price;
-                sheet.Cells[currentRow, columnNums[6]].Value = obj_tc.Note;
+                sheet.Cells[currentRow, headersColumns["Стоим., руб. без НДС"]].Value = obj_tc.Child?.Price;
+                sheet.Cells[currentRow, headersColumns["Примечание"]].Value = obj_tc.Note;
 
                 // Форматирование ячеек
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
                 // Включаем перенос слов в ячейке
-                sheet.Cells[currentRow, columnNums[1]].Style.WrapText = true;
-                sheet.Cells[currentRow, columnNums[2]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Тип (исполнение)"]].Style.WrapText = true;
 
-                sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
-                sheet.Cells[currentRow, columnNums[6]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                sheet.Cells[currentRow, headersColumns["Примечание"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                 // Объединение ячеек между столбцами
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
@@ -255,7 +254,7 @@ namespace TC_WinForms.DataProcessing
             // Высота строки заголовка
             var row = sheet.Row(headRow);
             row.CustomHeight = true;
-            row.Height = 40;
+            row.Height = _defaulHeaderHeight;
 
             // Применяем стили для всех ячеек
             _exporter.ApplyCellFormatting(sheet.Cells[headRow - 1, columnNums[0], currentRow - 1, columnNums[columnNums.Length - 1] - 1]);
@@ -269,22 +268,9 @@ namespace TC_WinForms.DataProcessing
         public int AddMachineDataToExcel(List<Machine_TC> object_tcList, ExcelWorksheet sheet, int headRow)
         {
             Dictionary<string, int> headersColumns = structHeadersColumns;
-            //    new Dictionary<string, int>
-            //{
-            //    { "№", 1 },
-            //    { "Наименование", 2 },
-            //    { "Тип (исполнение)", 5 },
-            //    { "Ед. Изм.", 6 },
-            //    { "Кол-во", 7 },
-            //    { "конец", 8 }
-            //};
             // Добавление заголовков
             string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
             int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
-
-            //// Добавление заголовков
-            //string[] headers = new string[] { "№", "Наименование", "Тип (исполнение)", "Ед. Изм.", "Кол-во" };
-            //int[] columnNums = new int[] { 1, 2, 4, 5, 6, 7 }; // начала для всех столбцов, для последнего столбца указана позиция начала и конца после последней ячейки
 
             // Добавляем заголовок всей таблицы
             _exporter.AddTableHeader(sheet, "3. Требования к механизмам", headRow - 1, columnNums);
@@ -297,23 +283,23 @@ namespace TC_WinForms.DataProcessing
             {
                 var child = obj_tc.Child;
 
-                sheet.Cells[currentRow, columnNums[0]].Value = obj_tc.Order;
+                sheet.Cells[currentRow, headersColumns["№"]].Value = obj_tc.Order;
 
-                sheet.Cells[currentRow, columnNums[1]].Value = child?.Name;
-                sheet.Cells[currentRow, columnNums[2]].Value = child?.Type;
-                sheet.Cells[currentRow, columnNums[3]].Value = child?.Unit;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Value = child?.Name;
+                sheet.Cells[currentRow, headersColumns["Тип (исполнение)"]].Value = child?.Type;
+                sheet.Cells[currentRow, headersColumns["Ед. Изм."]].Value = child?.Unit;
 
-                sheet.Cells[currentRow, columnNums[4]].Value = obj_tc.Quantity;
+                sheet.Cells[currentRow, headersColumns["Кол-во"]].Value = obj_tc.Quantity;
 
                 // Форматирование ячеек
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
                 // Включаем перенос слов в ячейке
-                sheet.Cells[currentRow, columnNums[1]].Style.WrapText = true;
-                sheet.Cells[currentRow, columnNums[2]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Тип (исполнение)"]].Style.WrapText = true;
 
-                sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                 // Объединение ячеек между столбцами
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
@@ -328,7 +314,7 @@ namespace TC_WinForms.DataProcessing
             // Высота строки заголовка
             var row = sheet.Row(headRow);
             row.CustomHeight = true;
-            row.Height = 33;
+            row.Height = _defaulHeaderHeight;
 
             // Применяем стили для всех ячеек
             _exporter.ApplyCellFormatting(sheet.Cells[headRow - 1, columnNums[0], currentRow - 1, columnNums[columnNums.Length - 1] - 1]);
@@ -342,15 +328,6 @@ namespace TC_WinForms.DataProcessing
         public int AddProtectionDataToExcel(List<Protection_TC> object_tcList, ExcelWorksheet sheet, int headRow)
         {
             Dictionary<string, int> headersColumns = structHeadersColumns;
-            //    new Dictionary<string, int>
-            //{
-            //    { "№", 1 },
-            //    { "Наименование", 2 },
-            //    { "Тип (исполнение)", 5 },
-            //    { "Ед. Изм.", 6 },
-            //    { "Кол-во", 7 },
-            //    {"конец", 8 }
-            //};
             // Добавление заголовков
             string[] headers = headersColumns.Keys.Where(x => !x.Contains("конец")).OrderBy(x => headersColumns[x]).ToArray();
             int[] columnNums = headersColumns.Values.OrderBy(x => x).ToArray();
@@ -366,23 +343,23 @@ namespace TC_WinForms.DataProcessing
             {
                 var child = obj_tc.Child;
 
-                sheet.Cells[currentRow, columnNums[0]].Value = obj_tc.Order;
+                sheet.Cells[currentRow, headersColumns["№"]].Value = obj_tc.Order;
 
-                sheet.Cells[currentRow, columnNums[1]].Value = child?.Name;
-                sheet.Cells[currentRow, columnNums[2]].Value = child?.Type;
-                sheet.Cells[currentRow, columnNums[3]].Value = child?.Unit;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Value = child?.Name;
+                sheet.Cells[currentRow, headersColumns["Тип (исполнение)"]].Value = child?.Type;
+                sheet.Cells[currentRow, headersColumns["Ед. Изм."]].Value = child?.Unit;
 
-                sheet.Cells[currentRow, columnNums[4]].Value = obj_tc.Quantity;
+                sheet.Cells[currentRow, headersColumns["Кол-во"]].Value = obj_tc.Quantity;
 
                 // Форматирование ячеек
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
                 // Включаем перенос слов в ячейке
-                sheet.Cells[currentRow, columnNums[1]].Style.WrapText = true;
-                sheet.Cells[currentRow, columnNums[2]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Тип (исполнение)"]].Style.WrapText = true;
 
-                sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                 // Объединение ячеек между столбцами
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
@@ -398,7 +375,7 @@ namespace TC_WinForms.DataProcessing
             // Высота строки заголовка
             var row = sheet.Row(headRow);
             row.CustomHeight = true;
-            row.Height = 33;
+            row.Height = _defaulHeaderHeight;
 
             // Применяем стили для всех ячеек
             _exporter.ApplyCellFormatting(sheet.Cells[headRow - 1, columnNums[0], currentRow - 1, columnNums[columnNums.Length - 1] - 1]);
@@ -436,23 +413,23 @@ namespace TC_WinForms.DataProcessing
             {
                 var child = obj_tc.Child;
 
-                sheet.Cells[currentRow, columnNums[0]].Value = obj_tc.Order;
+                sheet.Cells[currentRow, headersColumns["№"]].Value = obj_tc.Order;
 
-                sheet.Cells[currentRow, columnNums[1]].Value = child?.Name;
-                sheet.Cells[currentRow, columnNums[2]].Value = child?.Type;
-                sheet.Cells[currentRow, columnNums[3]].Value = child?.Unit;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Value = child?.Name;
+                sheet.Cells[currentRow, headersColumns["Тип (исполнение)"]].Value = child?.Type;
+                sheet.Cells[currentRow, headersColumns["Ед. Изм."]].Value = child?.Unit;
 
-                sheet.Cells[currentRow, columnNums[4]].Value = obj_tc.Quantity;
+                sheet.Cells[currentRow, headersColumns["Кол-во"]].Value = obj_tc.Quantity;
 
                 // Форматирование ячеек
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 sheet.Cells[currentRow, columnNums[0], currentRow, columnNums[columnNums.Length - 1] - 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
                 // Включаем перенос слов в ячейке
-                sheet.Cells[currentRow, columnNums[1]].Style.WrapText = true;
-                sheet.Cells[currentRow, columnNums[2]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Style.WrapText = true;
+                sheet.Cells[currentRow, headersColumns["Тип (исполнение)"]].Style.WrapText = true;
 
-                sheet.Cells[currentRow, columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                sheet.Cells[currentRow, headersColumns["Наименование"]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                 // Объединение ячеек между столбцами
                 _exporter.MergeRowCellsByColumns(sheet, currentRow, columnNums);
@@ -468,7 +445,7 @@ namespace TC_WinForms.DataProcessing
             // Высота строки заголовка
             var row = sheet.Row(headRow);
             row.CustomHeight = true;
-            row.Height = 33;
+            row.Height = _defaulHeaderHeight;
 
             // Применяем стили для всех ячеек
             _exporter.ApplyCellFormatting(sheet.Cells[headRow - 1, columnNums[0], currentRow - 1, columnNums[columnNums.Length - 1] - 1]);
