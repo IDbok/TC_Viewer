@@ -3702,6 +3702,34 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         };
     }
 
+    public void UpdateTimeValue()//todo: дописать код так, чтобы он пересчитывал конкретные ТП, в которых содержатся нужные коэффициенты
+    {
+        var coefDict = _tcViewState.TechnologicalCard.Coefficients.ToDictionary(c => c.Code, c => c.Value);
+        var a = TechOperationDataGridItems.Where(e => e.WorkItem is ExecutionWork ew).ToList();
+
+        foreach (var row in a)
+        {
+            var executionWork = row.WorkItem as ExecutionWork;
+            var time = executionWork.techTransition.TimeExecution.ToString().Replace(",", ".");
+            if(!executionWork.Repeat)
+                executionWork.Value = MathScript.EvaluateCoefficientExpression(executionWork.Coefficient, coefDict, time);
+            else
+            {
+                double totalValue = 0;
+                foreach (var repeat in executionWork.ExecutionWorkRepeats)
+                {
+                    if (repeat.ChildExecutionWork.Delete)
+                        continue;
+
+                    var value = repeat.ChildExecutionWork.Value;
+
+                    totalValue += MathScript.EvaluateCoefficientExpression(repeat.NewCoefficient, coefDict, value.ToString());
+                }
+                executionWork.Value = totalValue;
+            }
+        }
+    }
+
     public int GetObjectId()
     {
         return _tcId;

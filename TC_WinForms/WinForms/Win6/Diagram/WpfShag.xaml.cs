@@ -342,7 +342,7 @@ namespace TC_WinForms.WinForms.Diagram
             SetRelatedListBox();
 
             // Добавление шагов в ComboBox
-            ComboBoxTeh.ItemsSource = techOperationWork.executionWorks;
+            ComboBoxTeh.ItemsSource = techOperationWork.executionWorks.OrderBy(o => o.Order);
 
             // Устанавливаем источники данных для DataGrid
             DataGridToolAndComponentsAdd.ItemsSource = AllItemGrid;
