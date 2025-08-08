@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Windows.Forms;
 using TC_WinForms.Extensions;
+using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win6.Models;
+using TC_WinForms.WinForms.Work;
 using TcDbConnector;
 using TcModels.Models.TcContent;
 
@@ -41,13 +44,21 @@ public partial class CoefficientEditorForm : Form
 
 		InitializeData();
 
-		this.FormClosed += (sender, e) => {
-			_logger.Information("Форма закрыта");
-			//this.Dispose();
-		};
+        this.FormClosed += CoefficientEditorForm_FormClosed;
 	}
 
-	private void InitializeData()
+    private void CoefficientEditorForm_FormClosed(object? sender, FormClosedEventArgs e)
+    {
+        var workStepForm = CheckOpenFormService.FindOpenedForm<TechOperationForm>(_tcId);
+        if (workStepForm != null)
+        {
+            workStepForm.UpdateTimeValue();
+            workStepForm.UpdateGrid();
+        }
+        _logger.Information("Форма редактора коэффициентов закрыта");
+    }
+
+    private void InitializeData()
 	{
 		_coefficients = _tcViewState.TechnologicalCard.Coefficients;
 		_bindingSource = new BindingSource { DataSource = _coefficients };

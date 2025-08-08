@@ -52,7 +52,7 @@ public partial class RepeatExecutionControl : UserControl
 		_executionWorks = _tcViewState.GetAllExecutionWorks();
 
 		dataGridViewRepeats.AutoGenerateColumns = false;
-		dataGridViewRepeats.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+		dataGridViewRepeats.SelectionMode = DataGridViewSelectionMode.CellSelect;
 
 		// Подписка на события
 		dataGridViewRepeats.CellContentClick += dataGridViewRepeats_CellContentClick;

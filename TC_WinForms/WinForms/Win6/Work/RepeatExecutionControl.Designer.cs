@@ -1,4 +1,4 @@
-﻿namespace TC_WinForms.WinForms.Work;
+namespace TC_WinForms.WinForms.Work;
 
 partial class RepeatExecutionControl
 {
@@ -60,7 +60,8 @@ partial class RepeatExecutionControl
 		dataGridViewRepeats.Columns.AddRange(new DataGridViewColumn[] { dgvRepeatsEwObject, dgvRepeatsSelected, dgvRepeatsToName, dgvRepeatsTpName, dgvRepeatsOldCoefficient, dgvRepeatsCoefficient, dgvRepeatsEtap, dgvRepeatsPosled });
 		dataGridViewRepeats.Dock = DockStyle.Fill;
 		dataGridViewRepeats.Location = new Point(0, 0);
-		dataGridViewRepeats.Margin = new Padding(3, 2, 3, 2);
+        dataGridViewRepeats.SelectionMode = DataGridViewSelectionMode.CellSelect;
+        dataGridViewRepeats.Margin = new Padding(3, 2, 3, 2);
 		dataGridViewRepeats.MultiSelect = false;
 		dataGridViewRepeats.Name = "dataGridViewRepeats";
 		dataGridViewRepeats.RowHeadersWidth = 51;
