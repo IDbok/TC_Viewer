@@ -55,10 +55,16 @@ public class OpenProfile : Profile
 
         CreateMap<ToolWork, ToolWork>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Remark, opt => opt.Ignore())
+            .ForMember(dest => dest.Reply, opt => opt.Ignore())
+            .ForMember(dest => dest.IsRemarkClosed, opt => opt.Ignore())
             .ForMember(dest => dest.techOperationWorkId, opt => opt.Ignore());
 
         CreateMap<ComponentWork, ComponentWork>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Remark, opt => opt.Ignore())
+            .ForMember(dest => dest.Reply, opt => opt.Ignore())
+            .ForMember(dest => dest.IsRemarkClosed, opt => opt.Ignore())
             .ForMember(dest => dest.techOperationWorkId, opt => opt.Ignore());
     }
 
@@ -71,6 +77,9 @@ public class OpenProfile : Profile
             .ForMember(dest => dest.Protections, opt => opt.Ignore())
             .ForMember(dest => dest.Machines, opt => opt.Ignore())
             .ForMember(dest => dest.ExecutionWorkRepeats, opt => opt.Ignore())
+            .ForMember(dest => dest.Remark, opt => opt.Ignore())
+            .ForMember(dest => dest.Reply, opt => opt.Ignore())
+            .ForMember(dest => dest.IsRemarkClosed, opt => opt.Ignore())
             .ForMember(dest => dest.ImageList, opt => opt.Ignore()); // Добавлено для игнорирования связей
     }
 
@@ -145,6 +154,9 @@ public class OpenProfile : Profile
 
         CreateMap<DiagramShag, DiagramShag>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Remark, opt => opt.Ignore())
+            .ForMember(dest => dest.Reply, opt => opt.Ignore())
+            .ForMember(dest => dest.IsRemarkClosed, opt => opt.Ignore())
             .ForMember(dest => dest.DiagramPosledovId, opt => opt.Ignore());
 
         CreateMap<DiagramShagToolsComponent, DiagramShagToolsComponent>()
