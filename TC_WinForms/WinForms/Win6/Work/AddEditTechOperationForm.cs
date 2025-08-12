@@ -2424,11 +2424,11 @@ namespace TC_WinForms.WinForms.Work
                     listItem.Add($"№{techOperationWork.Order} {techOperationWork.techOperation.Name}");
                     if (Wor.Repeat)
                     {
-                        listItem.Add(Wor.techTransition.IsRepeatAsInTcTransition() ? "Выполнить в соответствии с ТК" : "Повторить");
+                        listItem.Add(Wor.techTransition.IsRepeatAsInTcTransition() ? $"№{Wor.RowOrder} Выполнить в соответствии с ТК" : $"№{Wor.RowOrder} Повторить");
                     }
                     else
                     {
-                        listItem.Add(Wor.techTransition?.Name ?? "");
+                        listItem.Add($"№{Wor.RowOrder} {Wor.techTransition?.Name}" ?? "");
                     }
 
                     if (Wor.Etap == "")
