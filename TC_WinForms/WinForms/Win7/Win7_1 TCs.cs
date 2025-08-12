@@ -649,7 +649,7 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 		private string? _description;
 		private string _version = "0.0.0.0";
 		private string _type;
-		private float _networkVoltage;
+		private string _networkVoltage;
 		private string? _technologicalProcessType;
 		private string? _technologicalProcessName;
 		private string? _technologicalProcessNumber;
@@ -768,7 +768,7 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 			}
 		}
 
-		public float NetworkVoltage
+		public string NetworkVoltage
 		{
 			get => _networkVoltage;
 			set

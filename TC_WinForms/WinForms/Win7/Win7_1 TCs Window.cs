@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System.Data;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
@@ -128,7 +128,7 @@ namespace TC_WinForms.WinForms
             txtArticle.Text = LocalCard.Article;
             cbxType.Text = LocalCard.Type;
             cbxUnit.SelectedItem = LocalCard.OutlayUnit.GetDescription();
-            cbxNetworkVoltage.Text = LocalCard.NetworkVoltage.ToString();
+            cbxNetworkVoltage.Text = LocalCard.NetworkVoltage;
             txtTechProcessType.Text = LocalCard.TechnologicalProcessType;
             txtTechProcess.Text = LocalCard.TechnologicalProcessName;
             txtParametr.Text = LocalCard.Parameter;
@@ -211,7 +211,7 @@ namespace TC_WinForms.WinForms
             LocalCard.Name = txtName.Text;
             LocalCard.Article = txtArticle.Text;
             LocalCard.Type = cbxType.Text;
-            LocalCard.NetworkVoltage = float.Parse(cbxNetworkVoltage.Text);
+            LocalCard.NetworkVoltage = cbxNetworkVoltage.Text;
             LocalCard.TechnologicalProcessType = txtTechProcessType.Text;
             LocalCard.TechnologicalProcessName = txtTechProcess.Text;
             LocalCard.Parameter = txtParametr.Text;
@@ -379,7 +379,7 @@ namespace TC_WinForms.WinForms
             hasChanges |= OriginCard.Name != txtName.Text;
             hasChanges |= OriginCard.Article != txtArticle.Text;
             hasChanges |= OriginCard.Type != cbxType.Text;
-            hasChanges |= OriginCard.NetworkVoltage.ToString() != cbxNetworkVoltage.Text;
+            hasChanges |= OriginCard.NetworkVoltage != cbxNetworkVoltage.Text;
             hasChanges |= OriginCard.TechnologicalProcessType != txtTechProcessType.Text;
             hasChanges |= OriginCard.TechnologicalProcessName != txtTechProcess.Text;
             hasChanges |= OriginCard.Parameter != txtParametr.Text;
@@ -434,7 +434,7 @@ namespace TC_WinForms.WinForms
             LocalCard.Name = txtName.Text;
             LocalCard.Article = txtArticle.Text + " (Копия)";
             LocalCard.Type = cbxType.Text;
-            LocalCard.NetworkVoltage = float.Parse(cbxNetworkVoltage.Text);
+            LocalCard.NetworkVoltage = cbxNetworkVoltage.Text;
             LocalCard.TechnologicalProcessType = txtTechProcessType.Text;
             LocalCard.TechnologicalProcessName = txtTechProcess.Text;
             LocalCard.Parameter = txtParametr.Text;
