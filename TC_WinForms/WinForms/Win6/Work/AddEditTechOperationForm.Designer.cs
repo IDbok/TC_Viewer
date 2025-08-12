@@ -1120,7 +1120,8 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			Comment.HeaderText = "Примечание";
 			Comment.MinimumWidth = 100;
-			Comment.Name = "Comment";
+            Comment.SortMode = DataGridViewColumnSortMode.NotSortable;
+            Comment.Name = "Comment";
 			// 
 			// PictureName
 			// 
