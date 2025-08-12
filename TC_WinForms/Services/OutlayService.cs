@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.TcContent;
@@ -182,7 +182,7 @@ namespace TC_WinForms.Services
         private void CalculateStaffOutlay(TcViewState tcViewState)
         {
             double staffOutlay = 0;
-            foreach (var staff in tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IsInOutlay).ToList())
+            foreach (var staff in tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IsInOutlay).OrderBy(o => o.Order).ToList())
             {
                 foreach (var ew in staff.ExecutionWorks.Where(e => !e.Delete && !e.techOperationWork.Delete).ToList())
                 {
