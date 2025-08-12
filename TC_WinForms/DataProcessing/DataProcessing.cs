@@ -1,4 +1,4 @@
-﻿using TcModels.Models;
+using TcModels.Models;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent;
 
@@ -38,7 +38,7 @@ namespace TC_WinForms.DataProcessing
                 Version = "0.0.0.0",
                 Name = $"New Object - {random}",
                 Type = "",
-                NetworkVoltage = 0,
+                NetworkVoltage = "0",
                 IsCompleted = false
             };
             
