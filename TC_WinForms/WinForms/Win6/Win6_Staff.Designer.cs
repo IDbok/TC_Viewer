@@ -1,4 +1,4 @@
-﻿using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing;
 
 namespace TC_WinForms.WinForms
 {
@@ -36,6 +36,7 @@ namespace TC_WinForms.WinForms
             pnlControlBtns = new Panel();
             btnMoveDown = new Button();
             btnDeleteObj = new Button();
+            btnHideData = new Button();
             btnMoveUp = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
@@ -82,6 +83,7 @@ namespace TC_WinForms.WinForms
             pnlControlBtns.Controls.Add(btnDeleteObj);
             pnlControlBtns.Controls.Add(btnMoveUp);
             pnlControlBtns.Controls.Add(btnAddNewObj);
+            pnlControlBtns.Controls.Add(btnHideData);
             pnlControlBtns.Dock = DockStyle.Right;
             pnlControlBtns.Location = new Point(614, 0);
             pnlControlBtns.Name = "pnlControlBtns";
@@ -132,6 +134,16 @@ namespace TC_WinForms.WinForms
             btnAddNewObj.UseVisualStyleBackColor = true;
             btnAddNewObj.Click += btnAddNewObj_Click;
             // 
+            // btnHideData
+            // 
+            btnHideData.Location = new Point(10, 9);
+            btnHideData.Name = "btnHideData";
+            btnHideData.Size = new Size(180, 42);
+            btnHideData.TabIndex = 23;
+            btnHideData.Text = "Скрыть квалификацию";
+            btnHideData.UseVisualStyleBackColor = true;
+            btnHideData.Click += btnHideData_Click;
+            // 
             // pnlDataViewer
             // 
             pnlDataViewer.Controls.Add(dgvMain);
@@ -164,6 +176,7 @@ namespace TC_WinForms.WinForms
         private DataGridView dgvMain;
         private Panel pnlControls;
         private Panel pnlControlBtns;
+        private Button btnHideData;
         private Button btnDeleteObj;
         private Button btnAddNewObj;
         private Panel pnlFilters;

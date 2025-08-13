@@ -47,7 +47,6 @@ public partial class Win6_Staff : Form, IViewModeable
 
 		InitializeComponent();
 
-        AccessInitialization();
 
 
         var dgvEventService = new DGVEvents(dgvMain);
@@ -123,10 +122,6 @@ public partial class Win6_Staff : Form, IViewModeable
         }
 
         dgvMain.EndEdit();
-    }
-
-    private void AccessInitialization()
-    {
     }
 
     public void SetViewMode(bool? isViewMode = null)
@@ -285,49 +280,6 @@ public partial class Win6_Staff : Form, IViewModeable
         DisplayedEntityHelper.SetupDataGridView<DisplayedStaff_TC>(dgvMain);
 
     }
-    //private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-    //{
-    //    // Проверяем, что это не заголовок столбца и не новая строка
-    //    if (e.RowIndex >= 0 && e.RowIndex < dgvMain.Rows.Count)
-    //    {
-    //        var row = dgvMain.Rows[e.RowIndex];
-    //        var displayedStaff = row.DataBoundItem as IReleasable;
-    //        if (displayedStaff != null)
-    //        {
-    //            // Меняем цвет строки в зависимости от значения свойства IsReleased
-    //            if (!displayedStaff.IsReleased)
-    //            {
-    //                row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
-    //            }
-    //        }
-    //    }
-    //}
-    //private void dgvMain_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-    //{
-    //    // Проверяем, редактируется ли столбец "Order"
-    //    if (dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedStaff_TC.Order))
-    //    {
-    //        // Проверяем, что значение не пустое и является допустимым целым числом
-    //        if (string.IsNullOrWhiteSpace(e.FormattedValue.ToString()) || !int.TryParse(e.FormattedValue.ToString(), out _))
-    //        {
-    //            e.Cancel = true; // Отменяем редактирование
-
-    //            // Получаем объект, связанный с редактируемой строкой
-    //            var row = dgvMain.Rows[e.RowIndex];
-    //            var displayedStaff = row.DataBoundItem as IPreviousOrderable;
-
-    //            if (displayedStaff != null)
-    //            {
-    //                // Восстанавливаем предыдущее значение
-    //                dgvMain.CancelEdit(); // Отменяем текущее редактирование
-    //                row.Cells[e.ColumnIndex].Value = displayedStaff.PreviousOrder; // Восстанавливаем предыдущее значение
-    //            }
-
-    //            MessageBox.Show("Значение в столбце 'Order' должно быть целым числом и не может быть пустым.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-    //        }
-    //    }
-    //}
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -425,6 +377,15 @@ public partial class Win6_Staff : Form, IViewModeable
     {
 		_logger.Information("Клик по кнопке 'Переместить вниз'.");
 	}
+
+    private void btnHideData_Click(object sender, EventArgs e)
+    {
+        dgvMain.Columns[nameof(DisplayedStaff_TC.Qualification)].Visible = !dgvMain.Columns[nameof(DisplayedStaff_TC.Qualification)].Visible;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.CombineResponsibility)].Visible = !dgvMain.Columns[nameof(DisplayedStaff_TC.CombineResponsibility)].Visible;
+
+        var isVisible = dgvMain.Columns[nameof(DisplayedStaff_TC.CombineResponsibility)].Visible;
+        btnHideData.Text = isVisible ? "Скрыть квалификацию" : "Показать квалификацию";
+    }
 
     private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
     {
@@ -537,22 +498,9 @@ public partial class Win6_Staff : Form, IViewModeable
             };
         }
 
-        private int idAuto;
-
-        private int childId;
-        private int parentId;
         private int order;
 
-
         private string symbol;
-
-        private string name;
-        private string type;
-        private string functions;
-        private string? combineResponsibility;
-        private string qualification;
-        private string? comment;
-
 
         public DisplayedStaff_TC()
         {
@@ -650,100 +598,5 @@ public partial class Win6_Staff : Form, IViewModeable
     {
         _logger?.LogUserAction(message, _tcId);
 	}
-    private void AdjustColumnWidths()
-    {
-        int dgvWidth = dgvMain.ClientSize.Width - dgvMain.RowHeadersWidth;
-        int totalMinWidth = 0;
-        int totalFixedWidth = 0;
-        int availableWidth;
-        int extraAdditionalWidth = 0;
-
-        int pixels = 40;
-
-        Dictionary<string, int> minColumnWidths = new Dictionary<string, int>
-        {
-            { nameof(DisplayedStaff_TC.Order), 1*pixels },//40
-            { nameof(DisplayedStaff_TC.Name), 10*pixels }, //400
-            { nameof(DisplayedStaff_TC.Type), 4*pixels }, // 160 (219 стандарт)
-            { nameof(DisplayedStaff_TC.CombineResponsibility), 7*pixels },
-            { nameof(DisplayedStaff_TC.Qualification), 13*pixels },//82+82+359
-            { nameof(DisplayedStaff_TC.Symbol), 2*pixels },
-            {nameof(DisplayedStaff_TC.ChildId), 1*pixels }
-        };
-        Dictionary<string, int> maxColumnWidths = new Dictionary<string, int>
-        {
-            { nameof(DisplayedStaff_TC.Order), 1*pixels },
-            { nameof(DisplayedStaff_TC.Type), 6*pixels },
-            { nameof(DisplayedStaff_TC.CombineResponsibility), 11*pixels },
-            { nameof(DisplayedStaff_TC.Symbol), 2*pixels },
-            { nameof(DisplayedStaff_TC.ChildId), 1*pixels }
-
-        };
-
-        // Рассчитайте общую минимальную ширину
-        foreach (var minWidth in minColumnWidths)
-        {
-            totalMinWidth += minWidth.Value;
-            if (maxColumnWidths.ContainsKey(minWidth.Key))
-            {
-                totalFixedWidth += maxColumnWidths[minWidth.Key];
-            }
-        }
-
-        // Проверяем, достаточно ли места для минимальной ширины столбцов
-        if (dgvWidth > totalMinWidth)
-        {
-            availableWidth = dgvWidth - totalMinWidth;
-
-            // Распределяем доступную ширину между столбцами
-            foreach (DataGridViewColumn column in dgvMain.Columns)
-            {
-                if (minColumnWidths.ContainsKey(column.Name))
-                {
-                    int additionalWidth = (int)((double)availableWidth / minColumnWidths.Count);
-                    int proposedWidth = minColumnWidths[column.Name] + additionalWidth;
-
-                    if (maxColumnWidths.ContainsKey(column.Name))
-                    {
-                        if (proposedWidth > maxColumnWidths[column.Name])
-                        {
-                            extraAdditionalWidth += proposedWidth - maxColumnWidths[column.Name];
-                        }
-                        // Учитываем максимальную ширину для столбца
-                        column.Width = Math.Min(proposedWidth, maxColumnWidths[column.Name]);
-                    }
-                    else
-                    {
-                        column.Width = proposedWidth + extraAdditionalWidth;
-                    }
-                }
-            }
-
-            // распределяем оставшееся место между столбцами не имеющими максимальной ширины
-            if (extraAdditionalWidth > 0)
-            {
-                int extraWidth = (int)((double)extraAdditionalWidth / (minColumnWidths.Count - maxColumnWidths.Count));
-                foreach (DataGridViewColumn column in dgvMain.Columns)
-                {
-                    if (minColumnWidths.ContainsKey(column.Name) && !maxColumnWidths.ContainsKey(column.Name))
-                    {
-                        column.Width += extraWidth;
-                    }
-                }
-            }
-
-        }
-        else
-        {
-            // Если места недостаточно, устанавливаем минимальные ширины
-            foreach (DataGridViewColumn column in dgvMain.Columns)
-            {
-                if (minColumnWidths.ContainsKey(column.Name))
-                {
-                    column.Width = minColumnWidths[column.Name];
-                }
-            }
-        }
-    }
 
 }
