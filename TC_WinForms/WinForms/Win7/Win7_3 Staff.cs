@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -28,6 +28,8 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
     private static BindingList<DisplayedStaff> _bindingList;
 
     private bool _isAddingForm = false;
+    private readonly bool _isUpdateItemMode = false; // add to UpdateMode
+
     private Button btnAddSelected;
     private Button btnCancel;
     private Form _openedForm;
@@ -73,12 +75,14 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
         //dgvMain.Visible = false;
     }
 
-    public Win7_3_Staff(Form openedForm, bool activateNewItemCreate = false, int? createdTCId = null) // this constructor is for adding form in TC editer
+    public Win7_3_Staff(Form openedForm, bool activateNewItemCreate = false, int? createdTCId = null, bool isUpdateMode = false) // this constructor is for adding form in TC editer
     {
         _accessLevel = AuthorizationService.CurrentUser.UserRole();
 
         _openedForm = openedForm;
         _isAddingForm = true;
+        _isUpdateItemMode = isUpdateMode; // add to UpdateMode
+
         _newItemCreateActive = activateNewItemCreate;
         _tcId = createdTCId;
         InitializeComponent();
@@ -113,6 +117,10 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
                 btnAddNewObj.Text = "Создать новый объект";
             }
             //////////////////////////////////////////////////////////////////////////////////////////
+            if (_isUpdateItemMode)// add to UpdateMode
+            {
+                btnAddSelected.Text = "Обновить";
+            }
 
             SetAddingFormEvents();
 
@@ -276,17 +284,11 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
 
     void BtnAddSelected_Click(object sender, EventArgs e)
     {
-        //// get selected rows
-        // var selectedRows = dgvMain.Rows.Cast<DataGridViewRow>().Where(r => Convert.ToBoolean(r.Cells["Selected"].Value) == true).ToList();
-
-        //if (selectedRows.Count == 0)
-        //{
-        //    MessageBox.Show("Выберите строки для добавления");
-        //    return;
-        //}
-
-        //// get selected objects
-        //var selectedObjs = selectedRows.Select(r => r.DataBoundItem as DisplayedStaff).ToList();
+        if (_isUpdateItemMode)// add to UpdateMode
+        {
+            UpdateItem();
+            return;
+        }
 
         // выделить объекты с id из _selectedIds из списка _displayedObjects
         var selectedObjs = _selectionService.GetSelectedObjects();//_displayedObjects.Where(obj => _selectedIds.Contains(obj.Id)).ToList();
@@ -318,6 +320,25 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
     void BtnCancel_Click(object sender, EventArgs e)
     {
         Close();
+    }
+
+    void UpdateItem()
+    {
+        var selectedObjs = _selectionService.GetSelectedObjects();
+
+        if (selectedObjs.Count != 1)
+        {
+            MessageBox.Show("Выберите одну строку для обновления");
+            return;
+        }
+
+        // find opened form
+        var tcEditor = Application.OpenForms.OfType<Win6_Staff>().FirstOrDefault();
+
+        tcEditor.UpdateSelectedObject(CreateNewObject(selectedObjs[0]));
+
+        // close form
+        this.Close();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
