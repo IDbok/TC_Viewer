@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="TC_WinForms.WinForms.Win6.RoadMap.RoadMapControl"
+<UserControl x:Class="TC_WinForms.WinForms.Win6.RoadMap.RoadMapControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -45,6 +45,24 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                 </DataGridTextColumn>
+
+                <DataGridTextColumn Header="Замечание" MinWidth="100" MaxWidth="150">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment"
+                 Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Ответ" MinWidth="100" MaxWidth="150">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment"
+                 Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+
                 <DataGridTextColumn Header="Последовательность действий" Width="*">
                     <DataGridTextColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
@@ -106,6 +124,55 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+
+
+                <DataGridTemplateColumn Header="Замечание" MinWidth="100" MaxWidth="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Remark}" TextChanged="TextBox_RemarkTextChanged" 
+                    TextWrapping="Wrap" 
+                    AcceptsReturn="True"
+                    VerticalScrollBarVisibility="Auto" 
+                     IsReadOnly="{Binding IsViewMode, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Background" Value="LightGray"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsViewMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                                                <Setter Property="Background" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                
+                <DataGridTemplateColumn Header="Ответ" MinWidth="100" MaxWidth="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Reply}" TextChanged="TextBox_ReplyTextChanged" 
+                    TextWrapping="Wrap" 
+                    AcceptsReturn="True"
+                    VerticalScrollBarVisibility="Auto" 
+                     IsReadOnly="{Binding IsViewMode, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Background" Value="LightGray"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsViewMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                                                <Setter Property="Background" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
