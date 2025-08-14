@@ -10,6 +10,7 @@
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
+    
     <Grid>
         <Border BorderThickness="2" BorderBrush="Black" Margin="10" CornerRadius="5" >
             <StackPanel Width="650">

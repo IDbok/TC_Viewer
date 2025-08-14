@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TcModels.Models.TcContent
@@ -30,8 +30,10 @@ namespace TcModels.Models.TcContent
         [NotMapped] public bool NewItem { get; set; } = false;
 
         public string? Note { get; set; } = "";
+        public string? Remark { get; set; } = "";
+        public string? Reply { get; set; } = "";
 
-       public int Order { get; set; }
+        public int Order { get; set; }
 
         public override string ToString()
         {
