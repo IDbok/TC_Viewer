@@ -36,7 +36,8 @@ namespace TC_WinForms.WinForms
             pnlControlBtns = new Panel();
             btnMoveDown = new Button();
             btnDeleteObj = new Button();
-            btnHideData = new Button();
+            btnReplaceObj = new Button();
+            btnHideData = new Button(); 
             btnMoveUp = new Button();
             btnAddNewObj = new Button();
             pnlDataViewer = new Panel();
@@ -82,17 +83,18 @@ namespace TC_WinForms.WinForms
             pnlControlBtns.Controls.Add(btnMoveDown);
             pnlControlBtns.Controls.Add(btnDeleteObj);
             pnlControlBtns.Controls.Add(btnMoveUp);
-            pnlControlBtns.Controls.Add(btnAddNewObj);
+            pnlControlBtns.Controls.Add(btnAddNewObj); 
             pnlControlBtns.Controls.Add(btnHideData);
+            pnlControlBtns.Controls.Add(btnReplaceObj);
             pnlControlBtns.Dock = DockStyle.Right;
             pnlControlBtns.Location = new Point(614, 0);
             pnlControlBtns.Name = "pnlControlBtns";
-            pnlControlBtns.Size = new Size(492, 60);
+            pnlControlBtns.Size = new Size(642, 60);
             pnlControlBtns.TabIndex = 24;
             // 
             // btnMoveDown
             // 
-            btnMoveDown.Location = new Point(458, 30);
+            btnMoveDown.Location = new Point(608, 30);
             btnMoveDown.Margin = new Padding(2);
             btnMoveDown.Name = "btnMoveDown";
             btnMoveDown.Size = new Size(26, 26);
@@ -104,7 +106,7 @@ namespace TC_WinForms.WinForms
             // 
             // btnDeleteObj
             // 
-            btnDeleteObj.Location = new Point(321, 9);
+            btnDeleteObj.Location = new Point(471, 9);
             btnDeleteObj.Name = "btnDeleteObj";
             btnDeleteObj.Size = new Size(114, 42);
             btnDeleteObj.TabIndex = 25;
@@ -114,7 +116,7 @@ namespace TC_WinForms.WinForms
             // 
             // btnMoveUp
             // 
-            btnMoveUp.Location = new Point(458, 0);
+            btnMoveUp.Location = new Point(608, 0);
             btnMoveUp.Margin = new Padding(2);
             btnMoveUp.Name = "btnMoveUp";
             btnMoveUp.Size = new Size(26, 26);
@@ -126,7 +128,7 @@ namespace TC_WinForms.WinForms
             // 
             // btnAddNewObj
             // 
-            btnAddNewObj.Location = new Point(200, 9);
+            btnAddNewObj.Location = new Point(350, 9);
             btnAddNewObj.Name = "btnAddNewObj";
             btnAddNewObj.Size = new Size(114, 42);
             btnAddNewObj.TabIndex = 23;
@@ -134,9 +136,19 @@ namespace TC_WinForms.WinForms
             btnAddNewObj.UseVisualStyleBackColor = true;
             btnAddNewObj.Click += btnAddNewObj_Click;
             // 
+            // btnReplaceObj
+            // 
+            btnReplaceObj.Location = new Point(230, 9);
+            btnReplaceObj.Name = "btnReplaceObj";
+            btnReplaceObj.Size = new Size(114, 42);
+            btnReplaceObj.TabIndex = 23;
+            btnReplaceObj.Text = "Заменить";
+            btnReplaceObj.UseVisualStyleBackColor = true;
+            btnReplaceObj.Click += btnReplaceObj_Click;
+            // 
             // btnHideData
             // 
-            btnHideData.Location = new Point(10, 9);
+            btnHideData.Location = new Point(40, 9);
             btnHideData.Name = "btnHideData";
             btnHideData.Size = new Size(180, 42);
             btnHideData.TabIndex = 23;
@@ -176,8 +188,9 @@ namespace TC_WinForms.WinForms
         private DataGridView dgvMain;
         private Panel pnlControls;
         private Panel pnlControlBtns;
-        private Button btnHideData;
+        private Button btnHideData; 
         private Button btnDeleteObj;
+        private Button btnReplaceObj;
         private Button btnAddNewObj;
         private Panel pnlFilters;
         private Panel pnlDataViewer;
