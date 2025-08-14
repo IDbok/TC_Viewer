@@ -1,4 +1,4 @@
-﻿using TC_WinForms.Services;
+using TC_WinForms.Services;
 using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Work
@@ -44,6 +44,10 @@ namespace TC_WinForms.WinForms.Work
                     coef[0] == '*' || coef[0] == '/')
                 {
                     expression = time + coef.Replace(',', '.');
+                }
+                else if (Idd.Id == 135)
+                {
+                    expression = time + "+" + coef.Replace(',', '.');
                 }
                 else
                 {
