@@ -4,6 +4,7 @@ using Serilog;
 using System.Windows.Forms.Integration;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
+using TC_WinForms.ExceptionHandler;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
@@ -55,7 +56,7 @@ namespace TC_WinForms.WinForms
         public static event Action? CommentViewModeChanged;
         public static event Action? ViewModeChanged;
         public static event Action? TCStatusModedChanged;
-       
+
         private static void OnCommentViewModeChanged()
         {
             CommentViewModeChanged?.Invoke();
@@ -80,7 +81,7 @@ namespace TC_WinForms.WinForms
         private MyDbContext context = new MyDbContext();
         private OutlayService calculateOutlayService = new OutlayService();
         private bool TcWasBlocked = false;
-
+        private bool OptimicticError = false;
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false, EModelType startForm = EModelType.WorkStep)
         {
@@ -513,13 +514,18 @@ namespace TC_WinForms.WinForms
             {
                 concurrencyBlockServise.CleanBlockData(); // Снимаем блокировку
             }
-            // проверка на наличие изменений во всех формах
-            if (!CheckForChanges()) // если false, то отменяем переключение
+
+            if (!OptimicticError)
             {
-                _logger.Warning("Закрытие формы без сохранения (CloseFormsNoSave=true).");
-                e.Cancel = true;
-                return;
+                // проверка на наличие изменений во всех формах
+                if (!CheckForChanges()) // если false, то отменяем переключение
+                {
+                    _logger.Warning("Закрытие формы без сохранения (CloseFormsNoSave=true).");
+                    e.Cancel = true;
+                    return;
+                }
             }
+            AutosaveTimer?.Dispose();
             //close all inner forms
             foreach (var form in _formsCache.Values)
             {
@@ -805,8 +811,11 @@ namespace TC_WinForms.WinForms
             btnShowCoefficients.Tag = EModelType.Coefficient;
         }
 
-        private void SaveAllChanges()
+        private async void SaveAllChanges()
         {
+            using var transaction = context.Database.BeginTransaction();
+            _logger.Information("Сохранение изменений для TcId={TcId}", _tcId);
+
             _logger.Information("Сохранение изменений для TcId={TcId}", _tcId);
             try
             {
@@ -824,14 +833,75 @@ namespace TC_WinForms.WinForms
                 }
 
                 context.SaveChanges();
-
+                transaction.Commit();
                 _logger.Information("Изменения успешно сохранены для TcId={TcId}", _tcId);
                 MessageBox.Show("Изменения сохранены");
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                OptimicticError = true;
+
+                var handler = new ConcurrencyConflictHandler(_logger, context);
+                bool retry = await handler.HandleConcurrencyExceptionAsync(ex, _tcId);
+
+                if (retry)
+                {
+                    await transaction.RollbackAsync(); // Откатываем первую транзакцию
+                    await using var retryTransaction = await context.Database.BeginTransactionAsync();
+                    try
+                    {
+                        SaveTehCartaChanges();
+                        SaveRoadMapData();
+                        calculateOutlayService.UpdateOutlay(tcViewState);
+
+                        foreach (var form in _formsCache.Values)
+                        {
+                            if (form is ISaveEventForm saveForm)
+                            {
+                                await saveForm.SaveChanges();
+                            }
+                        }
+
+                        await context.SaveChangesAsync();
+                        await retryTransaction.CommitAsync();
+                        _logger.Information("Конфликт разрешён, данные сохранены для TcId={TcId}", _tcId);
+
+                        MessageBox.Show("Данные обновлены из базы. Проверьте изменения. Рекомендуется повторное сохранение");
+                    }
+                    catch (DbUpdateConcurrencyException ex2)
+                    {
+                        await retryTransaction.RollbackAsync();
+                        _logger.Error(ex2, "Повторная попытка сохранения не удалась для TcId={TcId}", _tcId);
+                        MessageBox.Show("Не удалось сохранить данные из-за повторного конфликта. Рекомендуется повторное сохранение");
+                    }
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                    // UI уже обновлено в HandleConcurrencyExceptionAsync при удалении объекта
+                    MessageBox.Show("Сохранение отменено из-за конфликта.");
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.Error(ex, "Ошибка FK при сохранении данных для TcId={TcId}", _tcId);
+                MessageBox.Show($"Ошибка сохранения: {ex.InnerException?.Message}");
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Ошибка при сохранении изменений для TcId={TcId}", _tcId);
                 MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
+            }
+            finally
+            {
+                if (OptimicticError)
+                {
+                    var newForm = new Win6_new(_tcId, _accessLevel, tcViewState.IsViewMode, startOpenForm);
+                    newForm.Show();
+                    MessageBox.Show("Карта была  перезагружена, так как была обнаружена ошибка оптимистичного параллелизма. Карта обновлена до последней версии, данные сохранены.", "Данные обновлены", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.Close();
+                }
             }
         }
         private void ControlSaveEvent(object sender, KeyEventArgs e)

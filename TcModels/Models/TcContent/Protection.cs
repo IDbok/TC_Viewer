@@ -1,4 +1,4 @@
-﻿using TcModels.Models.Helpers;
+using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent.Work;
@@ -112,6 +112,11 @@ namespace TcModels.Models.TcContent
                     Links.Find(l => l.Id == link.Id)!.ApplyUpdates(link);
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{Id}. {Name} {Type} {Price}/{Unit}";
         }
 
         public string[] GetRequiredProperties()

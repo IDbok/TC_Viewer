@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -588,7 +589,7 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 	/// <param name="saveContext"></param>
 	private void DeleteDiagramsFromContext(bool saveContext = false)
 	{
-		try
+        try
 		{
 			// Зануляем поля в удалённых диаграммах
 			foreach (DiagamToWork item in _deletedDiagrams)
@@ -604,14 +605,18 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 				_dbContext.DiagamToWork.Remove(item);
 			}
 
-			if (saveContext)
+            if (saveContext)
 			{
 				_dbContext.SaveChanges();
-			}
+            }
 
 			_tcViewState.DiagramToWorkList = _technologicalCard.DiagamToWork;
 			_tcViewState.TechnologicalCard.DiagamToWork = _technologicalCard.DiagamToWork;
 		}
+        catch (DbUpdateConcurrencyException ex)
+        {
+            throw ex;
+        }
 		catch (Exception ex)
 		{
 			System.Windows.Forms.MessageBox.Show(ex.Message);

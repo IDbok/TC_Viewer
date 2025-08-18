@@ -1,4 +1,4 @@
-﻿
+
 using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.TcContent.Work;
@@ -22,7 +22,11 @@ namespace TcModels.Models.TcContent
 
         public bool IsReleased { get; set; } = false;
         public int? CreatedTCId { get; set; } = null;
-                
+
+        public override string ToString()
+        {
+            return Name;
+        }
         public void ApplyUpdates(IUpdatableEntity source)
         {
             if (source is TechTransition sourceObject)

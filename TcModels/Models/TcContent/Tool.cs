@@ -1,4 +1,5 @@
-﻿using TcModels.Models.Helpers;
+using System.ComponentModel;
+using TcModels.Models.Helpers;
 using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent.Work;
@@ -66,6 +67,11 @@ namespace TcModels.Models.TcContent
 
         public bool IsReleased { get; set; } = false;
         public int? CreatedTCId { get; set; } = null;
+
+        public override string ToString()
+        {
+            return $"{Id}. {Name} {Type} {Price}/{Unit}";
+        }
 
         public void ApplyUpdates(IUpdatableEntity source)
         {
