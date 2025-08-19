@@ -1,4 +1,4 @@
-﻿using OfficeOpenXml;
+using OfficeOpenXml;
 using TcDbConnector.Repositories;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -529,7 +529,7 @@ public class ExcelParser
                     Name = nameTc=="" ? NoName : nameTc,
 
                     Type = Convert.ToString(worksheet.Cells[row, 2].Value),
-                    NetworkVoltage = Convert.ToSingle(worksheet.Cells[row, 3].Value),
+                    NetworkVoltage = Convert.ToString(worksheet.Cells[row, 3].Value),
                     TechnologicalProcessType = Convert.ToString(worksheet.Cells[row, 4].Value),
                     TechnologicalProcessName = Convert.ToString(worksheet.Cells[row, 5].Value),
                     Parameter = Convert.ToString(worksheet.Cells[row, 6].Value),

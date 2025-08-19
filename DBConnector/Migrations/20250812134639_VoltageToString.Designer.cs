@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TcDbConnector;
 
@@ -11,9 +12,11 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250812134639_VoltageToString")]
+    partial class VoltageToString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1057,12 +1060,6 @@ namespace TcDbConnector.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<string>("Remark")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Reply")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("SequenceData")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -1188,12 +1185,6 @@ namespace TcDbConnector.Migrations
                     b.Property<string>("ParallelIndex")
                         .HasColumnType("longtext")
                         .HasColumnName("ParallelIndex");
-
-                    b.Property<string>("Remark")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Reply")
-                        .HasColumnType("longtext");
 
                     b.Property<int>("TechnologicalCardId")
                         .HasColumnType("int");
