@@ -67,6 +67,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         dgvMain.CellPainting += DgvMain_CellPainting;
         dgvMain.CellFormatting += DgvMain_CellFormatting;
+        dgvMain.Scroll += (_, __) => dgvMain.InvalidateColumn(2);
         dgvMain.CellEndEdit += DgvMain_CellEndEdit;
         dgvMain.CellMouseEnter += DgvMain_CellMouseEnter;
 		dgvMain.MouseDown += DataGridView_MouseDown;
@@ -2728,12 +2729,14 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         //if (e.RowIndex < 0) // todo: Исправли с == 0  на  < 0 т.е мешает применению стиля к первой строке. Пока не поянятно, зачем была созданна.
         //    return;
 
-        // Если значение ячейки совпадает с предыдущим значением в столбце с ТО (индекс 2),
-        // то ячейка остается пустой.
-        if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 2)
+        if (e.ColumnIndex == 2) // "Технологические операции"
         {
-            e.Value = string.Empty;
-            e.FormattingApplied = true;
+            // Первая видимая строка ВСЕГДА показывает текст
+            if (!IsFirstVisibleRow(e.RowIndex) && IsSameAsPrev(e.ColumnIndex, e.RowIndex))
+            {
+                e.Value = string.Empty;
+                e.FormattingApplied = true;
+            }
         }
 
         // Если это столбцов с временем этапа и механизмов (индекс >= 6), и значение ячейки равно "-1",
@@ -2865,6 +2868,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     private void DgvMain_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
     {
+        if (e.AdvancedBorderStyle == null) return;
+        
         e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.None;
 
         // Пропуск заголовков колонок и строк, и первой строки
@@ -2883,9 +2888,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
         }
 
-        if (IsTheSameCellValue(e.ColumnIndex, e.RowIndex) && e.ColumnIndex == 2)
+        if (e.ColumnIndex == 2) // Технологические операции
         {
-            e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None;
+            bool merged = !IsFirstVisibleRow(e.RowIndex) && IsSameAsPrev(e.ColumnIndex, e.RowIndex);
+            e.AdvancedBorderStyle.Top = merged
+                ? DataGridViewAdvancedCellBorderStyle.None
+                : DataGridViewAdvancedCellBorderStyle.Single;
         }
         else
         {
@@ -2894,36 +2902,43 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         if (e.ColumnIndex >= 6)
         {
-            var bb = (string)e.Value;
+            var bb = e.Value?.ToString() ?? string.Empty;
             if (bb == "-1")
             {
                 e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None;
             }
         }
 
-
     }
 
     /// <summary>
-    /// Проверяет ячейку на совпадение с предыдущей ячейкой в столбце dgvMain
+    /// Проверяет, является ли строка первой видимой строкой в DataGridView.
+    /// </summary>
+    /// <param name="row"></param>
+    /// <returns></returns>
+    bool IsFirstVisibleRow(int row)
+    {
+        int first = dgvMain.FirstDisplayedScrollingRowIndex; // -1, если пусто
+        return first >= 0 && row == first;
+    }
+
+    /// <summary>
+    /// Определяет, является ли значение в ячейке текущей строки и столбца таким же, как в предыдущей строке.
     /// </summary>
     /// <param name="column"></param>
     /// <param name="row"></param>
     /// <returns></returns>
-    bool IsTheSameCellValue(int column, int row)
+    bool IsSameAsPrev(int column, int row)
     {
-        if (row == 0)
-        {
-            return false;
-        }
-        DataGridViewCell cell1 = dgvMain[column, row];
-        DataGridViewCell cell2 = dgvMain[column, row - 1];
-        if (cell1.Value == null || cell2.Value == null)
-        {
-            return false;
-        }
-        return cell1.Value.ToString() == cell2.Value.ToString();
+        if (row <= 0) return false;
+
+        var v1 = dgvMain[column, row].Value?.ToString();
+        var v0 = dgvMain[column, row - 1].Value?.ToString();
+        if (v1 == null || v0 == null) return false;
+
+        return string.Equals(v1, v0, StringComparison.Ordinal);
     }
+
 
     private bool IsRepeatedCellValue(int rowIndex, int colIndex)
     {
