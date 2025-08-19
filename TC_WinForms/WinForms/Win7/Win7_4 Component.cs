@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
 using System.Data;
@@ -766,7 +766,7 @@ public partial class Win7_4_Component : Form, ILoadDataAsyncForm, IPaginationCon
             if (machine != null)
             {
                 var timerInterval = 1000 * 60 * 25;
-                concurrencyBlockServise = new ConcurrencyBlockService<Component>(machine, timerInterval);
+                concurrencyBlockServise = new ConcurrencyBlockService<Component>(machine.GetType().Name, machine.Id, timerInterval);
                 if (concurrencyBlockServise.GetObjectUsedStatus())
                 {
                     MessageBox.Show("Данный объект сейчас редактируется другим пользователем. Вы не можете его редактировать.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);

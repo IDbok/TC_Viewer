@@ -82,6 +82,8 @@ namespace TC_WinForms.WinForms
         private OutlayService calculateOutlayService = new OutlayService();
         private bool TcWasBlocked = false;
         private bool OptimicticError = false;
+        private int timerInterval = 1000 * 60 * 14;//миллисекунды * секунды * минуты
+        
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false, EModelType startForm = EModelType.WorkStep)
         {
@@ -90,10 +92,10 @@ namespace TC_WinForms.WinForms
             _tcId = tcId;
             _accessLevel = role;
             startOpenForm = startForm;
+            concurrencyBlockServise = new ConcurrencyBlockService<TechnologicalCard>(_tc.GetType().Name, _tcId, timerInterval);
 
             _logger = Log.Logger.ForContext<Win6_new>();
             _logger.Information("Инициализация Win6_new: TcId={TcId}, Role={Role}, ViewMode={ViewMode}", tcId, role, viewMode);
-
 
             tcViewState = new TcViewState(role, this);
             tcViewState.IsViewMode = viewMode;
@@ -458,9 +460,6 @@ namespace TC_WinForms.WinForms
                 await SetTcViewStateData();
                 _tc = tcViewState.TechnologicalCard;
 
-                var timerInterval = 1000 * 60 * 14;//миллисекунды * секунды * минуты
-
-                concurrencyBlockServise = new ConcurrencyBlockService<TechnologicalCard>(_tc, timerInterval); // todo: перенести в конструктор?
                 if (!concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
                 {
                     concurrencyBlockServise.BlockObject();
@@ -510,7 +509,7 @@ namespace TC_WinForms.WinForms
 
         private async void Win6_new_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (concurrencyBlockServise.GetObjectUsedStatus())
+            if (concurrencyBlockServise != null && concurrencyBlockServise.GetObjectUsedStatus())
             {
                 concurrencyBlockServise.CleanBlockData(); // Снимаем блокировку
             }

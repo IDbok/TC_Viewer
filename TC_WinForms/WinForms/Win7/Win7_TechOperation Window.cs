@@ -51,7 +51,7 @@ public partial class Win7_TechOperation_Window : Form
 
             var timerInterval = 1000 * 60 * 25;
 
-            techOperationBlockService = new ConcurrencyBlockService<TechOperation>(techOperation, timerInterval);
+            techOperationBlockService = new ConcurrencyBlockService<TechOperation>(techOperation.GetType().Name, techOperation.Id, timerInterval);
             techOperationBlockService.BlockObject();
         }
 

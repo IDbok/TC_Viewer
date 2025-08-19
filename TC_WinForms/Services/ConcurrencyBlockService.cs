@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using TC_WinForms.WinForms;
 using TcDbConnector;
@@ -18,12 +18,12 @@ namespace TC_WinForms.Services
         private string ObjectType;
         private int TimerInterval;//интервал работы таймера в милисекундах
         private ObjectLocker blockedObject;
-        public ConcurrencyBlockService(T obj, int timerInterval)
+        public ConcurrencyBlockService(string ObjectType, int ObjectId, int timerInterval)
         {
             _logger = Log.Logger.ForContext<ConcurrencyBlockService<T>>();
 
-            ObjectType = obj.GetType().Name;
-            ObjectId = obj.Id;
+            this.ObjectType = ObjectType;
+            this.ObjectId = ObjectId;
             TimerInterval = timerInterval;
 
             Log.Information("Инициализация ConcurrencyBlockService для объекта {ObjectType} с ID={ObjectId}", ObjectType, ObjectId);
