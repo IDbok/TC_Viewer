@@ -29,6 +29,7 @@ public partial class RepeatExecutionControl : UserControl
 
 	private ExecutionWork? _parentExecutionWork;
 	private List<ExecutionWork> _executionWorks;
+    private ExecutionWork currentHighlightObject;
 	private readonly TcViewState _tcViewState;
 	private readonly MyDbContext _context;
 	private readonly TechnologicalCardRepository _tcRepos = new TechnologicalCardRepository();
@@ -159,111 +160,131 @@ public partial class RepeatExecutionControl : UserControl
 		}
 	}
 
-	/// <summary>
-	/// Устанавливает для данного контрола родительский переход 
-	/// (тот, у которого <c>Repeat = true</c>), чтобы впоследствии 
-	/// пользователь мог выбрать, какие ChildExecutionWork добавлять/убирать из повторения.
-	/// </summary>
-	/// <param name="parentEW">Повторяющий переход (ExecutionWork.Repeat = true).</param>
-	public async Task SetParentExecutionWorkAsync(ExecutionWork parentEW)
-	{
-		_logger.Information("Установка родительского ТП {ParentEWId}", parentEW?.Id);
+    /// <summary>
+    /// Устанавливает для данного контрола родительский переход 
+    /// (тот, у которого <c>Repeat = true</c>), чтобы впоследствии 
+    /// пользователь мог выбрать, какие ChildExecutionWork добавлять/убирать из повторения.
+    /// </summary>
+    /// <param name="parentEW">Повторяющий переход (ExecutionWork.Repeat = true).</param>
+    public async Task SetParentExecutionWorkAsync(ExecutionWork parentEW)
+    {
+        _logger.Information("Установка родительского ТП {ParentEWId}", parentEW?.Id);
 
-		if (parentEW == null || !parentEW.Repeat)
-		{
-			_parentExecutionWork = null;
-			_executionWorks = new List<ExecutionWork>();
-			await SetSearchBoxParamsAsync(searchVisible: false);
-			RefreshData();
-			return;
-		}
+        // Сохраняем текущую выделенную строку, если parentEW совпадает с текущим _parentExecutionWork
+        bool isSameParent = _parentExecutionWork == parentEW;
+        ExecutionWork? previousHighlightObject = isSameParent ? currentHighlightObject : null;
 
-		_parentExecutionWork = parentEW;
+        if (parentEW == null || !parentEW.Repeat)
+        {
+            _parentExecutionWork = null;
+            _executionWorks = new List<ExecutionWork>();
+            await SetSearchBoxParamsAsync(searchVisible: false);
+            RefreshData();
+            return;
+        }
 
-		var check = parentEW.RepeatsTCId != null;
+        _parentExecutionWork = parentEW;
 
-		_executionWorks.Clear();
+        var check = parentEW.RepeatsTCId != null;
 
-		await SetSearchBoxParamsAsync(parentEW.RepeatsTCId != null);
+        _executionWorks.Clear();
 
-		if (parentEW.RepeatsTCId == null)
-		{
-			_executionWorks = _tcViewState.GetAllExecutionWorks();
-		}
-		else
-		{
-			if (parentEW.RepeatsTCId != 0) 
-				_executionWorks = await GetAllExecutionWorksByTcIdAsync(parentEW.RepeatsTCId.Value);
-		}
+        await SetSearchBoxParamsAsync(parentEW.RepeatsTCId != null);
 
-		RefreshData();
-	}
+        if (parentEW.RepeatsTCId == null)
+        {
+            _executionWorks = _tcViewState.GetAllExecutionWorks();
+        }
+        else
+        {
+            if (parentEW.RepeatsTCId != 0)
+                _executionWorks = await GetAllExecutionWorksByTcIdAsync(parentEW.RepeatsTCId.Value);
+        }
 
-	/// <summary>
-	/// Выполняет повторное считывание данных из текущего <see cref="_parentExecutionWork"/> 
-	/// и перезаполняет <c>dataGridViewRepeats</c> записями для возможных повторяемых шагов.
-	/// </summary>
-	public void RefreshData()
-	{
-		dataGridViewRepeats.Rows.Clear();
-		if (_parentExecutionWork == null) return;
+        // Обновляем данные в таблице и восстанавливаем выделение
+        RefreshData();
 
-		ExecutionWork exeWork = _parentExecutionWork;
+        // Восстанавливаем выделение, если parentEW не изменился
+        if (isSameParent && previousHighlightObject != null)
+        {
+            RestoreHighlightedRow(previousHighlightObject);
+        }
+    }
 
-		var repeats = _parentExecutionWork.ExecutionWorkRepeats;
-		if (repeats == null) return;
+    /// <summary>
+    /// Выполняет повторное считывание данных из текущего <see cref="_parentExecutionWork"/> 
+    /// и перезаполняет <c>dataGridViewRepeats</c> записями для возможных повторяемых шагов.
+    /// </summary>
+    public void RefreshData()
+    {
+        dataGridViewRepeats.Rows.Clear();
+        if (_parentExecutionWork == null) return;
 
-		var selectedEW = repeats.Select(ewr => ewr.ChildExecutionWork).ToList();
-		var selectedEWR = repeats.ToList();
+        ExecutionWork exeWork = _parentExecutionWork;
 
-        if(!_executionWorks.All(e => e.RowOrder == 0))
+        var repeats = _parentExecutionWork.ExecutionWorkRepeats;
+        if (repeats == null) return;
+
+        var selectedEW = repeats.Select(ewr => ewr.ChildExecutionWork).ToList();
+        var selectedEWR = repeats.ToList();
+
+        if (!_executionWorks.All(e => e.RowOrder == 0))
         {
             _executionWorks = _executionWorks.OrderBy(o => o.RowOrder).ToList();
         }
 
-		if (exeWork != null && exeWork.Repeat)
-		{
-			foreach (ExecutionWork executionWork in _executionWorks)
-			{
-				var techOperationWork = executionWork.techOperationWork;
-				var isSelected = selectedEW.SingleOrDefault(s => s == executionWork) != null;
+        if (exeWork != null && exeWork.Repeat)
+        {
+            foreach (ExecutionWork executionWork in _executionWorks)
+            {
+                var techOperationWork = executionWork.techOperationWork;
+                var isSelected = selectedEW.SingleOrDefault(s => s == executionWork) != null;
 
-				List<object> listItem =
-							[
-								executionWork,
-								isSelected ? true : false,
-								$"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                                $"№{executionWork.RowOrder} {executionWork.techTransition?.Name}" ?? "",
-								executionWork.Coefficient ?? "",
-							];
+                List<object> listItem =
+                [
+                    executionWork,
+                isSelected ? true : false,
+                $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
+                $"№{executionWork.RowOrder} {executionWork.techTransition?.Name}" ?? "",
+                executionWork.Coefficient ?? "",
+            ];
 
-				if (isSelected)
-				{
-					ExecutionWorkRepeat? techOperationWorkRepeat = selectedEWR.SingleOrDefault(s => s.ChildExecutionWork == executionWork);
+                if (isSelected)
+                {
+                    ExecutionWorkRepeat? techOperationWorkRepeat = selectedEWR.SingleOrDefault(s => s.ChildExecutionWork == executionWork);
 
-					if (techOperationWorkRepeat != null)
-					{
-						listItem.Add(techOperationWorkRepeat.NewCoefficient);
-						listItem.Add(techOperationWorkRepeat.NewEtap);
-						listItem.Add(techOperationWorkRepeat.NewPosled);
-					}
-				}
+                    if (techOperationWorkRepeat != null)
+                    {
+                        listItem.Add(techOperationWorkRepeat.NewCoefficient);
+                        listItem.Add(techOperationWorkRepeat.NewEtap);
+                        listItem.Add(techOperationWorkRepeat.NewPosled);
+                    }
+                }
 
-				dataGridViewRepeats.Rows.Add(listItem.ToArray());
-			}
-		}
-	}
+                dataGridViewRepeats.Rows.Add(listItem.ToArray());
+            }
+        }
 
-	#endregion
+        // Восстанавливаем выделение последней отмеченной строки
+        if (currentHighlightObject != null)
+        {
+            RestoreHighlightedRow(currentHighlightObject);
+        }
+
+        // Уведомляем об изменении данных
+        DataChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    #endregion
 
 
-	#region Вспомогательные методы (приватные)
+    #region Вспомогательные методы (приватные)
 
-	/// <summary>
-	/// Асинхронно загружает все переходы (ExecutionWork) по переданному <paramref name="id"/> технологической карты.
-	/// </summary>
-	/// <param name="id">Идентификатор ТК.</param>
-	private async Task<List<ExecutionWork>> GetAllExecutionWorksByTcIdAsync(long id)
+    /// <summary>
+    /// Асинхронно загружает все переходы (ExecutionWork) по переданному <paramref name="id"/> технологической карты.
+    /// </summary>
+    /// <param name="id">Идентификатор ТК.</param>
+    private async Task<List<ExecutionWork>> GetAllExecutionWorksByTcIdAsync(long id)
 	{
 		var executionWorkList = await _context.TechOperationWorks
 			.Where(tow => tow.TechnologicalCardId == id)
@@ -286,29 +307,57 @@ public partial class RepeatExecutionControl : UserControl
 		RefreshData();
 	}
 
-	#endregion
+    /// <summary>
+    /// Восстанавливает выделение строки в DataGridView на основе указанного объекта ExecutionWork.
+    /// </summary>
+    /// <param name="executionWork">Объект ExecutionWork, соответствующий строке для выделения.</param>
+    private void RestoreHighlightedRow(ExecutionWork executionWork)
+    {
+        if (executionWork == null) return;
+
+        // Находим индекс строки, соответствующей executionWork
+        int rowIndex = dataGridViewRepeats.Rows.Cast<DataGridViewRow>()
+            .ToList()
+            .FindIndex(row => row.Cells[0].Value == executionWork);
+
+        if (rowIndex >= 0)
+        {
+            // Выделяем строку
+            dataGridViewRepeats.ClearSelection();
+            dataGridViewRepeats.Rows[rowIndex].Cells[3].Selected = true;
+            dataGridViewRepeats.CurrentCell = dataGridViewRepeats.Rows[rowIndex].Cells[0];
+            // Прокручиваем таблицу, чтобы строка была видна
+            dataGridViewRepeats.FirstDisplayedScrollingRowIndex = rowIndex;
+        }
+    }
+
+    #endregion
 
 
-	#region Обработчики событий DataGridView
+    #region Обработчики событий DataGridView
 
-	// Стобцы в dataGridViewRepeats:
-	// 0 dgvRepeatsEwObject
-	// 1 dgvRepeatsSelected
-	// 2 dgvRepeatsToName
-	// 3 dgvRepeatsTpName
-	// 4 dgvRepeatsOldCoefficient
-	// 5 dgvRepeatsCoefficient
-	// 6 dgvRepeatsEtap
-	// 7 dgvRepeatsPosled
+    // Стобцы в dataGridViewRepeats:
+    // 0 dgvRepeatsEwObject
+    // 1 dgvRepeatsSelected
+    // 2 dgvRepeatsToName
+    // 3 dgvRepeatsTpName
+    // 4 dgvRepeatsOldCoefficient
+    // 5 dgvRepeatsCoefficient
+    // 6 dgvRepeatsEtap
+    // 7 dgvRepeatsPosled
 
-	private void dataGridViewRepeats_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+    private void dataGridViewRepeats_CellContentClick(object? sender, DataGridViewCellEventArgs e)
 	{
 		dataGridViewRepeats.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
 		var columnName = dataGridViewRepeats.Columns[e.ColumnIndex].Name;
-		if (e.RowIndex >= 0 && columnName == "dgvRepeatsSelected")
+
+        if (e.RowIndex >= 0)
+            currentHighlightObject = (ExecutionWork)dataGridViewRepeats.Rows[e.RowIndex].Cells[0].Value;
+
+        if (e.RowIndex >= 0 && columnName == "dgvRepeatsSelected")
 		{
-			var currentEW = (ExecutionWork)dataGridViewRepeats.Rows[e.RowIndex].Cells[0].Value;
+            var currentEW = (ExecutionWork)dataGridViewRepeats.Rows[e.RowIndex].Cells[0].Value;
 			var isSelected = (bool)dataGridViewRepeats.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
 
 			// позиция для executionWorkPovtor в таблице dataGridViewRepeats
@@ -450,75 +499,77 @@ public partial class RepeatExecutionControl : UserControl
 		}
 	}
 
-	private void dataGridViewRepeats_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
-	{
-		var columnName = dataGridViewRepeats.Columns[e.ColumnIndex].Name;
-		if (e.RowIndex >= 0 &&
-				(columnName == "dgvRepeatsCoefficient" ||
-				columnName == "dgvRepeatsEtap" ||
-				columnName == "dgvRepeatsPosled"))
-		{
-			var currentEW = (ExecutionWork)dataGridViewRepeats.Rows[e.RowIndex].Cells[0].Value;
-			var isSelected = (bool)dataGridViewRepeats.Rows[e.RowIndex].Cells[1].Value;
+    private void dataGridViewRepeats_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
+    {
+        var columnName = dataGridViewRepeats.Columns[e.ColumnIndex].Name;
+        if (e.RowIndex >= 0 &&
+                (columnName == "dgvRepeatsCoefficient" ||
+                 columnName == "dgvRepeatsEtap" ||
+                 columnName == "dgvRepeatsPosled"))
+        {
+            // Обновляем currentHighlightObject
+            currentHighlightObject = (ExecutionWork)dataGridViewRepeats.Rows[e.RowIndex].Cells[0].Value;
 
-			if (_parentExecutionWork != null)
-			{
-				var existingRepeat = _parentExecutionWork.ExecutionWorkRepeats
-					.SingleOrDefault(x => x.ChildExecutionWork == currentEW);
+            var currentEW = (ExecutionWork)dataGridViewRepeats.Rows[e.RowIndex].Cells[0].Value;
+            var isSelected = (bool)dataGridViewRepeats.Rows[e.RowIndex].Cells[1].Value;
 
-				var cell = dataGridViewRepeats.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            if (_parentExecutionWork != null)
+            {
+                var existingRepeat = _parentExecutionWork.ExecutionWorkRepeats
+                    .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
 
-				if (isSelected)
-				{
-					if (existingRepeat != null)
-					{
+                var cell = dataGridViewRepeats.Rows[e.RowIndex].Cells[e.ColumnIndex];
 
-						var cellValueStr = (string)cell.Value;
+                if (isSelected)
+                {
+                    if (existingRepeat != null)
+                    {
+                        var cellValueStr = (string)cell.Value;
 
-						if (columnName == "dgvRepeatsCoefficient")
-						{
-							if (string.IsNullOrEmpty(cellValueStr))
-							{
-								existingRepeat.NewCoefficient = string.Empty;
-							}
-							else
-							{
-								existingRepeat.NewCoefficient = cellValueStr;
-							}
-						}
-						else if (columnName == "dgvRepeatsEtap")
-						{
-							existingRepeat.NewEtap = cellValueStr;
-						}
-						else if (columnName == "dgvRepeatsPosled")
-						{
-							existingRepeat.NewPosled = cellValueStr;
-						}
-					}
-				}
-				else
-				{
+                        if (columnName == "dgvRepeatsCoefficient")
+                        {
+                            if (string.IsNullOrEmpty(cellValueStr))
+                            {
+                                existingRepeat.NewCoefficient = string.Empty;
+                            }
+                            else
+                            {
+                                existingRepeat.NewCoefficient = cellValueStr;
+                            }
+                        }
+                        else if (columnName == "dgvRepeatsEtap")
+                        {
+                            existingRepeat.NewEtap = cellValueStr;
+                        }
+                        else if (columnName == "dgvRepeatsPosled")
+                        {
+                            existingRepeat.NewPosled = cellValueStr;
+                        }
+                    }
+                }
+                else
+                {
 					// отмена изменений
-					cell.Value = null;
-				}
+                    cell.Value = null;
+                }
 
-				UpdateCoefficient(_parentExecutionWork);
-				DataChanged?.Invoke(this, EventArgs.Empty);
-			}
-		}
-	}
+                UpdateCoefficient(_parentExecutionWork);
+                DataChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
 
-	#endregion
+    #endregion
 
 
-	#region Методы пересчёта «Повторов»
+    #region Методы пересчёта «Повторов»
 
-	/// <summary>
-	/// Пересчёт суммарного времени в родительском переходе. 
-	/// Берёт все выбранные ChildExecutionWork и суммирует их время, учитывая <see cref="ExecutionWorkRepeat.NewCoefficient"/>.
-	/// </summary>
-	/// <param name="executionWorkRepeats">Родительский переход (ExecutionWork), для которого идёт пересчёт.</param>
-	private void RecalculateExecutionWorkPovtorValue(ExecutionWork executionWorkRepeats)
+    /// <summary>
+    /// Пересчёт суммарного времени в родительском переходе. 
+    /// Берёт все выбранные ChildExecutionWork и суммирует их время, учитывая <see cref="ExecutionWorkRepeat.NewCoefficient"/>.
+    /// </summary>
+    /// <param name="executionWorkRepeats">Родительский переход (ExecutionWork), для которого идёт пересчёт.</param>
+    private void RecalculateExecutionWorkPovtorValue(ExecutionWork executionWorkRepeats)
 	{
 		if (!executionWorkRepeats.Repeat) return;
 
