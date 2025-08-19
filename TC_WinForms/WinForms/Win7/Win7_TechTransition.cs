@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Data;
 using System.DirectoryServices.ActiveDirectory;
 using TC_WinForms.DataProcessing;
@@ -626,7 +626,7 @@ namespace TC_WinForms.WinForms
                 if (TP != null)
                 {
                     var timerInterval = 1000 * 60 * 25;
-                    concurrencyBlockServise = new ConcurrencyBlockService<TechTransition>(TP, timerInterval);
+                    concurrencyBlockServise = new ConcurrencyBlockService<TechTransition>(TP.GetType().Name, TP.Id, timerInterval);
                     if (concurrencyBlockServise.GetObjectUsedStatus())
                     {
                         MessageBox.Show("Данный объект сейчас редактируется другим пользователем. Вы не можете его редактировать.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);

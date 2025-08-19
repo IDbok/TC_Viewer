@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.DirectoryServices.ActiveDirectory;
 using System.Globalization;
 using System.Reflection;
@@ -62,7 +62,7 @@ public partial class Win7_StaffEditor : Form
             
             var timerInterval = 1000 * 60 * 25;
 
-            staffBlockService = new ConcurrencyBlockService<Staff>(_editingObj, timerInterval);
+            staffBlockService = new ConcurrencyBlockService<Staff>(_editingObj.GetType().Name, _editingObj.Id, timerInterval);
             staffBlockService.BlockObject();
 
         }

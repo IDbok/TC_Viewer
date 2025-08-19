@@ -1,4 +1,4 @@
-﻿using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Misc;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -82,7 +82,7 @@ namespace TC_WinForms.WinForms
 
                 var timerInterval = 1000 * 60 * 25;
 
-                objectBlockService = new ConcurrencyBlockService<IModelStructure>(_editingObj, timerInterval);
+                objectBlockService = new ConcurrencyBlockService<IModelStructure>(_editingObj.GetType().Name, _editingObj.Id, timerInterval);
                 objectBlockService.BlockObject();
             }
 

@@ -619,7 +619,7 @@ public partial class Win7_3_Staff : Form, ILoadDataAsyncForm, IPaginationControl
             if (staff != null)
             {
                 var timerInterval = 1000 * 60 * 25;
-                concurrencyBlockServise = new ConcurrencyBlockService<Staff>(staff, timerInterval);
+                concurrencyBlockServise = new ConcurrencyBlockService<Staff>(staff.GetType().Name, staff.Id, timerInterval);
                 if (concurrencyBlockServise.GetObjectUsedStatus())
                 {
                     MessageBox.Show("Данный объект сейчас редактируется другим пользователем. Вы не можете его редактировать.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
