@@ -3307,12 +3307,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         try
         {
             context.SaveChanges();
-			_logger.Information("Данные успешно сохранены в БД (TechOperationForm).");
-		}
-		catch (Exception exception)
+            _logger.Information("Данные успешно сохранены в БД (TechOperationForm).");
+        }
+        catch (DbUpdateConcurrencyException ex)
         {
-			_logger.Error(exception, "Ошибка при сохранении данных Ход работ.");
-			MessageBox.Show(exception.Message + "\n" + exception.InnerException);
+            throw ex;
+        }
+        catch (Exception exception)
+        {
+            _logger.Error(exception, "Ошибка при сохранении данных Ход работ.");
+            MessageBox.Show(exception.Message + "\n" + exception.InnerException);
         }
     }
 
