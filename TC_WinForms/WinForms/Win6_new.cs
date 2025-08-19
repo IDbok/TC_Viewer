@@ -75,7 +75,7 @@ namespace TC_WinForms.WinForms
         //TechOperationForm techOperationForm;
 
         EModelType? activeModelType = null;
-        private TechnologicalCard _tc = null!;
+        private TechnologicalCard _tc = new TechnologicalCard();
         private int _tcId;
         private DbConnector db = new DbConnector();
         private MyDbContext context = new MyDbContext();
