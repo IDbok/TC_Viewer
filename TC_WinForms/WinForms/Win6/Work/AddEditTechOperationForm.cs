@@ -116,9 +116,10 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewTPLocal.CellFormatting += DataGridViewTPLocal_CellFormatting;
             dataGridViewTPLocal.SelectionChanged += DataGridViewTPLocal_SelectionChanged;
             dataGridViewTPLocal.CellValidating += CellValidating;
+            dataGridViewTPLocal.RowHeightChanged += dataGridViewTPLocal_RowHeightChanged;
 
 
-			dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
+            dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
             dataGridViewStaff.CellClick += DataGridViewStaff_CellClick;
             dataGridViewStaff.CellEndEdit += DataGridViewStaff_CellEndEdit;
             dataGridViewStaff.CellBeginEdit += DataGridViewStaff_CellBeginEdit;
@@ -680,7 +681,15 @@ namespace TC_WinForms.WinForms.Work
 
         #region TP
 
-       
+        private void dataGridViewTPLocal_RowHeightChanged(object? sender, DataGridViewRowEventArgs e)
+        {
+            const int MaxRowHeight = 80; // Максимальная высота строки в пикселях
+
+            if (e.Row.Height > MaxRowHeight)
+            {
+                e.Row.Height = MaxRowHeight; // Ограничиваем высоту строки
+            }
+        }
         private void DataGridViewTPLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
             var work = SelectedTO;
@@ -3078,7 +3087,6 @@ namespace TC_WinForms.WinForms.Work
 
 			_logger.Information("Обновление данных для вкладки завершено.");
         }
-
 		private void SetComboBoxesVisibility(bool toVisible, bool ttVisible)
         {
             comboBoxTO.Visible = toVisible;
