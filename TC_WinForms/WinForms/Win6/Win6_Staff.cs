@@ -18,8 +18,8 @@ namespace TC_WinForms.WinForms;
 
 public partial class Win6_Staff : Form, IViewModeable
 {
-	private ILogger _logger;
-	private readonly TcViewState _tcViewState;
+    private ILogger _logger;
+    private readonly TcViewState _tcViewState;
 
     private bool _isViewMode;
 
@@ -30,40 +30,39 @@ public partial class Win6_Staff : Form, IViewModeable
     private List<DisplayedStaff_TC> _changedObjects = new List<DisplayedStaff_TC>();
     private List<DisplayedStaff_TC> _newObjects = new List<DisplayedStaff_TC>();
     private List<DisplayedStaff_TC> _deletedObjects = new List<DisplayedStaff_TC>();
-
+    private Dictionary<DisplayedStaff_TC, DisplayedStaff_TC> _replacedObjects = new();
     private int _tcId;
     public bool CloseFormsNoSave { get; set; } = false;
     public Win6_Staff(int tcId, TcViewState tcViewState, MyDbContext context) // bool viewerMode = false)
-	{
-		_tcViewState = tcViewState;
-		this.context = context;
-		this._tcId = tcId;
+    {
+        _tcViewState = tcViewState;
+        this.context = context;
+        this._tcId = tcId;
 
-		_logger = Log.Logger
-			.ForContext<Win6_Staff>()
-			.ForContext("TcId", _tcId);
+        _logger = Log.Logger
+            .ForContext<Win6_Staff>()
+            .ForContext("TcId", _tcId);
         _logger.Information("Инициализация формы.");
 
 
-		InitializeComponent();
+        InitializeComponent();
 
-        AccessInitialization();
 
 
         var dgvEventService = new DGVEvents(dgvMain);
         dgvEventService.SetRowsUpAndDownEvents(btnMoveUp, btnMoveDown, dgvMain);
 
         dgvMain.RowPrePaint += dgvEventService.dgvMain_RowPrePaint;
-		//dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
+        //dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
         dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
         dgvMain.CellContentClick += DgvMain_CellContentClick;
         dgvMain.CellEndEdit += DgvMain_CellEndEdit;
         this.FormClosed += (sender, e) =>
-		{
-			_logger.Information("Форма Win6_Staff закрыта.");
-			this.Dispose();
-		};
-	}
+        {
+            _logger.Information("Форма Win6_Staff закрыта.");
+            this.Dispose();
+        };
+    }
 
     private bool autoAdvance = false;
     private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
@@ -92,7 +91,7 @@ public partial class Win6_Staff : Form, IViewModeable
     {
         if (dgvMain.Columns[e.ColumnIndex].Name != "IsInOutlay" || e.RowIndex < 0 || _tcViewState.IsViewMode)
             return;
-        
+
         var isInOutlay = !(bool)dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
         var staffSymbol = dgvMain.Rows[e.RowIndex].Cells[nameof(DisplayedStaff_TC.Symbol)].Value as string;
         if (staffSymbol == null || staffSymbol == "-")
@@ -125,10 +124,6 @@ public partial class Win6_Staff : Form, IViewModeable
         dgvMain.EndEdit();
     }
 
-    private void AccessInitialization()
-    {
-    }
-
     public void SetViewMode(bool? isViewMode = null)
     {
         pnlControls.Visible = !_tcViewState.IsViewMode;
@@ -147,10 +142,10 @@ public partial class Win6_Staff : Form, IViewModeable
     }
 
     private void Win6_Staff_Load(object sender, EventArgs e)
-	{
-		_logger.Information("Загрузка формы.");
+    {
+        _logger.Information("Загрузка формы.");
 
-		LoadObjects();
+        LoadObjects();
 
         dgvMain.AllowUserToDeleteRows = false;
 
@@ -158,9 +153,9 @@ public partial class Win6_Staff : Form, IViewModeable
     }
     private void LoadObjects()
     {
-		_logger.Information("Загрузка объектов.");
+        _logger.Information("Загрузка объектов.");
 
-		var tcList = _tcViewState.TechnologicalCard.Staff_TCs
+        var tcList = _tcViewState.TechnologicalCard.Staff_TCs
             .OrderBy(o => o.Order)
             .Select(obj => new DisplayedStaff_TC(obj)).ToList();
         _bindingList = new BindingList<DisplayedStaff_TC>(tcList);
@@ -172,9 +167,9 @@ public partial class Win6_Staff : Form, IViewModeable
 
     public void AddNewObjects(List<Staff> newObjs)
     {
-    _logger.Information("Добавление новых объектов. Количество: {Count}", newObjs.Count);
-        		
-		foreach (var obj in newObjs)
+        _logger.Information("Добавление новых объектов. Количество: {Count}", newObjs.Count);
+
+        foreach (var obj in newObjs)
         {
             var newStaffTC = CreateNewObject(obj, _bindingList.Count == 0 ? 1 : _bindingList.Select(o => o.Order).Max() + 1);
             var staff = context.Staffs.Where(s => s.Id == newStaffTC.ChildId).First();
@@ -285,105 +280,62 @@ public partial class Win6_Staff : Form, IViewModeable
         DisplayedEntityHelper.SetupDataGridView<DisplayedStaff_TC>(dgvMain);
 
     }
-    //private void dgvMain_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-    //{
-    //    // Проверяем, что это не заголовок столбца и не новая строка
-    //    if (e.RowIndex >= 0 && e.RowIndex < dgvMain.Rows.Count)
-    //    {
-    //        var row = dgvMain.Rows[e.RowIndex];
-    //        var displayedStaff = row.DataBoundItem as IReleasable;
-    //        if (displayedStaff != null)
-    //        {
-    //            // Меняем цвет строки в зависимости от значения свойства IsReleased
-    //            if (!displayedStaff.IsReleased)
-    //            {
-    //                row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#d1c6c2"); // Цвет для строк, где IsReleased = false
-    //            }
-    //        }
-    //    }
-    //}
-    //private void dgvMain_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-    //{
-    //    // Проверяем, редактируется ли столбец "Order"
-    //    if (dgvMain.Columns[e.ColumnIndex].Name == nameof(DisplayedStaff_TC.Order))
-    //    {
-    //        // Проверяем, что значение не пустое и является допустимым целым числом
-    //        if (string.IsNullOrWhiteSpace(e.FormattedValue.ToString()) || !int.TryParse(e.FormattedValue.ToString(), out _))
-    //        {
-    //            e.Cancel = true; // Отменяем редактирование
-
-    //            // Получаем объект, связанный с редактируемой строкой
-    //            var row = dgvMain.Rows[e.RowIndex];
-    //            var displayedStaff = row.DataBoundItem as IPreviousOrderable;
-
-    //            if (displayedStaff != null)
-    //            {
-    //                // Восстанавливаем предыдущее значение
-    //                dgvMain.CancelEdit(); // Отменяем текущее редактирование
-    //                row.Cells[e.ColumnIndex].Value = displayedStaff.PreviousOrder; // Восстанавливаем предыдущее значение
-    //            }
-
-    //            MessageBox.Show("Значение в столбце 'Order' должно быть целым числом и не может быть пустым.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-    //        }
-    //    }
-    //}
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     ///////////////////////////////////////////////////// * Events handlers * /////////////////////////////////////////////////////////////////////////////////
     private void btnAddNewObj_Click(object sender, EventArgs e)
-	{
-		LogUserAction("Добавление нового объекта");
-		// load new form Win7_3_Staff as dictonary
-		var newForm = new Win7_3_Staff(this, activateNewItemCreate: true, createdTCId: _tcId);
+    {
+        LogUserAction("Добавление нового объекта");
+        // load new form Win7_3_Staff as dictonary
+        var newForm = new Win7_3_Staff(this, activateNewItemCreate: true, createdTCId: _tcId);
         newForm.WindowState = FormWindowState.Maximized;
         //newForm.SetAsAddingForm();
         newForm.ShowDialog();
     }
 
     private void btnDeleteObj_Click(object sender, EventArgs e)
-	{
-		LogUserAction("Удаление выбранных объектов");
+    {
+        LogUserAction("Удаление выбранных объектов");
 
-		DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
+        DisplayedEntityHelper.DeleteSelectedObject(dgvMain,
             _bindingList, _newObjects, _deletedObjects);
 
-        if(_deletedObjects.Count != 0)
+        if (_deletedObjects.Count != 0)
         {
             foreach (var obj in _deletedObjects)
             {
-                foreach(var techOperationWork in _tcViewState.TechOperationWorksList)
+                foreach (var techOperationWork in _tcViewState.TechOperationWorksList)
                 {
-                    foreach(var evecutionWork in techOperationWork.executionWorks)
+                    foreach (var evecutionWork in techOperationWork.executionWorks)
                     {
                         var staffToRemove = evecutionWork.Staffs.Where(s => s.IdAuto == obj.IdAuto && s.ChildId == obj.ChildId).FirstOrDefault();
                         if (staffToRemove != null)
                         {
-							_logger.Debug("Удаление Staff из ExecutionWork: IDAuto={IdAuto}, ChildId={ChildId}", staffToRemove.IdAuto, staffToRemove.ChildId);
-							evecutionWork.Staffs.Remove(staffToRemove);
-						}
+                            _logger.Debug("Удаление Staff из ExecutionWork: IDAuto={IdAuto}, ChildId={ChildId}", staffToRemove.IdAuto, staffToRemove.ChildId);
+                            evecutionWork.Staffs.Remove(staffToRemove);
+                        }
                     }
                 }
 
                 var deletedObj = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IdAuto == obj.IdAuto && s.ChildId == obj.ChildId).FirstOrDefault();
                 if (deletedObj != null)
                 {
-					_logger.Debug("Удаление объектов({ObjectType}}: {ObjectName} (ID={Id})",
-							deletedObj.GetType(), deletedObj.Child?.Name, deletedObj.ChildId);
+                    _logger.Debug("Удаление объектов({ObjectType}}: {ObjectName} (ID={Id})",
+                            deletedObj.GetType(), deletedObj.Child?.Name, deletedObj.ChildId);
 
-					_tcViewState.TechnologicalCard.Staff_TCs.Remove(deletedObj);
-				}
+                    _tcViewState.TechnologicalCard.Staff_TCs.Remove(deletedObj);
+                }
             }
 
-			_logger.Information("Удалено объектов: {Count}", _deletedObjects.Count);
-			_deletedObjects.Clear();
-		}
-		else
-		{
-			_logger.Warning("Удаление не выполнено. Список удаляемых объектов пуст.");
-		}
+            _logger.Information("Удалено объектов: {Count}", _deletedObjects.Count);
+            _deletedObjects.Clear();
+        }
+        else
+        {
+            _logger.Warning("Удаление не выполнено. Список удаляемых объектов пуст.");
+        }
 
         ReorderRows();
 
@@ -418,13 +370,22 @@ public partial class Win6_Staff : Form, IViewModeable
 
     private void btnMoveUp_Click(object sender, EventArgs e)
     {
-		_logger.Information("Клик по кнопке 'Переместить вверх'.");
-	}
+        _logger.Information("Клик по кнопке 'Переместить вверх'.");
+    }
 
     private void btnMoveDown_Click(object sender, EventArgs e)
     {
-		_logger.Information("Клик по кнопке 'Переместить вниз'.");
-	}
+        _logger.Information("Клик по кнопке 'Переместить вниз'.");
+    }
+
+    private void btnHideData_Click(object sender, EventArgs e)
+    {
+        dgvMain.Columns[nameof(DisplayedStaff_TC.Qualification)].Visible = !dgvMain.Columns[nameof(DisplayedStaff_TC.Qualification)].Visible;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.CombineResponsibility)].Visible = !dgvMain.Columns[nameof(DisplayedStaff_TC.CombineResponsibility)].Visible;
+
+        var isVisible = dgvMain.Columns[nameof(DisplayedStaff_TC.CombineResponsibility)].Visible;
+        btnHideData.Text = isVisible ? "Скрыть квалификацию" : "Показать квалификацию";
+    }
 
     private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
     {
@@ -468,13 +429,14 @@ public partial class Win6_Staff : Form, IViewModeable
     }
     private void BindingList_ListChanged(object sender, ListChangedEventArgs e)
     {
-		DisplayedEntityHelper.ListChangedEventHandlerIntermediate
+        DisplayedEntityHelper.ListChangedEventHandlerIntermediate
             (e, _bindingList, _newObjects, _changedObjects, _deletedObjects);
 
-        if(_changedObjects.Count != 0)
-        { 
+        if (_changedObjects.Count != 0)
+        {
             foreach (var obj in _changedObjects)
             {
+                
                 var changedObject = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.ChildId == obj.ChildId && s.IdAuto == obj.IdAuto).FirstOrDefault();
                 changedObject.ApplyUpdates(CreateNewObject(obj));
             }
@@ -537,22 +499,9 @@ public partial class Win6_Staff : Form, IViewModeable
             };
         }
 
-        private int idAuto;
-
-        private int childId;
-        private int parentId;
         private int order;
 
-
         private string symbol;
-
-        private string name;
-        private string type;
-        private string functions;
-        private string? combineResponsibility;
-        private string qualification;
-        private string? comment;
-
 
         public DisplayedStaff_TC()
         {
@@ -649,101 +598,59 @@ public partial class Win6_Staff : Form, IViewModeable
     private void LogUserAction(string message)
     {
         _logger?.LogUserAction(message, _tcId);
-	}
-    private void AdjustColumnWidths()
-    {
-        int dgvWidth = dgvMain.ClientSize.Width - dgvMain.RowHeadersWidth;
-        int totalMinWidth = 0;
-        int totalFixedWidth = 0;
-        int availableWidth;
-        int extraAdditionalWidth = 0;
-
-        int pixels = 40;
-
-        Dictionary<string, int> minColumnWidths = new Dictionary<string, int>
-        {
-            { nameof(DisplayedStaff_TC.Order), 1*pixels },//40
-            { nameof(DisplayedStaff_TC.Name), 10*pixels }, //400
-            { nameof(DisplayedStaff_TC.Type), 4*pixels }, // 160 (219 стандарт)
-            { nameof(DisplayedStaff_TC.CombineResponsibility), 7*pixels },
-            { nameof(DisplayedStaff_TC.Qualification), 13*pixels },//82+82+359
-            { nameof(DisplayedStaff_TC.Symbol), 2*pixels },
-            {nameof(DisplayedStaff_TC.ChildId), 1*pixels }
-        };
-        Dictionary<string, int> maxColumnWidths = new Dictionary<string, int>
-        {
-            { nameof(DisplayedStaff_TC.Order), 1*pixels },
-            { nameof(DisplayedStaff_TC.Type), 6*pixels },
-            { nameof(DisplayedStaff_TC.CombineResponsibility), 11*pixels },
-            { nameof(DisplayedStaff_TC.Symbol), 2*pixels },
-            { nameof(DisplayedStaff_TC.ChildId), 1*pixels }
-
-        };
-
-        // Рассчитайте общую минимальную ширину
-        foreach (var minWidth in minColumnWidths)
-        {
-            totalMinWidth += minWidth.Value;
-            if (maxColumnWidths.ContainsKey(minWidth.Key))
-            {
-                totalFixedWidth += maxColumnWidths[minWidth.Key];
-            }
-        }
-
-        // Проверяем, достаточно ли места для минимальной ширины столбцов
-        if (dgvWidth > totalMinWidth)
-        {
-            availableWidth = dgvWidth - totalMinWidth;
-
-            // Распределяем доступную ширину между столбцами
-            foreach (DataGridViewColumn column in dgvMain.Columns)
-            {
-                if (minColumnWidths.ContainsKey(column.Name))
-                {
-                    int additionalWidth = (int)((double)availableWidth / minColumnWidths.Count);
-                    int proposedWidth = minColumnWidths[column.Name] + additionalWidth;
-
-                    if (maxColumnWidths.ContainsKey(column.Name))
-                    {
-                        if (proposedWidth > maxColumnWidths[column.Name])
-                        {
-                            extraAdditionalWidth += proposedWidth - maxColumnWidths[column.Name];
-                        }
-                        // Учитываем максимальную ширину для столбца
-                        column.Width = Math.Min(proposedWidth, maxColumnWidths[column.Name]);
-                    }
-                    else
-                    {
-                        column.Width = proposedWidth + extraAdditionalWidth;
-                    }
-                }
-            }
-
-            // распределяем оставшееся место между столбцами не имеющими максимальной ширины
-            if (extraAdditionalWidth > 0)
-            {
-                int extraWidth = (int)((double)extraAdditionalWidth / (minColumnWidths.Count - maxColumnWidths.Count));
-                foreach (DataGridViewColumn column in dgvMain.Columns)
-                {
-                    if (minColumnWidths.ContainsKey(column.Name) && !maxColumnWidths.ContainsKey(column.Name))
-                    {
-                        column.Width += extraWidth;
-                    }
-                }
-            }
-
-        }
-        else
-        {
-            // Если места недостаточно, устанавливаем минимальные ширины
-            foreach (DataGridViewColumn column in dgvMain.Columns)
-            {
-                if (minColumnWidths.ContainsKey(column.Name))
-                {
-                    column.Width = minColumnWidths[column.Name];
-                }
-            }
-        }
     }
 
+    private void btnReplaceObj_Click(object sender, EventArgs e)
+    {
+        LogUserAction("Замена выбранных объектов");
+        // Выделение объекта выбранной строки
+        if (dgvMain.SelectedRows.Count != 1)
+        {
+            MessageBox.Show("Выберите одну строку для редактирования");
+            return;
+        }
+
+        // load new form Win7_3_Component as dictonary
+        var newForm = new Win7_3_Staff(this, activateNewItemCreate: true, createdTCId: _tcId, isUpdateMode: true);
+
+        newForm.WindowState = FormWindowState.Maximized;
+        newForm.ShowDialog();
+    }
+
+    public bool UpdateSelectedObject(Staff updatedObject)
+    {
+        if (dgvMain.SelectedRows.Count != 1)
+        {
+            MessageBox.Show("Выберите одну строку для редактирования");
+            return false;
+        }
+
+        var selectedRow = dgvMain.SelectedRows[0];
+
+        if (!(selectedRow.DataBoundItem is DisplayedStaff_TC dObj))
+            return false;
+
+        if (dObj.ChildId == updatedObject.Id)
+        {
+            MessageBox.Show("Ошибка обновления объекта: ID объекта совпадает");
+            return false;
+        }
+
+        var oldData = _tcViewState.TechnologicalCard.Staff_TCs
+                       .FirstOrDefault(s => s.ChildId == dObj.ChildId);
+
+        if (oldData == null)
+            return false;
+
+        oldData.ChildId = updatedObject.Id;
+        oldData.Child = updatedObject;
+
+        var newDisplayedObj = new DisplayedStaff_TC(oldData);
+        int index = _bindingList.IndexOf(dObj);
+
+        if (index >= 0)
+            _bindingList[index] = newDisplayedObj;
+
+        return true;
+    }
 }
