@@ -25,6 +25,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
         private TcViewState _tcViewState;
         private int _maxColumns;
 
+        public bool IsCommentViewMode => _tcViewState.IsCommentViewMode;
         public bool IsViewMode => _tcViewState.IsViewMode;
 
         #endregion
@@ -48,6 +49,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
         {
             _tcViewState = tcViewState;
             _tcViewState.ViewModeChanged += OnViewModeChanged;
+            _tcViewState.CommentViewModeChanged += OnCommentViewModeChanged;
 
             InitializeComponent();
             DataContext = this;
@@ -69,9 +71,29 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private void OnCommentViewModeChanged()
+        {
+            OnPropertyChanged(nameof(IsCommentViewMode));
+            UpdateColumnsVisibility();
+        }
+
         #endregion
 
         #region FormLoad
+
+        private void UpdateColumnsVisibility()
+        {
+            var visibility = IsCommentViewMode ? Visibility.Visible : Visibility.Collapsed;
+
+            foreach (var column in MainDataGrid.Columns)
+            {
+                if (column.Header != null && (column.Header.ToString() == "Замечание" || column.Header.ToString() == "Ответ"))
+                {
+                    column.Visibility = visibility;
+                    HeaderGrid.Columns[MainDataGrid.Columns.IndexOf(column)].Visibility = visibility;
+                }
+            }
+        }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
@@ -96,6 +118,7 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
             UpdateHeaderGridWidth();
 
             GenerateDataStructure();
+            UpdateColumnsVisibility();
         }
         private void WriteRoadMapData()
         {
@@ -113,6 +136,8 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
                         TOName = $"№{tow.Order} {tow.techOperation.Name}",
                         Staffs = string.Join(", ", tow.executionWorks.SelectMany(ew => ew.Staffs).Select(s => s.Symbol).Distinct()),
                         Note = tow.Note ?? "",
+                        Remark = tow.Remark ?? "",
+                        Reply = tow.Reply ?? "",
                         Order = tow.Order,
                         techOperationWork = tow
                     };
@@ -411,6 +436,28 @@ namespace TC_WinForms.WinForms.Win6.RoadMap
             }
         }
 
+        private void TextBox_RemarkTextChanged(object sender, TextChangedEventArgs e)
+        {
+            RoadMapItem gridItem = (RoadMapItem)(((System.Windows.Controls.TextBox)sender).DataContext);
+
+            if (gridItem != null)
+            {
+                gridItem.Remark = ((System.Windows.Controls.TextBox)sender).Text;
+                gridItem.techOperationWork.Remark = gridItem.Remark;
+
+            }
+        }
+
+        private void TextBox_ReplyTextChanged(object sender, TextChangedEventArgs e)
+        {
+            RoadMapItem gridItem = (RoadMapItem)(((System.Windows.Controls.TextBox)sender).DataContext);
+
+            if (gridItem != null)
+            {
+                gridItem.Reply = ((System.Windows.Controls.TextBox)sender).Text;
+                gridItem.techOperationWork.Reply = gridItem.Reply;
+            }
+        }
         #endregion
 
     }

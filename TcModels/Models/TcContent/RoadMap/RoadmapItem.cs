@@ -17,6 +17,8 @@ namespace TcModels.Models.TcContent.RoadMap
         public string Staffs { get; set; }  // Строка символов Staff
         public string Note { get; set; }    // Примечание
         public int Order { get; set; }      // Порядок
+        public string? Remark { get; set; } // Замечание
+        public string? Reply { get; set; }  // Ответ
         [NotMapped]
         public SequenceCell SequenceCells { get; set; } = new SequenceCell(); // Список SequenceCell
         [NotMapped]
@@ -32,6 +34,8 @@ namespace TcModels.Models.TcContent.RoadMap
                 Note = sourceCard.Note;
                 Order = sourceCard.Order;
                 SequenceData = sourceCard.SequenceData;
+                Remark = sourceCard.Remark;
+                Reply = sourceCard.Reply;
             }
         }
     }
