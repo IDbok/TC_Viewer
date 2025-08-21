@@ -469,7 +469,7 @@ namespace TC_WinForms.WinForms
         private async void Win6_new_Load(object sender, EventArgs e)
         {
             _formLoadSw.Restart();
-            _logger.Information("Загрузка формы Win6_56-new для TcId={TcId}", _tcId);
+            _logger.Information("Загрузка формы Win6_new для TcId={TcId}", _tcId);
             try
             {
                 // Блокировка формы при загрузки данных

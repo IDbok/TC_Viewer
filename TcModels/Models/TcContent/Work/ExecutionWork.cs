@@ -22,7 +22,7 @@ namespace TcModels.Models.TcContent
         public List<Machine_TC> Machines { get; set; } = new List<Machine_TC>(); // если присутствует machine_tc значит участвует в этапе
 
         public bool Repeat { get; set; } = false;
-        public long? RepeatsTCId { get; set; } // при добавлении устанавливаем 0 и потом меняем на id тех. карты для тп "Выполнить в соответствии с ТК"
+        public int? RepeatsTCId { get; set; } // при добавлении устанавливаем 0 и потом меняем на id тех. карты для тп "Выполнить в соответствии с ТК"
 
 		//[NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat { get; set; } = new List<ExecutionWork>();
 		[NotMapped] public List<ExecutionWork> ListexecutionWorkRepeat2 { get; set; } = new List<ExecutionWork>(); // adding repeat items

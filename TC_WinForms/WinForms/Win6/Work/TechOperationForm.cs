@@ -1838,7 +1838,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	public ExecutionWork InsertNewExecutionWork(TechTransition techTransition,  TechOperationWork techOperationWork,
         int? insertIndex = null, List<ExecutionWorkRepeat>? executionWorksRepeats = null,
         string? coefficient = null, bool updateDataGrid = true,
-        string? comment = null, string? pictureName = null, long repeatTcId = 0)
+        string? comment = null, string? pictureName = null, int repeatTcId = 0)
 
 	{
 		if (techTransition == null) throw new ArgumentNullException(nameof(techTransition));
@@ -2334,6 +2334,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         return startValue == endValue ? $"{startValue}" : $"{startValue}–{endValue}";
     }
 
+    private Dictionary<int, bool> _toReleased = new();
+    private Dictionary<int, string> _tcArticleById = new();
+
     /// <summary>
     /// Добавляет строки в DataGridView на основе подготовленного списка TechOperationDataGridItem.
     /// </summary>
@@ -2346,28 +2349,210 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         int reportStep = 10;
         int i = 0;
         var sw = Stopwatch.StartNew();
+        var swrows = Stopwatch.StartNew();
+
+        var swDataPrepare = Stopwatch.StartNew();
+        var toIds = TechOperationDataGridItems.Select(i => i.IdTO).Distinct().ToList();
+        _toReleased = context.Set<TechOperation>()
+            .AsNoTracking()
+            .Where(to => toIds.Contains(to.Id))
+            .Select(to => new { to.Id, to.IsReleased })
+            .ToDictionary(x => x.Id, x => x.IsReleased);
+
+        var repeatTcIds = TechOperationDataGridItems
+            .Select(i => (i.WorkItem as ExecutionWork)?.RepeatsTCId)
+            .Where(id => id.HasValue)
+            .Select(id => id!.Value)
+            .Distinct()
+            .ToList();
+
+        _tcArticleById = context.TechnologicalCards
+            .AsNoTracking()
+            .Where(tc => repeatTcIds.Contains(tc.Id))
+            .Select(tc => new { tc.Id, tc.Article })
+            .ToDictionary(x => x.Id, x => x.Article);
+        swDataPrepare.Stop();
+        _logger.Debug("Подготовка данных для добавления строк заняла {ms} мс. TOs={Count}, TC Articles={TCCount}",
+                            swDataPrepare.ElapsedMilliseconds, toIds.Count, _tcArticleById.Count);
+
+        var rows = new List<DataGridViewRow>(TechOperationDataGridItems.Count);
         foreach (var item in TechOperationDataGridItems)
         {
             i++;
-            AddRowToDataGrid(item);
+
+            Color? c1, c2, c3;
+            DetectCellColors(item, out c1, out c2, out c3);
+
+            // Собираем строку (без вставки в грид)
+            var row = BuildRow(item, c1, c2, c3);
+            rows.Add(row);
 
             if (total >= 40)
             {
                 int percent = (int)((long)i * 100 / total);
                 if (percent >= nextReport)
                 {
-                    _logger.Debug("Добавление строк: {Percent}% ({Done}/{Total})", percent, i, total);
+
+                    _logger.Debug("Добавление строк: {Percent}% ({Done}/{Total}) заняло {ms}", percent, i, total,
+                                    swrows.ElapsedMilliseconds);
                     nextReport += reportStep;
+                    swrows.Restart();
                 }
             }
         }
 
+        dgvMain.SuspendLayout();
+        try
+        {
+            // Пакетное добавление
+            dgvMain.Rows.AddRange(rows.ToArray());
+        }
+        finally
+        {
+            dgvMain.ResumeLayout();
+        }
+
+        swrows.Stop();
         sw.Stop();
         _logger.Information("Добавление всех строк завершено за {ms} мс. Всего: {Total}",
                             sw.ElapsedMilliseconds, total);
+
+        void DetectCellColors(TechOperationDataGridItem item, out Color? c1, out Color? c2, out Color? c3)
+        {
+            // --- логика выбора цветов = как в AddRowToDataGrid(...) ---
+            //var itemTo = context.Set<TechOperation>().FirstOrDefault(to => to.Id == item.IdTO);
+            bool itemToIsReleased = _toReleased.TryGetValue(item.IdTO, out var rel) ? rel : true;
+
+            c1 = null;
+            c2 = null;
+            c3 = null;
+            if (item.WorkItem is ExecutionWork ew && ew.Repeat)
+            {
+                c1 = ew.RepeatsTCId == null ? Color.Yellow : Color.Khaki;
+                c2 = c1;
+                c3 = (!itemToIsReleased) ? Color.Pink : Color.Empty;
+            }
+            else if (item.ItsTool || item.ItsComponent)
+            {
+                c1 = item.ItsComponent ? Color.Salmon : Color.Aquamarine;
+                c2 = c1;
+            }
+            else if (!itemToIsReleased && item.executionWorkItem != null && !item.executionWorkItem.techTransition.IsReleased)
+            {
+                c2 = Color.Pink;
+                c3 = Color.Pink;
+            }
+            else if (!itemToIsReleased)
+            {
+                c3 = Color.Pink;
+            }
+            else if (item.executionWorkItem != null && !item.executionWorkItem.techTransition.IsReleased)
+            {
+                c2 = Color.Pink;
+            }
+        }
     }
 
-	private void AddRowToDataGrid(TechOperationDataGridItem item, int? rowIndex = null)
+    private DataGridViewRow BuildRow(
+    TechOperationDataGridItem item,
+    Color? backColor1 = null,
+    Color? backColor2 = null,
+    Color? backColor3 = null)
+    {
+        // === это копия формирования rowData из твоего AddRowToGrid(...) ===
+        var rowData = new List<object>();
+
+        // 0 - ExecutionWorkItem
+        rowData.Add(item.WorkItem ?? string.Empty);
+
+        if (item.WorkItem is ExecutionWork ew && ew.Repeat)
+        {
+            var repeatNumList = ew.ExecutionWorkRepeats.Select(r => r.ChildExecutionWork.RowOrder).ToList();
+            string strP = repeatNumList.Count != 0 ? ConvertListToRangeString(repeatNumList) : "(нет данных)";
+
+            rowData.Add(item.Nomer.ToString());
+            rowData.Add(item.TechOperation);
+            rowData.Add(item.Staff);
+            //if (ew.RepeatsTCId != null)
+            //    rowData.Add($"Выполнить в соответствии с " +
+            //        $"{context.TechnologicalCards
+            //        .Where(tc => tc.Id == ew.RepeatsTCId)
+            //        .Select(tc => tc.Article).
+            //        FirstOrDefault()} п.{strP}");
+            //else
+            //    rowData.Add("Повторить п." + strP);
+            if (ew.RepeatsTCId != null)
+            {
+                _tcArticleById.TryGetValue(ew.RepeatsTCId.Value, out var article);
+                rowData.Add(article != null
+                    ? $"Выполнить в соответствии с {article} п.{strP}"
+                    : $"Выполнить по ТК ID:{ew.RepeatsTCId} п.{strP}");
+            }
+            else
+            {
+                rowData.Add("Повторить п." + strP);
+            }
+
+            rowData.Add(item.TechTransitionValue);
+            rowData.Add(item.TimeEtap);
+        }
+        else
+        {
+            rowData.Add(item.Nomer != -1 ? item.Nomer.ToString() : "");
+            rowData.Add(item.TechOperation);
+            rowData.Add(item.Staff);
+            rowData.Add(item.TechTransition);
+            rowData.Add(item.TechTransitionValue);
+            rowData.Add(item.TimeEtap);
+        }
+
+        // «машинные» столбцы
+        AddMachineColumns(item, rowData);
+
+        // остальные колонки
+        rowData.Add(item.Protections);
+        rowData.Add(item.Comments);
+        rowData.Add(string.Empty); // PictureNameColumn — заполним ниже
+        rowData.Add(item.Vopros);
+        rowData.Add(item.Otvet);
+
+        // Создаём саму строку
+        var newRow = new DataGridViewRow();
+        newRow.CreateCells(dgvMain, rowData.ToArray());
+
+        // Картинки / кнопка «Добавить изображение»
+        int picCol = dgvMain.Columns["PictureNameColumn"].Index;
+        if (newRow.Cells[0].Value is ExecutionWork exWor)
+        {
+            if (_tcViewState.IsViewMode)
+            {
+                var images = exWor.ImageList ?? new List<ImageOwner>();
+                newRow.Cells[picCol].Value = images.Any() ? FormatImageReferences(images) : string.Empty;
+            }
+            else
+            {
+                if (exWor.ImageList == null || exWor.ImageList.Count == 0)
+                    newRow.Cells[picCol] = CreateAddImageButtonCell();
+                else
+                {
+                    var images = exWor.ImageList ?? new List<ImageOwner>();
+                    newRow.Cells[picCol].Value = FormatImageReferences(images);
+                }
+            }
+        }
+        else
+        {
+            newRow.Cells[picCol].Value = string.Empty;
+        }
+
+        // Цвета (как в ApplyCellColors)
+        ApplyCellColors(newRow, backColor1, backColor2, backColor3);
+
+        return newRow;
+    }
+
+
+    private void AddRowToDataGrid(TechOperationDataGridItem item, int? rowIndex = null)
     {
         var rowSw = Stopwatch.StartNew();
 
@@ -2457,30 +2642,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 				string value;
                 value = isMachineChecked ? techOperationDataGridItem.TechTransitionValue : "";
                 str.Add(value);
-                //if (b && techOperationDataGridItem.TimeEtap == "-1" && techOperationDataGridItem.TechOperationWork.GetParallelIndex() != null)
-                //{
-                //	var result = TechOperationDataGridItems
-                //			   .Where(item => item.TechOperationWork.GetParallelIndex() == techOperationDataGridItem.TechOperationWork.GetParallelIndex())
-                //			   .OrderBy(item => item.Nomer)
-                //			   .FirstOrDefault();
-
-                //	dgvMain.Rows[result.Nomer - 1].Cells[str.Count].Value = result.TimeEtap;
-
-                //                value = techOperationDataGridItem.TimeEtap == "-1" ? "-1" : "";
-                //            }
-                //else if(b)
-                //{
-                //                value = techOperationDataGridItem.TimeEtap;
-                //}
-                //else
-                //	value = techOperationDataGridItem.TimeEtap == "-1" ? "-1" : "";
-
-                //            str.Add(value);
             }
             else
             {
                 //Получаем прошлую строку для сравнения, нужно ли объединение
-                var prevStr = TechOperationDataGridItems.Where(t => t.Nomer == techOperationDataGridItem.Nomer - 1).FirstOrDefault();
+                // todo: оптимизировать, чтобы не искать каждый раз. можно передать в метод TechOperationDataGridItem
+                var prevStr = TechOperationDataGridItems
+                    .Where(t => t.Nomer == techOperationDataGridItem.Nomer - 1).FirstOrDefault();
                 if(prevStr != null)
                 {
                     //Проверка является ли прошлая строка не последовательной и проверка различия с прошлым значением(чтобы не объеденять строки ТП и инструментументов которые последовательны)
@@ -2604,7 +2772,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			rowData.Add(item.Protections);
 			// Если в techWork есть комментарий, используем его, иначе общий Comments
 			rowData.Add(item.Comments);
-            rowData.Add(string.Empty);
+            rowData.Add(string.Empty); // PictureNameColumn — заполним ниже
             rowData.Add(item.Vopros);
 			rowData.Add(item.Otvet);
 
@@ -3002,7 +3170,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     }
 
     public ExecutionWork AddNewExecutionWork(TechTransition tech, TechOperationWork techOperationWork, TechTransitionTypical techTransitionTypical = null,
-        int? insertIndex = null, string? coefficientValue = null, string? comment = null, string? pictureName = null, long repeatTcId = 0, List<ExecutionWorkRepeat> executionWorkRepeats = null)
+        int? insertIndex = null, string? coefficientValue = null, string? comment = null, string? pictureName = null,
+        int repeatTcId = 0, List<ExecutionWorkRepeat> executionWorkRepeats = null)
 	{
 		_logger.Information("Добавление нового ExecutionWork в TO '{TechOpName}' (ID={TechOpId}) на позицию {Index}. " +
 					  "Transition='{TransitionName}' (ID={TransitionId}).",
