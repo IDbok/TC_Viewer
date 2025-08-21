@@ -1,4 +1,4 @@
-﻿namespace TC_WinForms.WinForms.Work
+namespace TC_WinForms.WinForms.Work
 {
     partial class TechOperationForm
     {
@@ -40,6 +40,7 @@
             dgvMain.AllowUserToAddRows = false;
             dgvMain.AllowUserToDeleteRows = false;
             dgvMain.ColumnHeadersHeight = 29;
+
             dgvMain.Dock = DockStyle.Fill;
             dgvMain.Location = new Point(0, 60);
             dgvMain.Name = "dgvMain";
