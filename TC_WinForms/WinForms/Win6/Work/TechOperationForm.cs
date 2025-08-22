@@ -1,15 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Bson;
 using Serilog;
-using System;
 using System.Data;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.DirectoryServices.ActiveDirectory;
-using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
@@ -25,16 +18,13 @@ using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.Work;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TC_WinForms.WinForms.Work;
 
 public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IOnActivationForm, IFormWithObjectId
 {
     private readonly Stopwatch _dataLoadSw = new Stopwatch(); // общее время TechOperationForm_Load
-    private long _dbLookupTotalMs;
-    private int _dbLookupCount;
-
+    
     private readonly Stopwatch _gridSw = new Stopwatch();  // общее время UpdateGrid()
     private readonly Stopwatch _paintSw = new Stopwatch();  // от завершения UpdateGrid до первого Paint
     private volatile bool _awaitingFirstPaint;               // флажок ожидания первой отрисовки
@@ -44,8 +34,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	private readonly TcViewState _tcViewState;
     private MainGridColumns _gridColumns;
 
-    //private bool _isViewMode;
-    //private bool _isCommentViewMode;
     private bool _isMachineViewMode;
 
     // Словарь для хранения ширины столбцов
@@ -1040,6 +1028,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             copiedEw.ImageList
         );
     }
+
 	/// <summary>
 	/// Вставляет инструменты/компоненты либо новые строки (ExecutionWork).
 	/// </summary>
@@ -2111,8 +2100,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
     }
 
-    // Универсальный метод для сохранения/восстановления ширины столбцов
-    // actionType: "save" - сохранить, "restore" - восстановить
+    /// <summary>
+    /// Универсальный метод для сохранения/восстановления ширины столбцов
+    /// actionType: "save" - сохранить, "restore" - восстановить
+    /// </summary>
+    /// <param name="isSaveMode"></param>
     private void HandleColumnWidths(bool isSaveMode = true)
     {
         if (isSaveMode)
@@ -2459,10 +2451,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     Color? backColor2 = null,
     Color? backColor3 = null)
     {
-        // === это копия формирования rowData из твоего AddRowToGrid(...) ===
         var rowData = new List<object>();
 
-        // 0 - ExecutionWorkItem
         rowData.Add(item.WorkItem ?? string.Empty);
 
         if (item.WorkItem is ExecutionWork ew && ew.Repeat)
@@ -2473,14 +2463,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             rowData.Add(item.Nomer.ToString());
             rowData.Add(item.TechOperation);
             rowData.Add(item.Staff);
-            //if (ew.RepeatsTCId != null)
-            //    rowData.Add($"Выполнить в соответствии с " +
-            //        $"{context.TechnologicalCards
-            //        .Where(tc => tc.Id == ew.RepeatsTCId)
-            //        .Select(tc => tc.Article).
-            //        FirstOrDefault()} п.{strP}");
-            //else
-            //    rowData.Add("Повторить п." + strP);
             if (ew.RepeatsTCId != null)
             {
                 _tcArticleById.TryGetValue(ew.RepeatsTCId.Value, out var article);
@@ -2551,80 +2533,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         return newRow;
     }
 
-
-    private void AddRowToDataGrid(TechOperationDataGridItem item, int? rowIndex = null)
-    {
-        var rowSw = Stopwatch.StartNew();
-
-        // Проверка, что индекс строки не выходит за границы
-        if (rowIndex != null && rowIndex < 0)
-		{
-			rowIndex = 0;
-		}
-		else if (rowIndex != null && rowIndex > dgvMain.Rows.Count)
-		{
-			rowIndex = dgvMain.Rows.Count;
-		}
-
-        // Замер EF-вызова для получения itemTo
-        var dbSw = Stopwatch.StartNew();
-
-        // Находим TechOperation из контекста, чтобы проверить IsReleased
-        var itemTo = context.Set<TechOperation>()
-						 .FirstOrDefault(to => to.Id == item.IdTO);
-        dbSw.Stop();
-
-        Interlocked.Add(ref _dbLookupTotalMs, dbSw.ElapsedMilliseconds);
-        Interlocked.Increment(ref _dbLookupCount);
-        if (dbSw.ElapsedMilliseconds > 10) 
-            _logger.Debug("Медленный EF-вызов itemTo (IdTO={Id}, {ms} мс).", item.IdTO, dbSw.ElapsedMilliseconds);
-
-        // todo: проверить наличие itemTo
-
-        // Определяем, какие цвета будем использовать в зависимости от условий
-        if (item.WorkItem is ExecutionWork ew && ew.Repeat)
-		{
-			// Повтор с выпушенной ТО
-			AddRowToGrid(item,
-				ew.RepeatsTCId == null ? Color.Yellow : Color.Khaki,
-				ew.RepeatsTCId == null ? Color.Yellow : Color.Khaki,
-				itemTo.IsReleased ? Color.Empty : Color.Pink, 
-				insertIndex: rowIndex);
-		}
-		else if (item.ItsTool || item.ItsComponent)
-		{
-			// Инструмент или компонент
-			AddRowToGrid(item,
-						 item.ItsComponent ? Color.Salmon : Color.Aquamarine,
-						 item.ItsComponent ? Color.Salmon : Color.Aquamarine, insertIndex: rowIndex);
-		}
-		else if (!itemTo.IsReleased && item.executionWorkItem != null && !item.executionWorkItem.techTransition.IsReleased)
-		{
-			// Тех.операция не выпущена (но переход выпущен или отсутствует)
-			AddRowToGrid(item, Color.Empty, Color.Pink, Color.Pink, insertIndex: rowIndex);
-		}
-		else if (!itemTo.IsReleased)
-		{
-			// Тех.операция не выпущена
-			AddRowToGrid(item, Color.Empty, Color.Empty, Color.Pink, insertIndex: rowIndex);
-		}
-		else if (item.executionWorkItem != null && !item.executionWorkItem.techTransition.IsReleased)
-		{
-			// Тех.операция выпущена, но переход не выпущен
-			AddRowToGrid(item, Color.Empty, Color.Pink, insertIndex: rowIndex);
-		}
-		else
-		{
-			// Всё выпущено
-			AddRowToGrid(item, Color.Empty, Color.Empty, insertIndex: rowIndex);
-		}
-
-        rowSw.Stop();
-        if (rowSw.ElapsedMilliseconds > 40) // порог под себя
-            _logger.Debug("Медленное добавление строки N={Nomer}: {ms} мс.", item.Nomer, rowSw.ElapsedMilliseconds);
-
-    }
-
     /// <summary>
     /// Добавляет данные о машинах в строки DataGridView на основе TechOperationDataGridItem.
     /// </summary>
@@ -2668,178 +2576,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             }
         }
     }
-
-    /// <summary>
-    /// Добавляет строку данных в DataGridView и устанавливает стиль ячеек.
-    /// </summary>
-    /// <param name="rowData">Список объектов, представляющий строку данных для добавления в DataGridView.</param>
-    /// <param name="backColor1">Цвет фона первой ячейки.</param>
-    /// <param name="backColor2">Цвет фона второй ячейки.</param>
-    private void AddRowToGrid(List<object> rowData, Color? backColor1 = null, Color? backColor2 = null, Color? backColor3 = null)
-    {
-        dgvMain.Rows.Add(rowData.ToArray());
-
-        if (backColor1.HasValue)
-        {
-            dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[3].Style.BackColor = backColor1.Value;
-        }
-        if (backColor2.HasValue)
-        {
-            dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = backColor2.Value;
-        }
-        if (backColor3.HasValue)
-        {
-            dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[2].Style.BackColor = backColor3.Value;
-        }
-        //dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[3].Style.BackColor = backColor1;
-        //dgvMain.Rows[dgvMain.Rows.Count - 1].Cells[4].Style.BackColor = backColor2;
-    }
-
-	/// <summary>
-	/// Добавляет одну строку в DataGridView на основе TechOperationDataGridItem.
-	/// </summary>
-	/// <param name="item">Экземпляр TechOperationDataGridItem, содержащий все данные для формирования строки.</param>
-	/// <param name="backColor1">Цвет фона для ячейки №3 (исполнитель).</param>
-	/// <param name="backColor2">Цвет фона для ячейки №4 (тех.переход).</param>
-	/// <param name="backColor3">Цвет фона для ячейки №2 (тех.операция).</param>
-	/// <param name="insertIndex">Индекс, по которому нужно вставить строку. Если не задан (null), строка добавляется в конец.</param>
-	private void AddRowToGrid(
-		TechOperationDataGridItem item,
-		Color? backColor1 = null,
-		Color? backColor2 = null,
-		Color? backColor3 = null,
-        int? insertIndex = null)
-	{
-		var rowData = new List<object>();
-		// структура rowData:
-		// 0 - ExecutionWorkItem
-		// 1 - Order
-		// 2 - TechOperationName
-		// 3 - Staff
-		// 4 - TechTransitionName
-		// 5 - TechTransitionValue
-		// 6 - TimeEtap
-		// 7 - Machine0
-		// ...
-		// 7 + TehCarta.Machine_TCs.Count - 1 - MachineN
-		// 8 + TehCarta.Machine_TCs.Count - Protection
-		// 9 + TehCarta.Machine_TCs.Count + 1 - CommentColumn
-		// 10 + TehCarta.Machine_TCs.Count + 2 - PictureNameColumn
-		// 11 + TehCarta.Machine_TCs.Count + 3 - RemarkColumn
-		// 12 + TehCarta.Machine_TCs.Count + 4 - ResponseColumn
-
-		// todo: добавить обработку ошибок и выводить строку с ошибкой вместо пустой строки
-		// Формируем список объектов для добавления в строку
-		try
-		{
-			// 0 - ExecutionWorkItem
-			rowData.Add(item.WorkItem ?? string.Empty);
-			// Проверяем, есть ли Repeat
-			if (item.WorkItem is ExecutionWork ew && ew.Repeat)
-			{
-				List<int> repeatNumList = new List<int>();
-				// Формируем строку "Повторить п."
-				repeatNumList = ew.ExecutionWorkRepeats.Select(r => r.ChildExecutionWork.RowOrder).ToList();
-
-				string strP = repeatNumList.Count != 0 
-					? ConvertListToRangeString(repeatNumList) 
-					: "(нет данных)";
-
-				rowData.Add(item.Nomer.ToString());
-				rowData.Add(item.TechOperation);
-				rowData.Add(item.Staff);
-				if (ew.RepeatsTCId != null)
-					rowData.Add($"Выполнить в соответствии с {context.TechnologicalCards.Where(tc => tc.Id == ew.RepeatsTCId).Select(tc => tc.Article).FirstOrDefault()} п.{strP}");// todo: заменить использование контекста 
-				else
-					rowData.Add("Повторить п." + strP);
-				rowData.Add(item.TechTransitionValue);
-				rowData.Add(item.TimeEtap);
-			}
-			else
-			{
-				rowData.Add(item.Nomer != -1 ? item.Nomer.ToString() : "");
-				rowData.Add(item.TechOperation);
-				rowData.Add(item.Staff);
-				rowData.Add(item.TechTransition);
-				rowData.Add(item.TechTransitionValue);
-				rowData.Add(item.TimeEtap);
-			}
-
-			// Добавляем столбцы "машины" (через ваш метод AddMachineColumns)
-			AddMachineColumns(item, rowData);
-
-			// Добавляем оставшиеся ячейки (СЗ, комментарии, рисунок, замечание, ответ и т.д.)
-			rowData.Add(item.Protections);
-			// Если в techWork есть комментарий, используем его, иначе общий Comments
-			rowData.Add(item.Comments);
-            rowData.Add(string.Empty); // PictureNameColumn — заполним ниже
-            rowData.Add(item.Vopros);
-			rowData.Add(item.Otvet);
-
-		}
-		catch(Exception ex)
-		{
-			_logger.Error(ex, "Ошибка при формировании строки для DataGridView.");
-			// формируем ячейку с ошибкой
-			var rowDataError = new List<object>()
-			{
-				string.Empty,
-				dgvMain.Rows.Count +1,
-				string.Empty,
-				string.Empty,
-				"Ошибка при формировании строки"
-			};
-			rowData = rowDataError;
-			backColor1 = backColor2 = Color.Red;
-		}
-
-		// Создаём DataGridViewRow и заполняем ячейки готовыми данными.
-		var newRow = new DataGridViewRow();
-		newRow.CreateCells(dgvMain, rowData.ToArray());
-
-        // индекс колонки PictureNameColumn
-        int picColIndex = _gridColumns.PictureName.Index;
-
-        // попытаемся достать ExecutionWork из первой ячейки
-        if (newRow.Cells[0].Value is ExecutionWork exWor)
-        {
-            if (_tcViewState.IsViewMode)
-            {
-                // В режиме просмотра не показываем кнопку
-                var images = exWor.ImageList ?? new List<ImageOwner>();
-
-                newRow.Cells[picColIndex].Value = images.Any()
-                    ? FormatImageReferences(images)
-                    : string.Empty;
-            }
-            else
-            {
-                if (exWor.ImageList == null || exWor.ImageList.Count == 0)
-                {
-                    newRow.Cells[picColIndex] = CreateAddImageButtonCell();
-                }
-                else
-                {
-                    var images = exWor.ImageList ?? new List<ImageOwner>();
-
-                    newRow.Cells[picColIndex].Value = FormatImageReferences(images);
-                }
-            }
-        }
-        else
-        {
-            // если это не ExecutionWork — оставляем пусто
-            newRow.Cells[picColIndex].Value = string.Empty;
-        }
-
-
-        // Применяем цветовое оформление ячеек (если цвета заданы).
-        ApplyCellColors(newRow, backColor1, backColor2, backColor3);
-
-		//  Добавляем/вставляем в dgvMain:
-		//    - если insertIndex не задан, добавляем в конец,
-		dgvMain.Rows.Insert(insertIndex ?? dgvMain.Rows.Count, newRow);
-	}
 
 	/// <summary>
 	/// Применяет указанные цвета к ячейкам (3,4,2) строки newRow.
@@ -3019,11 +2755,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		}
 	}
 
-    private void SetCellBackColor(DataGridViewCell cell, Color color)
-    {
-        cell.Style.BackColor = color;
-    }
-
     private void DgvMain_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
     {
         if (e.AdvancedBorderStyle == null) return;
@@ -3109,25 +2840,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             _logger.Information(
                 "Первая отрисовка таблицы завершена за {ElapsedMs} мс. Rows={Rows}, Cols={Cols}.",
                 _paintSw.ElapsedMilliseconds, dgvMain.Rows.Count, dgvMain.Columns.Count);
-        }
-    }
-
-
-    private bool IsRepeatedCellValue(int rowIndex, int colIndex)
-    {
-        DataGridViewCell currCell = dgvMain.Rows[rowIndex].Cells[colIndex];
-        DataGridViewCell prevCell = dgvMain.Rows[rowIndex - 1].Cells[colIndex];
-
-        if (dgvMain.Rows[rowIndex].Cells[1].Value.Equals(dgvMain.Rows[rowIndex - 1].Cells[1].Value)
-            && dgvMain.Rows[rowIndex].Cells[2].Value.Equals(dgvMain.Rows[rowIndex - 1].Cells[2].Value)
-            && dgvMain.Rows[rowIndex].Cells[3].Value.Equals(dgvMain.Rows[rowIndex - 1].Cells[3].Value)
-           )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
         }
     }
 
@@ -3337,7 +3049,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             {
                 context.Remove(item);
             }
-
         }
     }
 
@@ -3365,7 +3076,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         var vb = TOWork.executionWorks.SingleOrDefault(s => s.IdGuid == IdGuid);
         if (vb != null)
         {
-
             if (techOperationWork.techOperation.IsTypical)
             {
                 if (vb.Repeat == false)
@@ -3375,7 +3085,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             }
 
             vb.Delete = true;
-            //TOWork.executionWorks.Remove(vb);
         }
     }
 
@@ -3404,26 +3113,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	{
 		_logger.Information("Cохранение изменений Ход работ.");
 
-		//context = new MyDbContext();
-		//context.ChangeTracker.Clear();
-
-		// TehCarta.Staff_TCs = Staff_TC;
 		DbConnector dbCon = new DbConnector();
 
         List<TechOperationWork> AllDele = TechOperationWorksList.Where(w => w.Delete == true).ToList();
         foreach (TechOperationWork techOperationWork in AllDele)
         {
-            // todo: проверить, что удаляются все связанные элементы
-            //foreach (ToolWork delTool in techOperationWork.ToolWorks)
-            //{
-            //    dbCon.DeleteRelatedToolComponentDiagram(delTool.Id, true);
-            //}
-
-            //foreach (ComponentWork delComp in techOperationWork.ComponentWorks)
-            //{
-            //    dbCon.DeleteRelatedToolComponentDiagram(delComp.Id, false);
-            //}
-
             TechOperationWorksList.Remove(techOperationWork);
             if (techOperationWork.NewItem == false)
             {
@@ -3457,8 +3151,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 techOperationWork.ToolWorks.Remove(delTool);
             }
 
-
-
             foreach (ToolWork toolWork in techOperationWork.ToolWorks)
             {
                 if (TehCarta.Tool_TCs.SingleOrDefault(s => s.Child == toolWork.tool) == null)
@@ -3491,7 +3183,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 }
             }
         }
-
 
         try
         {
@@ -3593,36 +3284,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		    _editForm.OnActivate();
 	}
 
-	//public void HighlightExecut  ionWorkRow(ExecutionWork executionWork, bool scrollToRow = false)
-	//{
-	//    if (executionWork == null)
-	//        return;
-
-	//    foreach (DataGridViewRow row in dgvMain.Rows)
-	//    {
-	//        if (row.Cells[0].Value is ExecutionWork currentWork 
-	//            && currentWork.Id == executionWork.Id 
-	//            && currentWork.techTransitionId == executionWork.techTransitionId
-	//            && currentWork.techOperationWorkId == executionWork.techOperationWorkId
-	//            )
-	//        {
-	//            dgvMain.ClearSelection(); // Снимите выделение со всех строк
-	//            row.Selected = true; // Выделите найденную строку
-	//            if (scrollToRow)
-	//            {
-	//                dgvMain.FirstDisplayedScrollingRowIndex = row.Index; // Прокрутите до выделенной строки
-	//            }
-	//            break;
-	//        }
-	//    }
-	//}
-
 	/// <summary>
 	/// Добавляет новую строку в dgvMain по указанному индексу.
 	/// </summary>
 	/// <param name="rowIndex">Индекс, по которому следует вставить строку.</param>
 	/// <param name="values">Массив значений для новой строки.</param>
-	public void AddRowByIndex(int rowIndex, object[] values)
+	public void AddRowByIndex(int rowIndex, object[] values) // todo: проверить, используется ли этот метод?
 	{
 		if (rowIndex < 0 || rowIndex > dgvMain.Rows.Count)
 			throw new ArgumentOutOfRangeException(nameof(rowIndex),
@@ -3866,11 +3533,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         return totalValue;
     }
-	private void OpenRelatedTc()
-	{
-
-	}
-
+	
     private DataGridViewButtonCell CreateAddImageButtonCell()
     {
         return new DataGridViewButtonCell
