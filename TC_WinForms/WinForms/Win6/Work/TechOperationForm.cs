@@ -2199,7 +2199,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             _gridColumns.TechOperationName.Frozen = true;
             _gridColumns.TechTransitionName.Frozen = true;
 
-            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 
             _logger.Debug("DataGridView инициализирован: {ColumnCount} столбцов.",
