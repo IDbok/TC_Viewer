@@ -2634,9 +2634,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             }
         }
 
-        // Если это столбцов с временем этапа и механизмов (индекс >= 6), и значение ячейки равно "-1",
+        // Если это столбцов с временем этапа или механизмов (индекс >= 6), и значение ячейки равно "-1",
         // то ячейка остается пустой.
-        if (col.IsRole(ColumnRole.TimeOfMechanism))
+        if (col == _gridColumns.EtapValue || col.IsRole(ColumnRole.TimeOfMechanism))
         {
             if ((e.Value as string) == "-1")
             {
@@ -2758,26 +2758,25 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     private void DgvMain_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
     {
         if (e.AdvancedBorderStyle == null) return;
+        if (e.ColumnIndex == -1) return;
         
         e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.None;
 
-        // Пропуск заголовков колонок и строк, и первой строки
-        if (e.RowIndex < 1 || e.ColumnIndex < 0)
-        {
-            if (e.ColumnIndex == dgvMain.ColumnCount - 2)
-            {
-                e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
-            }
-            e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
-            return;
-        }
+        var col = dgvMain.Columns[e.ColumnIndex];
 
-        if (e.ColumnIndex == dgvMain.ColumnCount - 2)
+        if (col == _gridColumns.Remark)//e.ColumnIndex == dgvMain.ColumnCount - 2)
         {
             e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
         }
 
-        if (e.ColumnIndex == 2) // Технологические операции
+        // Пропуск заголовков колонок и строк, и первой строки
+        if (e.RowIndex < 0 )
+        {
+            e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
+            return;
+        }
+
+        if (col == _gridColumns.TechOperationName)//e.ColumnIndex == 2) // Технологические операции
         {
             bool merged = !IsFirstVisibleRow(e.RowIndex) && IsSameAsPrev(e.ColumnIndex, e.RowIndex);
             e.AdvancedBorderStyle.Top = merged
@@ -2789,10 +2788,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
         }
 
-        if (e.ColumnIndex >= 6)
+        if ( col == _gridColumns.EtapValue || col.IsRole(ColumnRole.TimeOfMechanism)) //e.ColumnIndex >= 6)//
         {
-            var bb = e.Value?.ToString() ?? string.Empty;
-            if (bb == "-1")
+            if ((e.Value as string) == "-1")
             {
                 e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None;
             }
