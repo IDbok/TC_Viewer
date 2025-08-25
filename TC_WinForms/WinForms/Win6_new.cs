@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Nancy.Validation.Rules;
 using Serilog;
+using Serilog.Context;
 using System.Diagnostics;
 using System.Windows.Forms.Integration;
 using TC_WinForms.DataProcessing;
@@ -443,13 +444,17 @@ namespace TC_WinForms.WinForms
             var sw = Stopwatch.StartNew();
             try
             {
-                var rep = new TechnologicalCardRepository();
-
-                tcViewState.TechnologicalCard = await rep.GetTCDataAsync(_tcId, context)
-                    ?? throw new Exception("Не получилось загрузить данные ТК.");
-                tcViewState.TechOperationWorksList = tcViewState.TechnologicalCard.TechOperationWorks;
-                tcViewState.DiagramToWorkList = await rep.GetDTWDataAsync(_tcId, context);
-
+                using (LogContext.PushProperty("TcId", _tcId))
+                using (LogContext.PushProperty("FormGuid", FormGuid))
+                {
+                    var rep = new TechnologicalCardRepository();
+                    _logger.Information("DB: старт загрузки данных");
+                    tcViewState.TechnologicalCard = await rep.GetTCDataAsync(_tcId, context)
+                        ?? throw new Exception("Не получилось загрузить данные ТК.");
+                    tcViewState.TechOperationWorksList = tcViewState.TechnologicalCard.TechOperationWorks;
+                    tcViewState.DiagramToWorkList = await rep.GetDTWDataAsync(_tcId, context);
+                    _logger.Information("DB: загрузка данных завершена");
+                }
                 _logger.Information("Данные для TcViewState успешно загружены для TcId={TcId}", _tcId);
             }
             catch (Exception ex)
