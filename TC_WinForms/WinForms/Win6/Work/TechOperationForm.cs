@@ -2162,8 +2162,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
             _gridColumns.TechOperationName.Frozen = true;
             _gridColumns.TechTransitionName.Frozen = true;
+            _gridColumns.Comment.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
-            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 
             _logger.Debug("DataGridView инициализирован: {ColumnCount} столбцов.",
@@ -2824,7 +2825,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         }
 
         // Логика для колонки "Примечание" (CommentColumn)
-        if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
+        if (col == _gridColumns.Comment)
         {
             string cellText = e.Value?.ToString() ?? string.Empty;
 

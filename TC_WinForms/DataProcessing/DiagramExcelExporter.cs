@@ -236,7 +236,7 @@ namespace TC_WinForms.DataProcessing
             SortParallels(parallelesList);
 
             parallelesList = parallelesList.OrderBy(o =>
-                o.ListDiagramPosledov.FirstOrDefault()?.ListDiagramShag.FirstOrDefault()?.Nomer).ToList();
+                o.ListDiagramPosledov.FirstOrDefault()?.ListDiagramShag.FirstOrDefault()?.Number).ToList();
 
             foreach (DiagramParalelno parallel in parallelesList)
             {
@@ -383,11 +383,11 @@ namespace TC_WinForms.DataProcessing
             int[] rowsNums = { headRow, headRow + 1 };
             int[] columnNums = { currentColumn, currentColumn + 7 };
 
-            sheet.Cells[rowsNums[0], columnNums[0]].Value = shag.Deystavie != "" ? shag.Deystavie : "Нет описания действий шага";
+            sheet.Cells[rowsNums[0], columnNums[0]].Value = shag.Description != "" ? shag.Description : "Нет описания действий шага";
 
-            if (shag.Deystavie != "")
+            if (shag.Description != "")
             {
-                rowsNums[rowsNums.Length - 1] = GetRowsCountByData(shag.Deystavie, sheet, columnNums) + headRow;
+                rowsNums[rowsNums.Length - 1] = GetRowsCountByData(shag.Description, sheet, columnNums) + headRow;
             }
 
             sheet.Cells[rowsNums[0], columnNums[0], rowsNums[0], columnNums[1]].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -534,7 +534,7 @@ namespace TC_WinForms.DataProcessing
                     }
 
                     ExcelPicture excelImage = null;
-                    excelImage = sheet.Drawings.AddPicture(shag.NameImage + startRow + shag.Nomer, ms);
+                    excelImage = sheet.Drawings.AddPicture(shag.NameImage + startRow + shag.Number, ms);
                     if ((excelImage.Size.Width / 9525) > _currentRixelWidgthShag) //Сравниваем, войдет ли по ширине пикселей текущий масштаб изображения в заданную ширину шага. Ширину изображения делим на указанное в формуле число соотношения к пикселям
                     {
                         int i = 100;//Число для задания масштаба, по умолчанию 100
@@ -620,9 +620,9 @@ namespace TC_WinForms.DataProcessing
             {
                 foreach (DiagramPosledov posled in parallel.ListDiagramPosledov)
                 {
-                    posled.ListDiagramShag = posled.ListDiagramShag.OrderBy(x => x.Nomer).ToList();
+                    posled.ListDiagramShag = posled.ListDiagramShag.OrderBy(x => x.Number).ToList();
                 }
-                parallel.ListDiagramPosledov = parallel.ListDiagramPosledov.OrderBy(o => o.ListDiagramShag.FirstOrDefault()?.Nomer).ToList();
+                parallel.ListDiagramPosledov = parallel.ListDiagramPosledov.OrderBy(o => o.ListDiagramShag.FirstOrDefault()?.Number).ToList();
             }
 
             return list;
@@ -630,7 +630,7 @@ namespace TC_WinForms.DataProcessing
         private int AddShagName(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn)
         {
             int[] columnNums = { currentColumn + 3, currentColumn + 5 };
-            sheet.Cells[headRow, columnNums[0]].Value = "Шаг " + shag.Nomer;
+            sheet.Cells[headRow, columnNums[0]].Value = "Шаг " + shag.Number;
 
             AddStyleAlignment(headRow, columnNums, sheet);
 
@@ -646,7 +646,7 @@ namespace TC_WinForms.DataProcessing
         private int AddTableToolNumber(DiagramShag shag, ExcelWorksheet sheet, int headRow, int currentColumn)
         {
             int[] columnNums = { currentColumn + 5, currentColumn + 8 };
-            sheet.Cells[headRow, columnNums[0]].Value = "Таблица " + shag.Nomer;
+            sheet.Cells[headRow, columnNums[0]].Value = "Таблица " + shag.Number;
 
             AddStyleAlignment(headRow, columnNums, sheet);
 

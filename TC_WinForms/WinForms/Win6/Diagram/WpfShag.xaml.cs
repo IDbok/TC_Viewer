@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -31,17 +32,17 @@ namespace TC_WinForms.WinForms.Diagram
         public Dictionary<long?, string> _allPrintedTcDict = new Dictionary<long?, string>();
 
         private bool _isUpdatingFromCode = false;
-        private string _deystavie;
-        public string Deystavie
+        private string _description;
+        public string Description
         {
-            get => _deystavie;
+            get => _description;
             set
             {
-                _deystavie = value;
-                OnPropertyChanged(nameof(Deystavie));
+                _description = value;
+                OnPropertyChanged(nameof(Description));
                 if (diagramShag != null && wpfPosledovatelnost != null)
                 {
-                    diagramShag.Deystavie = _deystavie;
+                    diagramShag.Description = _description;
                     _diagramState.HasChanges();
                 }
             }
@@ -94,7 +95,7 @@ namespace TC_WinForms.WinForms.Diagram
 
             // Извлекаем чистый текст из RichTextBox
             string deystavieText = new TextRange(TextDeystShag.Document.ContentStart, TextDeystShag.Document.ContentEnd).Text.Trim();
-            Deystavie = deystavieText;
+            Description = deystavieText;
 
             if(!diagramShag.IsRemarkClosed)
             {
@@ -155,7 +156,7 @@ namespace TC_WinForms.WinForms.Diagram
         {
             if (diagramShag != null)
             {
-                diagramShag.Nomer = nomer;
+                diagramShag.Number = nomer;
             }
 
             TextShag.Text = $"Шаг {nomer}";
@@ -185,8 +186,8 @@ namespace TC_WinForms.WinForms.Diagram
             {
                 UpdateRemarkDisplay();
                 btnToggleRemark.Content = diagramShag.IsRemarkClosed ? "Открыть замечание" : "Закрыть замечание";
-                Deystavie = _diagramShag == null ? "" : _diagramShag.Deystavie.ToString();
-                UpdateRichTextBoxContent(Deystavie);
+                Description = _diagramShag == null ? "" : _diagramShag.Description.ToString();
+                HighlightTextService.UpdateRichTextBoxContent(Description, TextDeystShag);
             }
         }
         [Obsolete("Данный конструктор устарел, следует использовать конструктор с DiagramState")]
@@ -221,7 +222,7 @@ namespace TC_WinForms.WinForms.Diagram
 
                 try
                 {
-                    Deystavie = _diagramShag.Deystavie.ToString();
+                    Description = _diagramShag.Description.ToString();
                     txtLeadComment.Text = diagramShag.Remark ?? "";
                     txtImplementerComment.Text = diagramShag.Reply ?? "";
                 }
@@ -435,7 +436,7 @@ namespace TC_WinForms.WinForms.Diagram
                 string newText = currentText + $"\n-{work?.techTransition?.Name}. {work?.Comments};";
 
                 // Обновляем документ с сохранением форматирования
-                UpdateRichTextBoxContent(newText);
+                HighlightTextService.UpdateRichTextBoxContent(newText, TextDeystShag);
 
                 ComboBoxTeh.SelectedItem = null;
             }
@@ -559,9 +560,9 @@ namespace TC_WinForms.WinForms.Diagram
             if (diagramShag != null && !_isUpdatingFromCode)
             {
                 string currentText = new TextRange(TextDeystShag.Document.ContentStart, TextDeystShag.Document.ContentEnd).Text.Trim();
-                if (currentText != Deystavie)
+                if (currentText != Description)
                 {
-                    Deystavie = currentText;
+                    Description = currentText;
                 }
             }
         }
@@ -1062,196 +1063,12 @@ namespace TC_WinForms.WinForms.Diagram
         {
             if (e.Key == Key.LeftCtrl)
             {
+
                 e.Handled = true;
-                ApplyFormattingWithCaretPreservation();
+                string currentText = new TextRange(TextDeystShag.Document.ContentStart, TextDeystShag.Document.ContentEnd).Text.Trim();
+                //HighlightTextService.ApplyFormattingWithCaretPreservation(TextDeystShag, _isUpdatingFromCode, _description, Description, _diagramState, OnPropertyChanged);
+                HighlightTextService.UpdateRichTextBoxContent(currentText, TextDeystShag);
             }
-        }
-
-        private void ApplyFormattingWithCaretPreservation()
-        {
-            string text = new TextRange(TextDeystShag.Document.ContentStart, TextDeystShag.Document.ContentEnd).Text;
-            if (string.IsNullOrEmpty(text)) return;
-
-            _isUpdatingFromCode = true;
-            TextDeystShag.TextChanged -= TextDeystShag_TextChanged;
-
-            try
-            {
-                // Сохраняем позицию каретки
-                var caretInfo = (GetCaretOffset(TextDeystShag.CaretPosition),
-                    TextDeystShag.CaretPosition.CompareTo(TextDeystShag.Document.ContentEnd) == 0);
-
-                // Обновляем содержимое
-                UpdateRichTextBoxContent(text);
-
-                // Восстанавливаем позицию
-                RestoreCaretPosition(caretInfo);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error applying formatting: {ex.Message}");
-                TextDeystShag.Document = new FlowDocument(new Paragraph(new Run(text)));
-                TextDeystShag.CaretPosition = TextDeystShag.Document.ContentEnd;
-            }
-            finally
-            {
-                TextDeystShag.TextChanged += TextDeystShag_TextChanged;
-                _isUpdatingFromCode = false;
-            }
-
-            if (_deystavie != text)
-            {
-                _deystavie = text;
-                OnPropertyChanged(nameof(Deystavie));
-
-                Deystavie = text;
-                _diagramState?.HasChanges();
-            }
-        }
-
-        // Основной метод обновления содержимого
-        private void UpdateRichTextBoxContent(string text)
-        {
-            string currentText = new TextRange(TextDeystShag.Document.ContentStart, TextDeystShag.Document.ContentEnd).Text;
-            if (currentText == text) return;
-
-            string[] phrases = { "Дополнение:", "ВАЖНО:" };
-            var isNeedFormationg = phrases.Any(phrase => text.IndexOf(phrase, StringComparison.OrdinalIgnoreCase) >= 0);
-
-            if (isNeedFormationg)
-            {
-                ApplyFormattedText(text);
-            }
-            else
-            {
-                TextRange range = new TextRange(TextDeystShag.Document.ContentStart, TextDeystShag.Document.ContentEnd);
-                range.Text = text;
-            }
-        }
-
-        // Вспомогательные методы
-
-        private void RestoreCaretPosition((int Offset, bool WasAtEnd) caretInfo)
-        {
-            if (caretInfo.WasAtEnd)
-            {
-                TextDeystShag.CaretPosition = TextDeystShag.Document.ContentEnd;
-            }
-            else
-            {
-                RestoreCaretPosition(caretInfo.Offset);
-            }
-        }
-
-        private void ApplyFormattedText(string text)
-        {
-            var doc = new FlowDocument();
-            var paragraph = new Paragraph { TextAlignment = TextAlignment.Left, Margin = new Thickness(0) };
-
-            string[] phrases = { "Дополнение:", "ВАЖНО:" };
-            int startIndex = 0;
-
-            while (startIndex < text.Length)
-            {
-                var foundPhrase = FindNextPhrase(text, startIndex, phrases);
-
-                if (foundPhrase.Index != -1)
-                {
-                    if (foundPhrase.Index > startIndex)
-                    {
-                        paragraph.Inlines.Add(new Run(text.Substring(startIndex, foundPhrase.Index - startIndex)));
-                    }
-                    paragraph.Inlines.Add(new Bold(new Run(foundPhrase.Phrase)));
-                    startIndex = foundPhrase.Index + foundPhrase.Phrase.Length;
-                }
-                else
-                {
-                    paragraph.Inlines.Add(new Run(text.Substring(startIndex)));
-                    break;
-                }
-            }
-
-            doc.Blocks.Add(paragraph);
-            TextDeystShag.Document = doc;
-        }
-
-        private (string Phrase, int Index) FindNextPhrase(string text, int startIndex, string[] phrases)
-        {
-            int minIndex = int.MaxValue;
-            string foundPhrase = null;
-
-            foreach (var phrase in phrases)
-            {
-                int index = text.IndexOf(phrase, startIndex, StringComparison.OrdinalIgnoreCase);
-                if (index >= 0 && index < minIndex)
-                {
-                    minIndex = index;
-                    foundPhrase = phrase;
-                }
-            }
-
-            return (foundPhrase, minIndex != int.MaxValue ? minIndex : -1);
-        }
-
-        // Методы для работы с позицией каретки (оставляем без изменений)
-        private int GetCaretOffset(TextPointer caretPosition)
-        {
-            if (caretPosition == null || TextDeystShag.Document == null)
-                return 0;
-
-            TextPointer navigator = TextDeystShag.Document.ContentStart;
-            int offset = 0;
-
-            while (navigator != null && navigator.CompareTo(caretPosition) < 0)
-            {
-                if (navigator.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
-                {
-                    string textRun = navigator.GetTextInRun(LogicalDirection.Forward);
-                    if (textRun.Length > 0)
-                    {
-                        int charsToCaret = Math.Min(textRun.Length,
-                            caretPosition.GetOffsetToPosition(navigator) <= 0 ? textRun.Length : caretPosition.GetOffsetToPosition(navigator));
-                        offset += charsToCaret;
-                        navigator = navigator.GetPositionAtOffset(charsToCaret);
-                    }
-                    else
-                    {
-                        navigator = navigator.GetNextContextPosition(LogicalDirection.Forward);
-                    }
-                }
-                else
-                {
-                    navigator = navigator.GetNextContextPosition(LogicalDirection.Forward);
-                }
-            }
-
-            return offset;
-        }
-
-        private void RestoreCaretPosition(int offset)
-        {
-            if (TextDeystShag.Document == null || offset < 0)
-                return;
-
-            TextPointer navigator = TextDeystShag.Document.ContentStart;
-            int currentOffset = 0;
-
-            while (navigator != null && currentOffset < offset)
-            {
-                if (navigator.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
-                {
-                    string textRun = navigator.GetTextInRun(LogicalDirection.Forward);
-                    int charsToMove = Math.Min(textRun.Length, offset - currentOffset);
-                    currentOffset += charsToMove;
-                    navigator = navigator.GetPositionAtOffset(charsToMove);
-                }
-                else
-                {
-                    navigator = navigator.GetNextContextPosition(LogicalDirection.Forward);
-                }
-            }
-
-            TextDeystShag.CaretPosition = navigator ?? TextDeystShag.Document.ContentEnd;
         }
     }
 }
