@@ -1,19 +1,21 @@
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using Serilog;
 using System.Data;
+using System.Linq;
 using System.Windows.Input;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.Extensions;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win6.Models;
+using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using static Antlr4.Runtime.Atn.SemanticContext;
 using Component = TcModels.Models.TcContent.Component;
 using Machine = TcModels.Models.TcContent.Machine;
-using TC_WinForms.Extensions;
-using OfficeOpenXml;
 
 namespace TC_WinForms.WinForms.Work
 {
@@ -374,13 +376,15 @@ namespace TC_WinForms.WinForms.Work
 
             TechOperationForm.AddTechOperation(techOperationWork);
             UpdateLocalTO();
+
+            // Обновляем номера ImageOwner
+            UpdateImageOwnerNumbers(TechOperationForm.TehCarta);
+
             TechOperationForm.UpdateGrid();
         }
 
         private void DataGridViewTO_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            //HighlightTOTTRow();
-
             if (e.ColumnIndex == 1 && e.RowIndex >= 0)
             {
                 _logger.LogUserAction($"Щелчок по ячейке удаления ТО в строке {e.RowIndex}.");
@@ -397,10 +401,12 @@ namespace TC_WinForms.WinForms.Work
 
                     foreach (DataGridViewRow dataGridViewRow in dataGridViewTO.Rows)
                     {
-                        // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
                         var techOperationWorkRow = (TechOperationWork)dataGridViewRow.Cells[0].Value;
                         techOperationWorkRow.Order = dataGridViewRow.Index + 1; // Обновляем свойство Order
                     }
+
+                    // Обновляем номера ImageOwner
+                    UpdateImageOwnerNumbers(TechOperationForm.TehCarta);
 
                     TechOperationForm.UpdateGrid();
                 }
@@ -546,7 +552,6 @@ namespace TC_WinForms.WinForms.Work
             if (e.ColumnIndex == dataGridViewTO.Columns["ParallelIndex"].Index)
             {
                 var newValue = (string)dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
                 var techOperationWork = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
 
                 if (techOperationWork != null)
@@ -572,7 +577,6 @@ namespace TC_WinForms.WinForms.Work
             else if (e.ColumnIndex == dataGridViewTO.Columns["SequenceGroupIndex"].Index)
             {
                 var newValue = (string)dataGridViewTO.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
                 var techOperationWork = (TechOperationWork)dataGridViewTO.Rows[e.RowIndex].Cells[0].Value;
 
                 if (techOperationWork != null)
@@ -616,16 +620,18 @@ namespace TC_WinForms.WinForms.Work
                     newOrder = newOrder <= 0 ? 1 : newOrder;
                     newOrder = newOrder > dataGridViewTO.RowCount ? dataGridViewTO.RowCount : newOrder;
 
-                    if(newOrder < techOperationWork.Order)
+                    if (newOrder < techOperationWork.Order)
                     {
                         var povtorOrder = techOperationWork.executionWorks
-                        .Where(rep => rep.techTransition.IsRepeatTransition()
-                        && !rep.techTransition.IsRepeatAsInTcTransition()
-                        && rep.ExecutionWorkRepeats.Any(pov => pov.ChildExecutionWork.techOperationWork.Order >= newOrder && pov.ChildExecutionWork.techOperationWorkId != techOperationWork.Id)).ToList();
+                            .Where(rep => rep.techTransition.IsRepeatTransition()
+                                && !rep.techTransition.IsRepeatAsInTcTransition()
+                                && rep.ExecutionWorkRepeats.Any(pov => pov.ChildExecutionWork.techOperationWork.Order >= newOrder
+                                    && pov.ChildExecutionWork.techOperationWorkId != techOperationWork.Id))
+                            .ToList();
 
-                        if(povtorOrder.Count > 0)
+                        if (povtorOrder.Count > 0)
                         {
-                            var result = MessageBox.Show("Вы пыатетесь переместить ТО с технологическим переходом \"Повтор\" выше последнего входящего в него элемента. Переместить?", "Внимание!", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            var result = MessageBox.Show("Вы пытаетесь переместить ТО с технологическим переходом \"Повтор\" выше последнего входящего в него элемента. Переместить?", "Внимание!", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                             switch (result)
                             {
                                 case DialogResult.Yes:
@@ -641,7 +647,7 @@ namespace TC_WinForms.WinForms.Work
                         }
                     }
 
-                    this.BeginInvoke(new MethodInvoker(() =>//используется для обхода рекурсивного вызова перемещения строк
+                    this.BeginInvoke(new MethodInvoker(() =>
                     {
                         var currentOrder = techOperationWork.Order;
                         if (currentOrder == newOrder)
@@ -651,14 +657,15 @@ namespace TC_WinForms.WinForms.Work
 
                         foreach (DataGridViewRow dataGridViewRow in dataGridViewTO.Rows)
                         {
-                            // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
                             var techOperationWorkRow = (TechOperationWork)dataGridViewRow.Cells[0].Value;
                             techOperationWorkRow.Order = dataGridViewRow.Index + 1; // Обновляем свойство Order
                         }
 
+                        // Обновляем номера ImageOwner
+                        UpdateImageOwnerNumbers(TechOperationForm.TehCarta);
+
                         TechOperationForm.UpdateGrid();
                     }));
-
                 }
             }
         }
@@ -3384,7 +3391,43 @@ namespace TC_WinForms.WinForms.Work
 			TechOperationForm.UpdateGrid();
 		}
 
-		private void RecalculateAllTPValues()
+        private void UpdateImageOwnerNumbers(TechnologicalCard technologicalCard)
+        {
+            _logger.Information("Обновление номеров ImageOwner для технологической карты ID: {Id}", technologicalCard.Id);
+
+            try
+            {
+                // Получаем все TechOperationWork для данной TechnologicalCard, отсортированные по Order
+                var techOperations = TechOperationForm.TechOperationWorksList
+                    .Where(tow => !tow.Delete)
+                    .OrderBy(tow => tow.Order)
+                    .ToList();
+
+                int imageNum = 1;
+                foreach(var tow in techOperations)
+                {
+                    var images = tow.executionWorks.SelectMany(ew => ew.ImageList)
+                        .Where(io => io.Role == ImageRole.Image) // Только рисунки
+                        .Distinct()
+                        .OrderBy(i => i.Number)
+                        .ToList();
+
+                    images.ForEach(image =>
+                    {
+                        image.Number = imageNum;
+                        imageNum++;
+                    });
+                }
+
+                _logger.Information("Номера ImageOwner успешно обновлены.");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Ошибка при обновлении номеров ImageOwner.");
+            }
+        }
+
+        private void RecalculateAllTPValues()
 		{
 			try
 			{
