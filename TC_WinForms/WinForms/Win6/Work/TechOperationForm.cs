@@ -16,8 +16,10 @@ using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
+using TC_WinForms.WinForms.Win6.Healpers;
 using TC_WinForms.WinForms.Win6.ImageEditor;
 using TC_WinForms.WinForms.Win6.Models;
+using TC_WinForms.WinForms.Win6.Work;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -40,6 +42,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     private ILogger _logger;
 
 	private readonly TcViewState _tcViewState;
+    private MainGridColumns _gridColumns;
 
     //private bool _isViewMode;
     //private bool _isCommentViewMode;
@@ -127,7 +130,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     private void DgvMain_CellContentDoubleClick(object? sender, DataGridViewCellEventArgs e)
     {
-        if (dgvMain.Columns["TechTransitionName"].Index == e.ColumnIndex && dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew.techTransition.IsRepeatAsInTcTransition())
+        if (_gridColumns.TechTransitionName.Index == e.ColumnIndex
+            && dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew
+            && ew.techTransition.IsRepeatAsInTcTransition())
 		{
             if(ew.RepeatsTCId == null)
             {
@@ -166,8 +171,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	/// </summary>
 	public void SetCommentViewMode()
     {
-        dgvMain.Columns["RemarkColumn"].Visible = _tcViewState.IsCommentViewMode;
-        dgvMain.Columns["ResponseColumn"].Visible = _tcViewState.IsCommentViewMode;
+        _gridColumns.Remark.Visible = _tcViewState.IsCommentViewMode;
+        _gridColumns.Response.Visible = _tcViewState.IsCommentViewMode;
     }
 
 	/// <summary>
@@ -184,7 +189,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         foreach(DataGridViewColumn col in dgvMain.Columns)
         {
-            if (col.Name.Contains("Machine"))
+            if (col.IsRole(ColumnRole.TimeOfMechanism))
             {
                 col.Visible = _isMachineViewMode;
             }
@@ -1238,28 +1243,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			"№ СЗ" => isToolOrComponent ? CopyScopeEnum.ToolOrComponents : CopyScopeEnum.Protections,
 			"Технологические операции" => CopyScopeEnum.TechOperation,
 			"Технологические переходы" => isToolOrComponent ? CopyScopeEnum.ToolOrComponents : CopyScopeEnum.TechTransition,
-			"Примечание" 
-                         or "Ответ" or "№"
-											=> CopyScopeEnum.Text,
+			"Примечание" or "Ответ" or "№" => CopyScopeEnum.Text,
             "Рис." => CopyScopeEnum.ImageData,
             "Замечание" => CopyScopeEnum.Remark,
-            _ => null
-		};
-	}
-
-	/// <summary>
-	/// Возвращает индекс столбца по типу копирования (Staff, Protections, и т.д.).
-	/// </summary>
-	private int? GetColumnIndex(CopyScopeEnum copyScope)
-	{
-		return copyScope switch
-		{
-			CopyScopeEnum.Staff => dgvMain.Columns["Staff"].Index,
-			CopyScopeEnum.Protections => dgvMain.Columns["Protection"].Index,
-			CopyScopeEnum.Text => dgvMain.Columns["Text"].Index,           // TODO: проверить, есть ли реально "Text" в колонках
-			CopyScopeEnum.Machines => dgvMain.Columns["Machine"].Index,
-			CopyScopeEnum.TechOperation => dgvMain.Columns["TechOperation"].Index,
-            CopyScopeEnum.ImageData => dgvMain.Columns["PictureNameColumn"].Index,
             _ => null
 		};
 	}
@@ -1445,9 +1431,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
 		if (copiedStaff == null) throw new ArgumentNullException(nameof(copiedStaff));
 
-		var columnIndex = GetColumnIndex(CopyScopeEnum.Staff)
-			?? throw new Exception("Не найден столбец под персонал (Staff).");
-
 		// если ТК копирования не совпадает с текущей ТК, то находим совпадабщие объекты и создаём новые
 		// Заменяем на сущствующий в случае совпадения id персонала и его символа.
 		// В других случаях заменяем на новый объект с новым символом.
@@ -1469,7 +1452,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// Формируем строку с символами
 			var newStaffSymbols = string.Join(",", selectedEw.Staffs.OrderBy(s => s.Symbol).Select(s => s.Symbol));
 			// Обновляем ячейку в таблице
-			UpdateCellValue(selectedEw.RowOrder - 1, (int)columnIndex, newStaffSymbols);
+			UpdateCellValue(selectedEw.RowOrder - 1, _gridColumns.Staff.Index, newStaffSymbols);
 		}
 
 		List<Staff_TC> MergeStaffFromAnotherTc(List<Staff_TC> copiedStaff)
@@ -1552,9 +1535,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
         if (copiedImages == null) throw new ArgumentNullException(nameof(copiedImages));
 
-        var columnIndex = GetColumnIndex(CopyScopeEnum.ImageData)
-            ?? throw new Exception("Не найден столбец для изображений.");
-
         if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid)
             copiedImages = MergeImagesFromAnotherTc(copiedImages);
 
@@ -1615,39 +1595,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     context.Entry(newObject_tc).State = EntityState.Added;
                     context.Entry(newImage).State = EntityState.Added;
                 }
-
-
-                //if (existingObject_tc == null)
-                //{
-                //    if (copiedObj.ImageStorage == null)
-                //    { throw new Exception("Ошибка при копировании изображений. Ошибка 1246"); }
-
-                //    var newImage = ImageService.CreateNewImage(copiedObj.ImageStorage);
-
-                //    // если изображения нет в ТК, то добавляем его с новым номером
-                //    var newObject_tc = new ImageOwner
-                //    {
-                //        ImageStorageId = newImage.Id,
-                //        ImageStorage = newImage,
-                //        TechnologicalCardId = TehCarta.Id,
-                //        TechnologicalCard = TehCarta,
-                //        Name = copiedObj.Name,
-                //        ImageRoleType = copiedObj.ImageRoleType,
-                //        Number = TehCarta.ImageOwner.Count + 1,
-                //    };
-
-                //    newCopiedImages.Add(newObject_tc);
-
-                //    // добавить персонал в ТК
-                //    TehCarta.ImageOwner.Add(newObject_tc);
-                //    context.Entry(newObject_tc).State = EntityState.Added;
-                //    context.Entry(newImage).State = EntityState.Added;
-                //}
-                //else
-                //{
-                //    // если персонал уже есть в ТК, то заменяем на него объект в списке скопированного персонала
-                //    newCopiedImages.Add(existingObject_tc);
-                //}
             }
 
             copiedImages = newCopiedImages;
@@ -1662,10 +1609,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 	{
 		if (selectedEw == null) throw new ArgumentNullException(nameof(selectedEw));
 		if (copiedProtections == null) throw new ArgumentNullException(nameof(copiedProtections));
-
-		var columnIndex = GetColumnIndex(CopyScopeEnum.Protections)
-		    ?? throw new Exception("Не найден столбец для СИЗ.");
-
 
 		if (TcCopyData.GetCopyFormGuId() != _tcViewState.FormGuid)
 			copiedProtections = MergeProtectionsFromAnotherTc(copiedProtections);
@@ -1683,7 +1626,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			// Формируем строку с номерами СЗ
 			var objectOrderList = selectedEw.Protections.Select(s => s.Order).ToList();
 			var newCellValue = string.Join(",", ConvertListToRangeString(objectOrderList));
-			UpdateCellValue(selectedEw.RowOrder - 1, (int)columnIndex, newCellValue);
+			UpdateCellValue(selectedEw.RowOrder - 1, _gridColumns.Protection.Index, newCellValue);
 		}
 
 		List<Protection_TC> MergeProtectionsFromAnotherTc(List<Protection_TC> copiedProtections)
@@ -1962,12 +1905,13 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void DgvMain_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
-		//var ew = dgvMain.Rows[e.RowIndex].Cells[0].Value as ExecutionWork;
+        var col = dgvMain.Columns[e.ColumnIndex];
+        //var ew = dgvMain.Rows[e.RowIndex].Cells[0].Value as ExecutionWork;
         var text = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as string;
 
 		text = string.IsNullOrEmpty(text) ? "" : text;
 
-		if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index)
+		if (col == _gridColumns.Response)
         {
             if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew != null)
             {
@@ -1998,7 +1942,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             }
 
         }
-        else if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index)
+        else if (col == _gridColumns.Remark)
         {
             if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew != null)
             {
@@ -2028,7 +1972,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 HasChanges = true;
             }
         }
-        else if (e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
+        else if (col == _gridColumns.PictureName)
         {
 
             if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork ew && ew != null)
@@ -2039,7 +1983,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                     _editForm.UpdateLocalTP();
             }
         }
-        else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
+        else if (col == _gridColumns.Comment)
         {
             var itsTool = TechOperationDataGridItems[e.RowIndex].ItsTool;
             var ItsComponent = TechOperationDataGridItems[e.RowIndex].ItsComponent;
@@ -2162,122 +2106,78 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     {
 		_logger.Debug("Очищаем строки и колонки DataGridView, инициализируем новые (ClearAndInitializeGrid).");
 
-		dgvMain.Rows.Clear();
-        TechOperationDataGridItems.Clear();
+        dgvMain.SuspendLayout();
+        try {
+            dgvMain.Rows.Clear();
+            TechOperationDataGridItems.Clear();
 
-        while (dgvMain.Columns.Count > 0)
+            dgvMain.AutoGenerateColumns = false;
+            dgvMain.DataSource = null;
+            dgvMain.Columns.Clear();
+
+            // Добавляем столбцы в DataGridView
+            dgvMain.AddColumn("ExecutionWorkItem", "", visible: false,
+                fillWeigth: 100, minWidth:100);
+            dgvMain.AddColumn("Order", "№", width: 30,
+                fillWeigth: 30, minWidth: 30);
+            dgvMain.AddColumn("TechOperationName", "Технологические операции",
+                fillWeigth: 140, minWidth: 140);
+            dgvMain.AddColumn("Staff", "Исполнитель", width: 120,
+                fillWeigth: 120, minWidth: 120);
+            dgvMain.AddColumn("TechTransitionName", "Технологические переходы",
+                fillWeigth: 140, minWidth: 140);
+            dgvMain.AddColumn("TimeValue", "Время действ., мин.",
+                fillWeigth: 50, minWidth: 50);
+            dgvMain.AddColumn("EtapValue", "Время этапа, мин.",
+                fillWeigth: 50, minWidth: 50);
+
+            int i = 0;
+            foreach (Machine_TC m in TehCarta.Machine_TCs) {
+                dgvMain.AddColumn($"Machine{i}", $"Время {m.Child.Name}, мин.",
+                    fillWeigth: 50, minWidth: 50,
+                    role: ColumnRole.TimeOfMechanism);
+                i++;
+            }
+
+
+            dgvMain.AddColumn("Protection", "№ СЗ", fillWeigth: 50, minWidth: 50);
+            dgvMain.AddColumn("CommentColumn", "Примечание", fillWeigth: 140, minWidth: 140);
+            dgvMain.AddColumn("PictureNameColumn", "Рис.", fillWeigth: 140, minWidth: 140);
+            dgvMain.AddColumn("RemarkColumn", "Замечание", resizable: DataGridViewTriState.True,
+                fillWeigth: 300, minWidth: 200,
+                role: ColumnRole.Remarks);
+            dgvMain.AddColumn("ResponseColumn", "Ответ", resizable: DataGridViewTriState.True,
+                fillWeigth: 300, minWidth: 200,
+                role: ColumnRole.Remarks);
+
+
+            // Захватываем ссылки на колонки для дальнейшего кода
+            _gridColumns = MainGridColumns.Capture(dgvMain);
+
+            // Устанавливаем дополнительные свойства для столбцов
+            _gridColumns.Remark.HeaderCell.Style.Font = new Font("Segoe UI", 9f, FontStyle.Italic | FontStyle.Bold);
+            _gridColumns.Remark.DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
+            _gridColumns.Response.HeaderCell.Style.Font = new Font("Segoe UI", 9f, FontStyle.Italic | FontStyle.Bold);
+            _gridColumns.Response.DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
+
+            _gridColumns.TechOperationName.Frozen = true;
+            _gridColumns.TechTransitionName.Frozen = true;
+
+            dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+
+            _logger.Debug("DataGridView инициализирован: {ColumnCount} столбцов.",
+                     dgvMain.Columns.Count);
+        }
+        catch (Exception ex)
         {
-            dgvMain.Columns.RemoveAt(0);
+            _logger.Error(ex, "Ошибка при очистке и инициализации DataGridView (ClearAndInitializeGrid).");
+            throw new Exception("Ошибка при очистке и инициализации DataGridView.", ex);
         }
 
-		dgvMain.Columns.Add("ExecutionWorkItem", "");
-        dgvMain.Columns.Add("Order", "");
-        dgvMain.Columns.Add("TechOperationName", "");
-        dgvMain.Columns.Add("Staff", "Исполнитель");
-        dgvMain.Columns.Add("TechTransitionName", "Технологические переходы");
-        dgvMain.Columns.Add("TimeValue", "");
-        dgvMain.Columns.Add("EtapValue", "");
+        finally { dgvMain.ResumeLayout(); }        
 
-        int i = 0;
-        foreach (Machine_TC tehCartaMachineTC in TehCarta.Machine_TCs)
-        {
-            dgvMain.Columns.Add("Machine" + i, "Время " + tehCartaMachineTC.Child.Name + ", мин.");
-            i++;
-        }
-
-        dgvMain.Columns.Add("Protection", "№ СЗ");
-        dgvMain.Columns.Add("CommentColumn", "Примечание");
-        dgvMain.Columns["CommentColumn"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-        dgvMain.Columns.Add("PictureNameColumn", "Рис.");
-        dgvMain.Columns.Add("RemarkColumn", "Замечание");
-        dgvMain.Columns.Add("ResponseColumn", "Ответ");
-
-        dgvMain.Columns["RemarkColumn"].HeaderCell.Style.Font = new Font("Segoe UI", 9f, FontStyle.Italic | FontStyle.Bold);
-        dgvMain.Columns["RemarkColumn"].DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
-
-        dgvMain.Columns["ResponseColumn"].HeaderCell.Style.Font = new Font("Segoe UI", 9f, FontStyle.Italic | FontStyle.Bold);
-        dgvMain.Columns["ResponseColumn"].DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
-
-        int ii = 0;
-
-        dgvMain.Columns[ii].Visible = false;
-        ii++;
-        dgvMain.Columns[ii].HeaderText = "№";
-        dgvMain.Columns[ii].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-        dgvMain.Columns[ii].Width = 30;
-        ii++;
-        dgvMain.Columns[ii].HeaderText = "Технологические операции";
-        ii++;
-        //dgvMain.Columns[ii].HeaderText = "Исполнитель";
-        dgvMain.Columns[ii].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-        dgvMain.Columns[ii].Width = 120;
-        ii++;
-        //dgvMain.Columns[ii].HeaderText = "Технологические переходы";
-        ii++;
-        dgvMain.Columns[ii].HeaderText = "Время действ., мин.";
-        ii++;
-        dgvMain.Columns[ii].HeaderText = "Время этапа, мин.";
-        ii++;
-
-        foreach (DataGridViewColumn column in dgvMain.Columns)
-        {
-            column.SortMode = DataGridViewColumnSortMode.NotSortable;
-            column.ReadOnly = true;
-            column.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-        }
-
-        //dgvMain.Columns[dgvMain.Columns.Count - 1].ReadOnly = false; // todo - зачем это действие?
-        // Устанавливаем форматирование для столбцов "Замечание" и "Ответ"
-        
-
-        //if (TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() != DataProcessing.AuthorizationService.User.Role.User)
-        //{
-        //    dgvMain.Columns[dgvMain.Columns.Count - 2].ReadOnly = false;
-        //}
-
-        foreach (DataGridViewColumn col in dgvMain.Columns)
-        {
-            col.FillWeight = col.HeaderText.Contains("Время") ? GetFillWeight("Время") : GetFillWeight(col.HeaderText);
-            col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            col.MinimumWidth = col.HeaderText.Contains("Время") ? 50 :(int)col.FillWeight;
-            col.MinimumWidth = col.HeaderText.Contains("Замечание") || col.HeaderText.Contains("Ответ") ? 200 : (int)col.FillWeight;
-            col.Resizable = col.HeaderText.Contains("Замечание") || col.HeaderText.Contains("Ответ") ? DataGridViewTriState.True : DataGridViewTriState.NotSet;
-        }
-
-        dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
-        dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvMain.Columns[2].Frozen = true;
-        dgvMain.Columns[4].Frozen = true;
-
-        _logger.Debug("DataGridView инициализирован: {ColumnCount} столбцов.",
-				 dgvMain.Columns.Count);
 	}
-
-    private float GetFillWeight(string FieldName)
-    {
-        switch (FieldName)
-        {
-            case "":
-                return 100;
-            case "№":
-                return 30;
-            case "Технологические операции":
-            case "Технологические переходы":
-            case "Примечание":
-            case "Рис.":
-                return 140;
-            case "Исполнитель":
-                return 120;
-            case "Время":
-            case "№ СЗ":
-                return 50;
-            case "Замечание":
-            case "Ответ":
-                return 300;
-            default:
-                return 100;
-        }
-    }
 
     /// <summary>
     /// Заполняет DataGridView данными из списка технологических операций.
@@ -2305,7 +2205,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void UpdatePictureCell(int rowIndex, ExecutionWork ew)
     {
-        int pictureColumn = dgvMain.Columns["PictureNameColumn"].Index;
+        int pictureColumnIndex = _gridColumns.PictureName.Index;
         DataGridViewCell newCell;
 
         if (ew.ImageList == null || !ew.ImageList.Any())
@@ -2322,8 +2222,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             };
         }
 
-        dgvMain.Rows[rowIndex].Cells[pictureColumn] = newCell;
-        dgvMain.InvalidateCell(pictureColumn, rowIndex);
+        dgvMain.Rows[rowIndex].Cells[pictureColumnIndex] = newCell;
+        dgvMain.InvalidateCell(pictureColumnIndex, rowIndex);
     }
     /// <summary>
     /// Преобразует список чисел в компактный текст, например [1,4,5,6,8] ⇒ "Рис. 1, Рис. 4–6, Рис. 8"
@@ -2654,7 +2554,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		newRow.CreateCells(dgvMain, rowData.ToArray());
 
         // индекс колонки PictureNameColumn
-        int picCol = dgvMain.Columns["PictureNameColumn"].Index;
+        int picColIndex = _gridColumns.PictureName.Index;
 
         // попытаемся достать ExecutionWork из первой ячейки
         if (newRow.Cells[0].Value is ExecutionWork exWor)
@@ -2664,7 +2564,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 // В режиме просмотра не показываем кнопку
                 var images = exWor.ImageList ?? new List<ImageOwner>();
 
-                newRow.Cells[picCol].Value = images.Any()
+                newRow.Cells[picColIndex].Value = images.Any()
                     ? FormatImageReferences(images)
                     : string.Empty;
             }
@@ -2672,20 +2572,20 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             {
                 if (exWor.ImageList == null || exWor.ImageList.Count == 0)
                 {
-                    newRow.Cells[picCol] = CreateAddImageButtonCell();
+                    newRow.Cells[picColIndex] = CreateAddImageButtonCell();
                 }
                 else
                 {
                     var images = exWor.ImageList ?? new List<ImageOwner>();
 
-                    newRow.Cells[picCol].Value = FormatImageReferences(images);
+                    newRow.Cells[picColIndex].Value = FormatImageReferences(images);
                 }
             }
         }
         else
         {
             // если это не ExecutionWork — оставляем пусто
-            newRow.Cells[picCol].Value = string.Empty;
+            newRow.Cells[picColIndex].Value = string.Empty;
         }
 
 
@@ -2739,11 +2639,12 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     private void DgvMain_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
     {
+        var col = dgvMain.Columns[e.ColumnIndex];
         // Первую строку всегда показывать
         //if (e.RowIndex < 0) // todo: Исправли с == 0  на  < 0 т.е мешает применению стиля к первой строке. Пока не поянятно, зачем была созданна.
         //    return;
 
-        if (e.ColumnIndex == 2) // "Технологические операции"
+        if (col == _gridColumns.TechOperationName) // "Технологические операции"
         {
             // Первая видимая строка ВСЕГДА показывает текст
             if (!IsFirstVisibleRow(e.RowIndex) && IsSameAsPrev(e.ColumnIndex, e.RowIndex))
@@ -2753,44 +2654,43 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             }
         }
 
-        // Если это столбцов с временем этапа и механизмов (индекс >= 6), и значение ячейки равно "-1",
+        // Если это столбцов с временем этапа или механизмов (индекс >= 6), и значение ячейки равно "-1",
         // то ячейка остается пустой.
-        if (e.ColumnIndex >= 6)
+        if (col == _gridColumns.EtapValue || col.IsRole(ColumnRole.TimeOfMechanism))
         {
-            var cellValue = (string)e.Value;
-            if (cellValue == "-1")
+            if ((e.Value as string) == "-1")
             {
                 e.Value = string.Empty;
                 e.FormattingApplied = true;
             }
         }
 
+        var row = dgvMain.Rows[e.RowIndex];
+        var cell = row.Cells[e.ColumnIndex];
         // Если мы находимся в режиме редактирования ТК (_tcViewState.IsViewMode == false),
         // проверяем возможность редактирования ячейки.
         if (!_tcViewState.IsViewMode)
         {
-			if (dgvMain.Rows[e.RowIndex].Cells[0].Value is ExecutionWork executionWork)
+            if (row.Cells[0].Value is ExecutionWork executionWork)
             {
-                if ((e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index 
-                    || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index) 
+                if (col.IsRole(ColumnRole.Remarks)
                     && DataProcessing.AuthorizationService.CurrentUser.UserRole() 
                     == DataProcessing.AuthorizationService.User.Role.Lead)
                 {
-                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                    CellChangeReadOnly(cell, false);
                 }
-                else if (e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index
+                else if (col == _gridColumns.Response
                     && TC_WinForms.DataProcessing.AuthorizationService.CurrentUser.UserRole() 
                     == DataProcessing.AuthorizationService.User.Role.Implementer)
                 {
-                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                    CellChangeReadOnly(cell, false);
                 }
-                else if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
+                else if (col == _gridColumns.Comment)
                 {
-                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                    CellChangeReadOnly(cell, false);
                 }
-                else if (e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
+                else if (col == _gridColumns.PictureName)
                 {
-                    var cell = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex];
                     cell.ReadOnly = true;
                     var currentColor = cell.Style.BackColor;
                     if (currentColor == Color.White || currentColor == Color.LightGray || currentColor.IsEmpty)
@@ -2798,9 +2698,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                         cell.Style.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
                     }
                 }
-                else if(executionWork.techTransition.IsRepeatTypeTransition()//(executionWork.techTransition?.Id == 133 || executionWork.techTransition?.Id == 134) // todo: переделать на id => возможно лучше вынести Id повторов в отдельный класс
-					&& (e.ColumnIndex == dgvMain.Columns["Staff"].Index
-                    || e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index))
+                else if(executionWork.techTransition.IsRepeatTypeTransition()
+					&& (col == _gridColumns.TechTransitionName || col == _gridColumns.Staff))
                 {
                     // пропускаю действие, т.к. отрисовка цвета уже произошла
                     //SetCellBackColor(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], Color.Yellow);
@@ -2808,42 +2707,43 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 else if (executionWork?.techTransition != null && executionWork.techOperationWork != null && executionWork.techOperationWork?.techOperation != null
                         && !executionWork.techTransition.IsRepeatAsInTcTransition()
                         && (!executionWork.techTransition.IsReleased || !executionWork.techOperationWork.techOperation.IsReleased)
-                        && (e.ColumnIndex == dgvMain.Columns["TechTransitionName"].Index || e.ColumnIndex == dgvMain.Columns[2].Index)) // Проверка, что есть хотя бы 3 столбца
+                        && (col == _gridColumns.TechTransitionName || col == _gridColumns.TechOperationName))
                 {
                     // пропускаю действие, т.к. отрисовка цвета уже произошла
                 }
                 else
                 {
-                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                    CellChangeReadOnly(cell, true);
                 }
             }
             else if (TechOperationDataGridItems[e.RowIndex].ItsTool || TechOperationDataGridItems[e.RowIndex].ItsComponent)
             {
-                if(e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
+                if(col == _gridColumns.Comment)
                 {
-                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                    CellChangeReadOnly(cell, false);
                 }
-                else if (e.ColumnIndex == dgvMain.Columns["PictureNameColumn"].Index)
+                else if (col == _gridColumns.PictureName)
                 {
-                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                    CellChangeReadOnly(cell, true);
                 }
-                else if ((e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index
-                    || e.ColumnIndex == dgvMain.Columns["ResponseColumn"].Index))
+                else if (col.IsRole(ColumnRole.Remarks))
                 {
-                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], false);
+                    CellChangeReadOnly(cell, false);
                 }
             }
-            else if(!TechOperationDataGridItems[e.RowIndex].ItsTool && !TechOperationDataGridItems[e.RowIndex].ItsComponent && TechOperationDataGridItems[e.RowIndex].WorkItem == null)
+            else if(!TechOperationDataGridItems[e.RowIndex].ItsTool
+                && !TechOperationDataGridItems[e.RowIndex].ItsComponent
+                && TechOperationDataGridItems[e.RowIndex].WorkItem == null) // todo: проверить, можно ли получить значение из techOperationDataGridItem из строки
             {
-                if (e.ColumnIndex == dgvMain.Columns["CommentColumn"].Index)
+                if (col == _gridColumns.Comment)
                 {
-                    CellChangeReadOnly(dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex], true);
+                    CellChangeReadOnly(cell, true);
                 }
             }
 
-            if (e.ColumnIndex == dgvMain.Columns["RemarkColumn"].Index && e.RowIndex >= 0)
+            if (e.RowIndex >= 0 && col == _gridColumns.Remark)
             {
-                if (dgvMain.Rows[e.RowIndex].Cells[0].Value is IRamarkable remarkItem)
+                if (row.Cells[0].Value is IRamarkable remarkItem)
                 {
                     if (remarkItem.IsRemarkClosed)
                     {
@@ -2883,26 +2783,25 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     private void DgvMain_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
     {
         if (e.AdvancedBorderStyle == null) return;
+        if (e.ColumnIndex == -1) return;
         
         e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.None;
 
-        // Пропуск заголовков колонок и строк, и первой строки
-        if (e.RowIndex < 1 || e.ColumnIndex < 0)
-        {
-            if (e.ColumnIndex == dgvMain.ColumnCount - 2)
-            {
-                e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
-            }
-            e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
-            return;
-        }
+        var col = dgvMain.Columns[e.ColumnIndex];
 
-        if (e.ColumnIndex == dgvMain.ColumnCount - 2)
+        if (col == _gridColumns.Remark)//e.ColumnIndex == dgvMain.ColumnCount - 2)
         {
             e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.OutsetDouble;
         }
 
-        if (e.ColumnIndex == 2) // Технологические операции
+        // Пропуск заголовков колонок и строк, и первой строки
+        if (e.RowIndex < 0 )
+        {
+            e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
+            return;
+        }
+
+        if (col == _gridColumns.TechOperationName)//e.ColumnIndex == 2) // Технологические операции
         {
             bool merged = !IsFirstVisibleRow(e.RowIndex) && IsSameAsPrev(e.ColumnIndex, e.RowIndex);
             e.AdvancedBorderStyle.Top = merged
@@ -2914,10 +2813,11 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
         }
 
-        if (e.ColumnIndex >= 6 && e.ColumnIndex != dgvMain.Columns["CommentColumn"].Index)
+
+        if ( col == _gridColumns.EtapValue || col.IsRole(ColumnRole.TimeOfMechanism)) //e.ColumnIndex >= 6)//
+
         {
-            var bb = e.Value?.ToString() ?? string.Empty;
-            if (bb == "-1")
+            if ((e.Value as string) == "-1")
             {
                 e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None;
             }
@@ -3546,7 +3446,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			throw new ArgumentOutOfRangeException(nameof(columnIndex),
 				"Индекс столбца вне допустимого диапазона.");
 
-		dgvMain.Rows[rowIndex].Cells[columnIndex].Value = newValue;
+        dgvMain.Rows[rowIndex].Cells[columnIndex].Value = newValue;
 		// Если нужно сразу же отобразить изменения в интерфейсе,
 		// можно принудительно вызвать перерисовку:
 		// dgvMain.Invalidate();
@@ -3689,19 +3589,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             selectedItem.IsRemarkClosed = !selectedItem.IsRemarkClosed;
         }
 
-        dgvMain.InvalidateCell(dgvMain.Columns["RemarkColumn"].Index, TechOperationDataGridItems.IndexOf(selectedItem));
-
-        //if(selectedItem.IsRemarkClosed)
-        //{
-        //    int minIndex = TechOperationDataGridItems.Where(t => !string.IsNullOrEmpty(t.Vopros) && !t.IsRemarkClosed)
-        //                                                .OrderBy(t => TechOperationDataGridItems.IndexOf(t))
-        //                                                .Select(t => TechOperationDataGridItems.IndexOf(t))
-        //                                                .FirstOrDefault();
-
-        //    dgvMain.ClearSelection();
-        //    dgvMain.Rows[minIndex].Cells[dgvMain.Columns["RemarkColumn"].Index].Selected = true;
-        //        dgvMain.FirstDisplayedScrollingRowIndex = minIndex;
-        //}
+        dgvMain.InvalidateCell(_gridColumns.Remark.Index, TechOperationDataGridItems.IndexOf(selectedItem));
     }
 
     private void GoToNextRemark()
@@ -3722,7 +3610,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         if (minIndex != null && minIndex != 0)
         {
-            dgvMain.Rows[minIndex].Cells[dgvMain.Columns["RemarkColumn"].Index].Selected = true;
+            dgvMain.Rows[minIndex].Cells[_gridColumns.Remark.Index].Selected = true;
             dgvMain.FirstDisplayedScrollingRowIndex = minIndex;
         }
         else
@@ -3732,7 +3620,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                                                         .Select(t => TechOperationDataGridItems.IndexOf(t))
                                                         .FirstOrDefault();
 
-            dgvMain.Rows[firstRemarkIndex].Cells[dgvMain.Columns["RemarkColumn"].Index].Selected = true;
+            dgvMain.Rows[firstRemarkIndex].Cells[_gridColumns.Remark.Index].Selected = true;
             dgvMain.FirstDisplayedScrollingRowIndex = firstRemarkIndex;
         }
     }
