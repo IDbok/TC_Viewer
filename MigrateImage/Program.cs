@@ -86,7 +86,7 @@ namespace MigrateImageData
                                 ImageStorageId = newImage.Id,
                                 TechnologicalCardId = card,
                                 Name = shag.NameImage,
-                                Number = shag.Nomer,
+                                Number = shag.Number,
                                 Role = ImageRole.Image,
                             };
 

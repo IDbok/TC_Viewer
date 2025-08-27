@@ -23,12 +23,20 @@
                 <Run Text="Действия шага:" />
             </TextBlock>-->
 
-                <TextBox x:Name="TextDeystShag" 
-                    MinHeight="150"
-                    TextWrapping="Wrap" TextAlignment="Left" 
-                    AcceptsReturn="True" SpellCheck.IsEnabled="True" xml:lang="ru" 
-                    TextChanged="TextDeystShag_TextChanged"
-                    IsReadOnly="{Binding IsViewMode}"/> <!--Text="Действия шага:"-->
+                <RichTextBox x:Name="TextDeystShag" 
+                             MinHeight="150"
+                             AcceptsReturn="True" 
+                             SpellCheck.IsEnabled="True" 
+                             xml:lang="ru" 
+                             IsReadOnly="{Binding IsViewMode}"
+                             TextChanged="TextDeystShag_TextChanged"
+                             PreviewKeyDown ="TextDeystShag_PreviewKeyDown">
+                    <FlowDocument>
+                        <Paragraph TextAlignment="Left">
+                            <Run Text="{Binding Deystavie, RelativeSource={RelativeSource AncestorType={x:Type local:WpfShag}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </Paragraph>
+                    </FlowDocument>
+                </RichTextBox>
                 <Grid x:Name="gridComments" 
                     Visibility="{Binding IsCommentViewMode, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Grid.RowDefinitions>

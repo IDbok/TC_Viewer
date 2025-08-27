@@ -7,14 +7,14 @@ namespace TcModels.Models.TcContent
     {
         public int Id { get; set; }
 
-        public string Deystavie { get; set; } = "";
+        public string Description { get; set; } = "";
 
         // todo: перенести на работу через ImageStorage
         public string ImageBase64 { get; set; } = "";
 
         public string NameImage { get; set; } = "";
 
-        public int Nomer { get; set; }
+        public int Number { get; set; }
 
         public List<DiagramShagToolsComponent> ListDiagramShagToolsComponent { get; set; } = new List<DiagramShagToolsComponent>();
 
