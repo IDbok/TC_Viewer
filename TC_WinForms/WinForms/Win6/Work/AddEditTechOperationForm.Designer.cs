@@ -556,7 +556,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			// tabPageTool
 			// 
-			tabPageTool.Controls.Add(tlpnlTools);
+			//tabPageTool.Controls.Add(tlpnlTools);
 			tabPageTool.Location = new Point(4, 29);
 			tabPageTool.Margin = new Padding(3, 2, 3, 2);
 			tabPageTool.Name = "tabPageTool";
@@ -756,7 +756,6 @@ namespace TC_WinForms.WinForms.Work
 			textBoxPoiskInstrument.Name = "textBoxPoiskInstrument";
 			textBoxPoiskInstrument.Size = new Size(257, 27);
 			textBoxPoiskInstrument.TabIndex = 0;
-			textBoxPoiskInstrument.TextChanged += textBoxPoiskInstrument_TextChanged;
 			// 
 			// groupBox3
 			// 
