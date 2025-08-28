@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using SerilogTimings;
+using SerilogTimings.Extensions;
 using System.Data;
 using System.Diagnostics;
 using System.Text;
@@ -18,16 +20,14 @@ using TcModels.Models.Interfaces;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
 using TcModels.Models.TcContent.Work;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TC_WinForms.WinForms.Work;
 
 public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IOnActivationForm, IFormWithObjectId
 {
-    private readonly Stopwatch _dataLoadSw = new Stopwatch(); // общее время TechOperationForm_Load
-    
-    private readonly Stopwatch _gridSw = new Stopwatch();  // общее время UpdateGrid()
-    private readonly Stopwatch _paintSw = new Stopwatch();  // от завершения UpdateGrid до первого Paint
-    private volatile bool _awaitingFirstPaint;               // флажок ожидания первой отрисовки
+    private Operation? _firstPaintOp;
+    private volatile bool _awaitingFirstPaint;// флажок ожидания первой отрисовки
 
     private ILogger _logger;
 
@@ -107,8 +107,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     public void RefreshPictureNameColumn()
     {
-        var sw = Stopwatch.StartNew();
         int updated = 0;
+        using var op = _logger.BeginOperation("RefreshPictureNameColumn: {Updated}/{Rows}"
+            ,updated, dgvMain.Rows.Count);
 
         for (int rowIndex = 0; rowIndex < dgvMain.Rows.Count; rowIndex++)
         {
@@ -119,9 +120,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             }
         }
 
-        sw.Stop();
-        _logger.Debug("RefreshPictureNameColumn: {Updated}/{Rows} строк за {ms} мс.",
-                      updated, dgvMain.Rows.Count, sw.ElapsedMilliseconds);
+        op.Complete();
     }
 
     private void DgvMain_CellContentDoubleClick(object? sender, DataGridViewCellEventArgs e)
@@ -146,7 +145,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
     private void TechOperationForm_Load(object sender, EventArgs e)
     {
-        _dataLoadSw.Restart();
+        using var op = _logger.BeginOperation("TechOperationForm_Load");
 
         // Блокировка формы на время загрузки данных
         this.Enabled = false;
@@ -162,10 +161,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 
         this.Enabled = true;
 
-        _dataLoadSw.Stop();
-        _logger.Information(
-            "Форма готова: загрузка данных и первичное построение заняли {ms} мс. Rows={Rows}, Cols={Cols}.",
-            _dataLoadSw.ElapsedMilliseconds, dgvMain.Rows.Count, dgvMain.Columns.Count);
+        op.Complete("Rows", dgvMain.Rows.Count);
     }
 
 	/// <summary>
@@ -2040,37 +2036,26 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     public void UpdateGrid()
     {
-		// todo: лишнее обновление грида при первой загрузки странички редактирования
-		_logger.Debug("Начато обновление грида (UpdateGrid).");
-        _gridSw.Restart();
+        // todo: лишнее обновление грида при первой загрузки странички редактирования
+        using var op = _logger.BeginOperation("UpdateGrid Rows={Rows} Cols={Cols}",
+            dgvMain.Rows.Count, dgvMain.Columns.Count);
 
         try // временная заглушка от ошибки возникающей при переключении на другую форму в процессе загрузки данных
         {
             var offScroll = dgvMain.FirstDisplayedScrollingRowIndex;
 
-            var step = Stopwatch.StartNew();
             HandleColumnWidths();
-            _logger.Debug("HandleColumnWidths(save) заняло {ms} мс.", step.ElapsedMilliseconds);
 
-            step.Restart();
-            ClearAndInitializeGrid();
-            _logger.Debug("ClearAndInitializeGrid заняло {ms} мс.", step.ElapsedMilliseconds);
+            using (_logger.TimeOperation("ClearAndInitializeGrid"))
+                ClearAndInitializeGrid();
 
-            step.Restart();
             SetCommentViewMode();
-            _logger.Debug("SetCommentViewMode заняло {ms} мс.", step.ElapsedMilliseconds);
-
-            step.Restart();
+ 
             PopulateDataGrid();
-            _logger.Debug("PopulateDataGrid заняло {ms} мс.", step.ElapsedMilliseconds);
 
-            step.Restart();
             SetMachineViewMode();
-            _logger.Debug("SetMachineViewMode заняло {ms} мс.", step.ElapsedMilliseconds);
 
-            step.Restart();
             HandleColumnWidths(isSaveMode: false);
-            _logger.Debug("HandleColumnWidths(restore) заняло {ms} мс.", step.ElapsedMilliseconds);
 
             if (offScroll < dgvMain.Rows.Count && offScroll > 0)
                 dgvMain.FirstDisplayedScrollingRowIndex = offScroll;
@@ -2084,20 +2069,17 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             }
 
 			_logger.Debug("Грид обновлён успешно (UpdateGrid завершён).");
-		}
+
+            _awaitingFirstPaint = true;
+            op.Complete();
+            _firstPaintOp?.Cancel();
+            _firstPaintOp = _logger.BeginOperation("First paint after UpdateGrid");
+
+        }
         catch (Exception ex)
 		{
 			_logger.Error(ex, "Ошибка при обновлении грида (UpdateGrid).");
 		}
-        finally
-        {
-            _gridSw.Stop();
-            _logger.Information("UpdateGrid занял {ElapsedMs} мс.", _gridSw.ElapsedMilliseconds);
-
-            // Готовимся замерить «чистое» время до первого Paint
-            _awaitingFirstPaint = true;
-            _paintSw.Restart();
-        }
     }
 
     /// <summary>
@@ -2210,24 +2192,22 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     /// </summary>
     private void PopulateDataGrid()
     {
-		_logger.Debug("Заполняем DataGridView данными (PopulateDataGrid).");
+        using var op = _logger.BeginOperation("PopulateDataGrid");
 
 		var techOperationWorksListLocal = 
             TechOperationWorksList.Where(w => !w.Delete).OrderBy(o => o.Order).ToList();
         _logger.Debug("Найдено {Count} TechOperationWorks для вывода.", techOperationWorksListLocal.Count);
 
-        var mapSw = Stopwatch.StartNew();
-        TechOperationDataGridItems = CreateToGridItemService
-            .PopulateTechOperationDataGridItems(techOperationWorksListLocal, TehCarta.Machine_TCs);
-        mapSw.Stop();
-        _logger.Debug("Маппинг в TechOperationDataGridItems занял {ms} мс. Items={Count}",
-                      mapSw.ElapsedMilliseconds, TechOperationDataGridItems.Count);
+        using(_logger.TimeOperation("Mapping to TechOperationDataGridItems"))
+        {
+            TechOperationDataGridItems = CreateToGridItemService
+                .PopulateTechOperationDataGridItems(techOperationWorksListLocal, TehCarta.Machine_TCs);
+        }
 
         AddRowsToGrid();
 
-		_logger.Debug("PopulateDataGrid завершён. Итоговое число строк для отображения: {RowCount}",
-				 TechOperationDataGridItems.Count);
-	}
+        op.Complete("RowCount", TechOperationDataGridItems.Count);
+    }
 
     /// <summary>
     /// Перерисовывает ячейку PictureNameColumn в указанной строке.
@@ -2337,13 +2317,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         int total = TechOperationDataGridItems.Count;
         if (total == 0) return;
 
-        int nextReport = 10; // %
-        int reportStep = 10;
-        int i = 0;
-        var sw = Stopwatch.StartNew();
-        var swrows = Stopwatch.StartNew();
+        using var op = _logger.BeginOperation("AddRowsToGrid TotalItems={Total}", total);
+        using var dataPrepareOp = _logger.BeginOperation("Prepare data for rows");
 
-        var swDataPrepare = Stopwatch.StartNew();
         var toIds = TechOperationDataGridItems.Select(i => i.IdTO).Distinct().ToList();
         _toReleased = context.Set<TechOperation>()
             .AsNoTracking()
@@ -2363,34 +2339,18 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             .Where(tc => repeatTcIds.Contains(tc.Id))
             .Select(tc => new { tc.Id, tc.Article })
             .ToDictionary(x => x.Id, x => x.Article);
-        swDataPrepare.Stop();
-        _logger.Debug("Подготовка данных для добавления строк заняла {ms} мс. TOs={Count}, TC Articles={TCCount}",
-                            swDataPrepare.ElapsedMilliseconds, toIds.Count, _tcArticleById.Count);
+
+        dataPrepareOp.Complete("TOCount", toIds.Count);
 
         var rows = new List<DataGridViewRow>(TechOperationDataGridItems.Count);
         foreach (var item in TechOperationDataGridItems)
         {
-            i++;
-
             Color? c1, c2, c3;
             DetectCellColors(item, out c1, out c2, out c3);
 
             // Собираем строку (без вставки в грид)
             var row = BuildRow(item, c1, c2, c3);
             rows.Add(row);
-
-            if (total >= 40)
-            {
-                int percent = (int)((long)i * 100 / total);
-                if (percent >= nextReport)
-                {
-
-                    _logger.Debug("Добавление строк: {Percent}% ({Done}/{Total}) заняло {ms}", percent, i, total,
-                                    swrows.ElapsedMilliseconds);
-                    nextReport += reportStep;
-                    swrows.Restart();
-                }
-            }
         }
 
         dgvMain.SuspendLayout();
@@ -2404,10 +2364,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             dgvMain.ResumeLayout();
         }
 
-        swrows.Stop();
-        sw.Stop();
-        _logger.Information("Добавление всех строк завершено за {ms} мс. Всего: {Total}",
-                            sw.ElapsedMilliseconds, total);
+        op.Complete("AddedRows", rows.Count);
 
         void DetectCellColors(TechOperationDataGridItem item, out Color? c1, out Color? c2, out Color? c3)
         {
@@ -2834,10 +2791,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
         if (_awaitingFirstPaint)
         {
             _awaitingFirstPaint = false;
-            _paintSw.Stop();
-            _logger.Information(
-                "Первая отрисовка таблицы завершена за {ElapsedMs} мс. Rows={Rows}, Cols={Cols}.",
-                _paintSw.ElapsedMilliseconds, dgvMain.Rows.Count, dgvMain.Columns.Count);
+
+            _firstPaintOp?.Complete();
         }
     }
 
