@@ -239,7 +239,8 @@ namespace TC_WinForms.WinForms
         }
         public void SetViewMode(bool? isViewMode = null)
         {
-            if (concurrencyBlockServise.GetObjectUsedStatus())
+            var usedStatus = concurrencyBlockServise.GetObjectUsedStatus();
+            if (usedStatus)
             {
                 tcViewState.IsViewMode = true;
                 TcWasBlocked = true;
@@ -261,6 +262,8 @@ namespace TC_WinForms.WinForms
                         concurrencyBlockServise.BlockObject();
                 }
             }
+            else if(isViewMode == null && !usedStatus)
+                concurrencyBlockServise.BlockObject();
 
             SaveChangesToolStripMenuItem.Visible = !tcViewState.IsViewMode;
 
@@ -479,10 +482,8 @@ namespace TC_WinForms.WinForms
 
                 _tc = tcViewState.TechnologicalCard;
 
-                if (!concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
-                {
-                    concurrencyBlockServise.BlockObject();
-                }
+                if (concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
+                    MessageBox.Show("Данная карта сейчас редактируется другим пользователем, ТК открыта в режиме просмотра");
 
                 using (_logger.TimeOperation("UI init/access"))
                 {
@@ -493,9 +494,6 @@ namespace TC_WinForms.WinForms
                     SetViewMode();
                     UpdateDynamicCardParametrs();
                 }
-
-                if (concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
-                    MessageBox.Show("Данная карта сейчас редактируется другим пользователем, ТК открыта в режиме просмотра");
 
                 await ShowForm(startOpenForm);
 

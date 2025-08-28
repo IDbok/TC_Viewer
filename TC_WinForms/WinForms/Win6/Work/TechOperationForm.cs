@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Text;
 using TC_WinForms.DataProcessing;
+using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
@@ -28,10 +29,16 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 {
     private Operation? _firstPaintOp;
     private volatile bool _awaitingFirstPaint;// флажок ожидания первой отрисовки
+    
+    private struct FormattedLine
+    {
+        public string Text { get; set; }
+        public bool IsBold { get; set; }
+    }
 
     private ILogger _logger;
 
-	private readonly TcViewState _tcViewState;
+	  private readonly TcViewState _tcViewState;
     private MainGridColumns _gridColumns;
 
     private bool _isMachineViewMode;
@@ -64,6 +71,8 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 		_logger.Information("Инициализация формы.");
 
 		InitializeComponent();
+
+        dgvMain.DoubleBuffered(true);
 
         dgvMain.CellPainting += DgvMain_CellPainting;
         dgvMain.CellFormatting += DgvMain_CellFormatting;
@@ -2063,22 +2072,23 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             var bsForm = CheckOpenFormService.FindOpenedForm<DiagramForm>(_tcId);
             if (bsForm != null)
             {
-				_logger.Debug("Обновляем DiagramForm открытое в оконном режиме (UpdateVisualData).");
-				bsForm.UpdateVisualData();
+                _logger.Debug("Обновляем DiagramForm открытое в оконном режиме (UpdateVisualData).");
+                bsForm.UpdateVisualData();
             }
 
-			_logger.Debug("Грид обновлён успешно (UpdateGrid завершён).");
+            // dgvMain.ResizeRows(20);
 
+            _logger.Debug("Грид обновлён успешно (UpdateGrid завершён).");
+            
             _awaitingFirstPaint = true;
             op.Complete("Rows",dgvMain.Rows.Count);
             _firstPaintOp?.Cancel();
             _firstPaintOp = _logger.BeginOperation("First paint after UpdateGrid");
-
-        }
+		    }
         catch (Exception ex)
-		{
-			_logger.Error(ex, "Ошибка при обновлении грида (UpdateGrid).");
-		}
+        {
+          _logger.Error(ex, "Ошибка при обновлении грида (UpdateGrid).");
+        }
     }
 
     /// <summary>
@@ -2150,6 +2160,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 i++;
             }
 
+
             dgvMain.AddColumn("Protection", "№ СЗ", fillWeigth: 50, minWidth: 50);
             dgvMain.AddColumn("CommentColumn", "Примечание", fillWeigth: 140, minWidth: 140);
             dgvMain.AddColumn("PictureNameColumn", "Рис.", fillWeigth: 140, minWidth: 140);
@@ -2159,6 +2170,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             dgvMain.AddColumn("ResponseColumn", "Ответ", resizable: DataGridViewTriState.True,
                 fillWeigth: 300, minWidth: 200,
                 role: ColumnRole.Remarks);
+
 
             // Захватываем ссылки на колонки для дальнейшего кода
             _gridColumns = MainGridColumns.Capture(dgvMain);
@@ -2173,6 +2185,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             _gridColumns.TechTransitionName.Frozen = true;
 
             dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
+
             dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 
             _logger.Debug("DataGridView инициализирован: {ColumnCount} столбцов.",
@@ -2183,7 +2196,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             _logger.Error(ex, "Ошибка при очистке и инициализации DataGridView (ClearAndInitializeGrid).");
             throw new Exception("Ошибка при очистке и инициализации DataGridView.", ex);
         }
+
         finally { dgvMain.ResumeLayout(); }        
+
 	}
 
     /// <summary>
@@ -2744,7 +2759,9 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single;
         }
 
+
         if ( col == _gridColumns.EtapValue || col.IsRole(ColumnRole.TimeOfMechanism)) //e.ColumnIndex >= 6)//
+
         {
             if ((e.Value as string) == "-1")
             {
@@ -2752,6 +2769,53 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
             }
         }
 
+        // Логика для колонки "Примечание" (CommentColumn)
+        if (col == _gridColumns.Comment)
+        {
+            string cellText = e.Value?.ToString() ?? string.Empty;
+
+            // Если текст содержит нужные фразы, рисуем вручную
+            if (cellText.Contains("Дополнение:", StringComparison.OrdinalIgnoreCase) ||
+                cellText.Contains("ВАЖНО:", StringComparison.OrdinalIgnoreCase))
+            {
+                // Фон ячейки
+                e.PaintBackground(e.CellBounds, true);
+
+                // Получаем базовый шрифт
+                Font baseFont = e.CellStyle.Font ?? dgvMain.DefaultCellStyle.Font ?? SystemFonts.DefaultFont;
+                using (Font boldFont = new Font(baseFont.FontFamily, baseFont.Size, FontStyle.Bold))
+                using (Brush textBrush = new SolidBrush(e.CellStyle.ForeColor))
+                using (StringFormat format = new StringFormat
+                {
+                    Alignment = StringAlignment.Near, // Выравнивание по левому краю
+                    LineAlignment = StringAlignment.Near,
+                    Trimming = StringTrimming.Word,
+                    FormatFlags = StringFormatFlags.LineLimit
+                })
+                {
+                    // Разбиваем текст на строки
+                    List<FormattedLine> lines = SplitTextIntoLines(e.Graphics, cellText, baseFont, boldFont, e.CellBounds.Width);
+
+                    // Рисуем и вычисляем высоту
+                    float requiredHeight;
+                    DrawSplitLines(e.Graphics, e.CellBounds, lines, baseFont, boldFont, textBrush, format, out requiredHeight);
+
+                    // Обновляем высоту строки
+                    if (e.RowIndex >= 0)
+                    {
+                        int newHeight = (int)Math.Ceiling(requiredHeight);
+                        if (dgvMain.Rows[e.RowIndex].Height < newHeight)
+                        {
+                            dgvMain.Rows[e.RowIndex].Height = newHeight;
+                            dgvMain.InvalidateRow(e.RowIndex); // Принудительная перерисовка
+                        }
+                    }
+                }
+
+                // Не рисуем стандартный текст
+                e.Handled = true;
+            }
+        }
     }
 
     /// <summary>
@@ -3529,5 +3593,108 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     public int GetObjectId()
     {
         return _tcId;
+    }
+
+
+    // Метод для разбиения текста на строки с учетом ширины ячейки
+    private List<FormattedLine> SplitTextIntoLines(Graphics graphics, string text, Font baseFont, Font boldFont, float availableWidth)
+    {
+        List<FormattedLine> lines = new List<FormattedLine>();
+        if (string.IsNullOrEmpty(text)) return lines;
+
+        // Фразы для выделения
+        string[] phrases = { "Дополнение:", "ВАЖНО:" };
+
+        // Разбиваем текст по ручному переносу (\n)
+        string[] rawLines = text.Split(new[] { '\n' }, StringSplitOptions.None);
+        foreach (string rawLine in rawLines)
+        {
+            string currentLine = rawLine.Trim();
+            if (string.IsNullOrEmpty(currentLine)) continue;
+
+            // Разбиваем на слова
+            string[] words = currentLine.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string currentWordLine = string.Empty;
+            int wordIndex = 0;
+
+            while (wordIndex < words.Length)
+            {
+                string word = words[wordIndex];
+                string testLine = string.IsNullOrEmpty(currentWordLine) ? word : currentWordLine + " " + word;
+                SizeF testSize = graphics.MeasureString(testLine, baseFont, (int)availableWidth - 6);
+
+                // Проверяем, не начинается ли текущая строка с фразы
+                bool isPhraseFound = false;
+                foreach (var phrase in phrases)
+                {
+                    int phraseWordCount = phrase.Split(' ').Length;
+                    if (wordIndex + phraseWordCount - 1 < words.Length)
+                    {
+                        string potentialPhrase = string.Join(" ", words, wordIndex, phraseWordCount);
+                        if (potentialPhrase.Equals(phrase, StringComparison.OrdinalIgnoreCase))
+                        {
+                            isPhraseFound = true;
+                            // Добавляем текущую строку, если она есть
+                            if (!string.IsNullOrEmpty(currentWordLine))
+                            {
+                                lines.Add(new FormattedLine { Text = currentWordLine, IsBold = false });
+                            }
+                            // Добавляем фразу как отдельную строку
+                            lines.Add(new FormattedLine { Text = phrase, IsBold = true });
+                            wordIndex += phraseWordCount - 1; // Пропускаем слова фразы
+                            currentWordLine = string.Empty;
+                            break;
+                        }
+                    }
+                }
+
+                if (!isPhraseFound && testSize.Width <= availableWidth - 6)
+                {
+                    currentWordLine = testLine;
+                }
+                else if (!isPhraseFound)
+                {
+                    // Добавляем текущую подстроку
+                    if (!string.IsNullOrEmpty(currentWordLine))
+                    {
+                        lines.Add(new FormattedLine { Text = currentWordLine, IsBold = false });
+                    }
+                    currentWordLine = word; // Начинаем новую подстроку
+                }
+
+                wordIndex++;
+            }
+
+            // Добавляем остаток последней подстроки
+            if (!string.IsNullOrEmpty(currentWordLine))
+            {
+                lines.Add(new FormattedLine { Text = currentWordLine, IsBold = false });
+            }
+        }
+
+        return lines;
+    }
+    // Метод для отрисовки разбитых строк и вычисления высоты
+    private float DrawSplitLines(Graphics graphics, System.Drawing.Rectangle cellBounds, List<FormattedLine> lines, Font baseFont, Font boldFont, Brush textBrush, StringFormat format, out float requiredHeight)
+    {
+        requiredHeight = 0;
+        float currentY = cellBounds.Y + 3; // Отступ сверху
+
+        foreach (var line in lines)
+        {
+            Font font = line.IsBold ? boldFont : baseFont;
+            SizeF textSize = graphics.MeasureString(line.Text, font, cellBounds.Width - 6, format);
+
+            // Рисуем строку с выравниванием по левому краю
+            graphics.DrawString(line.Text, font, textBrush, new RectangleF(cellBounds.X + 3, currentY, cellBounds.Width - 6, textSize.Height), format);
+
+            // Обновляем позицию и высоту
+            currentY += textSize.Height;
+            requiredHeight += textSize.Height;
+        }
+
+        // Добавляем запас
+        requiredHeight += 6; // Для границ и интервала
+        return requiredHeight;
     }
 }
