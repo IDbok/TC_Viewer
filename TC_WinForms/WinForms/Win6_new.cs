@@ -244,6 +244,7 @@ namespace TC_WinForms.WinForms
             {
                 tcViewState.IsViewMode = true;
                 TcWasBlocked = true;
+                MessageBox.Show("Сейчас карта используется другим пользователем. Она доступна только для просмотра.");
             }
             else if (isViewMode != null && tcViewState.IsViewMode != isViewMode)
             {
