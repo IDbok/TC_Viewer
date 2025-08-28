@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using Nancy.Validation.Rules;
 using Serilog;
-using System.Windows.Forms.Integration;
+using Serilog.Context;
+using SerilogTimings;
+using SerilogTimings.Extensions;
+using System.Diagnostics;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.DataProcessing.Helpers;
 using TC_WinForms.ExceptionHandler;
@@ -29,11 +31,12 @@ namespace TC_WinForms.WinForms
 {// todo: загрузить данные о переходах из других ТК
     public partial class Win6_new : Form, IViewModeable, IFormWithObjectId
     {
+        private volatile bool _awaitingFirstVisual; // ждём первый Paint контента
+        private Operation? _firstVisualOp;
+
         private readonly ILogger _logger;
+
         private TcViewState tcViewState;
-        private Timer? AutosaveTimer;
-        private bool isFormAutosave = false;
-        private int TimerInterval = 1000 * 60 * 25;//интервал работы таймера в милисекундах(25 минут)
         public readonly Guid FormGuid; // создан для проверки работы с одинаковым контекстом
         private ConcurrencyBlockService<TechnologicalCard> concurrencyBlockServise;
         private EModelType startOpenForm = EModelType.WorkStep;
@@ -83,7 +86,10 @@ namespace TC_WinForms.WinForms
         private bool TcWasBlocked = false;
         private bool OptimicticError = false;
         private int timerInterval = 1000 * 60 * 14;//миллисекунды * секунды * минуты
-        
+        // todo: зачем нам несколько одинаково называющихся таймеров?
+        private Timer? AutosaveTimer;
+        private bool isFormAutosave = false;
+        private int TimerInterval = 1000 * 60 * 25;//интервал работы таймера в милисекундах(25 минут)
 
         public Win6_new(int tcId, User.Role role = User.Role.Lead, bool viewMode = false, EModelType startForm = EModelType.WorkStep)
         {
@@ -95,12 +101,15 @@ namespace TC_WinForms.WinForms
             concurrencyBlockServise = new ConcurrencyBlockService<TechnologicalCard>(_tc.GetType().Name, _tcId, timerInterval);
 
             _logger = Log.Logger.ForContext<Win6_new>();
-            _logger.Information("Инициализация Win6_new: TcId={TcId}, Role={Role}, ViewMode={ViewMode}", tcId, role, viewMode);
+            // todo: редализовать добавленеи id ТК в качестве контекста .ForContext("TcId",tcId); + добавить FormGuid?
+            _logger.Information("Инициализация Win6_new: Role={Role}, ViewMode={ViewMode}", role, viewMode);
 
             tcViewState = new TcViewState(role, this);
             tcViewState.IsViewMode = viewMode;
 
             InitializeComponent();
+            pnlDataViewer.Paint += PnlDataViewer_Paint; // замер «первого кадра» на экране
+
 
             this.KeyDown += ControlSaveEvent;
 
@@ -432,61 +441,80 @@ namespace TC_WinForms.WinForms
 
         private async Task SetTcViewStateData()
         {
-
+            using var op = _logger.BeginOperation("DB: загрузка TcViewState (TcId={TcId})", _tcId);
             try
             {
-                var rep = new TechnologicalCardRepository();
-
-                tcViewState.TechnologicalCard = await rep.GetTCDataAsync(_tcId, context) ?? throw new Exception("Не получилось загрузить данные ТК.");
-                tcViewState.TechOperationWorksList = tcViewState.TechnologicalCard.TechOperationWorks;
-                tcViewState.DiagramToWorkList = await rep.GetDTWDataAsync(_tcId, context);
+                using (LogContext.PushProperty("TcId", _tcId))
+                using (LogContext.PushProperty("FormGuid", FormGuid))
+                {
+                    var rep = new TechnologicalCardRepository();
+                    _logger.Information("DB: старт загрузки данных");
+                    tcViewState.TechnologicalCard = await rep.GetTCDataAsync(_tcId, context)
+                        ?? throw new Exception("Не получилось загрузить данные ТК.");
+                    tcViewState.TechOperationWorksList = tcViewState.TechnologicalCard.TechOperationWorks;
+                    tcViewState.DiagramToWorkList = await rep.GetDTWDataAsync(_tcId, context);
+                    _logger.Information("DB: загрузка данных завершена");
+                }
 
                 _logger.Information("Данные для TcViewState успешно загружены для TcId={TcId}", _tcId);
+                op.Complete();
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Ошибка при загрузке данных для TcViewState для TcId={TcId}", _tcId);
                 throw;
             }
-
         }
         #endregion
 
         private async void Win6_new_Load(object sender, EventArgs e)
         {
+            using var loadOp = _logger.BeginOperation("Win6_new_Load: полная загрузка (TcId={TcId})", _tcId);
             _logger.Information("Загрузка формы Win6_new для TcId={TcId}", _tcId);
+
             try
             {
                 // Блокировка формы при загрузки данных
                 this.Enabled = false;
 
-                await SetTcViewStateData();
+                using (_logger.TimeOperation("SetTcViewStateData"))
+                    await SetTcViewStateData();
+
                 _tc = tcViewState.TechnologicalCard;
 
-                SetTagsToButtons();
-                AccessInitialization();
-                SetTCStatusAccess();
-                UpdateFormTitle();
+                if (concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
+                    MessageBox.Show("Данная карта сейчас редактируется другим пользователем, ТК открыта в режиме просмотра");
 
-                SetViewMode();
-                UpdateDynamicCardParametrs();
+                using (_logger.TimeOperation("UI init/access"))
+                {
+                    SetTagsToButtons();
+                    AccessInitialization();
+                    SetTCStatusAccess();
+                    UpdateFormTitle();
+                    SetViewMode();
+                    UpdateDynamicCardParametrs();
+                }
 
                 await ShowForm(startOpenForm);
 
-                _logger.Information("Форма загружена успешно для TcId={TcId}", _tcId);
+                _awaitingFirstVisual = true;
+                _firstVisualOp?.Cancel();
+                _firstVisualOp = _logger.BeginOperation("First visual after load");
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Ошибка при загрузке данных формы для TcId={TcId}", _tcId);
                 MessageBox.Show(ex.Message);
                 this.Close();
+                return;
             }
             finally
             {
-                if (this != null && !this.IsDisposed && this.IsHandleCreated) // Проверяем, что форма не уничтожена
-                {
+                if (this != null && !this.IsDisposed && this.IsHandleCreated) { // Проверяем, что форма не уничтожена
                     this.Enabled = true;
                 }
+
+                loadOp.Complete();
             }
         }
         private void UpdateFormTitle()
@@ -537,6 +565,7 @@ namespace TC_WinForms.WinForms
         }
         private async Task ShowForm(EModelType modelType)
         {
+            using var totalOp = _logger.BeginOperation("ShowForm {ModelType} (TcId={TcId})", modelType, _tcId);
             _logger.Information("Загрузка формы ModelType={ModelType} для TcId={TcId}",
                 modelType, _tcId);
 
@@ -550,6 +579,8 @@ namespace TC_WinForms.WinForms
             {
                 // Блокировка формы при переключении
                 this.Enabled = false;
+
+                var evictSw = Stopwatch.StartNew();
                 bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep
                                                 || _activeModelType == EModelType.Diagram || modelType == EModelType.Diagram
                                                 || _activeModelType == EModelType.Outlay || modelType == EModelType.Outlay;
@@ -559,21 +590,21 @@ namespace TC_WinForms.WinForms
 
                 if (isSwitchingFromOrToWorkStep)
                 {
-                    // Удаляем формы из кеша для их обновления при следующем доступе
-                    foreach (var formKey in _formsCache.Keys.ToList())
+                    using (_logger.TimeOperation("Evict forms cache"))
                     {
-                        if (_formsCache[formKey] != null)
+                        // Удаляем формы из кеша для их обновления при следующем доступе
+                        foreach (var formKey in _formsCache.Keys.ToList())
                         {
+                            if (_formsCache[formKey] == null)
+                                continue;
+
                             if (areDiagramInWindow && formKey == EModelType.Diagram)
                                 continue;
 
                             _formsCache[formKey].Close();
                             _formsCache.Remove(formKey);
-                            //_formsCache[formKey].Dispose();
                         }
                     }
-
-                    //_formsCache.Clear(); // Очищаем кеш
                 }
 
                 if (!_formsCache.TryGetValue(modelType, out var form))
@@ -582,26 +613,25 @@ namespace TC_WinForms.WinForms
                     _formsCache[modelType] = form;
                 }
 
-                if (form is IOnActivationForm baseForm)
+                using (_logger.TimeOperation("OnActivate {ModelType}", modelType))
                 {
-                    baseForm.OnActivate();
+                    if (_formsCache[modelType] is IOnActivationForm baseForm)
+                        baseForm.OnActivate();
                 }
 
+                using (_logger.TimeOperation("SwitchActiveForm {ModelType}", modelType))
+                {
+                    SwitchActiveForm(_formsCache[modelType]);
+                }
 
-                SwitchActiveForm(form);
                 _activeModelType = modelType;
-
-                if (form is TechOperationForm techForm)
-                {
-                    //techForm.UpdateGrid(); // todo: кажется бесполезный участок, тк данные обновляются при загрузке формы
-                }
-                else if (form is DiagramForm digramForm)
+                if (form is DiagramForm digramForm)
                     digramForm.Update();
 
                 UpdateButtonsState(modelType);
 
-                _logger.Information("Форма ModelType={ModelType} успешно активирована для TcId={TcId}",
-                    modelType, _tcId);
+                _logger.Information("Форма ModelType={ModelType} успешно активирована для TcId={TcId}", modelType, _tcId);
+                totalOp.Complete();
             }
             catch (Exception ex)
             {
@@ -1454,6 +1484,16 @@ namespace TC_WinForms.WinForms
         {
             SaveAllChanges();
         }
+
+        private void PnlDataViewer_Paint(object? sender, PaintEventArgs e)
+        {
+            if (_awaitingFirstVisual)
+            {
+                _awaitingFirstVisual = false;
+                _firstVisualOp?.Complete();
+            }
+        }
+
     }
 
 }

@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using System.Diagnostics;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -9,17 +11,17 @@ namespace TcDbConnector.Repositories;
 public class TechnologicalCardRepository
 {
     private readonly MyDbContext _db;
-    //private readonly ILogger<TechnologicalCardRepository> _logger;
+    private readonly ILogger _logger;
 
-    public TechnologicalCardRepository(MyDbContext dbConnection)//, ILogger<TechnologicalCardRepository> logger)
+    public TechnologicalCardRepository(MyDbContext dbConnection)
     {
         _db = dbConnection;
-        //_logger = logger;
+        _logger = Log.Logger.ForContext<TechnologicalCardRepository>();
     }
-    public TechnologicalCardRepository()//, ILogger<TechnologicalCardRepository> logger)
+    public TechnologicalCardRepository()
     {
         _db = new MyDbContext();
-        //_logger = logger;
+        _logger = Log.Logger.ForContext<TechnologicalCardRepository>();
     }
 
     public async Task<List<RoadMapItem>> GetRoadMapItemsDataAsync(List<int> towIds)
@@ -48,33 +50,43 @@ public class TechnologicalCardRepository
         bool isContextLocal = dbCon == null;
         MyDbContext context = dbCon ?? new MyDbContext();
 
+        var sw = Stopwatch.StartNew();
+        long prev = 0; int step = 0; const int total = 21;
+
+        long Lap() { var now = sw.ElapsedMilliseconds; var d = now - prev; prev = now; return d; }
+        void Step(string name, int count) =>
+            _logger.Information("DB[{Step}/{Total}] {Phase}: {Count} записей, +{Lap} мс, всего {Elapsed} мс ({Percent}%)",
+                ++step, total, name, count, Lap(), sw.ElapsedMilliseconds, step * 100 / total);
+
         try
         {
+            _logger.Information("DB загрузка ТК {TcId}: старт ({Total} шагов)", id, total);
             // Загрузка TC и его простых коллекций без Include
             var tc = await context.TechnologicalCards.FirstOrDefaultAsync(t => t.Id == id);
-            if (tc == null)
-                return null;
+            Step("TechnologicalCards", tc is null ? 0 : 1);
+            if (tc == null) return null;
 
-            // Ручная загрузка связанных сущностей пачкой
-            var tcIds = new[] { id };
+            var machineTCs = await context.Machine_TCs.Where(x => x.ParentId == id).Include(t => t.Child).ToListAsync();
+            Step("Machine_TCs", machineTCs.Count);
 
-
-            var machineTCs = await context.Machine_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
-            var protectionTCs = await context.Protection_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
+            var protectionTCs = await context.Protection_TCs.Where(x => x.ParentId == id).Include(t => t.Child).ToListAsync();
+            Step("Protection_TCs", protectionTCs.Count);
 
             var toolTCs = await context.Tool_TCs.Where(x => x.ParentId == id).Include(t => t.Child).ToListAsync();
+            Step("Tool_TCs", toolTCs.Count);
 
             var componentTCs = await context.Component_TCs.Where(x => x.ParentId == id).Include(t => t.Child).ToListAsync();
+            Step("Component_TCs", componentTCs.Count);
 
-            var staffTCs = await context.Staff_TCs.Where(x => tcIds.Contains(x.ParentId)).Include(t => t.Child).ToListAsync();
+            var staffTCs = await context.Staff_TCs.Where(x => x.ParentId == id).Include(t => t.Child).ToListAsync();
+            Step("Staff_TCs", staffTCs.Count);
+
             var coefficients = await context.Coefficients.Where(x => x.TechnologicalCardId == id).ToListAsync();
+            Step("Coefficients", coefficients.Count);
 
-            await context.Entry(tc)
-                        .Collection(t => t.ImageList)
-                        .Query()
-                        .Include(io => io.ImageStorage)
-                        .LoadAsync();
-  
+            await context.Entry(tc).Collection(t => t.ImageList).Query().Include(io => io.ImageStorage).LoadAsync();
+            Step("Images", tc.ImageList?.Count ?? 0);
+
             // Подвязка вручную
             tc.Machine_TCs = machineTCs;
             tc.Protection_TCs = protectionTCs;
@@ -87,23 +99,33 @@ public class TechnologicalCardRepository
             var towList = await context.TechOperationWorks
                 .Where(w => w.TechnologicalCardId == id)
                 .ToListAsync();
+            Step("TechOperationWorks", towList.Count);
 
             var towIds = towList.Select(t => t.Id).ToList();
 
             var techOperations = await context.TechOperations
                                         .Where(op => towList.Select(t => t.techOperationId).Contains(op.Id))
                                         .ToListAsync();
-            var techOps = await context.TechOperationWorks.Where(op => towIds.Contains(op.Id)).ToListAsync(); // если связь по Id, иначе поправим
+            Step("TechOperations", techOperations.Count);
+
+            // todo: кажется, этот кусок кода лишний, т.к. мы уже загрузили TechOperationWorks выше
+            //var techOps = await context.TechOperationWorks.Where(op => towIds.Contains(op.Id)).ToListAsync(); // если связь по Id, иначе поправим
+            
             var toolWorks = await context.ToolWorks.Where(t => towIds.Contains(t.techOperationWorkId)).ToListAsync();
+            Step("ToolWorks", toolWorks.Count);
             var tools = await context.Tools.Where(t => toolWorks.Select(w => w.toolId).Contains(t.Id)).ToListAsync();
+            Step("Tools", tools.Count);
 
             var componentWorks = await context.ComponentWorks.Where(c => towIds.Contains(c.techOperationWorkId)).ToListAsync();
+            Step("ComponentWorks", componentWorks.Count);
             var components = await context.Components.Where(c => componentWorks.Select(w => w.componentId).Contains(c.Id)).ToListAsync();
+            Step("Components", components.Count);
 
             var executionWorks = await context.ExecutionWorks
                                         .Where(e => towIds.Contains(e.techOperationWorkId))
                                         .Include(e => e.ImageList)
                                         .ToListAsync();
+            Step("ExecutionWorks", executionWorks.Count);
 
             var execWorkIds = executionWorks.Select(e => e.Id).ToList();
             var transitionIds = executionWorks.Where(e => e.techTransitionId != null).Select(e => e.techTransitionId!.Value).ToHashSet();
@@ -112,29 +134,34 @@ public class TechnologicalCardRepository
             var transitions = await context.TechTransitions
                 .Where(t => transitionIds.Contains(t.Id))
                 .ToListAsync();
+            Step("TechTransitions", transitions.Count);
 
             var staffs = await context.Staff_TCs
                 .Where(s => s.ParentId == id)
                 .Include(s => s.ExecutionWorks)
                 .Include(s => s.Child)
                 .ToListAsync();
+            Step("Staff_TCs with ExecutionWorks", staffs.Count);
 
             var machines = await context.Machine_TCs
                 .Where(m => m.ParentId == id)
                 .Include(s => s.Child)
                 .Include(m => m.ExecutionWorks)
                 .ToListAsync();
+            Step("Machine_TCs with ExecutionWorks", machines.Count);
 
             var protections = await context.Protection_TCs
                 .Where(p => p.ParentId == id)
                 .Include(s => s.Child)
                 .Include(p => p.ExecutionWorks)
                 .ToListAsync();
+            Step("Protection_TCs with ExecutionWorks", protections.Count);
 
             var repeats = await context.ExecutionWorkRepeats
                 .Where(r => execWorkIds.Contains(r.ParentExecutionWorkId))
                 .Include( r => r.ChildExecutionWork)
                 .ToListAsync();
+            Step("ExecutionWorkRepeats", repeats.Count);
 
             foreach (var tow in towList)
             {
@@ -166,61 +193,62 @@ public class TechnologicalCardRepository
                         return e;
                     }).ToList();
             }
+            Step("Linking TOW children", towList.Count);
 
             tc.TechOperationWorks = towList;
 
+            _logger.Information("DB загрузка ТК {TcId}: ГОТОВО за {Elapsed} мс", id, sw.ElapsedMilliseconds);
             return tc;
         }
         finally
         {
-            if (isContextLocal)
-                context.Dispose();
+            if (isContextLocal) context.Dispose();
         }
     }
 
-    public async Task<TechnologicalCard> GetTCDataAsyncCopy(int _tcId)//метод отличается другой структурой запроса, которая используется только для копирования карты
+    public async Task<TechnologicalCard> GetTCDataAsyncCopy(int tcId)//метод отличается другой структурой запроса, которая используется только для копирования карты
 	{
 		try
 		{
 			using (MyDbContext context = new MyDbContext())
 			{
 				var techCard = await context.TechnologicalCards
-					.FirstAsync(t => t.Id == _tcId);
+					.FirstAsync(t => t.Id == tcId);
 
 
 				// 2. Загружаем все связанные данные отдельными запросами
 
 				// Machine_TCs
 				var machineTcs = await context.Machine_TCs
-					.Where(m => m.ParentId == _tcId)
+					.Where(m => m.ParentId == tcId)
 					.ToListAsync();
 
 				//// Protection_TCs
 				var protectionTcs = await context.Protection_TCs
-					.Where(pt => pt.ParentId == _tcId)
+					.Where(pt => pt.ParentId == tcId)
 					.ToListAsync();
 
 				// Tool_TCs
 				var toolTcs = await context.Tool_TCs
-					.Where(tt => tt.ParentId == _tcId)
+					.Where(tt => tt.ParentId == tcId)
 					.ToListAsync();
 
 				// Component_TCs
 				var componentTcs = await context.Component_TCs
-					.Where(ct => ct.ParentId == _tcId)
+					.Where(ct => ct.ParentId == tcId)
 					.ToListAsync();
 
 				// Staff_TCs
 				var staffTcs = await context.Staff_TCs
-					.Where(st => st.ParentId == _tcId)
+					.Where(st => st.ParentId == tcId)
 					.ToListAsync();
 
 				var coefficients = await context.Coefficients
-					.Where(c => c.TechnologicalCardId == _tcId)
+					.Where(c => c.TechnologicalCardId == tcId)
 					.ToListAsync();
 
                 var images = await context.ImageOwners
-                    .Where(i => i.TechnologicalCardId == _tcId)
+                    .Where(i => i.TechnologicalCardId == tcId)
                     .Include(i => i.ImageStorage).
                     ToListAsync();
 
@@ -237,11 +265,11 @@ public class TechnologicalCardRepository
 		}
 	}
 
-    public async Task<List<TechOperationWork>> GetTOWDataAsync(int _tcId)
+    public async Task<List<TechOperationWork>> GetTOWDataAsync(int tcId)
     {
         using (MyDbContext context = new MyDbContext())
         {
-            var techOperationWorkList = await context.TechOperationWorks.Where(w => w.TechnologicalCardId == _tcId)
+            var techOperationWorkList = await context.TechOperationWorks.Where(w => w.TechnologicalCardId == tcId)
                 .ToListAsync();
 
             //список ID Технологических операций
@@ -269,32 +297,40 @@ public class TechnologicalCardRepository
         }
     }
 
-    public async Task<List<DiagamToWork>> GetDTWDataAsync(int _tcId, MyDbContext dbCon = null)
+    public async Task<List<DiagamToWork>> GetDTWDataAsync(int tcId, MyDbContext dbCon = null)
     {
         bool isContextLocal = dbCon == null;
         MyDbContext context = dbCon ?? new MyDbContext();
 
+        var sw = Stopwatch.StartNew(); long prev = 0; int step = 0; const int total = 4;
+        long Lap() { var now = sw.ElapsedMilliseconds; var d = now - prev; prev = now; return d; }
+        void Step(string name, int count) =>
+            _logger.Information("DB[{Step}/{Total}] {Phase}: {Count} записей, +{Lap} мс, всего {Elapsed} мс ({Percent}%)",
+                ++step, total, name, count, Lap(), sw.ElapsedMilliseconds, step * 100 / total);
+
         try
         {
+            _logger.Information("DB загрузка DTW для ТК {TcId}: старт", tcId);
+
             var diagramToWorkList = await context.DiagamToWork
-                .Where(w => w.technologicalCardId == _tcId)
+                .Where(w => w.technologicalCardId == tcId)
                 .Include(ie => ie.techOperationWork)
                 .ToListAsync();
+            Step("DiagamToWork", diagramToWorkList.Count);
 
             var dtwIds = diagramToWorkList.Select(i => i.Id).ToList();
-
             var listDiagramParalelno = await context.DiagramParalelno
                 .Where(p => dtwIds.Contains(p.DiagamToWorkId))
                 .ToListAsync();
+            Step("DiagramParalelno", listDiagramParalelno.Count);
 
             var dpIds = listDiagramParalelno.Select(p => p.Id).ToList();
-
             var listDiagramPosledov = await context.DiagramPosledov
                 .Where(p => dpIds.Contains(p.DiagramParalelnoId))
                 .ToListAsync();
+            Step("DiagramPosledov", listDiagramPosledov.Count);
 
             var dposIds = listDiagramPosledov.Select(p => p.Id).ToList();
-
             var listDiagramShag = await context.DiagramShag
                 .Where(d => dposIds.Contains(d.DiagramPosledovId))
                 .Include(q => q.ListDiagramShagToolsComponent)
@@ -304,17 +340,16 @@ public class TechnologicalCardRepository
                 .Include(s => s.ImageList)
                     .ThenInclude(i => i.ImageStorage)
                 .ToListAsync();
+            Step("DiagramShag", listDiagramShag.Count);
 
             // Привязку к diagramToWork можно сделать тут при необходимости
 
+            _logger.Information("DB загрузка DTW для ТК {TcId}: ГОТОВО за {Elapsed} мс", tcId, sw.ElapsedMilliseconds);
             return diagramToWorkList;
         }
         finally
         {
-            if (isContextLocal)
-            {
-                context.Dispose();
-            }
+            if (isContextLocal) context.Dispose();
         }
     }
 
