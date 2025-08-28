@@ -2076,8 +2076,6 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
                 bsForm.UpdateVisualData();
             }
 
-            // dgvMain.ResizeRows(20);
-
             _logger.Debug("Грид обновлён успешно (UpdateGrid завершён).");
             
             _awaitingFirstPaint = true;

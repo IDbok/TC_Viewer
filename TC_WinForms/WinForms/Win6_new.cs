@@ -40,8 +40,7 @@ namespace TC_WinForms.WinForms
         public readonly Guid FormGuid; // создан для проверки работы с одинаковым контекстом
         private ConcurrencyBlockService<TechnologicalCard> concurrencyBlockServise;
         private EModelType startOpenForm = EModelType.WorkStep;
-        //private static bool _isViewMode = true;
-        //private static bool _isCommentViewMode = false;
+
         private static bool _isMachineCollumnViewMode = true;
         public static bool isMachineViewMode
         {
@@ -64,18 +63,12 @@ namespace TC_WinForms.WinForms
         {
             CommentViewModeChanged?.Invoke();
         }
-        private static void OnViewModeChanged()
-        {
-            ViewModeChanged?.Invoke();
-        }
 
         private User.Role _accessLevel;
 
         private Dictionary<EModelType, Form> _formsCache = new Dictionary<EModelType, Form>();
         private EModelType? _activeModelType = null;
         private Form _activeForm = null;
-
-        //TechOperationForm techOperationForm;
 
         EModelType? activeModelType = null;
         private TechnologicalCard _tc = new TechnologicalCard();
@@ -109,7 +102,6 @@ namespace TC_WinForms.WinForms
 
             InitializeComponent();
             pnlDataViewer.Paint += PnlDataViewer_Paint; // замер «первого кадра» на экране
-
 
             this.KeyDown += ControlSaveEvent;
 
@@ -233,10 +225,12 @@ namespace TC_WinForms.WinForms
             action?.Invoke();
 
         }
+
         public int GetObjectId()
         {
             return _tcId;
         }
+
         public void SetViewMode(bool? isViewMode = null)
         {
             var usedStatus = concurrencyBlockServise.GetObjectUsedStatus();
@@ -294,152 +288,6 @@ namespace TC_WinForms.WinForms
 
         #region SetTcData
 
-        private async Task<TechnologicalCard> GetTCDataAsync() // зачем остались данные методы, если они не используются?
-        {
-            _logger.Information("Загрузка данных технологической карты для TcId={TcId}", _tcId);
-            // зафиксировать время начала загрузки
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
-            try
-            {
-                var techCard = await context.TechnologicalCards
-                    .FirstAsync(t => t.Id == _tcId);
-
-
-                // 2. Загружаем все связанные данные отдельными запросами
-
-                // Machine_TCs
-                var machineTcs = await context.Machine_TCs
-                    .Where(m => m.ParentId == _tcId).Include(m => m.Child)
-                    .ToListAsync();
-
-                // Protection_TCs
-                var protectionTcs = await context.Protection_TCs
-                    .Where(pt => pt.ParentId == _tcId).Include(m => m.Child)
-                    .ToListAsync();
-
-                // Tool_TCs
-                var toolTcs = await context.Tool_TCs
-                    .Where(tt => tt.ParentId == _tcId).Include(m => m.Child)
-                    .ToListAsync();
-
-                // Component_TCs
-                var componentTcs = await context.Component_TCs
-                    .Where(ct => ct.ParentId == _tcId).Include(m => m.Child)
-                    .ToListAsync();
-
-                // Staff_TCs
-                var staffTcs = await context.Staff_TCs
-                    .Where(st => st.ParentId == _tcId).Include(m => m.Child)
-                    .ToListAsync();
-
-                // Coefficient
-                var coefficients = await context.Coefficients
-                    .Where(c => c.TechnologicalCardId == _tcId)
-                    .ToListAsync();
-
-                _logger.Information("Загружены данные технологической карты: {TcName}(id: {TcId})", techCard.Name, _tcId);
-                return techCard;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Ошибка при загрузке данных технологической карты для TcId={TcId}", _tcId);
-                throw;
-            }
-            finally
-            {
-                // остановить таймер и вывести время выполнения
-                stopwatch.Stop();
-                _logger.Information("Время загрузки данных технологической карты: {Time} мс", stopwatch.ElapsedMilliseconds);
-            }
-        }
-
-        private async Task<List<TechOperationWork>> GetTOWDataAsync()
-        {
-            _logger.Information("Загрузка данных технологических операций для TcId={TcId}", _tcId);
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
-
-            try
-            {
-                var techOperationWorkList = await context.TechOperationWorks.Where(w => w.TechnologicalCardId == _tcId)
-                       .Include(i => i.techOperation)
-                       .ToListAsync();
-
-                //список ID Технологических операций
-                var towIds = techOperationWorkList.Select(t => t.Id).ToList();
-
-                //Получаем список всех компонентов которые принадлежат карте
-                var componentWorks = await context.ComponentWorks.Where(c => towIds.Any(o => o == c.techOperationWorkId))
-                   .Include(t => t.component)
-                   .ToListAsync();
-
-                //Получаем список всех инструментов, которые принадлежат карте
-                var toolWorks = await context.ToolWorks.Where(c => towIds.Any(o => o == c.techOperationWorkId))
-                    .Include(t => t.tool)
-                    .ToListAsync();
-
-                //Получаем список всех ExecutionWorks для технологической карты
-                var executionWorks = await
-                   context.ExecutionWorks.Where(e => towIds.Any(o => o == e.techOperationWorkId))
-                                         .Include(e => e.techTransition)
-                                         .Include(e => e.Protections)
-                                         .Include(e => e.Machines)
-                                         .Include(e => e.Staffs)
-                                         .Include(e => e.ExecutionWorkRepeats)
-                                         .ToListAsync();
-
-                _logger.Information("Загружены данные технологических операций для TcId={TcId}", _tcId);
-                return techOperationWorkList;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Ошибка при загрузке данных технологических операций для TcId={TcId}", _tcId);
-                throw;
-            }
-            finally
-            {
-                stopwatch.Stop();
-                _logger.Information("Время загрузки данных технологических операций: {Time} мс", stopwatch.ElapsedMilliseconds);
-            }
-        }
-
-        private async Task<List<DiagamToWork>> GetDTWDataAsync()
-        {
-            _logger.Information("Загрузка данных диаграмм для TcId={TcId}", _tcId);
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
-            try
-            {
-                var diagramToWorkList = await context.DiagamToWork.Where(w => w.technologicalCardId == _tcId).ToListAsync();
-
-
-                var listDiagramParalelno = await context.DiagramParalelno.Where(p => diagramToWorkList.Select(i => i.Id).Contains(p.DiagamToWorkId))
-                                                                         .Include(ie => ie.techOperationWork)
-                                                                         .ToListAsync();
-
-                var listDiagramPosledov = await context.DiagramPosledov.Where(p => listDiagramParalelno.Select(i => i.Id).Contains(p.DiagramParalelnoId))
-                    .ToListAsync();
-
-                var listDiagramShag = await context.DiagramShag.Where(d => listDiagramPosledov.Select(i => i.Id).Contains(d.DiagramPosledovId))
-                    .Include(q => q.ListDiagramShagToolsComponent)
-                    .ToListAsync();
-
-                _logger.Information("Загружены данные диаграмм для TcId={TcId}", _tcId);
-                return diagramToWorkList;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Ошибка при загрузке данных диаграмм для TcId={TcId}", _tcId);
-                throw;
-            }
-            finally
-            {
-                stopwatch.Stop();
-                _logger.Information("Время загрузки данных диаграмм: {Time} мс", stopwatch.ElapsedMilliseconds);
-            }
-        }
-
         private async Task SetTcViewStateData()
         {
             using var op = _logger.BeginOperation("DB: загрузка TcViewState (TcId={TcId})", _tcId);
@@ -482,9 +330,6 @@ namespace TC_WinForms.WinForms
                     await SetTcViewStateData();
 
                 _tc = tcViewState.TechnologicalCard;
-
-                if (concurrencyBlockServise.GetObjectUsedStatus() && !tcViewState.IsViewMode)
-                    MessageBox.Show("Данная карта сейчас редактируется другим пользователем, ТК открыта в режиме просмотра");
 
                 using (_logger.TimeOperation("UI init/access"))
                 {
@@ -560,10 +405,6 @@ namespace TC_WinForms.WinForms
             }
         }
 
-        private void cmbTechCardName_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
         private async Task ShowForm(EModelType modelType)
         {
             using var totalOp = _logger.BeginOperation("ShowForm {ModelType} (TcId={TcId})", modelType, _tcId);
@@ -689,17 +530,6 @@ namespace TC_WinForms.WinForms
 
         private bool HasChanges()
         {
-
-            //var hasUnsavedChanges = false;
-            //foreach (var fm in _formsCache.Values)
-            //{
-            //    if (fm is ISaveEventForm saveForm && saveForm.HasChanges || context.ChangeTracker.HasChanges())
-            //    {
-            //        hasUnsavedChanges = true;
-            //        break;
-            //    }
-            //}
-
             // проверка на наличие изменений
             return _formsCache.Values.OfType<ISaveEventForm>()
                                               .Any(f => f.HasChanges)
@@ -1123,6 +953,7 @@ namespace TC_WinForms.WinForms
             }
             return true;
         }
+
         private async void setDraftStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LogUserAction("Выпуск технической карты");
@@ -1131,8 +962,6 @@ namespace TC_WinForms.WinForms
             setDraftStatusToolStripMenuItem.Enabled = false;
             MessageBox.Show("Статус успешно обновлён.");
         }
-
-
 
         private async void SetApprovedStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1144,7 +973,6 @@ namespace TC_WinForms.WinForms
                 MessageBox.Show("Перед опубликованием карты необходимо сохранить изменения.");
                 return;
             }
-
 
             if (!CheckChangesForTcDraftStatusChanging()) { return; }
 
@@ -1232,7 +1060,6 @@ namespace TC_WinForms.WinForms
             }
         }
 
-
         private void SetCommentViewMode(bool? isComViewMode = null)
         {
             if (isComViewMode != null)
@@ -1282,8 +1109,6 @@ namespace TC_WinForms.WinForms
         private void LogUserAction(string actionDescription)
         {
             _logger.LogUserAction(actionDescription, _tcId);
-            //Information("Действие пользователя: {Action}, TcId={TcId}", 
-            //actionDescription, _tcId);
         }
 
         private async void btnShowCoefficients_Click(object sender, EventArgs e)
@@ -1420,7 +1245,6 @@ namespace TC_WinForms.WinForms
             ChangeIsDynamicToolStripMenuItem.Text = _tc.IsDynamic ? "Сделать не динамической" : "Сделать динамической";
         }
 
-
         private async void button1_Click(object sender, EventArgs e)
         {
             LogUserAction("Отображение таблицы затрат");
@@ -1443,7 +1267,6 @@ namespace TC_WinForms.WinForms
                 if (techOperationForm != null)
                     techOperationForm.RefreshPictureNameColumn();
             };
-
         }
 
         private void btnHideControlBtns_Click(object sender, EventArgs e)
@@ -1494,8 +1317,5 @@ namespace TC_WinForms.WinForms
                 _firstVisualOp?.Complete();
             }
         }
-
     }
-
 }
-
