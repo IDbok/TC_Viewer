@@ -2037,8 +2037,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
     public void UpdateGrid()
     {
         // todo: лишнее обновление грида при первой загрузки странички редактирования
-        using var op = _logger.BeginOperation("UpdateGrid Rows={Rows} Cols={Cols}",
-            dgvMain.Rows.Count, dgvMain.Columns.Count);
+        using var op = _logger.BeginOperation("UpdateGrid");
 
         try // временная заглушка от ошибки возникающей при переключении на другую форму в процессе загрузки данных
         {
@@ -2071,7 +2070,7 @@ public partial class TechOperationForm : Form, ISaveEventForm, IViewModeable, IO
 			_logger.Debug("Грид обновлён успешно (UpdateGrid завершён).");
 
             _awaitingFirstPaint = true;
-            op.Complete();
+            op.Complete("Rows",dgvMain.Rows.Count);
             _firstPaintOp?.Cancel();
             _firstPaintOp = _logger.BeginOperation("First paint after UpdateGrid");
 
