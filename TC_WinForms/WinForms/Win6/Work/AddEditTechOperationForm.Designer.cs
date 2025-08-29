@@ -780,7 +780,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			// tabPageComponent
 			// 
-			tabPageComponent.Controls.Add(tlpnlComponents);
+			//tabPageComponent.Controls.Add(tlpnlComponents);
 			tabPageComponent.Location = new Point(4, 29);
 			tabPageComponent.Margin = new Padding(3, 2, 3, 2);
 			tabPageComponent.Name = "tabPageComponent";

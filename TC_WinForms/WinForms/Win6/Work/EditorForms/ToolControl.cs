@@ -408,7 +408,7 @@ namespace TC_WinForms.WinForms.Win6.Work
             if(e.RowIndex <0)
             { return; }
 
-            if (e.ColumnIndex == dgvToolsLocal.Columns["addBtnColumn"].Index)
+            if (e.ColumnIndex == dgvToolsGlobal.Columns["addBtnColumn"].Index)
             {
                 _logger.LogUserAction($"Щелчок по ячейке добавить инструмент в строке {e.RowIndex}.");
 
