@@ -10,6 +10,7 @@ using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win6.Models;
+using TC_WinForms.WinForms.Win6.Work;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -26,7 +27,8 @@ namespace TC_WinForms.WinForms.Work
         public TechOperationForm TechOperationForm { get; }
 		private RepeatExecutionControl repeatAsInTcExecutionControl;
 		private RepeatExecutionControl repeatExecutionControl;
-		private readonly TcViewState _tcViewState;
+		private ToolControl toolControl;
+        private readonly TcViewState _tcViewState;
         private List<TechOperation> allTO;
         private List<TechTransition> allTP;
         private List<Staff> AllStaff;
@@ -61,19 +63,6 @@ namespace TC_WinForms.WinForms.Work
 
             InitializeComponent();
 
-			//         // Создать экземпляр
-			//         repeatExecutionControl = new RepeatExecutionControl(TechOperationForm.context, _tcViewState);//.GetAllExecutionWorks());
-			//repeatExecutionControl.Dock = DockStyle.Fill;
-
-			//// Подписаться на событие
-			//repeatExecutionControl.DataChanged += (s, e) =>
-			//{
-			//	TechOperationForm.UpdateGrid();
-			//};
-
-			//// Добавить на вкладку
-			//tabPageRepeat.Controls.Add(repeatExecutionControl);
-
 			// Создать экземпляр
 			repeatExecutionControl = new RepeatExecutionControl(TechOperationForm.context, _tcViewState);//.GetAllExecutionWorks());
 			repeatExecutionControl.Dock = DockStyle.Fill;
@@ -81,14 +70,30 @@ namespace TC_WinForms.WinForms.Work
 
 			// Подписаться на событие
 			repeatExecutionControl.DataChanged += (s, e) =>
-			{
-				TechOperationForm.UpdateGrid();
-			};
+            {
+                TechOperationForm.UpdateGrid();
+            };
 
-			// Добавить на вкладку
-			tabPageRepeat.Controls.Add(repeatExecutionControl);
+            // Добавить на вкладку
+            tabPageRepeat.Controls.Add(repeatExecutionControl);
 
-			this.Text = $"{TechOperationForm.TehCarta.Name} ({TechOperationForm.TehCarta.Article}) - Редактор хода работ";
+
+            toolControl = new ToolControl(techOperationForm.context, _tcViewState);
+            toolControl.Dock = DockStyle.Fill;
+
+            toolControl.DataChanged += (s, e) =>
+            {
+                TechOperationForm.UpdateGrid();
+            };
+
+            toolControl.ToolWorkDeleteRequested += (work, toolWork) =>
+            {
+                TechOperationForm.MarkToDeleteToolWork(work, toolWork);
+            };
+
+            tabPageTool.Controls.Add(toolControl);
+
+            this.Text = $"{TechOperationForm.TehCarta.Name} ({TechOperationForm.TehCarta.Article}) - Редактор хода работ";
 
             _logger.Information("Настройка событий DataGridView и ComboBox.");
             SetupEventHandlers();
@@ -100,7 +105,6 @@ namespace TC_WinForms.WinForms.Work
 
         private void SetupEventHandlers()
         {
-            // dataGridViewAllTO.CellContentClick += DataGridViewAllTO_CellContentClick;
             dataGridViewAllTO.CellClick += DataGridViewAllTO_CellClick;
 
             dataGridViewTO.CellClick += DataGridViewTO_CellClick;
@@ -109,7 +113,6 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewTO.CellFormatting += DataGridViewTO_CellFormatting;
             dataGridViewTO.SelectionChanged += DataGridViewTO_SelectionChanged; // если комбобокс не отображать, то не нужное событие
 
-            //dataGridViewTPAll.CellContentClick += DataGridViewTPAll_CellContentClick;
             dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
             dataGridViewTPAll.SelectionChanged += DataGridViewTPAll_SelectionChanged;
 
@@ -134,12 +137,6 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewComponentLocal.CellEndEdit += DataGridViewComponentLocal_CellEndEdit;
             dataGridViewComponentLocal.CellValidating += CellValidating;
 
-
-            dataGridViewInstumentAll.CellClick += DataGridViewInstumentAll_CellClick;
-            dataGridViewInstrumentLocal.CellClick += DataGridViewInstrumentLocal_CellClick;
-            dataGridViewInstrumentLocal.CellEndEdit += DataGridViewInstrumentLocal_CellEndEdit;
-            dataGridViewInstrumentLocal.CellValidating += CellValidating;
-
             dataGridViewAllSZ.CellClick += DataGridViewAllSZ_CellClick;
             dataGridViewLocalSZ.CellClick += DataGridViewLocalSZ_CellClick;
 
@@ -154,13 +151,6 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewMeha.CellContentClick += DataGridViewMeha_CellContentClick;
             dataGridViewMeha.CellValidating += CellValidating;
 
-            //dataGridViewPovtor.CellContentClick += DataGridViewPovtor_CellContentClick;
-            //dataGridViewPovtor.CellValueChanged += DataGridViewPovtor_CellValueChanged;
-            //dataGridViewPovtor.CellFormatting += dataGridViewPovtor_CellFormatting;
-            //dataGridViewPovtor.CellEndEdit += DataGridViewPovtor_CellEndEdit;
-			//dataGridViewPovtor.CellValidating += CellValidating;
-
-			comboBoxFiltrCategor.SelectedIndexChanged += ComboBoxFiltrCategor_SelectedIndexChanged;
             comboBoxFilterComponent.SelectedIndexChanged += ComboBoxFilterComponent_SelectedIndexChanged;
 
             textBoxPoiskTo.TextChanged += TextBoxPoiskTo_TextChanged;
@@ -249,8 +239,7 @@ namespace TC_WinForms.WinForms.Work
                     UpdateComponentAll();//чтобы обновлялся список добавленных в ТО компонентов
                     break;
                 case "tabPageTool":
-                    UpdateInstrumentLocal();
-                    UpdateInstrumentAll();//чтобы обновлялся список добавленных в ТО инструментов
+                    toolControl.SetParentTechOpetarionWork(SelectedTO ?? TechOperationForm.TechOperationWorksList.First());
                     break;
                 case "tabPageProtection":
                     UpdateComboBoxTT();
@@ -301,8 +290,6 @@ namespace TC_WinForms.WinForms.Work
 					break;
 				case "tabPageTool":
 					// Обновление данных для вкладки "Инструменты"
-					UpdateInstrumentLocal();
-					UpdateInstrumentAll();
 					_logger.Information("Вкладка инструментов обновлена (локальный и общий списки).");
 					break;
 				case "tabPageProtection":
@@ -2057,292 +2044,10 @@ namespace TC_WinForms.WinForms.Work
         #endregion
 
         #region Instument
+
         public void UpdateInstrumentLocal()
         {
-            var offScroll = dataGridViewInstrumentLocal.FirstDisplayedScrollingRowIndex;
-            dataGridViewInstrumentLocal.Rows.Clear();
-            var work = SelectedTO;
-
-            if (work == null)
-            {
-				_logger.Warning("Не выбрана ТО. Обновление инструмента невозможно.");
-				return;
-            }
-
-            var LocalInstrument = work.ToolWorks.Where(t => t.IsDeleted == false).ToList();
-
-            foreach (var InstrumentWork in LocalInstrument)
-            {
-                List<object> listItem = new List<object>
-                {
-                    InstrumentWork,
-                    "Удалить",
-                    InstrumentWork.tool.Name,
-                    InstrumentWork.tool.Type ?? "",
-                    InstrumentWork.tool.Unit,
-                    InstrumentWork.Quantity,
-                    InstrumentWork.Comments ?? ""
-				};
-                dataGridViewInstrumentLocal.Rows.Add(listItem.ToArray());
-            }
-
-            RestoreScrollPosition(dataGridViewInstrumentLocal, offScroll);
-            dataGridViewInstrumentLocal.AutoResizeRows();
-        }
-
-
-        private void ComboBoxFiltrCategor_SelectedIndexChanged(object? sender, EventArgs e)
-        {
-            UpdateInstrumentAll();
-        }
-
-        private List<string> AllFilterInstrument;
-
-        public void UpdateInstrumentAll()
-        {
-            var offScroll = dataGridViewInstumentAll.FirstDisplayedScrollingRowIndex;
-            dataGridViewInstumentAll.Rows.Clear();
-
-            var work = SelectedTO;
-
-            if (work == null)
-            {
-				_logger.Warning("Не выбрана ТО. Обновление инструмента невозможно.");
-				return;
-            }
-
-            var context = TechOperationForm.context;
-
-            var AllMyInstr = TechOperationForm.TehCarta.Tool_TCs.OrderBy(x => x.Order).ToList();
-
-            var AllInstr = context.Tools.ToList();
-
-            var LocalComponent = work.ToolWorks.Where(c => c.IsDeleted == false).ToList();
-
-            bool UpdFilt = false;
-
-            if (AllFilterInstrument == null)
-            {
-                UpdFilt = true;
-                AllFilterInstrument = new List<string>();
-                AllFilterInstrument.Add("Все");
-            }
-
-            foreach (var componentTc in AllMyInstr)
-            {
-                if (LocalComponent.SingleOrDefault(s => s.tool == componentTc.Child) != null)
-                {
-                    continue;
-                }
-
-                if (textBoxPoiskInstrument.Text != "" &&
-                    componentTc.Child.Name.ToLower().IndexOf(textBoxPoiskInstrument.Text.ToLower()) == -1)
-                {
-                    continue;
-                }
-
-                if (comboBoxFiltrCategor.SelectedIndex > 0)
-                {
-                    var selCateg = comboBoxFiltrCategor.SelectedItem as string;
-
-                    if (selCateg != componentTc.Child.Categoty)
-                    {
-                        continue;
-                    }
-                }
-
-
-                List<object> listItem = new List<object>();
-                listItem.Add(componentTc.Child);
-
-                listItem.Add("Добавить");
-
-                listItem.Add(componentTc.Child.Name);
-                listItem.Add(componentTc.Child.Type ?? "");
-                listItem.Add(componentTc.Child.Unit);
-                listItem.Add(componentTc.Quantity.ToString());
-                dataGridViewInstumentAll.Rows.Add(listItem.ToArray());
-            }
-
-            foreach (var component in AllInstr)
-            {
-                if (UpdFilt)
-                {
-                    if (!AllFilterInstrument.Contains(component.Categoty))
-                    {
-                        AllFilterInstrument.Add(component.Categoty);
-                    }
-                }
-
-                if (AllMyInstr.Any(a => a.Child == component))
-                {
-                    continue;
-                }
-
-
-                if (LocalComponent.SingleOrDefault(s => s.tool == component) != null)
-                {
-                    continue;
-                }
-
-                if (textBoxPoiskInstrument.Text != "" &&
-                    component.Name.ToLower().IndexOf(textBoxPoiskInstrument.Text.ToLower()) == -1)
-                {
-                    continue;
-                }
-
-
-
-                if (comboBoxFiltrCategor.SelectedIndex > 0)
-                {
-                    var selCateg = comboBoxFiltrCategor.SelectedItem as string;
-
-                    if (selCateg != component.Categoty)
-                    {
-                        continue;
-                    }
-
-                }
-
-
-                List<object> listItem = new List<object>();
-                listItem.Add(component);
-
-                listItem.Add("Добавить");
-
-                listItem.Add(component.Name);
-                listItem.Add(component.Type ?? "");
-                listItem.Add(component.Unit);
-                listItem.Add("");
-                dataGridViewInstumentAll.Rows.Add(listItem.ToArray());
-            }
-
-            if (UpdFilt)
-            {
-                comboBoxFiltrCategor.DataSource = AllFilterInstrument;
-                comboBoxFiltrCategor.SelectedIndex = 0;
-            }
-
-            RestoreScrollPosition(dataGridViewInstumentAll, offScroll);
-        }
-
-        private void DataGridViewInstumentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-            {
-                _logger.LogUserAction($"Щелчок по ячейке добавить инструмент в строке {e.RowIndex}.");
-
-                var work = SelectedTO;
-
-                if (work == null)
-                {
-                    _logger.Warning("Не выбрана ТО. Добавление инструмента невозможно.");
-					return;
-                }
-
-                var Idd = (Tool)dataGridViewInstumentAll.Rows[e.RowIndex].Cells[0].Value;
-                var existedIdd = work.ToolWorks.Where(t => t.toolId == Idd.Id && t.IsDeleted == true).FirstOrDefault();
-                var exustInInstrument = TechOperationForm.TehCarta.Tool_TCs.Where(t => t.ChildId == Idd.Id).FirstOrDefault();
-
-                if (existedIdd != null)
-                {
-                    existedIdd.IsDeleted = false;
-                    work.ToolWorks.Remove(existedIdd);
-                    work.ToolWorks.Insert(work.ToolWorks.Count, existedIdd);
-                }
-                else
-                {
-                    ToolWork toolWork = new ToolWork();
-                    toolWork.tool = Idd;
-                    toolWork.toolId = Idd.Id;
-                    toolWork.Quantity = exustInInstrument != null ? exustInInstrument.Quantity : 1;
-                    work.ToolWorks.Add(toolWork);
-                }
-
-                if (exustInInstrument == null)
-                {
-                    Tool_TC newTool = new Tool_TC();
-                    newTool.Parent = TechOperationForm.TehCarta;
-                    newTool.ParentId = TechOperationForm.TehCarta.Id;
-                    newTool.ChildId = Idd.Id;
-                    newTool.Child = Idd;
-                    newTool.Order = TechOperationForm.TehCarta.Tool_TCs.Count + 1;
-                    TechOperationForm.TehCarta.Tool_TCs.Add(newTool);
-                }
-
-
-                UpdateInstrumentAll();
-                UpdateInstrumentLocal();
-                TechOperationForm.UpdateGrid();
-            }
-        }
-
-
-        private void DataGridViewInstrumentLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            //HighlightTOTTRow();
-
-            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-            {
-                _logger.LogUserAction($"Щелчок по ячейке удаления инструмента в строке {e.RowIndex}.");
-
-                var work = SelectedTO;
-                if (work == null)
-                {
-					_logger.Warning("Не выбрана ТО. Удаление инструмента невозможно.");
-					return;
-                }
-                var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
-
-                TechOperationForm.MarkToDeleteToolWork(work, Idd);
-
-                UpdateInstrumentAll();
-                UpdateInstrumentLocal();
-                TechOperationForm.UpdateGrid();
-            }
-        }
-
-
-        private void DataGridViewInstrumentLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-        {
-			if (e.ColumnIndex == 5)
-            {
-                var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
-                var value = (object)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[5].Value;
-
-                double don = 0;
-                if (value is double doubleValue)
-                {
-                    don = doubleValue;
-                }
-                else if (!double.TryParse((string)value, out don))
-                {
-                    don = 0;
-                }
-
-                if (Idd.Quantity == don)
-                    return;
-
-                Idd.Quantity = don;
-                TechOperationForm.UpdateGrid();
-            }
-
-            if (e.ColumnIndex == 6)
-            {
-                var Idd = (ToolWork)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[0].Value;
-                var value = (string)dataGridViewInstrumentLocal.Rows[e.RowIndex].Cells[6].Value;
-
-                Idd.Comments = value;
-                TechOperationForm.UpdateGrid();
-            }
-            dataGridViewInstrumentLocal.AutoResizeRows();
-        }
-
-
-
-        private void textBoxPoiskInstrument_TextChanged(object sender, EventArgs e)
-        {
-            UpdateInstrumentAll();
+            toolControl.RefreshToolDataLocal();
         }
 
         #endregion
@@ -2606,310 +2311,6 @@ namespace TC_WinForms.WinForms.Work
 
         #region Повторить
 
-        //private ExecutionWork? executionWorkPovtor;
-        //private void DataGridViewPovtor_CellContentClick(object? sender, DataGridViewCellEventArgs e)
-        //{
-        //    dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
-        //    if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-        //    {
-        //        var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-        //        var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
-        //        if (executionWorkPovtor != null)
-        //        {
-        //            if (isSelected)
-        //            {
-        //                if (!executionWorkPovtor.ListexecutionWorkRepeat2.Contains(currentEW))
-        //                {
-        //                    executionWorkPovtor.ListexecutionWorkRepeat2.Add(currentEW);
-        //                    TechOperationForm.UpdateGrid();
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (executionWorkPovtor.ListexecutionWorkRepeat2.Contains(currentEW))
-        //                {
-        //                    executionWorkPovtor.ListexecutionWorkRepeat2.Remove(currentEW);
-        //                    TechOperationForm.UpdateGrid();
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-        
-		//private void DataGridViewPovtor_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-		//{
-		//	// todo: реализовать пресчёт значения
-		//	if (e.ColumnIndex == 5 && e.RowIndex >= 0)
-		//	{
-		//		var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-		//		var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[1].Value;
-
-		//		if (executionWorkPovtor != null)
-		//		{
-		//			var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
-		//				.FirstOrDefault(x => x.ChildExecutionWork == currentEW);
-
-		//			var cell = dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex];
-
-		//			if (isSelected)
-		//			{
-		//				RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
-		//				TechOperationForm.UpdateGrid();
-		//			}
-		//			else
-		//			{
-		//				// отмена изменений
-		//				cell.Value = null;
-		//			}
-
-		//			//UpdateLocalTP(); // todo: проверить, нужно ли обновлять локальные ТП
-		//		}
-		//	}
-		//}
-		//private void dataGridViewPovtor_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
-		//{
-		//    if (executionWorkPovtor == null) return;
-
-		//    var executionWork = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-		//    // позиция для executionWorkPovtor в таблице dataGridViewPovtor
-		//    var powtorIndex = dataGridViewPovtor.Rows.Cast<DataGridViewRow>().ToList().FindIndex(x => x.Cells[0].Value == executionWorkPovtor);
-		//    bool isReadOnlyRow = powtorIndex < e.RowIndex;
-
-		//    if (e.ColumnIndex == 1) // Индекс столбца с checkBox
-		//    {
-		//        if (executionWork == executionWorkPovtor)
-		//        {
-		//            SetReadOnlyAndColor(e.ColumnIndex, Color.DarkSeaGreen);
-		//        }
-		//        else if (isReadOnlyRow)
-		//        {
-		//            SetReadOnlyAndColor(e.ColumnIndex, Color.DarkSalmon);
-		//        }
-		//    }
-		//    else if (e.ColumnIndex == 5 || e.ColumnIndex == 6 || e.ColumnIndex == 7) // Индекс столбца с checkBox
-		//    {
-		//        if (executionWork == executionWorkPovtor || isReadOnlyRow)
-		//        {
-		//            // Делаем ячейку недоступной
-		//            dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
-		//        }
-		//        else // todo: снимать повтор, если объект перемещают "ниже" повтора
-		//        {
-		//            var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
-		//                .SingleOrDefault(x => x.ChildExecutionWork == executionWork);
-
-		//            dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = existingRepeat != null ? Color.LightGray : Color.White;
-		//            dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = existingRepeat == null;
-		//        }
-		//    }
-		//    void SetReadOnlyAndColor(int columnIndex, Color color, bool readOnly = true)
-		//    {
-		//        dataGridViewPovtor.Rows[e.RowIndex].Cells[columnIndex].ReadOnly = readOnly;
-		//        dataGridViewPovtor.Rows[e.RowIndex].DefaultCellStyle.BackColor = color;
-		//    }
-		//}
-
-		//private void DataGridViewPovtor_CellContentClick(object? sender, DataGridViewCellEventArgs e)
-		//{
-		//    dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
-
-		//    if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-		//    {
-		//        var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-		//        var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
-		//        // позиция для executionWorkPovtor в таблице dataGridViewPovtor
-		//        var powtorIndex = dataGridViewPovtor.Rows.Cast<DataGridViewRow>().ToList().FindIndex(x => x.Cells[0].Value == executionWorkPovtor);
-
-		//        if (executionWorkPovtor != null && powtorIndex > e.RowIndex)//currentEW.Order < executionWorkPovtor.Order)
-		//        {
-		//            var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
-		//                .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
-
-		//            if (isSelected)
-		//            {
-		//                if (existingRepeat == null)
-		//                {
-		//                    var newRepeat = new ExecutionWorkRepeat
-		//                    {
-		//                        ParentExecutionWork = executionWorkPovtor,
-		//                        ParentExecutionWorkId = executionWorkPovtor.Id,
-		//                        ChildExecutionWork = currentEW,
-		//                        ChildExecutionWorkId = currentEW.Id,
-		//                        NewCoefficient = "*1"
-		//                    };
-
-		//                    dataGridViewPovtor.Rows[e.RowIndex].Cells[5].Value = "*1";
-		//                    executionWorkPovtor.ExecutionWorkRepeats.Add(newRepeat);
-		//                    TechOperationForm.context.ExecutionWorkRepeats.Add(newRepeat);
-		//                }
-		//            }
-		//            else
-		//            {
-		//                if (existingRepeat != null)
-		//                {
-		//                    dataGridViewPovtor.Rows[e.RowIndex].Cells[5].Value = "";
-		//                    executionWorkPovtor.ExecutionWorkRepeats.Remove(existingRepeat);
-		//                    TechOperationForm.context.ExecutionWorkRepeats.Remove(existingRepeat);
-		//                }
-		//            }
-
-
-		//            UpdateCoefficient(executionWorkPovtor);
-
-		//            // Перерисовать таблицу
-		//            dataGridViewPovtor.Invalidate();
-		//            //dataGridViewTPLocal.Invalidate();
-
-		//            TechOperationForm.UpdateGrid(); // todo: реализовать метод по изменению значения только для одной строки в таблице TechOperationForm
-		//        }
-		//    }
-		//}
-
-		//private void DataGridViewPovtor_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
-		//{
-		//    if ((e.ColumnIndex == 5 || e.ColumnIndex == 6 || e.ColumnIndex == 7) && e.RowIndex >= 0)
-		//    {
-		//        var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-		//        var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[1].Value;
-
-		//        if (executionWorkPovtor != null)
-		//        {
-		//            var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
-		//                .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
-
-		//            var cell = dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex];
-
-		//            if (isSelected)
-		//            {
-		//                if (existingRepeat != null)
-		//                {
-
-		//                    var cellValueStr = (string)cell.Value;
-
-		//                    if (e.ColumnIndex == 5)
-		//                    {
-		//                        if (string.IsNullOrEmpty(cellValueStr))
-		//                        {
-		//                            existingRepeat.NewCoefficient = string.Empty;
-		//                        }
-		//                        else
-		//                        {
-		//                            existingRepeat.NewCoefficient = cellValueStr;
-		//                        }
-		//                    }
-		//                    else if (e.ColumnIndex == 6)
-		//                    {
-		//                        existingRepeat.NewEtap = cellValueStr;
-		//                    }
-		//                    else if (e.ColumnIndex == 7)
-		//                    {
-		//                        existingRepeat.NewPosled = cellValueStr;
-		//                    }
-
-		//                    //RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
-		//                    //TechOperationForm.UpdateGrid();
-		//                }
-		//            }
-		//            else
-		//            {
-		//                // отмена изменений
-		//                cell.Value = null;
-
-		//            }
-
-		//            UpdateCoefficient(executionWorkPovtor);
-		//            TechOperationForm.UpdateGrid();
-		//            //UpdateLocalTP();
-		//        }
-		//    }
-		//}
-		//public void UpdatePovtor()
-  //      {
-  //          dataGridViewPovtor.Rows.Clear();
-  //          executionWorkPovtor = null;
-
-  //          var select = dataGridViewTPLocal.SelectedRows;
-  //          if (select.Count > 0)
-  //          {
-  //              var id = (Guid)select[0].Cells[0].Value;
-
-  //              var al = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false).OrderBy(o => o.Order);
-
-  //              ExecutionWork? exeWork = null;
-  //              // Поиск ТП с заданным Guid
-  //              foreach (TechOperationWork techOperationWork in al)
-  //              {
-  //                  if (exeWork != null)
-  //                  {
-  //                      break;
-  //                  }
-  //                  foreach (ExecutionWork executionWork in techOperationWork.executionWorks)
-  //                  {
-  //                      if (executionWork.IdGuid == id)
-  //                      {
-  //                          exeWork = executionWork;
-  //                          break;
-  //                      }
-  //                  }
-  //              }
-
-  //              if (exeWork != null && exeWork.Repeat)
-  //              {
-  //                  executionWorkPovtor = exeWork;
-  //                  //var selectedEW = exeWork.ListexecutionWorkRepeat2.ToList();
-  //                  var selectedEW = exeWork.ExecutionWorkRepeats.Select(ewr => ewr.ChildExecutionWork).ToList();
-  //                  var selectedEWR = exeWork.ExecutionWorkRepeats.ToList();
-  //                  foreach (TechOperationWork techOperationWork in al)
-  //                  {
-  //                      var allEwInTo = techOperationWork.executionWorks.Where(w => w.Delete == false /*&& w.Repeat == false*/).OrderBy(o => o.Order); ////// 26/06/2024 - добавил повторы в выборку. Т.к. в картах такие объекты тоже входят в повторы
-
-  //                      foreach (ExecutionWork executionWork in allEwInTo)
-  //                      {
-  //                          var isSelected = selectedEW.SingleOrDefault(s => s == executionWork) != null;
-
-  //                          List<object> listItem = new List<object>
-  //                          {
-  //                              executionWork
-  //                          };
-  //                          if (isSelected)
-  //                          {
-  //                              listItem.Add(true);
-  //                          }
-  //                          else
-  //                          {
-  //                              listItem.Add(false);
-  //                          }
-  //                          listItem.Add($"№{techOperationWork.Order} {techOperationWork.techOperation.Name}");
-  //                          listItem.Add(executionWork.techTransition?.Name ?? ""); // todo - проверить, может ли имя быть null у EW
-
-  //                          listItem.Add(executionWork.Coefficient ?? "");
-
-  //                          if (isSelected)
-  //                          {
-  //                              ExecutionWorkRepeat? techOperationWorkRepeat = selectedEWR.SingleOrDefault(s => s.ChildExecutionWork == executionWork);
-
-  //                              if (techOperationWorkRepeat != null)
-  //                              {
-  //                                  listItem.Add(techOperationWorkRepeat.NewCoefficient);
-
-  //                                  listItem.Add(techOperationWorkRepeat.NewEtap);
-  //                                  listItem.Add(techOperationWorkRepeat.NewPosled);
-  //                              }
-  //                          }
-
-  //                          dataGridViewPovtor.Rows.Add(listItem.ToArray());
-  //                      }
-  //                  }
-  //              }
-
-  //          }
-
-  //      }
-
         private void RecalculateExecutionWorkPovtorValue(ExecutionWork executionWorkPovtor)
         {
             if (!executionWorkPovtor.Repeat) return;
@@ -2974,6 +2375,7 @@ namespace TC_WinForms.WinForms.Work
                 UpdateRelatedReplays(editedExecutionWork);
 
         }
+
         #endregion
 
         private void RemoveRepeatsWithBiggerOrder(ExecutionWork repeat, int newOrder)
@@ -3052,8 +2454,12 @@ namespace TC_WinForms.WinForms.Work
                     break;
 
                 case "tabPageTool":
-                    UpdateInstrumentLocal();
-                    UpdateInstrumentAll();
+                    if (SelectedTO == null)
+                    {
+                        _logger.Warning("Не выбрано TO. Обновление данных для вкладки невозможно.");
+                        return;
+                    }
+                    toolControl.SetParentTechOpetarionWork(SelectedTO);
                     SetComboBoxesVisibility(true, false);
                     break;
 
