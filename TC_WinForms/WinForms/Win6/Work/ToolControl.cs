@@ -191,7 +191,7 @@ namespace TC_WinForms.WinForms.Win6.Work
                 listItem.Add(tool.Name);
                 listItem.Add(tool.Type ?? "");
                 listItem.Add(tool.Unit);
-                listItem.Add(toolInTc == null ? "" : toolInTc.Quantity);
+                listItem.Add(toolInTc?.Quantity.ToString() ?? "");
                 dgvToolsGlobal.Rows.Add(listItem.ToArray());
             }
 

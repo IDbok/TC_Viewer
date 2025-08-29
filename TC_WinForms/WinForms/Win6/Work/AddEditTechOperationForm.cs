@@ -63,19 +63,6 @@ namespace TC_WinForms.WinForms.Work
 
             InitializeComponent();
 
-			//         // Создать экземпляр
-			//         repeatExecutionControl = new RepeatExecutionControl(TechOperationForm.context, _tcViewState);//.GetAllExecutionWorks());
-			//repeatExecutionControl.Dock = DockStyle.Fill;
-
-			//// Подписаться на событие
-			//repeatExecutionControl.DataChanged += (s, e) =>
-			//{
-			//	TechOperationForm.UpdateGrid();
-			//};
-
-			//// Добавить на вкладку
-			//tabPageRepeat.Controls.Add(repeatExecutionControl);
-
 			// Создать экземпляр
 			repeatExecutionControl = new RepeatExecutionControl(TechOperationForm.context, _tcViewState);//.GetAllExecutionWorks());
 			repeatExecutionControl.Dock = DockStyle.Fill;
@@ -118,7 +105,6 @@ namespace TC_WinForms.WinForms.Work
 
         private void SetupEventHandlers()
         {
-            // dataGridViewAllTO.CellContentClick += DataGridViewAllTO_CellContentClick;
             dataGridViewAllTO.CellClick += DataGridViewAllTO_CellClick;
 
             dataGridViewTO.CellClick += DataGridViewTO_CellClick;
@@ -127,7 +113,6 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewTO.CellFormatting += DataGridViewTO_CellFormatting;
             dataGridViewTO.SelectionChanged += DataGridViewTO_SelectionChanged; // если комбобокс не отображать, то не нужное событие
 
-            //dataGridViewTPAll.CellContentClick += DataGridViewTPAll_CellContentClick;
             dataGridViewTPAll.CellClick += DataGridViewTPAll_CellClick;
             dataGridViewTPAll.SelectionChanged += DataGridViewTPAll_SelectionChanged;
 
@@ -152,12 +137,6 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewComponentLocal.CellEndEdit += DataGridViewComponentLocal_CellEndEdit;
             dataGridViewComponentLocal.CellValidating += CellValidating;
 
-
-            //dataGridViewInstumentAll.CellClick += DataGridViewInstumentAll_CellClick;
-            //dataGridViewInstrumentLocal.CellClick += DataGridViewInstrumentLocal_CellClick;
-            //dataGridViewInstrumentLocal.CellEndEdit += DataGridViewInstrumentLocal_CellEndEdit;
-            //dataGridViewInstrumentLocal.CellValidating += CellValidating;
-
             dataGridViewAllSZ.CellClick += DataGridViewAllSZ_CellClick;
             dataGridViewLocalSZ.CellClick += DataGridViewLocalSZ_CellClick;
 
@@ -172,13 +151,6 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewMeha.CellContentClick += DataGridViewMeha_CellContentClick;
             dataGridViewMeha.CellValidating += CellValidating;
 
-            //dataGridViewPovtor.CellContentClick += DataGridViewPovtor_CellContentClick;
-            //dataGridViewPovtor.CellValueChanged += DataGridViewPovtor_CellValueChanged;
-            //dataGridViewPovtor.CellFormatting += dataGridViewPovtor_CellFormatting;
-            //dataGridViewPovtor.CellEndEdit += DataGridViewPovtor_CellEndEdit;
-			//dataGridViewPovtor.CellValidating += CellValidating;
-
-			//comboBoxFiltrCategor.SelectedIndexChanged += ComboBoxFiltrCategor_SelectedIndexChanged;
             comboBoxFilterComponent.SelectedIndexChanged += ComboBoxFilterComponent_SelectedIndexChanged;
 
             textBoxPoiskTo.TextChanged += TextBoxPoiskTo_TextChanged;
@@ -2339,310 +2311,6 @@ namespace TC_WinForms.WinForms.Work
 
         #region Повторить
 
-        //private ExecutionWork? executionWorkPovtor;
-        //private void DataGridViewPovtor_CellContentClick(object? sender, DataGridViewCellEventArgs e)
-        //{
-        //    dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
-        //    if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-        //    {
-        //        var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-        //        var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
-        //        if (executionWorkPovtor != null)
-        //        {
-        //            if (isSelected)
-        //            {
-        //                if (!executionWorkPovtor.ListexecutionWorkRepeat2.Contains(currentEW))
-        //                {
-        //                    executionWorkPovtor.ListexecutionWorkRepeat2.Add(currentEW);
-        //                    TechOperationForm.UpdateGrid();
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (executionWorkPovtor.ListexecutionWorkRepeat2.Contains(currentEW))
-        //                {
-        //                    executionWorkPovtor.ListexecutionWorkRepeat2.Remove(currentEW);
-        //                    TechOperationForm.UpdateGrid();
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-        
-		//private void DataGridViewPovtor_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-		//{
-		//	// todo: реализовать пресчёт значения
-		//	if (e.ColumnIndex == 5 && e.RowIndex >= 0)
-		//	{
-		//		var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-		//		var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[1].Value;
-
-		//		if (executionWorkPovtor != null)
-		//		{
-		//			var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
-		//				.FirstOrDefault(x => x.ChildExecutionWork == currentEW);
-
-		//			var cell = dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex];
-
-		//			if (isSelected)
-		//			{
-		//				RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
-		//				TechOperationForm.UpdateGrid();
-		//			}
-		//			else
-		//			{
-		//				// отмена изменений
-		//				cell.Value = null;
-		//			}
-
-		//			//UpdateLocalTP(); // todo: проверить, нужно ли обновлять локальные ТП
-		//		}
-		//	}
-		//}
-		//private void dataGridViewPovtor_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
-		//{
-		//    if (executionWorkPovtor == null) return;
-
-		//    var executionWork = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-		//    // позиция для executionWorkPovtor в таблице dataGridViewPovtor
-		//    var powtorIndex = dataGridViewPovtor.Rows.Cast<DataGridViewRow>().ToList().FindIndex(x => x.Cells[0].Value == executionWorkPovtor);
-		//    bool isReadOnlyRow = powtorIndex < e.RowIndex;
-
-		//    if (e.ColumnIndex == 1) // Индекс столбца с checkBox
-		//    {
-		//        if (executionWork == executionWorkPovtor)
-		//        {
-		//            SetReadOnlyAndColor(e.ColumnIndex, Color.DarkSeaGreen);
-		//        }
-		//        else if (isReadOnlyRow)
-		//        {
-		//            SetReadOnlyAndColor(e.ColumnIndex, Color.DarkSalmon);
-		//        }
-		//    }
-		//    else if (e.ColumnIndex == 5 || e.ColumnIndex == 6 || e.ColumnIndex == 7) // Индекс столбца с checkBox
-		//    {
-		//        if (executionWork == executionWorkPovtor || isReadOnlyRow)
-		//        {
-		//            // Делаем ячейку недоступной
-		//            dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = true;
-		//        }
-		//        else // todo: снимать повтор, если объект перемещают "ниже" повтора
-		//        {
-		//            var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
-		//                .SingleOrDefault(x => x.ChildExecutionWork == executionWork);
-
-		//            dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = existingRepeat != null ? Color.LightGray : Color.White;
-		//            dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly = existingRepeat == null;
-		//        }
-		//    }
-		//    void SetReadOnlyAndColor(int columnIndex, Color color, bool readOnly = true)
-		//    {
-		//        dataGridViewPovtor.Rows[e.RowIndex].Cells[columnIndex].ReadOnly = readOnly;
-		//        dataGridViewPovtor.Rows[e.RowIndex].DefaultCellStyle.BackColor = color;
-		//    }
-		//}
-
-		//private void DataGridViewPovtor_CellContentClick(object? sender, DataGridViewCellEventArgs e)
-		//{
-		//    dataGridViewPovtor.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
-
-		//    if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-		//    {
-		//        var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-		//        var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
-		//        // позиция для executionWorkPovtor в таблице dataGridViewPovtor
-		//        var powtorIndex = dataGridViewPovtor.Rows.Cast<DataGridViewRow>().ToList().FindIndex(x => x.Cells[0].Value == executionWorkPovtor);
-
-		//        if (executionWorkPovtor != null && powtorIndex > e.RowIndex)//currentEW.Order < executionWorkPovtor.Order)
-		//        {
-		//            var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
-		//                .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
-
-		//            if (isSelected)
-		//            {
-		//                if (existingRepeat == null)
-		//                {
-		//                    var newRepeat = new ExecutionWorkRepeat
-		//                    {
-		//                        ParentExecutionWork = executionWorkPovtor,
-		//                        ParentExecutionWorkId = executionWorkPovtor.Id,
-		//                        ChildExecutionWork = currentEW,
-		//                        ChildExecutionWorkId = currentEW.Id,
-		//                        NewCoefficient = "*1"
-		//                    };
-
-		//                    dataGridViewPovtor.Rows[e.RowIndex].Cells[5].Value = "*1";
-		//                    executionWorkPovtor.ExecutionWorkRepeats.Add(newRepeat);
-		//                    TechOperationForm.context.ExecutionWorkRepeats.Add(newRepeat);
-		//                }
-		//            }
-		//            else
-		//            {
-		//                if (existingRepeat != null)
-		//                {
-		//                    dataGridViewPovtor.Rows[e.RowIndex].Cells[5].Value = "";
-		//                    executionWorkPovtor.ExecutionWorkRepeats.Remove(existingRepeat);
-		//                    TechOperationForm.context.ExecutionWorkRepeats.Remove(existingRepeat);
-		//                }
-		//            }
-
-
-		//            UpdateCoefficient(executionWorkPovtor);
-
-		//            // Перерисовать таблицу
-		//            dataGridViewPovtor.Invalidate();
-		//            //dataGridViewTPLocal.Invalidate();
-
-		//            TechOperationForm.UpdateGrid(); // todo: реализовать метод по изменению значения только для одной строки в таблице TechOperationForm
-		//        }
-		//    }
-		//}
-
-		//private void DataGridViewPovtor_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
-		//{
-		//    if ((e.ColumnIndex == 5 || e.ColumnIndex == 6 || e.ColumnIndex == 7) && e.RowIndex >= 0)
-		//    {
-		//        var currentEW = (ExecutionWork)dataGridViewPovtor.Rows[e.RowIndex].Cells[0].Value;
-		//        var isSelected = (bool)dataGridViewPovtor.Rows[e.RowIndex].Cells[1].Value;
-
-		//        if (executionWorkPovtor != null)
-		//        {
-		//            var existingRepeat = executionWorkPovtor.ExecutionWorkRepeats
-		//                .SingleOrDefault(x => x.ChildExecutionWork == currentEW);
-
-		//            var cell = dataGridViewPovtor.Rows[e.RowIndex].Cells[e.ColumnIndex];
-
-		//            if (isSelected)
-		//            {
-		//                if (existingRepeat != null)
-		//                {
-
-		//                    var cellValueStr = (string)cell.Value;
-
-		//                    if (e.ColumnIndex == 5)
-		//                    {
-		//                        if (string.IsNullOrEmpty(cellValueStr))
-		//                        {
-		//                            existingRepeat.NewCoefficient = string.Empty;
-		//                        }
-		//                        else
-		//                        {
-		//                            existingRepeat.NewCoefficient = cellValueStr;
-		//                        }
-		//                    }
-		//                    else if (e.ColumnIndex == 6)
-		//                    {
-		//                        existingRepeat.NewEtap = cellValueStr;
-		//                    }
-		//                    else if (e.ColumnIndex == 7)
-		//                    {
-		//                        existingRepeat.NewPosled = cellValueStr;
-		//                    }
-
-		//                    //RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
-		//                    //TechOperationForm.UpdateGrid();
-		//                }
-		//            }
-		//            else
-		//            {
-		//                // отмена изменений
-		//                cell.Value = null;
-
-		//            }
-
-		//            UpdateCoefficient(executionWorkPovtor);
-		//            TechOperationForm.UpdateGrid();
-		//            //UpdateLocalTP();
-		//        }
-		//    }
-		//}
-		//public void UpdatePovtor()
-  //      {
-  //          dataGridViewPovtor.Rows.Clear();
-  //          executionWorkPovtor = null;
-
-  //          var select = dataGridViewTPLocal.SelectedRows;
-  //          if (select.Count > 0)
-  //          {
-  //              var id = (Guid)select[0].Cells[0].Value;
-
-  //              var al = TechOperationForm.TechOperationWorksList.Where(w => w.Delete == false).OrderBy(o => o.Order);
-
-  //              ExecutionWork? exeWork = null;
-  //              // Поиск ТП с заданным Guid
-  //              foreach (TechOperationWork techOperationWork in al)
-  //              {
-  //                  if (exeWork != null)
-  //                  {
-  //                      break;
-  //                  }
-  //                  foreach (ExecutionWork executionWork in techOperationWork.executionWorks)
-  //                  {
-  //                      if (executionWork.IdGuid == id)
-  //                      {
-  //                          exeWork = executionWork;
-  //                          break;
-  //                      }
-  //                  }
-  //              }
-
-  //              if (exeWork != null && exeWork.Repeat)
-  //              {
-  //                  executionWorkPovtor = exeWork;
-  //                  //var selectedEW = exeWork.ListexecutionWorkRepeat2.ToList();
-  //                  var selectedEW = exeWork.ExecutionWorkRepeats.Select(ewr => ewr.ChildExecutionWork).ToList();
-  //                  var selectedEWR = exeWork.ExecutionWorkRepeats.ToList();
-  //                  foreach (TechOperationWork techOperationWork in al)
-  //                  {
-  //                      var allEwInTo = techOperationWork.executionWorks.Where(w => w.Delete == false /*&& w.Repeat == false*/).OrderBy(o => o.Order); ////// 26/06/2024 - добавил повторы в выборку. Т.к. в картах такие объекты тоже входят в повторы
-
-  //                      foreach (ExecutionWork executionWork in allEwInTo)
-  //                      {
-  //                          var isSelected = selectedEW.SingleOrDefault(s => s == executionWork) != null;
-
-  //                          List<object> listItem = new List<object>
-  //                          {
-  //                              executionWork
-  //                          };
-  //                          if (isSelected)
-  //                          {
-  //                              listItem.Add(true);
-  //                          }
-  //                          else
-  //                          {
-  //                              listItem.Add(false);
-  //                          }
-  //                          listItem.Add($"№{techOperationWork.Order} {techOperationWork.techOperation.Name}");
-  //                          listItem.Add(executionWork.techTransition?.Name ?? ""); // todo - проверить, может ли имя быть null у EW
-
-  //                          listItem.Add(executionWork.Coefficient ?? "");
-
-  //                          if (isSelected)
-  //                          {
-  //                              ExecutionWorkRepeat? techOperationWorkRepeat = selectedEWR.SingleOrDefault(s => s.ChildExecutionWork == executionWork);
-
-  //                              if (techOperationWorkRepeat != null)
-  //                              {
-  //                                  listItem.Add(techOperationWorkRepeat.NewCoefficient);
-
-  //                                  listItem.Add(techOperationWorkRepeat.NewEtap);
-  //                                  listItem.Add(techOperationWorkRepeat.NewPosled);
-  //                              }
-  //                          }
-
-  //                          dataGridViewPovtor.Rows.Add(listItem.ToArray());
-  //                      }
-  //                  }
-  //              }
-
-  //          }
-
-  //      }
-
         private void RecalculateExecutionWorkPovtorValue(ExecutionWork executionWorkPovtor)
         {
             if (!executionWorkPovtor.Repeat) return;
@@ -2707,6 +2375,7 @@ namespace TC_WinForms.WinForms.Work
                 UpdateRelatedReplays(editedExecutionWork);
 
         }
+
         #endregion
 
         private void RemoveRepeatsWithBiggerOrder(ExecutionWork repeat, int newOrder)
