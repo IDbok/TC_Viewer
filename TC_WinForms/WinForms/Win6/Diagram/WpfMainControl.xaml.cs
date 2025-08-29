@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using SerilogTimings;
+using SerilogTimings.Extensions;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
@@ -17,9 +20,15 @@ namespace TC_WinForms.WinForms.Diagram;
 /// </summary>
 public partial class WpfMainControl : System.Windows.Controls.UserControl, INotifyPropertyChanged
 {
-	#region Fields
+    private bool _firstRenderSubscribed = false;
+    private bool _awaitingFirstVisual = false;
+    private Operation? _firstVisualOp;
 
-	private readonly TcViewState _tcViewState;
+    #region Fields
+
+    private readonly ILogger _logger = Log.Logger.ForContext<WpfMainControl>();
+
+    private readonly TcViewState _tcViewState;
     public readonly MyDbContext _dbContext;
 
     private int _tcId;
@@ -124,7 +133,7 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
         this._diagramForm = _diagramForm;
         this._dbContext = context;
 
-		if (_tcViewState.DiagramScale != null)
+        if (_tcViewState.DiagramScale != null)
 		{
 			CurrentScale = (double)_tcViewState.DiagramScale;
 		}
@@ -147,24 +156,53 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 	/// </summary>
 	private async void OnLoad(object sender, EventArgs e)
 	{
-		this.Visibility = Visibility.Collapsed;
+        using var loadOp = _logger.BeginOperation("Diagram: OnLoad pipeline");
+
+        this.Visibility = Visibility.Collapsed;
 
 		// в _tcViewState уже загружены все необходимые данные,
 		_technologicalCard = _tcViewState.TechnologicalCard;
 		_techOperationWorksList = _tcViewState.TechOperationWorksList;
 		_diagramToWorkList = _tcViewState.DiagramToWorkList;
 
-		// Добавляем диаграммы в визуальное дерево
-		AddDiagramsToChildren();
-		UpdateNumbering();
+        // Добавляем диаграммы в визуальное дерево
+        AddDiagramsToChildren();
+        UpdateNumbering();
 
-		this.Visibility = Visibility.Visible;
-	}
+        this.Visibility = Visibility.Visible;
 
-	/// <summary>
-	/// Обработка клика на кнопку "Добавить следующее ТО".
-	/// </summary>
-	private void Button_Click(object sender, RoutedEventArgs e)
+
+        _awaitingFirstVisual = true;
+        _firstVisualOp?.Cancel();
+        _firstVisualOp = _logger.BeginOperation("Diagram: First render after load");
+
+        if (!_firstRenderSubscribed)
+        {
+            _firstRenderSubscribed = true;
+            CompositionTarget.Rendering += OnFirstRendering;
+        }
+
+        loadOp.Complete();
+    }
+
+    /// <summary>
+    /// Обработка первого события рендеренга с захватом.
+    /// </summary>
+    /// <remarks>
+    /// Метод выполняется в первый цикл рендеринга для завершения таймера инициализации визуала.
+    /// </remarks>
+    private void OnFirstRendering(object? sender, EventArgs e)
+    {
+        if (!_awaitingFirstVisual) return;
+        _awaitingFirstVisual = false;
+        _firstVisualOp?.Complete();
+        CompositionTarget.Rendering -= OnFirstRendering;
+    }
+
+    /// <summary>
+    /// Обработка клика на кнопку "Добавить следующее ТО".
+    /// </summary>
+    private void Button_Click(object sender, RoutedEventArgs e)
 	{
 		if (CheckIfTOIsAvailable())
 		{
@@ -304,64 +342,68 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 	/// </summary>
 	internal void UpdateNumbering()
 	{
-		int counter = 1;
 
-		int Order1 = 1; // порядковый номер отображения TO
-		int Order2 = 1; // порядковый номер отображения параллельных операций
-		int Order3 = 1;
-		int Order4 = 1;
+        using (_logger.TimeOperation("Diagram: UpdateNumbering (items={Count})", _diagramToWorkList.Count))
+        {
+            int counter = 1;
 
-		foreach (WpfTo wpfToItem in Children)
-		{
-			foreach (var wpfToSq in wpfToItem.Children)
-				foreach (var wpfControlToItem in wpfToSq.Children)
-				{
-					if (wpfControlToItem.diagamToWork != null) 
-                        wpfControlToItem.diagamToWork.Order = Order1; // todo: можно ли инкрементировать здесь? ( почему тут логика отличается?)
+            int Order1 = 1; // порядковый номер отображения TO
+            int Order2 = 1; // порядковый номер отображения параллельных операций
+            int Order3 = 1;
+            int Order4 = 1;
 
-					Order1++;
-					Order2 = 1;
-					Order3 = 1;
-					Order4 = 1;
+            foreach (WpfTo wpfToItem in Children)
+            {
+                foreach (var wpfToSq in wpfToItem.Children)
+                    foreach (var wpfControlToItem in wpfToSq.Children)
+                    {
+                        if (wpfControlToItem.diagamToWork != null)
+                            wpfControlToItem.diagamToWork.Order = Order1; // todo: можно ли инкрементировать здесь? ( почему тут логика отличается?)
 
-					// Параллельные операции
-					foreach (WpfParalelno wpfParallelItem in wpfControlToItem.Children)
-					{
-						if (wpfParallelItem.diagramParalelno != null) 
-                            wpfParallelItem.diagramParalelno.Order = Order2++;
+                        Order1++;
+                        Order2 = 1;
+                        Order3 = 1;
+                        Order4 = 1;
 
-						Order3 = 1;
-						Order4 = 1;
+                        // Параллельные операции
+                        foreach (WpfParalelno wpfParallelItem in wpfControlToItem.Children)
+                        {
+                            if (wpfParallelItem.diagramParalelno != null)
+                                wpfParallelItem.diagramParalelno.Order = Order2++;
 
-						// Последовательности
-						foreach (WpfPosledovatelnost item3 in wpfParallelItem.ListWpfPosledovatelnost.Children)
-						{
-							if (item3.diagramPosledov != null) 
-                                item3.diagramPosledov.Order = Order3++;
+                            Order3 = 1;
+                            Order4 = 1;
 
-							Order4 = 1;
+                            // Последовательности
+                            foreach (WpfPosledovatelnost item3 in wpfParallelItem.ListWpfPosledovatelnost.Children)
+                            {
+                                if (item3.diagramPosledov != null)
+                                    item3.diagramPosledov.Order = Order3++;
 
-							foreach (WpfShag item4 in item3.ListWpfShag.Children)
-							{
-								if (item4.diagramShag != null)
-								{
-									item4.diagramShag.Order = Order4++;
-								}
-								// todo: проверка на то, что номер не изменился
-								item4.SetNomer(counter);
-								counter++;
-							}
-						}
-					}
-				}
+                                Order4 = 1;
 
-		}
+                                foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                                {
+                                    if (item4.diagramShag != null)
+                                    {
+                                        item4.diagramShag.Order = Order4++;
+                                    }
+                                    // todo: проверка на то, что номер не изменился
+                                    item4.SetNomer(counter);
+                                    counter++;
+                                }
+                            }
+                        }
+                    }
 
-		// Если не «Только просмотр», значит были изменения
-		if (!_tcViewState.IsViewMode)
-		{
-			_diagramForm.HasChanges = true;
-		}
+            }
+
+            // Если не «Только просмотр», значит были изменения
+            if (!_tcViewState.IsViewMode)
+            {
+                _diagramForm.HasChanges = true;
+            }
+        }            
 	}
 
 	/// <summary>
@@ -448,18 +490,20 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 	/// Возвращает все DiagamToWork, уже добавленные в Children.
 	/// </summary>
 	public List<DiagamToWork> GetAllDiagramToWorks()
-	{
-		var diagramToWorks = new List<DiagamToWork>();
+    {
+        using (_logger.TimeOperation("Diagram: GetAllDiagramToWorks"))
+        {
+            var diagramToWorks = new List<DiagamToWork>();
+            foreach (WpfTo wpfToItem in Children)
+                foreach (var wpfToSq in wpfToItem.Children)
+                    foreach (var wpfControlToItem in wpfToSq.Children)
+                        if (wpfControlToItem.diagamToWork != null)
+                        {
+                            diagramToWorks.Add(wpfControlToItem.diagamToWork);
+                        }
 
-		foreach (WpfTo wpfToItem in Children)
-			foreach (var wpfToSq in wpfToItem.Children)
-				foreach (var wpfControlToItem in wpfToSq.Children)
-					if (wpfControlToItem.diagamToWork != null)
-					{
-						diagramToWorks.Add(wpfControlToItem.diagamToWork);
-					}
-				
-		return diagramToWorks;
+            return diagramToWorks;
+        }
 	}
 
 	/// <summary>
@@ -477,11 +521,12 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 	{
 		try
 		{
-			// удалить текущие данные
-			Children.Clear();
-
-			_diagramForm.ReloadElementHost(new WpfMainControl(_tcId, _diagramForm, _tcViewState, _dbContext));
-
+            using (_logger.TimeOperation("Diagram: ReinitializeForm"))
+            {
+                // удалить текущие данные
+                Children.Clear();
+                _diagramForm.ReloadElementHost(new WpfMainControl(_tcId, _diagramForm, _tcViewState, _dbContext));
+            }
 		}
 		catch (Exception ex)
 		{
@@ -518,27 +563,32 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 	/// </summary>
 	private void AddDiagramsToChildren()
     {
-        // Сгруппировать по ParallelIndex, если ParallelIndex = null, то записать в отдельную группу
-        var groups = _diagramToWorkList
-            .GroupBy(g => g.ParallelIndex != null ? g.GetParallelIndex() : g.Order.ToString())
-			.OrderBy(o => o.FirstOrDefault()?.Order)
-			.ToList();
+        _logger.Information("Diagram: AddDiagramsToChildren started");
+        using (_logger.TimeOperation("Diagram: AddDiagramsToChildren (dtw={Count})", _diagramToWorkList.Count))
+        {
+            // Сгруппировать по ParallelIndex, если ParallelIndex = null, то записать в отдельную группу
+            var groups = _diagramToWorkList
+                .GroupBy(g => g.ParallelIndex != null ? g.GetParallelIndex() : g.Order.ToString())
+                .OrderBy(o => o.FirstOrDefault()?.Order)
+                .ToList();
 
-        foreach (var group in groups)
-		{
-			// Если ключ нулевой (ParallelIndex = null), это одиночная группа
-			if (group.Key == null)
-			{
-				foreach (var item in group)
-				{
-					AddDiagramsToChildren(item);
-				}
-			}
-			else
-			{
-				AddDiagramsToChildren(group.OrderBy(x => x.Order).ToList());
-			}
+            foreach (var group in groups)
+            {
+                // Если ключ нулевой (ParallelIndex = null), это одиночная группа
+                if (group.Key == null)
+                {
+                    foreach (var item in group)
+                    {
+                        AddDiagramsToChildren(item);
+                    }
+                }
+                else
+                {
+                    AddDiagramsToChildren(group.OrderBy(x => x.Order).ToList());
+                }
+            }
         }
+                    
     }
 
 	/// <summary>
@@ -546,15 +596,13 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 	/// </summary>
 	private void AddDiagramsToChildren(List<DiagamToWork> diagamToWorks, int? indexPosition = null)
     {
-        var wpfTo = new WpfTo(this, _tcViewState, diagamToWorks);
-
-        if (indexPosition != null)
+        using (_logger.TimeOperation("Diagram: AddGroup(size={Size})", diagamToWorks.Count))
         {
-            Children.Insert(indexPosition.Value, wpfTo);
-        }
-        else
-        {
-            Children.Add(wpfTo);
+            var wpfTo = new WpfTo(this, _tcViewState, diagamToWorks);
+            if (indexPosition != null)
+                Children.Insert(indexPosition.Value, wpfTo);
+            else
+                Children.Add(wpfTo);
         }
     }
 
@@ -571,15 +619,18 @@ public partial class WpfMainControl : System.Windows.Controls.UserControl, INoti
 	/// </summary>
 	private void SaveAllChildren()
 	{
-		foreach (WpfTo wpfToItem in Children)
-			foreach (WpfToSequence wpfToSq in wpfToItem.Children)
-				foreach (WpfControlTO wpfControlToItem in wpfToSq.Children)
-					foreach (WpfParalelno item2 in wpfControlToItem.Children)
-						foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
-							foreach (WpfShag item4 in item3.ListWpfShag.Children)
-							{
-								item4.SaveCollection();
-							}
+        using (var op = _logger.BeginOperation("Diagram: SaveAll"))
+        {
+            foreach (WpfTo wpfToItem in Children)
+                foreach (WpfToSequence wpfToSq in wpfToItem.Children)
+                    foreach (WpfControlTO wpfControlToItem in wpfToSq.Children)
+                        foreach (WpfParalelno item2 in wpfControlToItem.Children)
+                            foreach (WpfPosledovatelnost item3 in item2.ListWpfPosledovatelnost.Children)
+                                foreach (WpfShag item4 in item3.ListWpfShag.Children)
+                                {
+                                    item4.SaveCollection();
+                                }
+        }         
 
 	}
 

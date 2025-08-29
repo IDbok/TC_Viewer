@@ -1,15 +1,17 @@
+using Serilog;
+using SerilogTimings.Extensions;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
 using TC_WinForms.Interfaces;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.Interfaces;
-using TcModels.Models.TcContent;
 
 namespace TC_WinForms.WinForms.Diagram
 {
 	public partial class DiagramForm : Form, ISaveEventForm, IViewModeable, IFormWithObjectId
     {
+        private readonly ILogger _logger = Log.Logger.ForContext<DiagramForm>();
         private readonly TcViewState _tcViewState;
 
         private int tcId;
@@ -33,10 +35,10 @@ namespace TC_WinForms.WinForms.Diagram
 			_tcViewState = tcViewState;
 
 			this.tcId = tcId;
-
-			InitializeElementHost();
-
-			AddElementToElementHost(new WpfMainControl(tcId, this, _tcViewState, context));
+            using (_logger.TimeOperation("DiagramForm: InitializeElementHost"))
+                InitializeElementHost();
+            using (_logger.TimeOperation("DiagramForm: Create WpfMainControl"))
+                AddElementToElementHost(new WpfMainControl(tcId, this, _tcViewState, context));
 
             this.Text = $"Блок схема {_tcViewState.TechnologicalCard.Name}({_tcViewState.TechnologicalCard.Article})";
 
@@ -51,9 +53,12 @@ namespace TC_WinForms.WinForms.Diagram
 
         public void ReloadElementHost(WpfMainControl wpfDiagram)
         {
-			CleanElementHost();
-			AddElementToElementHost(wpfDiagram);
-		}
+            using (_logger.TimeOperation("DiagramForm: ReloadElementHost"))
+            {
+                CleanElementHost();
+                AddElementToElementHost(wpfDiagram);
+            }
+        }
 
 		private void AddElementToElementHost(WpfMainControl wpfDiagram)
 		{
