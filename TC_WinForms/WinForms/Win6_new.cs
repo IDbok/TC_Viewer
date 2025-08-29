@@ -539,6 +539,7 @@ namespace TC_WinForms.WinForms
 
         private Form CreateForm(EModelType modelType)
         {
+            using (_logger.TimeOperation("CreateForm {ModelType}", modelType))
             switch (modelType)
             {
                 case EModelType.Staff:
