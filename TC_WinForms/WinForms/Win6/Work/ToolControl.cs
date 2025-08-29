@@ -27,7 +27,7 @@ namespace TC_WinForms.WinForms.Win6.Work
     {
         #region Fields
 
-        private ILogger _logger;
+        private ILogger _logger = Log.Logger.ForContext<ToolControl>();
 
         private TechOperationWork? _parentTechOperatinWork = null;
         private readonly TcViewState _tcViewState;
@@ -46,17 +46,10 @@ namespace TC_WinForms.WinForms.Win6.Work
         public ToolControl(MyDbContext myDbContext, TcViewState tcViewState)
         {
             InitializeComponent();
-            _logger = Log.Logger.ForContext<ToolControl>();
             _context = myDbContext;
             _tcViewState = tcViewState;
 
-            dgvToolsGlobal.CellClick += DgvToolsGlobal_CellClick;
-            dgvToolsLocal.CellClick += DgvToolsLocal_CellClick;
-            dgvToolsLocal.CellEndEdit += DgvToolsLocal_CellEndEdit;
-            dgvToolsLocal.CellValidating += CellValidating;
-            txtSearch.TextChanged += TxtSearch_TextChanged;
-            cmbxFilter.SelectedIndexChanged += CmbxFilter_SelectedIndexChanged;
-
+            SubscribeToEvents();
             _logger.Information("Окно ToolControl инициализировано");
             ConfigureCombobox();
         }
@@ -64,6 +57,20 @@ namespace TC_WinForms.WinForms.Win6.Work
         #endregion
 
         #region Initialization and configuration
+
+        /// <summary>
+        /// Подписывается на события элементов управления для обработки взаимодействия с пользователем.
+        /// Обрабатывает клики по ячейкам таблиц, редактирование, валидацию и изменения фильтров.
+        /// </summary>
+        private void SubscribeToEvents()
+        {
+            dgvToolsGlobal.CellClick += DgvToolsGlobal_CellClick;
+            dgvToolsLocal.CellClick += DgvToolsLocal_CellClick;
+            dgvToolsLocal.CellEndEdit += DgvToolsLocal_CellEndEdit;
+            dgvToolsLocal.CellValidating += CellValidating;
+            txtSearch.TextChanged += TxtSearch_TextChanged;
+            cmbxFilter.SelectedIndexChanged += CmbxFilter_SelectedIndexChanged;
+        }
 
         /// <summary>
         /// Данный метод заполняет комбобокс для фильтрации списка возможных для добавления инструментов
@@ -91,6 +98,7 @@ namespace TC_WinForms.WinForms.Win6.Work
 
             if (parentTOW == null)
             {
+                _logger.Error("Технологическая операция не обнаружена");
                 MessageBox.Show("Технологическая операция не обнаружена", "ТО не обнаружена!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -134,7 +142,7 @@ namespace TC_WinForms.WinForms.Win6.Work
 
             _logger.Information($"Таблица dgvToolsLocal заполнена, всего записей: {dgvToolsLocal.RowCount}");
 
-            RestoreScrollPosition(dgvToolsLocal, offScroll);
+            dgvToolsLocal.RestoreScrollPosition(offScroll, _logger);
             dgvToolsLocal.AutoResizeRows();
         }
 
@@ -174,7 +182,7 @@ namespace TC_WinForms.WinForms.Win6.Work
 
             foreach (var tool in filteredList)
             {
-                var toolInTc = _tcViewState.TechnologicalCard.Tool_TCs.Where(t => t.ChildId == tool.Id).FirstOrDefault();
+                var toolInTc = _tcViewState.TechnologicalCard.Tool_TCs.FirstOrDefault(t => t.ChildId == tool.Id);
                 List<object> listItem = new List<object>();
                 listItem.Add(tool);
 
@@ -188,7 +196,7 @@ namespace TC_WinForms.WinForms.Win6.Work
             }
 
             _logger.Information($"Таблица dgvToolsGlobal заполнена, всего записей: {dgvToolsGlobal.RowCount}");
-            RestoreScrollPosition(dgvToolsGlobal, offScroll);
+            dgvToolsGlobal.RestoreScrollPosition(offScroll, _logger);
         }
 
 
@@ -259,21 +267,6 @@ namespace TC_WinForms.WinForms.Win6.Work
 
             return toolTcTools.Concat(otherTools).ToList();
         }
-
-        private void RestoreScrollPosition(DataGridView dataGridView, int position)
-        {
-            try
-            {
-                if (position > 0 && position < dataGridView.Rows.Count)
-                {
-                    dataGridView.FirstDisplayedScrollingRowIndex = position;
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.Warning($"В процессе установки позиции скролла произошла ошибка {e.Message}");
-            }
-        }
         #endregion
 
         #region DGV events
@@ -328,8 +321,15 @@ namespace TC_WinForms.WinForms.Win6.Work
         {
             if (e.ColumnIndex == dgvToolsLocal.Columns["countColumn"].Index)
             {
-                var tool = (ToolWork)dgvToolsLocal.Rows[e.RowIndex].Cells[0].Value;
+                var tool = dgvToolsLocal.Rows[e.RowIndex].Cells[0].Value as ToolWork;
                 var countValue = (object)dgvToolsLocal.Rows[e.RowIndex].Cells[5].Value;
+
+                if (tool == null)
+                {
+                    _logger.Error("Инструмент для редактирования не обнаружен");
+                    MessageBox.Show("Инструмент для редактирования не обнаружен", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
                 double result = 0;
                 if (countValue is double doubleValue)
@@ -352,8 +352,15 @@ namespace TC_WinForms.WinForms.Win6.Work
             }
             else if (e.ColumnIndex == dgvToolsLocal.Columns["commentColumn"].Index)
             {
-                var tool = (ToolWork)dgvToolsLocal.Rows[e.RowIndex].Cells[0].Value;
+                var tool = dgvToolsLocal.Rows[e.RowIndex].Cells[0].Value as ToolWork;
                 var commentValue = (string)dgvToolsLocal.Rows[e.RowIndex].Cells[6].Value;
+
+                if (tool == null)
+                {
+                    _logger.Error("Инструмент для редактирования не обнаружен");
+                    MessageBox.Show("Инструмент для редактирования не обнаружен", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
                 tool.Comments = commentValue;
 
@@ -370,7 +377,10 @@ namespace TC_WinForms.WinForms.Win6.Work
         /// </summary>
         private void DgvToolsLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == dgvToolsLocal.Columns["deleteBtnColumn"].Index && e.RowIndex >= 0)
+            if (e.RowIndex < 0)
+            { return; }
+
+            if (e.ColumnIndex == dgvToolsLocal.Columns["deleteBtnColumn"].Index)
             {
                 _logger.LogUserAction($"Щелчок по ячейке удаления инструмента в строке {e.RowIndex}.");
 
@@ -395,7 +405,10 @@ namespace TC_WinForms.WinForms.Win6.Work
         /// </summary>
         private void DgvToolsGlobal_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == dgvToolsLocal.Columns["addBtnColumn"].Index && e.RowIndex >= 0)
+            if(e.RowIndex <0)
+            { return; }
+
+            if (e.ColumnIndex == dgvToolsLocal.Columns["addBtnColumn"].Index)
             {
                 _logger.LogUserAction($"Щелчок по ячейке добавить инструмент в строке {e.RowIndex}.");
 
@@ -405,10 +418,19 @@ namespace TC_WinForms.WinForms.Win6.Work
                     return;
                 }
 
-                var tool = (Tool)dgvToolsGlobal.Rows[e.RowIndex].Cells[0].Value;
-                var existedTool = _parentTechOperatinWork.ToolWorks.Where(t => t.toolId == tool.Id && t.IsDeleted == true).FirstOrDefault();
-                var exustInInstrument = _tcViewState.TechnologicalCard.Tool_TCs.Where(t => t.ChildId == tool.Id).FirstOrDefault();
+                var tool = dgvToolsGlobal.Rows[e.RowIndex].Cells[0].Value as Tool;
 
+                if (tool == null)
+                {
+                    _logger.Error("Инструмент для добавления в ТК не обнаружен");
+                    MessageBox.Show("Инструмент для добавления в ТК не обнаружен", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                var existedTool = _parentTechOperatinWork.ToolWorks.FirstOrDefault(t => t.toolId == tool.Id && t.IsDeleted == true);
+                var exustInInstrument = _tcViewState.TechnologicalCard.Tool_TCs.FirstOrDefault(t => t.ChildId == tool.Id);
+
+                
                 if (existedTool != null)
                 {
                     _logger.Information($"Инструмент {tool.Name} ранее использовался, снимается флаг удаления");
@@ -419,23 +441,28 @@ namespace TC_WinForms.WinForms.Win6.Work
                 else
                 {
                     _logger.Information($"Инструмент {tool.Name} ранее не использовался, создается новый объект");
-                    ToolWork toolWork = new ToolWork();
-                    toolWork.tool = tool;
-                    toolWork.toolId = tool.Id;
-                    toolWork.Quantity = exustInInstrument != null ? exustInInstrument.Quantity : 1;
-                    _parentTechOperatinWork.ToolWorks.Add(toolWork);
+                   
+                    _parentTechOperatinWork.ToolWorks.Add(
+                        new ToolWork{
+                            tool = tool,
+                            toolId = tool.Id,
+                            Quantity = exustInInstrument?.Quantity ?? 1
+                        });
                 }
 
                 if (exustInInstrument == null)
                 {
                     _logger.Information($"Инструмент {tool.Name} ранее не использовался и не был указан в таблице инструментов ТК, создается новая запись");
-                    Tool_TC newTool = new Tool_TC();
-                    newTool.Parent = _tcViewState.TechnologicalCard;
-                    newTool.ParentId = _tcViewState.TechnologicalCard.Id;
-                    newTool.ChildId = tool.Id;
-                    newTool.Child = tool;
-                    newTool.Order = _tcViewState.TechnologicalCard.Tool_TCs.Count + 1;
-                    _tcViewState.TechnologicalCard.Tool_TCs.Add(newTool);
+                    
+                    _tcViewState.TechnologicalCard.Tool_TCs.Add(
+                        new Tool_TC
+                        {
+                            Parent = _tcViewState.TechnologicalCard,
+                            ParentId = _tcViewState.TechnologicalCard.Id,
+                            ChildId = tool.Id,
+                            Child = tool,
+                            Order = _tcViewState.TechnologicalCard.Tool_TCs.Count + 1
+                        });
                 }
 
 
