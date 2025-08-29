@@ -11,6 +11,7 @@ using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win6.Models;
 using TC_WinForms.WinForms.Win6.Work;
+using TC_WinForms.WinForms.Win6.Work.EditorForms;
 using TcModels.Models;
 using TcModels.Models.IntermediateTables;
 using TcModels.Models.TcContent;
@@ -28,6 +29,7 @@ namespace TC_WinForms.WinForms.Work
 		private RepeatExecutionControl repeatAsInTcExecutionControl;
 		private RepeatExecutionControl repeatExecutionControl;
 		private ToolControl toolControl;
+		private ComponentControl componentControl;
         private readonly TcViewState _tcViewState;
         private List<TechOperation> allTO;
         private List<TechTransition> allTP;
@@ -76,6 +78,22 @@ namespace TC_WinForms.WinForms.Work
 
             // Добавить на вкладку
             tabPageRepeat.Controls.Add(repeatExecutionControl);
+
+
+            componentControl = new ComponentControl(techOperationForm.context, _tcViewState);
+            componentControl.Dock = DockStyle.Fill;
+
+            componentControl.DataChanged += (s, e) =>
+            {
+                TechOperationForm.UpdateGrid();
+            };
+
+            componentControl.ComponentWorkDeleteRequested += (work, toolWork) =>
+            {
+                TechOperationForm.MarkToDeleteComponentWork(work, toolWork);
+            };
+
+            tabPageComponent.Controls.Add(componentControl);
 
 
             toolControl = new ToolControl(techOperationForm.context, _tcViewState);
@@ -132,11 +150,6 @@ namespace TC_WinForms.WinForms.Work
 
             dataGridViewStaffAll.CellClick += DataGridViewStaffAll_CellClick;
 
-            dataGridViewComponentAll.CellClick += DataGridViewComponentAll_CellClick;
-            dataGridViewComponentLocal.CellClick += DataGridViewComponentLocal_CellClick;
-            dataGridViewComponentLocal.CellEndEdit += DataGridViewComponentLocal_CellEndEdit;
-            dataGridViewComponentLocal.CellValidating += CellValidating;
-
             dataGridViewAllSZ.CellClick += DataGridViewAllSZ_CellClick;
             dataGridViewLocalSZ.CellClick += DataGridViewLocalSZ_CellClick;
 
@@ -151,10 +164,8 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewMeha.CellContentClick += DataGridViewMeha_CellContentClick;
             dataGridViewMeha.CellValidating += CellValidating;
 
-            comboBoxFilterComponent.SelectedIndexChanged += ComboBoxFilterComponent_SelectedIndexChanged;
 
             textBoxPoiskTo.TextChanged += TextBoxPoiskTo_TextChanged;
-            textBoxPoiskComponent.TextChanged += TextBoxPoiskComponent_TextChanged;
             textBoxPoiskTP.TextChanged += TextBoxPoiskTP_TextChanged;
             textBoxPoiskSZ.TextChanged += TextBoxPoiskSZ_TextChanged;
             textBoxPoiskMach.TextChanged += TextBoxPoiskMach_TextChanged;
@@ -235,8 +246,7 @@ namespace TC_WinForms.WinForms.Work
                     UpdateComboBoxTT();
                     break;
                 case "tabPageComponent":
-                    UpdateComponentLocal();
-                    UpdateComponentAll();//чтобы обновлялся список добавленных в ТО компонентов
+                    componentControl.SetParentTechOpetarionWork(SelectedTO ?? TechOperationForm.TechOperationWorksList.First());
                     break;
                 case "tabPageTool":
                     toolControl.SetParentTechOpetarionWork(SelectedTO ?? TechOperationForm.TechOperationWorksList.First());
@@ -283,14 +293,14 @@ namespace TC_WinForms.WinForms.Work
 					_logger.Information("Вкладка персонала обновлена (локальный и общий списки).");
 					break;
 				case "tabPageComponent":
-					// Обновление данных для вкладки "Комплектующие/Компоненты"
-					UpdateComponentLocal();
-					UpdateComponentAll();
+                    // Обновление данных для вкладки "Комплектующие/Компоненты"
+                    componentControl.RefreshAllData();
 					_logger.Information("Вкладка компонентов обновлена (локальный и общий списки).");
 					break;
 				case "tabPageTool":
-					// Обновление данных для вкладки "Инструменты"
-					_logger.Information("Вкладка инструментов обновлена (локальный и общий списки).");
+                    // Обновление данных для вкладки "Инструменты"
+                    toolControl.RefreshAllData();
+                    _logger.Information("Вкладка инструментов обновлена (локальный и общий списки).");
 					break;
 				case "tabPageProtection":
 					// Обновление данных для вкладки "Средства защиты"
@@ -1750,295 +1760,9 @@ namespace TC_WinForms.WinForms.Work
 
         #region Component
 
-
-        private void TextBoxPoiskComponent_TextChanged(object? sender, EventArgs e)
-        {
-            UpdateComponentAll();
-        }
-
-
-
-        private void ComboBoxFilterComponent_SelectedIndexChanged(object? sender, EventArgs e)
-        {
-            UpdateComponentAll();
-        }
-
-        private List<string> AllFilterComponent;
-
-        public void UpdateComponentAll()
-        {
-            var offScroll = dataGridViewComponentAll.FirstDisplayedScrollingRowIndex;
-            dataGridViewComponentAll.Rows.Clear();
-
-            var work = SelectedTO;
-            if (work == null)
-            {
-                _logger.Warning("Не выбрана ТО. Обновление компонентов невозможно.");
-				return;
-            }
-
-            var context = TechOperationForm.context;
-
-            var AllMyComponent = TechOperationForm.TehCarta.Component_TCs.Where(w => w.ParentId == TechOperationForm._tcId).OrderBy(x => x.Order).ToList();
-
-            var AllComponent = context.Components.ToList();
-
-            var LocalComponent = work.ComponentWorks.Where(c => c.IsDeleted == false).ToList();
-
-
-            bool UpdFilt = false;
-
-            if (AllFilterComponent == null)
-            {
-                UpdFilt = true;
-                AllFilterComponent = new List<string>();
-                AllFilterComponent.Add("Все");
-            }
-
-
-            foreach (Component_TC componentTc in AllMyComponent)
-            {
-                if (textBoxPoiskComponent.Text != "" &&
-                    componentTc.Child.Name.ToLower().IndexOf(textBoxPoiskComponent.Text.ToLower()) == -1)
-                {
-                    continue;
-                }
-
-                if (LocalComponent.SingleOrDefault(s => s.component == componentTc.Child) != null)
-                {
-                    continue;
-                }
-
-                if (comboBoxFilterComponent.SelectedIndex > 0)
-                {
-                    var selCateg = (string)comboBoxFilterComponent.SelectedItem;
-
-                    if (selCateg != componentTc.Child.Categoty)
-                    {
-                        continue;
-                    }
-
-                }
-
-
-                List<object> listItem = new List<object>
-                {
-                    componentTc.Child,
-                    "Добавить",
-                    componentTc.Child.Name,
-                    componentTc.Child.Type,
-                    componentTc.Child.Unit,
-                    componentTc.Quantity
-                };
-                dataGridViewComponentAll.Rows.Add(listItem.ToArray());
-            }
-
-            foreach (Component component in AllComponent)
-            {
-                if (UpdFilt)
-                {
-                    if (!AllFilterComponent.Contains(component.Categoty))
-                    {
-                        AllFilterComponent.Add(component.Categoty);
-                    }
-                }
-
-
-                if (textBoxPoiskComponent.Text != "" &&
-                    component.Name.ToLower().IndexOf(textBoxPoiskComponent.Text.ToLower()) == -1)
-                {
-                    continue;
-                }
-
-                if (LocalComponent.SingleOrDefault(s => s.component == component) != null)
-                {
-                    continue;
-                }
-
-                if (AllMyComponent.SingleOrDefault(s => s.Child == component) != null)
-                {
-                    continue;
-                }
-
-
-                if (comboBoxFilterComponent.SelectedIndex > 0)
-                {
-                    var selCateg = (string)comboBoxFilterComponent.SelectedItem;
-
-                    if (selCateg != component.Categoty)
-                    {
-                        continue;
-                    }
-
-                }
-
-
-                List<object> listItem = new List<object>
-                {
-                    component,
-                    "Добавить",
-                    component.Name,
-                    component.Type,
-                    component.Unit,
-                    ""
-                };
-                dataGridViewComponentAll.Rows.Add(listItem.ToArray());
-            }
-
-
-            if (UpdFilt)
-            {
-                comboBoxFilterComponent.DataSource = AllFilterComponent;
-                comboBoxFilterComponent.SelectedIndex = 0;
-            }
-
-            RestoreScrollPosition(dataGridViewComponentAll, offScroll);
-        }
-
         public void UpdateComponentLocal()
         {
-            var offScroll = dataGridViewComponentLocal.FirstDisplayedScrollingRowIndex;
-            dataGridViewComponentLocal.Rows.Clear();
-            var work = SelectedTO;
-            if (work == null)
-            {
-                _logger.Warning("Не выбрана ТО. Обновление компонентов невозможно.");
-				return;
-            }
-
-
-            var LocalComponent = work.ComponentWorks.Where(c => c.IsDeleted == false).ToList();
-
-            foreach (ComponentWork componentWork in LocalComponent)
-            {
-                List<object> listItem = new List<object>
-                {
-                    componentWork,
-                    "Удалить",
-                    componentWork.component.Name,
-                    componentWork.component.Type ?? "",
-                    componentWork.component.Unit,
-                    componentWork.Quantity.ToString(),
-                    componentWork.Comments ?? ""
-				};
-                dataGridViewComponentLocal.Rows.Add(listItem.ToArray());
-            }
-
-            RestoreScrollPosition(dataGridViewComponentLocal, offScroll);
-            dataGridViewComponentLocal.AutoResizeRows();
-
-        }
-
-        private void DataGridViewComponentAll_CellClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-            {
-                _logger.LogUserAction($"Щелчок по ячейке добавить компонент в строке {e.RowIndex}.");
-
-                var work = SelectedTO;
-
-                if (work == null)
-                {
-					_logger.Warning("Не выбрана ТО. Добавление компонента невозможно.");
-					return;
-				}
-
-                var Idd = (Component)dataGridViewComponentAll.Rows[e.RowIndex].Cells[0].Value;
-
-                var existedIdd = work.ComponentWorks.Where(c => c.componentId == Idd.Id && c.IsDeleted == true).FirstOrDefault();
-                var exustInComponent = TechOperationForm.TehCarta.Component_TCs.Where(t => t.ChildId == Idd.Id).FirstOrDefault();
-
-                if (existedIdd != null)
-                {
-                    existedIdd.IsDeleted = false;
-                    work.ComponentWorks.Remove(existedIdd);
-                    work.ComponentWorks.Insert(work.ComponentWorks.Count, existedIdd);
-                }
-                else
-                {
-                    ComponentWork componentWork = new ComponentWork();
-                    componentWork.component = Idd;
-                    componentWork.componentId = Idd.Id;
-                    componentWork.Quantity = exustInComponent != null ? exustInComponent.Quantity: 1;
-                    work.ComponentWorks.Add(componentWork);
-                }
-
-                if (exustInComponent == null)
-                {
-                    Component_TC newComponent = new Component_TC();
-                    newComponent.Parent = TechOperationForm.TehCarta;
-                    newComponent.ParentId = TechOperationForm.TehCarta.Id;
-                    newComponent.ChildId = Idd.Id;
-                    newComponent.Child = Idd;
-                    newComponent.Order = TechOperationForm.TehCarta.Tool_TCs.Count + 1;
-                    TechOperationForm.TehCarta.Component_TCs.Add(newComponent);
-                }
-
-                UpdateComponentAll();
-                UpdateComponentLocal();
-                TechOperationForm.UpdateGrid();
-            }
-        }
-
-        private void DataGridViewComponentLocal_CellClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            //HighlightTOTTRow();
-
-            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-            {
-                _logger.LogUserAction($"Щелчок по ячейке удаления компонента в строке {e.RowIndex}.");
-
-                var work = SelectedTO;
-
-                if (work == null)
-                {
-					_logger.Warning("Не выбрана ТО. Удаление компонента невозможно.");
-					return;
-				}
-
-				var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
-
-                TechOperationForm.MarkToDeleteComponentWork(work, Idd);
-
-                UpdateComponentAll();
-                UpdateComponentLocal();
-                TechOperationForm.UpdateGrid();
-            }
-        }
-
-        private void DataGridViewComponentLocal_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 5)
-            {
-                var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value; // todo: переделать на более безапосный способ
-				var value = (object)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[5].Value;
-
-                double don = 0;
-                if (value is double doubleValue)
-                {
-                    don = doubleValue;
-                }
-                else if (!double.TryParse((string)value, out don))
-                {
-                    don = 0;
-                }
-
-                if (Idd.Quantity == don)
-                    return;
-
-                Idd.Quantity = don;
-                TechOperationForm.UpdateGrid();
-            }
-
-            if (e.ColumnIndex == 6)
-            {
-                var Idd = (ComponentWork)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[0].Value;
-                var value = (string)dataGridViewComponentLocal.Rows[e.RowIndex].Cells[6].Value;
-
-                Idd.Comments = value ?? "";
-                TechOperationForm.UpdateGrid();
-            }
-            dataGridViewComponentLocal.AutoResizeRows();
+            componentControl.RefreshComponentDataLocal();
         }
 
         #endregion
@@ -2448,8 +2172,12 @@ namespace TC_WinForms.WinForms.Work
                     break;
 
                 case "tabPageComponent":
-                    UpdateComponentLocal();
-                    UpdateComponentAll();
+                    if (SelectedTO == null)
+                    {
+                        _logger.Warning("Не выбрано TO. Обновление данных для вкладки невозможно.");
+                        return;
+                    }
+                    componentControl.SetParentTechOpetarionWork(SelectedTO);
                     SetComboBoxesVisibility(true, false);
                     break;
 
