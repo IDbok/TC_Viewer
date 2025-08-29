@@ -1336,7 +1336,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			// tabPageStaff
 			// 
-			tabPageStaff.Controls.Add(tlpnlStaff);
+			//tabPageStaff.Controls.Add(tlpnlStaff);
 			tabPageStaff.Location = new Point(4, 29);
 			tabPageStaff.Margin = new Padding(3, 2, 3, 2);
 			tabPageStaff.Name = "tabPageStaff";
