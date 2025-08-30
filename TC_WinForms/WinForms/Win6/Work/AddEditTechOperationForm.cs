@@ -30,6 +30,7 @@ namespace TC_WinForms.WinForms.Work
 		private RepeatExecutionControl repeatExecutionControl;
 		private ToolControl toolControl;
 		private ComponentControl componentControl;
+		private StaffControl staffControl;
         private readonly TcViewState _tcViewState;
         private List<TechOperation> allTO;
         private List<TechTransition> allTP;
@@ -65,51 +66,7 @@ namespace TC_WinForms.WinForms.Work
 
             InitializeComponent();
 
-			// Создать экземпляр
-			repeatExecutionControl = new RepeatExecutionControl(TechOperationForm.context, _tcViewState);//.GetAllExecutionWorks());
-			repeatExecutionControl.Dock = DockStyle.Fill;
-            _ = repeatExecutionControl.SetSearchBoxParamsAsync();
-
-			// Подписаться на событие
-			repeatExecutionControl.DataChanged += (s, e) =>
-            {
-                TechOperationForm.UpdateGrid();
-            };
-
-            // Добавить на вкладку
-            tabPageRepeat.Controls.Add(repeatExecutionControl);
-
-
-            componentControl = new ComponentControl(techOperationForm.context, _tcViewState);
-            componentControl.Dock = DockStyle.Fill;
-
-            componentControl.DataChanged += (s, e) =>
-            {
-                TechOperationForm.UpdateGrid();
-            };
-
-            componentControl.ComponentWorkDeleteRequested += (work, toolWork) =>
-            {
-                TechOperationForm.MarkToDeleteComponentWork(work, toolWork);
-            };
-
-            tabPageComponent.Controls.Add(componentControl);
-
-
-            toolControl = new ToolControl(techOperationForm.context, _tcViewState);
-            toolControl.Dock = DockStyle.Fill;
-
-            toolControl.DataChanged += (s, e) =>
-            {
-                TechOperationForm.UpdateGrid();
-            };
-
-            toolControl.ToolWorkDeleteRequested += (work, toolWork) =>
-            {
-                TechOperationForm.MarkToDeleteToolWork(work, toolWork);
-            };
-
-            tabPageTool.Controls.Add(toolControl);
+            InitializeTabPages();
 
             this.Text = $"{TechOperationForm.TehCarta.Name} ({TechOperationForm.TehCarta.Article}) - Редактор хода работ";
 
@@ -119,6 +76,17 @@ namespace TC_WinForms.WinForms.Work
             _logger.Information("Загрузка всех ТО и локальных ТО.");
             UpdateAllTO();
             UpdateLocalTO();
+        }
+
+        /// <summary>
+        /// Инициализирует и настраивает все вкладки формы
+        /// </summary>
+        private void InitializeTabPages()
+        {
+            InitializeRepeatExecutionTab();
+            InitializeComponentTab();
+            InitializeToolTab();
+            InitializeStaffTab();
         }
 
         private void SetupEventHandlers()
@@ -142,14 +110,6 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewTPLocal.RowHeightChanged += dataGridViewTPLocal_RowHeightChanged;
 
 
-            dataGridViewStaff.CellContentClick += DataGridViewStaff_CellContentClick;
-            dataGridViewStaff.CellClick += DataGridViewStaff_CellClick;
-            dataGridViewStaff.CellEndEdit += DataGridViewStaff_CellEndEdit;
-            dataGridViewStaff.CellBeginEdit += DataGridViewStaff_CellBeginEdit;
-            dataGridViewStaff.CellValidating += CellValidating;
-
-            dataGridViewStaffAll.CellClick += DataGridViewStaffAll_CellClick;
-
             dataGridViewAllSZ.CellClick += DataGridViewAllSZ_CellClick;
             dataGridViewLocalSZ.CellClick += DataGridViewLocalSZ_CellClick;
 
@@ -169,7 +129,6 @@ namespace TC_WinForms.WinForms.Work
             textBoxPoiskTP.TextChanged += TextBoxPoiskTP_TextChanged;
             textBoxPoiskSZ.TextChanged += TextBoxPoiskSZ_TextChanged;
             textBoxPoiskMach.TextChanged += TextBoxPoiskMach_TextChanged;
-            PoiskPersonal.TextChanged += TextBoxPersonalPoisk_TextChanged;
 
             comboBoxTPCategoriya.SelectedIndexChanged += ComboBoxTPCategoriya_SelectedIndexChanged;
             comboBoxTO.SelectedIndexChanged += ComboBoxTO_SelectedIndexChanged;
@@ -206,8 +165,6 @@ namespace TC_WinForms.WinForms.Work
             _logger.Information("Все события для элементов интерфейса настроены.");
         }
 
-        
-
         private void ComboBoxTT_SelectedIndexChanged(object? sender, EventArgs e)
         {
             HighlightTOTTRow(true);
@@ -217,8 +174,12 @@ namespace TC_WinForms.WinForms.Work
 			switch (tabControl1.SelectedTab.Name)
             {
                 case "tabPageStaff":
-                    UpdateGridStaff();
-                    UpdateGridStaffAll();
+                    if (SelectedTP == null)
+                    {
+                        _logger.Warning("Не выбрано TП. Обновление данных для вкладки невозможно.");
+                        return;
+                    }
+                    staffControl.SetParentExecutionWork(SelectedTP);
                     break;
                 case "tabPageProtection":
                     UpdateGridLocalSZ();
@@ -287,9 +248,8 @@ namespace TC_WinForms.WinForms.Work
 					_logger.Information("Вкладка ТП обновлена (список всех и локальных переходов).");
 					break;
 				case "tabPageStaff":
-					// Обновление данных для вкладки "Персонал"
-					UpdateGridStaff();
-					UpdateGridStaffAll();
+                    // Обновление данных для вкладки "Персонал"
+                    staffControl.RefreshAllData();
 					_logger.Information("Вкладка персонала обновлена (локальный и общий списки).");
 					break;
 				case "tabPageComponent":
@@ -1227,282 +1187,28 @@ namespace TC_WinForms.WinForms.Work
         #endregion
 
         #region Staff
-        private void DataGridViewStaff_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+
+
+        /// <summary>
+        /// Инициализирует вкладку персонала
+        /// </summary>
+        private void InitializeStaffTab()
         {
-            dataGridViewStaff.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            ClickDataGridViewStaff();
-        }
+            staffControl = new StaffControl(TechOperationForm.context, _tcViewState);
+            staffControl.Dock = DockStyle.Fill;
 
-        private void TextBoxPersonalPoisk_TextChanged(object? sender, EventArgs e)
-        {
-            UpdateStaffAll();
-        }
-
-        public void ClickDataGridViewStaff()
-        {
-			if (SelectedTP == null) return;
-
-			bool updateTO = false;
-            var AllStaff = TechOperationForm.TehCarta.Staff_TCs.ToList();
-            var LocalEw = SelectedTP;
-
-			foreach (DataGridViewRow row in dataGridViewStaff.Rows)
+            staffControl.DataChanged += (s, e) =>
             {
-                if (row?.Cells[0].Value is not Staff_TC staffInRow || row.Cells[2].Value is not bool isChecked)
-                    continue;
+                TechOperationForm.UpdateGrid();
+            };
 
-                var staffInEw = LocalEw.Staffs.SingleOrDefault(s => s == staffInRow);
-                if (isChecked && staffInEw == null)
-                {
-                    var addingStaff = AllStaff.SingleOrDefault(s => s == staffInRow);
-                    if (addingStaff == null)
-                    {
-                        _logger.Warning("Не удалось найти персонал с id {Id}", staffInRow.IdAuto);
-                        continue;
-                    }
-
-                    LocalEw.Staffs.Add(addingStaff);
-                    updateTO = true;
-                }
-                else if (!isChecked && staffInEw != null)
-                {
-                    var sta = LocalEw.Staffs.Remove(staffInEw);
-                    updateTO = true;
-                }
-            }
-
-            if (updateTO)
+            staffControl.StaffUpdateRequested += (executionWork, staffList) =>
             {
-                //TechOperationForm.UpdateGrid();// todo: заменить на обновление ячейки
-                TechOperationForm.UpdateStaffInRow(LocalEw, LocalEw.Staffs);
-            }
+                TechOperationForm.UpdateStaffInRow(executionWork, staffList);
+            };
 
+            tabPageStaff.Controls.Add(staffControl);
         }
-        private void DataGridViewStaff_CellBeginEdit(object? sender, DataGridViewCellCancelEventArgs e)
-        {
-            if (e.ColumnIndex == 2 && e.RowIndex >= 0)  // Проверка, что это столбец с чекбоксами
-            {
-                var staff_TC = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
-                var symbol = staff_TC.Symbol;
-                var EW = SelectedTP;
-                if (EW != null)
-                {
-                    var staffs = EW.Staffs.Where(w => w.Symbol == symbol).ToList();
-
-                    // Проверяем, есть ли уже такой символ среди выбранных
-                    if (staffs.Count >= 1 && (bool)dataGridViewStaff.Rows[e.RowIndex].Cells[2].Value == false)
-                    {
-                        MessageBox.Show("Роль с таким обозначением уже добавлена в переход");
-                        e.Cancel = true;
-                    }
-                }
-            }
-        }
-
-
-        private void DataGridViewStaff_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 3)
-            {
-                var vv = TechOperationForm.TehCarta.Staff_TCs;
-                var Idd = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
-                var value = (string)dataGridViewStaff.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
-                Idd.Symbol = value;
-
-                Task.Run(() =>
-                {
-                    this.BeginInvoke((Action)(() => UpdateGridStaff()));
-                });
-
-                TechOperationForm.UpdateGrid();// todo: заменить на обновление ячейки
-                                               //TechOperationForm.UpdateStaffInRow
-
-            }
-        }
-
-        private void DataGridViewStaffAll_CellClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-            {
-                _logger.LogUserAction($"Щелчок по ячейке добавить персонал в строке {e.RowIndex}.");
-
-                var idd = (Staff)dataGridViewStaffAll.Rows[e.RowIndex].Cells[0].Value;
-                var vv = TechOperationForm.TehCarta.Staff_TCs;
-
-                if (idd != null)
-                {
-                    Staff_TC staffTc = new Staff_TC();
-                    staffTc.Order = TechOperationForm.TehCarta.Staff_TCs.Count + 1;
-                    staffTc.Child = idd;
-                    staffTc.Symbol = " ";
-                    vv.Add(staffTc);
-
-                    _logger.Information("Добавление персонала: {Staff_TC} (symbol: {Synbol}, id: {Id})",
-                        staffTc.Symbol, staffTc.Child?.Name, staffTc.IdAuto);
-
-                    // TechOperationForm.TehCarta.Staff_TCs.Add(staffTc);
-                    Task.Run(() =>
-                    {
-                        this.BeginInvoke((Action)(() => UpdateGridStaff()));
-                    });
-                }
-
-            }
-        }
-
-
-        private void DataGridViewStaff_CellClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-            {
-                _logger.LogUserAction($"Щелчок по ячейке удаления персонала в строке {e.RowIndex}.");
-
-                var idd = (Staff_TC)dataGridViewStaff.Rows[e.RowIndex].Cells[0].Value;
-
-                if (idd != null)
-                {
-                    if (MessageBox.Show("Вы действительно хотите удалить данную роль из техкарты?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
-                    {
-                        _logger.Information("Удаление персонала: {Staff_TC} (symbol: {Synbol}, id: {Id})",
-                             idd.Symbol, idd.Child?.Name, idd.IdAuto);
-
-                        var vv = TechOperationForm.TehCarta.Staff_TCs;
-                        vv.Remove(idd);
-
-                        foreach (var techOperation in TechOperationForm.TechOperationWorksList)
-                        {
-                            foreach (var executionWork in techOperation.executionWorks)
-                            {
-                                var staffToDelete = executionWork.Staffs.Where(s => s.IdAuto == idd.IdAuto && s.ChildId == idd.ChildId).FirstOrDefault();
-                                if (staffToDelete != null)
-                                    executionWork.Staffs.Remove(staffToDelete);
-                            }
-                        }
-
-                        UpdateGridStaff();
-                        TechOperationForm.UpdateGrid();
-                    }
-                }
-            }
-        }
-
-
-
-
-        public void UpdateGridStaff()
-        {
-            var offScroll = dataGridViewStaff.FirstDisplayedScrollingRowIndex;
-            var ExecutionWorkBox = SelectedTP;
-            dataGridViewStaff.Rows.Clear();
-            if (ExecutionWorkBox == null)
-            {
-                return;
-            }
-
-            var work = SelectedTO;
-            var LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.FirstOrDefault(s => s.IdGuid == ExecutionWorkBox.IdGuid);
-
-            if (LocalTP == null)
-                LocalTP = TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.FirstOrDefault();
-
-            var AllStaff = TechOperationForm.TehCarta.Staff_TCs.OrderBy(x => x.Symbol);
-
-
-            foreach (Staff_TC staffTc in AllStaff)
-            {
-                List<object> listItem = new List<object>();
-                listItem.Add(staffTc);
-                listItem.Add("Удалить");
-
-                var vs = LocalTP.Staffs.SingleOrDefault(s => s == staffTc);
-                if (vs != null)
-                {
-                    listItem.Add(true);
-                }
-                else
-                {
-                    listItem.Add(false);
-                }
-
-                if (staffTc.Child == null)
-				{
-                    _logger.Warning("Не удалось найти персонал с id {Id}", staffTc.IdAuto);
-					continue;
-				}
-
-				listItem.Add(staffTc.Symbol);
-                listItem.Add(staffTc.Child.Name);
-                listItem.Add(staffTc.Child.Type);
-                listItem.Add(staffTc.Child.Functions);
-                listItem.Add(staffTc.Child.CombineResponsibility ?? "");
-                listItem.Add(staffTc.Child.Qualification);
-                listItem.Add(staffTc.Child.Comment ?? "");
-                dataGridViewStaff.Rows.Add(listItem.ToArray());
-            }
-
-            RestoreScrollPosition(dataGridViewStaff, offScroll);
-        }
-
-        public void UpdateStaffAll()
-        {
-            var offScroll = dataGridViewStaffAll.FirstDisplayedScrollingRowIndex;
-
-            var context = TechOperationForm.context;
-            AllStaff = context.Staffs.ToList();
-
-            dataGridViewStaffAll.Rows.Clear();
-
-            var filteredPersonal = FilterStaff(PoiskPersonal.Text);
-            foreach (Staff staff in filteredPersonal)
-            {
-                AddStuffToGridAllStaff(staff);
-            }
-
-            RestoreScrollPosition(dataGridViewStaffAll, offScroll);
-        }
-
-        public void UpdateGridStaffAll()
-        {
-            var ExecutionWorkBox = SelectedTP;
-
-            var context = TechOperationForm.context;
-            AllStaff = context.Staffs.ToList();
-
-            dataGridViewStaffAll.Rows.Clear();
-            if (ExecutionWorkBox == null)
-            {
-                return;
-            }
-
-            var filteredPersonal = FilterStaff(PoiskPersonal.Text);
-            foreach (Staff staff in filteredPersonal)
-            {
-                AddStuffToGridAllStaff(staff);
-            }
-        }
-
-        private void AddStuffToGridAllStaff(Staff staff)
-        {
-            List<object> staffRow = new List<object>
-                {
-                    staff,
-                    "Добавить",
-                    staff.Name,
-                    staff.Type,
-                    staff.Functions,
-                    staff.CombineResponsibility ?? "",
-                    staff.Qualification,
-                    staff.Comment ?? ""
-                };
-            dataGridViewStaffAll.Rows.Add(staffRow.ToArray());
-        }
-
-        private IEnumerable<Staff> FilterStaff(string searchText)
-        {
-            return AllStaff.Where(stf => string.IsNullOrEmpty(searchText) || stf.Name.ToLower().Contains(searchText.ToLower()));
-        }
-
 
         #endregion
 
@@ -1765,6 +1471,27 @@ namespace TC_WinForms.WinForms.Work
             componentControl.RefreshComponentDataLocal();
         }
 
+
+        /// <summary>
+        /// Инициализирует вкладку компонентов
+        /// </summary>
+        private void InitializeComponentTab()
+        {
+            componentControl = new ComponentControl(TechOperationForm.context, _tcViewState);
+            componentControl.Dock = DockStyle.Fill;
+
+            componentControl.DataChanged += (s, e) =>
+            {
+                TechOperationForm.UpdateGrid();
+            };
+
+            componentControl.ComponentWorkDeleteRequested += (work, toolWork) =>
+            {
+                TechOperationForm.MarkToDeleteComponentWork(work, toolWork);
+            };
+
+            tabPageComponent.Controls.Add(componentControl);
+        }
         #endregion
 
         #region Instument
@@ -1772,6 +1499,28 @@ namespace TC_WinForms.WinForms.Work
         public void UpdateInstrumentLocal()
         {
             toolControl.RefreshToolDataLocal();
+        }
+
+
+        /// <summary>
+        /// Инициализирует вкладку инструментов
+        /// </summary>
+        private void InitializeToolTab()
+        {
+            toolControl = new ToolControl(TechOperationForm.context, _tcViewState);
+            toolControl.Dock = DockStyle.Fill;
+
+            toolControl.DataChanged += (s, e) =>
+            {
+                TechOperationForm.UpdateGrid();
+            };
+
+            toolControl.ToolWorkDeleteRequested += (work, toolWork) =>
+            {
+                TechOperationForm.MarkToDeleteToolWork(work, toolWork);
+            };
+
+            tabPageTool.Controls.Add(toolControl);
         }
 
         #endregion
@@ -2035,6 +1784,24 @@ namespace TC_WinForms.WinForms.Work
 
         #region Повторить
 
+        /// <summary>
+        /// Инициализирует вкладку повторяющихся исполнений
+        /// </summary>
+        private void InitializeRepeatExecutionTab()
+        {
+            repeatExecutionControl = new RepeatExecutionControl(TechOperationForm.context, _tcViewState);
+            repeatExecutionControl.Dock = DockStyle.Fill;
+            _ = repeatExecutionControl.SetSearchBoxParamsAsync();
+
+            // Подписаться на событие
+            repeatExecutionControl.DataChanged += (s, e) =>
+            {
+                TechOperationForm.UpdateGrid();
+            };
+
+            // Добавить на вкладку
+            tabPageRepeat.Controls.Add(repeatExecutionControl);
+        }
         private void RecalculateExecutionWorkPovtorValue(ExecutionWork executionWorkPovtor)
         {
             if (!executionWorkPovtor.Repeat) return;
@@ -2165,9 +1932,12 @@ namespace TC_WinForms.WinForms.Work
                     break;
 
                 case "tabPageStaff":
-					//UpdateComboBoxTT(); // по моему обновление излишне, т.к. данный выбранного ТП не меняются
-					UpdateGridStaff();
-                    UpdateGridStaffAll();
+                    if (SelectedTP == null)
+                    {
+                        _logger.Warning("Не выбрано TП. Обновление данных для вкладки невозможно.");
+                        return;
+                    }
+                    staffControl.SetParentExecutionWork(SelectedTP);
                     SetComboBoxesVisibility(true, true);
                     break;
 
@@ -2192,7 +1962,6 @@ namespace TC_WinForms.WinForms.Work
                     break;
 
                 case "tabPageProtection":
-                    //UpdateComboBoxTT();
                     UpdateGridLocalSZ();
                     UpdateGridAllSZ();
                     SetComboBoxesVisibility(true, true);
@@ -2213,15 +1982,6 @@ namespace TC_WinForms.WinForms.Work
 					_ = repeatExecutionControl.SetParentExecutionWorkAsync(SelectedTP);
 					SetComboBoxesVisibility(false, false);
                     break;
-				//case "tabPageRepeatsAsInTc": //tabControl1.SelectedTab == tabPageRepeatsAsInTc
-				//	if (SelectedTP == null)
-				//	{
-				//		_logger.Warning("Не выбрано ТП. Обновление данных для вкладки невозможно.");
-				//		return;
-				//	}
-				//	_ = repeatAsInTcExecutionControl.SetParentExecutionWorkAsync(SelectedTP);
-				//	SetComboBoxesVisibility(false, false);
-				//	break;
 
 					// todo: добавить обработку по умолчанию, если требуется
 			}

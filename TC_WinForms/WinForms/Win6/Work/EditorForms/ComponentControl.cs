@@ -22,7 +22,7 @@ namespace TC_WinForms.WinForms.Win6.Work.EditorForms
     {
         #region Fields
 
-        private ILogger _logger = Log.Logger.ForContext<ToolControl>();
+        private ILogger _logger = Log.Logger.ForContext<ComponentControl>();
 
         private TechOperationWork? _parentTechOperatinWork = null;
         private readonly TcViewState _tcViewState;
