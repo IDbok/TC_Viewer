@@ -31,6 +31,7 @@ namespace TC_WinForms.WinForms.Work
 		private ToolControl toolControl;
 		private ComponentControl componentControl;
 		private StaffControl staffControl;
+        private ProtectionControl protectionControl;
         private readonly TcViewState _tcViewState;
         private List<TechOperation> allTO;
         private List<TechTransition> allTP;
@@ -87,6 +88,7 @@ namespace TC_WinForms.WinForms.Work
             InitializeComponentTab();
             InitializeToolTab();
             InitializeStaffTab();
+            InitializeProtectionTab();
         }
 
         private void SetupEventHandlers()
@@ -109,12 +111,7 @@ namespace TC_WinForms.WinForms.Work
             dataGridViewTPLocal.CellValidating += CellValidating;
             dataGridViewTPLocal.RowHeightChanged += dataGridViewTPLocal_RowHeightChanged;
 
-
-            dataGridViewAllSZ.CellClick += DataGridViewAllSZ_CellClick;
-            dataGridViewLocalSZ.CellClick += DataGridViewLocalSZ_CellClick;
-
             dataGridViewLocalSZ.CellValidating += CellValidating;
-            dataGridViewLocalSZ.CellContentClick += DataGridViewSZ_CellContentClick;
 
             dataGridViewEtap.CellEndEdit += DataGridViewEtap_CellEndEdit;
             dataGridViewEtap.CellContentClick += DataGridViewEtap_CellContentClick;
@@ -127,7 +124,6 @@ namespace TC_WinForms.WinForms.Work
 
             textBoxPoiskTo.TextChanged += TextBoxPoiskTo_TextChanged;
             textBoxPoiskTP.TextChanged += TextBoxPoiskTP_TextChanged;
-            textBoxPoiskSZ.TextChanged += TextBoxPoiskSZ_TextChanged;
             textBoxPoiskMach.TextChanged += TextBoxPoiskMach_TextChanged;
 
             comboBoxTPCategoriya.SelectedIndexChanged += ComboBoxTPCategoriya_SelectedIndexChanged;
@@ -182,8 +178,12 @@ namespace TC_WinForms.WinForms.Work
                     staffControl.SetParentExecutionWork(SelectedTP);
                     break;
                 case "tabPageProtection":
-                    UpdateGridLocalSZ();
-                    UpdateGridAllSZ();
+                    if (SelectedTP == null)
+                    {
+                        _logger.Warning("Не выбрано TП. Обновление данных для вкладки невозможно.");
+                        return;
+                    }
+                    protectionControl.SetParentExecutionWork(SelectedTP);
                     break;
             }
         }
@@ -205,6 +205,12 @@ namespace TC_WinForms.WinForms.Work
                     break;
                 case "tabPageStaff":
                     UpdateComboBoxTT();
+                    if (SelectedTP == null)
+                    {
+                        _logger.Warning("Не выбрано TП. Обновление данных для вкладки невозможно.");
+                        return;
+                    }
+                    staffControl.SetParentExecutionWork(SelectedTP);
                     break;
                 case "tabPageComponent":
                     componentControl.SetParentTechOpetarionWork(SelectedTO ?? TechOperationForm.TechOperationWorksList.First());
@@ -214,8 +220,12 @@ namespace TC_WinForms.WinForms.Work
                     break;
                 case "tabPageProtection":
                     UpdateComboBoxTT();
-                    UpdateGridLocalSZ();
-                    UpdateGridAllSZ();//чтобы обновлялся список добавленных в ТО СЗ
+                    if (SelectedTP == null)
+                    {
+                        _logger.Warning("Не выбрано TП. Обновление данных для вкладки невозможно.");
+                        return;
+                    }
+                    protectionControl.SetParentExecutionWork(SelectedTP);
                     break;
             }
 
@@ -263,9 +273,8 @@ namespace TC_WinForms.WinForms.Work
                     _logger.Information("Вкладка инструментов обновлена (локальный и общий списки).");
 					break;
 				case "tabPageProtection":
-					// Обновление данных для вкладки "Средства защиты"
-					UpdateGridLocalSZ();
-					UpdateGridAllSZ();
+                    // Обновление данных для вкладки "Средства защиты"
+                    protectionControl.RefreshAllData();
 					_logger.Information("Вкладка средств защиты обновлена (локальный и общий списки).");
 					break;
 				case "tabPageStage":
@@ -1214,253 +1223,24 @@ namespace TC_WinForms.WinForms.Work
 
         #region средства защиты
 
-        private void DataGridViewSZ_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+        private void InitializeProtectionTab()
         {
-            dataGridViewLocalSZ.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            ClickDataGridViewSZ();
-        }
-        private void ClickDataGridViewSZ()
-        {
-            bool updateTO = false;
-            var allSZ = TechOperationForm.TehCarta.Protection_TCs.ToList();
-            var localEw = SelectedTP;
+            protectionControl = new ProtectionControl(TechOperationForm.context, _tcViewState);
+            protectionControl.Dock = DockStyle.Fill;
 
-            foreach (DataGridViewRow row in dataGridViewLocalSZ.Rows)
+            protectionControl.DataChanged += (s, e) =>
             {
-                if (row?.Cells[0].Value is not Protection_TC protectionInRow || row.Cells[2].Value is not bool isChecked)
-                    continue;
+                TechOperationForm.UpdateGrid();
+            };
 
-                var selectedProtection = localEw.Protections.SingleOrDefault(p => p == protectionInRow);
-
-                if (isChecked && selectedProtection == null)
-                {
-                    var szFromAll = allSZ.SingleOrDefault(s => s == protectionInRow);
-
-                    if (szFromAll == null)
-                    {
-                        _logger.Warning("Не удалось найти СЗ с ParentId:{ParentId}, ChildId:{ChildId}", protectionInRow.ParentId, protectionInRow.ChildId);
-                        continue;
-                    }
-
-                    localEw.Protections.Add(szFromAll);
-                    updateTO = true;
-                }
-                else if (!isChecked && selectedProtection != null)
-                {
-                    localEw.Protections.Remove(selectedProtection);
-                    updateTO = true;
-                }
-            }
-
-            if (updateTO)
+            protectionControl.ProtectionUpdateRequested += (executionWork, protectionList) =>
             {
-                //TechOperationForm.UpdateGrid();
-                TechOperationForm.UpdateProtectionsInRow(localEw, localEw.Protections);
-            }
-        }
-        private void TextBoxPoiskSZ_TextChanged(object? sender, EventArgs e)
-        {
-            UpdateGridAllSZ();
-        }
-        public void UpdateGridAllSZ()
-        {
-            var offScroll = dataGridViewAllSZ.FirstDisplayedScrollingRowIndex;
-            dataGridViewAllSZ.Rows.Clear();
+                TechOperationForm.UpdateProtectionsInRow(executionWork, protectionList);
+            };
 
-            var work = SelectedTP;
-
-            if (work == null)
-            {
-                return;
-            }
-
-            // TechOperationForm.HighlightExecutionWorkRow(work, true);
-
-            var context = TechOperationForm.context;
-
-            var protection = context.Protections.ToList();
-            var LocalTP = work.Protections.ToList();
-
-            var Allsz = TechOperationForm.TehCarta.Protection_TCs.ToList();
-
-            //todo: удалить за ненадобностью, изменен формат работы с СЗ
-            //foreach (Protection_TC prot in Allsz)
-            //{
-            //    if (textBoxPoiskSZ.Text != "" &&
-            //        prot.Child.Name.ToLower().IndexOf(textBoxPoiskSZ.Text.ToLower()) == -1)
-            //    {
-            //        continue;
-            //    }
-
-
-            //    if (LocalTP.SingleOrDefault(s => s.Child == prot.Child) != null)
-            //    {
-            //        continue;
-            //    }
-
-
-            //    List<object> listItem = new List<object>
-            //    {
-            //        prot.Child,
-            //        "Добавить",
-            //        prot.Child.Name,
-            //        prot.Child.Type,
-            //        prot.Child.Unit,
-            //        prot.Quantity
-            //    };
-
-            //    dataGridViewAllSZ.Rows.Add(listItem.ToArray());
-            //}
-
-
-            foreach (Protection prot in protection)
-            {
-                if (textBoxPoiskSZ.Text != "" &&
-                    prot.Name.ToLower().IndexOf(textBoxPoiskSZ.Text.ToLower()) == -1)
-                {
-                    continue;
-                }
-
-                if (LocalTP.SingleOrDefault(s => s.Child == prot) != null)
-                {
-                    continue;
-                }
-
-                if (Allsz.SingleOrDefault(s => s.Child == prot) != null)
-                {
-                    continue;
-                }
-
-                List<object> listItem = new List<object>
-                {
-                    prot,
-                    "Добавить",
-                    prot.Name,
-                    prot.Type,
-                    prot.Unit,
-                    ""
-                };
-                dataGridViewAllSZ.Rows.Add(listItem.ToArray());
-            }
-
-            RestoreScrollPosition(dataGridViewAllSZ, offScroll);
+            tabPageProtection.Controls.Add(protectionControl);
         }
 
-        public void UpdateGridLocalSZ()
-        {
-            var offScroll = dataGridViewLocalSZ.FirstDisplayedScrollingRowIndex;
-
-            dataGridViewLocalSZ.Rows.Clear();
-
-            var LocalTP = SelectedTP; // TechOperationForm.TechOperationWorksList.Single(s => s == work).executionWorks.Single(s => s.IdGuid == ExecutionWorkBox.IdGuid);
-
-            if (LocalTP == null)
-            {
-                return;
-            }
-
-            var AllSZ = TechOperationForm.TehCarta.Protection_TCs.OrderBy(x => x.Order).ToList();
-
-            foreach (Protection_TC protection_TC in AllSZ)
-            {
-                List<object> listItem = new List<object>();
-                listItem.Add(protection_TC);
-                listItem.Add("Удалить");
-
-                var vs = LocalTP.Protections.SingleOrDefault(s => s == protection_TC);
-                if (vs != null)
-                    listItem.Add(true);
-                else
-                    listItem.Add(false);
-
-                listItem.Add(protection_TC.Child.Name);
-                listItem.Add(protection_TC.Child.Type);
-                listItem.Add(protection_TC.Child.Unit);
-                listItem.Add(protection_TC.Quantity);
-
-                dataGridViewLocalSZ.Rows.Add(listItem.ToArray());
-            }
-
-            RestoreScrollPosition(dataGridViewLocalSZ, offScroll);
-            dataGridViewLocalSZ.AutoResizeRows();
-        }
-
-        private void DataGridViewAllSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-            {
-                _logger.LogUserAction($"Щелчок по ячейке добавить СЗ в строке {e.RowIndex}.");
-
-                var work = SelectedTP;
-                var Idd = (Protection)dataGridViewAllSZ.Rows[e.RowIndex].Cells[0].Value;
-
-                var tehCardProtections = TechOperationForm.TehCarta.Protection_TCs;
-                var orderMax = 0;
-                var tc = work.techOperationWork.technologicalCard;
-
-                var list = tc.Protection_TCs.ToList();
-
-                if (list.Count > 0)
-                {
-                    orderMax = list.Max(m => m.Order);
-                }
-
-                Protection_TC protectionTc = new Protection_TC();
-                protectionTc.Child = Idd;
-                protectionTc.ParentId = TechOperationForm._tcId;
-                protectionTc.Parent = tc;
-                protectionTc.Quantity = 1;
-                protectionTc.Order = orderMax + 1;
-
-
-                tehCardProtections.Add(protectionTc);
-
-                _logger.Information("Добавление СЗ: {Protection_TC} (id: {Id})",
-                    protectionTc.Child.Name, protectionTc.Child);
-
-                UpdateGridAllSZ();
-                UpdateGridLocalSZ();
-            }
-        }
-
-        private void DataGridViewLocalSZ_CellClick(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-            {
-                _logger.LogUserAction($"Щелчок по ячейке удаления СЗ в строке {e.RowIndex}.");
-
-                var idd = (Protection_TC)dataGridViewLocalSZ.Rows[e.RowIndex].Cells[0].Value;
-
-                if (idd != null)
-                {
-                    var result = MessageBox.Show("Вы действительно хотите полностью удалить данное СЗ из техкарты?", "Удалить СЗ", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
-                    if (result == DialogResult.Yes)
-                    {
-                        var techCart = TechOperationForm.TehCarta.Protection_TCs;
-                        techCart.Remove(idd);
-
-                        _logger.Information("Удаление СЗ: {Protection_TC} (id: {Id})",
-                            idd.Child.Name, idd.Child);
-
-
-                        foreach (var techOperation in TechOperationForm.TechOperationWorksList)
-                        {
-                            foreach (var executionWork in techOperation.executionWorks)
-                            {
-                                var protectionToDelete = executionWork.Protections.Where(s => s.ChildId == idd.ChildId).FirstOrDefault();
-                                if (protectionToDelete != null)
-                                    executionWork.Protections.Remove(protectionToDelete);
-                            }
-
-                        }
-
-                        UpdateGridLocalSZ();
-                        UpdateGridAllSZ();
-                        TechOperationForm.UpdateGrid();
-                    }
-                }
-            }
-        }
 
         #endregion
 
@@ -1962,8 +1742,12 @@ namespace TC_WinForms.WinForms.Work
                     break;
 
                 case "tabPageProtection":
-                    UpdateGridLocalSZ();
-                    UpdateGridAllSZ();
+                    if (SelectedTP == null)
+                    {
+                        _logger.Warning("Не выбрано TП. Обновление данных для вкладки невозможно.");
+                        return;
+                    }
+                    protectionControl.SetParentExecutionWork(SelectedTP);
                     SetComboBoxesVisibility(true, true);
                     break;
 

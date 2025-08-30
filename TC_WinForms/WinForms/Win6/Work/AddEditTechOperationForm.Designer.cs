@@ -1559,7 +1559,7 @@ namespace TC_WinForms.WinForms.Work
 			// 
 			// tabPageProtection
 			// 
-			tabPageProtection.Controls.Add(tlpnlProtections);
+			//tabPageProtection.Controls.Add(tlpnlProtections);
 			tabPageProtection.Location = new Point(4, 29);
 			tabPageProtection.Margin = new Padding(3, 2, 3, 2);
 			tabPageProtection.Name = "tabPageProtection";
